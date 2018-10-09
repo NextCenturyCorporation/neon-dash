@@ -22,53 +22,53 @@
                 "name": "Media Viewer",
                 "type": "mediaViewer",
                 "icon": "mediaViewer",
-                "sizex": 12,
+                "sizex": 6,
                 "sizey": 7.7,
                 "bindings": {
                     "title": "Consumer Groups",
                     "url": "http://localhost:8081"
                 },
                 "row": 13,
-                "col": 0
+                "col": 1
             },
             {
                 "name": "Media Viewer",
                 "type": "mediaViewer",
                 "icon": "mediaViewer",
-                "sizex": 12,
+                "sizex": 6,
                 "sizey": 7.7,
                 "bindings": {
                     "title": "Active Topic Visualization",
                     "url": "http://localhost:8081/#/activetopicsviz"
                 },
                 "row": 13,
-                "col": 13
+                "col": 7
             },
             {
                 "name": "Media Viewer",
                 "type": "mediaViewer",
                 "icon": "mediaViewer",
-                "sizex": 12,
+                "sizex": 6,
                 "sizey": 7.7,
                 "bindings": {
                     "title": "Raw Data Viewer",
                     "url": "http://localhost:8081/#/group/com.ncc.verdi.feed.RawDataInput/verdi_send_notice"
                 },
-                "row": 0,
-                "col": 0
+                "row": 1,
+                "col": 1
             },
             {
                 "name": "Media Viewer",
                 "type": "mediaViewer",
                 "icon": "mediaViewer",
-                "sizex": 12,
+                "sizex": 6,
                 "sizey": 7.7,
                 "bindings": {
                     "title": "Mock TA1 Viewer",
                     "url": "http://localhost:8081/#/group/com.ncc.verdi.algorithm.MockTA1/verdi_raw_data"
                 },
-                "row": 0,
-                "col": 13
+                "row": 1,
+                "col": 7
             }
         ]
     }

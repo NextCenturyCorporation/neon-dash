@@ -81,7 +81,7 @@ export class ColorSchemeService {
             new Color(77, 175, 74),
             new Color(152, 78, 163),
             new Color(255, 127, 0),
-            new Color(255, 255, 51),
+            new Color(96, 69, 20),
             new Color(166, 86, 40),
             new Color(247, 129, 191),
             new Color(153, 153, 153)
@@ -293,7 +293,7 @@ export class Color {
      * @return {string}
      */
     getInactiveRgba(): string {
-        return this.toRgba(0.3);
+        return this.toRgba(0.2);
     }
 
     /**

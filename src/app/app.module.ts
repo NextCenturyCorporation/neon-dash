@@ -13,17 +13,17 @@
  * limitations under the License.
  *
  */
-import { AppMaterialModule } from './app.material.module';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
-import { MatAutocompleteModule } from '@angular/material';
+
+import 'hammerjs';
+
 import { NgGridModule } from 'angular2-grid';
-import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 import { ActiveGridService } from './services/active-grid.service';
 import { ColorSchemeService } from './services/color-scheme.service';
@@ -43,11 +43,10 @@ import { AboutNeonComponent } from './components/about-neon/about-neon.component
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AppComponent } from './app.component';
+import { AggregationComponent } from './components/aggregation/aggregation.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { ChartComponent } from './components/chart/chart.component';
 import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
-import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
-import { CustomConnectionSimpleSetupStepComponent } from './components/custom-connection/simple-setup.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
@@ -60,31 +59,34 @@ import { LegendComponent } from './components/legend/legend.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components/map/map.component';
 import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
-import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
-import { NewsFeedComponent } from './components/news-feed/news-feed.component';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
-import { NgxGraphModule } from '@swimlane/ngx-graph';
-import { QueryBarComponent } from './components/query-bar/query-bar.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
-import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
-import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component';
 import { TaxonomyViewerComponent } from './components/taxonomy-viewer/taxonomy-viewer.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
-import {
-    ThumbnailDetailsContractedComponent,
-    ThumbnailDetailsExpandedComponent
-} from './components/thumbnail-grid/thumbnail-details.component';
-import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-grid.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
-import { TreeModule } from 'angular-tree-component';
 import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
 import { WikiViewerComponent } from './components/wiki-viewer/wiki-viewer.component';
 
-import 'hammerjs';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { AppMaterialModule } from './app.material.module';
+import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
+import { NgxGraphModule } from '@swimlane/ngx-graph';
+import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-grid.component';
+import {
+    ThumbnailDetailsContractedComponent,
+    ThumbnailDetailsExpandedComponent
+} from './components/thumbnail-grid/thumbnail-details.component';
+import { NewsFeedComponent } from './components/news-feed/news-feed.component';
+
+import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
+import { CustomConnectionSimpleSetupStepComponent } from './components/custom-connection/simple-setup.component';
+import { MatAutocompleteModule } from '@angular/material';
+import { QueryBarComponent } from './components/query-bar/query-bar.component';
 
 export function getAppConfig() {
     /* tslint:disable:no-string-literal */
@@ -98,6 +100,7 @@ export function getAppConfig() {
         AddVisualizationComponent,
         AnnotationViewerComponent,
         AppComponent,
+        AggregationComponent,
         BarChartComponent,
         ChartComponent,
         ConfigEditorComponent,
@@ -122,7 +125,6 @@ export function getAppConfig() {
         ScatterPlotComponent,
         SimpleFilterComponent,
         SnackBarComponent,
-        StackedTimelineComponent,
         TaxonomyViewerComponent,
         TextCloudComponent,
         ThumbnailDetailsContractedComponent,

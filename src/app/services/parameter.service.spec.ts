@@ -13,31 +13,99 @@
  * limitations under the License.
  *
  */
-import { TestBed, inject } from '@angular/core/testing';
-import { ParameterService } from './parameter.service';
-import { ErrorNotificationService } from './error-notification.service';
-import { DatasetService } from './dataset.service';
+import { inject } from '@angular/core/testing';
 import { ConnectionService } from './connection.service';
+import { DatasetService } from './dataset.service';
+import { ErrorNotificationService } from './error-notification.service';
 import { FilterService } from './filter.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
+import { ParameterService } from './parameter.service';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 describe('Service: Parameter', () => {
-
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let service;
 
     initializeTestBed({
         providers: [
             ParameterService,
-            ErrorNotificationService,
-            DatasetService,
             ConnectionService,
+            DatasetService,
+            ErrorNotificationService,
             FilterService,
-            { provide: 'config', useValue: testConfig }
+            { provide: 'config', useValue: new NeonGTDConfig() }
         ]
     });
 
-    it('should ...', inject([ParameterService], (service: ParameterService) => {
-        expect(service).toBeTruthy();
+    beforeEach(inject([ParameterService], (parameterService) => {
+        service = parameterService;
+        service.parameters = {};
     }));
+
+    it('findActiveDatasetInUrl does return expected value', () => {
+        expect(service.findActiveDatasetInUrl()).toBeUndefined();
+        service.parameters = {
+            dataset: 'dataset1'
+        };
+        expect(service.findActiveDatasetInUrl()).toEqual('dataset1');
+    });
+
+    it('findDashboardStateIdInUrl does return expected value', () => {
+        expect(service.findDashboardStateIdInUrl()).toBeUndefined();
+        service.parameters = {
+            dashboard_state_id: 'state1'
+        };
+        expect(service.findDashboardStateIdInUrl()).toEqual('state1');
+    });
+
+    it('findFilterStateIdInUrl does return expected value', () => {
+        expect(service.findFilterStateIdInUrl()).toBeUndefined();
+        service.parameters = {
+            filter_state_id: 'state2'
+        };
+        expect(service.findFilterStateIdInUrl()).toEqual('state2');
+    });
+
+    it('findParameters does return expected object', () => {
+        expect(service.findParameters('')).toEqual({});
+        expect(service.findParameters('?')).toEqual({});
+        expect(service.findParameters('?key1=value1')).toEqual({
+            key1: 'value1'
+        });
+        expect(service.findParameters('?key1=value1&key2=value2&key3=value3')).toEqual({
+            key1: 'value1',
+            key2: 'value2',
+            key3: 'value3'
+        });
+    });
+
+    it('removeStateParameters does work as expected', () => {
+        service.removeStateParameters();
+        expect(service.parameters).toEqual({});
+
+        service.parameters = {
+            dashboard_state_id: 'state1',
+            filter_state_id: 'state2',
+            other_key: 'other_value'
+        };
+        service.removeStateParameters();
+        expect(service.parameters).toEqual({
+            other_key: 'other_value'
+        });
+    });
+
+    it('updateStateParameters does work as expected', () => {
+        service.updateStateParameters('state1', 'state2');
+        expect(service.parameters).toEqual({
+            dashboard_state_id: 'state1',
+            filter_state_id: 'state2'
+        });
+
+        service.parameters.other_key = 'other_value';
+        service.updateStateParameters('state3', 'state4');
+        expect(service.parameters).toEqual({
+            dashboard_state_id: 'state3',
+            filter_state_id: 'state4',
+            other_key: 'other_value'
+        });
+    });
 });

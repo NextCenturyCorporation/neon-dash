@@ -4,8 +4,8 @@
         <span class="detail-percentage">{{ thumbnailGrid.getThumbnailPercent(item) }}</span>
     </p>
 </div>
-<canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"
-        (click)="thumbnailGrid.displayMediaTab(item)" [class.selectable]="thumbnailGrid.isSelectable()"
-        [class.selected]="thumbnailGrid.isSelected(item)">
-</canvas>
-
+<div (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)">
+    <canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"
+            (click)="thumbnailGrid.displayMediaTab(item)">
+    </canvas>
+</div>

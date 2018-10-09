@@ -97,6 +97,29 @@
                 </mat-button-toggle-group>
                 <p></p>
 
+                <mat-form-field>
+                    <mat-select placeholder="Color Field" [(ngModel)]="options.colorField" required="false"
+                            (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Heatmap Field" [(ngModel)]="options.heatmapField" required="false"
+                            (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <div mat-fill class="flex center" *ngIf="options.heatmapField.columnName">
+                    <mat-form-field>
+                        <input matInput placeholder="Heatmap Divisor" [(ngModel)]="options.heatmapDivisor" required="false">
+                    </mat-form-field>
+                </div>
+                <p></p>
+
                 <span class="toggle-text">Ignore Own Filters:</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [disabled]="!options.filterable" [(ngModel)]="options.ignoreSelf" (ngModelChange)="handleFiltersChangedEvent()">
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>

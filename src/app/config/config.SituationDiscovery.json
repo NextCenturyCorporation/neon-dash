@@ -45,7 +45,7 @@
                 "name": "Filter Builder",
                 "type": "filterBuilder",
                 "icon": "CreateFilter64",
-                "sizex": 11,
+                "sizex": 5,
                 "sizey": 3,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -58,14 +58,14 @@
                     "database": "haiti_4",
                     "table": "ui_output"
                 },
-                "row": 0,
-                "col": 0
+                "row":10,
+                "col": 1
             },
             {
                 "name": "Map",
                 "type": "map",
                 "icon": "Map64",
-                "sizex": 11,
+                "sizex": 5,
                 "sizey": 9,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -132,13 +132,13 @@
                 },
                 "id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
                 "row": 4,
-                "col": 0
+                "col": 1
             },
             {
                 "name": "Timeline",
                 "type": "timeline",
                 "icon": "Timeline64",
-                "sizex": 11,
+                "sizex": 5,
                 "sizey": 4,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -155,13 +155,13 @@
                 },
                 "id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
                 "row": 17,
-                "col": 0
+                "col": 1
             },
             {
                 "name": "Bar Chart",
                 "type": "barChart",
                 "icon": "BarChart64",
-                "sizex": 5,
+                "sizex": 2,
                 "sizey": 6,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -179,27 +179,27 @@
                     "chartType": "horizontalBar"
                 },
                 "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-                "row": 0,
-                "col": 12
+                "row": 1,
+                "col": 6
             },
             {
                 "name": "Media Viewer",
                 "type": "mediaViewer",
                 "icon": "mediaViewer",
-                "sizex": 5,
+                "sizex": 2,
                 "sizey": 10,
                 "bindings": {
                     "title": "Media Viewer",
                     "url": "http://localhost:8081"
                 },
                 "row": 8,
-                "col": 12
+                "col": 6
             },
             {
 				"name": "Data Table",
 				"type": "dataTable",
 				"icon": "ViewData64",
-				"sizex": 8,
+				"sizex": 4,
 				"sizey": 6,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -214,14 +214,14 @@
 					"sortField": "",
 					"limit": "100"
 				},
-				"row": 0,
-				"col": 17
+				"row": 1,
+				"col": 9
             },
             {
                 "name": "Annotation Viewer",
                 "type": "annotationViewer",
                 "icon": "documentViewer64",
-                "sizex": 8,
+                "sizex": 4,
                 "sizey": 10,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -240,7 +240,7 @@
                     "typeField": "annotations.type"
                 },
                 "row": 7,
-                "col": 17
+                "col": 9
             }            
         ]
     },
