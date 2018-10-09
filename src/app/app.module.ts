@@ -168,8 +168,15 @@ export function getAppConfig() {
             useFactory: getAppConfig
         }
     ],
-    entryComponents: [AppComponent, AddVisualizationComponent, CustomConnectionComponent, DocumentViewerSingleItemComponent,
-        FilterTrayComponent, SnackBarComponent, ConfigEditorComponent],
+    entryComponents: [
+        AppComponent,
+        AddVisualizationComponent,
+        CustomConnectionComponent,
+        DocumentViewerSingleItemComponent,
+        FilterTrayComponent,
+        SnackBarComponent,
+        ConfigEditorComponent
+    ],
     bootstrap: [AppComponent]
 })
 
