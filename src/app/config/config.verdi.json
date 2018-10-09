@@ -359,7 +359,7 @@
                     "isDirected": true
                 },
                 "row": 13,
-                "col": 6
+                "col": 7
             },
             {
                 "name": "Filter Builder",
@@ -480,7 +480,7 @@
                     "aggregate": true
                 },
                 "row": 7,
-                "col": 8
+                "col": 9
             },
             {
                 "name": "Network Graph",
@@ -572,7 +572,7 @@
                     }
                 },
                 "row": 13,
-                "col": 21
+                "col": 11
             },
             {
                 "name": "Filter Builder",
@@ -706,7 +706,7 @@
                     "edgeColorField": ""
                 },
                 "row": 2,
-                "col": 3
+                "col": 4
             },
             {
                 "name": "Thumbnail Grid",
