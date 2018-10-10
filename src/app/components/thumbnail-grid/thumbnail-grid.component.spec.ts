@@ -2202,9 +2202,8 @@ describe('Component: ThumbnailGrid with config', () => {
 
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'configFilter', useValue: {lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
-            { provide: 'database', useValue: 'testDatabase2' },
+            { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'limit', useValue: 10 },
-            { provide: 'table', useValue: 'testTable2' },
             { provide: 'title', useValue: 'Test Title' }
         ],
         imports: [

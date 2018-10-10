@@ -91,8 +91,7 @@ describe('Component: NetworkGraph', () => {
             ColorSchemeService,
             { provide: 'config', useValue: testConfig },
             { provide: 'title', useValue: 'NetworkGraph with Config Title' },
-            { provide: 'database', useValue: 'NetworkGraphDatabase' },
-            { provide: 'table', useValue: 'testTable' },
+            { provide: 'tableKey', useValue: 'testTableKey' },
             { provide: 'nodeField', useValue: 'testNodeField' },
             { provide: 'linkField', useValue: 'testLinkField' },
             { provide: 'limit', useValue: 'testLimit' }

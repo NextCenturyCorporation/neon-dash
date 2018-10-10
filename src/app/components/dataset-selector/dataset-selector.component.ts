@@ -149,7 +149,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
                 Object.keys(nestedChoices).forEach((nestedChoiceKey) => {
                     let nextChoice = nestedChoices[nestedChoiceKey];
-                    let keyToUse = dashboard.prettyName + ': ' + choice.prettyName + ' ' + nextChoice.prettyName;
+                    let keyToUse = dashboard.prettyName + ' ' + choice.prettyName + ' ' + nextChoice.prettyName;
                     finalDashboards[keyToUse] = nextChoice;
                 });
             });

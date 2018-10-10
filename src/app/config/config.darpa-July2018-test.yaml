@@ -5,7 +5,7 @@ datastores:
     es1:
         host: localhost
         type: elasticsearch
-        connectOnLoad: true
+        connectOnLoad: true # TODO: 825: does this need to be moved?
         databases:
             ldc_uyg_jul_18:
                 prettyName: Uyghur LDC, July 2018
@@ -45,9 +45,11 @@ datastores:
                             terrorism: Terrorism
                             regimechange: Regime Change
                         mappings:
-                        date: createDate
+                            date: createDate
         options:
             checkForCoordinateValidation: null_values
+            # TODO: 825: move/restructure simpleFilter or entire options out so that
+            # we can specify config for multiple databases instead of just one
             simpleFilter:
                 databaseName: ldc_uyg_jul_18
                 tableName: ui_out
@@ -67,9 +69,9 @@ dashboards:
                         # TODO: 825: temporary reference to datastore
                         datastore: es1
                         tables:
-                            table_key_1: es_1.ldc_uyg_jul_18.ui_out
+                            table_key_1: es1.ldc_uyg_jul_18.ui_out
                         fields:
-                            field_key_1: es_1.ldc_uyg_jul_18.ui_out.originalText
+                            field_key_1: es1.ldc_uyg_jul_18.ui_out.originalText
                         options:
                             # TODO: 825: perhaps make options here later if needed
                             test: someValue
