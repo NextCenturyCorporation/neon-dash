@@ -1645,13 +1645,12 @@ describe('Component: Sample with config', () => {
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
-            { provide: 'database', useValue: 'testDatabase2' },
+            { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'limit', useValue: 1234 },
             { provide: 'sampleOptionalField', useValue: 'testNameField' },
             { provide: 'sampleRequiredField', useValue: 'testCategoryField' },
             { provide: 'sortDescending', useValue: true },
             { provide: 'subcomponentType', useValue: 'Impl2' },
-            { provide: 'table', useValue: 'testTable2' },
             { provide: 'title', useValue: 'Test Title' }
         ],
         imports: [
