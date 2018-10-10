@@ -96,7 +96,8 @@ export class DatasetServiceMock extends DatasetService {
             layout: 'DISCOVERY',
             datastore: 'datastore1',
             tables: {
-                table_key_1: 'datastore1.testDatabase2.testTable2'
+                table_key_1: 'datastore1.testDatabase1.testTable1',
+                table_key_2: 'datastore1.testDatabase2.testTable2'
             },
             fields: {},
             options: {}

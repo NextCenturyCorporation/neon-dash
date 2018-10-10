@@ -371,7 +371,7 @@ describe('Component: BaseNeonOptions with config', () => {
             VisualizationService,
             ErrorNotificationService,
             { provide: 'config', useValue: testConfig },
-            { provide: 'tableKey', useValue: 'table_key_1'},
+            { provide: 'tableKey', useValue: 'table_key_2'},
             { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
             { provide: 'customEventsToPublish', useValue: [ { id: 'testPublishId', fields: [ { field: 'testPublishField',
                 label: 'testPublishLabel' } ] } ] },
