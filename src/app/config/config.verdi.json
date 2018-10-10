@@ -180,7 +180,6 @@
             "connectOnLoad": true,
             "layout": "verdi-taxonomy",
             "datastore": "elasticsearch",
-            "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases": [
                 {
@@ -801,6 +800,9 @@
                     "database": "verdi-support",
                     "table": "parent_children",
                     "idField": "id",
+                    "flagSubLabel1": "parent_uid",
+                    "flagSubLabel2": "download_date",
+                    "flagSubLabel3": "dtyp",
                     "linkField": "url",
                     "dateField": "download_date",
                     "objectNameField": "",
@@ -884,29 +886,33 @@
                     "nodeShape" : "box",
                     "linkField": "edgeTarget",
                     "linkNameField": "edgeLabel",
-                    "nodeColor": ["#ADD8E6", "#DF9F9F", "#FFDA99", "#FFFFEF"],
+                    "nodeColor": "",
                     "linkColor": "#D1C2F0",
                     "edgeColor": "#63B4CF",
                     "xPositionField" : "x",
                     "yPositionField" : "y",
-                    "categoryField" : "categories",
-                    "categoryList" : ["EVENT", "RELATION"],
                     "typeField" : "types",
                     "isReified": false,
                     "isDirected": true,
                     "showOnlyFiltered": false,
                     "physics": false,
-                    "filterFields": ["docIds"],
+                    "filterFields": ["kbid"],
                     "idField": "@id",
                     "id": "_id",
                     "filterable": true,
                     "multiFilter": true,
-                    "multiFilterOperator": "and",
-                    "edgeColorField": ""
+                    "multiFilterOperator": "or",
+                    "displayLegend" : true,
+                    "nodeColorField": "categories",
+                    "edgeColorField": "",
+                    "cleanLegendLabels": true,
+                    "setColorScheme" : true,
+                    "legendFiltering" : false
                 },
                 "row": 0,
                 "col": 9
             }
+
         ]
     }
 }
