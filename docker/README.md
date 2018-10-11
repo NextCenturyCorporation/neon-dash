@@ -95,7 +95,7 @@ In addition do the build arguments there is also a `--squash` flag at the end. T
 #### Execute the build
 
 Once you have updated all the build arguments with your appropriate values, execute the script with `./build.sh`
-If you have any issues during the build, please refer to the [Known](#Known-issues) section.
+If you have any issues during the build, please refer to the [Known Issues](#Known-Issues) section.
 
 ## Starting the container
 
@@ -160,7 +160,7 @@ docker run -d -p 2222:22 -p 8080:8080 -p 8888:8888 -p 9200:9200 --name lorelei n
 
 #### Build Issues
 
-The Lorelei Docker build has a few known issues that for the most part or caused from network latency. This build will take an average of **15 minutes**. If at any time the build fails during execution, just restart the build by calling hte `./build.sh` script and Docker will pick up at the point of the last failure. It is not necessary to remove the image and rebuild from scratch. 
+The Lorelei Docker build has a few known issues that for the most part usually due to network latency. This build will take an average of **15 minutes**. If at any time the build fails during execution, just restart the build by calling the `./build.sh` script and Docker will resume at the point of the last failure. It is not necessary to remove the image and rebuild from scratch. 
 
 Below are some example issues that you may see during the build that can be resolved by re-running the build.sh script.
 
