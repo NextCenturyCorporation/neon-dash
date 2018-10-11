@@ -18,6 +18,7 @@ import { ComponentFactoryResolver } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
+import { AggregationComponent } from '../aggregation/aggregation.component';
 import { AnnotationViewerComponent } from '../annotation-viewer/annotation-viewer.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { DataTableComponent } from '../data-table/data-table.component';
@@ -30,7 +31,6 @@ import { MapComponent } from '../map/map.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
 import { SampleComponent } from '../sample/sample.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
-import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
@@ -54,9 +54,10 @@ describe('Component: VisualizationInjector', () => {
 
     initializeTestBed({
         declarations: [
+            AggregationComponent,
             AnnotationViewerComponent,
-            ChartComponent,
             BarChartComponent,
+            ChartComponent,
             DataTableComponent,
             DocumentViewerComponent,
             ExportControlComponent,
@@ -70,7 +71,6 @@ describe('Component: VisualizationInjector', () => {
             QueryBarComponent,
             SampleComponent,
             ScatterPlotComponent,
-            StackedTimelineComponent,
             TextCloudComponent,
             ThumbnailDetailsContractedComponent,
             ThumbnailDetailsExpandedComponent,

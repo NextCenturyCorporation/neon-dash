@@ -55,8 +55,8 @@ export class AddVisualizationComponent implements OnInit {
             this.dialogRef.close();
         }
 
-         this.snackBar.open('Visualization Added', '🗙', {
-            duration: 60000,
+         this.snackBar.open('Visualization Added', 'x', {
+            duration: 5000,
             verticalPosition: 'top',
             panelClass: ['simpleSnackBar']
          });

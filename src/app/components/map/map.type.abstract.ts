@@ -49,6 +49,7 @@ export class MapPoint {
 
 export interface FilterListener {
     filterByLocation(box: BoundingBoxByDegrees);
+    filterByMapPoint(lat: number, lng: number);
 }
 
 export abstract class AbstractMap {

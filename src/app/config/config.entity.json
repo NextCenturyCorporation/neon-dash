@@ -50,7 +50,7 @@
 				"name": "Filter Builder",
 				"type": "filterBuilder",
 				"icon": "CreateFilter64",
-				"sizex": 16,
+				"sizex": 8,
 				"sizey":3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -63,14 +63,14 @@
 					"database": "ll_nepal_simplified",
 					"table": "entity_res"
 				},
-				"row": 0,
-				"col": 0
+				"row": 1,
+				"col": 1
 			},
 					{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
+				"sizex": 3,
 				"sizey": 5,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -86,13 +86,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row":4,
-				"col": 0
+				"col": 1
 			},
 		{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
+				"sizex": 2,
 				"sizey": 5,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -108,12 +108,12 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 4,
-				"col": 6
+				"col": 3
 			},		{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
+				"sizex": 2,
 				"sizey": 5,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -129,13 +129,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 10,
-				"col": 9
+				"col": 5
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 8,
+				"sizex": 4,
 				"sizey": 6,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -154,7 +154,7 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 10,
-				"col": 0
+				"col": 1
 			}
 		]
 	},

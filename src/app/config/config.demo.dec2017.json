@@ -305,7 +305,7 @@
 				"name": "Filter Builder",
 				"type": "filterBuilder",
 				"icon": "CreateFilter64",
-				"sizex": 12,
+				"sizex": 6,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -318,14 +318,14 @@
 					"database": "ldc_uyghur_3",
 					"table": "ui_output"
 				},
-				"row": 0,
-				"col": 0
+				"row": 1,
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -353,13 +353,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 4,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -386,13 +386,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 8,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -408,13 +408,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 4,
-				"col": 5
+				"col": 2
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -430,13 +430,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 4,
-				"col": 9
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -452,13 +452,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 8,
-				"col": 5
+				"col": 3
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -474,13 +474,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 8,
-				"col": 9
+				"col": 5
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 7,
+				"sizex": 4,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -556,14 +556,14 @@
 					"mapType": "cesium"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-				"row": 0,
-				"col": 13
+				"row": 1,
+				"col": 7
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 7,
+				"sizex": 4,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -580,13 +580,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 9,
-				"col": 13
+				"col": 7
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 5,
+				"sizex": 2,
 				"sizey": 11,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -634,8 +634,8 @@
 					],
 					"limit": 50
 				},
-				"row": 0,
-				"col": 20
+				"row": 1,
+				"col": 10
 			},
 			{
 				"name": "Scatter Plot",
@@ -646,7 +646,7 @@
 				"gridItemConfig": {
 					"col": 1,
 					"row": 1,
-					"sizex": 10,
+					"sizex": 5,
 					"sizey": 8,
 					"dragHandle": null,
 					"resizeHandle": null,
@@ -655,10 +655,10 @@
 					"resizable": true,
 					"borderSize": 25
 				},
-				"sizex": 10,
+				"sizex": 5,
 				"sizey": 8,
 				"row": 12,
-				"col": 0,
+				"col": 1,
 				"bindings": {
 					"title": "Scatter Plot",
 					"database": "ldc_data_xy",
@@ -677,7 +677,7 @@
 				"name": "Filter Builder",
 				"type": "filterBuilder",
 				"icon": "CreateFilter64",
-				"sizex": 12,
+				"sizex": 6,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -690,14 +690,14 @@
 					"database": "elisa_uyghur_2",
 					"table": "ui_output"
 				},
-				"row": 0,
-				"col": 0
+				"row": 1,
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -725,13 +725,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 4,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -758,13 +758,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 8,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -780,13 +780,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 4,
-				"col": 5
+				"col": 2
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -804,13 +804,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 4,
-				"col": 9
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -826,13 +826,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 8,
-				"col": 5
+				"col": 2
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -848,13 +848,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 8,
-				"col": 9
+				"col": 5
 			},
 			{
 				"name": "Event Locations",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 7,
+				"sizex": 3,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -921,14 +921,14 @@
 					"mapType": "cesium"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-				"row": 0,
-				"col": 13
+				"row": 1,
+				"col": 7
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 7,
+				"sizex": 4,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -945,13 +945,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 9,
-				"col": 13
+				"col": 7
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 5,
+				"sizex": 2,
 				"sizey": 11,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1004,15 +1004,15 @@
 					],
 					"limit": 50
 				},
-				"row": 0,
-				"col": 20
+				"row": 1,
+				"col": 10
 			}
 		],
 		"grace_uig-layout": [{
 				"name": "Filter Builder",
 				"type": "filterBuilder",
 				"icon": "CreateFilter64",
-				"sizex": 12,
+				"sizex": 6,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1025,14 +1025,14 @@
 					"database": "ebola_data_2",
 					"table": "ui_output"
 				},
-				"row": 0,
-				"col": 0
+				"row": 1,
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1060,13 +1060,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 4,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1093,13 +1093,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 8,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1115,13 +1115,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 4,
-				"col": 5
+				"col": 3
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1137,13 +1137,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 4,
-				"col": 9
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1159,13 +1159,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 8,
-				"col": 5
+				"col": 3
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1181,13 +1181,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 8,
-				"col": 9
+				"col": 5
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 7,
+				"sizex": 4,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1261,14 +1261,14 @@
 					"mapType": "cesium"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-				"row": 0,
-				"col": 13
+				"row": 1,
+				"col": 7
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 7,
+				"sizex": 4,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1285,13 +1285,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 9,
-				"col": 13
+				"col": 7
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 5,
+				"sizex": 2,
 				"sizey": 11,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1335,15 +1335,15 @@
 					],
 					"limit": 50
 				},
-				"row": 0,
-				"col": 20
+				"row": 1,
+				"col": 10
 			}
 		],
 		"ariel_uig-layout": [{
 				"name": "Filter Builder",
 				"type": "filterBuilder",
 				"icon": "CreateFilter64",
-				"sizex": 12,
+				"sizex": 6,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1356,14 +1356,14 @@
 					"database": "ariel_uyghur_1",
 					"table": "ui_output"
 				},
-				"row": 0,
-				"col": 0
+				"row": 1,
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1391,13 +1391,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 4,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1424,13 +1424,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 8,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1446,13 +1446,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 4,
-				"col": 5
+				"col": 3
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1468,13 +1468,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 4,
-				"col": 9
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1490,13 +1490,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 8,
-				"col": 5
+				"col": 3
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1512,13 +1512,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 8,
-				"col": 9
+				"col": 5
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 7,
+				"sizex": 3,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1592,14 +1592,14 @@
 					"mapType": "cesium"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-				"row": 0,
-				"col": 13
+				"row": 1,
+				"col": 7
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 7,
+				"sizex": 3,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1616,13 +1616,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 9,
-				"col": 13
+				"col": 7
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 5,
+				"sizex": 2,
 				"sizey": 11,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1666,15 +1666,15 @@
 					],
 					"limit": 50
 				},
-				"row": 0,
-				"col": 20
+				"row": 1,
+				"col": 10
 			}
 		],
 		"ebola-layout": [{
 				"name": "Filter Builder",
 				"type": "filterBuilder",
 				"icon": "CreateFilter64",
-				"sizex": 12,
+				"sizex": 6,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1687,14 +1687,14 @@
 					"database": "ebola_data_2",
 					"table": "ui_output"
 				},
-				"row": 0,
-				"col": 0
+				"row": 1,
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1722,13 +1722,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 4,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1755,13 +1755,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 8,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1777,13 +1777,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 4,
-				"col": 5
+				"col": 3
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1799,13 +1799,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 4,
-				"col": 9
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1821,13 +1821,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 8,
-				"col": 5
+				"col": 3
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1843,13 +1843,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 8,
-				"col": 9
+				"col": 5
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 7,
+				"sizex": 4,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1923,14 +1923,14 @@
 					"mapType": "cesium"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-				"row": 0,
-				"col": 13
+				"row": 1,
+				"col": 7
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 7,
+				"sizex": 3,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1947,13 +1947,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 9,
-				"col": 13
+				"col": 7
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 5,
+				"sizex": 2,
 				"sizey": 11,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1997,15 +1997,15 @@
 					],
 					"limit": 50
 				},
-				"row": 0,
-				"col": 20
+				"row": 1,
+				"col": 10
 			}
 		],
 		"nepal-layout": [{
 				"name": "Filter Builder",
 				"type": "filterBuilder",
 				"icon": "CreateFilter64",
-				"sizex": 12,
+				"sizex": 6,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2018,14 +2018,14 @@
 					"database": "nepal_3",
 					"table": "ui_output"
 				},
-				"row": 0,
-				"col": 0
+				"row": 1,
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2053,13 +2053,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 4,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2086,13 +2086,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 8,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2108,13 +2108,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 4,
-				"col": 5
+				"col": 3
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2130,13 +2130,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 4,
-				"col": 9
+				"col": 4
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2152,13 +2152,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 8,
-				"col": 5
+				"col": 3
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2174,13 +2174,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 8,
-				"col": 9
+				"col": 5
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 7,
+				"sizex": 3,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2253,14 +2253,14 @@
 					"mapType": "cesium"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-				"row": 0,
-				"col": 13
+				"row": 1,
+				"col": 7
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 7,
+				"sizex": 3,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2277,13 +2277,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 9,
-				"col": 13
+				"col": 7
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 5,
+				"sizex": 2,
 				"sizey": 11,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2327,15 +2327,15 @@
 					],
 					"limit": 50
 				},
-				"row": 0,
-				"col": 20
+				"row": 1,
+				"col": 10
 			}
 		],
 		"haiti-layout": [{
 				"name": "Filter Builder",
 				"type": "filterBuilder",
 				"icon": "CreateFilter64",
-				"sizex": 12,
+				"sizex": 6,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2348,14 +2348,14 @@
 					"database": "haiti_4",
 					"table": "ui_output"
 				},
-				"row": 0,
-				"col": 0
+				"row": 1,
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2383,13 +2383,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 3,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2416,13 +2416,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 8,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2438,13 +2438,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 3,
-				"col": 5
+				"col": 2
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2460,13 +2460,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 3,
-				"col": 9
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2482,13 +2482,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 7,
-				"col": 5
+				"col": 3
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 4,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2504,13 +2504,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 7,
-				"col": 9
+				"col": 5
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 7,
+				"sizex": 4,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2592,14 +2592,14 @@
 					"hoverPopupEnabled": true
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-				"row": 0,
-				"col": 13
+				"row": 1,
+				"col": 6
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 7,
+				"sizex": 3,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2616,13 +2616,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 9,
-				"col": 13
+				"col": 7
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 5,
+				"sizex": 2,
 				"sizey": 11,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2666,8 +2666,8 @@
 					],
 					"limit": 50
 				},
-				"row": 0,
-				"col": 20
+				"row": 1,
+				"col": 10
 			}
 		]
 	},
