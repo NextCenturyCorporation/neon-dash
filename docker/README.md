@@ -138,9 +138,9 @@ Navigate to `http://localhost:8888/lorelei` and verify that Lorelei UI is proper
 
 #### Other validation
 
-Neon Index: `http://localhost:8888/neon`
-Geoserver:  `http://localhost:8080/geoserver`
-sshd     :  `ssh root@localhost -p2222`
+ - Neon Index: `http://localhost:8888/neon`
+ - Geoserver:  `http://localhost:8080/geoserver`
+ - sshd     :  `ssh root@localhost -p2222`
 
 ## Commit new Docker image
 
