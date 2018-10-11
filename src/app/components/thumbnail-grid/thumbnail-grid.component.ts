@@ -174,8 +174,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     public isLoading: boolean = false;
     public showGrid: boolean;
     public mediaTypes: any = MediaTypes;
-    public borderOn: boolean;
-    public borderColor: string;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
         filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -186,7 +184,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         this.options = new ThumbnailGridOptions(this.injector, this.datasetService, 'Thumbnail Grid', 30);
         this.showGrid = !this.options.showOnlyFiltered;
-        this.borderOn = !!this.options.border;
     }
 
     /**
@@ -353,7 +350,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         }
 
         if (this.gridArray.length <= this.options.limit) {
-            return 'Total Items ' + super.prettifyInteger(this.gridArray.length);
+            return 'Total ' + super.prettifyInteger(this.gridArray.length);
         }
 
         let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1),
@@ -391,7 +388,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.pagingGrid = this.gridArray.slice(offset,
             Math.min(this.page * this.options.limit, this.gridArray.length));
         this.showGrid = true;
-        this.options.border = this.borderOn ? this.borderColor : '';
         this.refreshVisualization();
         this.createMediaThumbnail();
         this.thumbnailGrid.nativeElement.scrollTop = 0;
@@ -862,71 +858,51 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             }
 
             // TODO Move this to a separate function and unit test all behavior.
+            let borderColor = '';
             if (this.options.border) {
                 switch (this.options.border) {
                     case 'percentField': {
                         if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
                             let percentFloat = parseFloat(percentage);
-                            if (percentFloat >= this.options.borderPercentThreshold) {
-                                this.borderColor = 'blue';
-                            } else {
-                                this.borderColor = 'red';
-                            }
+                            borderColor = ((percentFloat > this.options.borderPercentThreshold) ? 'blue' : 'red');
                         } else {
-                            this.borderColor = 'grey';
+                            borderColor = 'grey';
                         }
-
-                        thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' +
-                            this.borderColor);
                         break;
                     }
                     case 'percentCompare': {
                         if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
                             let percentFloat = parseFloat(percentage);
-                            if ((percentFloat >= this.options.borderPercentThreshold && comparison === this.options.borderCompareValue) ||
+                            if ((percentFloat > this.options.borderPercentThreshold && comparison === this.options.borderCompareValue) ||
                                 (percentFloat < this.options.borderPercentThreshold && comparison !== this.options.borderCompareValue)) {
-                                this.borderColor = 'blue';
+                                borderColor = 'blue';
                             } else {
-                                this.borderColor = 'red';
+                                borderColor = 'red';
                             }
                         } else {
-                            this.borderColor = 'grey';
+                            borderColor = 'grey';
                         }
-
-                        thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' +
-                            this.borderColor);
                         break;
                     }
                     case 'valueCompare': {
-                        if (comparison === this.options.borderCompareValue) {
-                            this.borderColor = 'blue';
-                        } else {
-                            this.borderColor = 'red';
-                        }
-                        thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' +
-                            this.borderColor);
+                        borderColor = ((comparison === this.options.borderCompareValue) ? 'blue' : 'red');
                         break;
                     }
                     default: {
-                        this.borderColor = 'grey';
-                        thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' +
-                            this.borderColor);
+                        borderColor = 'grey';
                     }
-
                 }
             } else if (objectId && categoryId) {
-                if (objectId === categoryId) {
-                    this.borderColor = 'blue';
-                } else {
-                    this.borderColor = 'red';
-                }
-                thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' + this.borderColor);
-            } else if (this.borderOn) {
-                this.borderColor = this.borderColor ? this.borderColor : 'grey';
-                thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' + this.borderColor);
-            } else if (!this.options.border && thumbnail.canvas.getAttribute('class').includes('border-mat-')) {
+                borderColor = ((objectId === categoryId) ? 'blue' : 'red');
+            }
+
+            if (thumbnail.canvas.getAttribute('class').includes('border-mat-')) {
                 thumbnail.canvas.setAttribute('class',
                     thumbnail.canvas.getAttribute('class').replace(thumbnail.canvas.getAttribute('class').split(' ').pop(), ''));
+            }
+
+            if (borderColor) {
+                thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' + borderColor);
             }
         });
     }
