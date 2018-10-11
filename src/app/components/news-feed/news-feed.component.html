@@ -54,7 +54,7 @@
                 <p></p>
 
                 <mat-form-field>
-                     <mat-select placeholder="Actual ID Field" [(ngModel)]="options.objectIdField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                     <mat-select placeholder="ID Field" [(ngModel)]="options.idField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                          <mat-option [value]="emptyField">(None)</mat-option>
                          <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                      </mat-select>
@@ -62,7 +62,7 @@
                  <p></p>
 
                  <mat-form-field>
-                     <mat-select placeholder="Actual Name Field" [(ngModel)]="options.objectNameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                     <mat-select placeholder="Link Field" [(ngModel)]="options.linkField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                          <mat-option [value]="emptyField">(None)</mat-option>
                          <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                      </mat-select>
@@ -70,7 +70,7 @@
                  <p></p>
 
                  <mat-form-field>
-                     <mat-select placeholder="Category Field" [(ngModel)]="options.categoryField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                     <mat-select placeholder="Date Field" [(ngModel)]="options.dateField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                          <mat-option [value]="emptyField">(None)</mat-option>
                          <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                      </mat-select>
@@ -86,7 +86,7 @@
                  <p></p>
 
                  <mat-form-field>
-                     <mat-select placeholder="ID Field" [(ngModel)]="options.idField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                     <mat-select placeholder="PrimaryTitleField Field" [(ngModel)]="options.primaryTitleField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                          <mat-option [value]="emptyField">(None)</mat-option>
                          <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                      </mat-select>
@@ -94,30 +94,14 @@
                  <p></p>
 
                  <mat-form-field>
-                     <mat-select placeholder="Link Field" [(ngModel)]="options.linkField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                     <mat-select placeholder="Secondary Title Field" [(ngModel)]="options.secondaryTitleField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                          <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                      </mat-select>
                  </mat-form-field>
                  <p></p>
 
                  <mat-form-field>
-                     <mat-select placeholder="Name Field" [(ngModel)]="options.nameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                         <mat-option [value]="emptyField">(None)</mat-option>
-                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                     </mat-select>
-                 </mat-form-field>
-                 <p></p>
-
-                 <mat-form-field>
-                     <mat-select placeholder="Predicted Name Field" [(ngModel)]="options.predictedNameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                         <mat-option [value]="emptyField">(None)</mat-option>
-                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                     </mat-select>
-                 </mat-form-field>
-                 <p></p>
-
-                 <mat-form-field>
-                     <mat-select placeholder="Predicted Probability Field" [(ngModel)]="options.percentField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                     <mat-select placeholder="Content Field" [(ngModel)]="options.contentField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                          <mat-option [value]="emptyField">(None)</mat-option>
                          <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                      </mat-select>
@@ -126,14 +110,6 @@
 
                  <mat-form-field>
                      <mat-select placeholder="Sort Field" [(ngModel)]="options.sortField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                     </mat-select>
-                 </mat-form-field>
-                 <p></p>
-
-                 <mat-form-field>
-                     <mat-select placeholder="Type Field" [(ngModel)]="options.typeField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                         <mat-option [value]="emptyField">(None)</mat-option>
                          <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                      </mat-select>
                  </mat-form-field>
