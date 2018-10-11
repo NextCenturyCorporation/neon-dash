@@ -219,6 +219,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
             visualizationService
         );
 
+        console.warn('The scatter-plot component is deprecated.  Please use the aggregation component with type=scatter-xy.');
+
         this.options = new ScatterPlotOptions(this.injector, this.datasetService, 'Scatter Plot', 1000);
 
         this.onHover = this.onHover.bind(this);
@@ -357,18 +359,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
                   prettyName: header.prettyName
               };
           });
-    }
-
-    /**
-     * returns -1 if cannot be found
-     */
-    getPointXLocationByIndex(chart, index): number {
-        let dsMeta = chart.controller.getDatasetMeta(0);
-        if (dsMeta.data.length > index) {
-            let pointMeta = dsMeta.data[index];
-            return pointMeta.getCenterPoint().x;
-        }
-        return -1;
     }
 
     forcePosInsideChart(pos, min, max) {

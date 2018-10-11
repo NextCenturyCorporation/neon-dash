@@ -4,7 +4,7 @@
 
         <span class="fill-remaining"></span>
 
-        <button mat-icon-button aria-label="Add" matTooltip="Add New Clause" tooltip-position="below" (click)="addBlankWhereClause()">
+        <button mat-icon-button aria-label="Add" matTooltip="Add New Clause" tooltip-position="below" (click)="addBlankFilterClause()">
             <mat-icon>add_circle</mat-icon>
         </button>
 
@@ -13,14 +13,10 @@
             <mat-icon>delete_sweep</mat-icon>
         </button>
 
-        <mat-button-toggle-group #operatorToggle="matButtonToggleGroup" [(ngModel)]="andOr" (change)="handleChangeAndOr()"
+        <mat-button-toggle-group #operatorToggle="matButtonToggleGroup" [(ngModel)]="options.requireAll" (change)="updateFilters()"
                 class="neon-button-toggle-group-small">
-            <mat-button-toggle value="and">
-                AND
-            </mat-button-toggle>
-            <mat-button-toggle value="or">
-                OR
-            </mat-button-toggle>
+            <mat-button-toggle [value]="true">AND</mat-button-toggle>
+            <mat-button-toggle [value]="false">OR</mat-button-toggle>
         </mat-button-toggle-group>
     </mat-toolbar>
 
@@ -61,18 +57,15 @@
                     </mat-form-field>
 
                     <mat-form-field class="neon-form-field-flex-5 neon-form-field">
-                        <input matInput placeholder="Value" [(ngModel)]="clause.value" (input)="handleChangeDataOfClause(clause)" (keyup.enter)="activateClause(clause)">
+                        <input matInput placeholder="Value" [(ngModel)]="clause.value" (input)="handleChangeDataOfClause(clause)"
+                                (keyup.enter)="toggleClause(clause)">
                     </mat-form-field>
                 </div>
 
                 <div class="clause-button-container">
-                    <button mat-icon-button class="neon-icon-button clause-button" (click)="activateClause(clause)"
-                            [disabled]="!validateClause(clause)" matTooltip="Update Filter" tooltip-position="below" *ngIf="!clause.active">
-                        <mat-icon class="neon-icon">refresh</mat-icon>
-                    </button>
-
-                    <button mat-icon-button class="neon-icon-button clause-button active" (click)="activateClause(clause)"
-                            matTooltip="Filter is Active" tooltip-position="below" *ngIf="clause.active">
+                    <button mat-icon-button class="neon-icon-button clause-button" [class.active]="clause.active"
+                            [matTooltip]="'Filter is ' + (clause.active ? 'On' : 'Off') + ' (Click to Toggle)'" tooltip-position="below"
+                            [disabled]="!validateClause(clause)" (click)="toggleClause(clause)">
                         <mat-icon class="neon-icon">check_circle</mat-icon>
                     </button>
 

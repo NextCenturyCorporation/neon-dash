@@ -1,0 +1,8 @@
+#!/bin/bash
+
+
+# Uncomment if you want to debug the entrypoint.sh script
+#sudo docker run -v ~/Desktop/data:/usr/local/geoserver/data --name lorelei -it -p 2222:22 -p 8080:8080 -p 9200:9200 lorelei
+
+sudo docker run -v ~/Desktop/data:/usr/local/geoserver/data --name lorelei -d -p 2222:22 -p 8080:8080 -p 9200:9200 lorelei
+

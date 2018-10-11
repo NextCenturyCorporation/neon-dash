@@ -173,6 +173,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         filterName: string
     }[] = [];
 
+    protected filterHistory = new Array();
+
     public options: MapOptions;
 
     public docCount: number[] = [];
@@ -379,10 +381,38 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         this.addLocalFilter(localFilters);
         for (let i = 0; i < localFilters.fieldsByLayer.length; i++) {
             let neonFilters = this.filterService.getFiltersByOwner(this.id);
-            let neonFilter = this.createNeonFilter(this.filterBoundingBox, localFilters.fieldsByLayer[i].latitude,
+            let neonFilter = this.createNeonBoxFilter(this.filterBoundingBox, localFilters.fieldsByLayer[i].latitude,
                 localFilters.fieldsByLayer[i].longitude);
 
             if (neonFilters && neonFilters.length) {
+                this.filterHistory.push(neonFilters[0]);
+                localFilters.id = neonFilters[0].id;
+                this.replaceNeonFilter(i, true, localFilters, neonFilter);
+            } else {
+                this.addNeonFilter(i, true, localFilters, neonFilter);
+            }
+        }
+    }
+
+    filterByMapPoint(lat: number, lon: number) {
+        let fieldsByLayer = this.options.layers.map((layer) => {
+            return {
+                latitude: layer.latitudeField.columnName,
+                longitude: layer.longitudeField.columnName,
+                prettyLatitude: layer.latitudeField.prettyName,
+                prettyLongitude: layer.longitudeField.prettyName
+            };
+        });
+        let localLayerName = 'latitude equals ' + lat + ' and longitude equals ' + lon;
+        let localFilters = this.createFilter(fieldsByLayer, localLayerName);
+        this.addLocalFilter(localFilters);
+        for (let i = 0; i < localFilters.fieldsByLayer.length; i++) {
+            let neonFilters = this.filterService.getFiltersByOwner(this.id);
+            let neonFilter = this.createNeonPointFilter(lat, lon, localFilters.fieldsByLayer[i].latitude,
+                localFilters.fieldsByLayer[i].longitude);
+
+            if (neonFilters && neonFilters.length) {
+                this.filterHistory.push(neonFilters[0]);
                 localFilters.id = neonFilters[0].id;
                 this.replaceNeonFilter(i, true, localFilters, neonFilter);
             } else {
@@ -423,7 +453,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @arg {string} longitudeField
      * @return {neon.query.WherePredicate}
      */
-    createNeonFilter(boundingBox: BoundingBoxByDegrees, latitudeField: string, longitudeField: string): neon.query.WherePredicate {
+    createNeonBoxFilter(boundingBox: BoundingBoxByDegrees, latitudeField: string, longitudeField: string): neon.query.WherePredicate {
         let filterClauses = [
             neon.query.where(latitudeField, '>=', boundingBox.south),
             neon.query.where(latitudeField, '<=', boundingBox.north),
@@ -431,6 +461,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             neon.query.where(longitudeField, '<=', boundingBox.east)
         ];
         return neon.query.and.apply(neon.query, filterClauses);
+    }
+
+    createNeonPointFilter(lat: number, lon: number, latitudeField: string, longitudeField: string): neon.query.WherePredicate {
+        return neon.query.and(
+            neon.query.where(latitudeField, '=', lat),
+            neon.query.where(longitudeField, '=', lon)
+        );
     }
 
     /**
@@ -603,6 +640,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                     unique.colorField, unique.colorValue
                 ));
         });
+        mapPoints.sort((a, b) => b.count - a.count);
         return mapPoints;
     }
 
@@ -626,6 +664,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             return;
         }
 
+        //check if colorField was not defines or (None)
+        if (this.options.layers[layerIndex].colorField.columnName === '') {
+            this.options.singleColor = true;
+        } else {
+            this.options.singleColor = false;
+        }
+
         let layer = this.options.layers[layerIndex],
             mapPoints = this.getMapPoints(
                 layer.longitudeField.columnName,
@@ -638,11 +683,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         for (let currentLayer of this.options.layers) {
             this.mapObject.unhideAllPoints(currentLayer);
         }
-        this.disabledSet = [] as [string[]];
 
         this.mapObject.clearLayer(layer);
         this.mapObject.addPoints(mapPoints, layer, this.options.clustering === 'clusters');
 
+        this.filterMapForLegend();
         this.updateLegend();
         this.runDocumentCountQuery(layerIndex);
     }
@@ -658,6 +703,21 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             }
         }
         this.colorByFields = colorByFields;
+    }
+
+    /**
+     * Filters out the disabledSets from the legend after QuerySucess (keeps the disabled sets after a filter is set)
+     */
+    filterMapForLegend() {
+        for (let disabledField of this.disabledSet) {
+            let fieldName = disabledField[0];
+            let value = disabledField[1];
+            for (let layer of this.options.layers) {
+                if (layer.colorField.columnName === fieldName) {
+                    this.mapObject.hidePoints(layer, value);
+                }
+            }
+        }
     }
 
     // This allows the map to function if the config file is a little off, i.e. if point isn't a flat dict;
@@ -698,7 +758,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             return;
         }
 
-        let hashCode = geohash.encode(lat, lng),
+        let hashCode = geohash.encode(lat, lng) + ' - ' + colorValue,
             obj = map.get(hashCode);
 
         if (!obj) {
@@ -844,6 +904,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * Removes the map component filter and neon filter.
      */
     handleRemoveFilter(filter: any): void {
+        let neonFilters = this.filterService.getFiltersByOwner(this.id);
+        this.filterHistory.push(neonFilters[0]);
         for (let i = 0; i < this.options.layers.length; i++) {
             this.removeLocalFilterFromLocalAndNeon(i, filter, true, false);
         }
