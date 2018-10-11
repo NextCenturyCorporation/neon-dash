@@ -14,14 +14,15 @@
  *
  */
 import {
-    Component,
-    OnInit,
-    ViewEncapsulation,
     ChangeDetectionStrategy,
-    ViewChild,
-    Input,
+    Component,
+    ElementRef,
     EventEmitter,
-    Output
+    Input,
+    OnInit,
+    Output,
+    ViewChild,
+    ViewEncapsulation
 } from '@angular/core';
 import { ColorSchemeService, ColorSet } from '../../services/color-scheme.service';
 
@@ -54,13 +55,18 @@ export class LegendComponent implements OnInit {
      * If this list is populated, it will be used over the disabledList
      */
     @Input() disabledSets: [string[]];
+
+    /**
+     * Switch for adding or removing filtering capability for the legend
+     */
+    @Input() filteringOn: boolean = true;
     /**
      * Event triggered when an item in the legend has been selected.
      * The event includes the field name, value, and a boolean if the value is currently selected
      */
     @Output() itemSelected = new EventEmitter<{fieldName: string, value: string, currentlyActive: boolean}>();
 
-    @ViewChild('menu') menu: any;
+    @ViewChild('menu') menu: ElementRef;
 
     public menuIcon: string;
     public colorSets: ColorSet[] = [];
@@ -97,7 +103,7 @@ export class LegendComponent implements OnInit {
 
     getColorFor(colorSet: ColorSet, key: string): string {
         let color = colorSet.getColorForValue(key);
-        return this.isDisabled(colorSet.name, key) ? color.getInactiveRgba() : color.toRgb();
+        return color.toRgb();
     }
 
     /**
@@ -112,7 +118,8 @@ export class LegendComponent implements OnInit {
             value: key,
             currentlyActive: !this.isDisabled(setName, key)
         });
-        $event.stopPropagation();
+        this.stopPropagation($event);
+
     }
 
     /**
@@ -141,11 +148,21 @@ export class LegendComponent implements OnInit {
         return this.disabledList && this.disabledList.indexOf(key) >= 0;
     }
 
-    getIcon(colorSet: ColorSet, key: string): string {
-        if (this.isDisabled(colorSet.name, key)) {
+    getIcon(setName: string, key: string): string {
+        if (!this.filteringOn) {
+            return 'stop';
+        } else if (this.isDisabled(setName, key)) {
             return 'check_box_outline_blank';
         } else {
             return 'check_box';
+        }
+    }
+
+    getTextDecoration(setName: string, key: string): string {
+        if (this.isDisabled(setName, key)) {
+            return 'line-through';
+        } else {
+            return '';
         }
     }
 
@@ -155,5 +172,9 @@ export class LegendComponent implements OnInit {
 
     onMenuClose() {
         this.menuIcon = 'keyboard_arrow_down';
+    }
+
+    stopPropagation($event) {
+        $event.stopPropagation();
     }
 }
