@@ -202,11 +202,6 @@ RUN \
   npm install elasticdump -g
 
 #-------------------------------------------------------------
-# Start Supervisor 
-#-------------------------------------------------------------
-RUN /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
-
-#-------------------------------------------------------------
 # Populate Elasitcsearch with THOR_DATA 
 #-------------------------------------------------------------
 ENV ES_THOR_DATA $ELASTICSEARCH_HOME/thor_data
@@ -299,7 +294,7 @@ RUN cp target/lorelei.war $CATALINA_HOME/webapps/lorelei.war
 RUN rm -rf $LORELEI_HOME
 
 #-------------------------------------------------------------
-# Install GeoServer 2.12.x
+# Install GeoServer 2.14.0
 #-------------------------------------------------------------
 ENV GEOSERVER_HOME $INST_HOME/geoserver
 ENV PATH $GEOSERVER_HOME/bin:$PATH
@@ -349,6 +344,6 @@ COPY ["scripts/entrypoint.sh", "/usr/local/startup/"]
 RUN chmod +x /usr/local/startup/entrypoint.sh
 
 # Expose Ports
-EXPOSE 22 8080 9200
+EXPOSE 22 8080 8888 9200
 
 ENTRYPOINT ["/usr/local/startup/entrypoint.sh"]
