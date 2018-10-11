@@ -218,11 +218,12 @@
 }
 
 /deep/ .color-field:before {
-    border-radius: 15px;
+    border: 2px solid black;
+    border-radius: 16px;
     content: '';
     display: inline-block;
-    height: 15px;
-    width: 15px;
+    height: 16px;
+    width: 16px;
 }
 
 .skinny {
