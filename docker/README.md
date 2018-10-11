@@ -94,7 +94,7 @@ In addition do the build arguments there is also a `--squash` flag at the end. T
 
 #### Execute the build
 
-Once you have updated all the build arguments with your appropriate values, execute the script with `./run.sh`
+Once you have updated all the build arguments with your appropriate values, execute the script with `./build.sh`
 
 ## Starting the container
 
