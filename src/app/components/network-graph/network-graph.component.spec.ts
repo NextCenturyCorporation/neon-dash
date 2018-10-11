@@ -13,11 +13,9 @@
  * limitations under the License.
  *
  */
-import { async, ComponentFixture, fakeAsync, inject, TestBed, tick } from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { Injector, CUSTOM_ELEMENTS_SCHEMA
-} from '@angular/core';
-import { } from 'jasmine-core';
+import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
 import * as neon from 'neon-framework';
 import { NetworkGraphComponent } from './network-graph.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
@@ -39,10 +37,10 @@ import { ColorSchemeService } from '../../services/color-scheme.service';
 import { LegendComponent } from '../legend/legend.component';
 import { ChartComponent } from '@swimlane/ngx-charts';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { By, DomSanitizer } from '@angular/platform-browser';
+import { By } from '@angular/platform-browser';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
-import { browser } from 'protractor';
+import { neonVariables } from '../../neon-namespaces';
 
 describe('Component: NetworkGraph', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -94,43 +92,59 @@ describe('Component: NetworkGraph', () => {
     it('does have expected class properties', () => {
         expect(component.options.isDirected).toEqual(false);
         expect(component.options.isReified).toEqual(false);
-        expect(component.options.linkColor).toEqual('#96c1fc');
+        expect(component.options.displayLegend).toEqual(false);
+        expect(component.options.nodeShape).toEqual('box');
         expect(component.options.nodeColor).toEqual('#96c1fc');
+        expect(component.options.linkColor).toEqual('#96c1fc');
         expect(component.options.edgeColor).toEqual('#2b7ce9');
         expect(component.options.fontColor).toEqual('#343434');
         expect(component.options.edgeWidth).toEqual(1);
         expect(component.options.limit).toEqual('testLimit');
-        expect(component.options.andFilters).toEqual(true);
         expect(component.options.showOnlyFiltered).toEqual(false);
         expect(component.options.filterFields).toEqual([]);
-        expect(component.options.categoryList).toEqual([]);
         expect(component.options.physics).toEqual(true);
+        expect(component.options.filterable).toEqual(false);
+        expect(component.options.multiFilterOperator).toEqual('or');
+        expect(component.options.cleanLegendLabels).toEqual(false);
+        expect(component.options.setColorScheme).toEqual(false);
+        expect(component.options.legendFiltering).toEqual(true);
 
+        expect(component.options.nodeColorField).toEqual(component.emptyField);
         expect(component.options.edgeColorField).toEqual(component.emptyField);
         expect(component.options.linkField).toEqual(component.emptyField);
         expect(component.options.linkNameField).toEqual(component.emptyField);
         expect(component.options.nodeField).toEqual(component.emptyField);
         expect(component.options.nodeNameField).toEqual(component.emptyField);
-        expect(component.options.categoryField).toEqual(component.emptyField);
         expect(component.options.typeField).toEqual(component.emptyField);
         expect(component.options.xPositionField).toEqual(component.emptyField);
         expect(component.options.yPositionField).toEqual(component.emptyField);
+        expect(component.options.xTargetPositionField).toEqual(component.emptyField);
+        expect(component.options.yTargetPositionField).toEqual(component.emptyField);
     });
 
     it('createQuery does return expected query', (() => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.categoryField = new FieldMetaData('testCategoryField');
+        component.options.linkNameField = new FieldMetaData('testLinkNameField');
         component.options.typeField = new FieldMetaData('testTypeField');
         component.options.nodeField = new FieldMetaData('testNodeField');
+        component.options.nodeNameField = new FieldMetaData('testNodeNameField');
+        component.options.nodeColorField = new FieldMetaData('testNodeColorField');
+        component.options.edgeColorField = new FieldMetaData('testEdgeColorField');
+        component.options.xPositionField = new FieldMetaData('testXPositionField');
+        component.options.yPositionField = new FieldMetaData('testYPositionField');
+        component.options.xTargetPositionField = new FieldMetaData('testXTargetPositionField');
+        component.options.yTargetPositionField = new FieldMetaData('testYTargetPositionField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
         let query = new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
-            .withFields(['testNodeField', 'testLinkField', 'testTypeField', 'testCategoryField', 'testFilter1', 'testFilter2']);
+            .withFields(['testNodeField', 'testLinkField', 'testNodeColorField', 'testEdgeColorField', 'testNodeNameField',
+                'testLinkNameField', 'testTypeField', 'testXPositionField', 'testYPositionField', 'testXTargetPositionField',
+                'testYTargetPositionField', 'testFilter1', 'testFilter2']);
 
-        query.where(neon.query.and.apply(query, []));
+        query.where(neon.query.and.apply(query, [])).sortBy('testNodeColorField', neonVariables.ASCENDING);
         expect(component.createQuery()).toEqual(query);
     }));
 
@@ -181,13 +195,12 @@ describe('Component: NetworkGraph', () => {
     it('onQuerySuccess does load the Network Graph with tabular data', (() => {
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.categoryField = new FieldMetaData('testCategoryField');
         component.options.typeField = new FieldMetaData('testTypeField');
         component.options.nodeNameField = new FieldMetaData('testNodeNameField');
         component.options.nodeField = new FieldMetaData('testNodeField');
         component.options.xPositionField = new FieldMetaData('testXPositionField');
         component.options.yPositionField = new FieldMetaData('testYPositionField');
-        component.options.nodeColor = ['#96f4f2', '#715e93'];
+        component.options.nodeColor = '#96f4f2';
         component.options.edgeColor = '#93663e';
         component.options.linkColor = '#938d8f';
         component.options.nodeShape = 'star';
@@ -200,7 +213,6 @@ describe('Component: NetworkGraph', () => {
                 testLinkNameField: 'testLinkNameValue',
                 testNodeField: 'testNodeValue',
                 testNodeNameField: 'testNodeNameValue',
-                testCategoryField: 'testCategoryValue',
                 testTypeField: 'testTypeValue',
                 testEdgeColorField: '#5f9365',
                 testXPositionField: 100,
@@ -211,7 +223,6 @@ describe('Component: NetworkGraph', () => {
                 testLinkNameField: 'testLinkNameValue2',
                 testNodeField: 'testNodeValue2',
                 testNodeNameField: 'testNodeNameValue2',
-                testCategoryField: 'testCategoryValue2',
                 testTypeField: 'testTypeValue2',
                 testEdgeColorField: '#5f9365',
                 testXPositionField: -858,
@@ -222,7 +233,6 @@ describe('Component: NetworkGraph', () => {
                 testLinkNameField: 'testLinkNameValue3',
                 testNodeField: 'testNodeValue3',
                 testNodeNameField: 'testNodeNameValue3',
-                testCategoryField: 'testCategoryValue3',
                 testTypeField: 'testTypeValue3',
                 testEdgeColorField: '#5f9365',
                 testXPositionField: -549,
@@ -233,7 +243,6 @@ describe('Component: NetworkGraph', () => {
                 testLinkNameField: 'testLinkNameValue4',
                 testNodeField: 'testNodeValue4',
                 testNodeNameField: 'testNodeNameValue4',
-                testCategoryField: 'testCategoryValue4',
                 testTypeField: 'testTypeValue4',
                 testEdgeColorField: '#5f9365',
                 testXPositionField: 191,
@@ -292,7 +301,6 @@ describe('Component: NetworkGraph', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.categoryField = new FieldMetaData('testCategoryField');
         component.options.typeField = new FieldMetaData('testTypeField');
         component.options.nodeNameField = new FieldMetaData('testNodeNameField');
         component.options.nodeField = new FieldMetaData('testNodeField');
@@ -313,7 +321,6 @@ describe('Component: NetworkGraph', () => {
                 testLinkNameField: 'testLinkNameValue',
                 testNodeField: 'testNodeValue',
                 testNodeNameField: 'testNodeNameValue',
-                testCategoryField: 'testCategoryValue',
                 testTypeField: 'testTypeValue',
                 testEdgeColorField: '#5f9365',
                 testXPositionField: 100,
@@ -324,7 +331,6 @@ describe('Component: NetworkGraph', () => {
                     testLinkNameField: 'testLinkNameValue2',
                     testNodeField: 'testNodeValue2',
                     testNodeNameField: 'testNodeNameValue2',
-                    testCategoryField: 'testCategoryValue2',
                     testTypeField: 'testTypeValue2',
                     testEdgeColorField: '#5f9365',
                     testXPositionField: -858,
@@ -335,7 +341,6 @@ describe('Component: NetworkGraph', () => {
                     testLinkNameField: 'testLinkNameValue3',
                     testNodeField: 'testNodeValue3',
                     testNodeNameField: 'testNodeNameValue3',
-                    testCategoryField: 'testCategoryValue3',
                     testTypeField: 'testTypeValue3',
                     testEdgeColorField: '#5f9365',
                     testXPositionField: -549,
@@ -346,7 +351,6 @@ describe('Component: NetworkGraph', () => {
                     testLinkNameField: 'testLinkNameValue4',
                     testNodeField: 'testNodeValue4',
                     testNodeNameField: 'testNodeNameValue4',
-                    testCategoryField: 'testCategoryValue4',
                     testTypeField: 'testTypeValue4',
                     testEdgeColorField: '#5f9365',
                     testXPositionField: 191,
@@ -367,13 +371,12 @@ describe('Component: NetworkGraph', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.categoryField = new FieldMetaData('testCategoryField');
         component.options.typeField = new FieldMetaData('testTypeField');
         component.options.nodeNameField = new FieldMetaData('testNodeNameField');
         component.options.nodeField = new FieldMetaData('testNodeField');
         component.options.xPositionField = new FieldMetaData('testXPositionField');
         component.options.yPositionField = new FieldMetaData('testYPositionField');
-        component.options.nodeColor = ['#96f4f2', '#715e93'];
+        component.options.nodeColor = '#715e93';
         component.options.edgeColor = '#93663e';
         component.options.linkColor = '#938d8f';
         component.options.nodeShape = 'star';
@@ -386,7 +389,6 @@ describe('Component: NetworkGraph', () => {
                 testLinkNameField: 'testLinkNameValue',
                 testNodeField: 'testNodeValue',
                 testNodeNameField: 'testNodeNameValue',
-                testCategoryField: 'testCategoryValue',
                 testTypeField: 'testTypeValue',
                 testEdgeColorField: '#5f9365',
                 testXPositionField: 100,
@@ -397,7 +399,6 @@ describe('Component: NetworkGraph', () => {
                 testLinkNameField: 'testLinkNameValue2',
                 testNodeField: 'testNodeValue2',
                 testNodeNameField: 'testNodeNameValue2',
-                testCategoryField: 'testCategoryValue2',
                 testTypeField: 'testTypeValue2',
                 testEdgeColorField: '#5f9365',
                 testXPositionField: -858,
@@ -420,18 +421,17 @@ describe('Component: NetworkGraph', () => {
     it('does create filter for graph when graph node is selected', (() => {
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.categoryField = new FieldMetaData('testCategoryField');
         component.options.typeField = new FieldMetaData('testTypeField');
         component.options.nodeNameField = new FieldMetaData('testNodeNameField');
         component.options.nodeField = new FieldMetaData('testNodeField');
         component.options.xPositionField = new FieldMetaData('testXPositionField');
         component.options.yPositionField = new FieldMetaData('testYPositionField');
-        component.options.nodeColor = ['#96f4f2', '#715e93'];
+        component.options.nodeColor = '#96f4f2';
         component.options.edgeColor = '#93663e';
         component.options.linkColor = '#938d8f';
         component.options.nodeShape = 'star';
         component.options.isReified = false;
-        component.options.filterFields = ['testTypeField', 'testCategoryField'];
+        component.options.filterFields = ['testTypeField'];
         component.options.limit = Infinity;
 
         component.onQuerySuccess({
@@ -440,7 +440,6 @@ describe('Component: NetworkGraph', () => {
                 testLinkNameField: 'testLinkNameValue',
                 testNodeField: 'testNodeValue',
                 testNodeNameField: 'testNodeNameValue',
-                testCategoryField: 'testCategoryValue',
                 testTypeField: 'testTypeValue',
                 testEdgeColorField: '#5f9365',
                 testXPositionField: 100,
@@ -451,7 +450,6 @@ describe('Component: NetworkGraph', () => {
                 testLinkNameField: 'testLinkNameValue2',
                 testNodeField: 'testNodeValue2',
                 testNodeNameField: 'testNodeNameValue2',
-                testCategoryField: 'testCategoryValue2',
                 testTypeField: 'testTypeValue2',
                 testEdgeColorField: '#5f9365',
                 testXPositionField: -858,
