@@ -164,7 +164,7 @@ The Lorelei Docker build has a few known issues that for the most part or caused
 
 Below are some example issues that you may see during the build that can be resolved by re-running the build.sh script.
 
-1. ```bash
+```bash
 E: Failed to fetch http://archive.ubuntu.com/ubuntu/pool/main/l/llvm-toolchain-6.0/libllvm6.0_6.0-1ubuntu2_amd64.deb  Hash Sum mismatch
    Hashes of expected file:
     - SHA256:62608aa70d922c8502d72d3f11a5c9d66f4bb680695cf9c7d6ff9acf9632a8a5
@@ -180,7 +180,7 @@ E: Failed to fetch http://archive.ubuntu.com/ubuntu/pool/main/l/llvm-toolchain-6
 E: Aborting install.
 ```
 
-2. ```bash
+```bash
 Cloning into 'Lorelei-demo'...
 error: RPC failed; curl 56 GnuTLS recv error (-24): Decryption has failed.
 fatal: The remote end hung up unexpectedly
@@ -188,7 +188,7 @@ fatal: early EOF
 fatal: index-pack failed
 ```
 
-3. ```bash
+```bash
 Cloning into 'thor_data'...
 error: RPC failed; curl 56 GnuTLS recv error (-24): Decryption has failed.
 fatal: The remote end hung up unexpectedly
@@ -196,7 +196,7 @@ fatal: early EOF
 fatal: unpack-objects failed
 ```
 
-4. ```bash
+```bash
 Exception in thread "main" javax.net.ssl.SSLException: Connection has been shutdown: javax.net.ssl.SSLException: Tag mismatch!
   at sun.security.ssl.SSLSocketImpl.checkEOF(SSLSocketImpl.java:1551)
   at sun.security.ssl.AppInputStream.available(AppInputStream.java:60)
