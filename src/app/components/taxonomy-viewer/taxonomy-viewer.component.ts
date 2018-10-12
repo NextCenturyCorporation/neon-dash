@@ -28,18 +28,19 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import {ActiveGridService} from '../../services/active-grid.service';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {FilterService} from '../../services/filter.service';
-import {ExportService} from '../../services/export.service';
-import {ThemesService} from '../../services/themes.service';
-import {VisualizationService} from '../../services/visualization.service';
-import {KEYS, TREE_ACTIONS} from 'angular-tree-component';
-import {BaseNeonComponent, BaseNeonOptions} from '../base-neon-component/base-neon.component';
-import {FieldMetaData} from '../../dataset';
-import {neonUtilities, neonVariables} from '../../neon-namespaces';
+import { ActiveGridService } from '../../services/active-grid.service';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+import { ExportService } from '../../services/export.service';
+import { ThemesService } from '../../services/themes.service';
+import { VisualizationService } from '../../services/visualization.service';
+import { KEYS, TREE_ACTIONS } from 'angular-tree-component';
+import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { FieldMetaData } from '../../dataset';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
+import {current} from 'codelyzer/util/syntaxKind';
 
 /**
  * Manages configurable options for the specific visualization.
@@ -117,7 +118,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         id: string,
         field: string,
         prettyField: string,
-        value: string
+        value: string,
+        nodeIds: any
     }[] = [];
 
     public options: TaxonomyViewerOptions;
@@ -382,26 +384,24 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         }
 
         let filter = {
-            id: data.id,
+            id: undefined,
             field: this.options.filterField.columnName,
-            prettyField: data.name + ' ' + this.options.filterField.columnName,
-            value: this.filteredNodes.toString()
+            prettyField: 'Tree Node',
+            value: data.name,
+            nodeIds: data.nodes.toString()
         };
 
        // let clause = neon.query.where(filter.field, '=', filter.value);
 
-        let clauses = this.filteredNodes.map((element) =>
-            neon.query.where(filter.field, '=', element));
+        let clauses = data.nodes.map((element) =>
+            neon.query.where(filter.field, '!=', element));
         let runQuery = !this.options.ignoreSelf;
-        let clause = neon.query.or.apply(neon.query, clauses);
-//console.log(clause)
-        //console.log(filter, runQuery)
-       // console.log(this.filters.length)
-        //console.log(clauses)
-        //console.log("filter exists?", this.filterExists(filter.field, filter.value));
+        let clause = neon.query.and.apply(neon.query, clauses);
+        //console.log(clause)
+
         if (!this.filterExists(filter.field, filter.value)) {
-            this.filters = [filter];
-            //console.log("add filter")
+            this.filters .push(filter);
+            //console.log("add filter, it doesn't exists")
             this.addNeonFilter(runQuery, filter, clause);
         }
 
@@ -424,21 +424,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name &&
             this.options.idField && this.options.idField.columnName && this.options.categoryField &&
             this.options.categoryField.columnName && this.options.typeField && this.options.typeField.columnName);
-    }
-
-    // TODO Change arguments as needed.
-    /**
-     * Returns whether a visualization filter object in the filter list matching the given properties exists.
-     *
-     * @arg {string} field
-     * @arg {string} value
-     * @return {boolean}
-     */
-    isVisualizationFilterUnique(field: string, value: string): boolean {
-        // TODO What filters do you need to de-duplicate?  Is it OK to have multiple filters with matching values?
-        return !this.filters.some((existingFilter) => {
-            return existingFilter.field === field && existingFilter.value === value;
-        });
     }
 
     /**
@@ -617,45 +602,39 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         //console.log('onEvent:', $event);
         /*console.log(node);
         console.log(node.data);*/
-    };
+    }
 
     checkRelatedNodes(node, $event) {
         //console.log("check", $event.target.checked);
         this.updateChildNodesCheckBox(node, $event.target.checked);
         this.updateParentNodesCheckBox(node.parent);
-        //console.log(node.data)
-        //console.log(node.data.nodes.length)
-        //console.log(this.taxonomyGroups)
         if ($event.target.checked === false) {
             /*node.data.nodes.reduce(this.flattenArray, [])
             .filter((value, index, array) => array.indexOf(value) === index);*/
-            //console.log(node.data)
-            this.filteredNodes = this.allNodes.filter((value, index, array) => {
-                return node.data.nodes.indexOf(value) === -1;
-
-            });
-            //console.log(this.filteredNodes)
+           /* console.log(node)*/
+            //console.log(node.data.nodes)
 
             this.createFilter(node.data);
-            /*for ( const treeNode of node.data.nodes){
-                //console.log(treeNode)
-                this.createFilter(treeNode);
-            }*/
-        }
-/*        else{
-            for (let i = 0; i < this.filters.length; i++) {
-                let currentFilter = this.filters[i];
-                if (currentFilter.id === node.data.id && currentFilter.value === node.data.nodes.toString()) {
-                    console.log("remove this filter")
-                    this.removeLocalFilterFromLocalAndNeon(this.filters[i], true, true);
-                    this.removeFilter(currentFilter);
+        } else {
+            /*console.log("checked")*/
+            //for (let i = 0; i < this.filters.length; i++) {
+            for (let filter of this.filters) {
+/*                console.log(currentFilter, this.options.filterField.columnName)
+            console.log(currentFilter,node.data)
+                console.log(currentFilter.value.split(',').length, node.data.nodes.length)*/
+                if (filter.field === this.options.filterField.columnName && filter.nodeIds === node.data.nodes.toString()) {
+                    this.removeLocalFilterFromLocalAndNeon(filter, true, true);
+                    this.removeFilter(filter);
                 }
 
             }
-        }*/
+        }
     }
     updateChildNodesCheckBox(node, checked) {
-        //console.log("update child")
+/*        console.log('update child');
+        console.log(node);
+        console.log(node.data.children);
+        console.log(node.parent);*/
         node.data.checked = checked;
         if (node.children) {
             node.children.forEach((child) => this.updateChildNodesCheckBox(child, checked));
@@ -727,7 +706,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                     id: neonFilter.id,
                     field: field.columnName,
                     prettyField: field.prettyName,
-                    value: value
+                    value: value,
+                    nodeIds: value
                 };
                 if (!this.filterExists(myFilter.field, myFilter.value)) {
                     this.filters.push(myFilter);
