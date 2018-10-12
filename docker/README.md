@@ -69,7 +69,7 @@ Note* You only need to create the sub-directories for the data you plan on using
 
 ## Building Lorelei Docker image
 
-To build the docker image you will want to copy the `run.sh.example` file provided into `run.sh`. This script is made up of a docker build command with many `--build-arg` build arguments. These arguments should be configured to meet your needs for your particular Docker Lorelei build. Each argument with an example  value is described in the table below.  
+To build the docker image you will want to copy the `build.sh.example` file provided into `build.sh`. This script is made up of a docker build command with many `--build-arg` build arguments. These arguments should be configured to meet your needs for your particular Docker Lorelei build. Each argument with an example  value is described in the table below. 
 
 | Build Arg          |Example Value       | Drescription  | 
 | -------------------|:-------------------|:-------------| 
@@ -82,8 +82,7 @@ To build the docker image you will want to copy the `run.sh.example` file provid
 | LORELEI_CONFIG     | _config.darpa-July2018-docker.json_ | Name of the config file to deploy with Lorelei from the /src/app/config folder |      |  
 | THOR_DATA_REPO     | _LORELEI.THOR/thor_data.git_ | Git group/name repository for THOR_DATA       |  
 | THOR_DATA_BRANCH   | _master_ | THOR_DATA git branch name       |  
-| ES_INDEX           | _ldc_uyg_jul_18_ | Elasticsearch index that will be created and store the data. This value must match the name of the data file and mapping file in THOR_DATA to be ingested |  
-| ES_MAPPING         | _ui_out_ | Name used when creating the mapping in Elasticsearch |
+| ES_DATA_MAPPING_TUPLE           | _ldc_uyg_jul_18_:_ui_out_,_ll_nepal_07_11_3_:_annotations_ | List of tuple values separated by a semicolon, comma delimiated. Each tuple grouping is the data file name followed by the name of the mapping. The data file name will become the name of the index in elasticsearch and help the entrypoint script in locating the .json files for the data and the mapping files. This requires the mapping file to always have the prefix of the data file name followed by \_mapping |  
 | NATURAL_EARTH_DIR  | _NATURAL_EARTH_II_ | Directory name where Natural Earth II data is store locally for the bind mount. `Do not change this value`      |  
 | NATURAL_EARTH_FILE | _NE2_HR_LC_SR_W_DR.tif_ | Name of the Natural Earth II data file used. `Do not change this value`     |  
 | NATURAL_EARTH_NS   | _ne2_ | The namespace used for Natural Eearth II in Geoserver. `Do not change this value`      |  
@@ -95,7 +94,8 @@ In addition do the build arguments there is also a `--squash` flag at the end. T
 
 #### Execute the build
 
-Once you have updated all the build arguments with your appropriate values, execute the script with `./run.sh`
+Once you have updated all the build arguments with your appropriate values, execute the script with `./build.sh`
+If you have any issues during the build, please refer to the [Known Issues](#Known-Issues) section.
 
 ## Starting the container
 
@@ -103,6 +103,12 @@ After building the image, you can start the lorelei Docker container. A `run.sh.
 
 ```bash
 docker run -v ~/Desktop/data:/usr/local/data/geoserver/data --name lorelei -d -p 2222:22 -p 8080:8080 -p 8888:8888 -p 9200:9200 --name lorelei lorelei
+```
+
+Upon starting the Docker container, an entrypoint script is run that handles all configuration of elasticsearch, tomcat and geoserver, as well as ingesting all data. This script can take up to a minute to complete depending on how many data sets you are ingesting via the ES_DATA_MAPPING_TUPLE build argument. If you are having trouble loading the lorelei application, give it some time or check the status of the entrypoint script by checking out the docker logs for the container:
+
+```bash
+docker logs lorelei
 ```
 
 #### Update bind mount location
@@ -139,22 +145,106 @@ Navigate to `http://localhost:8888/lorelei` and verify that Lorelei UI is proper
 
 #### Other validation
 
-Neon Index: `http://localhost:8888/neon`
-Geoserver:  `http://localhost:8080/geoserver`
-sshd     :  `ssh root@localhost -p2222`
+ - Neon Index: `http://localhost:8888/neon`
+ - Geoserver:  `http://localhost:8080/geoserver`
+ - sshd     :  `ssh root@localhost -p2222`
 
 ## Commit new Docker image
 
-After verification we need to commit the working container into a new image. This ensures that all the data copied from the bind mount and all the settings will persist when the customer starts the delivered Docker image. To commit the image execute the following command:
+After verification we need to commit the working container into a new image. This ensures that all the data copied from the bind mount and all configurations set during entrypoint will persist when the customer starts the delivered Docker image. To commit the image execute the following command:
 
 ```bash
 docker commit <container-id> nextcentury/lorelei:latest
 ```
-A new `nextcentury/lorelei:latest` image will be created. You can test this image by starting it with the following command:
+A new `nextcentury/lorelei:latest` image will be created. This example is using `nextcentury/lorelei:latest` for the name of the Docker image. This value should be updated per your requirements. You can test this image by starting it with the following command:
 
 ```bash
 docker run -d -p 2222:22 -p 8080:8080 -p 8888:8888 -p 9200:9200 --name lorelei nextcenturylorelei:latest
 ```
+
+## Known Issues
+
+#### Build Issues
+
+The Lorelei Docker build has a few known issues that for the most part usually due to network latency. This build will take an average of **15 minutes**. If at any time the build fails during execution, just restart the build by calling the `./build.sh` script and Docker will resume at the point of the last failure. It is not necessary to remove the image and rebuild from scratch. 
+
+Below are some example issues that you may see during the build that can be resolved by re-running the build.sh script.
+
+```bash
+E: Failed to fetch http://archive.ubuntu.com/ubuntu/pool/main/l/llvm-toolchain-6.0/libllvm6.0_6.0-1ubuntu2_amd64.deb  Hash Sum mismatch
+   Hashes of expected file:
+    - SHA256:62608aa70d922c8502d72d3f11a5c9d66f4bb680695cf9c7d6ff9acf9632a8a5
+    - SHA1:4aa4e931221c16bd119cb613ebbf0a0308cf95b7 [weak]
+    - MD5Sum:b102f58543ec09cef3cea3c888a812f1 [weak]
+    - Filesize:14540872 [weak]
+   Hashes of received file:
+    - SHA256:5ade8380f73eb76937d75341935de44fa1890cbcab1768f3218170f5169c920c
+    - SHA1:cefb423658548020d3fb691f5409a5fe8328fd77 [weak]
+    - MD5Sum:85cf78000944fb1740f2c1e66cd89fb9 [weak]
+    - Filesize:14540872 [weak]
+   Last modification reported: Fri, 06 Apr 2018 18:56:11 +0000
+E: Aborting install.
+```
+
+```bash
+Cloning into 'Lorelei-demo'...
+error: RPC failed; curl 56 GnuTLS recv error (-24): Decryption has failed.
+fatal: The remote end hung up unexpectedly
+fatal: early EOF
+fatal: index-pack failed
+```
+
+```bash
+Cloning into 'thor_data'...
+error: RPC failed; curl 56 GnuTLS recv error (-24): Decryption has failed.
+fatal: The remote end hung up unexpectedly
+fatal: early EOF
+fatal: unpack-objects failed
+```
+
+```bash
+Exception in thread "main" javax.net.ssl.SSLException: Connection has been shutdown: javax.net.ssl.SSLException: Tag mismatch!
+  at sun.security.ssl.SSLSocketImpl.checkEOF(SSLSocketImpl.java:1551)
+  at sun.security.ssl.AppInputStream.available(AppInputStream.java:60)
+  at java.io.BufferedInputStream.available(BufferedInputStream.java:410)
+  at sun.net.www.MeteredStream.available(MeteredStream.java:170)
+  at sun.net.www.http.KeepAliveStream.close(KeepAliveStream.java:85)
+  at java.io.FilterInputStream.close(FilterInputStream.java:181)
+  at sun.net.www.protocol.http.HttpURLConnection$HttpInputStream.close(HttpURLConnection.java:3466)
+  at org.gradle.wrapper.Download.downloadInternal(Download.java:77)
+  at org.gradle.wrapper.Download.download(Download.java:44)
+  at org.gradle.wrapper.Install$1.call(Install.java:61)
+  at org.gradle.wrapper.Install$1.call(Install.java:48)
+  at org.gradle.wrapper.ExclusiveFileAccessManager.access(ExclusiveFileAccessManager.java:65)
+  at org.gradle.wrapper.Install.createDist(Install.java:48)
+  at org.gradle.wrapper.WrapperExecutor.execute(WrapperExecutor.java:128)
+  at org.gradle.wrapper.GradleWrapperMain.main(GradleWrapperMain.java:61)
+```
+
+#### SSHD Issues
+
+##### Remote Host ID has changed
+If you are having issues when ssh-ing into your docker container via `ssh root@localhost -p2222` and you see a similar message:
+
+```bash
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that a host key has just been changed.
+The fingerprint for the ECDSA key sent by the remote host is
+SHA256:FlXWQmr0m7uIebmCD3dVyCInl/zW3MpBGeDArzX5gMs.
+Please contact your system administrator.
+Add correct host key in /home/HQ/psharkey/.ssh/known_hosts to get rid of this message.
+Offending ECDSA key in /home/HQ/psharkey/.ssh/known_hosts:1
+  remove with:
+  ssh-keygen -f "/home/HQ/psharkey/.ssh/known_hosts" -R "[localhost]:2222"
+ECDSA host key for [localhost]:2222 has changed and you have requested strict checking.
+Host key verification failed.
+```
+
+fix this issue by removing your `~/.ssh/known_hosts` file. 
 
 ## Useful Docker Commands
 ```bash
