@@ -13,18 +13,18 @@
  * limitations under the License.
  *
  */
-import {ChangeDetectorRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import { ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@angular/core';
 
-import {ActiveGridService} from '../../services/active-grid.service';
-import {Color} from '../../services/color-scheme.service';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {ExportService} from '../../services/export.service';
-import {FilterService} from '../../services/filter.service';
-import {ThemesService} from '../../services/themes.service';
-import {VisualizationService} from '../../services/visualization.service';
+import { ActiveGridService } from '../../services/active-grid.service';
+import { Color } from '../../services/color-scheme.service';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { ExportService } from '../../services/export.service';
+import { FilterService } from '../../services/filter.service';
+import { ThemesService } from '../../services/themes.service';
+import { VisualizationService } from '../../services/visualization.service';
 
-import {DatabaseMetaData, EMPTY_FIELD, FieldMetaData, TableMetaData} from '../../dataset';
+import { DatabaseMetaData, EMPTY_FIELD, FieldMetaData, TableMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
 import * as uuid from 'node-uuid';
 import * as _ from 'lodash';
