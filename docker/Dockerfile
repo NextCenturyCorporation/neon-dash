@@ -128,10 +128,6 @@ ENV ELASTICSEARCH_TGZ_URL https://download.elastic.co/elasticsearch/release/org/
 # Set Elasticsearch environments variables passed in from build.sh or defaults
 ARG ES_DATA_MAPPING_TUPLE
 ENV ES_DATA_MAPPING_TUPLE $ES_DATA_MAPPING_TUPLE
-#ARG ES_INDEX=index
-#ARG ES_MAPPING=mapping
-#ENV ES_INDEX $ES_INDEX
-#ENV ES_MAPPING $ES_MAPPING
 
 # Download and extract Elasticesarch archive
 RUN set -x \
@@ -229,9 +225,6 @@ COPY ["configs/elasticsearch/index-settings.json", "$ES_THOR_DATA/"]
 RUN IFS=',' read -ra listArr <<< "$ES_DATA_MAPPING_TUPLE" \
    && for item in "${listArr[@]}"; do IFS=':' read -ra elements <<< "$item"; cp "${elements[0]}.json" $ES_THOR_DATA/; cp "${elements[0]}_mapping.json" $ES_THOR_DATA/; done
 
-#RUN cp ${ES_INDEX}.json $ES_THOR_DATA/
-#RUN cp ${ES_INDEX}_mapping.json $ES_THOR_DATA/
-
 # Clean up THOR_DATA git repo
 RUN rm -rf $THOR_DATA
 
@@ -249,7 +242,6 @@ ARG NEON_REPO=LORELEI.THOR/neon.git
 ARG NEON_BRANCH=master
 
 # Pull Neon Git Repo
-#RUN git clone https://$CREDS@$NEON_REPO -b $NEON_BRANCH
 RUN git clone https://$CREDS@$GIT_REPO/$NEON_REPO -b $NEON_BRANCH
 
 # Run Neon Gradle Build

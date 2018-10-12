@@ -12,8 +12,6 @@ fi
 ES_DATA=$ES_DATA
 ES_URL=$ES_URL
 ES_DATA_MAPPING_TUPLE=$ES_DATA_MAPPING_TUPLE
-#ES_INDEX=$ES_INDEX
-#ES_MAPPING=$ES_MAPPING
 
 # Wait until Elasticsearch is up and running
 until curl -s --output /dev/null -XGET $ES_URL/; do
