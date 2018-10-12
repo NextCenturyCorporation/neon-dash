@@ -101,7 +101,7 @@ export class DataTableOptions extends BaseNeonOptions {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -141,13 +141,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         x: number,
         y: number
     } = {
-        mousedown: false,
-        downIndex: -1,
-        currentIndex: -1,
-        field: null,
-        x: 0,
-        y: 0
-    };
+            mousedown: false,
+            downIndex: -1,
+            currentIndex: -1,
+            field: null,
+            x: 0,
+            y: 0
+        };
 
     public duplicateNumber = 0;
     public seenValues = [];
@@ -550,14 +550,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         } else {
             let responses = response.data;
             let data = responses.map((d) => {
-                    let row = {};
-                    for (let field of this.options.fields) {
-                        if (field.type || field.columnName === '_id') {
-                            row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
-                        }
+                let row = {};
+                for (let field of this.options.fields) {
+                    if (field.type || field.columnName === '_id') {
+                        row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
                     }
-                    return row;
-                });
+                }
+                return row;
+            });
             this.activeData = data;
             // The query response is being stringified and stored in activeData
             // Store the response in responseData to preserve the data in its raw form for querying and filtering purposes
