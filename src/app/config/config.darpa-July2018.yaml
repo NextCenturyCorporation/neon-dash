@@ -1,0 +1,1241 @@
+translationKeys:
+    google: AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8
+
+datastores:
+    es1:
+        host: localhost
+        type: elasticsearch
+        connectOnLoad: true # TODO: 825: does this need to be moved?
+        databases:
+            ldc_uyg_jul_18: # layout: uyghur-ldc-sd: "DARPA60: Uyghur LDC Situation Discovery"
+                prettyName: 'Uyghur LDC, July 2018'
+                tables:
+                    ui_out:
+                        prettyName: UI out
+                        fields:
+                            - columnName: createdDate
+                              prettyName: Date Created
+                            - columnName: topic
+                              prettyName: Need Type
+                            - columnName: location
+                              prettyName: Location
+                            - columnName: status
+                              prettyName: Status
+                            - columnName: translatedText
+                              prettyName: Translated Text
+                            - columnName: originalText
+                              prettyName: Original Text
+                        labelOptions:
+                            topic:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime /  Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
+                        mappings:
+                            date: createDate
+            uyg_elisa_sd:
+                prettyName: Uyghur ELISA # "DARPA60: Uyghur ELISA Situation Discovery", layout: "uyghur-elisa-sd",
+                tables:
+                    ui_out:
+                        prettyName: ui_out
+                        fields:
+                            - columnName: createdAt
+                              prettyName: Date Created
+                            - columnName: location
+                              prettyName: Location
+                            - columnName: JustificationEN
+                              prettyName: Translated Text
+                            - columnName: JustificationIL
+                              prettyName: Original Text
+                        labelOptions:
+                            topic:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime /  Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
+                        mappings:
+                            date: createdAt
+            ll_nepal_07_11_3:
+                prettyName: Nepal 07_11_3 # "DARPA60: Nepal ELISA Situation Discovery", layout: "nepal-elisa-sd",
+                tables:
+                    annotations:
+                        prettyName: Annotations
+                        fields:
+                            - columnName: createdAt
+                              prettyName: Date Created
+                            - columnName: topic
+                              prettyName: Need Type
+                            - columnName: location
+                              prettyName: Location
+                            - columnName: status
+                              prettyName: Status
+                            - columnName: translatedText
+                              prettyName: Translated Text
+                            - columnName: originalText
+                              prettyName: Original Text
+                        labelOptions:
+                            topic:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime /  Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
+                        mappings:
+                            date: createdAt
+            elisa_car_1:
+                prettyName: ELISA Central African Republic Data # "DARPA60 Central African Republic ELISA Situation Discovery", layout: "car-elisa-sd",
+                tables:
+                    annotations:
+                        prettyName: Annotations
+                        fields:
+                            - columnName: createdAt
+                              prettyName: Date Created
+                            - columnName: topic
+                              prettyName: Need Type
+                            - columnName: location
+                              prettyName: Location
+                            - columnName: status
+                              prettyName: Status
+                            - columnName: JustificationEN
+                              prettyName: Translated Text
+                            - columnName: JustificationIL
+                              prettyName: Original Text
+                        mappings:
+                            date: createdAt
+                        labelOptions:
+                            Type:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime /  Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
+            #
+            # ll_nepal_06_14:
+            #     prettyName: Nepal Earthquake 2015, ELISA Annotations # DEV: Nepal ELISA Situation Awareness layout: nepal-elisa-sa
+            #     tables:
+            #         annotations:
+            #             prettyName: Annotations
+            #             mappings:
+            #                 date: createdAt
+            #         situations:
+            #             prettyName: Situations
+            #             mappings: #empty
+            #             # TODO: 825: relations used to be listed at the same level as options
+            #             # need incorporate relations into dashboard
+            #             # relations:
+            #             # - members:
+            #             #   - database: ll_nepal_06_14
+            #             #     table: situations
+            #             #     field: documents
+            #             #   - database: ll_nepal_06_14
+            #             #     table: annotations
+            #             #     field: id
+            #             # - members:
+            #             #   - database: ll_nepal_06_14
+            #             #     table: situations
+            #             #     field: topic
+            #             #   - database: ll_nepal_06_14
+            #             #     table: annotations
+            #             #     field: llAnnotation.Type
+            # ll_nepal_06_14_2: #DEV: Nepal, #layout: human-terrain
+            #     prettyName: Human Terrain
+            #     tables:
+            #         annotations1Author:
+            #             prettyName: Annotations
+            #             mappings:
+            #                 date: createdAt
+        options:
+            checkForCoordinateValidation: 'null_values'
+            # TODO: 825: do colorMaps also need to be moved, or will they work here?
+            colorMaps:
+                elisa_car_1:
+                    mapping:
+                        entities.type:
+                            LOC: '#98DF8A'
+                            ORG: '#FF9896'
+                            PER: '#AEC7E8'
+                            GPE: '#98DF8A'
+                        types: # empty
+                ll_nepal_simplified:
+                    mapping:
+                        entities.type:
+                            LOC: '#98DF8A'
+                            ORG: '#FF9896'
+                            PER: '#AEC7E8'
+                        types: # empty
+            # TODO: 825: move/restructure simpleFilter or entire options out so that
+            # we can specify config for multiple databases instead of just one
+            #simpleFilter:
+            #    databaseName: ldc_uyg_jul_18 #uyg_elisa_sd #ll_nepal_07_11_3 #elisa_car_1 #ll_nepal_06_14 #ll_nepal_06_14_2
+            #    tableName: ui_out #ui_out #annotations #annotations #annotations #annotations1Author
+            #    fieldName: translatedText #JustificationEN #originalText #JustificationEN #originalText #translatedText
+            #    placeHolder: Search
+
+# TODO: 825: does this still work as expected?
+# TODO: 825: would this go under another category?
+legends:
+    ll_nepal_07_02:
+        documents:
+            - label: Text
+              customized:
+                  field: originalText
+                  operator: contains
+              items:
+                  - label: Evacuation
+                    field: originalText
+                    operator: contains
+                    value: evac
+                  - label: Food
+                    field: originalText
+                    operator: contains
+                    value: food
+                  - label: Rescue
+                    field: originalText
+                    operator: contains
+                    value: rescue
+                  - label: Water
+                    field: originalText
+                    operator: contains
+                    value: water
+            - label: Situation Frame Type
+              items:
+                  - label: Any
+                    field: topics
+                    operator: '!='
+                    value: None
+                  - label: Energy
+                    field: topics
+                    operator: contains
+                    value: Energy
+                  - label: Evacuation
+                    field: topics
+                    operator: contains
+                    value: evac
+                  - label: Food
+                    field: topics
+                    operator: contains
+                    value: food
+                  - label: Infrastructure
+                    field: topics
+                    operator: contains
+                    value: infra
+                  - label: Medical
+                    field: topics
+                    operator: contains
+                    value: med
+                  - label: Rescue
+                    field: topics
+                    operator: contains
+                    value: rescue
+                  - label: Sanitation
+                    field: topics
+                    operator: contains
+                    value: Sanitation
+                  - label: Search
+                    field: topics
+                    operator: contains
+                    value: search
+                  - label: Shelter
+                    field: topics
+                    operator: contains
+                    value: shelter
+                  - label: Utilities
+                    field: topics
+                    operator: contains
+                    value: utils
+                  - label: Water
+                    field: topics
+                    operator: contains
+                    value: water
+            - label: SEC
+              items:
+                  - label: Activation
+                    field: sentimentString
+                    value: Activation
+                  - label: N/A
+                    field: sentimentString
+                    value: N/A
+                  - label: Negative
+                    field: sentimentString
+                    value: Negative
+                  - label: Negative, Activation
+                    field: sentimentString
+                    value: Negative, Activation
+                  - label: Positive
+                    field: sentimentString
+                    value: Positive
+                  - label: Positive, Activation
+                    field: sentimentString
+                    value: Positive, Activation
+            - label: Entity Type
+              items:
+                  - label: Person
+                    field: entities.entityType
+                    value: PER
+                  - label: Organization
+                    field: entities.entityType
+                    value: ORG
+                  - label: Location
+                    field: entities.entityType
+                    value: LOC
+                  - label: Geopolitical Entity
+                    field: entities.entityType
+                    value: GPE
+
+dashboards:
+    darpa60:
+        prettyName: 'DARPA60:'
+        choices:
+            uyghur:
+                prettyName: Uyghur
+                choices:
+                    uyg_ldc_discovery:
+                        prettyName: LDC Situation Discovery
+                        layout: uyghur-sd
+                        # TODO: 825: temporary reference to datastore
+                        datastore: es1
+                        tables:
+                            table_key_1: es1.ldc_uyg_jul_18.ui_out
+                        fields:
+                            field_key_1: es1.ldc_uyg_jul_18.ui_out.originalText
+                        options:
+                            # TODO: 825: perhaps make options here later if needed
+                            test: someValue
+                    # TODO: 825: The uyg_elisa_discovery dashboard probably won't work correctly until layouts are using field keys
+                    uyg_elisa_discovery:
+                        prettyName: ELISA Situation Discovery
+                        layout: uyghur-sd
+                        # TODO: 825: temporary reference to datastore
+                        datastore: es1
+                        tables:
+                            table_key_1: es1.uyg_elisa_sd.ui_out
+                        fields:
+                            field_key_1: es1.uyg_elisa_sd.ui_out.JustificationIL
+                        options:
+                            # TODO: 825: perhaps make options here later if needed
+                            test: someValue
+            nepal:
+                prettyName: Nepal
+                choices:
+                    nepal_elisa_discovery:
+                        prettyName: ELISA Situation Discovery
+                        layout: nepal-elisa-sd
+                        # TODO: 825: temporary reference to datastore
+                        datastore: es1
+                        tables:
+                            table_key_1: es1.ll_nepal_07_11_3.annotations
+                        fields:
+                            field_key_1: es1.ll_nepal_07_11_3.annotations.originalText
+                        options:
+                            # TODO: 825: perhaps make options here later if needed
+                            test: someValue
+            car:
+                prettyName: Central African Republic
+                choices:
+                    car_elisa_discovery:
+                        prettyName: ELISA Situation Discovery
+                        layout: car-elisa-sd
+                        # TODO: 825: temporary reference to datastore
+                        datastore: es1
+                        tables:
+                            table_key_1: es1.elisa_car_1.annotations
+                        fields:
+                            field_key_1: es1.elisa_car_1.annotations.JustificationEN
+                        options:
+                            # TODO: 825: perhaps make options here later if needed
+                            test: someValue
+    dev:
+        prettyName: 'DEV:'
+        choices:
+            nepal_elisa:
+                prettyName: Nepal ELISA
+                choices:
+                    awareness:
+                        prettyName: Situation Awareness
+                        layout: nepal-elisa-sa
+                        # TODO: 825: temporary reference to datastore
+                        datastore: es1
+                        tables:
+                            table_key_1: es1.ll_nepal_06_14.situations
+                            table_key_2: es1.ll_nepal_06_14.annotations
+                            table_key_3: es1.ll_nepal_06_14.documents
+                    terrain:
+                        prettyName: Human Terrain
+                        layout: human-terrain
+                        # TODO: 825: temporary reference to datastore
+                        datastore: es1
+                        tables:
+                            table_key_1: es1.ll_nepal_06_14_2.annotations1Author
+
+layouts:
+    uyghur-sd:
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 1
+          row: 1
+          sizex: 4
+          sizey: 14
+          bindings:
+              title: Document Feed # TODO: 825: Titles should probably be generic keys
+              tableKey: table_key_1
+              # TODO: 825: use generic field keys (like tableKey) so that layout
+              # can be used for multiple datasets
+              idField: _id
+              sortField: createdDate # for uyghur elisa data: createdAt
+              limit: 100
+              allColumnStatus: hide
+              exceptionsToStatus:
+                  - createdDate # for uyghur elisa data: createdAt
+                  - originalText # for uyghur elisa data: JustificationIL
+              customColumnWidths:
+                  # for uyghur elisa data: createdAt
+                  - createdDate
+                    15
+                  # for uyghur elisa data: JustificationIL
+                  - originalText
+                    360
+              filterable: false
+              filterFields:
+                  - id
+              singleFilter: true
+              ignoreSelf: false
+              checkDuplicateField: originalText # for uyghur elisa data: JustificationIL
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 7
+          minSizey: 3
+        - name: Map
+          type: map
+          icon: Map64
+          col: 5
+          row: 1
+          sizex: 4
+          sizey: 9
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              filterable: true
+              name: EVENTS
+              show: true
+              type: cluster
+              limit: 5000
+              layers:
+                  - title: Map
+                    tableKey: table_key_1
+                    latitudeField: geoLocation.lat
+                    longitudeField: geoLocation.lon
+                    # TODO: 825: make dateField and colorField generic field keys
+                    dateField: createdDate
+                    colorField: topic # for uyghur elisa data: Type
+              mapType: leaflet
+              west: 30.5
+              north: 49
+              east: 127
+              south: 10.6
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 6
+          minSizey: 5
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 5
+          row: 9
+          sizex: 4
+          sizey: 5
+          bindings:
+              title: Need Type # for uyghur elisa data: Topics
+              type: bar-h
+              tableKey: table_key_1
+              xField: topic # for uyghur elisa data: Type
+              limit: 11
+              groupField: topic # for uyghur elisa data: Type
+              sortByAggregation: true
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 4
+          minSizey: 3
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 9
+          row: 1
+          sizex: 4
+          sizey: 9
+          bindings:
+              title: Situation Frames
+              tableKey: table_key_1
+              sortField: createdDate # for uyghur elisa data: createdAt
+              idField: _id
+              limit: 100
+              allColumnStatus: hide
+              # for uyghur elisa data: ["createdAt", "Type", "location"],
+              exceptionsToStatus:
+                  - createdDate
+                  - topic
+                  - location
+              customColumnWidths:
+                  # for uyghur elisa data:
+                  # - createdAt
+                  #   25
+                  # - Type
+                  #   100
+                  # - Status
+                  #   150
+                  - createdDate
+                    25
+                  - topic
+                    100
+                  - location
+                    150
+              filterable: false
+              filterFields:
+                  - _id # for uyghur elisa data: id
+              singleFilter: true
+              ignoreSelf: false
+              checkDuplicateField: originalText # for uyghur elisa data: none
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 6
+          minSizey: 5
+        - name: Annotation Viewer
+          type: annotationViewer
+          icon: documentViewer64
+          col: 9
+          row: 10
+          sizex: 2
+          sizey: 5
+          bindings:
+              title: Original Text
+              tableKey: table_key_1
+              # TODO: 825: make linkField and idField generic field keys
+              linkField: originalText # for uyghur elisa data: JustificationIL
+              idField: _id
+              respondMode: true
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 6
+          minSizey: 3
+        - name: Annotation Viewer
+          type: annotationViewer
+          icon: documentViewer64
+          col: 11
+          row: 10
+          sizex: 2
+          sizey: 5
+          bindings:
+              title: Translated Text
+              tableKey: table_key_1
+              # TODO: 825: make linkField and idField generic field keys
+              linkField: translatedText # for uyghur elisa data: JustificationEN
+              idField: _id
+              respondMode: true
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 4
+          minSizey: 3
+        - name: Filter Builder
+          type: filterBuilder
+          icon: CreateFilter64
+          col: 1
+          row: 14
+          sizex: 6
+          sizey: 4
+          bindings:
+              title: Filter Builder
+              tableKey: table_key_1
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 2
+          minSizey: 2
+        - name: Text Cloud
+          type: textCloud
+          icon: TagCloud64
+          col: 7
+          row: 14
+          sizex: 6
+          sizey: 4
+          $$hashKey: object:35
+          selected: true
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              # TODO: 825: make dataField a generic field key
+              dataField: location
+              preFilter: false
+          id: 431a862e-2b4d-4c4d-92c6-5c4c54515ea7
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 6
+          minSizey: 5
+    nepal-elisa-sd:
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 1
+          row: 1
+          sizex: 4
+          sizey: 14
+          bindings:
+              title: Documents # TODO: 825: Titles should probably be generic keys
+              tableKey: table_key_1
+              # TODO: 825: use generic field keys (like tableKey) so that layout
+              # can be used for multiple datasets
+              idField: _id
+              sortField: createdAt
+              limit: 100
+              allColumnStatus: hide
+              exceptionsToStatus:
+                  - createdAt
+                  - originalText
+              customColumnWidths:
+                  - createdAt
+                    15
+                  - originalText
+                    360
+              filterable: false
+              filterFields:
+                  - id
+              singleFilter: true
+              ignoreSelf: false
+              checkDuplicateField: originalText
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 7
+          minSizey: 3
+        - name: Map
+          type: map
+          icon: Map64
+          col: 5
+          row: 1
+          sizex: 4
+          sizey: 9
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              filterable: true
+              name: EVENTS
+              show: true
+              type: cluster
+              limit: 5000
+              layers:
+                  - title: Map
+                    tableKey: table_key_1
+                    latitudeField: geoLocation.lat
+                    longitudeField: geoLocation.lon
+                    # TODO: 825: make dateField and colorField generic field keys
+                    dateField: createdDate
+                    colorField: topic
+              mapType: leaflet
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 6
+          minSizey: 5
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 5
+          row: 9
+          sizex: 4
+          sizey: 5
+          bindings:
+              title: Topics
+              type: bar-h
+              tableKey: table_key_1
+              xField: topic
+              limit: 10
+              groupField: topic
+              sortByAggregation: true
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 4
+          minSizey: 3
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 9
+          row: 1
+          sizex: 4
+          sizey: 9
+          bindings:
+              title: Situation Frames
+              tableKey: table_key_1
+              sortField: createdAt
+              idField: _id
+              limit: 100
+              allColumnStatus: hide
+              exceptionsToStatus:
+                  - createdAt
+                  - topic
+                  - location
+                  - mediaEntities.displayURL
+              customColumnWidths:
+                  - createdAt
+                    122
+                  - location
+                    100
+                  - topic
+                    85
+                  - mediaEntities.displayURL
+                    85
+              filterable: false
+              filterFields:
+                  - id
+              singleFilter: true
+              ignoreSelf: false
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 7
+          minSizey: 3
+        - name: Annotation Viewer
+          type: annotationViewer
+          icon: documentViewer64
+          col: 9
+          row: 8
+          sizex: 2
+          sizey: 5
+          bindings:
+              title: Selected Text
+              tableKey: table_key_1
+              # TODO: 825: make linkField and idField generic field keys
+              linkField: originalText
+              idField: _id
+              respondMode: true
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 2
+          minSizey: 3
+        - name: Media Viewer
+          type: mediaViewer
+          icon: mediaViewer
+          col: 11
+          row: 8
+          sizex: 2
+          sizey: 5
+          bindings:
+              title: Media Viewer
+              tableKey: table_key_1
+              # TODO: 825: make generic field keys
+              id: _id
+              idField: _id
+              linkField: mediaEntities.mediaURLHttps
+              resize: true
+              maxHeight: 500
+              maxWidth: 540
+              typeMap:
+                  bmp: img
+                  jpg: img
+                  jpeg: img
+                  png: img
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 4
+          minSizey: 4
+        - name: Filter Builder
+          type: filterBuilder
+          icon: CreateFilter64
+          col: 1
+          row: 14
+          sizex: 6
+          sizey: 4
+          bindings:
+              title: Filter Builder
+              tableKey: table_key_1
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 2
+          minSizey: 2
+        - name: Text Cloud
+          type: textCloud
+          icon: TagCloud64
+          col: 7
+          row: 14
+          sizex: 6
+          sizey: 4
+          $$hashKey: object:35
+          selected: true
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              # TODO: 825: make dataField a generic field key
+              dataField: location
+              preFilter: false
+          id: 431a862e-2b4d-4c4d-92c6-5c4c54515ea7
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 6
+          minSizey: 5
+    car-elisa-sd:
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 1
+          row: 1
+          sizex: 4
+          sizey: 14
+          $$hashKey: object:43
+          selected: true
+          bindings:
+              title: Document Feed # TODO: 825: Titles should probably be generic keys
+              tableKey: table_key_1
+              # TODO: 825: use generic field keys (like tableKey) so that layout
+              # can be used for multiple datasets
+              idField: _id
+              sortField: createdAt
+              limit: 100
+              allColumnStatus: hide
+              exceptionsToStatus:
+                  - Date Created
+                  - JustificationEN
+              customColumnWidths:
+                  - Date Created
+                    10
+                  - JustificationEN
+                    360
+              filterable: false
+              filterFields:
+                  - id
+              singleFilter: true
+              ignoreSelf: false
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 7
+          minSizey: 3
+        - name: Map
+          type: map
+          icon: Map64
+          col: 5
+          row: 1
+          sizex: 4
+          sizey: 9
+          $$hashKey: object:29
+          selected: true
+          id: 699ca2a6-7fa2-4d66-bc37-97d08f4b49ae
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              filterable: true
+              name: EVENTS
+              show: true
+              type: cluster
+              limit: 5000
+              latitudeField: geoLocation.lat
+              longitudeField: geoLocation.lon
+              colorField:
+              colorMapping:
+                  - match: "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))"
+                    label: Need
+                    color: "rgb(02550)"
+                  - match: "(?=.*evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?=.*regimechange|crimeviolence|terrorism|earthquake).*"
+                    label: Need and Issue
+                    color: "rgb(2552550)"
+                  - match: "(regimechange|crimeviolence|terrorism|earthquake)(?!=.*(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing))"
+                    label: Issue
+                    color: "rgb(25500)"
+              applyTransientDateFilter: false
+              popupFields:
+                  - JustificationEN
+              layers:
+                  - title: Map
+                    tableKey: table_key_1
+                    latitudeField: geoLocation.lat
+                    longitudeField: geoLocation.lon
+                    # TODO: 825: make dateField and colorField generic field keys
+                    dateField: createdAt
+                    colorField: Type
+              west: 16.0
+              east: 22.32982
+              north: 7.245497
+              south: 4.77899
+              geoServer:
+                  offline: false
+                  mapUrl: http://localhost:8080/geoserver/lorelei_workspace/wms
+                  layer: lorelei_workspace:MapCityLabel
+              mapType: leaflet
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 6
+          minSizey: 5
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 5
+          row: 7
+          sizex: 4
+          sizey: 5
+          id: 1cae96da-4d62-4b12-b2ce-3fc794b95309
+          $$hashKey: object:30
+          bindings:
+              title: Situation Types
+              type: bar-h
+              tableKey: table_key_1
+              xField: Type
+              groupField: Type
+              sortByAggregation: true
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 4
+          minSizey: 3
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 9
+          row: 1
+          sizex: 4
+          sizey: 9
+          bindings:
+              title: Situation Frames # TODO: 825: Titles should probably be generic keys
+              tableKey: table_key_1
+              # TODO: 825: use generic field keys (like tableKey) so that layout
+              # can be used for multiple datasets
+              idField: _id
+              sortField: createdAt
+              limit: 100
+              allColumnStatus: hide
+              exceptionsToStatus:
+                  - createdAt
+                  - Type
+                  - location
+              customColumnWidths:
+                  - createdAt
+                    25
+                  - Type
+                    100
+                  - Status
+                    150
+              filterable: false
+              filterFields:
+                  - id
+              singleFilter: true
+              ignoreSelf: false
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 6
+          minSizey: 5
+        - name: Annotation Viewer
+          type: annotationViewer
+          icon: documentViewer64
+          col: 9
+          row: 9
+          sizex: 4
+          sizey: 5
+          bindings:
+              title: Original Text
+              tableKey: table_key_1
+              # TODO: 825: make linkField and idField generic field keys
+              linkField: JustificationEN
+              idField: _id
+              respondMode: true
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 6
+          minSizey: 3
+        - name: Text Cloud
+          type: textCloud
+          icon: TagCloud64
+          sizex: 6
+          sizey: 4
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 6
+          minSizey: 5
+          $$hashKey: object:35
+          selected: true
+          bindings:
+              title: Entities
+              tableKey: table_key_1
+              dataField: entities.name
+          id: 431a862e-2b4d-4c4d-92c6-5c4c54515ea7
+          row: 14
+          col: 7
+        - name: Filter Builder
+          type: filterBuilder
+          icon: CreateFilter64
+          sizex: 6
+          sizey: 4
+          minPixelx: 320
+          minPixely: 240
+          minSizex: 2
+          minSizey: 2
+          $$hashKey: object:31
+          selected: true
+          bindings:
+              title: Filter Builder
+              tableKey: table_key_1
+          row: 14
+          col: 1
+    nepal-elisa-sa:
+      - name: Data Table
+        type: dataTable
+        icon: ViewData64
+        col: 1
+        row: 1
+        sizex: 4
+        sizey: 7
+        bindings:
+            title: Situations # TODO: 825: Titles should probably be generic keys
+            tableKey: table_key_1
+            # TODO: 825: use generic field keys (like tableKey) so that layout
+            # can be used for multiple datasets
+            idField: _id
+            sortField: situationName
+            limit: 100
+            allColumnStatus: hide
+            exceptionsToStatus:
+                - situationName
+                - docCount
+                - topic
+            customColumnWidths:
+                - situationName
+                  281
+                - docCount
+                  105
+            filterable: false
+            filterFields:
+                - documents
+                - _id
+            arrayFilterOperator: or
+            singleFilter: false
+            ignoreSelf: false
+        minPixelx: 320
+        minPixely: 240
+        minSizex: 7
+        minSizey: 3
+      - name: Map
+        type: map
+        icon: Map64
+        col: 5
+        sizex: 4
+        row: 1
+        sizey: 9
+        bindings:
+            title: Locations
+            tableKey: table_key_2
+            filterable: true
+            name: EVENTS
+            show: true
+            type: cluster
+            limit: 5000
+            layers:
+              - title: Nepal Earthquake 2015 Annotations Point Layer
+                tableKey: table_key_2
+                latitudeField: geoLocations.lat
+                longitudeField: geoLocations.lon
+                dateField: createdAt
+                colorField: sentimentString
+            geoServer:
+                offline: false
+                mapUrl: http://localhost:8080/geoserver/lorelei_workspace/wms
+                layer: lorelei_workspace:MapCityLabel
+            mapType: leaflet
+        minPixelx: 320
+        minPixely: 240
+        minSizex: 6
+        minSizey: 5
+      - name: Data Table
+        type: dataTable
+        icon: ViewData64
+        col: 9
+        row: 1
+        sizex: 4
+        sizey: 7
+        bindings:
+            title: Documents # TODO: 825: Titles should probably be generic keys
+            tableKey: table_key_3
+            # TODO: 825: use generic field keys (like tableKey) so that layout
+            # can be used for multiple datasets
+            idField: id
+            sortField: createdAt
+            limit: 100
+            allColumnStatus: hide
+            exceptionsToStatus:
+                - createdAt
+                - translatedText
+                - mediaEntities.displayURL
+            customColumnWidths:
+                - createdAt
+                  186
+                - translatedText
+                  235
+                - mediaEntities.displayURL
+                  103
+            filterable: false
+            filterFields:
+                - id
+            singleFilter: true
+            ignoreSelf: false
+        minPixelx: 320
+        minPixely: 240
+        minSizex: 7
+        minSizey: 3
+      - name: Bar Chart
+        type: aggregation
+        icon: bar_chart
+        col: 1
+        row: 8
+        sizex: 4
+        sizey: 5
+        bindings:
+            title: Topics
+            type: bar-h
+            tableKey: table_key_2
+            xField: llAnnotation.Type
+            groupField: llAnnotation.Type
+            limit: 11
+            sortByAggregation: true
+        minPixelx: 320
+        minPixely: 240
+        minSizex: 4
+        minSizey: 3
+      - name: Text Cloud
+        type: textCloud
+        icon: TagCloud64
+        col: 7
+        row: 3
+        sizex: 2
+        sizey: 3
+        minPixelx: 320
+        minPixely: 240
+        minSizex: 6
+        minSizey: 5
+        $$hashKey: object:35
+        selected: true
+        bindings:
+            title: Locations
+            tableKey: table_key_2
+            dataField: LOC
+            preFilter: false
+        id: 431a862e-2b4d-4c4d-92c6-5c4c54515ea7
+      - name: Timeline
+        type: timeline
+        icon: Timeline64
+        col: 5
+        sizex: 2
+        row: 10
+        sizey: 3
+        bindings:
+            title: Times
+            tableKey: table_key_2
+            dateField: createdAt
+            granularity: hour
+        minPixelx: 320
+        minPixely: 240
+        minSizex: 6
+        minSizey: 3
+      - name: Media Viewer
+        type: mediaViewer
+        icon: mediaViewer
+        col: 9
+        sizex: 4
+        row: 13
+        sizey: 5
+        bindings:
+            title: Media Viewer
+            tableKey: table_key_2
+            id: _id
+            idField: id
+            linkField: mediaEntities.mediaURLHttps
+        minPixelx: 320
+        minPixely: 240
+        minSizex: 4
+        minSizey: 4
+    human-terrain:
+      - name: Filter Builder
+        type: filterBuilder
+        icon: CreateFilter64
+        sizex: 8
+        sizey: 2
+        minPixelx: 320
+        minPixely: 240
+        minSizex: 2
+        minSizey: 2
+        $$hashKey: object:31
+        selected: true
+        bindings:
+            title: Filter Builder
+            tableKey: table_key_1
+        row: 1
+        col: 1
+      - name: Data Table
+        type: dataTable
+        icon: ViewData64
+        col: 9
+        row: 1
+        sizex: 4
+        sizey: 12
+        bindings:
+            title: Documents # TODO: 825: Titles should probably be generic keys
+            tableKey: table_key_1
+            # TODO: 825: use generic field keys (like tableKey) so that layout
+            # can be used for multiple datasets
+            idField: id
+            sortField: createdAt
+            limit: 100
+            allColumnStatus: hide
+            exceptionsToStatus:
+                - createdAt
+                - translatedText
+            customColumnWidths:
+                - createdAt
+                  186
+                - translatedText
+                  342
+        minPixelx: 320
+        minPixely: 240
+        minSizex: 7
+        minSizey: 3
+      - name: Network Graph
+        type: networkGraph
+        icon: Graph64
+        sizex: 8
+        sizey: 10
+        minPixelx: 320
+        minPixely: 240
+        minSizex: 6
+        minSizey: 5
+        $$hashKey: object:43
+        selected: true
+        bindings:
+            title: Network Graph
+            tableKey: table_key_1
+            nodeField: entities
+            linkField: authorScreenName
+            nodeColor: "#4DBCC1"
+            linkColor: "#F68B4E"
+            limit: 100
+            edgeColorField: sentimentString
+        row: 15
+        col: 1
+
+routeService:
+    url: http://localhost:8090/ghREST/
+    get: route?lat1=LAT1&lon1=LON1&lat2=LAT2&lon2=LON2
+    post: dynamicroute
+    disabled: true
