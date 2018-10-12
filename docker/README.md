@@ -105,6 +105,12 @@ After building the image, you can start the lorelei Docker container. A `run.sh.
 docker run -v ~/Desktop/data:/usr/local/data/geoserver/data --name lorelei -d -p 2222:22 -p 8080:8080 -p 8888:8888 -p 9200:9200 --name lorelei lorelei
 ```
 
+Upon starting the Docker container, an entrypoint script is run that handles all configuration of elasticsearch, tomcat and geoserver, as well as ingesting all data. This script can take up to a minute to complete depending on how many data sets you are ingesting via the ES_DATA_MAPPING_TUPLE build argument. If you are having trouble loading the lorelei application, give it some time or check the status of the entrypoint script by checking out the docker logs for the container:
+
+```bash
+docker logs lorelei
+```
+
 #### Update bind mount location
 You will need to update the first configuration after the `-v`. This is the bind mount location. Update the path before the `:` to reflect the path of your data directory created in the [Data directory creation](#Data-directory-creation) section above.
 
