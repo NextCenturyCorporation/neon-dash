@@ -565,9 +565,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     /**
      * Handles the thumbnail grid query results and show/hide event for selecting/filtering and unfiltering documents.
      *
-     * @arg {object} response
-     * @override
+     *  @arg {object} response
+     *  @override
      */
+
     onQuerySuccess(response) {
         this.gridArray = [];
         this.errorMessage = '';
@@ -578,7 +579,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 this.isLoading = true;
                 response.data.forEach((d) => {
                     let item = {},
-                         links = [];
+                        links = [];
 
                     if (this.options.linkField.columnName) {
                         links = this.getArrayValues(neonUtilities.deepFind(d, this.options.linkField.columnName) || '');
@@ -648,19 +649,25 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     this.options.table.name, [this.options.filterField.columnName]);
 
                 if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
-                    this.page = (this.gridArray.length < (((this.page - 1) * this.options.limit) + 1)) ? 1 : this.page;
-                    this.updatePageData();
+                    this.lastPage = (this.gridArray.length <= this.options.limit);
+                    if (this.page > 1 && !this.lastPage) {
+                        let offset = (this.page - 1) * this.options.limit;
+                        this.pagingGrid = this.gridArray.slice(offset,
+                            Math.min(this.page * this.options.limit, this.gridArray.length));
+                    } else {
+                        this.pagingGrid = this.gridArray.slice(0, this.options.limit);
+                    }
+                    this.showGrid = true;
                 } else {
                     this.pagingGrid = [];
                     this.showGrid = false;
-                    this.refreshVisualization();
-                    this.createMediaThumbnail();
                 }
 
+                this.refreshVisualization();
+                this.createMediaThumbnail();
                 this.isLoading = false;
 
             } else {
-                this.pagingGrid = [];
                 this.errorMessage = 'No Data';
                 this.refreshVisualization();
             }
