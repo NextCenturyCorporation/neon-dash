@@ -103,18 +103,25 @@ export class Datastore {
     ) {}
 }
 
+export class DashboardWrapper {
+    public category: string = '';
+    public choices: { [key: string]: Dashboard } = {};
+}
+
 export class Dashboard {
-    public prettyName: string = '';
+    public category: string = '';
+    public name: string = '';
     public choices: { [key: string]: DashboardChoice } = {};
 }
 
 export class DashboardChoice {
-    public prettyName: string = '';
+    public category: string = '';
+    public name: string = '';
     public choices: { [key: string ]: DashboardConfigChoice } = {};
 }
 
 export class DashboardConfigChoice {
-    public prettyName: string = '';
+    public name: string = '';
     // TODO: 825: temporary link for dashboards and datastores until UI is updated
     public datastore: string = ''; // TODO: 825: temporary until table/field keys are used and multiple connections are supported
     public layout: string = '';

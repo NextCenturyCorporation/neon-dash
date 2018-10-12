@@ -17,7 +17,7 @@ import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
 import { DatasetOptions, DatabaseMetaData, TableMetaData,
-    TableMappings, FieldMetaData, Relation, Datastore, Dashboard, DashboardConfigChoice, DashboardChoice } from '../dataset';
+    TableMappings, FieldMetaData, Datastore, DashboardWrapper, DashboardConfigChoice } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import * as _ from 'lodash';
@@ -33,7 +33,7 @@ export class DatasetService {
     // The active dataset.
     private dataset: Datastore = new Datastore();
 
-    private dashboards: { [key: string]: Dashboard } = {};
+    private dashboards: DashboardWrapper;
 
     // The currently selected dashboard.
     private currentDashboardConfigName: string;
@@ -103,7 +103,7 @@ export class DatasetService {
     constructor(@Inject('config') private config: NeonGTDConfig) {
         this.datasets = [];
         let datastores = (config.datastores ? config.datastores : {});
-        this.dashboards = (config.dashboards ? config.dashboards : {});
+        this.dashboards = (config.dashboards ? config.dashboards : {category: 'No Options', choices: {}});
         // TODO: 825: wouldn't we need to validate dashboards objects like
         // we do with datastores?
 
@@ -255,7 +255,7 @@ export class DatasetService {
     /**
      * Returns all of the dashboards.
      */
-    public getDashboards(): { [key: string]: Dashboard } {
+    public getDashboards(): DashboardWrapper {
         return this.dashboards;
     }
 
