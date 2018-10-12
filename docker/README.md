@@ -145,12 +145,12 @@ Navigate to `http://localhost:8888/lorelei` and verify that Lorelei UI is proper
 
 ## Commit new Docker image
 
-After verification we need to commit the working container into a new image. This ensures that all the data copied from the bind mount and all the settings will persist when the customer starts the delivered Docker image. To commit the image execute the following command:
+After verification we need to commit the working container into a new image. This ensures that all the data copied from the bind mount and all configurations set during entrypoint will persist when the customer starts the delivered Docker image. To commit the image execute the following command:
 
 ```bash
 docker commit <container-id> nextcentury/lorelei:latest
 ```
-A new `nextcentury/lorelei:latest` image will be created. You can test this image by starting it with the following command:
+A new `nextcentury/lorelei:latest` image will be created. This example is using `nextcentury/lorelei:latest` for the name of the Docker image. This value should be updated per your requirements. You can test this image by starting it with the following command:
 
 ```bash
 docker run -d -p 2222:22 -p 8080:8080 -p 8888:8888 -p 9200:9200 --name lorelei nextcenturylorelei:latest
