@@ -26,23 +26,24 @@ import {
     ViewContainerRef
 } from '@angular/core';
 
+import * as L from 'leaflet'; // imported for use of DomUtil.enable/disableTextSelection
+import { ActiveGridService } from './services/active-grid.service';
+import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
+import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { Dataset } from './dataset';
-
-import { NeonGTDConfig } from './neon-gtd-config';
-import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatSidenav } from '@angular/material';
-import { ActiveGridService } from './services/active-grid.service';
 import { DatasetService } from './services/dataset.service';
-import { ThemesService } from './services/themes.service';
-import { NgGrid, NgGridConfig } from 'angular2-grid';
-import { NeonGridItem } from './neon-grid-item';
-import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
-import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
+import { DomSanitizer } from '@angular/platform-browser';
+import { FilterService } from '../app/services/filter.service';
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
+import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatSidenav } from '@angular/material';
+import { MatIconRegistry } from '@angular/material/icon';
+import { NeonGridItem } from './neon-grid-item';
+import { NeonGTDConfig } from './neon-gtd-config';
+import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
-
-import * as L from 'leaflet'; // imported for use of DomUtil.enable/disableTextSelection
-import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
+import { ThemesService } from './services/themes.service';
+import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 
 @Component({
     selector: 'app-root',
@@ -63,6 +64,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public showAddVisualizationButton: boolean = false;
     public showFilterTrayButton: boolean = false;
     public showCustomConnectionButton: boolean = false;
+    public showFilterBuilder: boolean = false;
+    public createFilterBuilder: boolean = false; //This is used to create the Filter Builder later
 
     public gridItems: NeonGridItem[] = [];
 
@@ -99,9 +102,20 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     /* A reference to the dialog for the custom connection dialog. */
     private customConnectionDialogRef: MatDialogRef<CustomConnectionComponent>;
 
-    constructor(public datasetService: DatasetService, public themesService: ThemesService,
-        private activeGridService: ActiveGridService, public dialog: MatDialog,
-        public viewContainerRef: ViewContainerRef, @Inject('config') private neonConfig: NeonGTDConfig, public snackBar: MatSnackBar) {
+    public filterBuilderIcon;
+
+    constructor(
+        private activeGridService: ActiveGridService,
+        public datasetService: DatasetService,
+        public dialog: MatDialog,
+        private domSanitizer: DomSanitizer,
+        public filterService: FilterService,
+        private matIconRegistry: MatIconRegistry,
+        public snackBar: MatSnackBar,
+        public themesService: ThemesService,
+        public viewContainerRef: ViewContainerRef,
+        @Inject('config') private neonConfig: NeonGTDConfig
+    ) {
         // TODO: Default to false and set to true only after a dataset has been selected.
         this.showAddVisualizationButton = true;
         this.showFilterTrayButton = true;
@@ -124,7 +138,18 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             this.projectIcon = this.datasets[0].icon ? this.datasets[0].icon : this.projectIcon;
         }
 
+        this.matIconRegistry.addSvgIcon(
+            'filter_builder',
+            this.domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/filter_builder.svg')
+        );
+
+        this.matIconRegistry.addSvgIcon(
+            'filter_builder_active',
+            this.domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/filter_builder_active.svg')
+        );
+
         this.changeFavicon();
+        this.filterBuilderIcon = 'filter_builder';
 
     }
 
@@ -158,6 +183,20 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         });
     }
 
+    openFilterBuilderDialog() {
+        //Added this to create the filter builder at first click so it's after dataset initialization
+        if (!this.createFilterBuilder) {
+            this.createFilterBuilder = true;
+        }
+        this.showFilterBuilder = !this.showFilterBuilder;
+        let filterBuilderContainer: HTMLElement = document.getElementById('filter.builder');
+        if (this.showFilterBuilder) {
+            filterBuilderContainer.setAttribute('style', 'display: show');
+        } else {
+            filterBuilderContainer.setAttribute('style', 'display: none');
+        }
+    }
+
     openCustomConnectionDialog() {
         let config = new MatDialogConfig();
         config.viewContainerRef = this.viewContainerRef;
@@ -178,7 +217,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     onDragStop(i, event) {
-       this.showItemLocation(event);
+        this.showItemLocation(event);
     }
 
     ngAfterViewInit() {
@@ -241,5 +280,15 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         head.appendChild(favicon);
         head.appendChild(faviconShortcut);
         head.appendChild(title);
+    }
+
+    changeFilterBuilderIcon() {
+        let filters = this.filterService.getFilters();
+        if (filters.length > 0) {
+            this.filterBuilderIcon = 'filter_builder_active';
+        } else {
+            this.filterBuilderIcon = 'filter_builder';
+        }
+        return true;
     }
 }
