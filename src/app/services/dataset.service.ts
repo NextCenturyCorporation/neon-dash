@@ -821,6 +821,8 @@ export class DatasetService {
      * @param {Number} index (optional)
      * @private
      */
+    // TODO: 825: if database doesn't exist, the app now fails before you select a dashboard/database instead of after
+    // the selection is made. Rework if this isn't desired behavior.
     public updateDatabases(dataset: Datastore, connection: neon.query.Connection, callback?: Function, index?: number): void {
         let databaseIndex = index ? index : 0;
         let database = dataset.databases[databaseIndex];
