@@ -138,8 +138,8 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         let tempDashboards = this.datasetService.getDashboards();
         let finalDashboards: {[key: string]: DashboardConfigChoice } = {};
 
-        Object.keys(tempDashboards).forEach((dashboardKey) => {
-            let dashboard = tempDashboards[dashboardKey];
+        Object.keys(tempDashboards.choices).forEach((dashboardKey) => {
+            let dashboard = tempDashboards.choices[dashboardKey];
 
             let choices = (dashboard.choices ? dashboard.choices : {});
 
@@ -149,7 +149,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
                 Object.keys(nestedChoices).forEach((nestedChoiceKey) => {
                     let nextChoice = nestedChoices[nestedChoiceKey];
-                    let keyToUse = dashboard.prettyName + ' ' + choice.prettyName + ' ' + nextChoice.prettyName;
+                    let keyToUse = dashboard.name + ' ' + choice.name + ' ' + nextChoice.name;
                     finalDashboards[keyToUse] = nextChoice;
                 });
             });

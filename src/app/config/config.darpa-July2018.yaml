@@ -135,41 +135,40 @@ datastores:
                                 crimeviolence: Crime /  Violence
                                 terrorism: Terrorism
                                 regimechange: Regime Change
-            #
-            # ll_nepal_06_14:
-            #     prettyName: Nepal Earthquake 2015, ELISA Annotations # DEV: Nepal ELISA Situation Awareness layout: nepal-elisa-sa
-            #     tables:
-            #         annotations:
-            #             prettyName: Annotations
-            #             mappings:
-            #                 date: createdAt
-            #         situations:
-            #             prettyName: Situations
-            #             mappings: #empty
-            #             # TODO: 825: relations used to be listed at the same level as options
-            #             # need incorporate relations into dashboard
-            #             # relations:
-            #             # - members:
-            #             #   - database: ll_nepal_06_14
-            #             #     table: situations
-            #             #     field: documents
-            #             #   - database: ll_nepal_06_14
-            #             #     table: annotations
-            #             #     field: id
-            #             # - members:
-            #             #   - database: ll_nepal_06_14
-            #             #     table: situations
-            #             #     field: topic
-            #             #   - database: ll_nepal_06_14
-            #             #     table: annotations
-            #             #     field: llAnnotation.Type
-            # ll_nepal_06_14_2: #DEV: Nepal, #layout: human-terrain
-            #     prettyName: Human Terrain
-            #     tables:
-            #         annotations1Author:
-            #             prettyName: Annotations
-            #             mappings:
-            #                 date: createdAt
+            ll_nepal_06_14:
+                prettyName: Nepal Earthquake 2015, ELISA Annotations # DEV: Nepal ELISA Situation Awareness layout: nepal-elisa-sa
+                tables:
+                    annotations:
+                        prettyName: Annotations
+                        mappings:
+                            date: createdAt
+                    situations:
+                        prettyName: Situations
+                        mappings: #empty
+                        # TODO: 825: relations used to be listed at the same level as options
+                        # need incorporate relations into dashboard
+                        # relations:
+                        # - members:
+                        #   - database: ll_nepal_06_14
+                        #     table: situations
+                        #     field: documents
+                        #   - database: ll_nepal_06_14
+                        #     table: annotations
+                        #     field: id
+                        # - members:
+                        #   - database: ll_nepal_06_14
+                        #     table: situations
+                        #     field: topic
+                        #   - database: ll_nepal_06_14
+                        #     table: annotations
+                        #     field: llAnnotation.Type
+            ll_nepal_06_14_2: #DEV: Nepal, #layout: human-terrain
+                prettyName: Human Terrain
+                tables:
+                    annotations1Author:
+                        prettyName: Annotations
+                        mappings:
+                            date: createdAt
         options:
             checkForCoordinateValidation: 'null_values'
             # TODO: 825: do colorMaps also need to be moved, or will they work here?
@@ -309,89 +308,95 @@ legends:
                     value: GPE
 
 dashboards:
-    darpa60:
-        prettyName: 'DARPA60:'
-        choices:
-            uyghur:
-                prettyName: Uyghur
-                choices:
-                    uyg_ldc_discovery:
-                        prettyName: LDC Situation Discovery
-                        layout: uyghur-sd
-                        # TODO: 825: temporary reference to datastore
-                        datastore: es1
-                        tables:
-                            table_key_1: es1.ldc_uyg_jul_18.ui_out
-                        fields:
-                            field_key_1: es1.ldc_uyg_jul_18.ui_out.originalText
-                        options:
-                            # TODO: 825: perhaps make options here later if needed
-                            test: someValue
-                    # TODO: 825: The uyg_elisa_discovery dashboard probably won't work correctly until layouts are using field keys
-                    uyg_elisa_discovery:
-                        prettyName: ELISA Situation Discovery
-                        layout: uyghur-sd
-                        # TODO: 825: temporary reference to datastore
-                        datastore: es1
-                        tables:
-                            table_key_1: es1.uyg_elisa_sd.ui_out
-                        fields:
-                            field_key_1: es1.uyg_elisa_sd.ui_out.JustificationIL
-                        options:
-                            # TODO: 825: perhaps make options here later if needed
-                            test: someValue
-            nepal:
-                prettyName: Nepal
-                choices:
-                    nepal_elisa_discovery:
-                        prettyName: ELISA Situation Discovery
-                        layout: nepal-elisa-sd
-                        # TODO: 825: temporary reference to datastore
-                        datastore: es1
-                        tables:
-                            table_key_1: es1.ll_nepal_07_11_3.annotations
-                        fields:
-                            field_key_1: es1.ll_nepal_07_11_3.annotations.originalText
-                        options:
-                            # TODO: 825: perhaps make options here later if needed
-                            test: someValue
-            car:
-                prettyName: Central African Republic
-                choices:
-                    car_elisa_discovery:
-                        prettyName: ELISA Situation Discovery
-                        layout: car-elisa-sd
-                        # TODO: 825: temporary reference to datastore
-                        datastore: es1
-                        tables:
-                            table_key_1: es1.elisa_car_1.annotations
-                        fields:
-                            field_key_1: es1.elisa_car_1.annotations.JustificationEN
-                        options:
-                            # TODO: 825: perhaps make options here later if needed
-                            test: someValue
-    dev:
-        prettyName: 'DEV:'
-        choices:
-            nepal_elisa:
-                prettyName: Nepal ELISA
-                choices:
-                    awareness:
-                        prettyName: Situation Awareness
-                        layout: nepal-elisa-sa
-                        # TODO: 825: temporary reference to datastore
-                        datastore: es1
-                        tables:
-                            table_key_1: es1.ll_nepal_06_14.situations
-                            table_key_2: es1.ll_nepal_06_14.annotations
-                            table_key_3: es1.ll_nepal_06_14.documents
-                    terrain:
-                        prettyName: Human Terrain
-                        layout: human-terrain
-                        # TODO: 825: temporary reference to datastore
-                        datastore: es1
-                        tables:
-                            table_key_1: es1.ll_nepal_06_14_2.annotations1Author
+    category: 'Select an option...'
+    choices:
+        darpa60:
+            category: 'Select an option...'
+            name: 'DARPA60:'
+            choices:
+                uyghur:
+                    category: 'Select an option...'
+                    name: Uyghur
+                    choices:
+                        uyg_ldc_discovery:
+                            name: LDC Situation Discovery
+                            layout: uyghur-sd
+                            # TODO: 825: temporary reference to datastore
+                            datastore: es1
+                            tables:
+                                table_key_1: es1.ldc_uyg_jul_18.ui_out
+                            fields:
+                                field_key_1: es1.ldc_uyg_jul_18.ui_out.originalText
+                            options:
+                                # TODO: 825: perhaps make options here later if needed
+                                test: someValue
+                        # TODO: 825: The uyg_elisa_discovery dashboard probably won't work correctly until layouts are using field keys
+                        uyg_elisa_discovery:
+                            name: ELISA Situation Discovery
+                            layout: uyghur-sd
+                            # TODO: 825: temporary reference to datastore
+                            datastore: es1
+                            tables:
+                                table_key_1: es1.uyg_elisa_sd.ui_out
+                            fields:
+                                field_key_1: es1.uyg_elisa_sd.ui_out.JustificationIL
+                            options:
+                                # TODO: 825: perhaps make options here later if needed
+                                test: someValue
+                nepal:
+                    name: Nepal
+                    choices:
+                        nepal_elisa_discovery:
+                            name: ELISA Situation Discovery
+                            layout: nepal-elisa-sd
+                            # TODO: 825: temporary reference to datastore
+                            datastore: es1
+                            tables:
+                                table_key_1: es1.ll_nepal_07_11_3.annotations
+                            fields:
+                                field_key_1: es1.ll_nepal_07_11_3.annotations.originalText
+                            options:
+                                # TODO: 825: perhaps make options here later if needed
+                                test: someValue
+                car:
+                    name: Central African Republic
+                    choices:
+                        car_elisa_discovery:
+                            name: ELISA Situation Discovery
+                            layout: car-elisa-sd
+                            # TODO: 825: temporary reference to datastore
+                            datastore: es1
+                            tables:
+                                table_key_1: es1.elisa_car_1.annotations
+                            fields:
+                                field_key_1: es1.elisa_car_1.annotations.JustificationEN
+                            options:
+                                # TODO: 825: perhaps make options here later if needed
+                                test: someValue
+        dev:
+            category: 'Select an option...'
+            name: 'DEV:'
+            choices:
+                nepal_elisa:
+                    category: 'Select an option...'
+                    name: Nepal ELISA
+                    choices:
+                        awareness:
+                            name: Situation Awareness
+                            layout: nepal-elisa-sa
+                            # TODO: 825: temporary reference to datastore
+                            datastore: es1
+                            tables:
+                                table_key_1: es1.ll_nepal_06_14.situations
+                                table_key_2: es1.ll_nepal_06_14.annotations
+                                table_key_3: es1.ll_nepal_06_14.documents
+                        terrain:
+                            name: Human Terrain
+                            layout: human-terrain
+                            # TODO: 825: temporary reference to datastore
+                            datastore: es1
+                            tables:
+                                table_key_1: es1.ll_nepal_06_14_2.annotations1Author
 
 layouts:
     uyghur-sd:

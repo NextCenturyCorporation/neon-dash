@@ -57,24 +57,28 @@ datastores:
                 placeHolder: Search
 
 dashboards:
-    darpa60:
-        prettyName: DARPA60
-        choices:
-            Uyghur:
-                prettyName: Uyghur LDC
-                choices:
-                    uyg_ldc_discovery:
-                        prettyName: Situation Discovery
-                        layout: DISCOVERY
-                        # TODO: 825: temporary reference to datastore
-                        datastore: es1
-                        tables:
-                            table_key_1: es1.ldc_uyg_jul_18.ui_out
-                        fields:
-                            field_key_1: es1.ldc_uyg_jul_18.ui_out.originalText
-                        options:
-                            # TODO: 825: perhaps make options here later if needed
-                            test: someValue
+    category: 'Select an option...'
+    choices:
+        darpa60:
+            category: 'Select an option...'
+            name: DARPA60
+            choices:
+                Uyghur:
+                    category: 'Select an option...'
+                    name: Uyghur LDC
+                    choices:
+                        uyg_ldc_discovery:
+                            name: Situation Discovery
+                            layout: DISCOVERY
+                            # TODO: 825: temporary reference to datastore
+                            datastore: es1
+                            tables:
+                                table_key_1: es1.ldc_uyg_jul_18.ui_out
+                            fields:
+                                field_key_1: es1.ldc_uyg_jul_18.ui_out.originalText
+                            options:
+                                # TODO: 825: perhaps make options here later if needed
+                                test: someValue
 
 layouts:
   DISCOVERY:
