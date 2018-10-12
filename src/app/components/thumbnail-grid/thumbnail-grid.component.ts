@@ -944,9 +944,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         if (this.options.filterField.columnName) {
             this.createFilter(item[this.options.filterField.columnName]);
         }
-        if (this.options.openOnMouseClick) {
-            window.open(item[this.options.linkField.columnName]);
-        }
         this.publishAnyCustomEvents(item, this.options.idField.columnName);
     }
 
