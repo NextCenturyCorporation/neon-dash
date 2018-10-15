@@ -103,7 +103,6 @@ dashboards:
                             datastore: es1
                             tables:
                                 table_key_1: es1.ldc_uyg_jul_18.ui_out
-                                table_key_2: es1.ldc_uyg_jul_18.ui_output
                             # TODO: 825: use field keys
                             fields:
                                 field_key_1: es1.ldc_uyg_jul_18.ui_out.originalText
@@ -147,9 +146,6 @@ layouts:
               layers:
                   - title: Map
                     tableKey: table_key_1
-                    # TODO: 825: fix database/table references in layer to use tableKey
-                    #database: ll_nepal_08_14
-                    #table: annotations
                     latitudeField: geoLocation.lat
                     longitudeField: geoLocation.lon
                     dateField: createdDate
@@ -435,7 +431,7 @@ layouts:
           sizey: 4
           bindings:
               title: Original Text
-              tableKey: table_key_2
+              tableKey: table_key_1
               linkField: originalText
               idField: _id
               respondMode: true
@@ -452,7 +448,7 @@ layouts:
           sizey: 4
           bindings:
               title: Translated Text
-              tableKey: table_key_2
+              tableKey: table_key_1
               linkField: translatedText
               idField: _id
               respondMode: true
@@ -469,7 +465,7 @@ layouts:
           sizey: 2
           bindings:
               title: Filter Builder
-              tableKey: table_key_2
+              tableKey: table_key_1
           minPixelx: 320
           minPixely: 240
           minSizex: 2
@@ -485,7 +481,7 @@ layouts:
           selected: true
           bindings:
               title: Locations
-              tableKey: table_key_2
+              tableKey: table_key_1
               dataField: location
               preFilter: false
           id: 431a862e-2b4d-4c4d-92c6-5c4c54515ea7
