@@ -92,7 +92,7 @@ export class DatasetServiceMock extends DatasetService {
             }]
         });
         this.setCurrentDashboardConfig({
-            prettyName: 'Test Discovery Config',
+            name: 'Test Discovery Config',
             layout: 'DISCOVERY',
             datastore: 'datastore1',
             tables: {
