@@ -16,24 +16,32 @@
                             "prettyName": "Annotations",
                             "fields": [
                                 {
-                                    "columnName": "createdAt",
+                                    "columnName": "id",
+                                    "prettyName": "ID"
+                                },
+                                {
+                                    "columnName": "createdDate",
                                     "prettyName": "Date Created"
                                 },
                                 {
-                                    "columnName": "topic",
-                                    "prettyName": "Need Type"
+                                    "columnName": "audioLink",
+                                    "prettyName": "Audio Link"
                                 },
                                 {
-                                    "columnName": "location",
-                                    "prettyName": "Location"
+                                    "columnName": "pgeos.pid",
+                                    "prettyName": "Pid Array"
                                 },
                                 {
-                                    "columnName": "originalText",
-                                    "prettyName": "Original Text"
+                                    "columnName": "pgeos.lat",
+                                    "prettyName": "Pid Latitude Array"
+                                },
+                                {
+                                    "columnName": "pgeos.lon",
+                                    "prettyName": "Pid Longitude Array"
                                 }
                             ],
                             "mappings": {
-                                "date": "createdAt"
+                                "date": "createdDate"
                             }
                         }
                     ]
@@ -44,7 +52,7 @@
                 "simpleFilter": {
                     "databaseName": "test_data_audio",
                     "tableName": "annotations",
-                    "fieldName": "originalText",
+                    "fieldName": "",
                     "placeHolder": "Search"
                 }
             }
@@ -65,19 +73,19 @@
                     "database": "test_data_audio",
                     "table": "annotations",
                     "idField": "_id",
-                    "sortField": "createdAt",
+                    "sortField": "createdDate",
                     "limit": "100",
                     "allColumnStatus": "hide",
-                    "exceptionsToStatus": ["createdAt", "originalText"],
+                    "exceptionsToStatus": ["createdDate", "audioLink"],
                     "customColumnWidths": [
-                        ["createdAt", 150],
-                        ["originalText", 225]
+                        ["createdDate", 150],
+                        ["audioLink", 225]
                     ],
                     "filterable": false,
                     "filterFields": ["id"],
                     "singleFilter": true,
                     "ignoreSelf": false,
-                    "checkDuplicateField": "originalText"
+                    "checkDuplicateField": "id"
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -106,10 +114,10 @@
                             "title": "Map",
                             "database": "test_data_audio",
                             "table": "annotations",
-                            "latitudeField": "geoLocation.lat",
-                            "longitudeField": "geoLocation.lon",
-                            "dateField": "createdAt",
-                            "colorField": "topic"
+                            "latitudeField": "pgeos.lat",
+                            "longitudeField": "pgeos.lon",
+                            "dateField": "createdDate",
+                            "colorField": "id"
                         }
                     ],
                     "mapType": "leaflet",
@@ -137,7 +145,7 @@
                     "table": "annotations",
                     "id": "_id",
                     "idField": "_id",
-                    "linkField": "mediaEntities.mediaURLHttps",
+                    "linkField": "audioLink",
                     "resize": true,
                     "maxHeight": 500,
                     "maxWidth": 540,
