@@ -797,7 +797,8 @@ describe('Component: MediaViewer', () => {
         component.options.typeMap = {
             avi: 'vid',
             jpg: 'img',
-            txt: 'txt'
+            txt: 'txt',
+            wav: 'aud'
         };
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
@@ -809,7 +810,7 @@ describe('Component: MediaViewer', () => {
         component.onQuerySuccess({
             data: [{
                 testIdField: 'testIdValue',
-                testLinkField: ['video.avi', 'image.jpg', 'alpha.txt', 'other.xyz']
+                testLinkField: ['video.avi', 'image.jpg', 'alpha.txt', 'audio.wav', 'other.xyz']
             }]
         });
 
@@ -867,6 +868,24 @@ describe('Component: MediaViewer', () => {
                 mask: '',
                 name: 'alpha.txt',
                 type: 'txt'
+            }]
+        }, {
+            loaded: false,
+            slider: 0,
+            name: 'audio.wav',
+            selected: {
+                border: '',
+                link: 'audio.wav',
+                mask: '',
+                name: 'audio.wav',
+                type: 'aud'
+            },
+            list: [{
+                border: '',
+                link: 'audio.wav',
+                mask: '',
+                name: 'audio.wav',
+                type: 'aud'
             }]
         }, {
             loaded: false,
@@ -1378,6 +1397,90 @@ describe('Component: MediaViewer', () => {
             expect(media.length).toBe(1);
             expect(media[0].nativeElement.innerHTML).toContain('<video');
             expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
+        });
+    })));
+
+    it('does show single audio tag according to the audio type', async(inject([DomSanitizer], (sanitizer) => {
+        let audSrc = './assets/audio/test-audio.wav';
+        component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
+            name: 'testTabName',
+            selected: {
+                border: '',
+                link: audSrc,
+                mask: '',
+                name: 'testName',
+                type: 'aud'
+            },
+            list: [{
+                border: '',
+                link: audSrc,
+                mask: '',
+                name: 'testName',
+                type: 'aud'
+            }]
+        }];
+        fixture.detectChanges();
+
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
+            expect(media.length).toBe(1);
+            expect(media[0].nativeElement.innerHTML).toContain('<audio');
+            expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
+        });
+    })));
+
+    it('does show multiple audio tags in tabs according to the audio type', async(inject([DomSanitizer], (sanitizer) => {
+        let audSrc = './assets/audio/test-audio.wav';
+        component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
+            name: 'testTabName1',
+            selected: {
+                border: '',
+                link: audSrc,
+                mask: '',
+                name: 'testName',
+                type: 'aud'
+            },
+            list: [{
+                border: '',
+                link: audSrc,
+                mask: '',
+                name: 'testName',
+                type: 'aud'
+            }]
+        }, {
+            loaded: false,
+            slider: 0,
+            name: 'testTabName2',
+            selected: {
+                border: '',
+                link: audSrc,
+                mask: '',
+                name: 'testName',
+                type: 'aud'
+            },
+            list: [{
+                border: '',
+                link: audSrc,
+                mask: '',
+                name: 'testName',
+                type: 'aud'
+            }]
+        }];
+        fixture.detectChanges();
+
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+            expect(tabs.length).toBe(2);
+            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
+            expect(media.length).toBe(1);
+            expect(media[0].nativeElement.innerHTML).toContain('<audio');
+            expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
         });
     })));
 

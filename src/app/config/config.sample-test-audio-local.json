@@ -1,0 +1,178 @@
+{
+    "datasets": [
+        {
+            "name": "Testing Audio Data",
+            "connectOnLoad": true,
+            "layout": "test-audio-layout",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [
+                {
+                    "name": "test_data_audio",
+                    "prettyName": "audio",
+                    "tables": [
+                        {
+                            "name": "annotations",
+                            "prettyName": "Annotations",
+                            "fields": [
+                                {
+                                    "columnName": "createdAt",
+                                    "prettyName": "Date Created"
+                                },
+                                {
+                                    "columnName": "topic",
+                                    "prettyName": "Need Type"
+                                },
+                                {
+                                    "columnName": "location",
+                                    "prettyName": "Location"
+                                },
+                                {
+                                    "columnName": "originalText",
+                                    "prettyName": "Original Text"
+                                }
+                            ],
+                            "mappings": {
+                                "date": "createdAt"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "simpleFilter": {
+                    "databaseName": "test_data_audio",
+                    "tableName": "annotations",
+                    "fieldName": "originalText",
+                    "placeHolder": "Search"
+                }
+            }
+        }
+    ],
+    "layouts": {
+        "test-audio-layout": [
+            {
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 1,
+                "sizex": 4,
+                "row": 1,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Documents",
+                    "database": "test_data_audio",
+                    "table": "annotations",
+                    "idField": "_id",
+                    "sortField": "createdAt",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": ["createdAt", "originalText"],
+                    "customColumnWidths": [
+                        ["createdAt", 150],
+                        ["originalText", 225]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false,
+                    "checkDuplicateField": "originalText"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 3
+            },
+            {
+                "name": "Map",
+                "type": "map",
+                "icon": "Map64",
+                "col": 5,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 9,
+                "bindings": {
+                    "title": "Locations",
+                    "database": "test_data_audio",
+                    "table": "annotations",
+                    "filterable": true,
+                    "name": "EVENTS",
+                    "show": true,
+                    "type": "cluster",
+                    "limit": 5000,
+                    "layers": [
+                        {
+                            "title": "Map",
+                            "database": "test_data_audio",
+                            "table": "annotations",
+                            "latitudeField": "geoLocation.lat",
+                            "longitudeField": "geoLocation.lon",
+                            "dateField": "createdAt",
+                            "colorField": "topic"
+                        }
+                    ],
+                    "mapType": "leaflet",
+                    "west": 30.5,
+                    "north": 49,
+                    "east": 127,
+                    "south": 10.6
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+            },
+            {
+                "name": "Media Viewer",
+                "type": "mediaViewer",
+                "icon": "mediaViewer",
+                "col": 9,
+                "row": 1,
+                "sizex": 3,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Media Viewer",
+                    "database": "test_data_audio",
+                    "table": "annotations",
+                    "id": "_id",
+                    "idField": "_id",
+                    "linkField": "mediaEntities.mediaURLHttps",
+                    "resize": true,
+                    "maxHeight": 500,
+                    "maxWidth": 540,
+                    "typeMap": {
+                        "wav": "aud"
+                    }
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 4
+            }
+        ]
+    },
+    "routeService": {
+        "url": "http://localhost:8090/ghREST/",
+        "get": "route?lat1=LAT1&lon1=LON1&lat2=LAT2&lon2=LON2",
+        "post": "dynamicroute",
+        "disabled": true
+    },
+    "dashboard": {
+        "gridsterColumns": 24,
+        "gridsterMargins": 10,
+        "hideNavbarItems": false,
+        "hideAdvancedOptions": false,
+        "hideAddVisualizationsButton": false,
+        "hideErrorNotifications": true,
+        "hideHeaders": false,
+        "showFilterStatusTray": true,
+        "hideCloseButton": false,
+        "showVideoOnLoad": false,
+        "showImport": true,
+        "showExport": true,
+        "translationKeys": {
+            "google": "AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8"
+        }
+    }
+}
