@@ -200,7 +200,7 @@
                 [rowHeight]="getTableRowHeight()"
                 [scrollbarH]="true"
                 [scrollbarV]="true"
-                [reorderable]="false"
+                [reorderable]="options.reorderable"
                 [selected]="selected"
                 [selectionType]="'multi'"
                 (resize)="onTableResize($event)"
