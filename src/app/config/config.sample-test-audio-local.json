@@ -117,7 +117,7 @@
                             "latitudeField": "pgeos.lat",
                             "longitudeField": "pgeos.lon",
                             "dateField": "createdDate",
-                            "colorField": "id"
+                            "colorField": ""
                         }
                     ],
                     "mapType": "leaflet",
