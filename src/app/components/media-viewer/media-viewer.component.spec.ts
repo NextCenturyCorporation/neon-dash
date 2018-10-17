@@ -90,6 +90,7 @@ describe('Component: MediaViewer', () => {
         expect(component.options.linkFields).toEqual([]);
         expect(component.options.nameField).toEqual(component.emptyField);
         expect(component.options.typeField).toEqual(component.emptyField);
+        expect(component.options.autoplay).toEqual('');
     });
 
     it('does have expected class properties', () => {
@@ -1703,7 +1704,8 @@ describe('Component: MediaViewer with config', () => {
             { provide: 'id', useValue: 'testId' },
             { provide: 'resize', useValue: false },
             { provide: 'typeMap', useValue: { jpg: 'img' } },
-            { provide: 'url', useValue: 'https://kafka.apache.org/intro' }
+            { provide: 'url', useValue: 'https://kafka.apache.org/intro' },
+            { provide: 'autoplay', useValue: true }
         ],
         imports: [
             AppMaterialModule,
@@ -1740,6 +1742,7 @@ describe('Component: MediaViewer with config', () => {
         expect(component.options.linkField).toEqual(DatasetServiceMock.LINK_FIELD);
         expect(component.options.nameField).toEqual(DatasetServiceMock.NAME_FIELD);
         expect(component.options.typeField).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect(component.options.autoplay).toEqual(true);
     });
 
     it('does show header in toolbar with title from config', (() => {

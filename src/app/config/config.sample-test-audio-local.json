@@ -81,8 +81,8 @@
                         ["createdDate", 150],
                         ["audioLink", 225]
                     ],
-                    "filterable": false,
-                    "filterFields": ["id"],
+                    "filterable": true,
+                    "filterFields": ["_id"],
                     "singleFilter": true,
                     "ignoreSelf": false,
                     "checkDuplicateField": "id"
@@ -151,7 +151,8 @@
                     "maxWidth": 540,
                     "typeMap": {
                         "wav": "aud"
-                    }
+                    },
+                    "autoplay": true
                 },
                 "minPixelx": 320,
                 "minPixely": 240,

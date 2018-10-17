@@ -146,7 +146,7 @@
                         [class]="tab.selected.border ? ('video with-border border-mat-' + tab.selected.border) : 'video'">
                         <source [src]="tab.selected.link">
                     </video>
-                    <audio *ngSwitchCase="mediaTypes.audio" controls
+                    <audio *ngSwitchCase="mediaTypes.audio" controls [attr.autoplay]='options.autoplay ? true : null'
                         [class]="tab.selected.border ? ('audio with-border border-mat-' + tab.selected.border) : 'audio'">
                         <source [src]="tab.selected.link">
                     </audio>
@@ -176,7 +176,7 @@
                 [class]="tabsAndMedia[0].selected.border ? ('video with-border border-mat-' + tabsAndMedia[0].selected.border) : 'video'">
                 <source [src]="tabsAndMedia[0].selected.link">
             </video>
-            <audio *ngSwitchCase="mediaTypes.audio" controls
+            <audio *ngSwitchCase="mediaTypes.audio" controls [attr.autoplay]='options.autoplay ? true : null'
                 [class]="tabsAndMedia[0].selected.border ? ('audio with-border border-mat-' + tabsAndMedia[0].selected.border) : 'audio'">
                 <source [src]="tabsAndMedia[0].selected.link">
             </audio>

@@ -60,6 +60,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
     public typeField: FieldMetaData;
     public typeMap: any;
     public url: string;
+    public autoplay: boolean;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -77,6 +78,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
         this.sliderValue = this.injector.get('sliderValue', 0);
         this.typeMap = this.injector.get('typeMap', {});
         this.url = this.injector.get('url', '');
+        this.autoplay = this.injector.get('autoplay', false);
     }
 
     /**
