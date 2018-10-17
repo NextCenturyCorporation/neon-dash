@@ -121,10 +121,10 @@
                         }
                     ],
                     "mapType": "leaflet",
-                    "west": 30.5,
-                    "north": 49,
-                    "east": 127,
-                    "south": 10.6
+                    "west": 2,
+                    "north": 52,
+                    "east": 14,
+                    "south": 40
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
