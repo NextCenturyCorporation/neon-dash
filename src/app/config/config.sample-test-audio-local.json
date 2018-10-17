@@ -67,7 +67,7 @@
                 "col": 1,
                 "sizex": 4,
                 "row": 1,
-                "sizey": 5,
+                "sizey": 9,
                 "bindings": {
                     "title": "Documents",
                     "database": "test_data_audio",
@@ -90,7 +90,7 @@
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
-                "minSizey": 3
+                "minSizey": 7
             },
             {
                 "name": "Map",
