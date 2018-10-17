@@ -737,6 +737,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         bindings.resize = this.options.resize;
         bindings.sliderValue = this.options.sliderValue;
         bindings.typeMap = this.options.typeMap;
+        bindings.autoplay = this.options.autoplay;
     }
 
     /**
