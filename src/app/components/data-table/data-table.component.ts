@@ -299,6 +299,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.filterable = this.options.filterable;
         bindings.heatmapDivisor = this.options.heatmapDivisor;
         bindings.ignoreSelf = this.options.ignoreSelf;
+        bindings.reorderable = this.options.reorderable;
         bindings.singleFilter = this.options.singleFilter;
         bindings.skinny = this.options.skinny;
         bindings.sortDescending = this.options.sortDescending;
