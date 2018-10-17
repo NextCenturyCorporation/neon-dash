@@ -60,6 +60,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     @Input() sidenav = MatSidenav;
     // Used to determine which pane is show in the right sidenav
+
     public showAbout: boolean = true;
     public showAddVisualizationButton: boolean = false;
     public showFilterTrayButton: boolean = false;
@@ -153,114 +154,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     }
 
-    gridItemsToString(): string {
-        return JSON.stringify(this.gridItems);
-    }
-
-    getDatasets(): Dataset[] {
-        return this.datasets;
-    }
-
-    openAddVisualizationDialog() {
-        let config = new MatDialogConfig();
-        config.viewContainerRef = this.viewContainerRef;
-
-        this.addVisDialogRef = this.dialog.open(AddVisualizationComponent, config);
-        L.DomUtil.disableTextSelection();
-        this.addVisDialogRef.afterClosed().subscribe(() => {
-            this.addVisDialogRef = null;
-            L.DomUtil.enableTextSelection();
-        });
-    }
-
-    openFilterTrayDialog() {
-        let config = new MatDialogConfig();
-        config.viewContainerRef = this.viewContainerRef;
-
-        this.filterTrayDialogRef = this.dialog.open(FilterTrayComponent, config);
-        this.filterTrayDialogRef.afterClosed().subscribe(() => {
-            this.filterTrayDialogRef = null;
-        });
-    }
-
-    openFilterBuilderDialog() {
-        //Added this to create the filter builder at first click so it's after dataset initialization
-        if (!this.createFilterBuilder) {
-            this.createFilterBuilder = true;
-        }
-        this.showFilterBuilder = !this.showFilterBuilder;
-        let filterBuilderContainer: HTMLElement = document.getElementById('filter.builder');
-        if (this.showFilterBuilder) {
-            filterBuilderContainer.setAttribute('style', 'display: show');
-        } else {
-            filterBuilderContainer.setAttribute('style', 'display: none');
-        }
-    }
-
-    openCustomConnectionDialog() {
-        let config = new MatDialogConfig();
-        config.viewContainerRef = this.viewContainerRef;
-
-        this.customConnectionDialogRef = this.dialog.open(CustomConnectionComponent, config);
-        this.customConnectionDialogRef.afterClosed().subscribe(() => {
-            this.filterTrayDialogRef = null;
-        });
-    }
-
-    onResizeStart(i, event) {
-        this.visualizations.toArray()[i].onResizeStart();
-    }
-
-    onResizeStop(i, event) {
-        this.showItemLocation(event);
-        this.visualizations.toArray()[i].onResizeStop();
-    }
-
-    onDragStop(i, event) {
-        this.showItemLocation(event);
-    }
-
-    ngAfterViewInit() {
-        // child is set
-        /* NOTE:
-         * There was an issue with Angular Material beta 12 and angular2-grid,
-         * where the grid would initially be multiple times larger than the rest of the page
-         * until the window has been resized.
-         * To work around this, trigger a resize event in the grid on page load so that it measures
-         * correctly
-         */
-        this.activeGridService.triggerResize();
-    }
-
-    ngOnInit(): void {
-        this.gridItems = this.activeGridService.getGridItems();
-        this.activeGridService.setGrid(this.grid);
-        this.activeGridService.setGridConfig(this.gridConfig);
-    }
-
-    ngOnDestroy(): void {
-        // Do nothing.
-    }
-
-    toggleDashboardOptions() {
-        if (this.dashboardOptionsComponent) {
-            this.dashboardOptionsComponent.loadStateNames();
-        }
-        this.showAbout = false;
-    }
-
-    showItemLocation(event) {
-        /**
-         * COMMENTED OUT!  If you are debugging, you can uncomment this, and see what is going on
-         * as you move grid items.  It should not be in production code.
-         * if (event == null) {
-         *   return;
-         * }
-         * let str = `row: ${event.row} col: ${event.col} sizex: ${event.sizex} sizey: ${event.sizey}`;
-         * console.log(str);
-         */
-    }
-
     changeFavicon() {
         let favicon = document.createElement('link'),
             faviconShortcut = document.createElement('link'),
@@ -291,4 +184,103 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         }
         return true;
     }
+
+    gridItemsToString(): string {
+        return JSON.stringify(this.gridItems);
+    }
+
+    getDatasets(): Dataset[] {
+        return this.datasets;
+    }
+
+    ngAfterViewInit() {
+        // child is set
+        /* NOTE:
+         * There was an issue with Angular Material beta 12 and angular2-grid,
+         * where the grid would initially be multiple times larger than the rest of the page
+         * until the window has been resized.
+         * To work around this, trigger a resize event in the grid on page load so that it measures
+         * correctly
+         */
+        this.activeGridService.triggerResize();
+    }
+
+    ngOnDestroy(): void {
+        // Do nothing.
+    }
+
+    ngOnInit(): void {
+        this.gridItems = this.activeGridService.getGridItems();
+        this.activeGridService.setGrid(this.grid);
+        this.activeGridService.setGridConfig(this.gridConfig);
+    }
+
+    onDragStop(i, event) {
+        this.showItemLocation(event);
+    }
+
+    onResizeStart(i, event) {
+        this.visualizations.toArray()[i].onResizeStart();
+    }
+
+    onResizeStop(i, event) {
+        this.showItemLocation(event);
+        this.visualizations.toArray()[i].onResizeStop();
+    }
+
+    openAddVisualizationDialog() {
+        let config = new MatDialogConfig();
+        config.viewContainerRef = this.viewContainerRef;
+
+        this.addVisDialogRef = this.dialog.open(AddVisualizationComponent, config);
+        L.DomUtil.disableTextSelection();
+        this.addVisDialogRef.afterClosed().subscribe(() => {
+            this.addVisDialogRef = null;
+            L.DomUtil.enableTextSelection();
+        });
+    }
+
+    openFilterBuilderDialog() {
+        //Added this to create the filter builder at first click so it's after dataset initialization
+        if (!this.createFilterBuilder) {
+            this.createFilterBuilder = true;
+        }
+        this.showFilterBuilder = !this.showFilterBuilder;
+        let filterBuilderContainer: HTMLElement = document.getElementById('filter.builder');
+        if (this.showFilterBuilder) {
+            filterBuilderContainer.setAttribute('style', 'display: show');
+        } else {
+            filterBuilderContainer.setAttribute('style', 'display: none');
+        }
+    }
+
+    openFilterTrayDialog() {
+        let config = new MatDialogConfig();
+        config.viewContainerRef = this.viewContainerRef;
+
+        this.filterTrayDialogRef = this.dialog.open(FilterTrayComponent, config);
+        this.filterTrayDialogRef.afterClosed().subscribe(() => {
+            this.filterTrayDialogRef = null;
+        });
+    }
+
+    showItemLocation(event) {
+        /**
+         * COMMENTED OUT!  If you are debugging, you can uncomment this, and see what is going on
+         * as you move grid items.  It should not be in production code.
+         * if (event == null) {
+         *   return;
+         * }
+         * let str = `row: ${event.row} col: ${event.col} sizex: ${event.sizex} sizey: ${event.sizey}`;
+         * console.log(str);
+         */
+    }
+
+    toggleDashboardOptions() {
+        if (this.dashboardOptionsComponent) {
+            this.dashboardOptionsComponent.loadStateNames();
+        }
+        this.showAbout = false;
+    }
+
 }

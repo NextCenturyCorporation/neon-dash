@@ -16,7 +16,7 @@
 import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
-import { MatDialog, MatSnackBar, MatSidenav } from '@angular/material';
+import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -26,6 +26,7 @@ import { ParameterService } from '../../services/parameter.service';
 import { ThemesService } from '../../services/themes.service';
 
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
+import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 
 import * as _ from 'lodash';
 import * as neon from 'neon-framework';
@@ -48,6 +49,7 @@ export class DashboardOptionsComponent implements OnInit {
         stateToDelete: ''
     };
 
+    public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
     private dashboardStateId: string = '';
     private filterStateId: string = '';
     private isLoading: boolean = false;
@@ -232,6 +234,26 @@ export class DashboardOptionsComponent implements OnInit {
 
     setStateToDelete(name: string) {
         this.formData.stateToDelete = name;
+    }
+
+    openConfirmationDialog() {
+        this.confirmDialogRef = this.dialog.open(ConfirmationDialogComponent, {
+            height: '130px',
+            width: '500px',
+            disableClose: false
+        });
+
+        this.confirmDialogRef.componentInstance.confirmMessage = 'Are you sure you want to delete ';
+        this.confirmDialogRef.componentInstance.cancelText = 'Cancel';
+        this.confirmDialogRef.componentInstance.confirmText = 'Delete';
+        this.confirmDialogRef.componentInstance.target = this.formData.stateToDelete;
+
+        this.confirmDialogRef.afterClosed().subscribe((result) => {
+            if (result) {
+                this.deleteState(this.formData.stateToDelete);
+            }
+            this.confirmDialogRef = null;
+        });
     }
 
     public openNotification(stateName: String, actionName: String) {
