@@ -47,6 +47,7 @@ import { AggregationComponent } from './components/aggregation/aggregation.compo
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { ChartComponent } from './components/chart/chart.component';
 import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
+import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
@@ -103,6 +104,7 @@ export function getAppConfig() {
         BarChartComponent,
         ChartComponent,
         ConfigEditorComponent,
+        ConfirmationDialogComponent,
         CustomConnectionComponent,
         CustomConnectionSimpleSetupStepComponent,
         DashboardOptionsComponent,
@@ -171,11 +173,12 @@ export function getAppConfig() {
     entryComponents: [
         AppComponent,
         AddVisualizationComponent,
+        ConfigEditorComponent,
+        ConfirmationDialogComponent,
         CustomConnectionComponent,
         DocumentViewerSingleItemComponent,
         FilterTrayComponent,
-        SnackBarComponent,
-        ConfigEditorComponent
+        SnackBarComponent
     ],
     bootstrap: [AppComponent]
 })
