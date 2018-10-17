@@ -90,7 +90,7 @@ describe('Component: MediaViewer', () => {
         expect(component.options.linkFields).toEqual([]);
         expect(component.options.nameField).toEqual(component.emptyField);
         expect(component.options.typeField).toEqual(component.emptyField);
-        expect(component.options.autoplay).toEqual('');
+        expect(component.options.autoplay).toEqual(false);
     });
 
     it('does have expected class properties', () => {
@@ -951,7 +951,8 @@ describe('Component: MediaViewer', () => {
             oneTabPerArray: false,
             resize: true,
             sliderValue: 0,
-            typeMap: {}
+            typeMap: {},
+            autoplay: false
         });
 
         component.options.idField = DatasetServiceMock.ID_FIELD;
@@ -970,6 +971,7 @@ describe('Component: MediaViewer', () => {
         component.options.typeMap = {
             jpg: 'img'
         };
+        component.options.autoplay = true;
 
         component.subGetBindings(bindings);
         expect(bindings).toEqual({
@@ -988,7 +990,8 @@ describe('Component: MediaViewer', () => {
             sliderValue: 0.5,
             typeMap: {
                 jpg: 'img'
-            }
+            },
+            autoplay: true
         });
     }));
 
