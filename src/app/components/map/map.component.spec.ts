@@ -175,7 +175,7 @@ function updateMapLayer1(component: TestMapComponent) {
     component.options.layers[0].unsharedFilterValue = '';
 
     component.options.layers[0].colorField = new FieldMetaData('testColor1', 'Test Color 1');
-    component.options.layers[0].hoverField = new FieldMetaData('testHover1', 'Test Hover 1');
+    component.options.layers[0].hoverPopupField = new FieldMetaData('testHover1', 'Test Hover 1');
     component.options.layers[0].dateField = new FieldMetaData('testDate1', 'Test Date 1');
     component.options.layers[0].latitudeField = new FieldMetaData('testLatitude1', 'Test Latitude 1');
     component.options.layers[0].longitudeField = new FieldMetaData('testLongitude1', 'Test Longitude 1');
@@ -196,7 +196,7 @@ function updateMapLayer2(component: TestMapComponent) {
     component.options.layers[1].unsharedFilterValue = '';
 
     component.options.layers[1].colorField = new FieldMetaData('testColor2', 'Test Color 2');
-    component.options.layers[0].hoverField = new FieldMetaData('testHover2', 'Test Hover 2');
+    component.options.layers[1].hoverPopupField = new FieldMetaData('testHover2', 'Test Hover 2');
     component.options.layers[1].dateField = new FieldMetaData('testDate2', 'Test Date 2');
     component.options.layers[1].latitudeField = new FieldMetaData('testLatitude2', 'Test Latitude 2');
     component.options.layers[1].longitudeField = new FieldMetaData('testLongitude2', 'Test Longitude 2');
@@ -297,7 +297,7 @@ describe('Component: Map', () => {
         expect(component.options.layers[0].fields).toEqual([]);
         expect(component.options.layers[0].title).toEqual('New Layer');
         expect(component.options.layers[0].colorField).toEqual(component.emptyField);
-        expect(component.options.layers[0].hoverField).toEqual(component.emptyField);
+        expect(component.options.layers[0].hoverPopupField).toEqual(component.emptyField);
         expect(component.options.layers[0].dateField).toEqual(component.emptyField);
         expect(component.options.layers[0].latitudeField).toEqual(component.emptyField);
         expect(component.options.layers[0].longitudeField).toEqual(component.emptyField);
@@ -516,7 +516,7 @@ describe('Component: Map', () => {
         component.subRemoveLayer(1);
         expect(component.options.layers[0].title).toEqual('Layer A');
         expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testColor1', 'Test Color 1'));
-        expect(component.options.layers[0].hoverField).toEqual(new FieldMetaData('testHover1', 'Test Color 1'));
+        expect(component.options.layers[0].hoverPopupField).toEqual(new FieldMetaData('testHover1', 'Test Color 1'));
         expect(component.options.layers[0].dateField).toEqual(new FieldMetaData('testDate1', 'Test Date 1'));
         expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData('testLatitude1', 'Test Latitude 1'));
         expect(component.options.layers[0].longitudeField).toEqual(new FieldMetaData('testLongitude1', 'Test Longitude 1'));
@@ -585,7 +585,7 @@ describe('Component: Map', () => {
 
         expect(component.options.layers[1].title).toEqual('New Layer');
         expect(component.options.layers[1].colorField).toEqual(component.emptyField);
-        expect(component.options.layers[1].hoverField).toEqual(component.emptyField);
+        expect(component.options.layers[1].hoverPopupField).toEqual(component.emptyField);
         expect(component.options.layers[1].dateField).toEqual(component.emptyField);
         expect(component.options.layers[1].latitudeField).toEqual(component.emptyField);
         expect(component.options.layers[1].longitudeField).toEqual(component.emptyField);
