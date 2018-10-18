@@ -55,7 +55,7 @@ import * as geohash from 'geo-hash';
 
 class UniqueLocationPoint {
     constructor(public lat: number, public lng: number, public count: number,
-        public colorField: string, public colorValue: string, public hoverPopupValue: string = '') { }
+        public colorField: string, public colorValue: string, public hoverPopupValue: string) { }
 }
 
 export class MapLayer extends BaseNeonLayer {
