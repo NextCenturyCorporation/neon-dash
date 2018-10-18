@@ -99,6 +99,9 @@ export class LeafletNeonMap extends AbstractMap {
             if (this.mapOptions.hoverPopupEnabled) {
                 circle.bindTooltip(`<span>${point.name}</span><br/><span>${point.description}</span>`);
             }
+            else if(point.hoverValue) {
+                circle.bindTooltip(`<span>${point.hoverValue}</span>`);
+            }
             group.addLayer(circle);
         }
         //TODO: cluster layer based on cluster boolean
