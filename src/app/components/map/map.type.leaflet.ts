@@ -99,10 +99,9 @@ export class LeafletNeonMap extends AbstractMap {
             if (this.mapOptions.hoverPopupEnabled) {
 
                 //check if popup value has been set in the map layer config, if no use default
-                if(point.hoverPopupValue) {
+                if (point.hoverPopupValue) {
                     circle.bindTooltip(`<span>${point.hoverPopupValue}</span>`);
-                }
-                else {
+                } else {
                     circle.bindTooltip(`<span>${point.name}</span><br/><span>${point.description}</span>`);
                 }
             }

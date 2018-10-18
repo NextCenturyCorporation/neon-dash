@@ -619,7 +619,7 @@ describe('Component: Map', () => {
         }, {
             columnName: 'testHover1',
             prettyName: 'Test Hover 1'
-        },{
+        }, {
             columnName: 'testSize1',
             prettyName: 'Test Size 1'
         }, {
