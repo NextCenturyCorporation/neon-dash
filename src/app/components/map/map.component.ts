@@ -631,8 +631,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 for (let pos = latCoord.length - 1; pos >= 0; pos--) {
 
                     //check if hover popup value is nested within coordinate array
-                    if (hoverPopupValue instanceof Array) { hoverPopupValue = hoverPopupValue[pos]; }
-                    this.addOrUpdateUniquePoint(map, latCoord[pos], lngCoord[pos], colorField, colorValue, hoverPopupValue);
+                    if (hoverPopupValue instanceof Array) {
+                        this.addOrUpdateUniquePoint(map, latCoord[pos], lngCoord[pos], colorField, colorValue, hoverPopupValue[pos]);
+                    } else {
+                        this.addOrUpdateUniquePoint(map, latCoord[pos], lngCoord[pos], colorField, colorValue, hoverPopupValue);
+                    }
                 }
             } else {
                 this.addOrUpdateUniquePoint(map, latCoord, lngCoord, colorField, colorValue, hoverPopupValue);
