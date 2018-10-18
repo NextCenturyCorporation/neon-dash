@@ -110,8 +110,8 @@ class TestMapComponent extends MapComponent {
         return this.filters;
     }
 
-    getMapPoints(lngField: string, latField: string, colorField: string, hoverField: string, data: any[]) {
-        return super.getMapPoints(lngField, latField, colorField, hoverField, data);
+    getMapPoints(lngField: string, latField: string, colorField: string, hoverPopupField: string, data: any[]) {
+        return super.getMapPoints(lngField, latField, colorField, hoverPopupField, data);
     }
 
     setFilterBoundingBox(box: BoundingBoxByDegrees) {
@@ -324,11 +324,11 @@ describe('Component: Map', () => {
             datasets = [
                 {
                     data: [
-                        { lat: 0, lng: 0, category: 'a', hoverField: 'A'},
-                        { lat: 0, lng: 0, category: 'b', hoverField: 'B' },
-                        { lat: 0, lng: 0, category: 'c', hoverField: 'C'},
-                        { lat: 0, lng: 0, category: 'd', hoverField: 'D'},
-                        { lat: 0, lng: 0, category: 'd', hoverField: 'D'}
+                        { lat: 0, lng: 0, category: 'a', hoverPopupField: 'A'},
+                        { lat: 0, lng: 0, category: 'b', hoverPopupField: 'B' },
+                        { lat: 0, lng: 0, category: 'c', hoverPopupField: 'C'},
+                        { lat: 0, lng: 0, category: 'd', hoverPopupField: 'D'},
+                        { lat: 0, lng: 0, category: 'd', hoverPopupField: 'D'}
                     ],
                     expected: [
                         new MapPoint(
@@ -355,10 +355,10 @@ describe('Component: Map', () => {
                 },
                 {
                     data: [
-                        { lat: 0, lng: 0, category: 'a', hoverField: 'A' },
-                        { lat: 0, lng: 1, category: 'b', hoverField: 'B'},
-                        { lat: 0, lng: 2, category: 'c', hoverField: 'C' },
-                        { lat: 0, lng: 3, category: 'd', hoverField: 'D'}
+                        { lat: 0, lng: 0, category: 'a', hoverPopupField: 'A' },
+                        { lat: 0, lng: 1, category: 'b', hoverPopupField: 'B'},
+                        { lat: 0, lng: 2, category: 'c', hoverPopupField: 'C' },
+                        { lat: 0, lng: 3, category: 'd', hoverPopupField: 'D'}
                     ],
                     expected: [
                         new MapPoint(
@@ -385,8 +385,8 @@ describe('Component: Map', () => {
                 },
                 {
                     data: [
-                        { lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a', hoverField: 'A'},
-                        { lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b', hoverField: 'B' }
+                        { lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a', hoverPopupField: 'A'},
+                        { lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b', hoverPopupField: 'B' }
                     ],
                     expected: [
                         new MapPoint(
@@ -403,8 +403,8 @@ describe('Component: Map', () => {
                 },
                 {
                     data: [
-                        { lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a', hoverField: 'A' },
-                        { lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b', hoverField: 'B' }
+                        { lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a', hoverPopupField: 'A' },
+                        { lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b', hoverPopupField: 'B' }
                     ],
                     expected: [
                         new MapPoint(
@@ -452,7 +452,7 @@ describe('Component: Map', () => {
             ];
 
         for (let dataset of datasets) {
-            let mapPoints = component.getMapPoints('lng', 'lat', 'category', 'hoverField', dataset.data);
+            let mapPoints = component.getMapPoints('lng', 'lat', 'category', 'hoverPopupField', dataset.data);
             expect(mapPoints).toEqual(dataset.expected);
         }
     });
@@ -514,9 +514,10 @@ describe('Component: Map', () => {
         let spy = spyOn(component, 'handleChangeData');
 
         component.subRemoveLayer(1);
+        
         expect(component.options.layers[0].title).toEqual('Layer A');
         expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testColor1', 'Test Color 1'));
-        expect(component.options.layers[0].hoverPopupField).toEqual(new FieldMetaData('testHover1', 'Test Color 1'));
+        expect(component.options.layers[0].hoverPopupField).toEqual(new FieldMetaData('testHover1', 'Test Hover 1'));
         expect(component.options.layers[0].dateField).toEqual(new FieldMetaData('testDate1', 'Test Date 1'));
         expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData('testLatitude1', 'Test Latitude 1'));
         expect(component.options.layers[0].longitudeField).toEqual(new FieldMetaData('testLongitude1', 'Test Longitude 1'));
@@ -537,7 +538,8 @@ describe('Component: Map', () => {
                 longitudeField: '',
                 sizeField: '',
                 colorField: '',
-                dateField: ''
+                dateField: '',
+                hoverPopupField: ''
             }]
         });
 
@@ -551,15 +553,15 @@ describe('Component: Map', () => {
                 longitudeField: 'testLongitude1',
                 sizeField: 'testSize1',
                 colorField: 'testColor1',
-                hoverField: 'testHover1',
-                dateField: 'testDate1'
+                dateField: 'testDate1',
+                hoverPopupField: 'testHover1',
             }, {
                 latitudeField: 'testLatitude2',
                 longitudeField: 'testLongitude2',
                 sizeField: 'testSize2',
                 colorField: 'testColor2',
-                hoverField: 'testHover1',
-                dateField: 'testDate2'
+                dateField: 'testDate2',
+                hoverPopupField: 'testHover2',
             }]
         });
     });
@@ -617,15 +619,15 @@ describe('Component: Map', () => {
             columnName: 'testColor1',
             prettyName: 'Test Color 1'
         }, {
-            columnName: 'testHover1',
-            prettyName: 'Test Hover 1'
-        }, {
             columnName: 'testSize1',
             prettyName: 'Test Size 1'
         }, {
             columnName: 'testDate1',
             prettyName: 'Test Date 1'
-        }]);
+        },{
+            columnName: 'testHover1',
+            prettyName: 'Test Hover 1'
+        },]);
 
         updateMapLayer2(component);
 
@@ -639,15 +641,15 @@ describe('Component: Map', () => {
             columnName: 'testColor2',
             prettyName: 'Test Color 2'
         }, {
-            columnName: 'testHover2',
-            prettyName: 'Test Hover 2'
-        }, {
             columnName: 'testSize2',
             prettyName: 'Test Size 2'
         }, {
             columnName: 'testDate2',
             prettyName: 'Test Date 2'
-        }]);
+        }, {
+            columnName: 'testHover2',
+            prettyName: 'Test Hover 2'
+        },]);
     });
 
     it('filterByLocation does set filterBoundingBox and does call addNeonFilter on each layer', () => {
@@ -833,7 +835,7 @@ describe('Component: Map', () => {
 
         let where1 = [neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)];
         let query1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1').where(neon.query.and.apply(neon.query, where1))
-            .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testColor1', 'testHover1', 'testSize1', 'testDate1']).limit(5678);
+            .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testColor1', 'testSize1', 'testDate1', 'testHover1']).limit(5678);
 
         expect(component.createQuery(0)).toEqual(query1);
 
@@ -841,7 +843,7 @@ describe('Component: Map', () => {
 
         let where2 = [neon.query.where('testLatitude2', '!=', null), neon.query.where('testLongitude2', '!=', null)];
         let query2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2').where(neon.query.and.apply(neon.query, where2))
-            .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testColor2', 'testHover2', 'testSize2', 'testDate2']).limit(5678);
+            .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testColor2', 'testSize2', 'testDate2', 'testHover2']).limit(5678);
 
         expect(component.createQuery(1)).toEqual(query2);
     });
@@ -1207,7 +1209,7 @@ describe('Component: Map with config', () => {
             {
                 provide: 'layers', useValue: [{
                     colorField: 'testColorField',
-                    hoverField: 'testHoverField',
+                    hoverPopupField: 'testHoverField',
                     dateField: 'testDateField',
                     latitudeField: 'testLatitudeField',
                     longitudeField: 'testLongitudeField',
