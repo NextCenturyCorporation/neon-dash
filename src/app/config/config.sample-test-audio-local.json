@@ -118,7 +118,7 @@
                             "latitudeField": "pgeos.lat",
                             "longitudeField": "pgeos.lon",
                             "dateField": "createdDate",
-                            "hoverField": "pgeos.pid",
+                            "hoverPopupField": "pgeos.pid",
                             "colorField": ""
                         }
                     ],
