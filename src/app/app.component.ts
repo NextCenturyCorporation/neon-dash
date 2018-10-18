@@ -240,6 +240,16 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         });
     }
 
+    openCustomConnectionDialog() {
+        let config = new MatDialogConfig();
+        config.viewContainerRef = this.viewContainerRef;
+
+        this.customConnectionDialogRef = this.dialog.open(CustomConnectionComponent, config);
+        this.customConnectionDialogRef.afterClosed().subscribe(() => {
+            this.filterTrayDialogRef = null;
+        });
+    }
+
     openFilterBuilderDialog() {
         //Added this to create the filter builder at first click so it's after dataset initialization
         if (!this.createFilterBuilder) {
