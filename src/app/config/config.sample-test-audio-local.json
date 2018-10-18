@@ -109,6 +109,7 @@
                     "show": true,
                     "type": "cluster",
                     "limit": 5000,
+                    "hoverPopupEnabled": true,
                     "layers": [
                         {
                             "title": "Map",
@@ -117,6 +118,7 @@
                             "latitudeField": "pgeos.lat",
                             "longitudeField": "pgeos.lon",
                             "dateField": "createdDate",
+                            "hoverField": "pgeos.pid",
                             "colorField": ""
                         }
                     ],
