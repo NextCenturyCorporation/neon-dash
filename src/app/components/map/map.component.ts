@@ -55,7 +55,7 @@ import * as geohash from 'geo-hash';
 
 class UniqueLocationPoint {
     constructor(public lat: number, public lng: number, public count: number,
-        public colorField: string, public colorValue: string, public hoverPopupValue: string = "") { }
+        public colorField: string, public colorValue: string, public hoverPopupValue: string = '') { }
 }
 
 export class MapLayer extends BaseNeonLayer {
@@ -631,7 +631,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 for (let pos = latCoord.length - 1; pos >= 0; pos--) {
 
                     //check if hover popup value is nested within coordinate array
-                    if(hoverPopupValue instanceof Array ) { hoverPopupValue = hoverPopupValue[pos]}
+                    if (hoverPopupValue instanceof Array) { hoverPopupValue = hoverPopupValue[pos]; }
                     this.addOrUpdateUniquePoint(map, latCoord[pos], lngCoord[pos], colorField, colorValue, hoverPopupValue);
                 }
             } else {
@@ -770,20 +770,20 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
     /* This is a helper method that will attempt to get the defined hoverPopupValue in the Map layer section
        of the config. This value will only be displayed if the hoverPopupEnabled config is set to true. This
-       function behaves in a similar fashion ad retrieveLocationField() above. It will default to an empty 
+       function behaves in a similar fashion ad retrieveLocationField() above. It will default to an empty
        string to support no value being set or a field being set that does not exist. If the field does
        exist in the point it will use this value. If the field is a nested object it will traverse the object
-       and attempt to handle the case of the hover value being located in an array. 
+       and attempt to handle the case of the hover value being located in an array.
     */
     retrieveHoverPopupField(point, locField) {
-        let hoverPopupValue = point[locField] || "";
+        let hoverPopupValue = point[locField] || '';
         let fieldSplit = locField.split('.');
 
-        if(!hoverPopupValue && fieldSplit.length > 1 ) {
+        if (!hoverPopupValue && fieldSplit.length > 1) {
             hoverPopupValue = point[fieldSplit[0]];
             fieldSplit.shift();
-            while (fieldSplit.length > 0 ) {
-                if( fieldSplit.length === 1 && hoverPopupValue instanceof Array) {
+            while (fieldSplit.length > 0) {
+                if (fieldSplit.length === 1 && hoverPopupValue instanceof Array) {
                     hoverPopupValue = hoverPopupValue.map((elem) => {
                         return elem[fieldSplit[0]];
                     });
@@ -793,12 +793,12 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 fieldSplit.shift();
             }
         }
-        
 
         return hoverPopupValue;
     }
 
-    addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, lat: number, lng: number, colorField: string, colorValue: string, hoverPopupValue: string) {
+    addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, lat: number, lng: number, colorField: string, colorValue: string,
+         hoverPopupValue: string) {
         if (!super.isNumber(lat) || !super.isNumber(lng)) {
             return;
         }
