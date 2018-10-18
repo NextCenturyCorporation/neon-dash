@@ -274,7 +274,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 sizeField: layer.sizeField.columnName,
                 colorField: layer.colorField.columnName,
                 dateField: layer.dateField.columnName,
-                hoverField: layer.hoverPopupField.columnName
+                hoverPopupField: layer.hoverPopupField.columnName
             });
         }
     }
