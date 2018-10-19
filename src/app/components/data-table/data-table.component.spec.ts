@@ -725,7 +725,8 @@ describe('Component: DataTable', () => {
             }), ({
                 name: '_id',
                 hide: false
-            })]
+            })],
+            reorderable: true
         });
 
         component.options.idField = new FieldMetaData('testIdField');
@@ -738,6 +739,7 @@ describe('Component: DataTable', () => {
         component.options.singleFilter = true;
         component.options.skinny = true;
         component.options.sortDescending = false;
+        component.options.reorderable = false;
         component.headers = [{
             cellClass: function() { /* No-op */ },
             prop: 'name',
@@ -765,7 +767,8 @@ describe('Component: DataTable', () => {
             fieldsConfig: [{
                 name: 'Name',
                 hide: true
-            }]
+            }],
+            reorderable: false
         });
     }));
 
