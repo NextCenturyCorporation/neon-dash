@@ -82,8 +82,8 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('does set expected options properties', () => {
-        expect(component.options.idField).toEqual(component.emptyField);
-        expect(component.options.linkField).toEqual(component.emptyField);
+        expect(component.options.idField).toEqual(new FieldMetaData());
+        expect(component.options.linkField).toEqual(new FieldMetaData());
         expect(component.options.id).toEqual('');
     });
 

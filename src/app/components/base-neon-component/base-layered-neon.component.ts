@@ -29,7 +29,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
-import { EMPTY_FIELD, FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
+import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import * as uuid from 'node-uuid';
@@ -108,7 +108,7 @@ export abstract class BaseNeonLayer {
             field = this.findField(this.datasetService.getMapping(this.database.name, this.table.name, mappingKey));
         }
 
-        return field || EMPTY_FIELD;
+        return field || new FieldMetaData();
     }
 
     /**
@@ -254,8 +254,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
 
     public isLoading: number = 0;
     public isExportable: boolean = true;
-
-    public emptyField = EMPTY_FIELD;
 
     public errorMessage: string = '';
 
@@ -1080,5 +1078,9 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         let table = _.find(database.tables, (t) => t.name === tableName);
         let labelOptions = table.labelOptions;
         return labelOptions;
+    }
+
+    protected createEmptyField(): FieldMetaData {
+        return new FieldMetaData();
     }
 }

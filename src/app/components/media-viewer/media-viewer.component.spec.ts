@@ -85,11 +85,11 @@ describe('Component: MediaViewer', () => {
         expect(component.options.resize).toEqual(true);
         expect(component.options.typeMap).toEqual({});
         expect(component.options.url).toEqual('');
-        expect(component.options.idField).toEqual(component.emptyField);
-        expect(component.options.linkField).toEqual(component.emptyField);
+        expect(component.options.idField).toEqual(new FieldMetaData());
+        expect(component.options.linkField).toEqual(new FieldMetaData());
         expect(component.options.linkFields).toEqual([]);
-        expect(component.options.nameField).toEqual(component.emptyField);
-        expect(component.options.typeField).toEqual(component.emptyField);
+        expect(component.options.nameField).toEqual(new FieldMetaData());
+        expect(component.options.typeField).toEqual(new FieldMetaData());
     });
 
     it('does have expected class properties', () => {

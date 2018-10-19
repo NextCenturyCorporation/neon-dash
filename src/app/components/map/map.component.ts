@@ -46,7 +46,7 @@ import {
 } from './map.type.abstract';
 import { BaseLayeredNeonComponent, BaseNeonLayer, BaseNeonMultiLayerOptions } from '../base-neon-component/base-layered-neon.component';
 import { CesiumNeonMap } from './map.type.cesium';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
 import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';

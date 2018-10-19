@@ -94,10 +94,10 @@ describe('Component: Aggregation', () => {
     });
 
     it('class options properties are set to expected defaults', () => {
-        expect(component.options.aggregationField).toEqual(component.emptyField);
-        expect(component.options.groupField).toEqual(component.emptyField);
-        expect(component.options.xField).toEqual(component.emptyField);
-        expect(component.options.yField).toEqual(component.emptyField);
+        expect(component.options.aggregationField).toEqual(new FieldMetaData());
+        expect(component.options.groupField).toEqual(new FieldMetaData());
+        expect(component.options.xField).toEqual(new FieldMetaData());
+        expect(component.options.yField).toEqual(new FieldMetaData());
 
         expect(component.options.aggregation).toEqual('count');
         expect(component.options.dualView).toEqual('');

@@ -72,7 +72,7 @@
                     <mat-form-field>
                         <mat-select placeholder="Node Name Field" [(ngModel)]="options.nodeNameField" required="false" (ngModelChange)="handleChangeData()"
                                     [disabled]="options.fields.length == 0">
-                            <mat-option [value]="emptyField">(None)</mat-option>
+                            <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -81,7 +81,7 @@
                     <mat-form-field>
                         <mat-select placeholder="Node Shape" [(ngModel)]="options.nodeShape" required="false" (ngModelChange)="handleChangeData()"
                                     [disabled]="nodeShapes.length == 0">
-                            <mat-option [value]="emptyField">(Default)</mat-option>
+                            <mat-option [value]="createEmptyField()">(Default)</mat-option>
                             <mat-option *ngFor="let shape of nodeShapes" [value]="shape">{{ shape }}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -98,7 +98,7 @@
                     <mat-form-field>
                         <mat-select placeholder="Link Name Field" [(ngModel)]="options.linkNameField" required="false" (ngModelChange)="handleChangeData()"
                                     [disabled]="options.fields.length == 0">
-                            <mat-option [value]="emptyField">(None)</mat-option>
+                            <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -108,7 +108,7 @@
                 <mat-form-field>
                     <mat-select placeholder="Node Shape" [(ngModel)]="options.nodeShape" required="false" (ngModelChange)="handleChangeData()"
                                 [disabled]="nodeShapes.length == 0">
-                        <mat-option [value]="emptyField">(Default)</mat-option>
+                        <mat-option [value]="createEmptyField()">(Default)</mat-option>
                         <mat-option *ngFor="let shape of nodeShapes" [value]="shape">{{ shape }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -156,7 +156,7 @@
                 <mat-form-field *ngIf="!options.isReified">
                     <mat-select placeholder="Edge Color Field" [(ngModel)]="options.edgeColorField" (ngModelChange)="handleChangeData()"
                         [disabled]="options.fields.length == 0">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>

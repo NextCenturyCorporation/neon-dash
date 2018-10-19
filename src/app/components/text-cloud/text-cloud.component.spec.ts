@@ -91,8 +91,8 @@ describe('Component: TextCloud', () => {
     it('has expected options properties', () => {
         expect(component.options.aggregation).toBe('AVG');
         expect(component.options.andFilters).toBe(true);
-        expect(component.options.dataField).toEqual(component.emptyField);
-        expect(component.options.sizeField).toEqual(component.emptyField);
+        expect(component.options.dataField).toEqual(new FieldMetaData());
+        expect(component.options.sizeField).toEqual(new FieldMetaData());
     });
 
     it('has expected class properties', () => {

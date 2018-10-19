@@ -99,18 +99,18 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.options.textMap).toEqual({});
         expect(component.options.typeMap).toEqual({});
 
-        expect(component.options.categoryField).toEqual(component.emptyField);
-        expect(component.options.compareField).toEqual(component.emptyField);
-        expect(component.options.filterField).toEqual(component.emptyField);
-        expect(component.options.idField).toEqual(component.emptyField);
-        expect(component.options.linkField).toEqual(component.emptyField);
-        expect(component.options.nameField).toEqual(component.emptyField);
-        expect(component.options.objectIdField).toEqual(component.emptyField);
-        expect(component.options.objectNameField).toEqual(component.emptyField);
-        expect(component.options.percentField).toEqual(component.emptyField);
-        expect(component.options.predictedNameField).toEqual(component.emptyField);
-        expect(component.options.sortField).toEqual(component.emptyField);
-        expect(component.options.typeField).toEqual(component.emptyField);
+        expect(component.options.categoryField).toEqual(new FieldMetaData());
+        expect(component.options.compareField).toEqual(new FieldMetaData());
+        expect(component.options.filterField).toEqual(new FieldMetaData());
+        expect(component.options.idField).toEqual(new FieldMetaData());
+        expect(component.options.linkField).toEqual(new FieldMetaData());
+        expect(component.options.nameField).toEqual(new FieldMetaData());
+        expect(component.options.objectIdField).toEqual(new FieldMetaData());
+        expect(component.options.objectNameField).toEqual(new FieldMetaData());
+        expect(component.options.percentField).toEqual(new FieldMetaData());
+        expect(component.options.predictedNameField).toEqual(new FieldMetaData());
+        expect(component.options.sortField).toEqual(new FieldMetaData());
+        expect(component.options.typeField).toEqual(new FieldMetaData());
 
         expect(component.headerText).toBeDefined();
         expect(component.infoText).toBeDefined();
@@ -1508,11 +1508,11 @@ describe('Component: ThumbnailGrid', () => {
 
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         expect(component.isSelectable()).toEqual(true);
-        component.options.filterField = component.emptyField;
+        component.options.filterField = new FieldMetaData();
 
         component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
         expect(component.isSelectable()).toEqual(true);
-        component.options.idField = component.emptyField;
+        component.options.idField = new FieldMetaData();
 
         component.options.openOnMouseClick = true;
         expect(component.isSelectable()).toEqual(true);

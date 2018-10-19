@@ -39,7 +39,7 @@ import { VisualizationService } from '../../services/visualization.service';
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { Bucketizer } from '../bucketizers/Bucketizer';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
 import { neonMappings, neonVariables } from '../../neon-namespaces';
 import { TimelineSelectorChart, TimelineSeries, TimelineData } from './TimelineSelectorChart';
