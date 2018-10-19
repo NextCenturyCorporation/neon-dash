@@ -37,7 +37,7 @@ import { VisualizationService } from '../../services/visualization.service';
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from '../chart/chart.component';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
 import { neonVariables } from '../../neon-namespaces';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';

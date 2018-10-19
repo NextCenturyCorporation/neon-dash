@@ -138,8 +138,8 @@ describe('Component: Sample', () => {
     });
 
     it('class options properties are set to expected defaults', () => {
-        expect(component.options.sampleOptionalField).toEqual(component.emptyField);
-        expect(component.options.sampleRequiredField).toEqual(component.emptyField);
+        expect(component.options.sampleOptionalField).toEqual(new FieldMetaData());
+        expect(component.options.sampleRequiredField).toEqual(new FieldMetaData());
         expect(component.options.sortDescending).toEqual(false);
         expect(component.options.subcomponentType).toEqual('Impl1');
         expect(component.options.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
@@ -1205,8 +1205,8 @@ describe('Component: Sample', () => {
         component.options.sampleRequiredField = undefined;
 
         component.options.updateFields();
-        expect(component.options.sampleOptionalField).toEqual(component.emptyField);
-        expect(component.options.sampleRequiredField).toEqual(component.emptyField);
+        expect(component.options.sampleOptionalField).toEqual(new FieldMetaData());
+        expect(component.options.sampleRequiredField).toEqual(new FieldMetaData());
     });
 
     it('does show toolbar and sidenav and body-container', () => {
@@ -1729,8 +1729,8 @@ describe('Component: Sample with config', () => {
     });
 
     it('options.updateFields does set field options as expected from config bindings', () => {
-        component.options.sampleOptionalField = component.emptyField;
-        component.options.sampleRequiredField = component.emptyField;
+        component.options.sampleOptionalField = new FieldMetaData();
+        component.options.sampleRequiredField = new FieldMetaData();
 
         component.options.updateFields();
         expect(component.options.sampleOptionalField).toEqual(DatasetServiceMock.NAME_FIELD);

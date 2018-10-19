@@ -97,9 +97,9 @@ describe('Component: BarChart', () => {
         expect(component.options.type).toBe('bar');
         expect(component.options.yPercentage).toBe(0.2);
 
-        expect(component.options.aggregationField).toEqual(component.emptyField);
-        expect(component.options.colorField).toEqual(component.emptyField);
-        expect(component.options.dataField).toEqual(component.emptyField);
+        expect(component.options.aggregationField).toEqual(new FieldMetaData());
+        expect(component.options.colorField).toEqual(new FieldMetaData());
+        expect(component.options.dataField).toEqual(new FieldMetaData());
     });
 
     it('does have expected class properties', () => {
