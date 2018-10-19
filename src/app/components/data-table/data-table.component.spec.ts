@@ -102,32 +102,32 @@ describe('Component: DataTable', () => {
 
         component.initializeHeadersFromExceptionsToStatus();
 
-        expect(component.headers.length).toEqual(5);
-        expect(component.headers[0].prop).toEqual('date');
-        expect(component.headers[0].name).toEqual('Date');
-        expect(component.headers[0].active).toEqual(false);
-        expect(component.headers[0].style).toEqual({});
-        expect(component.headers[0].width).toEqual(150);
-        expect(component.headers[1].prop).toEqual('address');
-        expect(component.headers[1].name).toEqual('Address');
-        expect(component.headers[1].active).toEqual(false);
-        expect(component.headers[1].style).toEqual({});
-        expect(component.headers[1].width).toEqual(150);
-        expect(component.headers[2].prop).toEqual('field2');
-        expect(component.headers[2].name).toEqual('Field 2');
-        expect(component.headers[2].active).toEqual(false);
-        expect(component.headers[2].style).toEqual({});
-        expect(component.headers[2].width).toEqual(150);
-        expect(component.headers[3].prop).toEqual('category');
-        expect(component.headers[3].name).toEqual('Category');
-        expect(component.headers[3].active).toEqual(true);
-        expect(component.headers[3].style).toEqual({});
-        expect(component.headers[3].width).toEqual(150);
-        expect(component.headers[4].prop).toEqual('field1');
-        expect(component.headers[4].name).toEqual('Field 1');
-        expect(component.headers[4].active).toEqual(true);
-        expect(component.headers[4].style).toEqual({});
-        expect(component.headers[4].width).toEqual(150);
+        expect(component.options.headers.length).toEqual(5);
+        expect(component.options.headers[0].prop).toEqual('date');
+        expect(component.options.headers[0].name).toEqual('Date');
+        expect(component.options.headers[0].active).toEqual(false);
+        expect(component.options.headers[0].style).toEqual({});
+        expect(component.options.headers[0].width).toEqual(150);
+        expect(component.options.headers[1].prop).toEqual('address');
+        expect(component.options.headers[1].name).toEqual('Address');
+        expect(component.options.headers[1].active).toEqual(false);
+        expect(component.options.headers[1].style).toEqual({});
+        expect(component.options.headers[1].width).toEqual(150);
+        expect(component.options.headers[2].prop).toEqual('field2');
+        expect(component.options.headers[2].name).toEqual('Field 2');
+        expect(component.options.headers[2].active).toEqual(false);
+        expect(component.options.headers[2].style).toEqual({});
+        expect(component.options.headers[2].width).toEqual(150);
+        expect(component.options.headers[3].prop).toEqual('category');
+        expect(component.options.headers[3].name).toEqual('Category');
+        expect(component.options.headers[3].active).toEqual(true);
+        expect(component.options.headers[3].style).toEqual({});
+        expect(component.options.headers[3].width).toEqual(150);
+        expect(component.options.headers[4].prop).toEqual('field1');
+        expect(component.options.headers[4].name).toEqual('Field 1');
+        expect(component.options.headers[4].active).toEqual(true);
+        expect(component.options.headers[4].style).toEqual({});
+        expect(component.options.headers[4].width).toEqual(150);
     });
 
     it('getColumnWidth returns the width of the matching column in options.customColumnWidths', () => {
@@ -181,11 +181,18 @@ describe('Component: DataTable', () => {
         expect(component.subNgOnDestroy).toBeDefined();
     }));
 
-    it('subGetBindings does set expected bindings', (() => {
-        let bindings = {};
-
-        component.subGetBindings(bindings);
-        expect(bindings).toEqual({
+    it('options.createBindings does set expected bindings', (() => {
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 100,
+            table: 'testTable1',
+            title: 'Data Table',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             colorField: '',
             heatmapField: '',
             idField: '',
@@ -257,7 +264,7 @@ describe('Component: DataTable', () => {
         component.options.singleFilter = true;
         component.options.skinny = true;
         component.options.sortDescending = false;
-        component.headers = [{
+        component.options.headers = [{
             cellClass: function() { /* No-op */ },
             prop: 'name',
             name: 'Name',
@@ -266,13 +273,22 @@ describe('Component: DataTable', () => {
             width: 100
         }];
 
-        component.subGetBindings(bindings);
-        expect(bindings).toEqual({
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 100,
+            table: 'testTable1',
+            title: 'Data Table',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             colorField: '',
             heatmapField: '',
             idField: 'testIdField',
             sortField: 'testSortField',
-            filterFields: [new FieldMetaData('filterField')],
+            filterFields: ['filterField'],
             arrayFilterOperator: 'or',
             exceptionsToStatus: ['exception1', 'exception2'],
             filterable: true,
@@ -452,7 +468,7 @@ describe('Component: DataTable', () => {
     });
 
     it('getOptions does return options object', () => {
-        expect(component.getOptions()).toEqual(component.options);
+        expect(component.options).toEqual(component.options);
     });
 
     it('getCellClassFunction does return function', () => {

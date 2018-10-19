@@ -127,11 +127,58 @@ export class BarChartOptions extends BaseNeonOptions {
     public yPercentage: number;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
+     *
+     * @arg {any} bindings
+     * @return {any}
+     * @override
+     */
+    appendNonFieldBindings(bindings: any): any {
+        bindings.aggregation = this.aggregation;
+        bindings.andFilters = this.andFilters;
+        bindings.chartType = this.type;
+        bindings.ignoreSelf = this.ignoreSelf;
+        bindings.logScale = this.logScale;
+        bindings.saveSeenBars = this.saveSeenBars;
+        bindings.scaleManually = this.scaleManually;
+        bindings.scaleMax = this.scaleMax;
+        bindings.scaleMin = this.scaleMin;
+        bindings.sortAlphabetically = this.sortAlphabetically;
+        bindings.yPercentage = this.yPercentage;
+
+        return bindings;
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'aggregationField',
+            'dataField',
+            'colorField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    onInit() {
+    initializeNonFieldBindings() {
         this.aggregation = this.injector.get('aggregation', 'count');
         this.andFilters = this.injector.get('andFilters', true);
         this.ignoreSelf = this.injector.get('ignoreSelf', true);
@@ -143,17 +190,6 @@ export class BarChartOptions extends BaseNeonOptions {
         this.sortAlphabetically = this.injector.get('sortAlphabetically', false);
         this.type = this.injector.get('chartType', 'bar');
         this.yPercentage = this.injector.get('yPercentage', 0.2);
-    }
-
-    /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
-     *
-     * @override
-     */
-    updateFieldsOnTableChanged() {
-        this.aggregationField = this.findFieldObject('aggregationField');
-        this.dataField = this.findFieldObject('dataField');
-        this.colorField = this.findFieldObject('colorField');
     }
 }
 
@@ -440,30 +476,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     subNgOnDestroy() {
         this.chartModule.chart.destroy();
-    }
-
-    /**
-     * Sets the properties in the given bindings for the bar chart.
-     *
-     * @arg {object} bindings
-     * @override
-     */
-    subGetBindings(bindings: any) {
-        bindings.dataField = this.options.dataField.columnName;
-        bindings.aggregation = this.options.aggregation;
-        bindings.aggregationField = this.options.aggregationField.columnName;
-        bindings.andFilters = this.options.andFilters;
-        bindings.chartType = this.options.type;
-        bindings.colorField = this.options.colorField.columnName;
-        bindings.dataField = this.options.dataField.columnName;
-        bindings.ignoreSelf = this.options.ignoreSelf;
-        bindings.logScale = this.options.logScale;
-        bindings.saveSeenBars = this.options.saveSeenBars;
-        bindings.scaleManually = this.options.scaleManually;
-        bindings.scaleMax = this.options.scaleMax;
-        bindings.scaleMin = this.options.scaleMin;
-        bindings.sortAlphabetically = this.options.sortAlphabetically;
-        bindings.yPercentage = this.options.yPercentage;
     }
 
     /**

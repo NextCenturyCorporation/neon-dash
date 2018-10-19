@@ -913,11 +913,18 @@ describe('Component: MediaViewer', () => {
         expect(component.setupFilters).toBeDefined();
     }));
 
-    it('subGetBindings does set expected bindings', (() => {
-        let bindings = {};
-
-        component.subGetBindings(bindings);
-        expect(bindings).toEqual({
+    it('options.createBindings does set expected bindings', (() => {
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: '',
+            hideUnfiltered: false,
+            limit: 10,
+            table: '',
+            title: 'Media Viewer',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             idField: '',
             linkField: '',
             linkFields: [],
@@ -951,8 +958,17 @@ describe('Component: MediaViewer', () => {
             jpg: 'img'
         };
 
-        component.subGetBindings(bindings);
-        expect(bindings).toEqual({
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: '',
+            hideUnfiltered: false,
+            limit: 10,
+            table: '',
+            title: 'Media Viewer',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             idField: 'testIdField',
             linkField: 'testLinkField',
             linkFields: ['testLinkField1', 'testLinkField2'],

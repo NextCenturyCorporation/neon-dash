@@ -1264,11 +1264,18 @@ describe('Component: NewsFeed', () => {
         }));
     });
 
-    //for subGetBindings method
-    it('subGetBindings does set expected properties in bindings', () => {
-        let bindings1 = {};
-        component.subGetBindings(bindings1);
-        expect(bindings1).toEqual({
+    it('options.createBindings does set expected properties in bindings', () => {
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: '',
+            hideUnfiltered: false,
+            limit: 10,
+            table: '',
+            title: 'News Feed',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             idField: '',
             ignoreSelf: false,
             linkField: '',
@@ -1292,10 +1299,17 @@ describe('Component: NewsFeed', () => {
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
 
-        let bindings2 = {};
-        component.subGetBindings(bindings2);
-        expect(bindings2).toEqual({
-
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: '',
+            hideUnfiltered: false,
+            limit: 10,
+            table: '',
+            title: 'News Feed',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             idField: 'testIdField',
             ignoreSelf: false,
             linkField: 'testLinkField',
