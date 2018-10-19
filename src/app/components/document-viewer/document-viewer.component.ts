@@ -59,28 +59,59 @@ export class DocumentViewerOptions extends BaseNeonOptions {
     public showText: boolean;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
+     *
+     * @arg {any} bindings
+     * @return {any}
+     * @override
+     */
+    appendNonFieldBindings(bindings: any): any {
+        bindings.hideSource = this.hideSource;
+        bindings.metadataFields = this.metadataFields;
+        bindings.nameWidthCss = this.nameWidthCss;
+        bindings.popoutFields = this.popoutFields;
+        bindings.showSelect = this.showSelect;
+        bindings.showText = this.showText;
+
+        return bindings;
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'dataField',
+            'dateField',
+            'idField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    onInit() {
+    initializeNonFieldBindings() {
         this.hideSource = this.injector.get('hideSource', false);
         this.metadataFields = neonUtilities.flatten(this.injector.get('metadataFields', []));
         this.nameWidthCss = this.injector.get('nameWidthCss', '');
         this.popoutFields = neonUtilities.flatten(this.injector.get('popoutFields', []));
         this.showSelect = this.injector.get('showSelect', false);
         this.showText = this.injector.get('showText', false);
-    }
-
-    /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
-     *
-     * @override
-     */
-    updateFieldsOnTableChanged() {
-        this.dataField = this.findFieldObject('dataField');
-        this.dateField = this.findFieldObject('dateField');
-        this.idField = this.findFieldObject('idField');
     }
 }
 
@@ -143,23 +174,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     subNgOnDestroy() {
         // Do nothing.
-    }
-
-    subGetBindings(bindings) {
-        /*TODO: Fix 22001 Error
-        bindings.data = this.activeData;
-        bindings.dataField = this.options.dataField;
-        bindings.dateField = this.options.dateField;
-        bindings.docCount = this.docCount;
-        bindings.hideSource = this.options.hideSource;
-        bindings.idField = this.options.idField;
-        bindings.page = this.page;
-        bindings.metadataFields = this.options.metadataFields;
-        bindings.nameWidthCss = this.options.nameWidthCss;
-        bindings.popoutFields = this.options.popoutFields;
-        bindings.showSelect = this.options.showSelect;
-        bindings.showText = this.options.showText;
-        */
     }
 
     getExportFields() {

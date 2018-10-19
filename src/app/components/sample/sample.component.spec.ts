@@ -1093,31 +1093,6 @@ describe('Component: Sample', () => {
         expect(component.showFooterContainer()).toEqual(true);
     });
 
-    it('subGetBindings does set expected properties in bindings', () => {
-        let bindings1 = {};
-        component.subGetBindings(bindings1);
-        expect(bindings1).toEqual({
-            sampleOptionalField: '',
-            sampleRequiredField: '',
-            sortDescending: false,
-            subcomponentType: 'Impl1'
-        });
-
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
-        component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
-        component.options.sortDescending = true;
-        component.options.subcomponentType = 'Impl2';
-
-        let bindings2 = {};
-        component.subGetBindings(bindings2);
-        expect(bindings2).toEqual({
-            sampleOptionalField: 'testOptionalField1',
-            sampleRequiredField: 'testRequiredField1',
-            sortDescending: true,
-            subcomponentType: 'Impl2'
-        });
-    });
-
     it('subHandleChangeLimit does work as expected', () => {
         // TODO Update if you override subHandleChangeLimit with custom behavior for the visualization.  Otherwise delete this test.
     });
@@ -1167,13 +1142,69 @@ describe('Component: Sample', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
-    it('options.onInit does set non-field options as expected', () => {
-        component.options.onInit();
+    it('options.createBindings does set expected properties in bindings', () => {
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 10,
+            table: 'testTable1',
+            title: 'Sample',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
+            sampleOptionalField: '',
+            sampleRequiredField: '',
+            sortDescending: false,
+            subcomponentType: 'Impl1'
+        });
+
+        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
+        component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
+        component.options.sortDescending = true;
+        component.options.subcomponentType = 'Impl2';
+
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 10,
+            table: 'testTable1',
+            title: 'Sample',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
+            sampleOptionalField: 'testOptionalField1',
+            sampleRequiredField: 'testRequiredField1',
+            sortDescending: true,
+            subcomponentType: 'Impl2'
+        });
+    });
+
+    it('options.getFieldProperties does return expected properties', () => {
+        expect(component.options.getFieldProperties()).toEqual(['sampleOptionalField', 'sampleRequiredField']);
+    });
+
+    it('options.getFieldArrayProperties does return expected properties', () => {
+        expect(component.options.getFieldArrayProperties()).toEqual([]);
+    });
+
+    it('options.initializeNonFieldBindings does set non-field bindings as expected', () => {
+        component.options.sortDescending = undefined;
+        component.options.subcomponentType = undefined;
+
+        component.options.initializeNonFieldBindings();
+        expect(component.options.sortDescending).toEqual(false);
         expect(component.options.subcomponentType).toEqual('Impl1');
     });
 
-    it('options.updateFieldsOnTableChanged does set field options as expected', () => {
-        component.options.updateFieldsOnTableChanged();
+    it('options.updateFields does set field options as expected', () => {
+        component.options.sampleOptionalField = undefined;
+        component.options.sampleRequiredField = undefined;
+
+        component.options.updateFields();
         expect(component.options.sampleOptionalField).toEqual(component.emptyField);
         expect(component.options.sampleRequiredField).toEqual(component.emptyField);
     });
@@ -1688,20 +1719,20 @@ describe('Component: Sample with config', () => {
         expect(component.subcomponentObject.constructor.name).toEqual(SubcomponentImpl2.name);
     });
 
-    it('options.onInit does set non-field options as expected from config bindings', () => {
+    it('options.initializeNonFieldBindings does set non-field bindings as expected from config bindings', () => {
         component.options.sortDescending = false;
         component.options.subcomponentType = 'Impl1';
 
-        component.options.onInit();
+        component.options.initializeNonFieldBindings();
         expect(component.options.sortDescending).toEqual(true);
         expect(component.options.subcomponentType).toEqual('Impl2');
     });
 
-    it('options.updateFieldsOnTableChanged does set field options as expected from config bindings', () => {
+    it('options.updateFields does set field options as expected from config bindings', () => {
         component.options.sampleOptionalField = component.emptyField;
         component.options.sampleRequiredField = component.emptyField;
 
-        component.options.updateFieldsOnTableChanged();
+        component.options.updateFields();
         expect(component.options.sampleOptionalField).toEqual(DatasetServiceMock.NAME_FIELD);
         expect(component.options.sampleRequiredField).toEqual(DatasetServiceMock.CATEGORY_FIELD);
     });
