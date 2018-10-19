@@ -36,7 +36,7 @@ import { DatasetService } from './services/dataset.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../app/services/filter.service';
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
-import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatSidenav } from '@angular/material';
+import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatSidenav, MatMenuTrigger } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from './neon-grid-item';
 import { NeonGTDConfig } from './neon-gtd-config';
@@ -55,6 +55,7 @@ import { VisualizationContainerComponent } from './components/visualization-cont
 })
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChild(DashboardOptionsComponent) dashboardOptionsComponent: DashboardOptionsComponent;
+    @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
     @ViewChild(NgGrid) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
 

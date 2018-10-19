@@ -62,6 +62,19 @@
             href="https://github.com/NextCenturyCorporation/neon-dash/wiki/Neon-Dashboard-User-Guide" target="_blank">
             <mat-icon class="neon-icon-large">help</mat-icon>
         </a>
+
+        <mat-menu #appMenu="matMenu" yPosition="below" [overlapTrigger]="false">
+            <button mat-menu-item>Visualizations</button>
+            <button mat-menu-item>Dashboard Layouts</button>
+            <button mat-menu-item>Saved States</button>
+            <button mat-menu-item>Settings</button>
+            <button mat-menu-item>About</button>
+        </mat-menu>
+
+        <button mat-icon-button [matMenuTriggerFor]="appMenu">
+            <mat-icon>menu</mat-icon>
+        </button>
+
     </mat-toolbar>
 
     <div class="header-toggle-container">
