@@ -35,12 +35,14 @@ import { FilterService } from './services/filter.service';
 import { ImportService } from './services/import.service';
 import { ParameterService } from './services/parameter.service';
 import { PropertyService } from './services/property.service';
+import { RightPanelService } from './services/right-panel.service';
 import { ThemesService } from './services/themes.service';
 import { TranslationService } from './services/translation.service';
 import { VisualizationService } from './services/visualization.service';
 
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
+import { AddVisualizationPanelComponent } from './components/add-visualization-panel/add-visualization-panel.component';
 import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AppComponent } from './app.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
@@ -60,6 +62,7 @@ import { LegendComponent } from './components/legend/legend.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components/map/map.component';
 import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
+import { RightPanelComponent } from './components/right-panel/right-panel.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
@@ -98,6 +101,7 @@ export function getAppConfig() {
     declarations: [
         AboutNeonComponent,
         AddVisualizationComponent,
+        AddVisualizationPanelComponent,
         AnnotationViewerComponent,
         AppComponent,
         AggregationComponent,
@@ -122,6 +126,7 @@ export function getAppConfig() {
         NetworkGraphComponent,
         NewsFeedComponent,
         QueryBarComponent,
+        RightPanelComponent,
         SampleComponent,
         ScatterPlotComponent,
         SimpleFilterComponent,
@@ -161,6 +166,7 @@ export function getAppConfig() {
         ImportService,
         ParameterService,
         PropertyService,
+        RightPanelService,
         ThemesService,
         TranslationService,
         VisualizationService,
@@ -173,11 +179,13 @@ export function getAppConfig() {
     entryComponents: [
         AppComponent,
         AddVisualizationComponent,
+        AddVisualizationPanelComponent,
         ConfigEditorComponent,
         ConfirmationDialogComponent,
         CustomConnectionComponent,
         DocumentViewerSingleItemComponent,
         FilterTrayComponent,
+        RightPanelComponent,
         SnackBarComponent
     ],
     bootstrap: [AppComponent]

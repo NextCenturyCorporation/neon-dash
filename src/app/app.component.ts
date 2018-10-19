@@ -41,6 +41,7 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from './neon-grid-item';
 import { NeonGTDConfig } from './neon-gtd-config';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
+import { RightPanelService } from './services/right-panel.service';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { ThemesService } from './services/themes.service';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
@@ -67,6 +68,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public showFilterTrayButton: boolean = false;
     public showCustomConnectionButton: boolean = false;
     public showFilterBuilder: boolean = false;
+    public showRightPanel: boolean = false;
     public createFilterBuilder: boolean = false; //This is used to create the Filter Builder later
 
     public gridItems: NeonGridItem[] = [];
@@ -113,6 +115,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         private domSanitizer: DomSanitizer,
         public filterService: FilterService,
         private matIconRegistry: MatIconRegistry,
+        public rightPanelService: RightPanelService,
         public snackBar: MatSnackBar,
         public themesService: ThemesService,
         public viewContainerRef: ViewContainerRef,
@@ -123,8 +126,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.showFilterTrayButton = true;
         this.showCustomConnectionButton = true;
         this.datasets = this.datasetService.getDatasets();
+        this.rightPanelService = rightPanelService;
         this.themesService = themesService;
         this.neonConfig = neonConfig;
+        this.showRightPanel = false;
         this.snackBar = snackBar;
 
         if (neonConfig.errors && neonConfig.errors.length > 0) {
@@ -287,11 +292,36 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
          */
     }
 
+    toggleAboutNeon() {
+        this.showRightPanel = true;
+        this.rightPanelService.changeActivePanel('aboutNeon', 'About Neon');
+        this.rightPanelService.showAboutNeon = true;
+    }
+
+    toggleAddVisualization() {
+        this.showRightPanel = true;
+        this.rightPanelService.changeActivePanel('add-vis', 'Add Visulization');
+        this.rightPanelService.showAddVis = true;
+
+    }
+
+    toggleDashboardLayouts() {
+        this.showRightPanel = true;
+    }
+
     toggleDashboardOptions() {
         if (this.dashboardOptionsComponent) {
             this.dashboardOptionsComponent.loadStateNames();
         }
         this.showAbout = false;
+    }
+
+    toggleSaveState() {
+        this.showRightPanel = true;
+    }
+
+    toggleSettings() {
+        this.showRightPanel = true;
     }
 
 }

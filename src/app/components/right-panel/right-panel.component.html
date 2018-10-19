@@ -1,0 +1,14 @@
+<div [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <mat-toolbar color="primary">
+        <span>{{ rightPanelService.activePanel.title }}</span>
+    </mat-toolbar>
+
+    <div class="right-panel-container">
+        <div class="about-neon-container" *ngIf="rightPanelService.showAboutNeon">
+            <app-about-neon></app-about-neon>
+        </div>
+        <div class="add-visualization-container" *ngIf="rightPanelService.showAddVis">
+            <app-add-visualization-panel></app-add-visualization-panel>
+        </div>
+    </div>
+</div>

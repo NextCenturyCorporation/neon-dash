@@ -8,21 +8,9 @@
     </mat-sidenav>
 
     <mat-sidenav #sidenavright class="neon-sidenav neon-sidenav-info" mat-fill align="end">
-        <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary">
-            <span>{{ (showAbout) ? 'About' : 'Options' }}</span>
-        </mat-toolbar>
-        <app-about-neon *ngIf="showAbout"></app-about-neon>
-
-        <mat-card align="left">
-            <mat-card-content>
-                <app-dashboard-options #mainDashboardOptions *ngIf="!showAbout" [sidenav]="sidenavright"></app-dashboard-options>
-
-                <div mat-fill class="flex">
-                    <span class="fill-remaining"></span>
-                    <button mat-raised-button color="primary" (click)="sidenavright.close()">Close</button>
-                </div>
-            </mat-card-content>
-        </mat-card>
+        <div class="right-panel-container" id="right.panel" *ngIf="showRightPanel">
+            <app-right-panel></app-right-panel>
+        </div>
     </mat-sidenav>
 
     <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary" layout-align="space-between center" flex>
@@ -50,25 +38,20 @@
             matTooltip="Show Filters" (click)="openFilterTrayDialog()" *ngIf="showFilterTrayButton">
             <mat-icon class="neon-icon-large">filter_list</mat-icon>
         </button>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="Settings" tooltip-position="below"
-            matTooltip="Change the Settings" (click)="toggleDashboardOptions(); sidenavright.toggle();">
-            <mat-icon class="neon-icon-large">settings</mat-icon>
-        </button>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="About..." tooltip-position="below"
-            matTooltip="Show Application Information" (click)="showAbout = true; sidenavright.toggle()">
-            <mat-icon class="neon-icon-large">info</mat-icon>
-        </button>
-        <a class="neon-link" aria-label="Help" matTooltip="Open the User Guide" tooltip-position="below" target="_blank"
-            href="https://github.com/NextCenturyCorporation/neon-dash/wiki/Neon-Dashboard-User-Guide" target="_blank">
-            <mat-icon class="neon-icon-large">help</mat-icon>
-        </a>
 
         <mat-menu #appMenu="matMenu" yPosition="below" [overlapTrigger]="false">
-            <button mat-menu-item>Visualizations</button>
-            <button mat-menu-item>Dashboard Layouts</button>
-            <button mat-menu-item>Saved States</button>
-            <button mat-menu-item>Settings</button>
-            <button mat-menu-item>About</button>
+            <button mat-menu-item (click)="toggleAddVisualization(); sidenavright.toggle()">
+                <mat-icon>add_circle</mat-icon>Visualizations</button>
+            <button mat-menu-item (click)="toggleDashboardLayouts()">
+                <mat-icon>dashboard</mat-icon>Dashboard Layouts</button>
+            <button mat-menu-item (click)="toggleSaveState()">
+                <mat-icon>save</mat-icon>Saved States</button>
+            <button mat-menu-item (click)="toggleSettings()">
+                <mat-icon>settings</mat-icon>Settings
+            </button>
+            <button mat-menu-item (click)="toggleAboutNeon(); sidenavright.toggle()">
+                <mat-icon>info</mat-icon>About
+            </button>
         </mat-menu>
 
         <button mat-icon-button [matMenuTriggerFor]="appMenu">
@@ -78,10 +61,9 @@
     </mat-toolbar>
 
     <div class="header-toggle-container">
-        <div class="filter-builder-container" id="filter.builder" *ngIf="createFilterBuilder" >
+        <div class="filter-builder-container" id="filter.builder" *ngIf="createFilterBuilder">
             <app-filter-builder></app-filter-builder>
-            <div class="filter-builder-footer" >
-                
+            <div class="filter-builder-footer">
             </div>
         </div>
     </div>
