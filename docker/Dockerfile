@@ -126,10 +126,8 @@ ENV ELATICSEARCH_VERSION 2.5.4
 ENV ELASTICSEARCH_TGZ_URL https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.4.5/elasticsearch-2.4.5.tar.gz
 
 # Set Elasticsearch environments variables passed in from build.sh or defaults
-ARG ES_INDEX=index
-ARG ES_MAPPING=mapping
-ENV ES_INDEX $ES_INDEX
-ENV ES_MAPPING $ES_MAPPING
+ARG ES_DATA_MAPPING_TUPLE
+ENV ES_DATA_MAPPING_TUPLE $ES_DATA_MAPPING_TUPLE
 
 # Download and extract Elasticesarch archive
 RUN set -x \
@@ -202,11 +200,6 @@ RUN \
   npm install elasticdump -g
 
 #-------------------------------------------------------------
-# Start Supervisor 
-#-------------------------------------------------------------
-RUN /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
-
-#-------------------------------------------------------------
 # Populate Elasitcsearch with THOR_DATA 
 #-------------------------------------------------------------
 ENV ES_THOR_DATA $ELASTICSEARCH_HOME/thor_data
@@ -228,9 +221,9 @@ WORKDIR $THOR_DATA
 # Copy over Elasticsearch config files
 COPY ["configs/elasticsearch/index-settings.json", "$ES_THOR_DATA/"] 
 
-# Copy over the data and mapping files based on ES_INDEX --build-arg
-RUN cp ${ES_INDEX}.json $ES_THOR_DATA/
-RUN cp ${ES_INDEX}_mapping.json $ES_THOR_DATA/
+# Copy over the data and mapping files based on ES_DATA_MAPPING_TUPLE --build-arg
+RUN IFS=',' read -ra listArr <<< "$ES_DATA_MAPPING_TUPLE" \
+   && for item in "${listArr[@]}"; do IFS=':' read -ra elements <<< "$item"; cp "${elements[0]}.json" $ES_THOR_DATA/; cp "${elements[0]}_mapping.json" $ES_THOR_DATA/; done
 
 # Clean up THOR_DATA git repo
 RUN rm -rf $THOR_DATA
@@ -249,7 +242,6 @@ ARG NEON_REPO=LORELEI.THOR/neon.git
 ARG NEON_BRANCH=master
 
 # Pull Neon Git Repo
-#RUN git clone https://$CREDS@$NEON_REPO -b $NEON_BRANCH
 RUN git clone https://$CREDS@$GIT_REPO/$NEON_REPO -b $NEON_BRANCH
 
 # Run Neon Gradle Build
@@ -299,7 +291,7 @@ RUN cp target/lorelei.war $CATALINA_HOME/webapps/lorelei.war
 RUN rm -rf $LORELEI_HOME
 
 #-------------------------------------------------------------
-# Install GeoServer 2.12.x
+# Install GeoServer 2.14.0
 #-------------------------------------------------------------
 ENV GEOSERVER_HOME $INST_HOME/geoserver
 ENV PATH $GEOSERVER_HOME/bin:$PATH
@@ -349,6 +341,6 @@ COPY ["scripts/entrypoint.sh", "/usr/local/startup/"]
 RUN chmod +x /usr/local/startup/entrypoint.sh
 
 # Expose Ports
-EXPOSE 22 8080 9200
+EXPOSE 22 8080 8888 9200
 
 ENTRYPOINT ["/usr/local/startup/entrypoint.sh"]

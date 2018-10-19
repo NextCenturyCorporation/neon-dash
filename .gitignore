@@ -9,7 +9,7 @@
 /doc
 /target
 
-# ignore environmental file in docker
+# ignore personal build and run scripts in docker dir
 docker/build.sh
 docker/run.sh
 
