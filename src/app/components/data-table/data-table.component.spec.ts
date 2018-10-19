@@ -231,7 +231,6 @@ describe('Component: DataTable', () => {
     }));
 
     it('recalculateActiveHeaders does update activeHeaders and call detectChanges', () => {
-        // TODO: incorporate width if-statement logic from recalculateActiveHeaders into test cases
         let spy = spyOn(component.changeDetection, 'detectChanges');
 
         component.headers = [{
@@ -247,6 +246,15 @@ describe('Component: DataTable', () => {
         component.recalculateActiveHeaders();
 
         expect(spy).toHaveBeenCalled();
+        expect(component.headers).toEqual([{
+            prop: 'createdDate',
+            name: 'Date Created',
+            active: true,
+            style: {},
+            cellClass: '',
+            width: 150,
+            $$oldWidth: 150
+        }]);
         expect(component.activeHeaders).toEqual([{
             prop: 'createdDate',
             name: 'Date Created',
@@ -256,6 +264,58 @@ describe('Component: DataTable', () => {
             width: 150,
             $$oldWidth: 150
         }]);
+        expect(component.headerWidths.get('createdDate')).toEqual(150);
+    });
+
+    it('recalculateActiveHeaders does update widths if table is bigger than visualization and call detectChanges', () => {
+        let spy = spyOn(component.changeDetection, 'detectChanges');
+
+        component.activeHeaders = [{
+            prop: 'createdDate',
+            name: 'Date Created',
+            active: true,
+            style: {},
+            cellClass: ''
+        }];
+        /* tslint:disable:no-string-literal */
+        component.activeHeaders[0]['width'] = 50000;
+        /* tslint:enable:no-string-literal */
+
+        component.headers = [{
+            prop: 'createdDate',
+            name: 'Date Created',
+            active: true,
+            style: {},
+            cellClass: '',
+            width: 50000
+        }];
+        component.headerWidths.set('createdDate', 50000);
+
+        component.recalculateActiveHeaders();
+
+        expect(spy).toHaveBeenCalled();
+
+        expect(component.headers[0].prop).toEqual('createdDate');
+        expect(component.headers[0].name).toEqual('Date Created');
+        expect(component.headers[0].active).toBeTruthy();
+        expect(component.headers[0].style).toEqual({});
+        expect(component.headers[0].cellClass).toEqual('');
+        /* tslint:disable:no-string-literal */
+        expect(component.headers[0]['width']).toBeLessThan(50000);
+        expect(component.headers[0]['$$oldWidth']).toBeLessThan(50000);
+        /* tslint:enable:no-string-literal */
+        expect(component.activeHeaders.length).toBe(1);
+        expect(component.activeHeaders[0].prop).toEqual('createdDate');
+        expect(component.activeHeaders[0].name).toEqual('Date Created');
+        expect(component.activeHeaders[0].active).toBeTruthy();
+        expect(component.activeHeaders[0].style).toEqual({});
+        expect(component.activeHeaders[0].cellClass).toEqual('');
+        /* tslint:disable:no-string-literal */
+        expect(component.activeHeaders[0]['width']).toBeLessThan(50000);
+        expect(component.activeHeaders[0]['$$oldWidth']).toBeLessThan(50000);
+        /* tslint:enable:no-string-literal */
+        expect(component.headerWidths.get('createdDate')).toBeLessThan(50000);
+        expect(spy).toHaveBeenCalled();
     });
 
     it('getActiveHeaders does return list of active headers', (() => {
@@ -780,7 +840,21 @@ describe('Component: DataTable', () => {
         component.options.ignoreSelf = false;
 
         expect(component.getFiltersToIgnore()).toBeNull();
-        // TODO: test case when getFiltersToIgnore() returns an array?
+    });
+
+    it('getFiltersToIgnore does return an array', () => {
+        component.options.ignoreSelf = true;
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testFilterField', '=', 'value1'), 'testFilterField');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
+
+        let filtersResult = component.getFiltersToIgnore();
+        expect(filtersResult.length).toEqual(1);
+        expect(filtersResult[0]).toEqual('testDatabase1-testTable1-testFilterField');
     });
 
     it('arrayToString does return the expected string value', () => {
@@ -846,7 +920,7 @@ describe('Component: DataTable', () => {
         expect(refreshVisSpy).toHaveBeenCalled();
     });
 
-    it('getDocCount does call expected functions', () => {
+    it('getDocCount does call expected functions if cannotExecuteQuery returns false', () => {
         spyOn(component, 'cannotExecuteQuery').and.returnValue(false);
         let getFiltersSpy = spyOn(component, 'getFiltersToIgnore');
         let exQuerySpy = spyOn(component, 'executeQuery');
@@ -1339,6 +1413,8 @@ describe('Component: DataTable', () => {
     it('getButtonText does return expected string', () => {
         component.options.limit = 10;
         expect(component.getButtonText()).toBe('No Data');
+        component.options.hideUnfiltered = true;
+        expect(component.getButtonText()).toBe('Please Filter');
         component.docCount = 10;
         expect(component.getButtonText()).toBe('Total 10');
         component.docCount = 20;
@@ -1351,8 +1427,26 @@ describe('Component: DataTable', () => {
         expect(component.getButtonText()).toBe('Total 5');
     });
 
-    it('onSelect does update selected array and call publishSelectId', () => {
-        let publishSpy = spyOn(component, 'publishSelectId');
+    it('onSelect does update selected array and calls publishAnyCustomEvents, but not publishSelectId', () => {
+        let publishIdSpy = spyOn(component, 'publishSelectId');
+        let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
+        let addFilterSpy = spyOn(component, 'addFilter');
+        let selected = [{
+            category: 'books',
+            title: 'Test'
+        }];
+
+        component.onSelect({selected: selected});
+
+        expect(component.selected).toEqual(selected);
+        expect(publishIdSpy).toHaveBeenCalledTimes(0);
+        expect(publishAnySpy).toHaveBeenCalled();
+        expect(addFilterSpy).toHaveBeenCalledTimes(0);
+    });
+
+    it('onSelect does update selected array, calls publishSelectId and publishAnyCustomEvents', () => {
+        let publishIdSpy = spyOn(component, 'publishSelectId');
+        let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
         let addFilterSpy = spyOn(component, 'addFilter');
         let selected = [{
             category: 'books',
@@ -1363,12 +1457,14 @@ describe('Component: DataTable', () => {
         component.onSelect({selected: selected});
 
         expect(component.selected).toEqual(selected);
-        expect(publishSpy).toHaveBeenCalled();
+        expect(publishIdSpy).toHaveBeenCalled();
+        expect(publishAnySpy).toHaveBeenCalled();
         expect(addFilterSpy).toHaveBeenCalledTimes(0);
     });
 
-    it('onSelect does update selected array, call publishSelectId, and update filters', () => {
-        let publishSpy = spyOn(component, 'publishSelectId');
+    it('onSelect does update selected array and filters, calls publishSelectId and publishAnyCustomEvents', () => {
+        let publishIdSpy = spyOn(component, 'publishSelectId');
+        let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
         let addFilterSpy = spyOn(component, 'addFilter');
         let selected = [{
             category: 'books',
@@ -1389,7 +1485,8 @@ describe('Component: DataTable', () => {
         component.onSelect({selected: selected});
 
         expect(component.selected).toEqual(selected);
-        expect(publishSpy).toHaveBeenCalled();
+        expect(publishIdSpy).toHaveBeenCalled();
+        expect(publishAnySpy).toHaveBeenCalled();
         expect(addFilterSpy).toHaveBeenCalled();
     });
 
