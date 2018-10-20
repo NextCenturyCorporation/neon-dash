@@ -63,7 +63,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     @Input() sidenav = MatSidenav;
     // Used to determine which pane is show in the right sidenav
 
-    public showAbout: boolean = true;
     public showAddVisualizationButton: boolean = false;
     public showFilterTrayButton: boolean = false;
     public showCustomConnectionButton: boolean = false;
@@ -313,7 +312,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         if (this.dashboardOptionsComponent) {
             this.dashboardOptionsComponent.loadStateNames();
         }
-        this.showAbout = false;
     }
 
     toggleSaveState() {

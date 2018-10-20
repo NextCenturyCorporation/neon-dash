@@ -24,7 +24,7 @@ import { ThemesService } from '../../services/themes.service';
     selector: 'app-add-visualization-panel',
     templateUrl: 'add-visualization-panel.component.html',
     styleUrls: ['add-visualization-panel.component.scss']
-  })
+})
 export class AddVisualizationPanelComponent implements OnInit {
     public chartsAndGraph: any[];
     public GridsAndTable: any[];
@@ -32,8 +32,11 @@ export class AddVisualizationPanelComponent implements OnInit {
     public visualizations: any[];
     public selectedIndex: number = -1;
 
-    constructor(private activeGridService: ActiveGridService, public themesService: ThemesService,
-        public snackBar: MatSnackBar) {
+    constructor(
+        private activeGridService: ActiveGridService,
+        public snackBar: MatSnackBar,
+        public themesService: ThemesService
+    ) {
         this.themesService = themesService;
     }
 
@@ -53,10 +56,10 @@ export class AddVisualizationPanelComponent implements OnInit {
 
         this.activeGridService.addItemInFirstFit(this.visualizations[index]);
 
-         this.snackBar.open('Visualization Added', 'x', {
+        this.snackBar.open('Visualization Added', 'x', {
             duration: 5000,
             verticalPosition: 'top',
             panelClass: ['simpleSnackBar']
-         });
+        });
     }
 }

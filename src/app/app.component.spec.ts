@@ -20,6 +20,7 @@ import { APP_BASE_HREF, CommonModule } from '@angular/common';
 
 import 'hammerjs';
 
+import { AddVisualizationPanelComponent } from './components/add-visualization-panel/add-visualization-panel.component';
 import { AppComponent } from './app.component';
 import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
@@ -34,6 +35,7 @@ import { FilterBuilderComponent } from './components/filter-builder/filter-build
 import { LegendComponent } from './components/legend/legend.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components//map/map.component';
+import { RightPanelComponent } from './components/right-panel/right-panel.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
@@ -51,7 +53,7 @@ import { ConnectionService } from './services/connection.service';
 import { ErrorNotificationService } from './services/error-notification.service';
 import { ExportService } from './services/export.service';
 import { FilterService } from './services/filter.service';
-
+import { RightPanelService } from './services/right-panel.service';
 import { ParameterService } from './services/parameter.service';
 import { ThemesService } from './services/themes.service';
 import { VisualizationService } from './services/visualization.service';
@@ -78,6 +80,7 @@ import {
     ThumbnailDetailsContractedComponent,
     ThumbnailDetailsExpandedComponent
 } from './components/thumbnail-grid/thumbnail-details.component';
+import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 
 describe('App: NeonGtd', () => {
     let fixture: ComponentFixture<AppComponent>;
@@ -88,6 +91,7 @@ describe('App: NeonGtd', () => {
         TestBed.configureTestingModule({
             declarations: [
                 ChartComponent,
+                AddVisualizationPanelComponent,
                 AppComponent,
                 AboutNeonComponent,
                 AggregationComponent,
@@ -107,6 +111,7 @@ describe('App: NeonGtd', () => {
                 NetworkGraphComponent,
                 NewsFeedComponent,
                 QueryBarComponent,
+                RightPanelComponent,
                 SampleComponent,
                 ScatterPlotComponent,
                 SimpleFilterComponent,
@@ -142,6 +147,7 @@ describe('App: NeonGtd', () => {
                 ErrorNotificationService,
                 ExportService,
                 FilterService,
+                RightPanelService,
                 ParameterService,
                 ThemesService,
                 VisualizationService,
@@ -167,7 +173,6 @@ describe('App: NeonGtd', () => {
         expect(debugElement.nativeElement.querySelectorAll('app-dataset-selector')).toBeTruthy();
         // Since the about pane and options pane are rendered only after a user opens their sidenav area,
         // these should not exist upon initial render.
-        expect(debugElement.nativeElement.querySelectorAll('app-about-neon').length === 0).toBeTruthy();
-        expect(debugElement.nativeElement.querySelectorAll('app-dashboard-options').length === 0).toBeTruthy();
+        expect(debugElement.nativeElement.querySelectorAll('app-right-panel').length === 0).toBeTruthy();
     }));
 });
