@@ -28,8 +28,11 @@ export class RightPanelService {
     public showAboutNeon: boolean = false;
     public showAddVis: boolean = false;
     public showDashboardLayouts: boolean = false;
+    public showGear: boolean = false;
     public showSaveState: boolean = false;
     public showSettings: boolean = false;
+    public showSimpleSearch: boolean = false;
+    public showVisShortcut: boolean = true;
 
     constructor() {
         this.activePanel = new ActivePanel();

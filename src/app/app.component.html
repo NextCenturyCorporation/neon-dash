@@ -21,7 +21,7 @@
         <span>{{ datasetService.getName() || "Choose Data..." }}</span>
         <span class="fill-remaining"></span>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
-            matTooltip="Add a New Visualization" (click)="openAddVisualizationDialog()" *ngIf="showAddVisualizationButton">
+            matTooltip="Add a New Visualization" (click)="openAddVisualizationDialog()" *ngIf="rightPanelService.showVisShortcut">
             <mat-icon class="neon-icon-large">add_circle</mat-icon>
         </button>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Connect to a Custom Data Source"
@@ -42,11 +42,11 @@
         <mat-menu #appMenu="matMenu" yPosition="below" [overlapTrigger]="false">
             <button mat-menu-item (click)="toggleAddVisualization(); sidenavright.toggle()">
                 <mat-icon>add_circle</mat-icon>Visualizations</button>
-            <button mat-menu-item (click)="toggleDashboardLayouts()">
+            <button mat-menu-item (click)="toggleDashboardLayouts(); sidenav.toggle()">
                 <mat-icon>dashboard</mat-icon>Dashboard Layouts</button>
             <button mat-menu-item (click)="toggleSaveState()">
                 <mat-icon>save</mat-icon>Saved States</button>
-            <button mat-menu-item (click)="toggleSettings()">
+            <button mat-menu-item (click)="toggleSettings(); sidenavright.toggle()">
                 <mat-icon>settings</mat-icon>Settings
             </button>
             <button mat-menu-item (click)="toggleAboutNeon(); sidenavright.toggle()">

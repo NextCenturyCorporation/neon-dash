@@ -36,7 +36,11 @@ export class SimpleFilterComponent {
     private id = uuid.v4();
     private messenger = new neon.eventing.Messenger();
 
-    constructor(private datasetService: DatasetService, private filterService: FilterService, public themesService: ThemesService) {
+    constructor(
+        private datasetService: DatasetService,
+        private filterService: FilterService,
+        public themesService: ThemesService
+    ) {
         this.setSimpleFilter();
     }
 

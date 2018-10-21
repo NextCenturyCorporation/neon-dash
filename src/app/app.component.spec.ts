@@ -38,6 +38,7 @@ import { MapComponent } from './components//map/map.component';
 import { RightPanelComponent } from './components/right-panel/right-panel.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
+import { SettingsComponent } from './components/settings/settings.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
@@ -114,6 +115,7 @@ describe('App: NeonGtd', () => {
                 RightPanelComponent,
                 SampleComponent,
                 ScatterPlotComponent,
+                SettingsComponent,
                 SimpleFilterComponent,
                 TextCloudComponent,
                 ThumbnailDetailsContractedComponent,

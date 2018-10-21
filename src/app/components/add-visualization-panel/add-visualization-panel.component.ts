@@ -18,6 +18,7 @@ import { MatDialogRef, MatSnackBar } from '@angular/material';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { neonVisualizations } from '../../neon-namespaces';
+import { RightPanelService } from '../../services/right-panel.service';
 import { ThemesService } from '../../services/themes.service';
 
 @Component({
@@ -34,9 +35,11 @@ export class AddVisualizationPanelComponent implements OnInit {
 
     constructor(
         private activeGridService: ActiveGridService,
+        public rightPanelService: RightPanelService,
         public snackBar: MatSnackBar,
         public themesService: ThemesService
     ) {
+        this.rightPanelService = rightPanelService;
         this.themesService = themesService;
     }
 
