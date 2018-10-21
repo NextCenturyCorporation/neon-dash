@@ -1,5 +1,10 @@
 <div [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
 
+    <div class="checkmark-container">
+        <input type="checkbox" [checked]="rightPanelService.showVisShortcut" (change)="rightPanelService.showVisShortcut = !rightPanelService.showVisShortcut">
+        Show shortcut
+    </div>
+
     <div class="add-visualization-grid-container" mat-fill>
         <mat-grid-list cols="4" rowHeight="130px" gutterSize="5px">
             <mat-grid-tile *ngFor="let item of visualizations; let i = index;" [class.selected]="item.selected"

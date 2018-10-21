@@ -54,12 +54,14 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 class TestAddVisualizationPanelComponent extends AddVisualizationPanelComponent {
     constructor(
         activeGridService: ActiveGridService,
+        rightPanelService: RightPanelService,
         themesService: ThemesService,
         snackBar: MatSnackBar
     ) {
 
         super(
             activeGridService,
+            rightPanelService,
             snackBar,
             themesService
         );

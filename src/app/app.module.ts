@@ -65,6 +65,7 @@ import { MediaViewerComponent } from './components/media-viewer/media-viewer.com
 import { RightPanelComponent } from './components/right-panel/right-panel.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
+import { SettingsComponent } from './components/settings/settings.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
@@ -129,6 +130,7 @@ export function getAppConfig() {
         RightPanelComponent,
         SampleComponent,
         ScatterPlotComponent,
+        SettingsComponent,
         SimpleFilterComponent,
         SnackBarComponent,
         TextCloudComponent,
@@ -186,6 +188,7 @@ export function getAppConfig() {
         DocumentViewerSingleItemComponent,
         FilterTrayComponent,
         RightPanelComponent,
+        SettingsComponent,
         SnackBarComponent
     ],
     bootstrap: [AppComponent]

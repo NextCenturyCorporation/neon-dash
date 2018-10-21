@@ -63,7 +63,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     @Input() sidenav = MatSidenav;
     // Used to determine which pane is show in the right sidenav
 
-    public showAddVisualizationButton: boolean = false;
     public showFilterTrayButton: boolean = false;
     public showCustomConnectionButton: boolean = false;
     public showFilterBuilder: boolean = false;
@@ -121,7 +120,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         @Inject('config') private neonConfig: NeonGTDConfig
     ) {
         // TODO: Default to false and set to true only after a dataset has been selected.
-        this.showAddVisualizationButton = true;
         this.showFilterTrayButton = true;
         this.showCustomConnectionButton = true;
         this.datasets = this.datasetService.getDatasets();
@@ -299,7 +297,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     toggleAddVisualization() {
         this.showRightPanel = true;
-        this.rightPanelService.changeActivePanel('add-vis', 'Add Visulization');
+        this.rightPanelService.changeActivePanel('add-vis', 'Visulization');
         this.rightPanelService.showAddVis = true;
 
     }
@@ -320,6 +318,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     toggleSettings() {
         this.showRightPanel = true;
+        this.rightPanelService.changeActivePanel('settings', 'Settings');
+        this.rightPanelService.showSettings = true;
     }
 
 }
