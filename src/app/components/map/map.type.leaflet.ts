@@ -85,19 +85,36 @@ export class LeafletNeonMap extends AbstractMap {
 
     addPoints(points: MapPoint[], layer?: MapLayer, cluster?: boolean) {
         let group = this.getGroup(layer);
+
         for (let point of points) {
-            let circlOptions = {
+
+            let circlOptions = {};
+
+            //ensure idField is set check if select_id has been set in the Messenger
+            if (point.idValue && (point.idValue === this.mapOptions.id) ) {
+                circlOptions = {
+                    color: '#FF4500',
+                    fillColor: '#FF4500',
+                    weight: 5,
+                    colorByField: point.colorByField,
+                    colorByValue: point.colorByValue,
+                    radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 100) // Default is 10
+                };
+            } else {
+                circlOptions = {
                     color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
                     fillColor: point.cssColorString,
                     weight: 1,
                     colorByField: point.colorByField,
                     colorByValue: point.colorByValue,
                     radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30) // Default is 10
-                },
-                circle = new L.CircleMarker([point.lat, point.lng], circlOptions)/*.setRadius(6)*/;
+                };
+            }
+
+            let circle = new L.CircleMarker([point.lat, point.lng], circlOptions)/*.setRadius(6)*/;
             circle = this.addClickEventListener(circle);
             if (this.mapOptions.hoverPopupEnabled) {
-                circle.bindTooltip(`<span>${point.name}</span><br/><span>${point.description}</span>`);
+                    circle.bindTooltip(`<span>${point.name}</span><br/><span>${point.description}</span>`);
             }
             group.addLayer(circle);
         }

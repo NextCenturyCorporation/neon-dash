@@ -963,6 +963,16 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         return '';
     }
 
+    /**
+     * Subscribes the given callback function to the select_id event.
+     *
+     * @arg {function} callback
+     * @listens select_id
+     */
+    subscribeToSelectId(callback) {
+        this.messenger.subscribe('select_id', callback);
+    }
+
     getHighlightThemeColor() {
         let elements = document.getElementsByClassName('color-highlight');
         let color = elements.length ? window.getComputedStyle(elements[0], null).getPropertyValue('color') : '';

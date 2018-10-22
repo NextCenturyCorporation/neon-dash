@@ -36,6 +36,7 @@ export class BoundingBoxByDegrees {
 
 export class MapPoint {
     constructor(
+        public idValue: string,
         public name: string,
         public lat: number,
         public lng: number,
