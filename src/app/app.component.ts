@@ -231,18 +231,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.visualizations.toArray()[i].onResizeStop();
     }
 
-    openAddVisualizationDialog() {
-        let config = new MatDialogConfig();
-        config.viewContainerRef = this.viewContainerRef;
-
-        this.addVisDialogRef = this.dialog.open(AddVisualizationComponent, config);
-        L.DomUtil.disableTextSelection();
-        this.addVisDialogRef.afterClosed().subscribe(() => {
-            this.addVisDialogRef = null;
-            L.DomUtil.enableTextSelection();
-        });
-    }
-
     openCustomConnectionDialog() {
         let config = new MatDialogConfig();
         config.viewContainerRef = this.viewContainerRef;
