@@ -90,6 +90,7 @@ describe('Component: MediaViewer', () => {
         expect(component.options.linkFields).toEqual([]);
         expect(component.options.nameField).toEqual(component.emptyField);
         expect(component.options.typeField).toEqual(component.emptyField);
+        expect(component.options.autoplay).toEqual(false);
     });
 
     it('does have expected class properties', () => {
@@ -797,7 +798,8 @@ describe('Component: MediaViewer', () => {
         component.options.typeMap = {
             avi: 'vid',
             jpg: 'img',
-            txt: 'txt'
+            txt: 'txt',
+            wav: 'aud'
         };
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
@@ -809,7 +811,7 @@ describe('Component: MediaViewer', () => {
         component.onQuerySuccess({
             data: [{
                 testIdField: 'testIdValue',
-                testLinkField: ['video.avi', 'image.jpg', 'alpha.txt', 'other.xyz']
+                testLinkField: ['video.avi', 'image.jpg', 'alpha.txt', 'audio.wav', 'other.xyz']
             }]
         });
 
@@ -867,6 +869,24 @@ describe('Component: MediaViewer', () => {
                 mask: '',
                 name: 'alpha.txt',
                 type: 'txt'
+            }]
+        }, {
+            loaded: false,
+            slider: 0,
+            name: 'audio.wav',
+            selected: {
+                border: '',
+                link: 'audio.wav',
+                mask: '',
+                name: 'audio.wav',
+                type: 'aud'
+            },
+            list: [{
+                border: '',
+                link: 'audio.wav',
+                mask: '',
+                name: 'audio.wav',
+                type: 'aud'
             }]
         }, {
             loaded: false,
@@ -931,7 +951,8 @@ describe('Component: MediaViewer', () => {
             oneTabPerArray: false,
             resize: true,
             sliderValue: 0,
-            typeMap: {}
+            typeMap: {},
+            autoplay: false
         });
 
         component.options.idField = DatasetServiceMock.ID_FIELD;
@@ -950,6 +971,7 @@ describe('Component: MediaViewer', () => {
         component.options.typeMap = {
             jpg: 'img'
         };
+        component.options.autoplay = true;
 
         component.subGetBindings(bindings);
         expect(bindings).toEqual({
@@ -968,7 +990,8 @@ describe('Component: MediaViewer', () => {
             sliderValue: 0.5,
             typeMap: {
                 jpg: 'img'
-            }
+            },
+            autoplay: true
         });
     }));
 
@@ -1381,6 +1404,90 @@ describe('Component: MediaViewer', () => {
         });
     })));
 
+    it('does show single audio tag according to the audio type', async(inject([DomSanitizer], (sanitizer) => {
+        let audSrc = './assets/audio/test-audio.wav';
+        component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
+            name: 'testTabName',
+            selected: {
+                border: '',
+                link: audSrc,
+                mask: '',
+                name: 'testName',
+                type: 'aud'
+            },
+            list: [{
+                border: '',
+                link: audSrc,
+                mask: '',
+                name: 'testName',
+                type: 'aud'
+            }]
+        }];
+        fixture.detectChanges();
+
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
+            expect(media.length).toBe(1);
+            expect(media[0].nativeElement.innerHTML).toContain('<audio');
+            expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
+        });
+    })));
+
+    it('does show multiple audio tags in tabs according to the audio type', async(inject([DomSanitizer], (sanitizer) => {
+        let audSrc = './assets/audio/test-audio.wav';
+        component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
+            name: 'testTabName1',
+            selected: {
+                border: '',
+                link: audSrc,
+                mask: '',
+                name: 'testName',
+                type: 'aud'
+            },
+            list: [{
+                border: '',
+                link: audSrc,
+                mask: '',
+                name: 'testName',
+                type: 'aud'
+            }]
+        }, {
+            loaded: false,
+            slider: 0,
+            name: 'testTabName2',
+            selected: {
+                border: '',
+                link: audSrc,
+                mask: '',
+                name: 'testName',
+                type: 'aud'
+            },
+            list: [{
+                border: '',
+                link: audSrc,
+                mask: '',
+                name: 'testName',
+                type: 'aud'
+            }]
+        }];
+        fixture.detectChanges();
+
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+            expect(tabs.length).toBe(2);
+            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
+            expect(media.length).toBe(1);
+            expect(media[0].nativeElement.innerHTML).toContain('<audio');
+            expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
+        });
+    })));
+
     it('does show single iframe tag according to the empty type', async(inject([DomSanitizer], (sanitizer) => {
         let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
         component.tabsAndMedia = [{
@@ -1600,7 +1707,8 @@ describe('Component: MediaViewer with config', () => {
             { provide: 'id', useValue: 'testId' },
             { provide: 'resize', useValue: false },
             { provide: 'typeMap', useValue: { jpg: 'img' } },
-            { provide: 'url', useValue: 'https://kafka.apache.org/intro' }
+            { provide: 'url', useValue: 'https://kafka.apache.org/intro' },
+            { provide: 'autoplay', useValue: true }
         ],
         imports: [
             AppMaterialModule,
@@ -1637,6 +1745,7 @@ describe('Component: MediaViewer with config', () => {
         expect(component.options.linkField).toEqual(DatasetServiceMock.LINK_FIELD);
         expect(component.options.nameField).toEqual(DatasetServiceMock.NAME_FIELD);
         expect(component.options.typeField).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect(component.options.autoplay).toEqual(true);
     });
 
     it('does show header in toolbar with title from config', (() => {
