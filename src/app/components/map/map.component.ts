@@ -66,25 +66,49 @@ export class MapLayer extends BaseNeonLayer {
     public sizeField: FieldMetaData;
 
     /**
-     * Initializes all the non-field options for the specific layer.
+     * Appends all the non-field bindings for the specific layer to the given bindings object and returns the bindings object.
      *
+     * @arg {any} bindings
+     * @return {any}
      * @override
      */
-    onInit() {
-        // Do nothing.
+    appendNonFieldBindings(bindings: any): any {
+        return bindings;
     }
 
     /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
+     * Returns the list of field properties for the specific layer.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'colorField',
+            'dateField',
+            'latitudeField',
+            'longitudeField',
+            'sizeField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific layer.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific layer.
      *
      * @override
      */
-    updateFieldsOnTableChanged() {
-        this.colorField = this.findFieldObject('colorField');
-        this.dateField = this.findFieldObject('dateField', neonMappings.DATE);
-        this.latitudeField = this.findFieldObject('latitudeField', neonMappings.LATITUDE);
-        this.longitudeField = this.findFieldObject('longitudeField', neonMappings.LONGITUDE);
-        this.sizeField = this.findFieldObject('sizeField');
+    initializeNonFieldBindings() {
+        // Do nothing.
     }
 }
 
@@ -123,11 +147,11 @@ export class MapOptions extends BaseNeonMultiLayerOptions {
     }
 
     /**
-     * Initializes all the options for the specific visualization.
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    public onInit() {
+    public initializeNonFieldBindings() {
         this.clustering = this.injector.get('clustering', 'points');
         this.clusterPixelRange = this.injector.get('clusterPixelRange', 15);
         this.customServer = this.injector.get('customServer', null);
@@ -257,26 +281,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     /**
-     * Sets the properties in the given bindings for the map.
-     *
-     * @arg {any} bindings
-     * @override
-     */
-    subGetBindings(bindings: any) {
-        // The map layers objects are different, clear out the old stuff;
-        bindings.layers = [];
-        for (let layer of this.options.layers) {
-            bindings.layers.push({
-                latitudeField: layer.latitudeField.columnName,
-                longitudeField: layer.longitudeField.columnName,
-                sizeField: layer.sizeField.columnName,
-                colorField: layer.colorField.columnName,
-                dateField: layer.dateField.columnName
-            });
-        }
-    }
-
-    /**
      * Initializes and draws the map.
      */
     ngAfterViewInit() {
@@ -318,7 +322,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @override
      */
     subAddLayer(config: any) {
-        let layer: MapLayer = new MapLayer(config, this.datasetService);
+        let layer: MapLayer = new MapLayer(config, this.injector, this.datasetService);
         this.options.layers.push(layer);
         this.docCount[this.options.layers.length - 1] = 0;
         this.filterVisible[this.options.layers.length - 1] = true;
