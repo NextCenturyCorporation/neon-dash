@@ -99,7 +99,7 @@ export abstract class BaseNeonOptions {
     protected abstract appendNonFieldBindings(bindings: any): any;
 
     /**
-     * Creates and returns the bindings.
+     * Creates and returns the bindings for the options.
      *
      * @return {any}
      */
@@ -262,7 +262,7 @@ export abstract class BaseNeonOptions {
     }
 
     /**
-     * Updates all the field options  Called on init and whenever the table is changed.
+     * Updates all the field options.  Called on init and whenever the table is changed.
      */
     public updateFields() {
         if (this.database && this.table) {

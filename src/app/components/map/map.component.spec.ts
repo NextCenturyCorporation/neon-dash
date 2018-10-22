@@ -110,6 +110,10 @@ class TestMapComponent extends MapComponent {
         return this.filters;
     }
 
+    getInjector(): Injector {
+        return this.injector;
+    }
+
     getMapPoints(lngField: string, latField: string, colorField: string, data: any[]) {
         return super.getMapPoints(lngField, latField, colorField, data);
     }
@@ -164,7 +168,7 @@ class TestMap extends AbstractMap {
 function updateMapLayer1(component: TestMapComponent) {
     component.docCount[0] = 1234;
 
-    component.options.layers[0] = new MapLayer({}, component.getDatasetService());
+    component.options.layers[0] = new MapLayer({}, component.getInjector(), component.getDatasetService());
     component.options.layers[0].databases = [];
     component.options.layers[0].database = new DatabaseMetaData('testDatabase1');
     component.options.layers[0].fields = [];
@@ -184,7 +188,7 @@ function updateMapLayer1(component: TestMapComponent) {
 function updateMapLayer2(component: TestMapComponent) {
     component.docCount[1] = 5678;
 
-    component.options.layers[1] = new MapLayer({}, component.getDatasetService());
+    component.options.layers[1] = new MapLayer({}, component.getInjector(), component.getDatasetService());
     component.options.layers[1].databases = [];
     component.options.layers[1].database = new DatabaseMetaData('testDatabase2');
     component.options.layers[1].fields = [];
@@ -524,11 +528,17 @@ describe('Component: Map', () => {
         expect(spy.calls.count()).toBe(2);
     });
 
-    it('subGetBindings does set expected bindings', () => {
-        let bindings = {};
-        component.subGetBindings(bindings);
-        expect(bindings).toEqual({
+    it('options.createBindings does set expected bindings', () => {
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            title: 'Map',
+            limit: 1000,
             layers: [{
+                database: '',
+                table: '',
+                title: 'New Layer',
+                unsharedFilterValue: '',
+                unsharedFilterField: '',
                 latitudeField: '',
                 longitudeField: '',
                 sizeField: '',
@@ -540,15 +550,27 @@ describe('Component: Map', () => {
         updateMapLayer1(component);
         updateMapLayer2(component);
 
-        component.subGetBindings(bindings);
-        expect(bindings).toEqual({
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            title: 'Map',
+            limit: 1000,
             layers: [{
+                database: 'testDatabase1',
+                table: 'testTable1',
+                title: 'Layer A',
+                unsharedFilterValue: '',
+                unsharedFilterField: '',
                 latitudeField: 'testLatitude1',
                 longitudeField: 'testLongitude1',
                 sizeField: 'testSize1',
                 colorField: 'testColor1',
                 dateField: 'testDate1'
             }, {
+                database: 'testDatabase2',
+                table: 'testTable2',
+                title: 'Layer B',
+                unsharedFilterValue: '',
+                unsharedFilterField: '',
                 latitudeField: 'testLatitude2',
                 longitudeField: 'testLongitude2',
                 sizeField: 'testSize2',
