@@ -110,8 +110,8 @@ class TestMapComponent extends MapComponent {
         return this.filters;
     }
 
-    getMapPoints(lngField: string, latField: string, colorField: string, data: any[]) {
-        return super.getMapPoints(lngField, latField, colorField, data);
+    getMapPoints(idField: string, lngField: string, latField: string, colorField: string, data: any[]) {
+        return super.getMapPoints(idField, lngField, latField, colorField, data);
     }
 
     setFilterBoundingBox(box: BoundingBoxByDegrees) {
@@ -174,6 +174,7 @@ function updateMapLayer1(component: TestMapComponent) {
     component.options.layers[0].unsharedFilterField = new FieldMetaData();
     component.options.layers[0].unsharedFilterValue = '';
 
+    component.options.layers[0].idField = new FieldMetaData('testId1', 'Test ID 1');
     component.options.layers[0].colorField = new FieldMetaData('testColor1', 'Test Color 1');
     component.options.layers[0].dateField = new FieldMetaData('testDate1', 'Test Date 1');
     component.options.layers[0].latitudeField = new FieldMetaData('testLatitude1', 'Test Latitude 1');
@@ -194,6 +195,7 @@ function updateMapLayer2(component: TestMapComponent) {
     component.options.layers[1].unsharedFilterField = new FieldMetaData();
     component.options.layers[1].unsharedFilterValue = '';
 
+    component.options.layers[1].idField = new FieldMetaData('testId2', 'Test ID 2');
     component.options.layers[1].colorField = new FieldMetaData('testColor2', 'Test Color 2');
     component.options.layers[1].dateField = new FieldMetaData('testDate2', 'Test Date 2');
     component.options.layers[1].latitudeField = new FieldMetaData('testLatitude2', 'Test Latitude 2');
@@ -201,7 +203,7 @@ function updateMapLayer2(component: TestMapComponent) {
     component.options.layers[1].sizeField = new FieldMetaData('testSize2', 'Test Size 2');
 }
 
-describe('Component: Map', () => {
+fdescribe('Component: Map', () => {
     let fixture: ComponentFixture<TestMapComponent>,
         component: TestMapComponent,
         getDebug = (selector: string) => fixture.debugElement.query(By.css(selector)),
@@ -294,6 +296,7 @@ describe('Component: Map', () => {
         expect(component.options.layers[0].table).toEqual(new TableMetaData());
         expect(component.options.layers[0].fields).toEqual([]);
         expect(component.options.layers[0].title).toEqual('New Layer');
+        expect(component.options.layers[0].idField).toEqual(component.emptyField);
         expect(component.options.layers[0].colorField).toEqual(component.emptyField);
         expect(component.options.layers[0].dateField).toEqual(component.emptyField);
         expect(component.options.layers[0].latitudeField).toEqual(component.emptyField);
@@ -321,30 +324,30 @@ describe('Component: Map', () => {
             datasets = [
                 {
                     data: [
-                        { lat: 0, lng: 0, category: 'a' },
-                        { lat: 0, lng: 0, category: 'b' },
-                        { lat: 0, lng: 0, category: 'c' },
-                        { lat: 0, lng: 0, category: 'd' },
-                        { lat: 0, lng: 0, category: 'd' }
+                        { id: 'testId1', lat: 0, lng: 0, category: 'a' },
+                        { id: 'testId2',lat: 0, lng: 0, category: 'b' },
+                        { id: 'testId3',lat: 0, lng: 0, category: 'c' },
+                        { id: 'testId4', lat: 0, lng: 0, category: 'd' },
+                        { id: 'testId5',lat: 0, lng: 0, category: 'd' }
                     ],
                     expected: [
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
+                            'testId4', '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
                             colorService.getColorFor('category', 'd').toRgb(), 'Count: 2',
                             'category', 'd'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            'testId1', '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
                             'category', 'a'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            'testId2','0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
                             'category', 'b'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            'testId3', '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'c').toRgb(), 'Count: 1',
                             'category', 'c'
                         )
@@ -352,29 +355,29 @@ describe('Component: Map', () => {
                 },
                 {
                     data: [
-                        { lat: 0, lng: 0, category: 'a' },
-                        { lat: 0, lng: 1, category: 'b' },
-                        { lat: 0, lng: 2, category: 'c' },
-                        { lat: 0, lng: 3, category: 'd' }
+                        { id: 'testId1', lat: 0, lng: 0, category: 'a' },
+                        { id: 'testId2', lat: 0, lng: 1, category: 'b' },
+                        { id: 'testId3', lat: 0, lng: 2, category: 'c' },
+                        { id: 'testId4', lat: 0, lng: 3, category: 'd' }
                     ],
                     expected: [
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            'testId1', '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
                             'category', 'a'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                            'testId2', '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
                             'category', 'b'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                            'testId3', '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
                             colorService.getColorFor('category', 'c').toRgb(), 'Count: 1',
                             'category', 'c'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
+                            'testId4', '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
                             colorService.getColorFor('category', 'd').toRgb(), 'Count: 1',
                             'category', 'd'
                         )
@@ -382,17 +385,17 @@ describe('Component: Map', () => {
                 },
                 {
                     data: [
-                        { lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a' },
-                        { lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b' }
+                        { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a' },
+                        { id: 'testId2', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b' }
                     ],
                     expected: [
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                            'testId1', '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 4',
                             'category', 'a'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                            'testId2', '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 4',
                             'category', 'b'
                         )
@@ -400,47 +403,47 @@ describe('Component: Map', () => {
                 },
                 {
                     data: [
-                        { lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a' },
-                        { lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b' }
+                        { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a' },
+                        { id: 'testId2', lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b' }
                     ],
                     expected: [
                         new MapPoint(
-                            '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
+                            'testId1', '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
                             'category', 'a'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                            'testId1', '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
                             'category', 'a'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                            'testId1', '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
                             'category', 'a'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            'testId1', '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
                             'category', 'a'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
+                            'testId2', '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
                             'category', 'b'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
+                            'testId2', '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
                             'category', 'b'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
+                            'testId2', '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
                             'category', 'b'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
+                            'testId2', '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
                             'category', 'b'
                         )
@@ -449,7 +452,7 @@ describe('Component: Map', () => {
             ];
 
         for (let dataset of datasets) {
-            let mapPoints = component.getMapPoints('lng', 'lat', 'category', dataset.data);
+            let mapPoints = component.getMapPoints('id', 'lng', 'lat', 'category', dataset.data);
             expect(mapPoints).toEqual(dataset.expected);
         }
     });
@@ -512,6 +515,7 @@ describe('Component: Map', () => {
 
         component.subRemoveLayer(1);
         expect(component.options.layers[0].title).toEqual('Layer A');
+        expect(component.options.layers[0].idField).toEqual(new FieldMetaData('testId1', 'Test ID 1'));
         expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testColor1', 'Test Color 1'));
         expect(component.options.layers[0].dateField).toEqual(new FieldMetaData('testDate1', 'Test Date 1'));
         expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData('testLatitude1', 'Test Latitude 1'));
@@ -529,6 +533,7 @@ describe('Component: Map', () => {
         component.subGetBindings(bindings);
         expect(bindings).toEqual({
             layers: [{
+                idField: '',
                 latitudeField: '',
                 longitudeField: '',
                 sizeField: '',
@@ -543,12 +548,14 @@ describe('Component: Map', () => {
         component.subGetBindings(bindings);
         expect(bindings).toEqual({
             layers: [{
+                idField: 'testId1',
                 latitudeField: 'testLatitude1',
                 longitudeField: 'testLongitude1',
                 sizeField: 'testSize1',
                 colorField: 'testColor1',
                 dateField: 'testDate1'
             }, {
+                idField: 'testId2',
                 latitudeField: 'testLatitude2',
                 longitudeField: 'testLongitude2',
                 sizeField: 'testSize2',
@@ -578,6 +585,7 @@ describe('Component: Map', () => {
         let layer = component.subAddLayer({});
 
         expect(component.options.layers[1].title).toEqual('New Layer');
+        expect(component.options.layers[1].idField).toEqual(component.emptyField);
         expect(component.options.layers[1].colorField).toEqual(component.emptyField);
         expect(component.options.layers[1].dateField).toEqual(component.emptyField);
         expect(component.options.layers[1].latitudeField).toEqual(component.emptyField);
@@ -600,7 +608,11 @@ describe('Component: Map', () => {
 
         updateMapLayer1(component);
 
-        expect(component.getExportFields(0)).toEqual([{
+        expect(component.getExportFields(0)).toEqual([
+        {
+            columnName: 'testId1',
+            prettyName: 'Test ID 1'
+        }, {
             columnName: 'testLatitude1',
             prettyName: 'Test Latitude 1'
         }, {
@@ -619,7 +631,11 @@ describe('Component: Map', () => {
 
         updateMapLayer2(component);
 
-        expect(component.getExportFields(1)).toEqual([{
+        expect(component.getExportFields(1)).toEqual([
+        {
+            columnName: 'testId2',
+            prettyName: 'Test ID 2'
+        }, {
             columnName: 'testLatitude2',
             prettyName: 'Test Latitude 2'
         }, {
@@ -820,7 +836,7 @@ describe('Component: Map', () => {
 
         let where1 = [neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)];
         let query1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1').where(neon.query.and.apply(neon.query, where1))
-            .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testColor1', 'testSize1', 'testDate1']).limit(5678);
+            .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testId1', 'testColor1', 'testSize1', 'testDate1']).limit(5678);
 
         expect(component.createQuery(0)).toEqual(query1);
 
@@ -828,7 +844,7 @@ describe('Component: Map', () => {
 
         let where2 = [neon.query.where('testLatitude2', '!=', null), neon.query.where('testLongitude2', '!=', null)];
         let query2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2').where(neon.query.and.apply(neon.query, where2))
-            .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testColor2', 'testSize2', 'testDate2']).limit(5678);
+            .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testId2', 'testColor2', 'testSize2', 'testDate2']).limit(5678);
 
         expect(component.createQuery(1)).toEqual(query2);
     });
@@ -842,6 +858,7 @@ describe('Component: Map', () => {
 
         component.onQuerySuccess(0, {
             data: [{
+                testId1: 'testId1',
                 testColor1: 'testValue',
                 testDate1: '2018-01-01T00:00:00',
                 testLatitude1: 0,
@@ -857,6 +874,7 @@ describe('Component: Map', () => {
 
         component.onQuerySuccess(1, {
             data: [{
+                testId2: 'testId2',
                 testColor2: 'testValue',
                 testDate2: '2018-01-01T00:00:00',
                 testLatitude2: 0,

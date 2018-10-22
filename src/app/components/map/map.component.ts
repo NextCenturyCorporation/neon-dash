@@ -54,11 +54,12 @@ import * as _ from 'lodash';
 import * as geohash from 'geo-hash';
 
 class UniqueLocationPoint {
-    constructor(public lat: number, public lng: number, public count: number,
+    constructor(public idField: string, public lat: number, public lng: number, public count: number,
         public colorField: string, public colorValue: string) { }
 }
 
 export class MapLayer extends BaseNeonLayer {
+    public idField: FieldMetaData;
     public colorField: FieldMetaData;
     public dateField: FieldMetaData;
     public latitudeField: FieldMetaData;
@@ -80,6 +81,7 @@ export class MapLayer extends BaseNeonLayer {
      * @override
      */
     updateFieldsOnTableChanged() {
+        this.idField = this.findFieldObject('idField');
         this.colorField = this.findFieldObject('colorField');
         this.dateField = this.findFieldObject('dateField', neonMappings.DATE);
         this.latitudeField = this.findFieldObject('latitudeField', neonMappings.LATITUDE);
@@ -89,6 +91,7 @@ export class MapLayer extends BaseNeonLayer {
 }
 
 export class MapOptions extends BaseNeonMultiLayerOptions {
+    public id: string;
     public clustering: string;
     public clusterPixelRange: number;
     public customServer: {
@@ -128,6 +131,7 @@ export class MapOptions extends BaseNeonMultiLayerOptions {
      * @override
      */
     public onInit() {
+        this.id = this.injector.get('id', '');
         this.clustering = this.injector.get('clustering', 'points');
         this.clusterPixelRange = this.injector.get('clusterPixelRange', 15);
         this.customServer = this.injector.get('customServer', null);
@@ -185,6 +189,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
     public mapTypes = MapTypePairs;
 
+    public previousId = '';
+
     protected mapObject: AbstractMap;
     protected filterBoundingBox: BoundingBoxByDegrees;
 
@@ -218,6 +224,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
 
         this.options = new MapOptions(this.injector, 'Map', 1000);
+
+        this.subscribeToSelectId(this.getSelectIdCallback());
     }
 
     /**
@@ -267,6 +275,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         bindings.layers = [];
         for (let layer of this.options.layers) {
             bindings.layers.push({
+                idField: layer.idField.columnName,
                 latitudeField: layer.latitudeField.columnName,
                 longitudeField: layer.longitudeField.columnName,
                 sizeField: layer.sizeField.columnName,
@@ -332,11 +341,14 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @override
      */
     getExportFields(layerIndex: number): any[] {
-        let usedFields = [this.options.layers[layerIndex].latitudeField,
-        this.options.layers[layerIndex].longitudeField,
-        this.options.layers[layerIndex].colorField,
-        this.options.layers[layerIndex].sizeField,
-        this.options.layers[layerIndex].dateField];
+        let usedFields = [
+            this.options.layers[layerIndex].idField,
+            this.options.layers[layerIndex].latitudeField,
+            this.options.layers[layerIndex].longitudeField,
+            this.options.layers[layerIndex].colorField,
+            this.options.layers[layerIndex].sizeField,
+            this.options.layers[layerIndex].dateField
+        ];
         return usedFields
             .filter((header) => header && header.columnName)
             .map((header) => {
@@ -551,6 +563,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @override
      */
     createQuery(layerIndex: number): neon.query.Query {
+        let idField = this.options.layers[layerIndex].idField.columnName;
         let latitudeField = this.options.layers[layerIndex].latitudeField.columnName;
         let longitudeField = this.options.layers[layerIndex].longitudeField.columnName;
         let colorField = this.options.layers[layerIndex].colorField.columnName;
@@ -558,6 +571,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         let dateField = this.options.layers[layerIndex].dateField.columnName;
 
         let fields = [this.FIELD_ID, latitudeField, longitudeField];
+
+        if (idField) {
+            fields.push(idField);
+        }
         if (colorField) {
             fields.push(colorField);
         }
@@ -609,20 +626,22 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @return {array}
      * @protected
      */
-    protected getMapPoints(lngField: string, latField: string, colorField: string, data: any[]): any[] {
+    protected getMapPoints(idField: string, lngField: string, latField: string, colorField: string, 
+        data: any[]): any[] {
         let map = new Map<string, UniqueLocationPoint>();
 
         for (let point of data) {
             let lngCoord = this.retrieveLocationField(point, lngField),
                 latCoord = this.retrieveLocationField(point, latField),
-                colorValue = colorField && point[colorField];
+                colorValue = colorField && point[colorField],
+                idValue = idField && point[idField];  //value must be top level nost nested array
 
             if (latCoord instanceof Array && lngCoord instanceof Array) {
                 for (let pos = latCoord.length - 1; pos >= 0; pos--) {
-                    this.addOrUpdateUniquePoint(map, latCoord[pos], lngCoord[pos], colorField, colorValue);
+                    this.addOrUpdateUniquePoint(map, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue);
                 }
             } else {
-                this.addOrUpdateUniquePoint(map, latCoord, lngCoord, colorField, colorValue);
+                this.addOrUpdateUniquePoint(map, idValue, latCoord, lngCoord, colorField, colorValue);
             }
         }
 
@@ -634,7 +653,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 color = unique.colorValue ? this.colorSchemeService.getColorFor(colorField, unique.colorValue).toRgb() : whiteString;
             }
             mapPoints.push(
-                new MapPoint(`${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`,
+                new MapPoint(unique.idField, `${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`,
                     unique.lat, unique.lng, unique.count, color,
                     'Count: ' + unique.count,
                     unique.colorField, unique.colorValue
@@ -673,6 +692,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
         let layer = this.options.layers[layerIndex],
             mapPoints = this.getMapPoints(
+                layer.idField.columnName,
                 layer.longitudeField.columnName,
                 layer.latitudeField.columnName,
                 layer.colorField.columnName,
@@ -753,7 +773,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         return coordinate;
     }
 
-    addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, lat: number, lng: number, colorField: string, colorValue: string) {
+    addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, idValue: string, lat: number, lng: number, colorField: string, 
+        colorValue: string) {
         if (!super.isNumber(lat) || !super.isNumber(lng)) {
             return;
         }
@@ -762,7 +783,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             obj = map.get(hashCode);
 
         if (!obj) {
-            obj = new UniqueLocationPoint(lat, lng, 0, colorField, colorValue);
+            obj = new UniqueLocationPoint(idValue, lat, lng, 0, colorField, colorValue);
             map.set(hashCode, obj);
         }
 
@@ -1011,6 +1032,35 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             visualization: this.visualization,
             headerText: this.headerText,
             infoText: this.infoText
+        };
+    }
+
+    /**
+     * Creates and returns the callback function for a select_id event.
+     *
+     * @arg {number}
+     * @return {function}
+     * @private
+     */
+    private getSelectIdCallback() {
+        return (eventMessage) => {
+
+            //check if database and table exist in any of the layers
+            let dbExists = false;
+            let tableExists = false;
+            this.options.layers.forEach(elem => {
+                if(eventMessage.database === elem.database.name) { dbExists = true}
+                if(eventMessage.table === elem.table.name) { tableExists = true}
+            });
+
+            if (dbExists && tableExists) {
+                this.options.id = Array.isArray(eventMessage.id) ? eventMessage.id[0] : eventMessage.id;
+                if (this.options.id !== this.previousId) {
+                    //this.tabsAndMedia = [];
+                    this.previousId = this.options.id;
+                    this.executeQueryChain(0);
+                }
+            }
         };
     }
 

@@ -77,6 +77,16 @@
                         <p></p>
 
                         <mat-form-field>
+                            <mat-select placeholder="ID Field" [(ngModel)]="options.layers[i].idField"
+                                        required="true" (ngModelChange)="handleChangeFilterField(i)"
+                                        [disabled]="options.layers[i].fields.length == 0">
+                                <mat-option *ngFor="let field of options.layers[i].fields"
+                                            [value]="field">{{ field.prettyName }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <p></p>
+
+                        <mat-form-field>
                             <mat-select placeholder="Latitude Field" [(ngModel)]="options.layers[i].latitudeField"
                                         required="true" (ngModelChange)="handleChangeFilterField(i)"
                                         [disabled]="options.layers[i].fields.length == 0">
