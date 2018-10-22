@@ -16,7 +16,8 @@
     <p></p>
     <div class='radio-container' layout="row" mat-margin>
         <mat-radio-group [(ngModel)]="formData.currentTheme" name="currentThemeGroup" (change)="setCurrentTheme(formData.currentTheme)">
-            <mat-radio-button class="radio-btn" *ngFor="let theme of themesService.getThemes()" [value]="theme.id">{{ theme.name }}</mat-radio-button>
+            <mat-radio-button class="radio-btn" *ngFor="let theme of themesService.getThemes()"
+            [value]="theme.id">{{ theme.name }}</mat-radio-button>
         </mat-radio-group>
     </div>
     <p></p>
@@ -30,18 +31,21 @@
 
     <div class="display-tools-container">
         <div class="checkmark-container">
-            <input type="checkbox" [checked]="rightPanelService.showVisShortcut" (change)="rightPanelService.showVisShortcut = !rightPanelService.showVisShortcut">
+            <input type="checkbox" [checked]="rightPanelService.showSimpleSearch" (change)="rightPanelService.showSimpleSearch = !rightPanelService.showSimpleSearch">
             Simple Search Bar
-            <mat-form-field>
-                <mat-select placeholder="Simple Search Field" [(ngModel)]="simpleSearchField" required="true" [disabled]="options.fields.length == 0">
-                    <mat-option [value]="emptyField">(None)</mat-option>
-                    <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-            </mat-form-field>
+            <div *ngIf="rightPanelService.showSimpleSearch">
+                <mat-form-field>
+                    <mat-select name="simple-search-field" placeholder="Simple Search Field" [(ngModel)]="simpleSearchField" required="true"
+                        [disabled]="options.fields.length == 0">
+                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
         </div>
         <div class="checkmark-container">
             <input type="checkbox" [checked]="rightPanelService.showVisShortcut" (change)="rightPanelService.showVisShortcut = !rightPanelService.showVisShortcut">
-            Show shortcut
+            Show visualization shortcut
         </div>
     </div>
 
