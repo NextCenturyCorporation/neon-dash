@@ -42,7 +42,6 @@ import { VisualizationService } from './services/visualization.service';
 
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
-import { AddVisualizationPanelComponent } from './components/add-visualization-panel/add-visualization-panel.component';
 import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AppComponent } from './app.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
@@ -102,7 +101,6 @@ export function getAppConfig() {
     declarations: [
         AboutNeonComponent,
         AddVisualizationComponent,
-        AddVisualizationPanelComponent,
         AnnotationViewerComponent,
         AppComponent,
         AggregationComponent,
@@ -181,7 +179,6 @@ export function getAppConfig() {
     entryComponents: [
         AppComponent,
         AddVisualizationComponent,
-        AddVisualizationPanelComponent,
         ConfigEditorComponent,
         ConfirmationDialogComponent,
         CustomConnectionComponent,

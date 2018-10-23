@@ -13,25 +13,33 @@
  * limitations under the License.
  *
  */
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnInit } from '@angular/core';
 import { MatDialogRef, MatSnackBar } from '@angular/material';
 
 import { ActiveGridService } from '../../services/active-grid.service';
-import { ThemesService } from '../../services/themes.service';
 import { neonVisualizations } from '../../neon-namespaces';
+import { RightPanelService } from '../../services/right-panel.service';
+import { ThemesService } from '../../services/themes.service';
 
 @Component({
-  selector: 'app-add-visualization-dialog',
-  templateUrl: './add-visualization.component.html',
-  styleUrls: ['./add-visualization.component.scss']
+    selector: 'app-add-visualization',
+    templateUrl: 'add-visualization.component.html',
+    styleUrls: ['add-visualization.component.scss']
 })
 export class AddVisualizationComponent implements OnInit {
-
+    public chartsAndGraph: any[];
+    public GridsAndTable: any[];
+    public viewer: any[];
     public visualizations: any[];
     public selectedIndex: number = -1;
 
-    constructor(private activeGridService: ActiveGridService, public themesService: ThemesService,
-        public dialogRef: MatDialogRef<AddVisualizationComponent>, public snackBar: MatSnackBar) {
+    constructor(
+        private activeGridService: ActiveGridService,
+        public rightPanelService: RightPanelService,
+        public snackBar: MatSnackBar,
+        public themesService: ThemesService
+    ) {
+        this.rightPanelService = rightPanelService;
         this.themesService = themesService;
     }
 
@@ -51,14 +59,10 @@ export class AddVisualizationComponent implements OnInit {
 
         this.activeGridService.addItemInFirstFit(this.visualizations[index]);
 
-        if (!shiftKey) {
-            this.dialogRef.close();
-        }
-
-         this.snackBar.open('Visualization Added', 'x', {
+        this.snackBar.open('Visualization Added', 'x', {
             duration: 5000,
             verticalPosition: 'top',
             panelClass: ['simpleSnackBar']
-         });
+        });
     }
 }
