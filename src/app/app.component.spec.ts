@@ -20,7 +20,7 @@ import { APP_BASE_HREF, CommonModule } from '@angular/common';
 
 import 'hammerjs';
 
-import { AddVisualizationPanelComponent } from './components/add-visualization-panel/add-visualization-panel.component';
+import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { AppComponent } from './app.component';
 import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
@@ -81,7 +81,6 @@ import {
     ThumbnailDetailsContractedComponent,
     ThumbnailDetailsExpandedComponent
 } from './components/thumbnail-grid/thumbnail-details.component';
-import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 
 describe('App: NeonGtd', () => {
     let fixture: ComponentFixture<AppComponent>;
@@ -92,7 +91,7 @@ describe('App: NeonGtd', () => {
         TestBed.configureTestingModule({
             declarations: [
                 ChartComponent,
-                AddVisualizationPanelComponent,
+                AddVisualizationComponent,
                 AppComponent,
                 AboutNeonComponent,
                 AggregationComponent,
