@@ -55,7 +55,7 @@ import * as geohash from 'geo-hash';
 
 class UniqueLocationPoint {
     constructor(public idField: string, public lat: number, public lng: number, public count: number,
-        public colorField: string, public colorValue: string) { }
+        public colorField: string, public colorValue: string, public hoverPopupValue: string) { }
 }
 
 export class MapLayer extends BaseNeonLayer {
@@ -65,6 +65,7 @@ export class MapLayer extends BaseNeonLayer {
     public latitudeField: FieldMetaData;
     public longitudeField: FieldMetaData;
     public sizeField: FieldMetaData;
+    public hoverPopupField: FieldMetaData;
 
     /**
      * Initializes all the non-field options for the specific layer.
@@ -86,6 +87,7 @@ export class MapLayer extends BaseNeonLayer {
         this.dateField = this.findFieldObject('dateField', neonMappings.DATE);
         this.latitudeField = this.findFieldObject('latitudeField', neonMappings.LATITUDE);
         this.longitudeField = this.findFieldObject('longitudeField', neonMappings.LONGITUDE);
+        this.hoverPopupField = this.findFieldObject('hoverPopupField');
         this.sizeField = this.findFieldObject('sizeField');
     }
 }
@@ -280,7 +282,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 longitudeField: layer.longitudeField.columnName,
                 sizeField: layer.sizeField.columnName,
                 colorField: layer.colorField.columnName,
-                dateField: layer.dateField.columnName
+                dateField: layer.dateField.columnName,
+                hoverPopupField: layer.hoverPopupField.columnName
             });
         }
     }
@@ -347,8 +350,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             this.options.layers[layerIndex].longitudeField,
             this.options.layers[layerIndex].colorField,
             this.options.layers[layerIndex].sizeField,
-            this.options.layers[layerIndex].dateField
+            this.options.layers[layerIndex].dateField,
+            this.options.layers[layerIndex].hoverPopupField
         ];
+
         return usedFields
             .filter((header) => header && header.columnName)
             .map((header) => {
@@ -569,6 +574,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         let colorField = this.options.layers[layerIndex].colorField.columnName;
         let sizeField = this.options.layers[layerIndex].sizeField.columnName;
         let dateField = this.options.layers[layerIndex].dateField.columnName;
+        let hoverPopupField = this.options.layers[layerIndex].hoverPopupField.columnName;
 
         let fields = [this.FIELD_ID, latitudeField, longitudeField];
 
@@ -583,6 +589,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         }
         if (dateField) {
             fields.push(dateField);
+        }
+        if (hoverPopupField) {
+            fields.push(hoverPopupField);
         }
 
         return this.createBasicQuery(layerIndex).withFields(fields).limit(this.options.limit);
@@ -622,26 +631,37 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @arg {string} lngField
      * @arg {string} latField
      * @arg {string} colorField
+     * @arg {string} hoverPopupField
      * @arg {array} data
      * @return {array}
      * @protected
      */
-    protected getMapPoints(idField: string, lngField: string, latField: string, colorField: string,
-        data: any[]): any[] {
+
+    protected getMapPoints(idField: string, lngField: string, latField: string, colorField: string, 
+        hoverPopupField: string, data: any[]): any[] {
+
         let map = new Map<string, UniqueLocationPoint>();
 
         for (let point of data) {
             let lngCoord = this.retrieveLocationField(point, lngField),
                 latCoord = this.retrieveLocationField(point, latField),
+                hoverPopupValue = this.retrieveHoverPopupField(point, hoverPopupField),  //checks nested value set with lat/long
                 colorValue = colorField && point[colorField],
                 idValue = idField && point[idField];  //value must be top level nost nested array
 
             if (latCoord instanceof Array && lngCoord instanceof Array) {
                 for (let pos = latCoord.length - 1; pos >= 0; pos--) {
-                    this.addOrUpdateUniquePoint(map, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue);
+
+                    //check if hover popup value is nested within coordinate array
+                    if (hoverPopupValue instanceof Array) {
+                        this.addOrUpdateUniquePoint(map, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue, hoverPopupValue[pos]);
+                    } else {
+                        this.addOrUpdateUniquePoint(map, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue, hoverPopupValue);
+                    }
                 }
             } else {
-                this.addOrUpdateUniquePoint(map, idValue, latCoord, lngCoord, colorField, colorValue);
+                this.addOrUpdateUniquePoint(map, idValue, latCoord, lngCoord, colorField, colorValue, hoverPopupValue);
+
             }
         }
 
@@ -656,7 +676,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 new MapPoint(unique.idField, `${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`,
                     unique.lat, unique.lng, unique.count, color,
                     'Count: ' + unique.count,
-                    unique.colorField, unique.colorValue
+                    unique.colorField, unique.colorValue, unique.hoverPopupValue
                 ));
         });
         mapPoints.sort((a, b) => b.count - a.count);
@@ -696,6 +716,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 layer.longitudeField.columnName,
                 layer.latitudeField.columnName,
                 layer.colorField.columnName,
+                layer.hoverPopupField.columnName,
                 response.data
             );
 
@@ -748,6 +769,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     //     even selecting a bunch of points on the map using shift-click/drag won't work if the lat/lon are stored as strings,
     //     because the region query looks at the data in the database and expects numbers there.
     retrieveLocationField(point, locField) {
+
         let coordinate = point[locField];
         let fieldSplit = locField.split('.');
 
@@ -773,8 +795,38 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         return coordinate;
     }
 
-    addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, idValue: string, lat: number, lng: number, colorField: string,
-        colorValue: string) {
+    /* This is a helper method that will attempt to get the defined hoverPopupValue in the Map layer section
+       of the config. This value will only be displayed if the hoverPopupEnabled config is set to true. This
+       function behaves in a similar fashion ad retrieveLocationField() above. It will default to an empty
+       string to support no value being set or a field being set that does not exist. If the field does
+       exist in the point it will use this value. If the field is a nested object it will traverse the object
+       and attempt to handle the case of the hover value being located in an array.
+    */
+    retrieveHoverPopupField(point, locField) {
+        let hoverPopupValue = point[locField] || '';
+        let fieldSplit = locField.split('.');
+
+        if (!hoverPopupValue && fieldSplit.length > 1) {
+            hoverPopupValue = point[fieldSplit[0]];
+            fieldSplit.shift();
+            while (fieldSplit.length > 0) {
+                if (fieldSplit.length === 1 && hoverPopupValue instanceof Array) {
+                    hoverPopupValue = hoverPopupValue.map((elem) => {
+                        return elem[fieldSplit[0]];
+                    });
+                } else {
+                    hoverPopupValue = hoverPopupValue[fieldSplit[0]];
+                }
+                fieldSplit.shift();
+            }
+        }
+
+        return hoverPopupValue;
+    }
+
+    addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, idValue, lat: number, lng: number, colorField: string, colorValue: string,
+         hoverPopupValue: string) {
+
         if (!super.isNumber(lat) || !super.isNumber(lng)) {
             return;
         }
@@ -783,7 +835,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             obj = map.get(hashCode);
 
         if (!obj) {
-            obj = new UniqueLocationPoint(idValue, lat, lng, 0, colorField, colorValue);
+
+            obj = new UniqueLocationPoint(idValue, lat, lng, 0, colorField, colorValue, hoverPopupValue);
             map.set(hashCode, obj);
         }
 

@@ -44,7 +44,8 @@ export class MapPoint {
         public cssColorString: string,
         public description: string,
         public colorByField: string,
-        public colorByValue: string
+        public colorByValue: string,
+        public hoverPopupValue: string
     ) {}
 }
 
