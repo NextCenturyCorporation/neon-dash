@@ -366,23 +366,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Returns the export fields for the visualization.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        // TODO Add or remove fields and properties as needed.
-        return [{
-            columnName: this.options.sampleOptionalField.columnName,
-            prettyName: this.options.sampleOptionalField.prettyName
-        }, {
-            columnName: this.options.sampleRequiredField.columnName,
-            prettyName: this.options.sampleRequiredField.prettyName
-        }];
-    }
-
-    /**
      * Returns the list of filter IDs for the visualization to ignore.
      *
      * @return {array}

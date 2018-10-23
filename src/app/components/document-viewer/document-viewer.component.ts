@@ -176,21 +176,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         // Do nothing.
     }
 
-    getExportFields() {
-        return [{
-            columnName: this.options.dataField.columnName,
-            prettyName: this.options.dataField.prettyName
-        },
-        {
-            columnName: this.options.dateField.columnName,
-            prettyName: this.options.dateField.prettyName
-        },
-        {
-            columnName: this.options.idField.columnName,
-            prettyName: this.options.idField.prettyName
-        }];
-    }
-
     getFilterText(filter) {
         return '';
     }

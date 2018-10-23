@@ -208,6 +208,18 @@ export abstract class BaseNeonOptions {
     }
 
     /**
+     * Returns the list of fields to export.
+     *
+     * @return {{ columnName: string, prettyName: string }[]}
+     */
+    public getExportFields(): { columnName: string, prettyName: string }[] {
+        return this.getFieldProperties().map((property) => ({
+            columnName: this[property].columnName,
+            prettyName: this[property].prettyName
+        })).filter((exportFieldsObject) => !!exportFieldsObject.columnName);
+    }
+
+    /**
      * Returns the list of field array properties for the specific visualization.
      *
      * @return {string[]}
@@ -423,12 +435,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     abstract subNgOnDestroy();
 
     /**
-     * Get the list of fields to export
-     * @return {[]} List of {columnName, prettyName} values of the fields
-     */
-    abstract getExportFields(): { columnName: string, prettyName: string }[];
-
-    /**
      * Function to get any bindings needed to re-create the visualization
      * @return {any}
      */
@@ -443,38 +449,26 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         // TODO this function needs to be changed  to abstract once we get through all the visualizations.
 
         let query = this.createQuery();
-        let exportName = this.getOptions().title;
+        let exportName = this.getOptions().title.split(':').join(' ');
         if (query) {
-            if (exportName) {
-                // replaceAll
-                exportName = exportName.split(':').join(' ');
-            }
-            let finalObject = {
+            return {
                 name: 'Query_Results_Table',
                 data: [{
                     query: query,
                     name: exportName + '-' + this.exportId,
-                    fields: [],
+                    fields: this.getOptions().getExportFields().map((exportFieldsObject) => ({
+                        query: exportFieldsObject.columnName,
+                        pretty: exportFieldsObject.prettyName || exportFieldsObject.columnName
+                    })),
                     ignoreFilters: query.ignoreFilters,
                     selectionOnly: query.selectionOnly,
                     ignoredFilterIds: [],
                     type: 'query'
                 }]
             };
-            let fields = this.getExportFields();
-            for (let field of fields) {
-                finalObject.data[0].fields.push({
-                    query: field.columnName,
-                    pretty: field.prettyName || field.columnName
-                });
-            }
-
-            return finalObject;
-        } else {
-            console.error('SKIPPING EXPORT FOR ' + exportName);
-            return null;
         }
-
+        console.error('SKIPPING EXPORT FOR ' + exportName);
+        return null;
     }
 
     doExport() {

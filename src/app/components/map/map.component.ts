@@ -329,29 +329,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     /**
-     * Returns the map export fields for the map layer at the given index.
-     *
-     * @arg {number} layerIndex
-     * @return {array}
-     * @override
-     */
-    getExportFields(layerIndex: number): any[] {
-        let usedFields = [this.options.layers[layerIndex].latitudeField,
-        this.options.layers[layerIndex].longitudeField,
-        this.options.layers[layerIndex].colorField,
-        this.options.layers[layerIndex].sizeField,
-        this.options.layers[layerIndex].dateField];
-        return usedFields
-            .filter((header) => header && header.columnName)
-            .map((header) => {
-                return {
-                    columnName: header.columnName,
-                    prettyName: header.prettyName
-                };
-            });
-    }
-
-    /**
      * Removes the filter boudning box from this component and the map.
      *
      * @private

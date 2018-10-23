@@ -339,40 +339,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns the news feed export fields.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        return [{
-            columnName: this.options.filterField.columnName,
-            prettyName: this.options.filterField.prettyName
-        }, {
-            columnName: this.options.idField.columnName,
-            prettyName: this.options.idField.prettyName
-        }, {
-            columnName: this.options.linkField.columnName,
-            prettyName: this.options.linkField.prettyName
-        }, {
-            columnName: this.options.dateField.columnName,
-            prettyName: this.options.dateField.prettyName
-        }, {
-            columnName: this.options.primaryTitleField.columnName,
-            prettyName: this.options.primaryTitleField.prettyName
-        }, {
-            columnName: this.options.secondaryTitleField.columnName,
-            prettyName: this.options.secondaryTitleField.prettyName
-        }, {
-            columnName: this.options.contentField.columnName,
-            prettyName: this.options.contentField.prettyName
-        }, {
-            columnName: this.options.sortField.columnName,
-            prettyName: this.options.sortField.prettyName
-        }];
-    }
-
-    /**
      * Returns the list filters for the visualization to ignore.
      *
      * @return {array|null}

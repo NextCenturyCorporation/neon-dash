@@ -129,11 +129,11 @@ describe('Component: TextCloud', () => {
         expect(bindings.sizeAggregation).toEqual('SUM');
     });
 
-    it('returns the correct value from getExportFields', () => {
+    it('returns the correct value from options.getExportFields', () => {
         component.options.dataField = new FieldMetaData('testTextField', 'Test Text Field');
         component.options.sizeField = new FieldMetaData('testSizeField');
 
-        expect(component.getExportFields()).toEqual([{
+        expect(component.options.getExportFields()).toEqual([{
             columnName: 'testTextField',
             prettyName: 'Test Text Field'
         }, {
@@ -143,7 +143,7 @@ describe('Component: TextCloud', () => {
 
         component.options.sizeField.prettyName = 'Test Size Field';
 
-        expect(component.getExportFields()).toEqual([{
+        expect(component.options.getExportFields()).toEqual([{
             columnName: 'testTextField',
             prettyName: 'Test Text Field'
         }, {

@@ -194,19 +194,6 @@ describe('Component: MediaViewer', () => {
         expect(refs.visualization).toBeDefined();
     });
 
-    it('getExportFields does return expected array', (() => {
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
-
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testIdField',
-            prettyName: 'Test ID Field'
-        }, {
-            columnName: 'testLinkField',
-            prettyName: 'Test Link Field'
-        }]);
-    }));
-
     it('getFiltersToIgnore does return empty array if no filters are set', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];

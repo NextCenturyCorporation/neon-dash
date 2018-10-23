@@ -165,6 +165,18 @@ export abstract class BaseNeonLayer {
     }
 
     /**
+     * Returns the list of fields to export.
+     *
+     * @return {{ columnName: string, prettyName: string }[]}
+     */
+    public getExportFields(): { columnName: string, prettyName: string }[] {
+        return this.getFieldProperties().map((property) => ({
+            columnName: this[property].columnName,
+            prettyName: this[property].prettyName
+        })).filter((exportFieldsObject) => !!exportFieldsObject.columnName);
+    }
+
+    /**
      * Returns the list of field array properties for the specific layer.
      *
      * @return {string[]}
@@ -416,12 +428,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     abstract subNgOnDestroy();
 
     /**
-     * Get the list of fields to export for the layer index
-     * @return {[]} List of {columnName, prettyName} values of the fields
-     */
-    abstract getExportFields(layerIndex: number): { columnName: string, prettyName: string }[];
-
-    /**
      * Adds a new layer for the specific visualization using the given config.
      *
      * @arg {any} config
@@ -473,32 +479,22 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * @return {}
      */
     exportOneLayer(query: neon.query.Query, layerIndex: number) {
-        let exportName = this.getOptions().title;
-        if (exportName) {
-            // replaceAll
-            exportName = exportName.split(':').join(' ');
-        }
-        let finalObject = {
+        let exportName = this.getOptions().title.split(':').join(' ');
+        return {
             name: 'Query_Results_Table',
             data: [{
                 query: query,
                 name: exportName + '-' + this.exportId,
-                fields: [],
+                fields: this.getOptions().getLayers()[layerIndex].getExportFields().map((exportFieldsObject) => ({
+                    query: exportFieldsObject.columnName,
+                    pretty: exportFieldsObject.prettyName || exportFieldsObject.columnName
+                })),
                 ignoreFilters: query.ignoreFilters,
                 selectionOnly: query.selectionOnly,
                 ignoredFilterIds: [],
                 type: 'query'
             }]
         };
-        let fields = this.getExportFields(layerIndex);
-        for (let field of fields) {
-            finalObject.data[0].fields.push({
-                query: field.columnName,
-                pretty: field.prettyName || field.columnName
-            });
-        }
-
-        return finalObject;
     }
 
     /**
@@ -507,13 +503,12 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     export() {
         // TODO this function needs to be changed  to abstract once we get through all the visualizations.
         let queries = this.createAllQueries();
-        let mapFunction = this.exportOneLayer.bind(this);
         if (queries) {
-            return queries.map(mapFunction).filter((fo) => fo);
-        } else {
-            console.error('SKIPPING EXPORT FOR ' + this.getOptions().title);
-            return null;
+            return queries.map((layerQuery, layerIndex) => this.exportOneLayer(layerQuery, layerIndex))
+                .filter((exportLayersObject) => !!exportLayersObject);
         }
+        console.error('SKIPPING EXPORT FOR ' + this.getOptions().title);
+        return null;
     }
 
     doExport() {

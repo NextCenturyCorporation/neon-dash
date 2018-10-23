@@ -789,19 +789,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Returns the export fields for the visualization.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        return [{
-            columnName: this.options.documentTextField.columnName,
-            prettyName: this.options.documentTextField.prettyName
-        }];
-    }
-
-    /**
      * Returns the list of filter IDs for the visualization to ignore.
      *
      * @return {array}
