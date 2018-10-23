@@ -60,6 +60,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
     public typeField: FieldMetaData;
     public typeMap: any;
     public url: string;
+    public autoplay: boolean;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -77,6 +78,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
         this.sliderValue = this.injector.get('sliderValue', 0);
         this.typeMap = this.injector.get('typeMap', {});
         this.url = this.injector.get('url', '');
+        this.autoplay = this.injector.get('autoplay', false);
     }
 
     /**
@@ -735,6 +737,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         bindings.resize = this.options.resize;
         bindings.sliderValue = this.options.sliderValue;
         bindings.typeMap = this.options.typeMap;
+        bindings.autoplay = this.options.autoplay;
     }
 
     /**
@@ -763,6 +766,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         let frames = this.visualization.nativeElement.querySelectorAll('.frame');
         let images = this.visualization.nativeElement.querySelectorAll('.image');
         let videos = this.visualization.nativeElement.querySelectorAll('.video');
+        let audios = this.visualization.nativeElement.querySelectorAll('.audio');
 
         if (!this.options.resize) {
             frames.forEach((frame) => {
@@ -776,6 +780,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             videos.forEach((video) => {
                 video.style.maxHeight = '';
                 video.style.maxWidth = '';
+            });
+            audios.forEach((audio) => {
+                audio.style.maxHeight = '';
+                audio.style.maxWidth = '';
             });
             return;
         }
@@ -803,6 +811,12 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             video.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
                 this.MEDIA_PADDING - sliderHeight - 5) + 'px';
             video.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
+        });
+
+        audios.forEach((audio) => {
+            audio.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            audio.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         });
     }
 
