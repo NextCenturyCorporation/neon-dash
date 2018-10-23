@@ -203,7 +203,7 @@ function updateMapLayer2(component: TestMapComponent) {
     component.options.layers[1].sizeField = new FieldMetaData('testSize2', 'Test Size 2');
 }
 
-fdescribe('Component: Map', () => {
+describe('Component: Map', () => {
     let fixture: ComponentFixture<TestMapComponent>,
         component: TestMapComponent,
         getDebug = (selector: string) => fixture.debugElement.query(By.css(selector)),
@@ -325,10 +325,10 @@ fdescribe('Component: Map', () => {
                 {
                     data: [
                         { id: 'testId1', lat: 0, lng: 0, category: 'a' },
-                        { id: 'testId2',lat: 0, lng: 0, category: 'b' },
-                        { id: 'testId3',lat: 0, lng: 0, category: 'c' },
+                        { id: 'testId2', lat: 0, lng: 0, category: 'b' },
+                        { id: 'testId3', lat: 0, lng: 0, category: 'c' },
                         { id: 'testId4', lat: 0, lng: 0, category: 'd' },
-                        { id: 'testId5',lat: 0, lng: 0, category: 'd' }
+                        { id: 'testId5', lat: 0, lng: 0, category: 'd' }
                     ],
                     expected: [
                         new MapPoint(
@@ -342,7 +342,7 @@ fdescribe('Component: Map', () => {
                             'category', 'a'
                         ),
                         new MapPoint(
-                            'testId2','0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            'testId2', '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
                             'category', 'b'
                         ),

@@ -626,7 +626,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @return {array}
      * @protected
      */
-    protected getMapPoints(idField: string, lngField: string, latField: string, colorField: string, 
+    protected getMapPoints(idField: string, lngField: string, latField: string, colorField: string,
         data: any[]): any[] {
         let map = new Map<string, UniqueLocationPoint>();
 
@@ -773,7 +773,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         return coordinate;
     }
 
-    addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, idValue: string, lat: number, lng: number, colorField: string, 
+    addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, idValue: string, lat: number, lng: number, colorField: string,
         colorValue: string) {
         if (!super.isNumber(lat) || !super.isNumber(lng)) {
             return;
@@ -1048,9 +1048,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             //check if database and table exist in any of the layers
             let dbExists = false;
             let tableExists = false;
-            this.options.layers.forEach(elem => {
-                if(eventMessage.database === elem.database.name) { dbExists = true}
-                if(eventMessage.table === elem.table.name) { tableExists = true}
+            this.options.layers.forEach((elem) => {
+                if (eventMessage.database === elem.database.name) { dbExists = true; }
+                if (eventMessage.table === elem.table.name) { tableExists = true; }
             });
 
             if (dbExists && tableExists) {
