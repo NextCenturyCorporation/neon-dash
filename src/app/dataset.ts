@@ -90,6 +90,9 @@ export class Dataset {
     ) {}
 }
 
+/**
+ * Represents a single datastore from the datastores key/value pairs in the config file.
+ */
 export class Datastore {
     public connectOnLoad: boolean = false;
     public databases: DatabaseMetaData[] = [];
@@ -103,31 +106,44 @@ export class Datastore {
     ) {}
 }
 
+/**
+ * Represents the entire dashboards object from the config file.
+ */
 export class DashboardWrapper {
     public category: string = '';
-    public choices: { [key: string]: Dashboard } = {};
+    public choices: Map<string, Dashboard> = new Map<string, Dashboard>();
 }
 
+/**
+ * Represents a single dashboard within the first nested instance of choices in the config file.
+ */
 export class Dashboard {
     public category: string = '';
     public name: string = '';
-    public choices: { [key: string]: DashboardChoice } = {};
+    public choices: Map<string, DashboardChoice> = new Map<string, DashboardChoice>();
 }
 
+/**
+ * Represents a single choice within the second nested instance of choices in the config file.
+ */
 export class DashboardChoice {
     public category: string = '';
     public name: string = '';
-    public choices: { [key: string ]: DashboardConfigChoice } = {};
+    public choices: Map<string, DashboardConfigChoice> = new Map<string, DashboardConfigChoice>();
 }
 
+/**
+ * Represents a single choice within the final nested instance of choices in the config file,
+ * which includes the table keys and field keys that the associated layout will use.
+ */
 export class DashboardConfigChoice {
     public name: string = '';
     // TODO: 825: temporary link for dashboards and datastores until UI is updated
     public datastore: string = ''; // TODO: 825: temporary until table/field keys are used and multiple connections are supported
     public layout: string = '';
-    public tables: {[key: string]: string } = {};
-    public fields: {[key: string]: string } = {};
-    public options: {[key: string]: string } = {}; // TODO: 825: Placeholder if additional options needed here later
+    public tables: Map<string, string> = new Map<string, string>();
+    public fields: Map<string, string> = new Map<string, string>();
+    public options: Map<string, string> = new Map<string, string>(); // TODO: 825: Placeholder if additional options needed here later
 }
 
 export class Relation {

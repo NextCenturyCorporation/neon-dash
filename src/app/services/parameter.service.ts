@@ -305,6 +305,8 @@ export class ParameterService {
     loadStateSuccess(dashboardState: any, dashboardStateId: number | string) {
         if (_.keys(dashboardState).length) {
             if (dashboardStateId) {
+                // TODO: 825: This should open a Dashboard (not a single Datastore). Then it should
+                // create Connections to each Datastore in the Dashboard and call updateDatabases of each Datastore.
                 let matchingDataset: Datastore = this.datasetService.getDatasetWithName(dashboardState.dataset.name);
                 if (!matchingDataset) {
                     this.datasetService.addDataset(dashboardState.dataset);

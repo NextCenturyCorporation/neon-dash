@@ -19,7 +19,7 @@ import * as neon from 'neon-framework';
 @Injectable()
 export class ConnectionService {
     // TODO: 825: incorporate obtaining activeConnection via key throughout code.
-    private activeConnections: { [ key: string ]: neon.query.Connection } = {};
+    private activeConnections: Map<string, neon.query.Connection> = new Map<string, neon.query.Connection>();
     private defaultKeyName: string = 'default';
 
     /**

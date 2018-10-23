@@ -32,7 +32,7 @@ export class TranslationService {
         this.apis = {
             google: {
                 base: 'https://www.googleapis.com/language/translate/v2',
-                key: (this.config.translationKeys) ? this.config.translationKeys.google : undefined,
+                key: (this.config.translationKeys) ? this.config.translationKeys.has('google') : undefined,
                 methods: {
                     translate: '',
                     detect: '/detect',

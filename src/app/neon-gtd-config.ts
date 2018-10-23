@@ -16,9 +16,9 @@
 import { Datastore, DashboardWrapper } from './dataset';
 
 export class NeonGTDConfig {
-    translationKeys: { [ key: string ]: string} = {};
-    datastores: { [ key: string ]: Datastore } = {};
+    translationKeys: Map<string, string> = new Map<string, string>();
+    datastores: Map<string, Datastore> = new Map<string, Datastore>();
     dashboards: DashboardWrapper;
-    layouts: { [ key: string ]: any } = {};
+    layouts: Map<string, any> = new Map<string, any>();
     errors: String[];
 }
