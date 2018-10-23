@@ -104,13 +104,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
-    @ViewChild('taxonomyViewer') taxonomyViewer: ElementRef;
-    @ViewChild('treeNodeTemplate') taxonomyTemplate: ElementRef;
-    @ViewChild('treeNodeCheckboxes') taxonomyCheckboxes: ElementRef;
-
-    @Output() clickNode = new EventEmitter<Node>();
-
-    //TODO Define properties as needed.  Made public so they can be used by unit tests.
+    @ViewChild('treeRoot') treeRoot: ElementRef;
 
     //The visualization filters.
     public filters: {
@@ -127,47 +121,19 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     public taxonomyGroups: any[] = [];
     public renderer: Renderer2;
 
-    //todo: remove once real data gets mapped
     public testOptions = {
         actionMapping: {
             mouse: {
                 dblClick: (tree, node, $event) => {
                     if (node.hasChildren) { TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event); }
-                }/*,
-                click: (tree, node, $event) => {
-                    console.log(node)
-                    console.log(tree)
-                }*/
+                }
             },
             keys: {
                 [KEYS.ENTER]: (tree, node, $event) => {
                     node.expandAll();
                 }
             }
-        },
-        isExpandedField: 'expanded'
-
-        /*
-                loadingComponent: 'loading, please wait...'
-        displayField: 'name',
-                //isExpandedField: 'expanded',
-                idField: 'id',
-                hasChildrenField: 'children',
-        ,
-                nodeHeight: 23,
-                allowDrag: (node) => {
-                    return true;
-                },
-                allowDrop: (node) => {
-                    return true;
-                },
-                levelPadding: 10,
-                useVirtualScroll: true,
-                animateExpand: true,
-                scrollOnActivate: true,
-                animateSpeed: 30,
-                animateAcceleration: 1.2,*/
-       // scrollContainer: document.documentElement//html
+        }
     };
 
     constructor(
@@ -246,13 +212,13 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Returns the filter list for the visualization.
+     * The taxonomy is a filter so no filters need to be returned
      *
      * @return {array}
      * @override
      */
     getCloseableFilters(): any[] {
-        return this.filters;
+        return null;
     }
 
     /**
@@ -265,7 +231,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         return {
             visualization: this.visualization,
             headerText: this.headerText,
-            infoText: this.infoText
+            infoText: this.infoText,
+            treeRoot: this.treeRoot
         };
     }
 
@@ -341,16 +308,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     getFilterText(filter: any): string {
-        // TODO Update as needed.  Do you want to use an equals sign?
         return filter.prettyField + ' = ' + filter.value;
     }
-
-    // TODO If you don't need to do anything here (like update properties), just remove this function and use the superclass one!
-    /**
-     * Updates properties whenever a config option is changed and reruns the visualization query.
-     *
-     * @override
-     */
 
     /**
      * Returns whether a visualization filter object with the given field and value strings exists in the list of visualization filters.
@@ -378,40 +337,32 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         let clause: any;
         let runQuery = !this.options.ignoreSelf;
+
+        let filter = {
+            id: undefined,
+            field: nodeData.description,
+            prettyField: 'Tree Node',
+            value: ''
+        };
+
         if (relativeData.length) {
             let clauses = [];
-
-            let filter = {
-                id: undefined,
-                field: nodeData.description,
-                prettyField: 'Tree Node',
-                value: nodeData.lineage + ' ' + nodeData.description
-            };
 
             for (let node of relativeData) {
                 clauses.push(neon.query.where(filter.field, '!=', node.name));
             }
 
+            filter.value = nodeData.lineage + ' ' + nodeData.description;
             clause = neon.query.and.apply(neon.query, clauses);
 
-            if (!this.filterExists(filter.field, filter.value)) {
-                this.filters.push(filter);
-                this.addNeonFilter(runQuery, filter, clause);
-            }
-
         } else {
-            let filter = {
-                id: undefined,
-                field: nodeData.description,
-                prettyField: 'Tree Node',
-                value: nodeData.name
-            };
-
+            filter.value = nodeData.name;
             clause = neon.query.where(filter.field, '!=', nodeData.name);
-            if (!this.filterExists(filter.field, filter.value)) {
-                this.filters.push(filter);
-                this.addNeonFilter(runQuery, filter, clause);
-            }
+        }
+
+        if (!this.filterExists(filter.field, filter.value)) {
+            this.filters.push(filter);
+            this.addNeonFilter(runQuery, filter, clause);
         }
 
     }
@@ -427,20 +378,10 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     isValidQuery(): boolean {
-        // TODO Add or remove fields and properties as needed.
         return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name &&
             this.options.idField && this.options.idField.columnName && this.options.categoryField &&
             this.options.categoryField.columnName && this.options.typeField && this.options.typeField.columnName);
     }
-
-    /**
-     * TODO create description
-     * @param array
-     * @param value
-     */
-    flattenArray(array, value) {
-        return array.concat(value);
-     }
 
     /**
      * Handles the query results for the visualization; updates and/or redraws any properties as needed.
@@ -487,7 +428,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
                         //checks if there are any parent(category) nodes in the tree
                         if (groups) {
-                            //checks if the parent(category) node exists in the tree, if not adds it
+                            //checks if the parent(category) node exists in the tree and if not, adds it
                             let foundCategory = groups.find((item, index) => {
                                 let found = item.name === category;
                                 categoryIndex = index;
@@ -501,7 +442,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                                         // within the child node string
                                         let subTypeNeeded  = type.includes('.') || (subTypes && types !== subTypes);
 
-                                        //checks if child(type) node exists in the tree, if not adds it
+                                        //checks if child(type) node exists in the tree and if not, adds it
                                         let foundType = foundCategory.children.find((typeItem, index) => {
                                             let found = typeItem.name === type.split('.')[0];
                                             typeIndex = index;
@@ -518,7 +459,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                                                 });
 
                                                 if (!foundSubType) {
-                                                    //Alphabetize all values added to the taxonomy
                                                     let subTypeObject = {
                                                         id: counter++,
                                                         name: type,
@@ -526,7 +466,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                                                         description: this.options.subTypeField.columnName,
                                                         checked: true
                                                     };
-
+                                                    //Alphabetize all values added to the taxonomy
                                                     groups[categoryIndex].children[typeIndex].children.push(subTypeObject);
                                                     groups[categoryIndex].children[typeIndex].children.sort(this.compareValues('name'));
                                                 }
@@ -569,7 +509,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                                                 groups[categoryIndex].children[typeIndex].children.push(subTypeObject);
                                                 groups[categoryIndex].children[typeIndex].children.sort(this.compareValues('name'));
                                             }
-
                                         }
                                     }
                                 }
@@ -664,15 +603,12 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             }
 
             if (allChildChecked) {
-                //console.log("all children checked")
                 node.data.checked = true;
                 node.data.indeterminate = false;
             } else if (noChildChecked) {
-                //console.log("no children checked")
                 node.data.checked = false;
                 node.data.indeterminate = false;
             } else {
-                //console.log("some children checked")
                 node.data.checked = true;
                 node.data.indeterminate = true;
             }
@@ -706,7 +642,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     refreshVisualization() {
-        // TODO Do you need to update and properties or redraw any sub-components?
+        //
     }
 
     /**
@@ -716,6 +652,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     removeFilter(filter: any) {
+        //TODO:Update Taxonomy when filter from filter tray is deleted
         this.filters = this.filters.filter((existingFilter) => {
             return existingFilter.id !== filter.id;
         });
@@ -748,15 +685,13 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         }
     }
 
-    // TODO Remove this function if you don't need a filter-container.
     /**
-     * Returns whether any components are shown in the filter-container.
-     *
-     * @return {boolean}
+     * Called after the filters in the filter service have changed.
+     * Defaults to calling setupFilters() then executeQueryChain()
      */
-    showFilterContainer(): boolean {
-        // TODO Check for any other components (like a legend).
-        return !!this.getCloseableFilters().length;
+    handleFiltersChangedEvent(): void {
+        //TODO:Update Taxonomy when filter from filter tray is deleted
+        //console.log(this.treeRoot.treeModel.nodes);
     }
 
     /**
@@ -766,14 +701,13 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     subGetBindings(bindings: any) {
-        // TODO Add or remove fields and properties as needed.
         bindings.idField = this.options.idField.columnName;
         bindings.categoryField = this.options.categoryField.columnName;
         bindings.typeField = this.options.typeField.columnName;
     }
 
     /**
-     * Destroys any media viewer sub-components if needed.
+     * Destroys any taxonomy sub-components if needed.
      *
      * @override
      */
@@ -782,7 +716,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Initializes any media viewer sub-components if needed.
+     * Initializes any taxonomy sub-components if needed.
      *
      * @override
      */
