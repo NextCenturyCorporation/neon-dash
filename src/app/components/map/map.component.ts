@@ -663,7 +663,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 }
             } else {
                 this.addOrUpdateUniquePoint(map, idValue, latCoord, lngCoord, colorField, colorValue, hoverPopupValue);
-
             }
         }
 
