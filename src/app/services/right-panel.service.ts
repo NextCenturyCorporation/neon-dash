@@ -14,6 +14,9 @@
  *
  */
 import { Inject, Injectable } from '@angular/core';
+
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { SimpleFilter } from '../dataset';
 import * as neon from 'neon-framework';
 
 class ActivePanel {
@@ -24,13 +27,14 @@ class ActivePanel {
 @Injectable()
 export class RightPanelService {
     private activePanel: ActivePanel;
-
+    //right panel
     public showAboutNeon: boolean = false;
     public showAddVis: boolean = false;
     public showDashboardLayouts: boolean = false;
     public showGear: boolean = false;
     public showSaveState: boolean = false;
     public showSettings: boolean = false;
+    //Toolbar
     public showSimpleSearch: boolean = false;
     public showVisShortcut: boolean = true;
 
@@ -48,6 +52,7 @@ export class RightPanelService {
         this.showAboutNeon = false;
         this.showAddVis = false;
         this.showDashboardLayouts = false;
+        this.showGear = false;
         this.showSaveState = false;
         this.showSettings = false;
     }
