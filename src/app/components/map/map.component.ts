@@ -48,7 +48,7 @@ import { BaseLayeredNeonComponent, BaseNeonLayer, BaseNeonMultiLayerOptions } fr
 import { CesiumNeonMap } from './map.type.cesium';
 import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { neonMappings, neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import * as geohash from 'geo-hash';
@@ -220,6 +220,24 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
 
         this.options = new MapOptions(this.injector, 'Map', 1000);
+    }
+
+    /**
+     * Converts the given input to a float if it is a string (or to an array of floats if it is an array of strings) and returns the value.
+     *
+     * @arg {any} input
+     * @return {any}
+     */
+    convertToFloatIfString(input: any): any {
+        if (input.constructor.name === 'Array') {
+            return input.map((element) => this.convertToFloatIfString(element));
+        }
+        if (input.constructor.name === 'String') {
+            if (parseFloat(input) > -181 && parseFloat(input) < 181) {
+                return parseFloat(input);
+            }
+        }
+        return input;
     }
 
     /**
@@ -622,9 +640,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         let map = new Map<string, UniqueLocationPoint>();
 
         for (let point of data) {
-            let lngCoord = this.retrieveLocationField(point, lngField),
-                latCoord = this.retrieveLocationField(point, latField),
-                hoverPopupValue = this.retrieveHoverPopupField(point, hoverPopupField),  //checks nested value set with lat/long
+            let lngCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, lngField)),
+                latCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, latField)),
+                hoverPopupValue = neonUtilities.deepFind(point, hoverPopupField),
                 colorValue = colorField && point[colorField];
 
             if (latCoord instanceof Array && lngCoord instanceof Array) {
@@ -735,69 +753,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 }
             }
         }
-    }
-
-    // This allows the map to function if the config file is a little off, i.e. if point isn't a flat dict;
-    // like if latFied holds 'JSONMapping.status.geolocation.latitude', but the actual latitude value is
-    // saved at point['JSONMapping']['status']['geolocation']['latitude']
-    // It also will convert a string to a number, if the lat/lon fields are strings for some reason.
-    //    Note that this only solves the problem for this one widget, and does nothing to help the rest of the workspace.
-    //     even selecting a bunch of points on the map using shift-click/drag won't work if the lat/lon are stored as strings,
-    //     because the region query looks at the data in the database and expects numbers there.
-    retrieveLocationField(point, locField) {
-
-        let coordinate = point[locField];
-        let fieldSplit = locField.split('.');
-
-        if (!coordinate && fieldSplit.length > 1) {
-            coordinate = point[fieldSplit[0]];
-            fieldSplit.shift();
-            while (fieldSplit.length > 0) {
-                if (fieldSplit.length === 1 && coordinate instanceof Array) {
-                    coordinate = coordinate.map((elem) => {
-                        return elem[fieldSplit[0]];
-                    });
-                } else {
-                    coordinate = coordinate[fieldSplit[0]];
-                }
-                fieldSplit.shift();
-            }
-        }
-        if (coordinate.constructor.name === 'String') {
-            if (parseFloat(coordinate) > -181 && parseFloat(coordinate) < 181) {
-                coordinate = parseFloat(coordinate);
-            }
-        }
-        return coordinate;
-    }
-
-    /* This is a helper method that will attempt to get the defined hoverPopupValue in the Map layer section
-       of the config. This value will only be displayed if the hoverPopupEnabled config is set to true. This
-       function behaves in a similar fashion ad retrieveLocationField() above. It will default to an empty
-       string to support no value being set or a field being set that does not exist. If the field does
-       exist in the point it will use this value. If the field is a nested object it will traverse the object
-       and attempt to handle the case of the hover value being located in an array.
-    */
-    retrieveHoverPopupField(point, locField) {
-        let hoverPopupValue = point[locField] || '';
-        let fieldSplit = locField.split('.');
-
-        if (!hoverPopupValue && fieldSplit.length > 1) {
-            hoverPopupValue = point[fieldSplit[0]];
-            fieldSplit.shift();
-            while (fieldSplit.length > 0) {
-                if (fieldSplit.length === 1 && hoverPopupValue instanceof Array) {
-                    hoverPopupValue = hoverPopupValue.map((elem) => {
-                        return elem[fieldSplit[0]];
-                    });
-                } else {
-                    hoverPopupValue = hoverPopupValue[fieldSplit[0]];
-                }
-                fieldSplit.shift();
-            }
-        }
-
-        return hoverPopupValue;
     }
 
     addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, lat: number, lng: number, colorField: string, colorValue: string,

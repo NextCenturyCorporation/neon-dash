@@ -514,7 +514,7 @@ describe('Component: Map', () => {
         let spy = spyOn(component, 'handleChangeData');
 
         component.subRemoveLayer(1);
-        
+
         expect(component.options.layers[0].title).toEqual('Layer A');
         expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testColor1', 'Test Color 1'));
         expect(component.options.layers[0].hoverPopupField).toEqual(new FieldMetaData('testHover1', 'Test Hover 1'));
@@ -554,14 +554,14 @@ describe('Component: Map', () => {
                 sizeField: 'testSize1',
                 colorField: 'testColor1',
                 dateField: 'testDate1',
-                hoverPopupField: 'testHover1',
+                hoverPopupField: 'testHover1'
             }, {
                 latitudeField: 'testLatitude2',
                 longitudeField: 'testLongitude2',
                 sizeField: 'testSize2',
                 colorField: 'testColor2',
                 dateField: 'testDate2',
-                hoverPopupField: 'testHover2',
+                hoverPopupField: 'testHover2'
             }]
         });
     });
@@ -624,10 +624,10 @@ describe('Component: Map', () => {
         }, {
             columnName: 'testDate1',
             prettyName: 'Test Date 1'
-        },{
+        }, {
             columnName: 'testHover1',
             prettyName: 'Test Hover 1'
-        },]);
+        }]);
 
         updateMapLayer2(component);
 
@@ -649,7 +649,7 @@ describe('Component: Map', () => {
         }, {
             columnName: 'testHover2',
             prettyName: 'Test Hover 2'
-        },]);
+        }]);
     });
 
     it('filterByLocation does set filterBoundingBox and does call addNeonFilter on each layer', () => {
@@ -924,76 +924,15 @@ describe('Component: Map', () => {
         expect(component.colorByFields).toEqual(['testColor1', 'testColor2']);
     });
 
-    it('retrieveLocationField does return nested number', () => {
-        expect(component.retrieveLocationField({
-            outer: 12.34
-        }, 'outer')).toBe(12.34);
+    it('convertToFloatIfString does parse float string', () => {
+        expect(component.convertToFloatIfString(12.34)).toEqual(12.34);
+        expect(component.convertToFloatIfString(-56.78)).toEqual(-56.78);
 
-        expect(component.retrieveLocationField({
-            outer: -12.34
-        }, 'outer')).toBe(-12.34);
+        expect(component.convertToFloatIfString('12.34')).toEqual(12.34);
+        expect(component.convertToFloatIfString('-56.78')).toEqual(-56.78);
 
-        expect(component.retrieveLocationField({
-            outer: {
-                inner: 12.34
-            }
-        }, 'outer.inner')).toBe(12.34);
-
-        expect(component.retrieveLocationField({
-            outer: {
-                inner: -12.34
-            }
-        }, 'outer.inner')).toBe(-12.34);
-    });
-
-    it('retrieveLocationField does return nested number array', () => {
-        expect(component.retrieveLocationField({
-            outer: {
-                inner: [12.34]
-            }
-        }, 'outer.inner')).toEqual([12.34]);
-
-        expect(component.retrieveLocationField({
-            outer: {
-                inner: [-12.34]
-            }
-        }, 'outer.inner')).toEqual([-12.34]);
-
-        expect(component.retrieveLocationField({
-            outer: {
-                inner: [12.34, 56.78]
-            }
-        }, 'outer.inner')).toEqual([12.34, 56.78]);
-
-        expect(component.retrieveLocationField({
-            outer: [{
-                inner: 12.34
-            }]
-        }, 'outer.inner')).toEqual([12.34]);
-
-        expect(component.retrieveLocationField({
-            outer: [{
-                inner: -12.34
-            }]
-        }, 'outer.inner')).toEqual([-12.34]);
-
-        expect(component.retrieveLocationField({
-            outer: [{
-                inner: 12.34
-            }, {
-                inner: 56.78
-            }]
-        }, 'outer.inner')).toEqual([12.34, 56.78]);
-    });
-
-    it('retrieveLocationField does parse float string', () => {
-        expect(component.retrieveLocationField({
-            outer: '12.34'
-        }, 'outer')).toBe(12.34);
-
-        expect(component.retrieveLocationField({
-            outer: '-12.34'
-        }, 'outer')).toBe(-12.34);
+        expect(component.convertToFloatIfString(['12.34'])).toEqual([12.34]);
+        expect(component.convertToFloatIfString(['12.34', 43.21, '-56.78', 87.65, '90'])).toEqual([12.34, 43.21, -56.78, 87.65, 90]);
     });
 
     it('addOrUpdateUniquePoint does update data in given map object', () => {
