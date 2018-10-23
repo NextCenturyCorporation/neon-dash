@@ -91,7 +91,7 @@ export class LeafletNeonMap extends AbstractMap {
             let circlOptions = {};
 
             //ensure idField is set check if select_id has been set in the Messenger
-            if (point.idValue && (point.idValue === this.mapOptions.id) ) {
+            if (point.idValue && (point.idValue === this.mapOptions.id)) {
                 circlOptions = {
                     color: '#FF4500',
                     fillColor: '#FF4500',
