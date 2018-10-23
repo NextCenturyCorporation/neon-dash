@@ -69,6 +69,50 @@ export class LineChartOptions extends BaseNeonOptions {
     }
 
     /**
+     * Returns the list of fields to export.
+     *
+     * @return {{ columnName: string, prettyName: string }[]}
+     * @override
+     */
+    getExportFields() {
+        let exportFields = [{
+            columnName: this.groupField.columnName,
+            prettyName: this.groupField.prettyName
+        }, {
+            columnName: 'value',
+            prettyName: (this.aggregation.charAt(0).toUpperCase() + this.aggregation.slice(1)) + (this.aggregation === 'count' ? '' :
+                ('_' + this.aggregationField.prettyName))
+        }];
+        switch (this.granularity) {
+            case 'hour':
+                exportFields.push({
+                    columnName: 'hour',
+                    prettyName: 'Hour'
+                });
+                /* falls through */
+            case 'day':
+                exportFields.push({
+                    columnName: 'day',
+                    prettyName: 'Day'
+                });
+                /* falls through */
+            case 'month':
+                exportFields.push({
+                    columnName: 'month',
+                    prettyName: 'Month'
+                });
+                /* falls through */
+            case 'year':
+                exportFields.push({
+                    columnName: 'year',
+                    prettyName: 'Year'
+                });
+                /* falls through */
+        }
+        return exportFields;
+    }
+
+    /**
      * Returns the list of field properties for the specific visualization.
      *
      * @return {string[]}
@@ -309,46 +353,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             datasets: []
         };
         this.chart.options = {};
-    }
-
-    getExportFields() {
-        let valuePrettyName = this.options.aggregation +
-            (this.options.aggregation === 'count' ? '' : '-' + this.options.aggregationField.prettyName);
-        valuePrettyName = valuePrettyName.charAt(0).toUpperCase() + valuePrettyName.slice(1);
-        let fields = [{
-                columnName: this.options.groupField.columnName,
-                prettyName: this.options.groupField.prettyName
-            }, {
-                columnName: 'value',
-                prettyName: valuePrettyName
-        }];
-        switch (this.options.granularity) {
-            case 'hour':
-                fields.push({
-                    columnName: 'hour',
-                    prettyName: 'Hour'
-                });
-                /* falls through */
-            case 'day':
-                fields.push({
-                    columnName: 'day',
-                    prettyName: 'Day'
-                });
-                /* falls through */
-            case 'month':
-                fields.push({
-                    columnName: 'month',
-                    prettyName: 'Month'
-                });
-                /* falls through */
-            case 'year':
-                fields.push({
-                    columnName: 'year',
-                    prettyName: 'Year'
-                });
-                /* falls through */
-        }
-        return fields;
     }
 
     legendItemSelected(data: any): void {

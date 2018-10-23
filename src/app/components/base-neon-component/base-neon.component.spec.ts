@@ -150,14 +150,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         return {};
     }
 
-    getExportFields() {
-        let fields = [{
-            columnName: 'value',
-            prettyName: 'Count'
-        }];
-        return fields;
-    }
-
     getFiltersToIgnore() {
         let ignoredFilterIds = [];
         return ignoredFilterIds;
@@ -340,6 +332,10 @@ describe('Component: BaseNeonOptions', () => {
 
     it('getAllFieldProperties does return expected array', () => {
         expect(options.getAllFieldProperties()).toEqual(['unsharedFilterField']);
+    });
+
+    it('getExportFields does return expected array', () => {
+        expect(options.getExportFields()).toEqual([]);
     });
 
     it('updateDatabases does update databases, tables, and fields', () => {

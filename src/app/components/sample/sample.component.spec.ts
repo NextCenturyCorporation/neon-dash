@@ -542,26 +542,6 @@ describe('Component: Sample', () => {
         expect(refs.visualization).toBeDefined();
     });
 
-    it('getExportFields does return expected array', () => {
-        expect(component.getExportFields()).toEqual([{
-            columnName: '',
-            prettyName: ''
-        }, {
-            columnName: '',
-            prettyName: ''
-        }]);
-
-        component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testOptionalField1',
-            prettyName: 'Test Optional Field 1'
-        }, {
-            columnName: 'testRequiredField1',
-            prettyName: 'Test Required Field 1'
-        }]);
-    });
-
     it('getFiltersToIgnore does return null if no filters are set', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];

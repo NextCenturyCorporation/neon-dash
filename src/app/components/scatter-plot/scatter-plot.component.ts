@@ -369,18 +369,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         this.filters[0] = filter;
     }
 
-    getExportFields() {
-        let usedFields = [this.options.xField, this.options.yField, this.options.labelField];
-        return usedFields
-          .filter((header) => header && header.columnName)
-          .map((header) => {
-              return {
-                  columnName: header.columnName,
-                  prettyName: header.prettyName
-              };
-          });
-    }
-
     forcePosInsideChart(pos, min, max) {
         return pos < min ? min : (pos > max ? max : pos);
     }
