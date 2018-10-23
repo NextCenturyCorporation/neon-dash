@@ -69,8 +69,8 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     private datasetName: string = '';
     private datastoreType: string = 'mongo';
     private datastoreHost: string = 'localhost';
-    private layouts: { [key: string]: any } = {};
-    public dashboards: {[key: string]: DashboardConfigChoice } = {};
+    private layouts: Map<string, any> = new Map<string, any>();
+    public dashboards: Map<string, DashboardConfigChoice> = new Map<string, DashboardConfigChoice>();
 
     /**
      * This is the array of custom database objects configured by the user through the popup.  Each custom database contains:
@@ -132,11 +132,11 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         return this.datasets;
     }
 
-    // TODO: 825: flatten dashboards here (may not need to flatten structure
-    // later when layout is updated)
-    getFlattenedDashboards(): {[key: string]: DashboardConfigChoice } {
+    // TODO: 825: flatten dashboards here - won't need to flatten when
+    // multi-stage dataset selector (THOR-826) is finished
+    getFlattenedDashboards(): Map<string, DashboardConfigChoice> {
         let tempDashboards = this.datasetService.getDashboards();
-        let finalDashboards: {[key: string]: DashboardConfigChoice } = {};
+        let finalDashboards: Map<string, DashboardConfigChoice> = new Map<string, DashboardConfigChoice>();
 
         Object.keys(tempDashboards.choices).forEach((dashboardKey) => {
             let dashboard = tempDashboards.choices[dashboardKey];
@@ -158,7 +158,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         return finalDashboards;
     }
 
-    getDashboardKeys(dashboards: {[key: string]: DashboardConfigChoice }) {
+    getDashboardKeys(dashboards: Map<string, DashboardConfigChoice>) {
         return Object.keys(this.dashboards);
     }
 

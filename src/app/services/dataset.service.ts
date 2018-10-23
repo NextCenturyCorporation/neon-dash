@@ -17,7 +17,8 @@ import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
 import { DatasetOptions, DatabaseMetaData, TableMetaData,
-    TableMappings, FieldMetaData, Datastore, DashboardWrapper, DashboardConfigChoice } from '../dataset';
+    TableMappings, FieldMetaData, Datastore, Dashboard,
+    DashboardWrapper, DashboardConfigChoice } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import * as _ from 'lodash';
@@ -103,7 +104,7 @@ export class DatasetService {
     constructor(@Inject('config') private config: NeonGTDConfig) {
         this.datasets = [];
         let datastores = (config.datastores ? config.datastores : {});
-        this.dashboards = (config.dashboards ? config.dashboards : {category: 'No Options', choices: {}});
+        this.dashboards = (config.dashboards ? config.dashboards : {category: 'No Options', choices: new Map<string, Dashboard>()});
         // TODO: 825: wouldn't we need to validate dashboards objects like
         // we do with datastores?
 
@@ -224,6 +225,7 @@ export class DatasetService {
 
     /**
      * Sets the current dashboard config name.
+     * @param {string} name
      */
     public setCurrentDashboardConfigName(name: string) {
         this.currentDashboardConfigName = name;
@@ -239,6 +241,7 @@ export class DatasetService {
 
     /**
      * Sets the current dashboard config.
+     * @param {DashboardConfigChoice} config
      */
     public setCurrentDashboardConfig(config: DashboardConfigChoice) {
         this.currentDashboardConfig = config;
@@ -254,6 +257,7 @@ export class DatasetService {
 
     /**
      * Returns all of the dashboards.
+     * @return {DashboardWrapper}
      */
     public getDashboards(): DashboardWrapper {
         return this.dashboards;
@@ -293,8 +297,9 @@ export class DatasetService {
 
     /**
      * Returns all of the layouts.
+     * @return {Map<string, any>}
      */
-    public getLayouts(): { [key: string]: any } {
+    public getLayouts(): Map<string, any> {
         return this.config.layouts;
     }
 
