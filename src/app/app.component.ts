@@ -56,7 +56,6 @@ import { VisualizationContainerComponent } from './components/visualization-cont
 })
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChild(DashboardOptionsComponent) dashboardOptionsComponent: DashboardOptionsComponent;
-    @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
     @ViewChild(NgGrid) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
 
