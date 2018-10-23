@@ -126,21 +126,11 @@
         <mat-spinner></mat-spinner>
     </div>
 
-<!--    <div class="filter-container" *ngIf="getCloseableFilters().length">
-        <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
-            <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">{{ filter.value }}</span>
-            <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
-                <mat-icon class="neon-icon-small">close</mat-icon>
-            </button>
-        </div>
-    </div>-->
-
     <div class="body-container">
         <div #taxonomyViewer class="taxonomy-viewer-container">
-            <tree-root [nodes]="taxonomyGroups" [options]="testOptions">
+            <tree-root #treeRoot [nodes]="taxonomyGroups" [options]="testOptions">
                 <ng-template #treeNodeTemplate let-node="node"  let-index="index">
-                    <input #treeNodeCheckboxes
+                    <input
                         (change)="checkRelatedNodes( node, $event)"
                         type="checkbox"
                         [indeterminate]="node.data.indeterminate"
