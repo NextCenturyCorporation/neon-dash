@@ -169,6 +169,28 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
     }
 
     /**
+     * Returns the minimum number of X ticks.
+     *
+     * @return {number}
+     * @protected
+     * @override
+     */
+    protected getMinimumTicksX(): number {
+        return this.isHorizontal() ? super.getMinimumTicksX() : this.getChartDataLength();
+    }
+
+    /**
+     * Returns the minimum number of Y ticks.
+     *
+     * @return {number}
+     * @protected
+     * @override
+     */
+    protected getMinimumTicksY(): number {
+        return this.isHorizontal() ? this.getChartDataLength() : super.getMinimumTicksY();
+    }
+
+    /**
      * Handles the given click event as needed by this subcomponent.
      *
      * @arg {event} event
