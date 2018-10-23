@@ -637,7 +637,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @protected
      */
 
-    protected getMapPoints(idField: string, lngField: string, latField: string, colorField: string, 
+    protected getMapPoints(idField: string, lngField: string, latField: string, colorField: string,
         hoverPopupField: string, data: any[]): any[] {
 
         let map = new Map<string, UniqueLocationPoint>();
@@ -654,9 +654,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
                     //check if hover popup value is nested within coordinate array
                     if (hoverPopupValue instanceof Array) {
-                        this.addOrUpdateUniquePoint(map, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue, hoverPopupValue[pos]);
+                        this.addOrUpdateUniquePoint(map, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue,
+                            hoverPopupValue[pos]);
                     } else {
-                        this.addOrUpdateUniquePoint(map, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue, hoverPopupValue);
+                        this.addOrUpdateUniquePoint(map, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue,
+                            hoverPopupValue);
                     }
                 }
             } else {
