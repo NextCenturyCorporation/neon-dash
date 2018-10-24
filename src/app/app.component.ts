@@ -119,7 +119,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             snackBarRef.instance.addErrors('Configuration Errors', neonConfig.errors);
         }
 
-        // TODO: 825: incorporate into options or layout later
+        // TODO: 825: incorporate commented out lines into future dashboard options.
         /*
         if (this.datasets && this.datasets.length > 0) {
             this.projectTitle = this.datasets[0].title ? this.datasets[0].title : this.projectTitle;

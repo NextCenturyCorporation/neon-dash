@@ -31,7 +31,7 @@
             <mat-icon class="neon-icon-large">menu</mat-icon>
         </button>
         <!-- TODO: 825: will this change? -->
-        <span>{{ datasetService.getCurrentDashboardConfigName() || "Choose Data..." }}</span>
+        <span>{{ datasetService.getCurrentDashboardName() || "Choose Data..." }}</span>
         <span class="fill-remaining"></span>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
                 matTooltip="Add a New Visualization" (click)="openAddVisualizationDialog()" *ngIf="showAddVisualizationButton">

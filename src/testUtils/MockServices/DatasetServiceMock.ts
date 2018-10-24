@@ -91,16 +91,18 @@ export class DatasetServiceMock extends DatasetService {
                 }]
             }]
         });
+
+        let dashboardTableKeys = new Map<string, string>();
+        dashboardTableKeys.set('table_key_1', 'datastore1.testDatabase1.testTable1');
+        dashboardTableKeys.set('table_key_2', 'datastore1.testDatabase2.testTable2');
+
         this.setCurrentDashboardConfig({
             name: 'Test Discovery Config',
             layout: 'DISCOVERY',
             datastore: 'datastore1',
-            tables: {
-                table_key_1: 'datastore1.testDatabase1.testTable1',
-                table_key_2: 'datastore1.testDatabase2.testTable2'
-            },
-            fields: {},
-            options: {}
+            tables: dashboardTableKeys,
+            fields: new Map<string, string>(),
+            options: new Map<string, string>()
         });
         this.setCurrentDashboardConfigName('test_discovery');
     }

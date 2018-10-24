@@ -185,7 +185,9 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             let activeDataset: string = (this.parameterService.findActiveDatasetInUrl() || '').toLowerCase();
 
             Object.keys(this.dashboards).some((dashboardName) => {
-                // TODO: 825: error reporting if dashboards/datastore mismatch?
+                // TODO: 825: Won't need to use findMatchingIndex later to match dashboards to datastores.
+                // Likely we would match via table keys. If error reporting is needed (dashboard/datastore
+                // mismatch), we might be able to use ErrorNotificationService.
                 let configItem = this.dashboards[dashboardName];
                 let index = this.findMatchingIndex(configItem);
                 let dataset = this.datasets[index];
@@ -282,8 +284,9 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
     finishConnectToPreset(dataset: Datastore, loadDashboardState: boolean, configName: string) {
         this.datasetService.setActiveDataset(dataset);
-        this.datasetService.setCurrentDashboardConfigName(configName);
-        this.datasetService.setCurrentDashboardConfig(this.dashboards[configName]);
+        // TODO: 825: combine setCurrentDashboardName and setCurrentDashboard.
+        this.datasetService.setCurrentDashboardName(configName);
+        this.datasetService.setCurrentDashboard(this.dashboards[configName]);
         this.updateLayout(loadDashboardState);
         this.filterService.clearFilters();
     }
