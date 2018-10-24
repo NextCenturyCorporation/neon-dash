@@ -1,42 +1,24 @@
 <form class="settings-container" #optionsForm="ngForm">
-
-    <h3>
-        <span>Export Format</span>
-    </h3>
-
-    <p></p>
+    <h3 class="header"> Export Format</h3>
     <app-export-control [exportTarget]="exportTarget"></app-export-control>
-    <p></p>
-
     <mat-divider></mat-divider>
-
-    <h3>
-        <span>Themes</span>
-    </h3>
-    <p></p>
+    <h3 class="header">Themes</h3>
     <div class='radio-container' layout="row" mat-margin>
         <mat-radio-group [(ngModel)]="formData.currentTheme" name="currentThemeGroup" (change)="setCurrentTheme(formData.currentTheme)">
             <mat-radio-button class="radio-btn" *ngFor="let theme of themesService.getThemes()"
             [value]="theme.id">{{ theme.name }}</mat-radio-button>
         </mat-radio-group>
     </div>
-    <p></p>
-
     <mat-divider></mat-divider>
-
-    <h3>
-        <span>Display Tools</span>
-    </h3>
-    <p></p>
-
+    <h3 class="header">Display Tools</h3>
     <div class="display-tools-container">
         <div class="checkmark-container">
             <input type="checkbox" [checked]="rightPanelService.showSimpleSearch" (change)="rightPanelService.showSimpleSearch = !rightPanelService.showSimpleSearch">
             Simple Search Bar
             <div *ngIf="rightPanelService.showSimpleSearch">
                 <mat-form-field>
-                    <mat-select name="simple-search-field" placeholder="Simple Search Field" [(ngModel)]="simpleSearchField" required="true"
-                        [disabled]="options.fields.length == 0">
+                    <mat-select name="simple-search-field" placeholder="Simple Search Field" [(ngModel)]="simpleSearchField"
+                        required="true" [disabled]="options.fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -48,5 +30,4 @@
             Show visualization shortcut
         </div>
     </div>
-
 </form>
