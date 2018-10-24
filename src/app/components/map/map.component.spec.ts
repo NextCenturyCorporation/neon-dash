@@ -944,76 +944,15 @@ describe('Component: Map', () => {
         expect(component.colorByFields).toEqual(['testColor1', 'testColor2']);
     });
 
-    it('retrieveLocationField does return nested number', () => {
-        expect(component.retrieveLocationField({
-            outer: 12.34
-        }, 'outer')).toBe(12.34);
+    it('convertToFloatIfString does parse float string', () => {
+        expect(component.convertToFloatIfString(12.34)).toEqual(12.34);
+        expect(component.convertToFloatIfString(-56.78)).toEqual(-56.78);
 
-        expect(component.retrieveLocationField({
-            outer: -12.34
-        }, 'outer')).toBe(-12.34);
+        expect(component.convertToFloatIfString('12.34')).toEqual(12.34);
+        expect(component.convertToFloatIfString('-56.78')).toEqual(-56.78);
 
-        expect(component.retrieveLocationField({
-            outer: {
-                inner: 12.34
-            }
-        }, 'outer.inner')).toBe(12.34);
-
-        expect(component.retrieveLocationField({
-            outer: {
-                inner: -12.34
-            }
-        }, 'outer.inner')).toBe(-12.34);
-    });
-
-    it('retrieveLocationField does return nested number array', () => {
-        expect(component.retrieveLocationField({
-            outer: {
-                inner: [12.34]
-            }
-        }, 'outer.inner')).toEqual([12.34]);
-
-        expect(component.retrieveLocationField({
-            outer: {
-                inner: [-12.34]
-            }
-        }, 'outer.inner')).toEqual([-12.34]);
-
-        expect(component.retrieveLocationField({
-            outer: {
-                inner: [12.34, 56.78]
-            }
-        }, 'outer.inner')).toEqual([12.34, 56.78]);
-
-        expect(component.retrieveLocationField({
-            outer: [{
-                inner: 12.34
-            }]
-        }, 'outer.inner')).toEqual([12.34]);
-
-        expect(component.retrieveLocationField({
-            outer: [{
-                inner: -12.34
-            }]
-        }, 'outer.inner')).toEqual([-12.34]);
-
-        expect(component.retrieveLocationField({
-            outer: [{
-                inner: 12.34
-            }, {
-                inner: 56.78
-            }]
-        }, 'outer.inner')).toEqual([12.34, 56.78]);
-    });
-
-    it('retrieveLocationField does parse float string', () => {
-        expect(component.retrieveLocationField({
-            outer: '12.34'
-        }, 'outer')).toBe(12.34);
-
-        expect(component.retrieveLocationField({
-            outer: '-12.34'
-        }, 'outer')).toBe(-12.34);
+        expect(component.convertToFloatIfString(['12.34'])).toEqual([12.34]);
+        expect(component.convertToFloatIfString(['12.34', 43.21, '-56.78', 87.65, '90'])).toEqual([12.34, 43.21, -56.78, 87.65, 90]);
     });
 
     it('addOrUpdateUniquePoint does update data in given map object', () => {
