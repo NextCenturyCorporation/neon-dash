@@ -56,9 +56,9 @@ export class SettingsOptions extends BaseNeonOptions {
 }
 
 @Component({
-  selector: 'app-settings',
-  templateUrl: 'settings.component.html',
-  styleUrls: ['settings.component.scss']
+    selector: 'app-settings',
+    templateUrl: 'settings.component.html',
+    styleUrls: ['settings.component.scss']
 })
 export class SettingsComponent implements OnInit {
 
@@ -87,15 +87,15 @@ export class SettingsComponent implements OnInit {
         public exportService: ExportService,
         public injector: Injector,
         public themesService: ThemesService
-        ) {
-            this.datasetService = datasetService;
-            this.exportService = exportService;
-            this.injector = injector,
+    ) {
+        this.datasetService = datasetService;
+        this.exportService = exportService;
+        this.injector = injector;
 
-            this.options = new SettingsOptions(this.injector, this.datasetService, 'Simple');
+        this.options = new SettingsOptions(this.injector, this.datasetService, 'Simple');
 
-            this.messenger = new neon.eventing.Messenger();
-        }
+        this.messenger = new neon.eventing.Messenger();
+    }
 
     ngOnInit() {
         this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
