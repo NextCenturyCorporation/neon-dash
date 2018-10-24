@@ -32,13 +32,15 @@ export class DatasetService {
     private datasets: Datastore[] = [];
 
     // The active dataset.
+    // TODO: 825: This will probably need to be an array/map of active datastores
+    // since a dashboard can reference multiple datastores.
     private dataset: Datastore = new Datastore();
 
     private dashboards: DashboardWrapper;
 
     // The currently selected dashboard.
-    private currentDashboardConfigName: string;
-    private currentDashboardConfig: DashboardConfigChoice;
+    private currentDashboardName: string;
+    private currentDashboard: DashboardConfigChoice;
     private layout: string = '';
 
     // Use the Dataset Service to save settings for specific databases/tables and
@@ -223,36 +225,37 @@ export class DatasetService {
         }
     }
 
+    // TODO: 825: combine setCurrentDashboardName and setCurrentDashboard.
     /**
      * Sets the current dashboard config name.
      * @param {string} name
      */
-    public setCurrentDashboardConfigName(name: string) {
-        this.currentDashboardConfigName = name;
+    public setCurrentDashboardName(name: string) {
+        this.currentDashboardName = name;
     }
 
     /**
      * Returns the current dashboard config name.
      * @return {string}
      */
-    public getCurrentDashboardConfigName() {
-        return this.currentDashboardConfigName;
+    public getCurrentDashboardName() {
+        return this.currentDashboardName;
     }
 
     /**
      * Sets the current dashboard config.
      * @param {DashboardConfigChoice} config
      */
-    public setCurrentDashboardConfig(config: DashboardConfigChoice) {
-        this.currentDashboardConfig = config;
+    public setCurrentDashboard(config: DashboardConfigChoice) {
+        this.currentDashboard = config;
     }
 
     /**
      * Returns the current dashboard config.
      * @return {DashboardConfigChoice}
      */
-    public getCurrentDashboardConfig() {
-        return this.currentDashboardConfig;
+    public getCurrentDashboard() {
+        return this.currentDashboard;
     }
 
     /**
@@ -292,7 +295,7 @@ export class DatasetService {
      * @return {String}
      */
     public getLayout(): string {
-        return this.currentDashboardConfig.layout;
+        return this.currentDashboard.layout;
     }
 
     /**
@@ -309,7 +312,7 @@ export class DatasetService {
      */
     public setLayout(layoutName: string): void {
         // TODO: 825: may need to revisit later
-        this.currentDashboardConfig.layout = layoutName;
+        this.currentDashboard.layout = layoutName;
         this.updateDataset();
     }
 
@@ -826,12 +829,18 @@ export class DatasetService {
      * @param {Number} index (optional)
      * @private
      */
-    // TODO: 825: if database doesn't exist, the app now fails before you select a dashboard/database instead of after
-    // the selection is made. Rework if this isn't desired behavior.
+    // TODO: 825: If a database specified in the config doesn't exist, the app now fails even if you select a
+    // different database/dashboard in the dataset-selector, or if the config has connectOnLoad set to true.
+    // It looks like this happens because now the dataset includes all possible databases and tables specified
+    // in the config per datastore (instead of just a single database) and checks every database in a
+    // datastore regardless of which dashboard is selected. Fix so that this only happens when a particular
+    // dashboard/database is selected.
     public updateDatabases(dataset: Datastore, connection: neon.query.Connection, callback?: Function, index?: number): void {
         let databaseIndex = index ? index : 0;
         let database = dataset.databases[databaseIndex];
         let pendingTypesRequests = 0;
+        // TODO: 825: here is where the error referenced above occurs since its looking for tables in
+        // a database that doesn't exist.
         connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
             Object.keys(tableNamesAndFieldNames).forEach((tableName: string) => {
                 let table = _.find(database.tables, (item: TableMetaData) => {
@@ -940,15 +949,25 @@ export class DatasetService {
     }
 
     // used to link layouts with dashboards
+    /**
+     * Returns entire value of matching table key from current dashboard.
+     * @param {String} key
+     * @return {String}
+     */
     public getTableByKey(key: string): string {
-        let currentConfig = this.getCurrentDashboardConfig();
+        let currentConfig = this.getCurrentDashboard();
         if (currentConfig) {
             return currentConfig.tables[key];
         }
     }
 
+    /**
+     * Returns entire value of matching field key from current dashboard.
+     * @param {String} key
+     * @return {String}
+     */
     public getFieldByKey(key: string): string {
-        let currentConfig = this.getCurrentDashboardConfig();
+        let currentConfig = this.getCurrentDashboard();
         if (currentConfig) {
             return currentConfig.fields[key];
         }
@@ -957,15 +976,25 @@ export class DatasetService {
     // TODO: 825: entire key may be more important later when
     // connecting to multiple databases -- for now we can just
     // use a partial key
+    /**
+     * Returns database name from matching table key from current dashboard.
+     * @param {String} key
+     * @return {String}
+     */
     public getDatabaseNameByKey(key: string): string {
-        let currentConfig = this.getCurrentDashboardConfig();
+        let currentConfig = this.getCurrentDashboard();
         if (currentConfig) {
             return currentConfig.tables[key].split('.')[1];
         }
     }
 
+    /**
+     * Returns table name from matching table key from current dashboard.
+     * @param {String} key
+     * @return {String}
+     */
     public getTableNameByKey(key: string): string {
-        let currentConfig = this.getCurrentDashboardConfig();
+        let currentConfig = this.getCurrentDashboard();
         if (currentConfig) {
             return currentConfig.tables[key].split('.')[2];
         }
