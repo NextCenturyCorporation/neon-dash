@@ -171,23 +171,39 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
     /**
      * Returns the minimum number of X ticks.
      *
+     * @arg {string} axisType
+     * @arg {number} tickLength
      * @return {number}
      * @protected
      * @override
      */
-    protected getMinimumTicksX(): number {
-        return this.isHorizontal() ? super.getMinimumTicksX() : this.getChartDataLength();
+    protected getMinimumTickCountX(axisType: string, tickLength: number): number {
+        return this.isHorizontal() ? super.getMinimumTickCountX(axisType, tickLength) : tickLength;
     }
 
     /**
      * Returns the minimum number of Y ticks.
      *
+     * @arg {string} axisType
+     * @arg {number} tickLength
      * @return {number}
      * @protected
      * @override
      */
-    protected getMinimumTicksY(): number {
-        return this.isHorizontal() ? this.getChartDataLength() : super.getMinimumTicksY();
+    protected getMinimumTickCountY(axisType: string, tickLength: number): number {
+        return this.isHorizontal() ? tickLength : super.getMinimumTickCountY(axisType, tickLength);
+    }
+
+    /**
+     * Returns the minimum tick width.
+     *
+     * @arg {string} axisType
+     * @return {number}
+     * @protected
+     * @override
+     */
+    protected getMinimumTickWidth(axisType: string): number {
+        return axisType === 'string' ? super.getMinimumTickWidth(axisType) : 10;
     }
 
     /**
