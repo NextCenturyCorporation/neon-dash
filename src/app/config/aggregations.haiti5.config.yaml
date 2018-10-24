@@ -179,4 +179,5 @@ layouts:
       type: aggregation
       bindings:
         title: TODO
+        type: pie
 
