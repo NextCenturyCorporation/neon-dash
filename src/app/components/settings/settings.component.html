@@ -13,9 +13,9 @@
     <h3 class="header">Display Tools</h3>
     <div class="display-tools-container">
         <div class="checkmark-container">
-            <input type="checkbox" [checked]="rightPanelService.showSimpleSearch" (change)="rightPanelService.showSimpleSearch = !rightPanelService.showSimpleSearch">
+            <input type="checkbox" [checked]="showSimpleSearch" (change)="showSimpleSearch = !showSimpleSearch">
             Simple Search Bar
-            <div *ngIf="rightPanelService.showSimpleSearch">
+            <div *ngIf="showSimpleSearch">
                 <mat-form-field>
                     <mat-select name="simple-search-field" placeholder="Simple Search Field" [(ngModel)]="simpleSearchField"
                         required="true" [disabled]="options.fields.length == 0">
@@ -26,7 +26,7 @@
             </div>
         </div>
         <div class="checkmark-container">
-            <input type="checkbox" [checked]="rightPanelService.showVisShortcut" (change)="rightPanelService.showVisShortcut = !rightPanelService.showVisShortcut">
+            <input type="checkbox" [checked]="showVisShortcut" (change)="publishShowVisShortcut()">
             Show visualization shortcut
         </div>
     </div>

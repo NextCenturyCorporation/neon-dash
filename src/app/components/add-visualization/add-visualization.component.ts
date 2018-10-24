@@ -18,8 +18,8 @@ import { MatDialogRef, MatSnackBar } from '@angular/material';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { neonVisualizations } from '../../neon-namespaces';
-import { RightPanelService } from '../../services/right-panel.service';
 import { ThemesService } from '../../services/themes.service';
+import * as neon from 'neon-framework';
 
 @Component({
     selector: 'app-add-visualization',
@@ -32,21 +32,26 @@ export class AddVisualizationComponent implements OnInit {
     public viewer: any[];
     public visualizations: any[];
     public selectedIndex: number = -1;
+    public showVisShortcut: boolean = true;
+
+    public messenger: neon.eventing.Messenger;
 
     constructor(
         private activeGridService: ActiveGridService,
-        public rightPanelService: RightPanelService,
         public snackBar: MatSnackBar,
         public themesService: ThemesService
     ) {
-        this.rightPanelService = rightPanelService;
         this.themesService = themesService;
+        this.messenger = new neon.eventing.Messenger();
     }
 
     ngOnInit() {
         // Ignore the sample visualization.
         this.visualizations = neonVisualizations.filter((visualization) => {
             return visualization.type !== 'sample';
+        });
+        this.messenger.subscribe('showVisShortcut', (message) => {
+            this.showVisShortcut = message.showVisShortcut;
         });
     }
 
@@ -63,6 +68,13 @@ export class AddVisualizationComponent implements OnInit {
             duration: 5000,
             verticalPosition: 'top',
             panelClass: ['simpleSnackBar']
+        });
+    }
+
+    publishShowVisShortcut() {
+        this.showVisShortcut = !this.showVisShortcut;
+        this.messenger.publish('showVisShortcut', {
+            showVisShortcut: this.showVisShortcut
         });
     }
 }

@@ -8,8 +8,22 @@
     </mat-sidenav>
 
     <mat-sidenav #sidenavright class="neon-sidenav neon-sidenav-info" mat-fill align="end">
-        <div class="right-panel-container" id="right.panel" *ngIf="showRightPanel">
-            <app-right-panel></app-right-panel>
+        <div [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+            <mat-toolbar class="title" color="primary">
+                <span>{{ rightPanelTitle }}</span>
+            </mat-toolbar>
+        
+            <div class="right-panel-container">
+                <div class="about-neon-container" *ngIf="showAboutNeon">
+                    <app-about-neon></app-about-neon>
+                </div>
+                <div class="add-visualization-container" *ngIf="showAddVis">
+                    <app-add-visualization></app-add-visualization>
+                </div>
+                <div class="setting-container" *ngIf="showSettings">
+                    <app-settings></app-settings>
+                </div>
+            </div>
         </div>
     </mat-sidenav>
 
@@ -21,7 +35,7 @@
         <span>{{ datasetService.getName() || "Choose Data..." }}</span>
         <span class="fill-remaining"></span>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
-            matTooltip="Add a New Visualization" (click)="toggleAddVisualization(); sidenavright.toggle()" *ngIf="rightPanelService.showVisShortcut">
+            matTooltip="Add a New Visualization" (click)="toggleAddVisualization(); sidenavright.toggle()" *ngIf="showVisShortcut">
             <mat-icon class="neon-icon-large">add_circle</mat-icon>
         </button>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Connect to a Custom Data Source"

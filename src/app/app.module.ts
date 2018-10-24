@@ -35,7 +35,6 @@ import { FilterService } from './services/filter.service';
 import { ImportService } from './services/import.service';
 import { ParameterService } from './services/parameter.service';
 import { PropertyService } from './services/property.service';
-import { RightPanelService } from './services/right-panel.service';
 import { ThemesService } from './services/themes.service';
 import { TranslationService } from './services/translation.service';
 import { VisualizationService } from './services/visualization.service';
@@ -61,7 +60,6 @@ import { LegendComponent } from './components/legend/legend.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components/map/map.component';
 import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
-import { RightPanelComponent } from './components/right-panel/right-panel.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { SettingsComponent } from './components/settings/settings.component';
@@ -125,7 +123,6 @@ export function getAppConfig() {
         NetworkGraphComponent,
         NewsFeedComponent,
         QueryBarComponent,
-        RightPanelComponent,
         SampleComponent,
         ScatterPlotComponent,
         SettingsComponent,
@@ -166,7 +163,6 @@ export function getAppConfig() {
         ImportService,
         ParameterService,
         PropertyService,
-        RightPanelService,
         ThemesService,
         TranslationService,
         VisualizationService,
@@ -184,7 +180,6 @@ export function getAppConfig() {
         CustomConnectionComponent,
         DocumentViewerSingleItemComponent,
         FilterTrayComponent,
-        RightPanelComponent,
         SettingsComponent,
         SnackBarComponent
     ],

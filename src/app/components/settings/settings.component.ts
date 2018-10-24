@@ -18,17 +18,19 @@ import { Component, OnInit, ViewContainerRef, Input, Injector } from '@angular/c
 import { URLSearchParams } from '@angular/http';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
-import { RightPanelService } from '../../services/right-panel.service';
 import { ThemesService } from '../../services/themes.service';
 
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 
 import * as _ from 'lodash';
+import * as neon from 'neon-framework';
+
 import { BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { DatasetOptions } from '../../dataset';
+import { DatasetOptions, SimpleFilter } from '../../dataset';
 
 export class SettingsOptions extends BaseNeonOptions {
     public simpleSearch: DatasetOptions;
@@ -73,29 +75,43 @@ export class SettingsComponent implements OnInit {
     public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
     public exportTarget: string = 'all';
     public options: SettingsOptions;
+    public showVisShortcut: boolean = true;
+    public showSimpleSearch: boolean;
     public simpleSearch = {};
     public simpleSearchField = {};
+
+    public messenger: neon.eventing.Messenger;
 
     constructor(
         public datasetService: DatasetService,
         public exportService: ExportService,
         public injector: Injector,
-        public rightPanelService: RightPanelService,
         public themesService: ThemesService
         ) {
             this.datasetService = datasetService;
             this.exportService = exportService;
             this.injector = injector,
-            this.rightPanelService = rightPanelService;
 
             this.options = new SettingsOptions(this.injector, this.datasetService, 'Simple');
+
+            this.messenger = new neon.eventing.Messenger();
         }
 
     ngOnInit() {
         this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
         this.formData.currentTheme = this.themesService.getCurrentTheme().id;
-
         this.simpleSearch = this.datasetService.getActiveDatasetOptions();
+
+        this.messenger.subscribe('showVisShortcut', (message) => {
+            this.showVisShortcut = message.showVisShortcut;
+        });
+    }
+
+    publishShowVisShortcut() {
+        this.showVisShortcut = !this.showVisShortcut;
+        this.messenger.publish('showVisShortcut', {
+            showVisShortcut: this.showVisShortcut
+        });
     }
 
     setCurrentTheme(themeId: any) {
