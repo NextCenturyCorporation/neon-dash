@@ -79,6 +79,15 @@
                     <p></p>
 
                     <mat-form-field>
+                        <mat-select placeholder="Target Name Field" [(ngModel)]="options.targetNameField" required="false" (ngModelChange)="handleChangeData()"
+                                    [disabled]="options.fields.length == 0">
+                            <mat-option [value]="emptyField">(None)</mat-option>
+                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <p></p>
+
+                    <mat-form-field>
                         <mat-select placeholder="Node Shape" [(ngModel)]="options.nodeShape" required="false" (ngModelChange)="handleChangeData()"
                                     [disabled]="nodeShapes.length == 0">
                             <mat-option [value]="emptyField">(Default)</mat-option>
@@ -104,16 +113,7 @@
                     </mat-form-field>
                     <p></p>
                 </div>
-
-                <mat-form-field>
-                    <mat-select placeholder="Node Shape" [(ngModel)]="options.nodeShape" required="false" (ngModelChange)="handleChangeData()"
-                                [disabled]="nodeShapes.length == 0">
-                        <mat-option [value]="emptyField">(Default)</mat-option>
-                        <mat-option *ngFor="let shape of nodeShapes" [value]="shape">{{ shape }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
                 <p></p>
-
 
                 <div mat-fill class="flex center">
                     <mat-form-field>

@@ -127,6 +127,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public fontColor: string;
     public nodeColorField: FieldMetaData;
     public edgeColorField: FieldMetaData;
+    public targetColorField: FieldMetaData;
     public linkField: FieldMetaData;
     public linkNameField: FieldMetaData;
     public nodeField: FieldMetaData;
@@ -190,6 +191,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
         this.linkNameField = this.findFieldObject('linkNameField');
         this.nodeColorField = this.findFieldObject('nodeColorField');
         this.edgeColorField = this.findFieldObject('edgeColorField');
+        this.targetColorField = this.findFieldObject('targetColorField');
         this.typeField = this.findFieldObject('typeField');
         this.xPositionField = this.findFieldObject('xPositionField');
         this.yPositionField = this.findFieldObject('yPositionField');
@@ -346,6 +348,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         bindings.linkNameField = this.options.linkNameField.columnName;
         bindings.nodeColorField = this.options.nodeColorField.columnName;
         bindings.edgeColorField = this.options.edgeColorField.columnName;
+        bindings.targetColorField = this.options.targetColorField.columnName;
         bindings.andFilters = this.options.andFilters;
         bindings.xPositionField = this.options.xPositionField.columnName;
         bindings.yPositionField = this.options.yPositionField.columnName;
@@ -464,6 +467,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let linkNameField = this.options.linkNameField.columnName;
         let nodeColorField = this.options.nodeColorField.columnName;
         let edgeColorField = this.options.edgeColorField.columnName;
+        let targetColorField = this.options.targetColorField.columnName;
         let typeField = this.options.typeField.columnName;
         let xPositionField = this.options.xPositionField.columnName;
         let yPositionField = this.options.yPositionField.columnName;
@@ -475,7 +479,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
         let fields = [nodeField, linkField];
         for (const field of [nodeColorField, edgeColorField, nodeNameField, linkNameField, typeField, xPositionField,
-            yPositionField, xTargetPositionField, yTargetPositionField, targetNameField].concat(this.options.filterFields)) {
+            yPositionField, xTargetPositionField, yTargetPositionField, targetNameField, targetColorField]
+            .concat(this.options.filterFields)) {
             if (field) {
                 fields.push(field);
             }
@@ -611,9 +616,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.activeData = response.data;
         this.activeData.forEach((d) => {
             for (let field of this.options.fields) {
-                if (field.columnName === this.options.nodeColorField.columnName && this.options.cleanLegendLabels
-                    && this.options.displayLegend) {
-                    let types = neonUtilities.deepFind(d, this.options.nodeColorField.columnName);
+                if ([this.options.nodeColorField.columnName, this.options.targetColorField.columnName].includes(field.columnName)
+                    && this.options.cleanLegendLabels && this.options.displayLegend) {
+                    let types = neonUtilities.deepFind(d, field.columnName);
                     if (types instanceof Array) {
                         for (let value of types) {
                             this.prettifiedNodeLabels.push(this.labelCleanUp(value));
@@ -791,6 +796,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             targetNameColumn = this.options.targetNameField.columnName,
             nodeColorField = this.options.nodeColorField.columnName,
             edgeColorField = this.options.edgeColorField.columnName,
+            targetColorField = this.options.targetColorField.columnName,
             nodeColor = this.options.nodeColor,
             edgeColor = this.options.edgeColor,
             linkColor = this.options.linkColor,
@@ -864,7 +870,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         // create edges and destination nodes only if required
         for (let entry of this.activeData) {
             let linkField = entry[linkName],
-                nodeType = entry[nodeColorField],
+                nodeType = entry[targetColorField] || entry[nodeColorField],
                 edgeType = entry[edgeColorField],
                 linkNameField = entry[linkNameColumn],
                 targetNameField = targetNameColumn && entry[targetNameColumn],
