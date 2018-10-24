@@ -20,7 +20,7 @@
     </div>
     <mat-divider></mat-divider>
     <div class="checkmark-container">
-        <input type="checkbox" [checked]="rightPanelService.showVisShortcut" (change)="rightPanelService.showVisShortcut = !rightPanelService.showVisShortcut">
+        <input type="checkbox" [checked]="showVisShortcut" (change)="publishShowVisShortcut()">
         Show shortcut
     </div>
     <div mat-fill class="flex">

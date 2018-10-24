@@ -35,7 +35,6 @@ import { FilterBuilderComponent } from './components/filter-builder/filter-build
 import { LegendComponent } from './components/legend/legend.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components//map/map.component';
-import { RightPanelComponent } from './components/right-panel/right-panel.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { SettingsComponent } from './components/settings/settings.component';
@@ -54,7 +53,6 @@ import { ConnectionService } from './services/connection.service';
 import { ErrorNotificationService } from './services/error-notification.service';
 import { ExportService } from './services/export.service';
 import { FilterService } from './services/filter.service';
-import { RightPanelService } from './services/right-panel.service';
 import { ParameterService } from './services/parameter.service';
 import { ThemesService } from './services/themes.service';
 import { VisualizationService } from './services/visualization.service';
@@ -111,7 +109,6 @@ describe('App: NeonGtd', () => {
                 NetworkGraphComponent,
                 NewsFeedComponent,
                 QueryBarComponent,
-                RightPanelComponent,
                 SampleComponent,
                 ScatterPlotComponent,
                 SettingsComponent,
@@ -148,7 +145,6 @@ describe('App: NeonGtd', () => {
                 ErrorNotificationService,
                 ExportService,
                 FilterService,
-                RightPanelService,
                 ParameterService,
                 ThemesService,
                 VisualizationService,

@@ -29,7 +29,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { RightPanelService } from '../../services/right-panel.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
@@ -54,14 +53,12 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 class TestAddVisualizationComponent extends AddVisualizationComponent {
     constructor(
         activeGridService: ActiveGridService,
-        rightPanelService: RightPanelService,
         themesService: ThemesService,
         snackBar: MatSnackBar
     ) {
 
         super(
             activeGridService,
-            rightPanelService,
             snackBar,
             themesService
         );

@@ -41,11 +41,11 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from './neon-grid-item';
 import { NeonGTDConfig } from './neon-gtd-config';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
-import { RightPanelService } from './services/right-panel.service';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { ThemesService } from './services/themes.service';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 
+import * as neon from 'neon-framework';
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
@@ -62,14 +62,23 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     @Input() sidenav = MatSidenav;
     // Used to determine which pane is show in the right sidenav
 
-    public showFilterTrayButton: boolean = false;
+    public showAboutNeon: boolean = false;
+    public showAddVis: boolean = false;
     public showCustomConnectionButton: boolean = false;
+    public showDashboardLayouts: boolean = false;
     public showFilterBuilder: boolean = false;
-    public showRightPanel: boolean = false;
+    public showFilterTrayButton: boolean = false;
+    public showGear: boolean = false;
+    public showSaveState: boolean = false;
+    public showSettings: boolean = false;
+    //Toolbar
+    public showSimpleSearch: boolean = false;
+    public showVisShortcut: boolean = true;
+
+    public rightPanelTitle: string = '';
+
     public createFilterBuilder: boolean = false; //This is used to create the Filter Builder later
-
     public gridItems: NeonGridItem[] = [];
-
     public datasets: Dataset[] = [];
 
     public gridConfig: NgGridConfig = {
@@ -90,6 +99,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         limit_to_screen: true,
         resize_directions: ['bottomright', 'bottomleft', 'right', 'left', 'bottom']
     };
+
+    public messenger: neon.eventing.Messenger;
 
     public projectTitle: string = 'Neon';
     public projectIcon: string = 'assets/favicon.blue.ico?v=1';
@@ -112,7 +123,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         private domSanitizer: DomSanitizer,
         public filterService: FilterService,
         private matIconRegistry: MatIconRegistry,
-        public rightPanelService: RightPanelService,
         public snackBar: MatSnackBar,
         public themesService: ThemesService,
         public viewContainerRef: ViewContainerRef,
@@ -122,11 +132,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.showFilterTrayButton = true;
         this.showCustomConnectionButton = true;
         this.datasets = this.datasetService.getDatasets();
-        this.rightPanelService = rightPanelService;
         this.themesService = themesService;
         this.neonConfig = neonConfig;
-        this.showRightPanel = false;
         this.snackBar = snackBar;
+
+        this.messenger = new neon.eventing.Messenger();
 
         if (neonConfig.errors && neonConfig.errors.length > 0) {
             let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
@@ -215,6 +225,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.gridItems = this.activeGridService.getGridItems();
         this.activeGridService.setGrid(this.grid);
         this.activeGridService.setGridConfig(this.gridConfig);
+        this.messenger.subscribe('showVisShortcut', (message) => {
+            this.showVisShortcut = message.showVisShortcut;
+        });
     }
 
     onDragStop(i, event) {
@@ -264,6 +277,15 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         });
     }
 
+    resetPanel() {
+        this.showAboutNeon = false;
+        this.showAddVis = false;
+        this.showDashboardLayouts = false;
+        this.showGear = false;
+        this.showSaveState = false;
+        this.showSettings = false;
+    }
+
     showItemLocation(event) {
         /**
          * COMMENTED OUT!  If you are debugging, you can uncomment this, and see what is going on
@@ -277,20 +299,22 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     toggleAboutNeon() {
-        this.showRightPanel = true;
-        this.rightPanelService.changeActivePanel('aboutNeon', 'About Neon');
-        this.rightPanelService.showAboutNeon = true;
+        this.resetPanel();
+        this.rightPanelTitle = 'About Neon';
+        this.showAboutNeon = true;
     }
 
     toggleAddVisualization() {
-        this.showRightPanel = true;
-        this.rightPanelService.changeActivePanel('add-vis', 'Visulization');
-        this.rightPanelService.showAddVis = true;
+        this.resetPanel();
+        this.rightPanelTitle = 'Visulization';
+        this.showAddVis = true;
 
     }
 
     toggleDashboardLayouts() {
-        this.showRightPanel = true;
+        //this.resetPanel();
+        //this.rightPanelTitle = 'Dashboard Layouts';
+        //this.showDashboardLayouts = true;
     }
 
     toggleDashboardOptions() {
@@ -300,13 +324,15 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     toggleSaveState() {
-        this.showRightPanel = true;
+        //this.resetPanel();
+        //this.rightPanelTitle = 'Save States';
+        //this.showSaveState = true;
     }
 
     toggleSettings() {
-        this.showRightPanel = true;
-        this.rightPanelService.changeActivePanel('settings', 'Settings');
-        this.rightPanelService.showSettings = true;
+        this.resetPanel();
+        this.rightPanelTitle = 'Settings';
+        this.showSettings = true;
     }
 
 }
