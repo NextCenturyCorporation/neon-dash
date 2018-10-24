@@ -457,16 +457,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     }
 
     /**
-     * Returns the maximum label width for the Y axis.
-     *
-     * @return {number}
-     * @private
-     */
-    private findMaximumLabelWidthY(): number {
-        return Math.floor(this.options.yPercentage * this.canvas.clientWidth);
-    }
-
-    /**
      * Finalizes and returns the given chart options.
      *
      * @arg {any} chartOptions
@@ -555,7 +545,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         let height = this.getMinimumTickCountY(axisTypeY, this.tickLabels.y.length) * this.getMinimumTickHeight(axisTypeY) +
             this.X_AXIS_HEIGHT;
         let width = this.getMinimumTickCountX(axisTypeX, this.tickLabels.x.length) * this.getMinimumTickWidth(axisTypeX) +
-            this.computeCurrentWidthAxisY(this.canvas.clientWidth, true)
+            this.computeCurrentWidthAxisY(this.canvas.clientWidth, true);
         return {
             height: height,
             width: width
