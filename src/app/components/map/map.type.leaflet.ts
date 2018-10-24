@@ -98,7 +98,7 @@ export class LeafletNeonMap extends AbstractMap {
                     weight: 5,
                     colorByField: point.colorByField,
                     colorByValue: point.colorByValue,
-                    radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 100) // Default is 10
+                    radius: Math.min(Math.floor(8 * Math.pow(point.count, 5)), 100)
                 };
             } else {
                 circlOptions = {
@@ -112,6 +112,7 @@ export class LeafletNeonMap extends AbstractMap {
             }
 
             let circle = new L.CircleMarker([point.lat, point.lng], circlOptions)/*.setRadius(6)*/;
+           // circle.className = 'point_ring';
             circle = this.addClickEventListener(circle);
             if (this.mapOptions.hoverPopupEnabled) {
 
