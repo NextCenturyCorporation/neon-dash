@@ -783,7 +783,7 @@ describe('Component: Aggregation', () => {
         expect(component.getButtonText()).toEqual('1 of 2');
 
         component.activeData = [{}, {}];
-        expect(component.getButtonText()).toEqual('Total 2');
+        expect(component.getButtonText()).toEqual('Total 0');
 
         component.responseData = [{}, {}, {}, {}];
         expect(component.getButtonText()).toEqual('1 of 4');

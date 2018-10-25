@@ -1088,9 +1088,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.subOnResizeStop();
 
         this.legendFields = this.options.groupField.columnName ? [this.options.groupField.columnName] : [''];
-        this.totalY = this.activeData.reduce((a, b) => {
-            return { y: (a.y + b.y) };
-        }).y;
+        this.totalY = this.activeData.reduce((a, b) => ({ y: (a.y + b.y) }), { y: 0 }).y;
     }
 
     /**
