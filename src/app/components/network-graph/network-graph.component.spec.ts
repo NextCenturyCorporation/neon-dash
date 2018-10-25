@@ -106,7 +106,6 @@ describe('Component: NetworkGraph', () => {
         expect(component.options.filterable).toEqual(false);
         expect(component.options.multiFilterOperator).toEqual('or');
         expect(component.options.cleanLegendLabels).toEqual(false);
-        expect(component.options.setColorScheme).toEqual(false);
         expect(component.options.legendFiltering).toEqual(true);
 
         expect(component.options.nodeColorField).toEqual(component.emptyField);

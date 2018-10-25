@@ -145,7 +145,6 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public filterable: boolean;
     public multiFilterOperator: string;
     public cleanLegendLabels: boolean;
-    public setColorScheme: boolean;
     public legendFiltering: boolean;
 
     /**
@@ -171,7 +170,6 @@ export class NetworkGraphOptions extends BaseNeonOptions {
         this.filterable = this.injector.get('filterable', false);
         this.multiFilterOperator = this.injector.get('multiFilterOperator', 'or');
         this.cleanLegendLabels = this.injector.get('cleanLegendLabels', false);
-        this.setColorScheme = this.injector.get('setColorScheme', false);
         this.legendFiltering = this.injector.get('legendFiltering', true);
 
     }
@@ -679,13 +677,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         //console.log('Item clicked', data);
     }
 
-    /*
-    setColorScheme(name) {
-        this.selectedColorScheme = name;
-        this.colorScheme = this.colorSets.find(s => s.name === name);
-    }
-    */
-
     onLegendLabelClick(entry) {
         //console.log('Legend clicked', entry);
     }
@@ -798,11 +789,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             yTargetPositionField = this.options.yTargetPositionField.columnName,
             fFields = this.options.filterFields;
 
-        //sets the colorList for nodes index based on the length of an array in order to provide color uniqueness
-        if (this.options.setColorScheme) {
-            this.colorSchemeService.setColorListByLength(this.prettifiedNodeLabels.length);
-        }
-
         // assume nodes will take precedence over edges so create nodes first
         for (let entry of this.activeData) {
             let nodeType = entry[nodeColorField],
@@ -817,11 +803,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     field: i,
                     data: entry[i]
                 });
-            }
-
-            //sets the colorList index based on the length of an array in order to provide color uniqueness
-            if (this.options.cleanLegendLabels) {
-                this.colorSchemeService.setColorListByLength(this.prettifiedNodeLabels.length);
             }
 
             // if there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
@@ -863,11 +844,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 linkNameField = entry[linkNameColumn],
                 nodeField = entry[nodeName];
 
-            //sets the colorList for link nodes index based on the length of an array in order to provide color uniqueness
-            if (this.options.setColorScheme) {
-                this.colorSchemeService.setColorListByLength(this.prettifiedNodeLabels.length);
-            }
-
             // if there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
             if (nodeColorField && this.prettifiedNodeLabels.length === 0) {
                 let colorMapVal = nodeColorField && nodeType;
@@ -893,11 +869,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
                     graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true, textColor, nodeShape));
                 }
-            }
-
-            //sets the colorList index for edges based on the length of an array in order to provide color uniqueness
-            if (this.options.setColorScheme) {
-                this.colorSchemeService.setColorListByLength(this.prettifiedEdgeLabels.length);
             }
 
             // create edges between nodes and destinations specified by linkfield

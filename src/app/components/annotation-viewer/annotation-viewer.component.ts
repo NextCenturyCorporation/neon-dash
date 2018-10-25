@@ -176,8 +176,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     // The data returned by the visualization query response (not limited).
     public responseData: any[] = [];
 
-    public colorList: any[] = [];
-
     public seenTypes: string[] = [];
     public disabledSet: [string[]] = [] as [string[]];
     public colorByFields: string[] = [];
