@@ -17,7 +17,7 @@ import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angu
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
-import { Datastore, DatabaseMetaData, TableMetaData, FieldMetaData, Relation, Dashboard, DashboardConfigChoice } from '../../dataset';
+import { Datastore, DatabaseMetaData, TableMetaData, FieldMetaData, Relation, Dashboard } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ParameterService } from '../../services/parameter.service';
@@ -70,7 +70,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     private datastoreType: string = 'mongo';
     private datastoreHost: string = 'localhost';
     private layouts: Map<string, any> = new Map<string, any>();
-    public dashboards: Map<string, DashboardConfigChoice> = new Map<string, DashboardConfigChoice>();
+    public dashboards: Map<string, Dashboard> = new Map<string, Dashboard>();
 
     /**
      * This is the array of custom database objects configured by the user through the popup.  Each custom database contains:
@@ -134,9 +134,9 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
     // TODO: 825: flatten dashboards here - won't need to flatten when
     // multi-stage dataset selector (THOR-826) is finished
-    getFlattenedDashboards(): Map<string, DashboardConfigChoice> {
+    getFlattenedDashboards(): Map<string, Dashboard> {
         let tempDashboards = this.datasetService.getDashboards();
-        let finalDashboards: Map<string, DashboardConfigChoice> = new Map<string, DashboardConfigChoice>();
+        let finalDashboards: Map<string, Dashboard> = new Map<string, Dashboard>();
 
         Object.keys(tempDashboards.choices).forEach((dashboardKey) => {
             let dashboard = tempDashboards.choices[dashboardKey];
@@ -158,12 +158,12 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         return finalDashboards;
     }
 
-    getDashboardKeys(dashboards: Map<string, DashboardConfigChoice>) {
+    getDashboardKeys(dashboards: Map<string, Dashboard>) {
         return Object.keys(this.dashboards);
     }
 
     // TODO: 825: using this to match dashboards to datastores for now
-    findMatchingIndex(choice: DashboardConfigChoice) {
+    findMatchingIndex(choice: Dashboard) {
         for (let index = 0; index < this.datasets.length; index ++) {
             if (this.datasets[index].name === choice.datastore) {
                 return index;
