@@ -57,7 +57,7 @@
                     <mat-select placeholder="ID Field" [(ngModel)]="options.idField"
                                 required="false" (ngModelChange)="handleChangeData()"
                                 [disabled]="options.fields.length == 0">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>

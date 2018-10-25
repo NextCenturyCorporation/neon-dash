@@ -29,7 +29,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
-import { EMPTY_FIELD, FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
+import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
 import * as uuid from 'node-uuid';
 import * as _ from 'lodash';
@@ -337,8 +337,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
     public isLoading: boolean = false;
     public isExportable: boolean = true;
-
-    public emptyField: FieldMetaData = EMPTY_FIELD;
 
     public errorMessage: string = '';
 
@@ -1127,4 +1125,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         return labelOptions;
     }
 
+    protected createEmptyField(): FieldMetaData {
+        return new FieldMetaData();
+    }
 }
