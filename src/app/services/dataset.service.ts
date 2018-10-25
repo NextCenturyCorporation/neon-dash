@@ -17,8 +17,7 @@ import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
 import { DatasetOptions, DatabaseMetaData, TableMetaData,
-    TableMappings, FieldMetaData, Datastore, Dashboard,
-    DashboardWrapper, DashboardConfigChoice } from '../dataset';
+    TableMappings, FieldMetaData, Datastore, Dashboard } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import * as _ from 'lodash';
@@ -36,11 +35,11 @@ export class DatasetService {
     // since a dashboard can reference multiple datastores.
     private dataset: Datastore = new Datastore();
 
-    private dashboards: DashboardWrapper;
+    private dashboards: Dashboard;
 
     // The currently selected dashboard.
     private currentDashboardName: string;
-    private currentDashboard: DashboardConfigChoice;
+    private currentDashboard: Dashboard;
     private layout: string = '';
 
     // Use the Dataset Service to save settings for specific databases/tables and
@@ -244,15 +243,15 @@ export class DatasetService {
 
     /**
      * Sets the current dashboard config.
-     * @param {DashboardConfigChoice} config
+     * @param {Dashboard} config
      */
-    public setCurrentDashboard(config: DashboardConfigChoice) {
+    public setCurrentDashboard(config: Dashboard) {
         this.currentDashboard = config;
     }
 
     /**
      * Returns the current dashboard config.
-     * @return {DashboardConfigChoice}
+     * @return {Dashboard}
      */
     public getCurrentDashboard() {
         return this.currentDashboard;
@@ -260,9 +259,9 @@ export class DatasetService {
 
     /**
      * Returns all of the dashboards.
-     * @return {DashboardWrapper}
+     * @return {Dashboard}
      */
-    public getDashboards(): DashboardWrapper {
+    public getDashboards(): Dashboard {
         return this.dashboards;
     }
 

@@ -107,43 +107,20 @@ export class Datastore {
 }
 
 /**
- * Represents the entire dashboards object from the config file.
- */
-export class DashboardWrapper {
-    public category: string = '';
-    public choices: Map<string, Dashboard> = new Map<string, Dashboard>();
-}
-
-/**
- * Represents a single dashboard within the first nested instance of choices in the config file.
+ * Class to represent dashboards object from the config file.
  */
 export class Dashboard {
-    public category: string = '';
-    public name: string = '';
-    public choices: Map<string, DashboardChoice> = new Map<string, DashboardChoice>();
-}
-
-/**
- * Represents a single choice within the second nested instance of choices in the config file.
- */
-export class DashboardChoice {
-    public category: string = '';
-    public name: string = '';
-    public choices: Map<string, DashboardConfigChoice> = new Map<string, DashboardConfigChoice>();
-}
-
-/**
- * Represents a single choice within the final nested instance of choices in the config file,
- * which includes the table keys and field keys that the associated layout will use.
- */
-export class DashboardConfigChoice {
-    public name: string = '';
+    public name?: string = '';
+    // Exist in Dashboards that are not terminal nodes.
+    public category?: string = '';
+    public choices?: Map<string, Dashboard> = new Map<string, Dashboard>();
+    // Exist in Dashboards that are terminal nodes.
     // TODO: 825: temporary link for dashboards and datastores until UI is updated
-    public datastore: string = ''; // TODO: 825: temporary until table/field keys are used and multiple connections are supported
-    public layout: string = '';
-    public tables: Map<string, string> = new Map<string, string>();
-    public fields: Map<string, string> = new Map<string, string>();
-    public options: Map<string, string> = new Map<string, string>(); // TODO: 825: Placeholder if additional options needed here later
+    public datastore?: string = ''; // TODO: 825: temporary until table/field keys are used and multiple connections are supported
+    public layout?: string = '';
+    public tables?: Map<string, string> = new Map<string, string>();
+    public fields?: Map<string, string> = new Map<string, string>();
+    public options?: Map<string, string> = new Map<string, string>();
 }
 
 export class Relation {
