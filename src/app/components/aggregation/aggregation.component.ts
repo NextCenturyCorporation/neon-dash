@@ -175,6 +175,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     // The data shown in the visualization (limited).
     public activeData: any[] = [];
+    protected totalY: number = 0;
 
     // The data returned by the visualization query response (not limited).
     public responseData: any[] = [];
@@ -459,7 +460,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return 'No Data';
         }
         if (this.activeData.length === this.responseData.length) {
-            return 'Total ' + super.prettifyInteger(this.activeData.length);
+            return 'Total ' + super.prettifyInteger(this.totalY);
         }
         let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1);
         let end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.responseData.length));
@@ -1006,7 +1007,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let findAxisType = (type) => {
             // https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html
             /* tslint:disable:prefer-switch */
-            if (type === 'long' || type === 'integer' || type === 'short' || type === 'bype' || type === 'double' || type === 'float' ||
+            if (type === 'long' || type === 'integer' || type === 'short' || type === 'byte' || type === 'double' || type === 'float' ||
                 type === 'half_float' || type === 'scaled_float') {
                 return 'number';
             }
@@ -1040,6 +1041,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.subOnResizeStop();
 
         this.legendFields = this.options.groupField.columnName ? [this.options.groupField.columnName] : [''];
+        this.totalY = this.activeData.reduce((a, b) => {
+            return { y: (a.y + b.y) };
+        }).y;
     }
 
     /**
