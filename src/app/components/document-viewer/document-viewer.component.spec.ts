@@ -92,9 +92,9 @@ describe('Component: DocumentViewer', () => {
     }));
 
     it('has expected options properties', () => {
-        expect(component.options.dataField).toEqual(component.emptyField);
-        expect(component.options.dateField).toEqual(component.emptyField);
-        expect(component.options.idField).toEqual(component.emptyField);
+        expect(component.options.dataField).toEqual(new FieldMetaData());
+        expect(component.options.dateField).toEqual(new FieldMetaData());
+        expect(component.options.idField).toEqual(new FieldMetaData());
         expect(component.options.metadataFields).toEqual([]);
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
@@ -391,9 +391,9 @@ describe('Component: DocumentViewer', () => {
 
     it('doesn\'t do anything in refreshVisualization', () => {
         expect(component.refreshVisualization()).toBeUndefined();
-        expect(component.options.dataField).toEqual(component.emptyField);
-        expect(component.options.dateField).toEqual(component.emptyField);
-        expect(component.options.idField).toEqual(component.emptyField);
+        expect(component.options.dataField).toEqual(new FieldMetaData());
+        expect(component.options.dateField).toEqual(new FieldMetaData());
+        expect(component.options.idField).toEqual(new FieldMetaData());
         expect(component.options.metadataFields).toEqual([]);
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);

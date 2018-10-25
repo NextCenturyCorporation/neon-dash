@@ -196,7 +196,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         let clause: FilterClauseMetaData = new FilterClauseMetaData(this.injector, this.datasetService);
         clause.database = this.options.database;
         clause.table = this.options.table;
-        clause.field = this.emptyField;
+        clause.field = this.createEmptyField();
         clause.operator = this.operators[0];
         clause.value = '';
         clause.active = false;
