@@ -58,22 +58,49 @@ export class TimelineOptions extends BaseNeonOptions {
     public yLabel: string;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
      *
+     * @arg {any} bindings
+     * @return {any}
      * @override
      */
-    onInit() {
-        this.granularity = this.injector.get('granularity', 'day');
-        this.yLabel = this.injector.get('yLabel', 'Count');
+    appendNonFieldBindings(bindings: any): any {
+        bindings.granularity = this.granularity;
+        bindings.yLabel = this.yLabel;
+
+        return bindings;
     }
 
     /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'dateField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    updateFieldsOnTableChanged() {
-        this.dateField = this.findFieldObject('dateField');
+    initializeNonFieldBindings() {
+        this.granularity = this.injector.get('granularity', 'day');
+        this.yLabel = this.injector.get('yLabel', 'Count');
     }
 }
 
@@ -164,11 +191,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     subNgOnDestroy() {
         // Do nothing.
-    }
-
-    subGetBindings(bindings: any) {
-        bindings.dateField = this.options.dateField.columnName;
-        bindings.granularity = this.options.granularity;
     }
 
     getExportFields() {

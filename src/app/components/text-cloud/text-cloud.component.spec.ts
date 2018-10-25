@@ -119,16 +119,11 @@ describe('Component: TextCloud', () => {
         expect(component.subNgOnDestroy).toBeDefined();
     });
 
-    it('has subGetBindings function that updates the input bindings with specific config options', () => {
+    it('has options.createBindings function that updates the input bindings with specific config options', () => {
         component.options.dataField = new FieldMetaData('testTextField');
         component.options.sizeField = new FieldMetaData('testSizeField');
         component.options.aggregation = 'SUM';
-        let bindings = {
-            dataField: undefined,
-            sizeField: undefined,
-            sizeAggregation: undefined
-        };
-        component.subGetBindings(bindings);
+        let bindings = component.options.createBindings();
         expect(bindings.dataField).toEqual('testTextField');
         expect(bindings.sizeField).toEqual('testSizeField');
         expect(bindings.sizeAggregation).toEqual('SUM');
