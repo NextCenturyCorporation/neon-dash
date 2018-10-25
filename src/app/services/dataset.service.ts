@@ -102,12 +102,53 @@ export class DatasetService {
         this.removeFromArray(dataset.databases, indexListToRemove);
     }
 
+    static validateDashboards(dashboards: any): void {
+        let dashboardKeys = dashboards.choices ? Object.keys(dashboards.choices) : [];
+
+        if (!dashboards.category) {
+            dashboards.category = 'Select an option...';
+        }
+
+        this.validateDashboardProperties(dashboards, dashboardKeys);
+    }
+
+    static validateDashboardProperties(dashboards: any, keys: string[]): void {
+        if (!keys.length) {
+            return;
+        }
+
+        keys.forEach((choiceKey) => {
+            let nestedChoiceKeys = dashboards.choices[choiceKey].choices ? Object.keys(dashboards.choices[choiceKey].choices) : [];
+
+            if (!nestedChoiceKeys.length) {
+                // If no choices are present, then this might be the last level of nested choices,
+                // which should instead have table keys and a layout specified. If not, delete choice.
+                // TODO: 825: Add field keys later.
+                if (!dashboards.choices[choiceKey].layout || !dashboards.choices[choiceKey].tables) {
+                    delete dashboards.choices[choiceKey];
+                }
+            }
+
+            if (dashboards.choices[choiceKey]) {
+                if (!dashboards.choices[choiceKey].name) {
+                    dashboards.choices[choiceKey].name = choiceKey;
+                }
+
+                // Only auto fill category if this is not the last level of nesting
+                if (!dashboards.choices[choiceKey].category && !dashboards.choices[choiceKey].tables) {
+                    dashboards.choices[choiceKey].category = 'Select an option...';
+                }
+            }
+            this.validateDashboardProperties(dashboards.choices[choiceKey], nestedChoiceKeys);
+        });
+    }
+
     constructor(@Inject('config') private config: NeonGTDConfig) {
         this.datasets = [];
         let datastores = (config.datastores ? config.datastores : {});
         this.dashboards = (config.dashboards ? config.dashboards : {category: 'No Options', choices: new Map<string, Dashboard>()});
-        // TODO: 825: wouldn't we need to validate dashboards objects like
-        // we do with datastores?
+
+        DatasetService.validateDashboards(this.dashboards);
 
         // convert datastore key/value pairs into an array
         Object.keys(datastores).forEach((datastoreKey) => {
