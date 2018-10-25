@@ -3385,10 +3385,18 @@ describe('Component: Aggregation', () => {
         expect(component.selectedAreaOffset.y).toBeDefined();
     });
 
-    it('subGetBindings does set expected properties in bindings', () => {
-        let bindings1 = {};
-        component.subGetBindings(bindings1);
-        expect(bindings1).toEqual({
+    it('options.createBindings does set expected properties in bindings', () => {
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 10000,
+            table: 'testTable1',
+            title: 'Aggregation',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             aggregationField: '',
             groupField: '',
             xField: '',
@@ -3445,9 +3453,17 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.yPercentage = 0.5;
 
-        let bindings2 = {};
-        component.subGetBindings(bindings2);
-        expect(bindings2).toEqual({
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 10000,
+            table: 'testTable1',
+            title: 'Aggregation',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             aggregationField: 'testSizeField',
             groupField: 'testCategoryField',
             xField: 'testXField',

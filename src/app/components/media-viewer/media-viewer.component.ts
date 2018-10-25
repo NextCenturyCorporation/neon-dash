@@ -44,13 +44,14 @@ import * as neon from 'neon-framework';
  * Manages configurable options for the specific visualization.
  */
 export class MediaViewerOptions extends BaseNeonOptions {
+    public autoplay: boolean;
     public border: string;
     public clearMedia: boolean;
     public delimiter: string;
     public id: string;
     public idField: FieldMetaData;
     public maskField: FieldMetaData;
-    public linkField: FieldMetaData;
+    public linkField: FieldMetaData; // DEPRECATED
     public linkFields: FieldMetaData[];
     public linkPrefix: string;
     public nameField: FieldMetaData;
@@ -60,14 +61,60 @@ export class MediaViewerOptions extends BaseNeonOptions {
     public typeField: FieldMetaData;
     public typeMap: any;
     public url: string;
-    public autoplay: boolean;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
+     *
+     * @arg {any} bindings
+     * @return {any}
+     * @override
+     */
+    appendNonFieldBindings(bindings: any): any {
+        bindings.autoplay = this.autoplay;
+        bindings.border = this.border;
+        bindings.clearMedia = this.clearMedia;
+        bindings.delimiter = this.delimiter;
+        bindings.linkPrefix = this.linkPrefix;
+        bindings.oneTabPerArray = this.oneTabPerArray;
+        bindings.resize = this.resize;
+        bindings.sliderValue = this.sliderValue;
+        bindings.typeMap = this.typeMap;
+
+        return bindings;
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'idField',
+            'linkField', // DEPRECATED
+            'maskField',
+            'nameField',
+            'typeField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return ['linkFields'];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    onInit() {
+    initializeNonFieldBindings() {
         this.border = this.injector.get('border', '');
         this.clearMedia = this.injector.get('clearMedia', false);
         this.delimiter = this.injector.get('delimiter', ',');
@@ -79,23 +126,6 @@ export class MediaViewerOptions extends BaseNeonOptions {
         this.typeMap = this.injector.get('typeMap', {});
         this.url = this.injector.get('url', '');
         this.autoplay = this.injector.get('autoplay', false);
-    }
-
-    /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
-     *
-     * @override
-     */
-    updateFieldsOnTableChanged() {
-        this.idField = this.findFieldObject('idField');
-        this.nameField = this.findFieldObject('nameField');
-        this.typeField = this.findFieldObject('typeField');
-        this.maskField = this.findFieldObject('maskField');
-        this.linkField = this.findFieldObject('linkField');
-        this.linkFields = this.findFieldObjects('linkFields');
-        if (this.linkField.columnName && !this.linkFields.length) {
-            this.linkFields.push(this.linkField);
-        }
     }
 }
 
@@ -175,6 +205,11 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         );
 
         this.options = new MediaViewerOptions(this.injector, this.datasetService, 'Media Viewer', 10);
+
+        // Backwards compatibility.
+        if (this.options.linkField.columnName && !this.options.linkFields.length) {
+            this.options.linkFields.push(this.options.linkField);
+        }
 
         this.subscribeToSelectId(this.getSelectIdCallback());
 
@@ -712,32 +747,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     setTabLoaded(tab: any) {
         tab.loaded = true;
-    }
-
-    /**
-     * Sets the given bindings for the media viewer.
-     *
-     * @arg {any} bindings
-     * @override
-     */
-    subGetBindings(bindings: any) {
-        bindings.idField = this.options.idField.columnName;
-        bindings.linkField = this.options.linkField.columnName;
-        bindings.linkFields = this.options.linkFields.map((linkField) => {
-            return linkField.columnName;
-        });
-        bindings.maskField = this.options.maskField.columnName;
-        bindings.nameField = this.options.nameField.columnName;
-        bindings.typeField = this.options.typeField.columnName;
-        bindings.border = this.options.border;
-        bindings.clearMedia = this.options.clearMedia;
-        bindings.delimiter = this.options.delimiter;
-        bindings.linkPrefix = this.options.linkPrefix;
-        bindings.oneTabPerArray = this.options.oneTabPerArray;
-        bindings.resize = this.options.resize;
-        bindings.sliderValue = this.options.sliderValue;
-        bindings.typeMap = this.options.typeMap;
-        bindings.autoplay = this.options.autoplay;
     }
 
     /**

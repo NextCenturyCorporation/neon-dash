@@ -92,11 +92,70 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
     public yPercentage: number;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
+     *
+     * @arg {any} bindings
+     * @return {any}
+     * @override
+     */
+    appendNonFieldBindings(bindings: any): any {
+        bindings.aggregation = this.aggregation;
+        bindings.dualView = this.dualView;
+        bindings.granularity = this.granularity;
+        bindings.hideGridLines = this.hideGridLines;
+        bindings.hideGridTicks = this.hideGridTicks;
+        bindings.ignoreSelf = this.ignoreSelf;
+        bindings.lineCurveTension = this.lineCurveTension;
+        bindings.lineFillArea = this.lineFillArea;
+        bindings.logScaleX = this.logScaleX;
+        bindings.logScaleY = this.logScaleY;
+        bindings.notFilterable = this.notFilterable;
+        bindings.requireAll = this.requireAll;
+        bindings.savePrevious = this.savePrevious;
+        bindings.scaleMaxX = this.scaleMaxX;
+        bindings.scaleMaxY = this.scaleMaxY;
+        bindings.scaleMinX = this.scaleMinX;
+        bindings.scaleMinY = this.scaleMinY;
+        bindings.showHeat = this.showHeat;
+        bindings.sortByAggregation = this.sortByAggregation;
+        bindings.timeFill = this.timeFill;
+        bindings.type = this.type;
+        bindings.yPercentage = this.yPercentage;
+
+        return bindings;
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'aggregationField',
+            'groupField',
+            'xField',
+            'yField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    onInit() {
+    initializeNonFieldBindings() {
         this.aggregation = this.injector.get('aggregation', 'count');
         this.dualView = this.injector.get('dualView', '');
         this.granularity = this.injector.get('granularity', 'year');
@@ -120,18 +179,6 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
         this.type = this.injector.get('type', 'line');
         this.yPercentage = this.injector.get('yPercentage', 0.3);
         this.newType = this.type;
-    }
-
-    /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
-     *
-     * @override
-     */
-    updateFieldsOnTableChanged() {
-        this.aggregationField = this.findFieldObject('aggregationField');
-        this.groupField = this.findFieldObject('groupField');
-        this.xField = this.findFieldObject('xField');
-        this.yField = this.findFieldObject('yField');
     }
 }
 
@@ -1276,42 +1323,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             x: x,
             y: y
         };
-    }
-
-    /**
-     * Sets the visualization fields and properties in the given bindings object needed to save layout states.
-     *
-     * @arg {object} bindings
-     * @override
-     */
-    subGetBindings(bindings: any) {
-        bindings.aggregationField = this.options.aggregationField.columnName;
-        bindings.groupField = this.options.groupField.columnName;
-        bindings.xField = this.options.xField.columnName;
-        bindings.yField = this.options.yField.columnName;
-
-        bindings.aggregation = this.options.aggregation;
-        bindings.dualView = this.options.dualView;
-        bindings.granularity = this.options.granularity;
-        bindings.hideGridLines = this.options.hideGridLines;
-        bindings.hideGridTicks = this.options.hideGridTicks;
-        bindings.ignoreSelf = this.options.ignoreSelf;
-        bindings.lineCurveTension = this.options.lineCurveTension;
-        bindings.lineFillArea = this.options.lineFillArea;
-        bindings.logScaleX = this.options.logScaleX;
-        bindings.logScaleY = this.options.logScaleY;
-        bindings.notFilterable = this.options.notFilterable;
-        bindings.requireAll = this.options.requireAll;
-        bindings.savePrevious = this.options.savePrevious;
-        bindings.scaleMaxX = this.options.scaleMaxX;
-        bindings.scaleMaxY = this.options.scaleMaxY;
-        bindings.scaleMinX = this.options.scaleMinX;
-        bindings.scaleMinY = this.options.scaleMinY;
-        bindings.showHeat = this.options.showHeat;
-        bindings.sortByAggregation = this.options.sortByAggregation;
-        bindings.timeFill = this.options.timeFill;
-        bindings.type = this.options.type;
-        bindings.yPercentage = this.options.yPercentage;
     }
 
     /**
