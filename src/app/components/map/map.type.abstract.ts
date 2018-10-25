@@ -37,6 +37,7 @@ export class BoundingBoxByDegrees {
 export class MapPoint {
     constructor(
         public idValue: string,
+        public idList: string[],
         public name: string,
         public lat: number,
         public lng: number,
@@ -45,7 +46,7 @@ export class MapPoint {
         public description: string,
         public colorByField: string,
         public colorByValue: string,
-        public hoverPopupValue: string
+        public hoverPopupMap: Map<string, number>
     ) {}
 }
 
