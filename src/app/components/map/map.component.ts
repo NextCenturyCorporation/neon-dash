@@ -54,8 +54,8 @@ import * as _ from 'lodash';
 import * as geohash from 'geo-hash';
 
 class UniqueLocationPoint {
-    constructor(public idField: string, public lat: number, public lng: number, public count: number,
-        public colorField: string, public colorValue: string, public hoverPopupValue: string) { }
+    constructor(public idField: string, public idList: string[], public lat: number, public lng: number, public count: number,
+        public colorField: string, public colorValue: string, public hoverPopupMap: Map<string, number>) { }
 }
 
 export class MapLayer extends BaseNeonLayer {
@@ -692,10 +692,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 color = unique.colorValue ? this.colorSchemeService.getColorFor(colorField, unique.colorValue).toRgb() : whiteString;
             }
             mapPoints.push(
-                new MapPoint(unique.idField, `${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`,
+                new MapPoint(unique.idField, unique.idList, `${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`,
                     unique.lat, unique.lng, unique.count, color,
                     'Count: ' + unique.count,
-                    unique.colorField, unique.colorValue, unique.hoverPopupValue
+                    unique.colorField, unique.colorValue, unique.hoverPopupMap
                 ));
         });
         mapPoints.sort((a, b) => b.count - a.count);
@@ -789,14 +789,35 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
         let hashCode = geohash.encode(lat, lng) + ' - ' + colorValue,
             obj = map.get(hashCode);
-
+            
+        //check if point had already been created
         if (!obj) {
 
-            obj = new UniqueLocationPoint(idValue, lat, lng, 0, colorField, colorValue, hoverPopupValue);
-            map.set(hashCode, obj);
-        }
+            let idList: string[] = [];
+            idList.push(idValue);  //store the id of the unique point
 
-        obj.count++;
+            let hoverPopupMap = new Map<string, number>();
+
+            if(hoverPopupValue) {hoverPopupMap.set(hoverPopupValue, 1); } //add to map if hover value exists
+
+            obj = new UniqueLocationPoint(idValue, idList, lat, lng, 1, colorField, colorValue, hoverPopupMap);
+            map.set(hashCode, obj);
+        } 
+        //if the point already exists and there is a hover popup value for new point add to map or update count
+        else {
+            obj.idList.push(idValue); //if point already exists, ad the id to the list
+
+            //check if popup value already exists increase count in map
+            if( hoverPopupValue ) {
+                if(obj.hoverPopupMap.has(hoverPopupValue)) {
+                    obj.hoverPopupMap.set(hoverPopupValue, obj.count++);
+                }
+            }
+
+            obj.count++;
+        }
+        
+       
     }
 
     /**

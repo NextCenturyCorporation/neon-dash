@@ -90,20 +90,25 @@ export class LeafletNeonMap extends AbstractMap {
 
             let circlOptions = {};
 
-            //check if an item was selected via select_id in the Messenger
-            if(this.mapOptions.id) {
+            //check if an item was selected via select_id in the Messenger and idField is
+            if (this.mapOptions.id && point.idValue) {
 
-                //emphasize corresponding selected points 
-                if (point.idValue && (point.idValue === this.mapOptions.id)) {
+                //check if selected point is present or within collapsed group of points
+                //emphasize corresponding selected points
+                if (point.idList.includes(this.mapOptions.id)) {
                     circlOptions = {
                         color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
+                        stroke: false,
+                        fill: true,
                         fillColor: point.cssColorString,
-                        weight: 3,
                         colorByField: point.colorByField,
                         colorByValue: point.colorByValue,
+                        fillOpacity: 1,
                         radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30) // Default is 10
                     };
+
                 } else {
+
                     circlOptions = {
                         color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
                         fillColor: point.cssColorString,
@@ -114,10 +119,8 @@ export class LeafletNeonMap extends AbstractMap {
                         fillOpacity: .1,
                         radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30) // Default is 10
                     };
-                }
-
+                }                
             } else {
-
                 //default circle options
                 circlOptions = {
                     color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
@@ -130,18 +133,21 @@ export class LeafletNeonMap extends AbstractMap {
 
             }
 
+        
             let circle = new L.CircleMarker([point.lat, point.lng], circlOptions)/*.setRadius(6)*/;
-           // circle.className = 'point_ring';
             circle = this.addClickEventListener(circle);
             if (this.mapOptions.hoverPopupEnabled) {
 
                 //check if popup value has been set in the map layer config, if no use default
-                if (point.hoverPopupValue) {
-                    circle.bindTooltip(`<span>${point.hoverPopupValue}</span>`);
+                if (point.hoverPopupMap.size > 0) {
+
+                    //build hover value and add to tooltip
+                    circle.bindTooltip(`<span>${this.createHoverPopupString(point.hoverPopupMap)}</span>`);
                 } else {
                     circle.bindTooltip(`<span>${point.name}</span><br/><span>${point.description}</span>`);
                 }
             }
+
             group.addLayer(circle);
         }
         //TODO: cluster layer based on cluster boolean
@@ -268,5 +274,22 @@ export class LeafletNeonMap extends AbstractMap {
             let castEvent = event as L.LeafletMouseEvent;
             this.filterListener.filterByMapPoint(castEvent.target._latlng.lat, castEvent.target._latlng.lng);
         });
+    }
+
+    private createHoverPopupString(hoverPopupMap: Map<string, number>) {
+
+        let result = [];
+     
+        //loop through and push values to array
+        hoverPopupMap.forEach((value: number, key: string) => {
+            if( value <= 1) { 
+                result.push(key);
+            } else {
+                result.push(key + '(' + value + ')');
+            }
+        });
+        
+        return result.join(','); // return comma separated string
+
     }
 }
