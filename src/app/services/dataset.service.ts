@@ -278,7 +278,7 @@ export class DatasetService {
      * Returns the current dashboard config name.
      * @return {string}
      */
-    public getCurrentDashboardName() {
+    public getCurrentDashboardName(): string {
         return this.currentDashboardName;
     }
 
@@ -294,7 +294,7 @@ export class DatasetService {
      * Returns the current dashboard config.
      * @return {Dashboard}
      */
-    public getCurrentDashboard() {
+    public getCurrentDashboard(): Dashboard {
         return this.currentDashboard;
     }
 
