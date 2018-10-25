@@ -119,7 +119,7 @@ export class LeafletNeonMap extends AbstractMap {
                         fillOpacity: .1,
                         radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30) // Default is 10
                     };
-                }                
+                }
             } else {
                 //default circle options
                 circlOptions = {
@@ -133,7 +133,6 @@ export class LeafletNeonMap extends AbstractMap {
 
             }
 
-        
             let circle = new L.CircleMarker([point.lat, point.lng], circlOptions)/*.setRadius(6)*/;
             circle = this.addClickEventListener(circle);
             if (this.mapOptions.hoverPopupEnabled) {
@@ -279,16 +278,16 @@ export class LeafletNeonMap extends AbstractMap {
     private createHoverPopupString(hoverPopupMap: Map<string, number>) {
 
         let result = [];
-     
+
         //loop through and push values to array
         hoverPopupMap.forEach((value: number, key: string) => {
-            if( value <= 1) { 
+            if (value <= 1) {
                 result.push(key);
             } else {
                 result.push(key + '(' + value + ')');
             }
         });
-        
+
         return result.join(','); // return comma separated string
 
     }
