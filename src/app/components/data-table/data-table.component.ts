@@ -56,6 +56,7 @@ export class DataTableOptions extends BaseNeonOptions {
     public heatmapField: FieldMetaData;
     public idField: FieldMetaData;
     public ignoreSelf: boolean;
+    public reorderable: boolean;
     public singleFilter: boolean;
     public skinny: boolean;
     public sortField: FieldMetaData;
@@ -74,6 +75,7 @@ export class DataTableOptions extends BaseNeonOptions {
         bindings.filterable = this.filterable;
         bindings.heatmapDivisor = this.heatmapDivisor;
         bindings.ignoreSelf = this.ignoreSelf;
+        bindings.reorderable = this.reorderable;
         bindings.singleFilter = this.singleFilter;
         bindings.skinny = this.skinny;
         bindings.sortDescending = this.sortDescending;
@@ -127,6 +129,7 @@ export class DataTableOptions extends BaseNeonOptions {
         this.filterable = this.injector.get('filterable', false);
         this.heatmapDivisor = this.injector.get('heatmapDivisor', 0);
         this.ignoreSelf = this.injector.get('ignoreSelf', false);
+        this.reorderable = this.injector.get('reorderable', true);
         this.singleFilter = this.injector.get('singleFilter', false);
         this.skinny = this.injector.get('skinny', false);
         this.sortDescending = this.injector.get('sortDescending', true);
