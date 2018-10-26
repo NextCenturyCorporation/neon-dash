@@ -35,7 +35,7 @@ import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { neonVariables } from '../../neon-namespaces';
 import { TextCloud, SizeOptions, ColorOptions } from './text-cloud-namespace';
 import * as neon from 'neon-framework';
@@ -53,26 +53,56 @@ export class TextCloudOptions extends BaseNeonOptions {
     public sizeField: FieldMetaData;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
+     *
+     * @arg {any} bindings
+     * @return {any}
+     * @override
+     */
+    appendNonFieldBindings(bindings: any): any {
+        bindings.andFilters = this.andFilters;
+        bindings.ignoreSelf = this.ignoreSelf;
+        bindings.paragraphs = this.paragraphs;
+        bindings.showCounts = this.showCounts;
+        bindings.sizeAggregation = this.aggregation;
+
+        return bindings;
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'dataField',
+            'sizeField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    onInit() {
+    initializeNonFieldBindings() {
         this.aggregation = this.injector.get('sizeAggregation', 'AVG');
         this.andFilters = this.injector.get('andFilters', true);
         this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.paragraphs = this.injector.get('paragraphs', false);
         this.showCounts = this.injector.get('showCounts', false);
-    }
-
-    /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
-     *
-     * @override
-     */
-    updateFieldsOnTableChanged() {
-        this.dataField = this.findFieldObject('dataField');
-        this.sizeField = this.findFieldObject('sizeField');
     }
 }
 
@@ -145,16 +175,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     subNgOnDestroy() {
         // Do nothing
-    }
-
-    subGetBindings(bindings: any) {
-        bindings.dataField = this.options.dataField.columnName;
-        bindings.sizeField = this.options.sizeField.columnName;
-        bindings.sizeAggregation = this.options.aggregation;
-        bindings.andFilters = this.options.andFilters;
-        bindings.ignoreSelf = this.options.ignoreSelf;
-        bindings.paragraphs = this.options.paragraphs;
-        bindings.showCounts = this.options.showCounts;
     }
 
     getExportFields() {

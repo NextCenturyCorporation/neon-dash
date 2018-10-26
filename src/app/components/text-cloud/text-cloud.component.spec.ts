@@ -91,8 +91,8 @@ describe('Component: TextCloud', () => {
     it('has expected options properties', () => {
         expect(component.options.aggregation).toBe('AVG');
         expect(component.options.andFilters).toBe(true);
-        expect(component.options.dataField).toEqual(component.emptyField);
-        expect(component.options.sizeField).toEqual(component.emptyField);
+        expect(component.options.dataField).toEqual(new FieldMetaData());
+        expect(component.options.sizeField).toEqual(new FieldMetaData());
     });
 
     it('has expected class properties', () => {
@@ -119,16 +119,11 @@ describe('Component: TextCloud', () => {
         expect(component.subNgOnDestroy).toBeDefined();
     });
 
-    it('has subGetBindings function that updates the input bindings with specific config options', () => {
+    it('has options.createBindings function that updates the input bindings with specific config options', () => {
         component.options.dataField = new FieldMetaData('testTextField');
         component.options.sizeField = new FieldMetaData('testSizeField');
         component.options.aggregation = 'SUM';
-        let bindings = {
-            dataField: undefined,
-            sizeField: undefined,
-            sizeAggregation: undefined
-        };
-        component.subGetBindings(bindings);
+        let bindings = component.options.createBindings();
         expect(bindings.dataField).toEqual('testTextField');
         expect(bindings.sizeField).toEqual('testSizeField');
         expect(bindings.sizeAggregation).toEqual('SUM');

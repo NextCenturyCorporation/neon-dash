@@ -81,14 +81,14 @@ describe('Component: NewsFeed', () => {
     it('does have expected class options properties', () => {
         expect(component.options.id).toEqual('');
         expect(component.options.ignoreSelf).toEqual(false);
-        expect(component.options.contentField).toEqual(component.emptyField);
-        expect(component.options.dateField).toEqual(component.emptyField);
-        expect(component.options.filterField).toEqual(component.emptyField);
-        expect(component.options.idField).toEqual(component.emptyField);
-        expect(component.options.linkField).toEqual(component.emptyField);
-        expect(component.options.primaryTitleField).toEqual(component.emptyField);
-        expect(component.options.secondaryTitleField).toEqual(component.emptyField);
-        expect(component.options.sortField).toEqual(component.emptyField);
+        expect(component.options.contentField).toEqual(new FieldMetaData());
+        expect(component.options.dateField).toEqual(new FieldMetaData());
+        expect(component.options.filterField).toEqual(new FieldMetaData());
+        expect(component.options.idField).toEqual(new FieldMetaData());
+        expect(component.options.linkField).toEqual(new FieldMetaData());
+        expect(component.options.primaryTitleField).toEqual(new FieldMetaData());
+        expect(component.options.secondaryTitleField).toEqual(new FieldMetaData());
+        expect(component.options.sortField).toEqual(new FieldMetaData());
     });
 
     it('does have expected class properties', () => {
@@ -992,11 +992,11 @@ describe('Component: NewsFeed', () => {
     it('isSelectable does return expected boolean', () => {
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         expect(component.isSelectable()).toEqual(true);
-        component.options.filterField = component.emptyField;
+        component.options.filterField = new FieldMetaData();
 
         component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
         expect(component.isSelectable()).toEqual(true);
-        component.options.idField = component.emptyField;
+        component.options.idField = new FieldMetaData();
     });
 
     //for isSelected method
@@ -1264,11 +1264,18 @@ describe('Component: NewsFeed', () => {
         }));
     });
 
-    //for subGetBindings method
-    it('subGetBindings does set expected properties in bindings', () => {
-        let bindings1 = {};
-        component.subGetBindings(bindings1);
-        expect(bindings1).toEqual({
+    it('options.createBindings does set expected properties in bindings', () => {
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: '',
+            hideUnfiltered: false,
+            limit: 10,
+            table: '',
+            title: 'News Feed',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             idField: '',
             ignoreSelf: false,
             linkField: '',
@@ -1292,10 +1299,17 @@ describe('Component: NewsFeed', () => {
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
 
-        let bindings2 = {};
-        component.subGetBindings(bindings2);
-        expect(bindings2).toEqual({
-
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: '',
+            hideUnfiltered: false,
+            limit: 10,
+            table: '',
+            title: 'News Feed',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             idField: 'testIdField',
             ignoreSelf: false,
             linkField: 'testLinkField',

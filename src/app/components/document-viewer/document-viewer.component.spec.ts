@@ -61,6 +61,10 @@ describe('Component: DocumentViewer', () => {
             ActiveGridService,
             ConnectionService,
             DatasetService,
+            {
+                provide: DatasetService,
+                useClass: DatasetServiceMock
+            },
             ErrorNotificationService,
             ExportService,
             FilterService,
@@ -88,9 +92,9 @@ describe('Component: DocumentViewer', () => {
     }));
 
     it('has expected options properties', () => {
-        expect(component.options.dataField).toEqual(component.emptyField);
-        expect(component.options.dateField).toEqual(component.emptyField);
-        expect(component.options.idField).toEqual(component.emptyField);
+        expect(component.options.dataField).toEqual(new FieldMetaData());
+        expect(component.options.dateField).toEqual(new FieldMetaData());
+        expect(component.options.idField).toEqual(new FieldMetaData());
         expect(component.options.metadataFields).toEqual([]);
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
@@ -115,8 +119,60 @@ describe('Component: DocumentViewer', () => {
         expect(component.subNgOnDestroy).toBeDefined();
     });
 
-    it('has a subGetBindings method that does nothing', () => {
-        expect(component.subGetBindings).toBeDefined(); // TODO: fix this once subGetBindings is no longer a stub.
+    it('has options.createBindings method that works as expected', () => {
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 50,
+            table: 'testTable1',
+            title: 'Document Viewer',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
+            dataField: '',
+            dateField: '',
+            idField: '',
+            hideSource: false,
+            metadataFields: [],
+            nameWidthCss: '',
+            popoutFields: [],
+            showSelect: false,
+            showText: false
+        });
+
+        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
+        component.options.dateField = DatasetServiceMock.DATE_FIELD;
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.hideSource = true;
+        component.options.metadataFields = ['A', 'B'];
+        component.options.nameWidthCss = '50%';
+        component.options.popoutFields = ['C', 'D'];
+        component.options.showSelect = true;
+        component.options.showText = true;
+
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 50,
+            table: 'testTable1',
+            title: 'Document Viewer',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
+            dataField: 'testTextField',
+            dateField: 'testDateField',
+            idField: 'testIdField',
+            hideSource: true,
+            metadataFields: ['A', 'B'],
+            nameWidthCss: '50%',
+            popoutFields: ['C', 'D'],
+            showSelect: true,
+            showText: true
+        });
     });
 
     it('returns the correct list from getExportFields', () => {
@@ -335,9 +391,9 @@ describe('Component: DocumentViewer', () => {
 
     it('doesn\'t do anything in refreshVisualization', () => {
         expect(component.refreshVisualization()).toBeUndefined();
-        expect(component.options.dataField).toEqual(component.emptyField);
-        expect(component.options.dateField).toEqual(component.emptyField);
-        expect(component.options.idField).toEqual(component.emptyField);
+        expect(component.options.dataField).toEqual(new FieldMetaData());
+        expect(component.options.dateField).toEqual(new FieldMetaData());
+        expect(component.options.idField).toEqual(new FieldMetaData());
         expect(component.options.metadataFields).toEqual([]);
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
