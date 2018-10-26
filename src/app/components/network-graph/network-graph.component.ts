@@ -778,20 +778,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         graph.addEdge(new Edge(subject, object, predicate, {to: this.options.isDirected}));
     }
 
-/*    private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string,
-                              colorValue?: string, edgeColorField?: string) {
-        let edgeColor = { color: colorValue, highlight: colorValue};
-        //TODO: edgeWidth being passed into Edge class is currently breaking directed arrows, removing for now
-        // let edgeWidth = this.options.edgeWidth;
-        if (Array.isArray(linkField)) {
-            for (const linkEntry of linkField) {
-                graph.addEdge(new Edge(source, linkEntry, '', null, 1, edgeColor, edgeColorField));
-            }
-        } else if (linkField) {
-            graph.addEdge(new Edge(source, linkField, '', null, 1, edgeColor, edgeColorField));
-        }
-    }*/
-
     private createTabularGraphProperties() {
         let graph = new GraphProperties(),
             linkName = this.options.linkField.columnName,
@@ -1164,8 +1150,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     myFilter = this.createFilterObject(filterField.field, value, filterField.field);
                     clause = neon.query.or.apply(neon.query, clauses);
                     this.addMultiFilter(myFilter, clause);
-
-                    //console.log("network graph or filter", myFilter, clause)
                 } else {
 
                     if (filterField.data instanceof Array) {
@@ -1179,8 +1163,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                         clause = neon.query.where(myFilter.field, '=', myFilter.value);
                         this.addMultiFilter(myFilter, clause);
                     }
-
-                    //console.log("network graph and filter", myFilter, clause)
                 }
             }
 

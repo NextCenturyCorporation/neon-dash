@@ -52,14 +52,11 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
     public id: string;
 
     public categoryField: FieldMetaData;
-    public displayField: FieldMetaData;
     public idField: FieldMetaData;
     public linkField: FieldMetaData;
     public typeField: FieldMetaData;
     public subTypeField: FieldMetaData;
-    public nodeNameField: FieldMetaData;
     public filterFields: string[];
-    public showOnlyFiltered: boolean;
     public ignoreSelf: boolean;
 
     /**
@@ -70,7 +67,6 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
     onInit() {
         this.ascending = this.injector.get('ascending', false);
         this.id = this.injector.get('id', '');
-        this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
         this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.filterFields = this.injector.get('filterFields', []);
     }
@@ -82,12 +78,10 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
      */
     updateFieldsOnTableChanged() {
         this.categoryField = this.findFieldObject('categoryField');
-        this.displayField = this.findFieldObject('displayField');
         this.idField = this.findFieldObject('idField');
         this.linkField = this.findFieldObject('linkField');
         this.typeField = this.findFieldObject('typeField');
         this.subTypeField = this.findFieldObject('subTypeField');
-        this.nodeNameField = this.findFieldObject('nodeNameField');
     }
 }
 
@@ -115,11 +109,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }[] = [];
 
     public options: TaxonomyViewerOptions;
-
-    public activeData: any[] = [];
-    public docCount: number = 0;
     public taxonomyGroups: any[] = [];
-    public renderer: Renderer2;
 
     public testOptions = {
         actionMapping: {
@@ -129,7 +119,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                 }
             },
             keys: {
-                [KEYS.ENTER]: (tree, node, $event) => {
+                [KEYS.ENTER]: (tree, node) => {
                     node.expandAll();
                 }
             }
@@ -139,7 +129,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     constructor(
         activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
         filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-        ref: ChangeDetectorRef, visualizationService: VisualizationService, private renderer2: Renderer2
+        ref: ChangeDetectorRef, visualizationService: VisualizationService
     ) {
 
         super(
@@ -148,7 +138,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         );
 
         this.options = new TaxonomyViewerOptions(this.injector, this.datasetService, 'Taxonomy Viewer');
-        this.renderer = renderer2;
     }
 
     /**
@@ -166,10 +155,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             fields.push(this.options.categoryField.columnName);
         }
 
-        if (this.options.displayField.columnName) {
-            fields.push(this.options.displayField.columnName);
-        }
-
         if (this.options.linkField.columnName) {
             fields.push(this.options.linkField.columnName);
         }
@@ -180,10 +165,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         if (this.options.subTypeField.columnName) {
             fields.push(this.options.subTypeField.columnName);
-        }
-
-        if (this.options.nodeNameField.columnName) {
-            fields.push(this.options.nodeNameField.columnName);
         }
 
         let whereClauses = [
@@ -208,7 +189,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     getButtonText(): string {
         return null;
-        //ToDo figure out what should go in the settings button
     }
 
     /**
@@ -264,17 +244,11 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             columnName: this.options.idField.columnName,
             prettyName: this.options.idField.prettyName
         }, {
-            columnName: this.options.displayField.columnName,
-            prettyName: this.options.displayField.prettyName
-        }, {
             columnName: this.options.linkField.columnName,
             prettyName: this.options.linkField.prettyName
         }, {
             columnName: this.options.subTypeField.columnName,
             prettyName: this.options.subTypeField.prettyName
-        }, {
-            columnName: this.options.nodeNameField.columnName,
-            prettyName: this.options.nodeNameField.prettyName
         }];
     }
 
@@ -396,6 +370,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.isLoading = true;
+
                 response.data.forEach((d) => {
 
                     let categoryIndex = -1,
@@ -444,7 +419,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
                                         //checks if child(type) node exists in the tree and if not, adds it
                                         let foundType = foundCategory.children.find((typeItem, index) => {
-                                            let found = typeItem.name === type.split('.')[0];
+                                            let found = typeItem.name === /*type.includes('.') ? */ type.split('.')[0] /*: type*/;
                                             typeIndex = index;
                                             return found;
                                         });
@@ -475,7 +450,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
                                             let typeObject = {
                                                 id: counter++,
-                                                name: subTypeNeeded ? type.split('.')[0] : type,
+                                                name: subTypeNeeded /*&& type.includes('.')*/ ? type.split('.')[0] : type,
                                                 children: [],
                                                 lineage: category,
                                                 description: this.options.typeField.columnName,
@@ -550,22 +525,21 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     checkRelatedNodes(node, $event) {
+
+        let relatives = [];
         this.updateChildNodesCheckBox(node, $event.target.checked);
         this.updateParentNodesCheckBox(node.parent);
-
         for (let filter of this.filters) {
             //If the filter value includes this node data and if the filter has a valid filter field
-            if ((filter.value.includes(node.data.lineage) || filter.value.includes(node.data.name)) &&
-                (filter.field === node.data.description || filter.field === node.parent.data.description)) {
+            if (filter.value.includes(node.data.lineage) || filter.value.includes(node.data.name)) {
                 this.removeLocalFilterFromLocalAndNeon(filter, false, true);
                 this.removeFilter(filter);
             }
         }
 
-        let relatives = [];
-        if (node.parent.data.indeterminate === true ||
-            (node.parent.parent && node.parent.parent.data.indeterminate === true)) {
-
+        if (node.parent.level === 0 && $event.target.checked === false) {
+            this.createFilter(node.data, []);
+        } else if (node.parent.level > 0) {
             //Add parents' siblings if they exist
             if (node.parent.parent && !node.parent.parent.data.virtual) {
                 relatives = this.retrieveUnselectedNodes(node.parent.parent.data.children);
@@ -578,10 +552,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                 relatives = this.retrieveUnselectedNodes(node.parent.data.children);
             }
             this.createFilter(node.data, relatives);
-
-        } else if ($event.target.checked === false) {
-            this.createFilter(node.data, []);
         }
+
     }
     updateChildNodesCheckBox(node, checked) {
         node.data.checked = checked;
@@ -602,6 +574,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                 }
             }
 
+//todo: toggling children causes indeterminate to turn into checked
             if (allChildChecked) {
                 node.data.checked = true;
                 node.data.indeterminate = false;
@@ -653,9 +626,11 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     removeFilter(filter: any) {
         //TODO:Update Taxonomy when filter from filter tray is deleted
+
         this.filters = this.filters.filter((existingFilter) => {
             return existingFilter.id !== filter.id;
         });
+
     }
 
     /**
@@ -702,8 +677,10 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     subGetBindings(bindings: any) {
         bindings.idField = this.options.idField.columnName;
+        bindings.linkField = this.options.linkField.columnName;
         bindings.categoryField = this.options.categoryField.columnName;
         bindings.typeField = this.options.typeField.columnName;
+        bindings.subTypeField = this.options.subTypeField.columnName;
     }
 
     /**
