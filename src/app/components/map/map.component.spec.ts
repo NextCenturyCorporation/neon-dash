@@ -111,6 +111,10 @@ class TestMapComponent extends MapComponent {
         return this.filters;
     }
 
+    getInjector(): Injector {
+        return this.injector;
+    }
+
     getMapPoints(idField: string, lngField: string, latField: string, colorField: string, hoverPopupField: string, data: any[]) {
         return super.getMapPoints(idField, lngField, latField, colorField, hoverPopupField, data);
     }
@@ -165,7 +169,7 @@ class TestMap extends AbstractMap {
 function updateMapLayer1(component: TestMapComponent) {
     component.docCount[0] = 1234;
 
-    component.options.layers[0] = new MapLayer({}, component.getDatasetService());
+    component.options.layers[0] = new MapLayer({}, component.getInjector(), component.getDatasetService());
     component.options.layers[0].databases = [];
     component.options.layers[0].database = new DatabaseMetaData('testDatabase1');
     component.options.layers[0].fields = [];
@@ -187,7 +191,7 @@ function updateMapLayer1(component: TestMapComponent) {
 function updateMapLayer2(component: TestMapComponent) {
     component.docCount[1] = 5678;
 
-    component.options.layers[1] = new MapLayer({}, component.getDatasetService());
+    component.options.layers[1] = new MapLayer({}, component.getInjector(), component.getDatasetService());
     component.options.layers[1].databases = [];
     component.options.layers[1].database = new DatabaseMetaData('testDatabase2');
     component.options.layers[1].fields = [];
@@ -299,13 +303,13 @@ describe('Component: Map', () => {
         expect(component.options.layers[0].table).toEqual(new TableMetaData());
         expect(component.options.layers[0].fields).toEqual([]);
         expect(component.options.layers[0].title).toEqual('New Layer');
-        expect(component.options.layers[0].idField).toEqual(component.emptyField);
-        expect(component.options.layers[0].colorField).toEqual(component.emptyField);
-        expect(component.options.layers[0].hoverPopupField).toEqual(component.emptyField);
-        expect(component.options.layers[0].dateField).toEqual(component.emptyField);
-        expect(component.options.layers[0].latitudeField).toEqual(component.emptyField);
-        expect(component.options.layers[0].longitudeField).toEqual(component.emptyField);
-        expect(component.options.layers[0].sizeField).toEqual(component.emptyField);
+        expect(component.options.layers[0].idField).toEqual(new FieldMetaData());
+        expect(component.options.layers[0].colorField).toEqual(new FieldMetaData());
+        expect(component.options.layers[0].hoverPopupField).toEqual(new FieldMetaData());
+        expect(component.options.layers[0].dateField).toEqual(new FieldMetaData());
+        expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData());
+        expect(component.options.layers[0].longitudeField).toEqual(new FieldMetaData());
+        expect(component.options.layers[0].sizeField).toEqual(new FieldMetaData());
     });
 
     it('should create the default map (Leaflet)', () => {
@@ -541,12 +545,18 @@ describe('Component: Map', () => {
         expect(spy.calls.count()).toBe(2);
     });
 
-    it('subGetBindings does set expected bindings', () => {
-        let bindings = {};
-        component.subGetBindings(bindings);
-        expect(bindings).toEqual({
+    it('options.createBindings does set expected bindings', () => {
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            title: 'Map',
+            limit: 1000,
             layers: [{
                 idField: '',
+                database: '',
+                table: '',
+                title: 'New Layer',
+                unsharedFilterValue: '',
+                unsharedFilterField: '',
                 latitudeField: '',
                 longitudeField: '',
                 sizeField: '',
@@ -559,10 +569,17 @@ describe('Component: Map', () => {
         updateMapLayer1(component);
         updateMapLayer2(component);
 
-        component.subGetBindings(bindings);
-        expect(bindings).toEqual({
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            title: 'Map',
+            limit: 1000,
             layers: [{
                 idField: 'testId1',
+                database: 'testDatabase1',
+                table: 'testTable1',
+                title: 'Layer A',
+                unsharedFilterValue: '',
+                unsharedFilterField: '',
                 latitudeField: 'testLatitude1',
                 longitudeField: 'testLongitude1',
                 sizeField: 'testSize1',
@@ -571,6 +588,11 @@ describe('Component: Map', () => {
                 hoverPopupField: 'testHover1'
             }, {
                 idField: 'testId2',
+                database: 'testDatabase2',
+                table: 'testTable2',
+                title: 'Layer B',
+                unsharedFilterValue: '',
+                unsharedFilterField: '',
                 latitudeField: 'testLatitude2',
                 longitudeField: 'testLongitude2',
                 sizeField: 'testSize2',
@@ -601,13 +623,13 @@ describe('Component: Map', () => {
         let layer = component.subAddLayer({});
 
         expect(component.options.layers[1].title).toEqual('New Layer');
-        expect(component.options.layers[1].idField).toEqual(component.emptyField);
-        expect(component.options.layers[1].colorField).toEqual(component.emptyField);
-        expect(component.options.layers[1].hoverPopupField).toEqual(component.emptyField);
-        expect(component.options.layers[1].dateField).toEqual(component.emptyField);
-        expect(component.options.layers[1].latitudeField).toEqual(component.emptyField);
-        expect(component.options.layers[1].longitudeField).toEqual(component.emptyField);
-        expect(component.options.layers[1].sizeField).toEqual(component.emptyField);
+        expect(component.options.layers[1].idField).toEqual(new FieldMetaData());
+        expect(component.options.layers[1].colorField).toEqual(new FieldMetaData());
+        expect(component.options.layers[1].hoverPopupField).toEqual(new FieldMetaData());
+        expect(component.options.layers[1].dateField).toEqual(new FieldMetaData());
+        expect(component.options.layers[1].latitudeField).toEqual(new FieldMetaData());
+        expect(component.options.layers[1].longitudeField).toEqual(new FieldMetaData());
+        expect(component.options.layers[1].sizeField).toEqual(new FieldMetaData());
 
         expect(component.docCount).toEqual([0, 0]);
         expect(component.filterVisible).toEqual([true, true]);

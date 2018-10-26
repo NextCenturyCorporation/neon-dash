@@ -94,10 +94,10 @@ describe('Component: Aggregation', () => {
     });
 
     it('class options properties are set to expected defaults', () => {
-        expect(component.options.aggregationField).toEqual(component.emptyField);
-        expect(component.options.groupField).toEqual(component.emptyField);
-        expect(component.options.xField).toEqual(component.emptyField);
-        expect(component.options.yField).toEqual(component.emptyField);
+        expect(component.options.aggregationField).toEqual(new FieldMetaData());
+        expect(component.options.groupField).toEqual(new FieldMetaData());
+        expect(component.options.xField).toEqual(new FieldMetaData());
+        expect(component.options.yField).toEqual(new FieldMetaData());
 
         expect(component.options.aggregation).toEqual('count');
         expect(component.options.dualView).toEqual('');
@@ -783,7 +783,7 @@ describe('Component: Aggregation', () => {
         expect(component.getButtonText()).toEqual('1 of 2');
 
         component.activeData = [{}, {}];
-        expect(component.getButtonText()).toEqual('Total 2');
+        expect(component.getButtonText()).toEqual('Total 0');
 
         component.responseData = [{}, {}, {}, {}];
         expect(component.getButtonText()).toEqual('1 of 4');
@@ -3385,10 +3385,18 @@ describe('Component: Aggregation', () => {
         expect(component.selectedAreaOffset.y).toBeDefined();
     });
 
-    it('subGetBindings does set expected properties in bindings', () => {
-        let bindings1 = {};
-        component.subGetBindings(bindings1);
-        expect(bindings1).toEqual({
+    it('options.createBindings does set expected properties in bindings', () => {
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 10000,
+            table: 'testTable1',
+            title: 'Aggregation',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             aggregationField: '',
             groupField: '',
             xField: '',
@@ -3445,9 +3453,17 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.yPercentage = 0.5;
 
-        let bindings2 = {};
-        component.subGetBindings(bindings2);
-        expect(bindings2).toEqual({
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 10000,
+            table: 'testTable1',
+            title: 'Aggregation',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             aggregationField: 'testSizeField',
             groupField: 'testCategoryField',
             xField: 'testXField',

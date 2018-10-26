@@ -99,18 +99,18 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.options.textMap).toEqual({});
         expect(component.options.typeMap).toEqual({});
 
-        expect(component.options.categoryField).toEqual(component.emptyField);
-        expect(component.options.compareField).toEqual(component.emptyField);
-        expect(component.options.filterField).toEqual(component.emptyField);
-        expect(component.options.idField).toEqual(component.emptyField);
-        expect(component.options.linkField).toEqual(component.emptyField);
-        expect(component.options.nameField).toEqual(component.emptyField);
-        expect(component.options.objectIdField).toEqual(component.emptyField);
-        expect(component.options.objectNameField).toEqual(component.emptyField);
-        expect(component.options.percentField).toEqual(component.emptyField);
-        expect(component.options.predictedNameField).toEqual(component.emptyField);
-        expect(component.options.sortField).toEqual(component.emptyField);
-        expect(component.options.typeField).toEqual(component.emptyField);
+        expect(component.options.categoryField).toEqual(new FieldMetaData());
+        expect(component.options.compareField).toEqual(new FieldMetaData());
+        expect(component.options.filterField).toEqual(new FieldMetaData());
+        expect(component.options.idField).toEqual(new FieldMetaData());
+        expect(component.options.linkField).toEqual(new FieldMetaData());
+        expect(component.options.nameField).toEqual(new FieldMetaData());
+        expect(component.options.objectIdField).toEqual(new FieldMetaData());
+        expect(component.options.objectNameField).toEqual(new FieldMetaData());
+        expect(component.options.percentField).toEqual(new FieldMetaData());
+        expect(component.options.predictedNameField).toEqual(new FieldMetaData());
+        expect(component.options.sortField).toEqual(new FieldMetaData());
+        expect(component.options.typeField).toEqual(new FieldMetaData());
 
         expect(component.headerText).toBeDefined();
         expect(component.infoText).toBeDefined();
@@ -1508,11 +1508,11 @@ describe('Component: ThumbnailGrid', () => {
 
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         expect(component.isSelectable()).toEqual(true);
-        component.options.filterField = component.emptyField;
+        component.options.filterField = new FieldMetaData();
 
         component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
         expect(component.isSelectable()).toEqual(true);
-        component.options.idField = component.emptyField;
+        component.options.idField = new FieldMetaData();
 
         component.options.openOnMouseClick = true;
         expect(component.isSelectable()).toEqual(true);
@@ -2183,40 +2183,48 @@ describe('Component: ThumbnailGrid', () => {
         }));
     });
 
-    it('subGetBindings does set expected properties in bindings', () => {
-        let bindings1 = {};
-        component.subGetBindings(bindings1);
-        expect(bindings1).toEqual({
-            ascending: false,
-            border: '',
-            borderCompareValue: '',
-            borderPercentThreshold: 0.5,
+    it('options.createBindings does set expected properties in bindings', () => {
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 30,
+            table: 'testTable1',
+            title: 'Thumbnail Grid',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             categoryField: '',
             compareField: '',
-            cropAndScale: '',
             dateField: '',
-            defaultLabel: '',
-            defaultPercent: '',
-            detailedThumbnails: false,
             filterField: '',
             flagLabel: '',
             flagSubLabel1: '',
             flagSubLabel2: '',
             flagSubLabel3: '',
             idField: '',
-            ignoreSelf: false,
             linkField: '',
-            linkPrefix: '',
             nameField: '',
             objectIdField: '',
             objectNameField: '',
-            openOnMouseClick: true,
             percentField: '',
             predictedNameField: '',
-            showLabelName: false,
             sortField: '',
-            textMap: {},
             typeField: '',
+            ascending: false,
+            border: '',
+            borderCompareValue: '',
+            borderPercentThreshold: 0.5,
+            cropAndScale: '',
+            defaultLabel: '',
+            defaultPercent: '',
+            detailedThumbnails: false,
+            ignoreSelf: false,
+            linkPrefix: '',
+            openOnMouseClick: true,
+            showLabelName: false,
+            textMap: {},
             typeMap: {}
         });
 
@@ -2260,42 +2268,50 @@ describe('Component: ThumbnailGrid', () => {
             mov: 'vid'
         };
 
-        let bindings2 = {};
-        component.subGetBindings(bindings2);
-        expect(bindings2).toEqual({
-            ascending: true,
-            border: 'grey',
-            borderCompareValue: 'Test Compare Value',
-            borderPercentThreshold: 0.25,
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 30,
+            table: 'testTable1',
+            title: 'Thumbnail Grid',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             categoryField: 'testCategoryField',
             compareField: 'testCompareField',
-            cropAndScale: 'both',
             dateField: 'testDateField',
-            defaultLabel: 'testDefaultLabel',
-            defaultPercent: 'testDefaultPercent',
-            detailedThumbnails: true,
             filterField: 'testFilterField',
             flagLabel: 'testFlagLabelField',
             flagSubLabel1: 'testFlagSubLabel1Field',
             flagSubLabel2: 'testFlagSubLabel2Field',
             flagSubLabel3: 'testFlagSubLabel3Field',
             idField: 'testIdField',
-            ignoreSelf: true,
             linkField: 'testLinkField',
-            linkPrefix: 'prefix/',
             nameField: 'testNameField',
             objectIdField: 'testObjectIdField',
             objectNameField: 'testObjectNameField',
-            openOnMouseClick: false,
             percentField: 'testPercentField',
             predictedNameField: 'testPredictedNameField',
-            showLabelName: true,
             sortField: 'testSortField',
+            typeField: 'testTypeField',
+            ascending: true,
+            border: 'grey',
+            borderCompareValue: 'Test Compare Value',
+            borderPercentThreshold: 0.25,
+            cropAndScale: 'both',
+            defaultLabel: 'testDefaultLabel',
+            defaultPercent: 'testDefaultPercent',
+            detailedThumbnails: true,
+            ignoreSelf: true,
+            linkPrefix: 'prefix/',
+            openOnMouseClick: false,
+            showLabelName: true,
             textMap: {
                 actual: 'Truth',
                 percentage: 'Score'
             },
-            typeField: 'testTypeField',
             typeMap: {
                 jpg: 'img',
                 mov: 'vid'

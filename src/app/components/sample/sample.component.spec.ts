@@ -138,8 +138,8 @@ describe('Component: Sample', () => {
     });
 
     it('class options properties are set to expected defaults', () => {
-        expect(component.options.sampleOptionalField).toEqual(component.emptyField);
-        expect(component.options.sampleRequiredField).toEqual(component.emptyField);
+        expect(component.options.sampleOptionalField).toEqual(new FieldMetaData());
+        expect(component.options.sampleRequiredField).toEqual(new FieldMetaData());
         expect(component.options.sortDescending).toEqual(false);
         expect(component.options.subcomponentType).toEqual('Impl1');
         expect(component.options.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
@@ -1093,31 +1093,6 @@ describe('Component: Sample', () => {
         expect(component.showFooterContainer()).toEqual(true);
     });
 
-    it('subGetBindings does set expected properties in bindings', () => {
-        let bindings1 = {};
-        component.subGetBindings(bindings1);
-        expect(bindings1).toEqual({
-            sampleOptionalField: '',
-            sampleRequiredField: '',
-            sortDescending: false,
-            subcomponentType: 'Impl1'
-        });
-
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
-        component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
-        component.options.sortDescending = true;
-        component.options.subcomponentType = 'Impl2';
-
-        let bindings2 = {};
-        component.subGetBindings(bindings2);
-        expect(bindings2).toEqual({
-            sampleOptionalField: 'testOptionalField1',
-            sampleRequiredField: 'testRequiredField1',
-            sortDescending: true,
-            subcomponentType: 'Impl2'
-        });
-    });
-
     it('subHandleChangeLimit does work as expected', () => {
         // TODO Update if you override subHandleChangeLimit with custom behavior for the visualization.  Otherwise delete this test.
     });
@@ -1167,15 +1142,110 @@ describe('Component: Sample', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
-    it('options.onInit does set non-field options as expected', () => {
-        component.options.onInit();
+    it('options.createBindings does return expected object', () => {
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 10,
+            table: 'testTable1',
+            title: 'Sample',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
+            sampleOptionalField: '',
+            sampleRequiredField: '',
+            sortDescending: false,
+            subcomponentType: 'Impl1'
+        });
+
+        component.options.filter = {
+            lhs: 'testConfigFilterField',
+            operator: '=',
+            rhs: 'testConfigFilterValue'
+        };
+        component.options.customEventsToPublish = [{
+            id: 'test_publish_event',
+            fields: [{
+                columnName: 'testPublishField'
+            }]
+        }];
+        component.options.customEventsToReceive = [{
+            id: 'test_receive_event',
+            fields: [{
+                columnName: 'testReceiveField'
+            }]
+        }];
+        component.options.database = DatasetServiceMock.DATABASES[1];
+        component.options.hideUnfiltered = true;
+        component.options.limit = 1234;
+        component.options.table = DatasetServiceMock.TABLES[1];
+        component.options.title = 'Test Title';
+        component.options.unsharedFilterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.unsharedFilterValue = 'testFilterValue';
+
+        component.options.sampleRequiredField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.sampleOptionalField = DatasetServiceMock.NAME_FIELD;
+        component.options.sortDescending = true;
+        component.options.subcomponentType = 'Impl2';
+
+        expect(component.options.createBindings()).toEqual({
+            configFilter: {
+                lhs: 'testConfigFilterField',
+                operator: '=',
+                rhs: 'testConfigFilterValue'
+            },
+            customEventsToPublish: [{
+                id: 'test_publish_event',
+                fields: [{
+                    columnName: 'testPublishField'
+                }]
+            }],
+            customEventsToReceive: [{
+                id: 'test_receive_event',
+                fields: [{
+                    columnName: 'testReceiveField'
+                }]
+            }],
+            database: 'testDatabase2',
+            hideUnfiltered: true,
+            limit: 1234,
+            table: 'testTable2',
+            title: 'Test Title',
+            unsharedFilterValue: 'testFilterValue',
+            unsharedFilterField: 'testFilterField',
+            sampleOptionalField: 'testNameField',
+            sampleRequiredField: 'testCategoryField',
+            sortDescending: true,
+            subcomponentType: 'Impl2'
+        });
+    });
+
+    it('options.getFieldProperties does return expected properties', () => {
+        expect(component.options.getFieldProperties()).toEqual(['sampleOptionalField', 'sampleRequiredField']);
+    });
+
+    it('options.getFieldArrayProperties does return expected properties', () => {
+        expect(component.options.getFieldArrayProperties()).toEqual([]);
+    });
+
+    it('options.initializeNonFieldBindings does set non-field bindings as expected', () => {
+        component.options.sortDescending = undefined;
+        component.options.subcomponentType = undefined;
+
+        component.options.initializeNonFieldBindings();
+        expect(component.options.sortDescending).toEqual(false);
         expect(component.options.subcomponentType).toEqual('Impl1');
     });
 
-    it('options.updateFieldsOnTableChanged does set field options as expected', () => {
-        component.options.updateFieldsOnTableChanged();
-        expect(component.options.sampleOptionalField).toEqual(component.emptyField);
-        expect(component.options.sampleRequiredField).toEqual(component.emptyField);
+    it('options.updateFields does set field options as expected', () => {
+        component.options.sampleOptionalField = undefined;
+        component.options.sampleRequiredField = undefined;
+
+        component.options.updateFields();
+        expect(component.options.sampleOptionalField).toEqual(new FieldMetaData());
+        expect(component.options.sampleRequiredField).toEqual(new FieldMetaData());
     });
 
     it('does show toolbar and sidenav and body-container', () => {
@@ -1645,14 +1715,19 @@ describe('Component: Sample with config', () => {
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
+            { provide: 'customEventsToPublish', useValue: [{ id: 'test_publish_event', fields: [{ columnName: 'testPublishField' }] }] },
+            { provide: 'customEventsToReceive', useValue: [{ id: 'test_receive_event', fields: [{ columnName: 'testReceiveField' }] }] },
             { provide: 'database', useValue: 'testDatabase2' },
+            { provide: 'hideUnfiltered', useValue: true },
             { provide: 'limit', useValue: 1234 },
             { provide: 'sampleOptionalField', useValue: 'testNameField' },
             { provide: 'sampleRequiredField', useValue: 'testCategoryField' },
             { provide: 'sortDescending', useValue: true },
             { provide: 'subcomponentType', useValue: 'Impl2' },
             { provide: 'table', useValue: 'testTable2' },
-            { provide: 'title', useValue: 'Test Title' }
+            { provide: 'title', useValue: 'Test Title' },
+            { provide: 'unsharedFilterField', useValue: 'testFilterField' },
+            { provide: 'unsharedFilterValue', useValue: 'testFilterValue' }
         ],
         imports: [
             AppMaterialModule,
@@ -1672,6 +1747,20 @@ describe('Component: Sample with config', () => {
         expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
         expect(component.options.limit).toEqual(1234);
         expect(component.options.title).toEqual('Test Title');
+        expect(component.options.unsharedFilterField).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect(component.options.unsharedFilterValue).toEqual('testFilterValue');
+        expect(component.options.customEventsToPublish).toEqual([{
+            id: 'test_publish_event',
+            fields: [{
+                columnName: 'testPublishField'
+            }]
+        }]);
+        expect(component.options.customEventsToReceive).toEqual([{
+            id: 'test_receive_event',
+            fields: [{
+                columnName: 'testReceiveField'
+            }]
+        }]);
         expect(component.options.filter).toEqual({
             lhs: 'testConfigFilterField',
             operator: '=',
@@ -1688,20 +1777,68 @@ describe('Component: Sample with config', () => {
         expect(component.subcomponentObject.constructor.name).toEqual(SubcomponentImpl2.name);
     });
 
-    it('options.onInit does set non-field options as expected from config bindings', () => {
+    it('class data properties are set to expected defaults', () => {
+        expect(component.activeData).toEqual([]);
+        expect(component.docCount).toEqual(0);
+        expect(component.filters).toEqual([]);
+        expect(component.lastPage).toEqual(true);
+        expect(component.page).toEqual(1);
+        expect(component.responseData).toEqual([]);
+
+        // Element Refs
+        expect(component.headerText).toBeDefined();
+        expect(component.infoText).toBeDefined();
+        expect(component.subcomponentElementRef).toBeDefined();
+        expect(component.visualization).toBeDefined();
+    });
+
+    it('options.createBindings does return expected object with properties from config bindings', () => {
+        expect(component.options.createBindings()).toEqual({
+            configFilter: {
+                lhs: 'testConfigFilterField',
+                operator: '=',
+                rhs: 'testConfigFilterValue'
+            },
+            customEventsToPublish: [{
+                id: 'test_publish_event',
+                fields: [{
+                    columnName: 'testPublishField'
+                }]
+            }],
+            customEventsToReceive: [{
+                id: 'test_receive_event',
+                fields: [{
+                    columnName: 'testReceiveField'
+                }]
+            }],
+            database: 'testDatabase2',
+            hideUnfiltered: true,
+            limit: 1234,
+            table: 'testTable2',
+            title: 'Test Title',
+            unsharedFilterValue: 'testFilterValue',
+            unsharedFilterField: 'testFilterField',
+            sampleOptionalField: 'testNameField',
+            sampleRequiredField: 'testCategoryField',
+            sortDescending: true,
+            subcomponentType: 'Impl2'
+        });
+    });
+
+    it('options.initializeNonFieldBindings does set non-field bindings as expected from config bindings', () => {
         component.options.sortDescending = false;
         component.options.subcomponentType = 'Impl1';
 
-        component.options.onInit();
+        component.options.initializeNonFieldBindings();
         expect(component.options.sortDescending).toEqual(true);
         expect(component.options.subcomponentType).toEqual('Impl2');
     });
 
-    it('options.updateFieldsOnTableChanged does set field options as expected from config bindings', () => {
-        component.options.sampleOptionalField = component.emptyField;
-        component.options.sampleRequiredField = component.emptyField;
+    it('options.updateFields does set field options as expected from config bindings', () => {
+        component.options.sampleOptionalField = new FieldMetaData();
+        component.options.sampleRequiredField = new FieldMetaData();
 
-        component.options.updateFieldsOnTableChanged();
+        component.options.updateFields();
         expect(component.options.sampleOptionalField).toEqual(DatasetServiceMock.NAME_FIELD);
         expect(component.options.sampleRequiredField).toEqual(DatasetServiceMock.CATEGORY_FIELD);
     });
