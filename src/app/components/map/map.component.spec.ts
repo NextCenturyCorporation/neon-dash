@@ -47,6 +47,7 @@ import * as neon from 'neon-framework';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { stringify } from '@angular/core/src/util';
 
 function webgl_support(): any {
     try {
@@ -323,132 +324,140 @@ describe('Component: Map', () => {
     });
 
     it('should create uncollapsed map points, largest first', () => {
+
+        //define maps for all test cases
+        let aHoverMap1 = new Map<string, number>().set('a', 1),
+            bHoverMap1 = new Map<string, number>().set('b', 1),
+            cHoverMap1 = new Map<string, number>().set('c', 1),
+            dHoverMap1 = new Map<string, number>().set('d', 1);
+
+
         let colorService = getService(ColorSchemeService),
             datasets = [
                 {
                     data: [
-                        { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'A' },
-                        { id: 'testId2', lat: 0, lng: 0, category: 'b', hoverPopupField: 'B' },
-                        { id: 'testId3', lat: 0, lng: 0, category: 'c', hoverPopupField: 'C' },
-                        { id: 'testId4', lat: 0, lng: 0, category: 'd', hoverPopupField: 'D' },
-                        { id: 'testId5', lat: 0, lng: 0, category: 'd', hoverPopupField: 'D' }
+                        { id: 'testId1', lat: 0, lng: 0, category: 'a', aHoverMap1 },
+                        { id: 'testId2', lat: 0, lng: 0, category: 'b', bHoverMap1 },
+                        { id: 'testId3', lat: 0, lng: 0, category: 'c', cHoverMap1 },
+                        { id: 'testId4', lat: 0, lng: 0, category: 'd', dHoverMap1 },
+                        { id: 'testId5', lat: 0, lng: 0, category: 'd', dHoverMap1 }
                     ],
                     expected: [
                         new MapPoint(
-                            'testId4', '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
+                            'testId4', ['testId4', 'testId5'], '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
                             colorService.getColorFor('category', 'd').toRgb(), 'Count: 2',
-                            'category', 'd', 'D'
+                            'category', 'd', dHoverMap1
                         ),
                         new MapPoint(
-                            'testId1', '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            'testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a', 'A'
+                            'category', 'a', aHoverMap1
                         ),
                         new MapPoint(
-                            'testId2', '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            'testId2', ['testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b', 'B'
+                            'category', 'b', bHoverMap1
                         ),
                         new MapPoint(
-                            'testId3', '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            'testId3', ['testId3'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'c').toRgb(), 'Count: 1',
-                            'category', 'c', 'C'
+                            'category', 'c', cHoverMap1
                         )
                     ]
                 },
                 {
                     data: [
-                        { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'A' },
-                        { id: 'testId2', lat: 0, lng: 1, category: 'b', hoverPopupField: 'B' },
-                        { id: 'testId3', lat: 0, lng: 2, category: 'c', hoverPopupField: 'C' },
-                        { id: 'testId4', lat: 0, lng: 3, category: 'd', hoverPopupField: 'D' }
+                        { id: 'testId1', lat: 0, lng: 0, category: 'a', aHoverMap1 },
+                        { id: 'testId2', lat: 0, lng: 1, category: 'b', bHoverMap1 },
+                        { id: 'testId3', lat: 0, lng: 2, category: 'c', cHoverMap1 },
+                        { id: 'testId4', lat: 0, lng: 3, category: 'd', dHoverMap1 }
                     ],
                     expected: [
                         new MapPoint(
-                            'testId1', '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            'testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a', 'A'
+                            'category', 'a', aHoverMap1
                         ),
                         new MapPoint(
-                            'testId2', '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                            'testId2', ['testId2'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b', 'B'
+                            'category', 'b', bHoverMap1
                         ),
                         new MapPoint(
-                            'testId3', '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                            'testId3',['testId3'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
                             colorService.getColorFor('category', 'c').toRgb(), 'Count: 1',
-                            'category', 'c', 'C'
+                            'category', 'c', cHoverMap1
                         ),
                         new MapPoint(
-                            'testId4', '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
+                            'testId4',['testId4'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
                             colorService.getColorFor('category', 'd').toRgb(), 'Count: 1',
-                            'category', 'd', 'D'
+                            'category', 'd', dHoverMap1
                         )
                     ]
                 },
                 {
                     data: [
-                        { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a', hoverPopupField: 'A' },
-                        { id: 'testId2', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b', hoverPopupField: 'B' }
+                        { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a', aHoverMap1 },
+                        { id: 'testId2', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b', bHoverMap1 }
                     ],
                     expected: [
                         new MapPoint(
-                            'testId1', '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                            'testId1', ['testId1', 'testId1', 'testId1', 'testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 4',
-                            'category', 'a', 'A'
+                            'category', 'a', aHoverMap1
                         ),
                         new MapPoint(
-                            'testId2', '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                            'testId2', ['testId2', 'testId2', 'testId2', 'testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 4',
-                            'category', 'b', 'B'
+                            'category', 'b', bHoverMap1
                         )
                     ]
                 },
                 {
                     data: [
-                        { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a', hoverPopupField: 'A' },
-                        { id: 'testId2', lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b', hoverPopupField: 'B' }
+                        { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a', aHoverMap1},
+                        { id: 'testId2', lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b', bHoverMap1 }
                     ],
                     expected: [
                         new MapPoint(
-                            'testId1', '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
+                            'testId1', ['testId1'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a', 'A'
+                            'category', 'a', aHoverMap1
                         ),
                         new MapPoint(
-                            'testId1', '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                            'testId1', ['testId1'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a', 'A'
+                            'category', 'a', aHoverMap1
                         ),
                         new MapPoint(
-                            'testId1', '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                            'testId1', ['testId1',], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a', 'A'
+                            'category', 'a', aHoverMap1
                         ),
                         new MapPoint(
-                            'testId1', '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            'testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a', 'A'
+                            'category', 'a', aHoverMap1
                         ),
                         new MapPoint(
-                            'testId2', '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
+                            'testId2', ['testId2'], '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b', 'B'
+                            'category', 'b', bHoverMap1
                         ),
                         new MapPoint(
-                            'testId2', '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
+                            'testId2', ['testId2'], '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b', 'B'
+                            'category', 'b', bHoverMap1
                         ),
                         new MapPoint(
-                            'testId2', '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
+                            'testId2', ['testId2'], '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b', 'B'
+                            'category', 'b', bHoverMap1
                         ),
                         new MapPoint(
-                            'testId2', '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
+                            'testId2', ['testId2'], '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b', 'B'
+                            'category', 'b', bHoverMap1
                         )
                     ]
                 }
