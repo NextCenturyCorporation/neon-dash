@@ -665,8 +665,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 latCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, latField)),
                 colorValue = colorField && point[colorField],
                 idValue = idField && point[idField];  //value must be top level nost nested array
-            
-            let hoverPopupValue = hoverPopupField ? neonUtilities.deepFind(point, hoverPopupField): "";
+
+            let hoverPopupValue = hoverPopupField ? neonUtilities.deepFind(point, hoverPopupField) : '';
 
             if (latCoord instanceof Array && lngCoord instanceof Array) {
                 for (let pos = latCoord.length - 1; pos >= 0; pos--) {
@@ -692,6 +692,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             if (!this.options.singleColor) {
                 color = unique.colorValue ? this.colorSchemeService.getColorFor(colorField, unique.colorValue).toRgb() : whiteString;
             }
+
             mapPoints.push(
                 new MapPoint(unique.idField, unique.idList, `${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`,
                     unique.lat, unique.lng, unique.count, color,
@@ -791,7 +792,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         let hashCode = geohash.encode(lat, lng) + ' - ' + colorValue,
             obj = map.get(hashCode);
 
-        //check if point had already been created
+        //check if point has already been created
         if (!obj) {
 
             let idList: string[] = [];
@@ -799,21 +800,18 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
             let hoverPopupMap = new Map<string, number>();
 
-            if (hoverPopupValue) {hoverPopupMap.set(hoverPopupValue, 1); } //add to map if hover value exists
+            if (hoverPopupValue) { hoverPopupMap.set(hoverPopupValue, 1); } //add to map if hover value exists
 
             obj = new UniqueLocationPoint(idValue, idList, lat, lng, 1, colorField, colorValue, hoverPopupMap);
             map.set(hashCode, obj);
         } else {
-            obj.idList.push(idValue); //if point already exists, ad the id to the list
+            obj.idList.push(idValue); //add the id to the list of points
+            obj.count++
 
             //check if popup value already exists increase count in map
-            if (hoverPopupValue) {
-                if (obj.hoverPopupMap.has(hoverPopupValue)) {
-                    obj.hoverPopupMap.set(hoverPopupValue, obj.count++);
-                }
-            }
-
-            obj.count++;
+            if (hoverPopupValue && (obj.hoverPopupMap.has(hoverPopupValue)) )  {
+                    obj.hoverPopupMap.set(hoverPopupValue, obj.count);
+            };
         }
 
     }
