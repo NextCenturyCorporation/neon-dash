@@ -331,7 +331,6 @@ describe('Component: Map', () => {
             cHoverMap1 = new Map<string, number>().set('c', 1),
             dHoverMap1 = new Map<string, number>().set('d', 1);
 
-
         let colorService = getService(ColorSchemeService),
             datasets = [
                 {
@@ -384,12 +383,12 @@ describe('Component: Map', () => {
                             'category', 'b', bHoverMap1
                         ),
                         new MapPoint(
-                            'testId3',['testId3'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                            'testId3', ['testId3'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
                             colorService.getColorFor('category', 'c').toRgb(), 'Count: 1',
                             'category', 'c', cHoverMap1
                         ),
                         new MapPoint(
-                            'testId4',['testId4'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
+                            'testId4', ['testId4'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
                             colorService.getColorFor('category', 'd').toRgb(), 'Count: 1',
                             'category', 'd', dHoverMap1
                         )
@@ -430,7 +429,7 @@ describe('Component: Map', () => {
                             'category', 'a', aHoverMap1
                         ),
                         new MapPoint(
-                            'testId1', ['testId1',], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                            'testId1', ['testId1'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
                             'category', 'a', aHoverMap1
                         ),

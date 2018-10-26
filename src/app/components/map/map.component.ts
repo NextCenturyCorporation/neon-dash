@@ -806,12 +806,12 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             map.set(hashCode, obj);
         } else {
             obj.idList.push(idValue); //add the id to the list of points
-            obj.count++
+            obj.count++;
 
             //check if popup value already exists increase count in map
-            if (hoverPopupValue && (obj.hoverPopupMap.has(hoverPopupValue)) )  {
+            if (hoverPopupValue && (obj.hoverPopupMap.has(hoverPopupValue)))  {
                     obj.hoverPopupMap.set(hoverPopupValue, obj.count);
-            };
+            }
         }
 
     }
