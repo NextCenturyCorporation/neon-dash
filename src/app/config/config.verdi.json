@@ -721,6 +721,7 @@
                     "idField": "hypothesis_id",
                     "linkField": "",
                     "dateField": "date",
+                    "primaryTitleField":"hypothesis_id",
                     "secondaryTitleField":"",
                     "contentField":"hypothesis",
                     "showOnlyFiltered": true,

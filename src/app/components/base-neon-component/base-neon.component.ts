@@ -13,7 +13,12 @@
  * limitations under the License.
  *
  */
-import { ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import {
+    OnInit,
+    OnDestroy,
+    Injector,
+    ChangeDetectorRef
+} from '@angular/core';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { Color } from '../../services/color-scheme.service';
@@ -24,7 +29,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
-import { DatabaseMetaData, EMPTY_FIELD, FieldMetaData, TableMetaData } from '../../dataset';
+import { EMPTY_FIELD, FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
 import * as uuid from 'node-uuid';
 import * as _ from 'lodash';
