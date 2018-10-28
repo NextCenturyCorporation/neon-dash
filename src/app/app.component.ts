@@ -324,9 +324,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     toggleSaveState() {
-        //this.resetPanel();
-        //this.rightPanelTitle = 'Save States';
-        //this.showSaveState = true;
+        this.resetPanel();
+        this.rightPanelTitle = 'Save States';
+        this.showSaveState = true;
     }
 
     toggleSettings() {
