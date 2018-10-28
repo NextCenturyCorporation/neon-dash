@@ -1,13 +1,13 @@
 <mat-sidenav-container class="neon-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-sidenav #sidenav class="neon-sidenav neon-sidenav-datasets" mat-fill align="start">
+    <mat-sidenav #sideNavLeft class="neon-sidenav neon-sidenav-datasets" mat-fill align="start">
         <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary">
             <span>Datasets</span>
         </mat-toolbar>
-        <app-dataset-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); sidenav.toggle()">
+        <app-dataset-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); sideNavLeft.toggle()">
         </app-dataset-selector>
     </mat-sidenav>
 
-    <mat-sidenav #sidenavright class="neon-sidenav neon-sidenav-info" mat-fill align="end">
+    <mat-sidenav #sideNavRight class="neon-sidenav neon-sidenav-info" mat-fill align="end">
         <div [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
             <mat-toolbar class="title" color="primary">
                 <span>{{ rightPanelTitle }}</span>
@@ -20,6 +20,8 @@
                 <div class="add-visualization-container" *ngIf="showAddVis">
                     <app-add-visualization></app-add-visualization>
                 </div>
+                <div class="saved-state" *ngIf="showSaveState">
+                </div>
                 <div class="setting-container" *ngIf="showSettings">
                     <app-settings></app-settings>
                 </div>
@@ -29,13 +31,13 @@
 
     <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary" layout-align="space-between center" flex>
         <button mat-icon-button class="neon-icon-button-large" [attr.aria-label]="datasetService.getName() || 'Choose Data'"
-            tooltip-position="below" matTooltip="Select a Dataset" (click)="sidenav.toggle()">
+            tooltip-position="below" matTooltip="Select a Dataset" (click)="sideNavLeft.toggle()">
             <mat-icon class="neon-icon-large">menu</mat-icon>
         </button>
         <span>{{ datasetService.getName() || "Choose Data..." }}</span>
         <span class="fill-remaining"></span>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
-            matTooltip="Add a New Visualization" (click)="toggleAddVisualization(); sidenavright.toggle()" *ngIf="showVisShortcut">
+            matTooltip="Add a New Visualization" (click)="toggleAddVisualization(); sideNavRight.toggle()" *ngIf="showVisShortcut">
             <mat-icon class="neon-icon-large">add_circle</mat-icon>
         </button>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Connect to a Custom Data Source"
@@ -54,16 +56,16 @@
         </button>
 
         <mat-menu #appMenu="matMenu" yPosition="below" [overlapTrigger]="false">
-            <button mat-menu-item (click)="toggleAddVisualization(); sidenavright.toggle()">
+            <button mat-menu-item (click)="toggleAddVisualization(); sideNavRight.toggle()">
                 <mat-icon>add_circle</mat-icon>Visualizations</button>
-            <button mat-menu-item (click)="toggleDashboardLayouts(); sidenav.toggle()">
+            <button mat-menu-item (click)="toggleDashboardLayouts(); sideNavLeft.toggle()">
                 <mat-icon>dashboard</mat-icon>Dashboard Layouts</button>
             <button mat-menu-item (click)="toggleSaveState()">
                 <mat-icon>save</mat-icon>Saved States</button>
-            <button mat-menu-item (click)="toggleSettings(); sidenavright.toggle()">
+            <button mat-menu-item (click)="toggleSettings(); sideNavRight.toggle()">
                 <mat-icon>settings</mat-icon>Settings
             </button>
-            <button mat-menu-item (click)="toggleAboutNeon(); sidenavright.toggle()">
+            <button mat-menu-item (click)="toggleAboutNeon(); sideNavRight.toggle()">
                 <mat-icon>info</mat-icon>About
             </button>
         </mat-menu>
