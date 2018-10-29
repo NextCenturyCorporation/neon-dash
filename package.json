@@ -43,7 +43,9 @@
     "test": "ng test",
     "e2e": "ng e2e",
     "docs": "npm run typedoc -- --options typedoc.json --exclude '**/*.spec.ts' ./src/",
-    "typedoc": "typedoc"
+    "typedoc": "typedoc",
+    "remove-postcss-custom-properties": "sed -i -E '/customProperties/s/^.*$//g' node_modules/@angular/cli/models/webpack-configs/styles.js",
+    "postinstall": "npm run remove-postcss-custom-properties"
   },
   "pre-commit": "lint-fix",
   "private": true,

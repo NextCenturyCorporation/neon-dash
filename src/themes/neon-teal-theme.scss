@@ -1,59 +1,57 @@
 @import '~@angular/material/_theming';
 
-// TODO THOR-852 Change to green theme (currently just a copy of teal theme).
+$teal-theme-primary: #27607E;
+$teal-theme-primary-lighter: #598DAD;
+$teal-theme-primary-darker: #003652;
 
-$green-theme-primary: #27607E;
-$green-theme-primary-lighter: #598DAD;
-$green-theme-primary-darker: #003652;
+$teal-theme-accent: #54C8CD;
+$teal-theme-accent-lighter: #8BFBFF;
+$teal-theme-accent-darker: #00979C;
 
-$green-theme-accent: #54C8CD;
-$green-theme-accent-lighter: #8BFBFF;
-$green-theme-accent-darker: #00979C;
+$teal-theme-grey: #666666;
+$teal-theme-grey-lighter: #999999;
+$teal-theme-grey-darker: #333333;
 
-$green-theme-grey: #666666;
-$green-theme-grey-lighter: #999999;
-$green-theme-grey-darker: #333333;
+$teal-theme-white: #F2F2F2;
+$teal-theme-white-lighter: #FFFFFF;
+$teal-theme-white-darker: #D7D7D7;
 
-$green-theme-white: #F2F2F2;
-$green-theme-white-lighter: #FFFFFF;
-$green-theme-white-darker: #D7D7D7;
-
-$green-theme-base: (
-    50: $green-theme-primary-lighter,
-    100: $green-theme-primary-lighter,
-    200: $green-theme-primary-lighter,
-    300: $green-theme-primary,
-    400: $green-theme-primary,
-    500: $green-theme-primary,
-    600: $green-theme-primary,
-    700: $green-theme-primary-darker,
-    800: $green-theme-primary-darker,
-    900: $green-theme-primary-darker,
-    A100: $green-theme-accent-lighter,
-    A200: $green-theme-accent-lighter,
-    A400: $green-theme-accent,
-    A700: $green-theme-accent-darker,
+$teal-theme-base: (
+    50: $teal-theme-primary-lighter,
+    100: $teal-theme-primary-lighter,
+    200: $teal-theme-primary-lighter,
+    300: $teal-theme-primary,
+    400: $teal-theme-primary,
+    500: $teal-theme-primary,
+    600: $teal-theme-primary,
+    700: $teal-theme-primary-darker,
+    800: $teal-theme-primary-darker,
+    900: $teal-theme-primary-darker,
+    A100: $teal-theme-accent-lighter,
+    A200: $teal-theme-accent-lighter,
+    A400: $teal-theme-accent,
+    A700: $teal-theme-accent-darker,
     contrast: (
-        50: $green-theme-grey-darker,
-        100: $green-theme-grey-darker,
-        200: $green-theme-grey-darker,
-        300: $green-theme-white-lighter,
-        400: $green-theme-white-lighter,
-        500: $green-theme-white-lighter,
-        600: $green-theme-white-lighter,
-        700: $green-theme-white-lighter,
-        800: $green-theme-white-lighter,
-        900: $green-theme-white-lighter,
-        A100: $green-theme-grey-darker,
-        A200: $green-theme-grey-darker,
-        A400: $green-theme-grey-darker,
-        A700: $green-theme-grey-lighter
+        50: $teal-theme-grey-darker,
+        100: $teal-theme-grey-darker,
+        200: $teal-theme-grey-darker,
+        300: $teal-theme-white-lighter,
+        400: $teal-theme-white-lighter,
+        500: $teal-theme-white-lighter,
+        600: $teal-theme-white-lighter,
+        700: $teal-theme-white-lighter,
+        800: $teal-theme-white-lighter,
+        900: $teal-theme-white-lighter,
+        A100: $teal-theme-grey-darker,
+        A200: $teal-theme-grey-darker,
+        A400: $teal-theme-grey-darker,
+        A700: $teal-theme-grey-lighter
     )
 );
 
 // https://github.com/angular/material2/blob/master/src/lib/core/theming/_palette.scss#L674
 // TODO Update default angular material design light theme background as needed.
-$green-theme-background: (
+$teal-theme-background: (
     status-bar:               map_get($mat-grey, 300),
     app-bar:                  map_get($mat-grey, 100),
     background:               map_get($mat-grey, 50),
@@ -72,7 +70,7 @@ $green-theme-background: (
 
 // https://github.com/angular/material2/blob/master/src/lib/core/theming/_palette.scss#L710
 // TODO Update default angular material design light theme foreground as needed.
-$green-theme-foreground: (
+$teal-theme-foreground: (
     base:              black,
     divider:           $dark-dividers,
     dividers:          $dark-dividers,
@@ -90,21 +88,21 @@ $green-theme-foreground: (
     slider-off-active: rgba(black, 0.38),
 );
 
-$green-theme-primary-palette: mat-palette($green-theme-base, 500, 100, 700);
-$green-theme-accent-palette: mat-palette($green-theme-base, A400, A200, A700);
-$green-theme-warn-palette: mat-palette($mat-red, A400, A200, A700);
+$teal-theme-primary-palette: mat-palette($teal-theme-base, 500, 100, 700);
+$teal-theme-accent-palette: mat-palette($teal-theme-base, A400, A200, A700);
+$teal-theme-warn-palette: mat-palette($mat-red, A400, A200, A700);
 
-$green-theme: (
-    primary: $green-theme-primary-palette,
-    accent: $green-theme-accent-palette,
-    warn: $green-theme-warn-palette,
+$teal-theme: (
+    primary: $teal-theme-primary-palette,
+    accent: $teal-theme-accent-palette,
+    warn: $teal-theme-warn-palette,
     is-dark: false,
-    foreground: $green-theme-foreground,
-    background: $green-theme-background
+    foreground: $teal-theme-foreground,
+    background: $teal-theme-background
 );
 
-.neon-green {
-    @include angular-material-theme($green-theme);
+.neon-teal {
+    @include angular-material-theme($teal-theme);
 
     /* DO NOT USE SASS VARIABLES ($VAR) HERE!  YOU MUST HARDCODE ALL COLORS! */
     --color-accent: #54C8CD;

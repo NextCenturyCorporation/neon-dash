@@ -19,11 +19,14 @@
 @Injectable()
 export class ThemesService {
     public static THEMES: any[] = [{
-        id: 'neon-green-theme',
-        name: 'Neon Green'
+        id: 'neon-teal',
+        name: 'Teal'
     }, {
-        id: 'neon-green-dark-theme',
-        name: 'Neon Green (dark)'
+        id: 'neon-green',
+        name: 'Green'
+    }, {
+        id: 'neon-dark',
+        name: 'Dark'
     }];
 
     private currentTheme: any = ThemesService.THEMES[0];

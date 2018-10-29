@@ -1,4 +1,4 @@
-<div *ngIf="simpleFilter | async" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'" class="simple-filter">
+<div *ngIf="simpleFilter | async" class="simple-filter">
     <button mat-button mat-icon-button (click)="addFilter(filter.value)">
         <mat-icon mat-button>{{ simpleFilter.icon || 'search' }}</mat-icon>
     </button>
