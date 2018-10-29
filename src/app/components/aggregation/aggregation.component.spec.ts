@@ -812,42 +812,6 @@ describe('Component: Aggregation', () => {
         expect(refs.visualization).toBeDefined();
     });
 
-    it('getExportFields does return expected array', () => {
-        expect(component.getExportFields()).toEqual([{
-            columnName: '',
-            prettyName: ''
-        }]);
-
-        component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
-        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.xField = DatasetServiceMock.X_FIELD;
-        component.options.yField = DatasetServiceMock.Y_FIELD;
-
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testXField',
-            prettyName: 'Test X Field'
-        }, {
-            columnName: 'testSizeField',
-            prettyName: 'Test Size Field'
-        }, {
-            columnName: 'testCategoryField',
-            prettyName: 'Test Category Field'
-        }]);
-
-        component.options.type = 'line-xy';
-
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testXField',
-            prettyName: 'Test X Field'
-        }, {
-            columnName: 'testYField',
-            prettyName: 'Test Y Field'
-        }, {
-            columnName: 'testCategoryField',
-            prettyName: 'Test Category Field'
-        }]);
-    });
-
     it('getFiltersToIgnore does return null if no filters are set', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];

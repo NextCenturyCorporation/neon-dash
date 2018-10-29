@@ -70,6 +70,23 @@ export class TextCloudOptions extends BaseNeonOptions {
     }
 
     /**
+     * Returns the list of fields to export.
+     *
+     * @return {{ columnName: string, prettyName: string }[]}
+     * @override
+     */
+    getExportFields() {
+        // TODO Do we really need this behavior for the sizeField or can we just simplify it and use the superclass getExportFields?
+        return [{
+            columnName: this.dataField.columnName,
+            prettyName: this.dataField.prettyName
+        }, {
+            columnName: 'value',
+            prettyName: this.sizeField.prettyName || 'Count'
+        }];
+    }
+
+    /**
      * Returns the list of field properties for the specific visualization.
      *
      * @return {string[]}
@@ -175,18 +192,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     subNgOnDestroy() {
         // Do nothing
-    }
-
-    getExportFields() {
-        let countField = this.options.sizeField.prettyName === '' ? 'Count' :
-            this.options.sizeField.prettyName;
-        return [{
-            columnName: this.options.dataField.columnName,
-            prettyName: this.options.dataField.prettyName
-        }, {
-            columnName: 'value',
-            prettyName: countField
-        }];
     }
 
     private updateTextCloudSettings() {
