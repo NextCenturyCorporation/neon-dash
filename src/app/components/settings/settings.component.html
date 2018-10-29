@@ -13,11 +13,11 @@
     <h3 class="header">Display Tools</h3>
     <div class="display-tools-container">
         <div class="checkmark-container">
-            <input type="checkbox" [checked]="showSimpleSearch" (change)="showSimpleSearch = !showSimpleSearch">
+            <input type="checkbox" [checked]="showSimpleSearch" (change)="publishShowSimpleSearch()">
             Simple Search Bar
             <div *ngIf="showSimpleSearch">
-                <mat-form-field>
-                    <mat-select name="simple-search-field" placeholder="Simple Search Field" [(ngModel)]="simpleSearchField"
+                <mat-form-field class="dropdown-menu">
+                    <mat-select name="simple-search-field" placeholder="Simple Search Field" [(ngModel)]="options.searchField"
                         required="true" [disabled]="options.fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
