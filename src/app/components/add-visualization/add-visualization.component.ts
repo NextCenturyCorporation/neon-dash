@@ -31,9 +31,7 @@ export class AddVisualizationComponent implements OnInit {
     public selectedIndex: number = -1;
 
     constructor(private activeGridService: ActiveGridService, public themesService: ThemesService,
-        public dialogRef: MatDialogRef<AddVisualizationComponent>, public snackBar: MatSnackBar) {
-        this.themesService = themesService;
-    }
+        public dialogRef: MatDialogRef<AddVisualizationComponent>, public snackBar: MatSnackBar) {}
 
     ngOnInit() {
         // Ignore the sample visualization.
@@ -58,7 +56,7 @@ export class AddVisualizationComponent implements OnInit {
          this.snackBar.open('Visualization Added', 'x', {
             duration: 5000,
             verticalPosition: 'top',
-            panelClass: ['simpleSnackBar']
+            panelClass: [this.themesService.getCurrentTheme().id, 'simpleSnackBar']
          });
     }
 }

@@ -15,6 +15,17 @@
  */
 @import '../base-neon-component/base-neon.component.scss';
 
+$text-shadow-color: #FFFFFF;
+$main-text-color: #777777;
+$chart-text-color: #777777;
+$callout: #27607E; // this is the bar highlight color
+$main-background: #F1F1F1;
+$light-chart-axis-color: #FFFFFF;
+$timeline-accent-bright: rgb(57, 146, 181);
+$mid-text-color: #5E5E5E;
+$shadow: rgba(0, 0, 0, 0.2);
+$tooltip-background: rgba(255,255,255,0.9);
+
 .no-data {
     color: $main-text-color;
     font-weight: bold;
@@ -81,12 +92,12 @@ h3 {
 
 
         .highlight {
-            background-color: $accent-bright;
-            fill: $accent-bright;
+            background-color: var(--color-accent, lightgrey);
+            fill: var(--color-accent, lightgrey);
         }
 
         .multi-highlight {
-            fill: $accent-bright;
+            fill: var(--color-accent, lightgrey);
             fill-opacity: 0.65;
         }
 
@@ -120,8 +131,8 @@ h3 {
         }
 
         .area {
-            fill: mat-color($primary);
-            stroke: mat-color($primary);
+            fill: var(--color-primary, grey);
+            stroke: var(--color-primary, grey);
             stroke-width: 1px;
             clip-path: url(#clip);
         }
@@ -139,8 +150,8 @@ h3 {
         }
 
         .bar {
-            fill: mat-color($primary);
-            stroke: mat-color($primary);
+            fill: var(--color-primary, grey);
+            stroke: var(--color-primary, grey);
             stroke-width: 1px;
         }
 

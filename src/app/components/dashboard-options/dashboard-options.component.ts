@@ -43,7 +43,7 @@ export class DashboardOptionsComponent implements OnInit {
 
     public formData: any = {
         exportFormat: 0,
-        currentTheme: 'neon-green-theme',
+        currentTheme: 'neon-teal',
         newStateName: '',
         stateToLoad: '',
         stateToDelete: ''
@@ -261,7 +261,7 @@ export class DashboardOptionsComponent implements OnInit {
         this.snackBar.open(message, 'x', {
             duration: 5000,
             verticalPosition: 'top',
-            panelClass: ['simpleSnackBar']
+            panelClass: [this.themesService.getCurrentTheme().id, 'simpleSnackBar']
          });
     }
 }
