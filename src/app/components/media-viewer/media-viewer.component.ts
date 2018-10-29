@@ -469,47 +469,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the media viewer export fields.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        let fields = [{
-            columnName: this.options.idField.columnName,
-            prettyName: this.options.idField.prettyName
-        }].concat(this.options.linkFields.map((linkField) => {
-            return {
-                columnName: linkField.columnName,
-                prettyName: linkField.prettyName
-            };
-        }));
-
-        if (this.options.nameField.columnName) {
-            fields.push({
-                columnName: this.options.nameField.columnName,
-                prettyName: this.options.nameField.prettyName
-            });
-        }
-
-        if (this.options.typeField.columnName) {
-            fields.push({
-                columnName: this.options.typeField.columnName,
-                prettyName: this.options.typeField.prettyName
-            });
-        }
-
-        if (this.options.maskField.columnName) {
-            fields.push({
-                columnName: this.options.maskField.columnName,
-                prettyName: this.options.maskField.prettyName
-            });
-        }
-
-        return fields;
-    }
-
-    /**
      * Returns the text for the given filter.
      *
      * @arg {object} filter

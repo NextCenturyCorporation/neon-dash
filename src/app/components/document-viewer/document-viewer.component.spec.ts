@@ -175,27 +175,6 @@ describe('Component: DocumentViewer', () => {
         });
     });
 
-    it('returns the correct list from getExportFields', () => {
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        component.options.dateField = DatasetServiceMock.DATE_FIELD;
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-
-        expect(component.getExportFields()).toEqual([
-            {
-                columnName: 'testTextField',
-                prettyName: 'Test Text Field'
-            },
-            {
-                columnName: 'testDateField',
-                prettyName: 'Test Date Field'
-            },
-            {
-                columnName: 'testIdField',
-                prettyName: 'Test ID Field'
-            }
-        ]);
-    });
-
     it('returns an empty string from getFilterText', () => {
         expect(component.getFilterText({})).toBe('');
         expect(component.getFilterText({

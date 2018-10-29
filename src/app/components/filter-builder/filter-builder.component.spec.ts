@@ -200,10 +200,6 @@ describe('Component: Filter Builder', () => {
         expect(component.options.getDatabaseTableFieldKey('a', 'b', 'c')).toEqual('a-b-c');
     });
 
-    it('getExportFields does return empty array always', () => {
-        expect(component.getExportFields()).toEqual([]);
-    });
-
     it('getFiltersToIgnore does return null always', () => {
         expect(component.getFiltersToIgnore()).toEqual(null);
     });

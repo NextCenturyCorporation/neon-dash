@@ -539,40 +539,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the export fields for the visualization.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        let fields = [{
-            columnName: this.options.xField.columnName,
-            prettyName: this.options.xField.prettyName
-        }];
-
-        if (this.isXYSubcomponent(this.options.type)) {
-            fields.push({
-                columnName: this.options.yField.columnName,
-                prettyName: this.options.yField.prettyName
-            });
-        } else if (this.options.aggregationField.columnName) {
-            fields.push({
-                columnName: this.options.aggregationField.columnName,
-                prettyName: this.options.aggregationField.prettyName
-            });
-        }
-
-        if (this.options.groupField.columnName) {
-            fields.push({
-                columnName: this.options.groupField.columnName,
-                prettyName: this.options.groupField.prettyName
-            });
-        }
-
-        return fields;
-    }
-
-    /**
      * Returns the list of filter IDs for the visualization to ignore.
      *
      * @return {array}
