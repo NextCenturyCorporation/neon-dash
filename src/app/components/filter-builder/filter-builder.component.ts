@@ -333,16 +333,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Returns the export fields for the visualization.
-     *
-     * @return {{columnName:string, prettyName: string}[]}
-     * @override
-     */
-    getExportFields(): {columnName: string, prettyName: string}[] {
-        return [];
-    }
-
-    /**
      * Returns the list of filter IDs for the visualization to ignore (or null to ignore no filters).
      *
      * @return {string[]}
