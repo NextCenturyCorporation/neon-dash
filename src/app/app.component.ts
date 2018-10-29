@@ -225,6 +225,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.gridItems = this.activeGridService.getGridItems();
         this.activeGridService.setGrid(this.grid);
         this.activeGridService.setGridConfig(this.gridConfig);
+        this.messenger.subscribe('showSimpleSearch', (message) => {
+            this.showSimpleSearch = message.showSimpleSearch;
+        });
         this.messenger.subscribe('showVisShortcut', (message) => {
             this.showVisShortcut = message.showVisShortcut;
         });

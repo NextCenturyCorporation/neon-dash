@@ -30,7 +30,8 @@
     position: relative;
 }
 
-.fake-dropdown-menu {
+.dropdown-menu {
+    padding-left: 30px;
     width: 200px;
 }
 
@@ -50,7 +51,6 @@
 input {
     padding: 15px;
 }
-
 
 .checkmark-container {
     padding: 5px;

@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -28,13 +28,15 @@ import * as uuid from 'node-uuid';
     styleUrls: ['./simple-filter.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SimpleFilterComponent {
+export class SimpleFilterComponent implements OnInit {
 
     public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
     public filterId = new BehaviorSubject<string>(undefined);
 
     private id = uuid.v4();
     private messenger = new neon.eventing.Messenger();
+
+    public showSimpleSearch: boolean = false;
 
     constructor(
         private datasetService: DatasetService,
@@ -76,6 +78,12 @@ export class SimpleFilterComponent {
                 noOp
             );
         }
+    }
+
+    ngOnInit() {
+        this.messenger.subscribe('showSimpleSearch', (message) => {
+            this.showSimpleSearch = message.showSimpleSearch;
+        });
     }
 
     removeFilter() {

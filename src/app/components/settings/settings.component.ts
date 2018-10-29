@@ -30,11 +30,11 @@ import * as _ from 'lodash';
 import * as neon from 'neon-framework';
 
 import { BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { DatasetOptions, SimpleFilter } from '../../dataset';
+import { DatasetOptions, EMPTY_FIELD, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
 
 export class SettingsOptions extends BaseNeonOptions {
-    public simpleSearch: DatasetOptions;
-
+    searchField: FieldMetaData;
+    tableField: TableMetaData;
     /**
      * Initializes all the non-field options for the specific visualization.
      *
@@ -102,8 +102,24 @@ export class SettingsComponent implements OnInit {
         this.formData.currentTheme = this.themesService.getCurrentTheme().id;
         this.simpleSearch = this.datasetService.getActiveDatasetOptions();
 
+        this.messenger.subscribe('showSimpleSearch', (message) => {
+            this.showSimpleSearch = message.showSimpleSearch;
+        });
+
         this.messenger.subscribe('showVisShortcut', (message) => {
             this.showVisShortcut = message.showVisShortcut;
+        });
+
+        this.messenger.subscribe('simpleFilter', (message) => {
+            this.options.searchField = message.searchField;
+            this.options.tableField = message.tableField;
+        });
+    }
+
+    publishShowSimpleSearch() {
+        this.showSimpleSearch = !this.showSimpleSearch;
+        this.messenger.publish('showSimpleSearch', {
+            showSimpleSearch: this.showSimpleSearch
         });
     }
 
