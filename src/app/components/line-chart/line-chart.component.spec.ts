@@ -26,7 +26,6 @@ import { ActiveGridService } from '../../services/active-grid.service';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { TranslationService } from '../../services/translation.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
@@ -56,7 +55,6 @@ describe('Component: LineChart', () => {
             DatasetService,
             FilterService,
             ExportService,
-            TranslationService,
             ErrorNotificationService,
             ThemesService,
             ColorSchemeService,
