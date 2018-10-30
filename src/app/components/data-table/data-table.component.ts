@@ -769,7 +769,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         if(item && this.selected.length === 1 && this.selectedItem === item ) {
             this.publishSelectId("");
             this.selectedItem = undefined;
-        } else if(this.selectedItem !== item && this.options.idField.columnName && item[this.options.idField.columnName]) {
+        } else if(this.options.idField.columnName && item[this.options.idField.columnName]) {
             this.publishSelectId(item[this.options.idField.columnName]);
             this.selectedItem = item;
         } 
