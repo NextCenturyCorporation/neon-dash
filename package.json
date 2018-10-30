@@ -46,9 +46,12 @@
     "typedoc": "typedoc",
     "generate-attribution": "node scripts/generate_attributions.js",
     "postinstall": "npm run generate-attribution 1> /dev/null",
-    "ensure-attribution":  "./scripts/ensure_attributions_file.sh"
+    "ensure-attribution": "./scripts/ensure_attributions_file.sh"
   },
-  "pre-commit": ["lint-fix", "ensure-attribution"],
+  "pre-commit": [
+    "lint-fix",
+    "ensure-attribution"
+  ],
   "private": true,
   "dependencies": {
     "@angular/animations": "5.2.3",
