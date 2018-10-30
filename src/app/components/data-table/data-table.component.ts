@@ -761,18 +761,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     onSelect({ selected }) {
 
-        
         let item = selected && selected.length ? selected[0] : null;
 
         //TODO write comments on what is going on here
         //toggle boolean to refresh selected
-        if(item && this.selected.length === 1 && this.selectedItem === item ) {
-            this.publishSelectId("");
+        if (item && this.selected.length === 1 && this.selectedItem === item) {
+            this.publishSelectId('');
             this.selectedItem = undefined;
-        } else if(this.options.idField.columnName && item[this.options.idField.columnName]) {
+        } else if (this.options.idField.columnName && item[this.options.idField.columnName]) {
             this.publishSelectId(item[this.options.idField.columnName]);
             this.selectedItem = item;
-        } 
+        }
 
         /*if ( (typeof this.selectedItem === undefined) && this.options.idField.columnName && item[this.options.idField.columnName]) {
             console.log('publishing shit');
@@ -810,8 +809,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 }
             });
         }
-        
-        this.publishAnyCustomEvents(item, this.options.idField.columnName);   
+
+        this.publishAnyCustomEvents(item, this.options.idField.columnName);
     }
 
     createFilterObject(field: string, value: string, prettyField: string): any {
