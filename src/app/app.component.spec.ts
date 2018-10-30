@@ -26,7 +26,6 @@ import { AnnotationViewerComponent } from './components/annotation-viewer/annota
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
-import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
@@ -36,6 +35,7 @@ import { LegendComponent } from './components/legend/legend.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components//map/map.component';
 import { SampleComponent } from './components/sample/sample.component';
+import { SaveStateComponent } from './components/save-state/save-state.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
@@ -96,7 +96,6 @@ describe('App: NeonGtd', () => {
                 AnnotationViewerComponent,
                 BarChartComponent,
                 ChartComponent,
-                DashboardOptionsComponent,
                 DatasetSelectorComponent,
                 DataTableComponent,
                 DocumentViewerComponent,
@@ -110,6 +109,7 @@ describe('App: NeonGtd', () => {
                 NewsFeedComponent,
                 QueryBarComponent,
                 SampleComponent,
+                SaveStateComponent,
                 ScatterPlotComponent,
                 SettingsComponent,
                 SimpleFilterComponent,

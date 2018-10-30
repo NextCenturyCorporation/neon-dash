@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -36,9 +36,10 @@ export class SimpleFilterComponent implements OnInit {
     private id = uuid.v4();
     private messenger = new neon.eventing.Messenger();
 
-    public showSimpleSearch: boolean = false;
+    public showSimpleSearch: boolean;
 
     constructor(
+        private changeDetection: ChangeDetectorRef,
         private datasetService: DatasetService,
         private filterService: FilterService,
         public themesService: ThemesService
@@ -49,6 +50,7 @@ export class SimpleFilterComponent implements OnInit {
     setSimpleFilter() {
         let options = this.datasetService.getActiveDatasetOptions();
         this.simpleFilter.next(options && options.simpleFilter);
+        //console.log(options.simpleFilter);
         this.removeFilter();
     }
 
@@ -80,9 +82,27 @@ export class SimpleFilterComponent implements OnInit {
         }
     }
 
+    checkSimpleFilter() {
+        if (this.simpleFilter && this.showSimpleSearch !== false) {
+            this.showSimpleSearch = true;
+        } else {
+            this.showSimpleSearch = false;
+        }
+        this.publishShowSimpleSearch();
+    }
+
     ngOnInit() {
+        this.checkSimpleFilter();
+
         this.messenger.subscribe('showSimpleSearch', (message) => {
             this.showSimpleSearch = message.showSimpleSearch;
+            this.changeDetection.detectChanges();
+        });
+    }
+
+    publishShowSimpleSearch() {
+        this.messenger.publish('showSimpleSearch', {
+            showSimpleSearch: this.showSimpleSearch
         });
     }
 

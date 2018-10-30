@@ -18,6 +18,7 @@
             <div *ngIf="showSimpleSearch">
                 <mat-form-field class="dropdown-menu">
                     <mat-select name="simple-search-field" placeholder="Simple Search Field" [(ngModel)]="options.searchField"
+                    (change)="changeSimpleSearchFilter()"
                         required="true" [disabled]="options.fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
