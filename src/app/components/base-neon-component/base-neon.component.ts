@@ -965,11 +965,13 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {string} eventField
      */
     publishAnyCustomEvents(dataItem: any, eventField: string) {
+
         this.getOptions().customEventsToPublish.forEach((config) => {
             let metadata = {};
             (config.fields || []).forEach((fieldsConfig) => {
                 metadata[fieldsConfig.columnName] = dataItem[fieldsConfig.columnName];
             });
+
             this.messenger.publish(config.id, {
                 item: eventField ? dataItem[eventField] : dataItem,
                 metadata: metadata

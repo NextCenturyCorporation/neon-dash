@@ -194,6 +194,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     public duplicateNumber = 0;
     public seenValues = [];
 
+    private selectedItem: Object;
+
     constructor(
         activeGridService: ActiveGridService,
         connectionService: ConnectionService,
@@ -758,10 +760,25 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @private
      */
     onSelect({ selected }) {
-        let selectedItem = selected && selected.length ? selected[0] : null;
-        if (this.options.idField.columnName && selectedItem[this.options.idField.columnName]) {
-            this.publishSelectId(selectedItem[this.options.idField.columnName]);
-        }
+
+        
+        let item = selected && selected.length ? selected[0] : null;
+
+        //TODO write comments on what is going on here
+        //toggle boolean to refresh selected
+        if(item && this.selected.length === 1 && this.selectedItem === item ) {
+            this.publishSelectId("");
+            this.selectedItem = undefined;
+        } else if(this.selectedItem !== item && this.options.idField.columnName && item[this.options.idField.columnName]) {
+            this.publishSelectId(item[this.options.idField.columnName]);
+            this.selectedItem = item;
+        } 
+
+        /*if ( (typeof this.selectedItem === undefined) && this.options.idField.columnName && item[this.options.idField.columnName]) {
+            console.log('publishing shit');
+            this.publishSelectId(item[this.options.idField.columnName]);
+        }*/
+
         this.selected.splice(0, this.selected.length);
         this.selected.push(...selected);
 
@@ -793,8 +810,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 }
             });
         }
-
-        this.publishAnyCustomEvents(selectedItem, this.options.idField.columnName);
+        
+        this.publishAnyCustomEvents(item, this.options.idField.columnName);   
     }
 
     createFilterObject(field: string, value: string, prettyField: string): any {
