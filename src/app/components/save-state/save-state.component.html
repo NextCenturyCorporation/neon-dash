@@ -1,37 +1,4 @@
-<form #optionsForm="ngForm">
-    <mat-toolbar color="primary">
-        <span>Export Format</span>
-    </mat-toolbar>
-    <p></p>
-    <app-export-control [exportTarget]="exportTarget"></app-export-control>
-    <p></p>
-
-    <mat-toolbar color="primary">
-        <span>Themes</span>
-    </mat-toolbar>
-    <p></p>
-    <div class='radio-container' layout="row" mat-margin>
-        <mat-radio-group [(ngModel)]="formData.currentTheme" name="currentThemeGroup" (change)="setCurrentTheme(formData.currentTheme)">
-            <mat-radio-button *ngFor="let theme of themesService.getThemes()" [value]="theme.id">{{ theme.name }}</mat-radio-button>
-        </mat-radio-group>
-    </div>
-    <p></p>
-
-    <mat-toolbar color="primary">
-        <span>Property Service Configuration</span>
-    </mat-toolbar>
-    <p></p>
-    <button mat-raised-button class="neon-button-small btn-open-config-edit" color="primary" matTooltip="Open configuration editor."
-            tooltip-position="below" (click)="openEditConfigDialog()">
-        Edit Configuration
-    </button>
-    <p></p>
-
-    <mat-toolbar color="primary">
-        <span>Dashboard States</span>
-    </mat-toolbar>
-    <p></p>
-
+<form class="save-state-container" #optionsForm="ngForm">
     <div class="option-row">
         <mat-form-field class="add-margin-right">
             <input matInput placeholder="New State Name" maxlength="100" name="stateToSave" dividerColor="accent" [(ngModel)]="formData.stateToSave">

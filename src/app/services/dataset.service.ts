@@ -177,6 +177,22 @@ export class DatasetService {
     }
 
     /**
+     *
+     * @param simpleField The new field for the simple search
+     */
+    public setActiveDatasetSimpleFilterFieldName(simpleField: FieldMetaData) {
+        this.dataset.options.simpleFilter.fieldName = simpleField.columnName;
+    }
+
+    /**
+     * returns the simple search field
+     * @return {Object}
+     */
+    public getActiveDatasetSimpleFilterFieldName() {
+        return this.dataset.options.simpleFilter.fieldName;
+    }
+
+    /**
      * Returns the active dataset object
      * @return {Object}
      */

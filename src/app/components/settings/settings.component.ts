@@ -14,7 +14,7 @@
  *
  */
 
-import { Component, OnInit, ViewContainerRef, Input, Injector } from '@angular/core';
+import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnInit, Injector } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
@@ -41,7 +41,7 @@ export class SettingsOptions extends BaseNeonOptions {
      * @override
      */
     onInit() {
-        //
+        //this.searchField = this.injector.get('');
     }
 
     /**
@@ -50,7 +50,7 @@ export class SettingsOptions extends BaseNeonOptions {
      * @override
      */
     updateFieldsOnTableChanged() {
-        //
+        //this.searchField = this.findFieldObject('');
     }
 
 }
@@ -58,11 +58,10 @@ export class SettingsOptions extends BaseNeonOptions {
 @Component({
     selector: 'app-settings',
     templateUrl: 'settings.component.html',
-    styleUrls: ['settings.component.scss']
+    styleUrls: ['settings.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsComponent implements OnInit {
-
-    @Input() sidenav: MatSidenav;
 
     public formData: any = {
         exportFormat: 0,
@@ -75,14 +74,17 @@ export class SettingsComponent implements OnInit {
     public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
     public exportTarget: string = 'all';
     public options: SettingsOptions;
+    public searchField: FieldMetaData;
     public showVisShortcut: boolean = true;
     public showSimpleSearch: boolean;
+    public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
     public simpleSearch = {};
     public simpleSearchField = {};
-
+    public tableField: TableMetaData;
     public messenger: neon.eventing.Messenger;
 
     constructor(
+        private changeDetection: ChangeDetectorRef,
         public datasetService: DatasetService,
         public exportService: ExportService,
         public injector: Injector,
@@ -97,13 +99,25 @@ export class SettingsComponent implements OnInit {
         this.messenger = new neon.eventing.Messenger();
     }
 
+    checkSimpleFilter() {
+        //console.log(this.showSimpleSearch);
+        //console.table(this.simpleFilter);
+        if (this.simpleFilter && this.showSimpleSearch !== false) {
+            this.showSimpleSearch = true;
+        } else {
+            this.showSimpleSearch = false;
+        }
+        //console.log(this.showSimpleSearch);
+    }
+
     ngOnInit() {
         this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
         this.formData.currentTheme = this.themesService.getCurrentTheme().id;
         this.simpleSearch = this.datasetService.getActiveDatasetOptions();
-
+        this.checkSimpleFilter();
         this.messenger.subscribe('showSimpleSearch', (message) => {
             this.showSimpleSearch = message.showSimpleSearch;
+            this.changeDetection.detectChanges();
         });
 
         this.messenger.subscribe('showVisShortcut', (message) => {
@@ -114,6 +128,8 @@ export class SettingsComponent implements OnInit {
             this.options.searchField = message.searchField;
             this.options.tableField = message.tableField;
         });
+        //console.log(this.simpleFilter);
+        this.changeDetection.detectChanges();
     }
 
     publishShowSimpleSearch() {
@@ -134,6 +150,13 @@ export class SettingsComponent implements OnInit {
         if (themeId) {
             this.themesService.setCurrentTheme(themeId);
         }
+    }
+
+    changeSimpleSearchFilter() {
+        //this.simpleFilter.next(options && options.simpleFilter);
+        //console.log(this.datasetService.getActiveDatasetOptions());
+        //console.log(this.options.searchField);
+        this.datasetService.setActiveDatasetSimpleFilterFieldName(this.options.searchField);
     }
 
 }

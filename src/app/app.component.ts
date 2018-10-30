@@ -30,7 +30,6 @@ import * as L from 'leaflet'; // imported for use of DomUtil.enable/disableTextS
 import { ActiveGridService } from './services/active-grid.service';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
-import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { Dataset } from './dataset';
 import { DatasetService } from './services/dataset.service';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -41,6 +40,7 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from './neon-grid-item';
 import { NeonGTDConfig } from './neon-gtd-config';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
+import { SaveStateComponent } from './components/save-state/save-state.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { ThemesService } from './services/themes.service';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
@@ -55,8 +55,8 @@ import * as neon from 'neon-framework';
     ]
 })
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
-    @ViewChild(DashboardOptionsComponent) dashboardOptionsComponent: DashboardOptionsComponent;
     @ViewChild(NgGrid) grid: NgGrid;
+    @ViewChild(SaveStateComponent) SaveStateComponent: SaveStateComponent;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
 
     @Input() sidenav = MatSidenav;
@@ -163,7 +163,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.changeFavicon();
         this.filterBuilderIcon = 'filter_builder';
-
     }
 
     changeFavicon() {
@@ -320,13 +319,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         //this.showDashboardLayouts = true;
     }
 
-    toggleDashboardOptions() {
-        if (this.dashboardOptionsComponent) {
-            this.dashboardOptionsComponent.loadStateNames();
-        }
-    }
-
     toggleSaveState() {
+        if (this.SaveStateComponent) {
+            this.SaveStateComponent.loadStateNames();
+        }
         this.resetPanel();
         this.rightPanelTitle = 'Save States';
         this.showSaveState = true;

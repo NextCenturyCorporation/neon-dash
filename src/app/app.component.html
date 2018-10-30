@@ -21,6 +21,7 @@
                     <app-add-visualization></app-add-visualization>
                 </div>
                 <div class="saved-state" *ngIf="showSaveState">
+                    <app-save-state></app-save-state>
                 </div>
                 <div class="setting-container" *ngIf="showSettings">
                     <app-settings></app-settings>
@@ -45,7 +46,7 @@
             *ngIf="showCustomConnectionButton">
             <mat-icon class="neon-icon-large">storage</mat-icon>
         </button>
-        <div class="simple-search-container" *ngIf="showSimpleSearch">
+        <div class="simple-search-container">
             <app-simple-filter #simpleFilter></app-simple-filter>
         </div>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filter Builder" tooltip-position="below"
@@ -62,7 +63,7 @@
                 <mat-icon>add_circle</mat-icon>Visualizations</button>
             <button mat-menu-item (click)="toggleDashboardLayouts(); sideNavLeft.toggle()">
                 <mat-icon>dashboard</mat-icon>Dashboard Layouts</button>
-            <button mat-menu-item (click)="toggleSaveState()">
+            <button mat-menu-item (click)="toggleSaveState(); sideNavRight.toggle()">
                 <mat-icon>save</mat-icon>Saved States</button>
             <button mat-menu-item (click)="toggleSettings(); sideNavRight.toggle()">
                 <mat-icon>settings</mat-icon>Settings
