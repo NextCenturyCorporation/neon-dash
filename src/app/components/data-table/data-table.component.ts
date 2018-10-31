@@ -763,20 +763,22 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
         let item = selected && selected.length ? selected[0] : null;
 
-        //TODO write comments on what is going on here
-        //toggle boolean to refresh selected
+        // We are keeping track of the first selected item in a single or group select
+        // to enable the feature to deselct if you click on the same iteam again. This
+        // conditional will check if the user has clicked a single row in the data table
+        // and if it is the same row that has been previously selected. If so it will publish
+        // an empty id on the select_id Messenger to clear out any selected id's from other
+        // components that are subscribed. 
+        // check if single item clicked and is equal to selected Item 
         if (item && this.selected.length === 1 && this.selectedItem === item) {
             this.publishSelectId('');
             this.selectedItem = undefined;
+
+        // push new selected id of item that was selected
         } else if (this.options.idField.columnName && item[this.options.idField.columnName]) {
             this.publishSelectId(item[this.options.idField.columnName]);
             this.selectedItem = item;
         }
-
-        /*if ( (typeof this.selectedItem === undefined) && this.options.idField.columnName && item[this.options.idField.columnName]) {
-            console.log('publishing shit');
-            this.publishSelectId(item[this.options.idField.columnName]);
-        }*/
 
         this.selected.splice(0, this.selected.length);
         this.selected.push(...selected);
