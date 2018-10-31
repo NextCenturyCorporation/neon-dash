@@ -176,8 +176,8 @@
             ]
         },
         {
-            "name": "VERDI LDC TA3 - 2",
-            "connectOnLoad": true,
+            "name": "VERDI LDC TA3 - Taxonomy",
+            "connectOnLoad": false,
             "layout": "verdi-taxonomy",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -836,8 +836,8 @@
             {
                 "name": "Taxonomy Viewer",
                 "type": "taxonomyViewer",
-                "sizex": 8,
-                "sizey": 15,
+                "sizex": 4,
+                "sizey": 16,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
@@ -852,12 +852,10 @@
                     "typeField": "types",
                     "subTypeField": "types",
                     "categoryField": "categories",
-                    "filterField": "docIds",
+                    "filterFields": ["categories", "types"],
                     "ignoreSelf": true,
                     "idField": "kbid",
                     "linkField": "",
-                    "nodeNameField": "name",
-                    "showOnlyFiltered" : false,
                     "ascending": true
                 },
                 "row": 0,
@@ -867,8 +865,8 @@
                 "name": "Network Graph",
                 "type": "networkGraph",
                 "icon": "Graph",
-                "sizex": 16,
-                "sizey": 15,
+                "sizex": 8,
+                "sizey": 16,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
@@ -896,10 +894,10 @@
                     "isDirected": true,
                     "showOnlyFiltered": false,
                     "physics": false,
-                    "filterFields": ["kbid"],
+                    "filterFields": ["categories", "types"],
                     "idField": "@id",
                     "id": "_id",
-                    "filterable": true,
+                    "filterable": false,
                     "multiFilter": true,
                     "multiFilterOperator": "or",
                     "displayLegend" : true,
@@ -910,7 +908,7 @@
                     "legendFiltering" : false
                 },
                 "row": 0,
-                "col": 9
+                "col": 5
             }
 
         ]
