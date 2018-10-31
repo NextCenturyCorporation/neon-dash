@@ -172,11 +172,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             neon.query.where(this.options.idField.columnName, '!=', '')
         ];
 
-        let ignoreFilters = this.getFiltersToIgnore();
-        if (ignoreFilters && ignoreFilters.length) {
-            query.ignoreFilters(ignoreFilters);
-        }
-
         return query.withFields(fields).where(neon.query.and.apply(query, whereClauses)).sortBy(
             this.options.categoryField.columnName, neonVariables.ASCENDING);
     }
@@ -258,21 +253,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @return {array}
      * @override
      */
-    getFiltersToIgnore(): string[] {
-        if (!this.options.ignoreSelf) {
+    getFiltersToIgnore() {
             return null;
         }
-
-        // Get all the neon filters relevant to this visualization.
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            this.options.filterFields);
-
-        let filterIdsToIgnore = [];
-        for (let neonFilter of neonFilters) {
-            filterIdsToIgnore.push(neonFilter.id);
-        }
-        return filterIdsToIgnore.length ? filterIdsToIgnore : null;
-    }
 
     /**
      * Returns the filter text for the given visualization filter object.
@@ -366,6 +349,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     onQuerySuccess(response: any) {
         let groups = [];
         let counter = 0;
+        this.taxonomyGroups = [];
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
@@ -392,7 +376,15 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                     }
 
                     for (let category of categories) {
-                        //create root node of the tree first
+                        //checks if there are any parent(category) nodes in the tree
+                        let foundCategory = groups.find((item, index) => {
+                            let found = item.name === category;
+                            categoryIndex = index;
+                            return found;
+                        });
+
+                        //If the parent(category) node does not exist in the tree, add it
+                        if (!foundCategory) {
                         let parent = {
                             id: counter++,
                             name: category,
@@ -401,16 +393,11 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                             checked: true
                         };
 
-                        //checks if there are any parent(category) nodes in the tree
-                        if (groups) {
-                            //checks if the parent(category) node exists in the tree and if not, adds it
-                            let foundCategory = groups.find((item, index) => {
-                                let found = item.name === category;
-                                categoryIndex = index;
-                                return found;
-                            });
+                            groups.push(parent);
+                            foundCategory = groups[groups.length - 1];
+                            categoryIndex = groups.length - 1;
+                        }
 
-                            if (foundCategory) {
                                 if (types) {
                                     for (let type of types) {
                                         //checks if a subChild node will be needed based on if dot notation exists
@@ -418,11 +405,15 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                                         let subTypeNeeded  = type.includes('.') || (subTypes && types !== subTypes);
 
                                         //checks if child(type) node exists in the tree and if not, adds it
-                                        let foundType = foundCategory.children.find((typeItem, index) => {
-                                            let found = typeItem.name === /*type.includes('.') ? */ type.split('.')[0] /*: type*/;
+                                let foundType = null;
+                                if (foundCategory.children) {
+                                    foundType = foundCategory.children.find((typeItem, index) => {
+                                        let setType = type.includes('.') ?  type.split('.')[0] : type;
+                                        let found = typeItem.name === setType;
                                             typeIndex = index;
                                             return found;
                                         });
+                                }
 
                                         if (foundType) {
                                             if (subTypeNeeded) {
@@ -447,10 +438,10 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                                                 }
                                             }
                                         } else {
-
+                                    let setType = type.includes('.') ?  type.split('.')[0] : type;
                                             let typeObject = {
                                                 id: counter++,
-                                                name: subTypeNeeded /*&& type.includes('.')*/ ? type.split('.')[0] : type,
+                                        name: setType,
                                                 children: [],
                                                 lineage: category,
                                                 description: this.options.typeField.columnName,
@@ -487,13 +478,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                                         }
                                     }
                                 }
-                            } else {
-                                groups.push(parent);
-                            }
-                        } else {
-                            groups.push(parent);
                         }
-                    }
+
                 });
 
                 this.taxonomyGroups = groups;
@@ -666,7 +652,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     handleFiltersChangedEvent(): void {
         //TODO:Update Taxonomy when filter from filter tray is deleted
-        //console.log(this.treeRoot.treeModel.nodes);
+/*        console.log(this.getElementRefs().treeRoot.treeModel.nodes);
+        console.log(this.treeRoot.treeModel.nodes);*/
     }
 
     /**

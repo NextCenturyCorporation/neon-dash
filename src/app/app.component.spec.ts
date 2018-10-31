@@ -78,6 +78,7 @@ import {
     ThumbnailDetailsContractedComponent,
     ThumbnailDetailsExpandedComponent
 } from './components/thumbnail-grid/thumbnail-details.component';
+import { TreeModule } from 'angular-tree-component';
 
 describe('App: NeonGtd', () => {
     let fixture: ComponentFixture<AppComponent>;
@@ -131,7 +132,8 @@ describe('App: NeonGtd', () => {
                 NgxDatatableModule,
                 HttpModule,
                 BrowserAnimationsModule,
-                ReactiveFormsModule
+                ReactiveFormsModule,
+                TreeModule.forRoot()
             ],
             providers: [
                 { provide: 'config', useValue: new NeonGTDConfig() },

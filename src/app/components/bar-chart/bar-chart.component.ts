@@ -613,30 +613,30 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 let activeFilterValue = thisFilter.value;
                 activeLabelIndexes = activeLabelIndexes.concat(this.chartInfo.data.labels.map((label, index) => {
                     let labelNum = <any> label;
-                        switch (thisFilter.operator) {
-                            case '<':
-                                return label < activeFilterValue ? index : -1;
-                            case '>':
-                                return label > activeFilterValue ? index : -1;
-                            case '>=':
-                                return label >= activeFilterValue ? index : -1;
-                            case '<=':
-                                return label <= activeFilterValue ? index : -1;
-                            case 'not contains':
-                                if (isNaN(labelNum)) { //.incluses() created an error if label is a number.
-                                    return !label.includes(activeFilterValue) ? index : -1;
-                                }
-                                return index;
-                            case 'contains':
-                                if (isNaN(labelNum)) { //.incluses() created an error if label is a number.
-                                    return label.includes(activeFilterValue) ? index : -1;
-                                }
-                                return index;
-                            case '!=':
-                                return label !== activeFilterValue ? index : -1;
-                            case '=':
-                                return label === activeFilterValue ? index : -1;
-                        }
+                    switch (thisFilter.operator) {
+                        case '<':
+                            return label < activeFilterValue ? index : -1;
+                        case '>':
+                            return label > activeFilterValue ? index : -1;
+                        case '>=':
+                            return label >= activeFilterValue ? index : -1;
+                        case '<=':
+                            return label <= activeFilterValue ? index : -1;
+                        case 'not contains':
+                            if (isNaN(labelNum)) { //.incluses() created an error if label is a number.
+                                return !label.includes(activeFilterValue) ? index : -1;
+                            }
+                            return index;
+                        case 'contains':
+                            if (isNaN(labelNum)) { //.incluses() created an error if label is a number.
+                                return label.includes(activeFilterValue) ? index : -1;
+                            }
+                            return index;
+                        case '!=':
+                            return label !== activeFilterValue ? index : -1;
+                        case '=':
+                            return label === activeFilterValue ? index : -1;
+                    }
 
                 }));
             }
@@ -949,7 +949,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         // Update axis type.
         this.chartInfo.options.scales.xAxes[0].type = (this.options.type === 'horizontalBar' ? (this.options.logScale &&
-            this.labelMax > 10 ?  'logarithmic' : 'linear') : 'category');
+        this.labelMax > 10 ?  'logarithmic' : 'linear') : 'category');
         this.chartInfo.options.scales.yAxes[0].type = (this.options.type === 'bar' ? (this.options.logScale && this.labelMax > 10 ?
             'logarithmic' : 'linear') : 'category');
 
