@@ -32,29 +32,6 @@ import * as neon from 'neon-framework';
 import { BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { DatasetOptions, EMPTY_FIELD, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
 
-export class SettingsOptions extends BaseNeonOptions {
-    searchField: FieldMetaData;
-    tableField: TableMetaData;
-    /**
-     * Initializes all the non-field options for the specific visualization.
-     *
-     * @override
-     */
-    onInit() {
-        //this.searchField = this.injector.get('');
-    }
-
-    /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
-     *
-     * @override
-     */
-    updateFieldsOnTableChanged() {
-        //this.searchField = this.findFieldObject('');
-    }
-
-}
-
 @Component({
     selector: 'app-settings',
     templateUrl: 'settings.component.html',
@@ -73,7 +50,7 @@ export class SettingsComponent implements OnInit {
 
     public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
     public exportTarget: string = 'all';
-    public options: SettingsOptions;
+    public options;
     public searchField: FieldMetaData;
     public showVisShortcut: boolean = true;
     public showSimpleSearch: boolean;
@@ -93,27 +70,28 @@ export class SettingsComponent implements OnInit {
         this.datasetService = datasetService;
         this.exportService = exportService;
         this.injector = injector;
-
-        this.options = new SettingsOptions(this.injector, this.datasetService, 'Simple');
-
         this.messenger = new neon.eventing.Messenger();
+        this.simpleSearch = this.datasetService.getActiveDatasetOptions();
+        this.options = this.datasetService.getActiveFields();
+        this.searchField = new FieldMetaData(this.datasetService.getActiveDatasetSimpleFilterFieldName(),
+            this.datasetService.getActiveDatasetSimpleFilterFieldName());
+    }
+
+    changeSimpleSearchFilter() {
+        this.datasetService.setActiveDatasetSimpleFilterFieldName(this.searchField);
     }
 
     checkSimpleFilter() {
-        //console.log(this.showSimpleSearch);
-        //console.table(this.simpleFilter);
         if (this.simpleFilter && this.showSimpleSearch !== false) {
             this.showSimpleSearch = true;
         } else {
             this.showSimpleSearch = false;
         }
-        //console.log(this.showSimpleSearch);
     }
 
     ngOnInit() {
         this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
         this.formData.currentTheme = this.themesService.getCurrentTheme().id;
-        this.simpleSearch = this.datasetService.getActiveDatasetOptions();
         this.checkSimpleFilter();
         this.messenger.subscribe('showSimpleSearch', (message) => {
             this.showSimpleSearch = message.showSimpleSearch;
@@ -128,7 +106,6 @@ export class SettingsComponent implements OnInit {
             this.options.searchField = message.searchField;
             this.options.tableField = message.tableField;
         });
-        //console.log(this.simpleFilter);
         this.changeDetection.detectChanges();
     }
 
@@ -150,13 +127,6 @@ export class SettingsComponent implements OnInit {
         if (themeId) {
             this.themesService.setCurrentTheme(themeId);
         }
-    }
-
-    changeSimpleSearchFilter() {
-        //this.simpleFilter.next(options && options.simpleFilter);
-        //console.log(this.datasetService.getActiveDatasetOptions());
-        //console.log(this.options.searchField);
-        this.datasetService.setActiveDatasetSimpleFilterFieldName(this.options.searchField);
     }
 
 }

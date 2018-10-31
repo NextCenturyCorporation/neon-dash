@@ -50,7 +50,6 @@ export class SimpleFilterComponent implements OnInit {
     setSimpleFilter() {
         let options = this.datasetService.getActiveDatasetOptions();
         this.simpleFilter.next(options && options.simpleFilter);
-        //console.log(options.simpleFilter);
         this.removeFilter();
     }
 

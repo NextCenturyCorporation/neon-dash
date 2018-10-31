@@ -193,6 +193,14 @@ export class DatasetService {
     }
 
     /**
+     * returns the active table fields
+     * @return {Object}
+     */
+    public getActiveFields() {
+        return this.dataset.databases[0].tables[0].fields;
+    }
+
+    /**
      * Returns the active dataset object
      * @return {Object}
      */
