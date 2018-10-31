@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -28,7 +28,7 @@ import * as uuid from 'node-uuid';
     styleUrls: ['./simple-filter.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SimpleFilterComponent implements OnInit {
+export class SimpleFilterComponent implements OnInit, OnDestroy {
 
     public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
     public filterId = new BehaviorSubject<string>(undefined);
@@ -88,6 +88,10 @@ export class SimpleFilterComponent implements OnInit {
             this.showSimpleSearch = false;
         }
         this.publishShowSimpleSearch();
+    }
+
+    ngOnDestroy() {
+        this.messenger.unsubscribeAll();
     }
 
     ngOnInit() {

@@ -14,7 +14,7 @@
  *
  */
 
-import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnInit, Injector } from '@angular/core';
+import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit, Injector } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
@@ -38,7 +38,7 @@ import { DatasetOptions, EMPTY_FIELD, FieldMetaData, SimpleFilter, TableMetaData
     styleUrls: ['settings.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, OnDestroy {
 
     public formData: any = {
         exportFormat: 0,
@@ -72,10 +72,6 @@ export class SettingsComponent implements OnInit {
         this.exportService = exportService;
         this.injector = injector;
         this.messenger = new neon.eventing.Messenger();
-        this.simpleSearch = this.datasetService.getActiveDatasetOptions();
-        this.options = this.datasetService.getActiveFields();
-        this.searchField = new FieldMetaData(this.datasetService.getActiveDatasetSimpleFilterFieldName(),
-            this.datasetService.getActiveDatasetSimpleFilterFieldName());
     }
 
     changeSimpleSearchFilter() {
@@ -90,10 +86,15 @@ export class SettingsComponent implements OnInit {
         }
     }
 
+    ngOnDestroy() {
+        this.messenger.unsubscribeAll();
+    }
+
     ngOnInit() {
         this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
         this.formData.currentTheme = this.themesService.getCurrentTheme().id;
         this.checkSimpleFilter();
+        this.validDatasetService();
         this.messenger.subscribe('showSimpleSearch', (message) => {
             this.showSimpleSearch = message.showSimpleSearch;
             this.changeDetection.detectChanges();
@@ -137,6 +138,20 @@ export class SettingsComponent implements OnInit {
     setCurrentTheme(themeId: any) {
         if (themeId) {
             this.themesService.setCurrentTheme(themeId);
+        }
+    }
+
+    validateDatasetService() {
+        if (this.datasetService.getActiveDatasetOptions()) {
+            this.simpleSearch = this.datasetService.getActiveDatasetOptions();
+        }
+        if (this.datasetService.getActiveFields()) {
+            this.options = this.datasetService.getActiveFields();
+        }
+
+        if (this.datasetService.getActiveDatasetSimpleFilterFieldName()) {
+            this.searchField = new FieldMetaData(this.datasetService.getActiveDatasetSimpleFilterFieldName(),
+                this.datasetService.getActiveDatasetSimpleFilterFieldName());
         }
     }
 
