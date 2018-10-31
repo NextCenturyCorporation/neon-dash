@@ -57,6 +57,8 @@ export class DocumentViewerOptions extends BaseNeonOptions {
     public popoutFields: any[];
     public showSelect: boolean;
     public showText: boolean;
+    public sortField: FieldMetaData;
+    public sortOrder: string;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -70,6 +72,8 @@ export class DocumentViewerOptions extends BaseNeonOptions {
         this.popoutFields = neonUtilities.flatten(this.injector.get('popoutFields', []));
         this.showSelect = this.injector.get('showSelect', false);
         this.showText = this.injector.get('showText', false);
+        this.sortOrder = this.injector.get('sortOrder', 'DESCENDING');
+
     }
 
     /**
@@ -220,7 +224,10 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         }));
         if (this.options.dateField.columnName) {
             fields = fields.concat(this.options.dateField.columnName);
-            query = query.sortBy(this.options.dateField.columnName, neonVariables.DESCENDING);
+        }
+        if (this.options.sortField) {
+            query = query.sortBy(this.options.sortField.columnName,
+                (this.options.sortOrder === 'DESCENDING') ? neonVariables.DESCENDING : neonVariables.ASCENDING);
         }
         if (this.options.idField.columnName) {
             fields = fields.concat(this.options.idField.columnName);
