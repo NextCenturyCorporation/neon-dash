@@ -19,7 +19,7 @@ import { URLSearchParams } from '@angular/http';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-
+import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
@@ -63,6 +63,7 @@ export class SettingsComponent implements OnInit {
     constructor(
         private changeDetection: ChangeDetectorRef,
         public datasetService: DatasetService,
+        private dialog: MatDialog,
         public exportService: ExportService,
         public injector: Injector,
         public themesService: ThemesService
@@ -107,6 +108,16 @@ export class SettingsComponent implements OnInit {
             this.options.tableField = message.tableField;
         });
         this.changeDetection.detectChanges();
+    }
+
+    openEditConfigDialog() {
+        let dConfig  = {
+            height: '80%',
+            width: '80%',
+            hasBackdrop: true,
+            disableClose: true
+        };
+        let dialogRef = this.dialog.open(ConfigEditorComponent, dConfig);
     }
 
     publishShowSimpleSearch() {
