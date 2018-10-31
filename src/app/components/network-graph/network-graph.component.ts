@@ -1101,7 +1101,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                         neon.query.where(filterField.field, '=', element));
                     singleFilter = this.createFilterObject(filterField.field, filterField.data.toString(), filterField.field);
                     clause = neon.query.or.apply(neon.query, clauses);
-                    filterArray.push({singleFilter, clause})
+                    filterArray.push({singleFilter, clause});
                 } else {
                     for (let data of filterField.data) {
                         singleFilter = this.createFilterObject(filterField.field, data, filterField.field, '=');
