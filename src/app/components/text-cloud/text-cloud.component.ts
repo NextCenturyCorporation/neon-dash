@@ -178,7 +178,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getFilterText(filter) {
-        //console.log(filter);
         return filter.prettyField + ' = ' + filter.value;
     }
 
@@ -295,10 +294,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             [this.options.dataField.columnName]);
         this.filters = [];
-        //console.log("Filters");
-        //console.log(neonFilters);
         for (let neonFilter of neonFilters) {
-            //console.log(neonFilter);
             if (!neonFilter.filter.whereClause.whereClauses) {
                 let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
@@ -333,10 +329,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         if (!this.filters.length) {
             this.filters.push(filter);
             let whereClause = neon.query.where(filter.field, '=', filter.value);
-            //console.log("Text Cloud");
-            //console.log(filter);
-            //console.log(whereClause);
-            //console.log(this.filters);
             this.addNeonFilter(true, filter, whereClause);
         } else if (this.filterIsUnique(filter)) {
             filter.id = this.filters[0].id;
