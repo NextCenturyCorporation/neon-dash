@@ -146,8 +146,7 @@ describe('Component: BarChart', () => {
 
         query.where(neon.query.and.apply(query, whereClauses));
 
-        query.groupBy(groupBy).aggregate(neonVariables.COUNT, '*', 'value')
-            .sortBy('value', neonVariables.DESCENDING);
+        query.groupBy(groupBy).aggregate(neonVariables.COUNT, '*', 'value').sortBy('value', neonVariables.DESCENDING);
 
         expect(component.createQuery()).toEqual(query);
         expect(spyQuerySuccess.calls.count()).toBe(0);

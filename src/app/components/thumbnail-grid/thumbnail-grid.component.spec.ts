@@ -1617,7 +1617,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(component.errorMessage).toEqual('');
         expect(component.lastPage).toEqual(true);
-        expect(component.page).toEqual(1);
+        expect(component.page).toEqual(2);
         expect(component.showGrid).toEqual(true);
 
         expect(component.gridArray).toEqual([{
@@ -1749,7 +1749,7 @@ describe('Component: ThumbnailGrid', () => {
         });
 
         expect(component.errorMessage).toEqual('');
-        expect(component.lastPage).toEqual(true);
+        expect(component.lastPage).toEqual(false);
         expect(component.page).toEqual(2);
         expect(component.showGrid).toEqual(true);
 
@@ -1798,7 +1798,7 @@ describe('Component: ThumbnailGrid', () => {
 
     it('onQuerySuccess with data set to the last page does update expected properties and call expected functions', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.limit = 2;
+        component.options.limit = 4;
         component.options.idField = new FieldMetaData('_id', 'Test ID Field');
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
@@ -1806,7 +1806,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
         component.errorMessage = 'Previous Error Message';
         component.lastPage = true;
-        component.page = 2;
+        component.page = 1;
         component.showGrid = false;
         let spy1 = spyOn(component, 'refreshVisualization');
         let spy2 = spyOn(component, 'createMediaThumbnail');
@@ -1841,7 +1841,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(component.errorMessage).toEqual('');
         expect(component.lastPage).toEqual(true);
-        expect(component.page).toEqual(2);
+        expect(component.page).toEqual(1);
         expect(component.showGrid).toEqual(true);
 
         expect(component.gridArray).toEqual([{
@@ -1870,17 +1870,29 @@ describe('Component: ThumbnailGrid', () => {
                 testTypeField: 'type4'
         }]);
         expect(component.pagingGrid).toEqual([{
-                _id: 'id3',
-                testLinkField: 'link3',
-                testNameField: 'name3',
-                testSizeField: 0.3,
-                testTypeField: 'type3'
-            }, {
-                _id: 'id4',
-                testLinkField: 'link4',
-                testNameField: 'name4',
-                testSizeField: 0.4,
-                testTypeField: 'type4'
+            _id: 'id1',
+            testLinkField: 'link1',
+            testNameField: 'name1',
+            testSizeField: 0.1,
+            testTypeField: 'type1'
+        }, {
+            _id: 'id2',
+            testLinkField: 'link2',
+            testNameField: 'name2',
+            testSizeField: 0.2,
+            testTypeField: 'type2'
+        }, {
+            _id: 'id3',
+            testLinkField: 'link3',
+            testNameField: 'name3',
+            testSizeField: 0.3,
+            testTypeField: 'type3'
+        }, {
+            _id: 'id4',
+            testLinkField: 'link4',
+            testNameField: 'name4',
+            testSizeField: 0.4,
+            testTypeField: 'type4'
         }]);
 
         expect(spy1.calls.count()).toEqual(1);

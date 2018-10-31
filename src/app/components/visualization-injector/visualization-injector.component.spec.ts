@@ -50,6 +50,7 @@ import { NewsFeedComponent } from '../news-feed/news-feed.component';
 import { QueryBarComponent } from '../query-bar/query-bar.component';
 import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from '../thumbnail-grid/thumbnail-details.component';
 import { MatAutocompleteModule } from '@angular/material';
+import { TreeModule } from 'angular-tree-component';
 
 describe('Component: VisualizationInjector', () => {
 
@@ -90,7 +91,8 @@ describe('Component: VisualizationInjector', () => {
             NgxDatatableModule,
             NgxGraphModule,
             BrowserAnimationsModule,
-            ReactiveFormsModule
+            ReactiveFormsModule,
+            TreeModule.forRoot()
         ]
     });
 

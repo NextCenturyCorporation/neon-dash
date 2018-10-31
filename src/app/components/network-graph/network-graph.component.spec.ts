@@ -457,8 +457,7 @@ describe('Component: NetworkGraph', () => {
             }]
         });
 
-        /*TODO:Broken in code so test is also broken
-        component.onSelect({nodes: ["testNodeValue2"]});
+        component.onSelect({nodes: ['testNodeValue2']});
 
         let filters = getService(FilterService).getFiltersForFields(component.options.database.name, component.options.table.name,
         component.options.filterFields);
@@ -466,7 +465,7 @@ describe('Component: NetworkGraph', () => {
 
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
-        }));*/
+        }));
     }));
 
 });
