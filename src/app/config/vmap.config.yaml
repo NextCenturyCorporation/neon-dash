@@ -15,13 +15,13 @@ datasets:
             fields:
 
   -
-    name: EVAL18PART1_REF
+    name: EVAL18SUBSET_INTEGRITY_REPORT_V3
     datastore: elasticsearchrest
     hostname: 10.107.5.227
     layout: INTEGRITY_REPORT
     databases:
       -
-        name: integrity_report_probes_091418
+        name: integrity_report_probes_100218
         prettyName: Probes
         tables:
           -
@@ -31,11 +31,13 @@ datasets:
               -
                 columnName: Exif.DateTimeOriginal
               -
+                columnName: Exif.ImageSize
+              -
                 columnName: Exif.Make
               -
                 columnName: Exif.Model
       -
-        name: integrity_report_operations_091418
+        name: integrity_report_operations_100218
         prettyName: Operations
         tables:
           -
@@ -44,7 +46,7 @@ datasets:
             fields:
               -
                 columnName: OperationGroup
-                prettyName: Group
+                prettyName: Operation
               -
                 columnName: OperationSubtype
                 prettyName: Subtype
@@ -60,11 +62,8 @@ datasets:
               -
                 columnName: OperationMaskPath
                 prettyName: Mask
-              -
-                columnName: OperationOverlayPaths
-                prettyName: Overlays
       -
-        name: integrity_report_donors_091418
+        name: integrity_report_donors_100218
         prettyName: Donors
         tables:
           -
@@ -75,15 +74,15 @@ datasets:
       -
         members:
           -
-            database: integrity_report_probes_091418
+            database: integrity_report_probes_100218
             table: _doc
             field: ProbeFileID
           -
-            database: integrity_report_operations_091418
+            database: integrity_report_operations_100218
             table: _doc
             field: ProbeFileID
           -
-            database: integrity_report_donors_091418
+            database: integrity_report_donors_100218
             table: _doc
             field: ProbeFileID
 
@@ -455,7 +454,7 @@ layouts:
     -
       col: 1
       row: 1
-      sizex: 6
+      sizex: 3
       sizey: 12
       type: thumbnailGrid
       bindings:
@@ -472,7 +471,7 @@ layouts:
         filterField: ProbeFileID
         idField: ProbeFileID
         linkField: ThumbDir
-        linkPrefix: http://10.107.5.189:8000
+        linkPrefix: http://10.107.5.227:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         nameField: ProbeFileID
         objectIdField:
@@ -504,21 +503,21 @@ layouts:
             id: show_medium
             fields:
               -
-                field: MergedMask
+                columnName: MergedMask
               -
-                field: InvertedMask
+                columnName: InvertedMask
 
     -
       col: 1
       row: 13
-      sizex: 12
+      sizex: 6
       sizey: 4
       type: filterBuilder
 
     -
-      col: 7
+      col: 4
       row: 1
-      sizex: 6
+      sizex: 3
       sizey: 4
       type: aggregation
       bindings:
@@ -535,9 +534,9 @@ layouts:
         yPercentage: 0.3
 
     -
-      col: 7
+      col: 4
       row: 5
-      sizex: 6
+      sizex: 3
       sizey: 8
       type: documentViewer
       bindings:
@@ -565,9 +564,9 @@ layouts:
             field: Exif
 
     -
-      col: 13
+      col: 7
       row: 1
-      sizex: 12
+      sizex: 6
       sizey: 8
       type: mediaViewer
       bindings:
@@ -578,7 +577,7 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - ProbeDir
-        linkPrefix: http://10.107.5.189:8000
+        linkPrefix: http://10.107.5.227:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         typeMap:
             arw:
@@ -598,25 +597,25 @@ layouts:
             id: show_medium
             fields:
               -
-                field: ProbeDir
-                label: Medium
+                columnName: ProbeDir
+                prettyName: Medium
               -
-                field: MergedMask
-                label: Overlay
+                columnName: MergedMask
+                prettyName: Overlay
               -
-                field: InvertedMask
-                label: Mask
+                columnName: InvertedMask
+                prettyName: Mask
               -
-                field: ReasoningMergedMask
-                label: Overlay
+                columnName: ReasoningMergedMask
+                prettyName: Overlay
               -
-                field: ReasoningInvertedMask
-                label: Mask
+                columnName: ReasoningInvertedMask
+                prettyName: Mask
 
     -
-      col: 13
+      col: 7
       row: 13
-      sizex: 12
+      sizex: 6
       sizey: 4
       type: documentViewer
       bindings:
@@ -626,7 +625,7 @@ layouts:
     -
       col: 1
       row: 1
-      sizex: 6
+      sizex: 3
       sizey: 12
       type: thumbnailGrid
       bindings:
@@ -643,7 +642,7 @@ layouts:
         filterField: ProbeFileID
         idField: ProbeFileID
         linkField: ThumbDir
-        linkPrefix: http://10.107.5.189:8000
+        linkPrefix: http://10.107.5.227:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         nameField: ProbeFileID
         objectIdField:
@@ -675,21 +674,21 @@ layouts:
             id: show_medium
             fields:
               -
-                field: InvertedMask
+                columnName: InvertedMask
               -
-                field: MergedMask
+                columnName: MergedMask
 
     -
       col: 1
       row: 13
-      sizex: 12
+      sizex: 6
       sizey: 4
       type: filterBuilder
 
     -
-      col: 7
+      col: 4
       row: 1
-      sizex: 6
+      sizex: 3
       sizey: 4
       type: dataTable
       bindings:
@@ -720,14 +719,14 @@ layouts:
             id: show_medium
             fields:
               -
-                field: InvertedMask
+                columnName: InvertedMask
               -
-                field: MergedMask
+                columnName: MergedMask
 
     -
-      col: 7
+      col: 4
       row: 5
-      sizex: 6
+      sizex: 3
       sizey: 8
       type: documentViewer
       bindings:
@@ -755,9 +754,9 @@ layouts:
             field: Exif
 
     -
-      col: 13
+      col: 7
       row: 1
-      sizex: 12
+      sizex: 6
       sizey: 8
       type: mediaViewer
       bindings:
@@ -768,7 +767,7 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - ProbeDir
-        linkPrefix: http://10.107.5.189:8000
+        linkPrefix: http://10.107.5.227:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         typeMap:
             arw:
@@ -788,25 +787,25 @@ layouts:
             id: show_medium
             fields:
               -
-                field: ProbeDir
-                label: Medium
+                columnName: ProbeDir
+                prettyName: Medium
               -
-                field: MergedMask
-                label: Overlay
+                columnName: MergedMask
+                prettyName: Overlay
               -
-                field: InvertedMask
-                label: Mask
+                columnName: InvertedMask
+                prettyName: Mask
               -
-                field: ReasoningMergedMask
-                label: Overlay
+                columnName: ReasoningMergedMask
+                prettyName: Overlay
               -
-                field: ReasoningInvertedMask
-                label: Mask
+                columnName: ReasoningInvertedMask
+                prettyName: Mask
 
     -
-      col: 13
+      col: 7
       row: 9
-      sizex: 12
+      sizex: 6
       sizey: 4
       type: thumbnailGrid
       bindings:
@@ -822,7 +821,7 @@ layouts:
         idField: FileID
         ignoreSelf: false
         linkField: InvertedMask
-        linkPrefix: http://10.107.5.189:8000
+        linkPrefix: http://10.107.5.227:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         nameField: IndicatorPretty
         objectIdField:
@@ -847,9 +846,9 @@ layouts:
             mp4: vid
 
     -
-      col: 13
+      col: 7
       row: 13
-      sizex: 12
+      sizex: 6
       sizey: 4
       type: documentViewer
       bindings:
@@ -859,7 +858,7 @@ layouts:
     -
       col: 1
       row: 1
-      sizex: 6
+      sizex: 3
       sizey: 12
       type: thumbnailGrid
       bindings:
@@ -876,7 +875,7 @@ layouts:
         filterField: ProbeFileID
         idField: ProbeFileID
         linkField: ThumbDir
-        linkPrefix: http://10.107.5.189:8000
+        linkPrefix: http://10.107.5.227:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         nameField: ProbeFileID
         objectIdField:
@@ -908,21 +907,21 @@ layouts:
             id: show_medium
             fields:
               -
-                field: ReasoningInvertedMask
+                columnName: ReasoningInvertedMask
               -
-                field: ReasoningMergedMask
+                columnName: ReasoningMergedMask
 
     -
       col: 1
       row: 13
-      sizex: 12
+      sizex: 6
       sizey: 4
       type: filterBuilder
 
     -
-      col: 7
+      col: 4
       row: 1
-      sizex: 6
+      sizex: 3
       sizey: 4
       type: dataTable
       bindings:
@@ -953,14 +952,14 @@ layouts:
             id: show_medium
             fields:
               -
-                field: InvertedMask
+                columnName: InvertedMask
               -
-                field: MergedMask
+                columnName: MergedMask
 
     -
-      col: 7
+      col: 4
       row: 5
-      sizex: 6
+      sizex: 3
       sizey: 8
       type: documentViewer
       bindings:
@@ -988,9 +987,9 @@ layouts:
             field: Exif
 
     -
-      col: 13
+      col: 7
       row: 1
-      sizex: 12
+      sizex: 6
       sizey: 8
       type: mediaViewer
       bindings:
@@ -1001,7 +1000,7 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - ProbeDir
-        linkPrefix: http://10.107.5.189:8000
+        linkPrefix: http://10.107.5.227:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         typeMap:
             arw:
@@ -1021,25 +1020,25 @@ layouts:
             id: show_medium
             fields:
               -
-                field: ProbeDir
-                label: Medium
+                columnName: ProbeDir
+                prettyName: Medium
               -
-                field: MergedMask
-                label: Overlay
+                columnName: MergedMask
+                prettyName: Overlay
               -
-                field: InvertedMask
-                label: Mask
+                columnName: InvertedMask
+                prettyName: Mask
               -
-                field: ReasoningMergedMask
-                label: Overlay
+                columnName: ReasoningMergedMask
+                prettyName: Overlay
               -
-                field: ReasoningInvertedMask
-                label: Mask
+                columnName: ReasoningInvertedMask
+                prettyName: Mask
 
     -
-      col: 13
+      col: 7
       row: 9
-      sizex: 12
+      sizex: 6
       sizey: 4
       type: thumbnailGrid
       bindings:
@@ -1055,7 +1054,7 @@ layouts:
         idField: FileID
         ignoreSelf: false
         linkField: InvertedMask
-        linkPrefix: http://10.107.5.189:8000
+        linkPrefix: http://10.107.5.227:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         nameField: IndicatorPretty
         objectIdField:
@@ -1080,9 +1079,9 @@ layouts:
             mp4: vid
 
     -
-      col: 13
+      col: 7
       row: 13
-      sizex: 12
+      sizex: 6
       sizey: 4
       type: documentViewer
       bindings:
@@ -1092,7 +1091,7 @@ layouts:
     -
       col: 1
       row: 1
-      sizex: 6
+      sizex: 3
       sizey: 12
       type: thumbnailGrid
       bindings:
@@ -1139,21 +1138,21 @@ layouts:
             id: show_medium
             fields:
               -
-                field: reasoning_inverted_mask
+                columnName: reasoning_inverted_mask
               -
-                field: reasoning_merged_mask
+                columnName: reasoning_merged_mask
 
     -
       col: 1
       row: 13
-      sizex: 12
+      sizex: 6
       sizey: 4
       type: filterBuilder
 
     -
-      col: 7
+      col: 4
       row: 1
-      sizex: 6
+      sizex: 3
       sizey: 4
       type: dataTable
       bindings:
@@ -1184,14 +1183,14 @@ layouts:
             id: show_medium
             fields:
               -
-                field: inverted_mask
+                columnName: inverted_mask
               -
-                field: merged_mask
+                columnName: merged_mask
 
     -
-      col: 7
+      col: 4
       row: 5
-      sizex: 6
+      sizex: 3
       sizey: 8
       type: documentViewer
       bindings:
@@ -1216,9 +1215,9 @@ layouts:
             field: exif
 
     -
-      col: 13
+      col: 7
       row: 1
-      sizex: 12
+      sizex: 6
       sizey: 8
       type: mediaViewer
       bindings:
@@ -1249,25 +1248,25 @@ layouts:
             id: show_medium
             fields:
               -
-                field: input
-                label: Medium
+                columnName: input
+                prettyName: Medium
               -
-                field: merged_mask
-                label: Overlay
+                columnName: merged_mask
+                prettyName: Overlay
               -
-                field: inverted_mask
-                label: Mask
+                columnName: inverted_mask
+                prettyName: Mask
               -
-                field: reasoning_merged_mask
-                label: Reasoning Overlay
+                columnName: reasoning_merged_mask
+                prettyName: Reasoning Overlay
               -
-                field: reasoning_inverted_mask
-                label: Reasoning Mask
+                columnName: reasoning_inverted_mask
+                prettyName: Reasoning Mask
 
     -
-      col: 13
+      col: 7
       row: 9
-      sizex: 12
+      sizex: 6
       sizey: 4
       type: thumbnailGrid
       bindings:
@@ -1308,9 +1307,9 @@ layouts:
             mp4: vid
 
     -
-      col: 13
+      col: 7
       row: 13
-      sizex: 12
+      sizex: 6
       sizey: 4
       type: documentViewer
       bindings:
@@ -1320,7 +1319,7 @@ layouts:
     -
       col: 1
       row: 1
-      sizex: 8
+      sizex: 4
       sizey: 11
       type: thumbnailGrid
       bindings:
@@ -1376,7 +1375,7 @@ layouts:
     -
       col: 1
       row: 12
-      sizex: 8
+      sizex: 4
       sizey: 5
       type: thumbnailGrid
       bindings:
@@ -1432,16 +1431,16 @@ layouts:
     -
       col: 1
       row: 17
-      sizex: 8
+      sizex: 4
       sizey: 5
       type: filterBuilder
       bindings:
         requireAll: true
 
     -
-      col: 9
+      col: 5
       row: 1
-      sizex: 8
+      sizex: 4
       sizey: 4
       type: aggregation
       bindings:
@@ -1456,9 +1455,9 @@ layouts:
         yPercentage: 0.3
 
     -
-      col: 9
+      col: 5
       row: 5
-      sizex: 8
+      sizex: 4
       sizey: 4
       type: aggregation
       bindings:
@@ -1473,9 +1472,9 @@ layouts:
         yPercentage: 0.3
 
     -
-      col: 9
+      col: 5
       row: 9
-      sizex: 8
+      sizex: 4
       sizey: 4
       type: aggregation
       bindings:
@@ -1490,9 +1489,9 @@ layouts:
         yPercentage: 0.3
 
     -
-      col: 9
+      col: 5
       row: 13
-      sizex: 8
+      sizex: 4
       sizey: 9
       type: aggregation
       bindings:
@@ -1507,9 +1506,9 @@ layouts:
         yPercentage: 0.3
 
     -
-      col: 17
+      col: 9
       row: 1
-      sizex: 8
+      sizex: 4
       sizey: 7
       type: mediaViewer
       bindings:
@@ -1541,9 +1540,9 @@ layouts:
             mp4: vid
 
     -
-      col: 17
+      col: 9
       row: 8
-      sizex: 8
+      sizex: 4
       sizey: 7
       type: mediaViewer
       bindings:
@@ -1575,9 +1574,9 @@ layouts:
             mp4: vid
 
     -
-      col: 17
+      col: 9
       row: 15
-      sizex: 8
+      sizex: 4
       sizey: 7
       type: mediaViewer
       bindings:
@@ -1611,7 +1610,7 @@ layouts:
     -
       col: 1
       row: 22
-      sizex: 8
+      sizex: 4
       sizey: 7
       type: mediaViewer
       bindings:
@@ -1643,9 +1642,9 @@ layouts:
             mp4: vid
 
     -
-      col: 9
+      col: 5
       row: 22
-      sizex: 8
+      sizex: 4
       sizey: 7
       type: mediaViewer
       bindings:
@@ -1677,9 +1676,9 @@ layouts:
             mp4: vid
 
     -
-      col: 17
+      col: 9
       row: 22
-      sizex: 8
+      sizex: 4
       sizey: 7
       type: mediaViewer
       bindings:
@@ -1713,7 +1712,7 @@ layouts:
     -
       col: 1
       row: 29
-      sizex: 24
+      sizex: 12
       sizey: 6
       type: dataTable
       bindings:
@@ -1758,7 +1757,7 @@ layouts:
     -
       col: 1
       row: 1
-      sizex: 8
+      sizex: 4
       sizey: 14
       type: thumbnailGrid
       bindings:
@@ -1768,17 +1767,18 @@ layouts:
         table: _doc
         ascending: true
         border: percentCompare
-        borderCompareValue: 1
-        compareField: NeonReasoningScore
+        borderCompareValue: Manipulated
+        compareField: NeonReasoningLabel
         cropAndScale:
         defaultPercent: N/A
         detailedThumbnails: true
         filterField: ProbeFileID
-        flagLabel: ProbeFileID
-        flagSubLabel1: NeonReasoningScore
+        flagLabel: NeonReasoningLabel
+        flagSubLabel1: Exif.ImageSize
         flagSubLabel2: Exif.Model
         flagSubLabel3: Exif.DateTimeOriginal
         idField: ProbeFileID
+        ignoreSelf: true
         linkField: NeonThumbnailPath
         linkPrefix: http://10.107.5.227:8000
         nameField: ProbeFileID
@@ -1788,7 +1788,6 @@ layouts:
         percentField: NeonReasoningScore
         predictedNameField:
         sortField: ProbeFileID
-        styleClass: style2
         textMap:
             actual: Truth
             percentage: Score
@@ -1813,24 +1812,24 @@ layouts:
             mp4: vid
         customEventsToPublish:
           -
-            id: show_probe
+            id: show_operations
             fields:
               -
-                field: NeonProbeMaskOverlayPaths
+                columnName: NeonOperationsSorted
               -
-                field: NeonProbeMaskPath
+                columnName: NeonProbeSplitMaskPathsSorted
 
     -
       col: 1
       row: 15
-      sizex: 14
+      sizex: 7
       sizey: 6
       type: filterBuilder
 
     -
-      col: 9
+      col: 5
       row: 1
-      sizex: 6
+      sizex: 3
       sizey: 6
       type: dataTable
       bindings:
@@ -1841,7 +1840,7 @@ layouts:
         filterable: false
         filterFields:
         hideUnfiltered: true
-        idField: OperationGroup
+        #idField: OperationGroup
         ignoreSelf: true
         sortField: OperationOrder
         skinny: true
@@ -1849,28 +1848,30 @@ layouts:
         allColumnStatus: hide
         fieldsConfig:
           -
+            name: OperationColor
+          -
             name: OperationGroup
           -
             name: OperationOrder
           -
-            name: OperationColor
-          -
             name: OperationSubtype
           -
             name: OperationScore
-        customEventsToPublish:
-          -
-            id: show_probe
-            fields:
-              -
-                field: OperationMaskPath
-              -
-                field: OperationOverlayPaths
+        #customEventsToPublish:
+        #  -
+        #    id: show_operation
+        #    fields:
+        #      -
+        #        columnName: OperationOrder
+        #      -
+        #        columnName: OperationMaskPath
+        #      -
+        #        columnName: OperationOverlayPaths
 
     -
-      col: 9
+      col: 5
       row: 7
-      sizex: 6
+      sizex: 3
       sizey: 8
       type: documentViewer
       bindings:
@@ -1892,9 +1893,9 @@ layouts:
             field: Exif
 
     -
-      col: 15
+      col: 8
       row: 1
-      sizex: 10
+      sizex: 5
       sizey: 8
       type: mediaViewer
       bindings:
@@ -1906,17 +1907,19 @@ layouts:
         linkFields:
           - NeonProbePath
         linkPrefix: http://10.107.5.227:8000
+        maskField: NeonProbeMaskPath
+        sliderValue: 50
         typeMap:
-            jpeg: img
+            jpeg: mask
             arw:
-            bmp: img
+            bmp: mask
             cr2:
             dng:
             iiq:
-            jpg: img
+            jpg: mask
             mts:
             nef:
-            png: img
+            png: mask
             raf:
             tif:
             3gp:
@@ -1925,29 +1928,30 @@ layouts:
             mov: vid
             mp4: vid
         customEventsToReceive:
+          #-
+          #  id: show_operation
+          #  fields:
+          #    -
+          #      columnName: OperationMaskPath
+          #      type: mask
+          #    -
+          #      columnName: OperationOrder
+          #      prettyName: Step
+          #      type: tab
           -
-            id: show_probe
+            id: show_operations
             fields:
               -
-                field: NeonProbePath
-                label: Probe
+                columnName: NeonOperationsSorted
+                type: name
               -
-                field: NeonProbeMaskOverlayPaths
-                label: Overlay
-              -
-                field: NeonProbeMaskPath
-                label: Mask
-              -
-                field: OperationOverlayPaths
-                label: Overlay
-              -
-                field: OperationMaskPath
-                label: Mask
+                columnName: NeonProbeSplitMaskPathsSorted
+                type: mask
 
     -
-      col: 15
+      col: 8
       row: 9
-      sizex: 10
+      sizex: 5
       sizey: 4
       type: thumbnailGrid
       bindings:
@@ -1995,14 +1999,16 @@ layouts:
             id: show_donor
             fields:
               -
-                field: DonorPath
+                columnName: DonorFileID
               -
-                field: DonorMaskPath
+                columnName: DonorPath
+              -
+                columnName: DonorMaskPath
 
     -
-      col: 15
+      col: 8
       row: 13
-      sizex: 10
+      sizex: 5
       sizey: 8
       type: mediaViewer
       bindings:
@@ -2014,17 +2020,19 @@ layouts:
         linkFields:
           - DonorPath
         linkPrefix: http://10.107.5.227:8000
+        maskField: DonorMaskPath
+        sliderValue: 50
         typeMap:
-            jpeg: img
+            jpeg: mask
             arw:
-            bmp: img
+            bmp: mask
             cr2:
             dng:
             iiq:
-            jpg: img
+            jpg: mask
             mts:
             nef:
-            png: img
+            png: mask
             raf:
             tif:
             3gp:
@@ -2037,9 +2045,12 @@ layouts:
             id: show_donor
             fields:
               -
-                field: DonorPath
-                label: Donor
+                columnName: DonorFileID
+                type: tab
               -
-                field: DonorMaskPath
-                label: Mask
+                columnName: DonorPath
+                type: base
+              -
+                columnName: DonorMaskPath
+                type: mask
 
