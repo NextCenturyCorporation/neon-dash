@@ -89,49 +89,20 @@ export class LeafletNeonMap extends AbstractMap {
         for (let point of points) {
 
             let circleOptions = {};
-
-            //check if an item was selected via select_id in the Messenger and idField is
-            if (this.mapOptions.id && point.idValue) {
-
-                //check if selected point is present or within collapsed group of points
-                //emphasize corresponding selected points
-                if (point.idList.includes(this.mapOptions.id)) {
-                    circleOptions = {
+            let mapIsSelected = this.mapOptions.id && point.idValue;          //is point selected record
+            let pointIsSelected = point.idList.includes(this.mapOptions.id);  //check if point is in list
+            
+            circleOptions = {
                         color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
-                        stroke: false,
-                        fill: true,
                         fillColor: point.cssColorString,
                         colorByField: point.colorByField,
                         colorByValue: point.colorByValue,
-                        fillOpacity: 1,
-                        radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30) // Default is 10
-                    };
-
-                } else {
-
-                    circleOptions = {
-                        color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
-                        fillColor: point.cssColorString,
                         weight: 1,
-                        colorByField: point.colorByField,
-                        colorByValue: point.colorByValue,
-                        opacity: .2,
-                        fillOpacity: .1,
-                        radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30) // Default is 10
-                    };
-                }
-            } else {
-                //default circle options
-                circleOptions = {
-                    color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
-                    fillColor: point.cssColorString,
-                    weight: 1,
-                    colorByField: point.colorByField,
-                    colorByValue: point.colorByValue,
-                    radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30) // Default is 10
-                };
-
-            }
+                        stroke: mapIsSelected && pointIsSelected ? false : true,
+                        opacity: mapIsSelected ? (pointIsSelected ? 0 : .2) : 1,
+                        fillOpacity: mapIsSelected ? (pointIsSelected ? 1 : .1) : .3,
+                        radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30), // Default is 10           
+            };
 
             let circle = new L.CircleMarker([point.lat, point.lng], circleOptions)/*.setRadius(6)*/;
             circle = this.addClickEventListener(circle);
