@@ -91,6 +91,21 @@ export class DataTableOptions extends BaseNeonOptions {
     }
 
     /**
+     * Returns the list of fields to export.
+     *
+     * @return {{ columnName: string, prettyName: string }[]}
+     * @override
+     */
+    getExportFields() {
+        return this.headers.filter((header) => header.active).map((header) => {
+            return {
+                columnName: header.prop,
+                prettyName: header.name
+            };
+        });
+    }
+
+    /**
      * Returns the list of field properties for the specific visualization.
      *
      * @return {string[]}
@@ -405,17 +420,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }
         }
         return null;
-    }
-
-    getExportFields() {
-        return this.options.headers
-            .filter((header) => header.active)
-            .map((header) => {
-                return {
-                    columnName: header.prop,
-                    prettyName: header.name
-                };
-            });
     }
 
     closeColumnSelector() {

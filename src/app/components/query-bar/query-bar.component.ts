@@ -223,16 +223,6 @@ export class QueryBarComponent  extends BaseNeonComponent {
     }
 
     /**
-     * Returns the Query Bar export fields.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        return [];
-    }
-
-    /**
      * Returns the options for the specific visualization.
      *
      * @return {BaseNeonOptions}

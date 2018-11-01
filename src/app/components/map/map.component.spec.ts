@@ -641,62 +641,6 @@ describe('Component: Map', () => {
         expect(refs.visualization).toBeDefined();
     });
 
-    it('getExportFields does return expected array', () => {
-        expect(component.getExportFields(0)).toEqual([]);
-
-        updateMapLayer1(component);
-
-        expect(component.getExportFields(0)).toEqual([
-        {
-            columnName: 'testId1',
-            prettyName: 'Test ID 1'
-        }, {
-            columnName: 'testLatitude1',
-            prettyName: 'Test Latitude 1'
-        }, {
-            columnName: 'testLongitude1',
-            prettyName: 'Test Longitude 1'
-        }, {
-            columnName: 'testColor1',
-            prettyName: 'Test Color 1'
-        }, {
-            columnName: 'testSize1',
-            prettyName: 'Test Size 1'
-        }, {
-            columnName: 'testDate1',
-            prettyName: 'Test Date 1'
-        }, {
-            columnName: 'testHover1',
-            prettyName: 'Test Hover 1'
-        }]);
-
-        updateMapLayer2(component);
-
-        expect(component.getExportFields(1)).toEqual([
-        {
-            columnName: 'testId2',
-            prettyName: 'Test ID 2'
-        }, {
-            columnName: 'testLatitude2',
-            prettyName: 'Test Latitude 2'
-        }, {
-            columnName: 'testLongitude2',
-            prettyName: 'Test Longitude 2'
-        }, {
-            columnName: 'testColor2',
-            prettyName: 'Test Color 2'
-        }, {
-            columnName: 'testSize2',
-            prettyName: 'Test Size 2'
-        }, {
-            columnName: 'testDate2',
-            prettyName: 'Test Date 2'
-        }, {
-            columnName: 'testHover2',
-            prettyName: 'Test Hover 2'
-        }]);
-    });
-
     it('filterByLocation does set filterBoundingBox and does call addNeonFilter on each layer', () => {
         let spy = spyOn(component, 'addNeonFilter');
 

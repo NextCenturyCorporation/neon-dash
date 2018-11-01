@@ -130,19 +130,6 @@ describe('Component: WikiViewer', () => {
         expect(refs.visualization).toBeDefined();
     });
 
-    it('getExportFields does return expected array', (() => {
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testIdField',
-            prettyName: 'Test ID Field'
-        }, {
-            columnName: 'testLinkField',
-            prettyName: 'Test Link Field'
-        }]);
-    }));
-
     it('getFiltersToIgnore does return null', (() => {
         expect(component.getFiltersToIgnore()).toBeNull();
     }));
