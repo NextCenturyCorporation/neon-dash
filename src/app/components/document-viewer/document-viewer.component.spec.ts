@@ -170,22 +170,39 @@ describe('Component: DocumentViewer', () => {
         let query = new neon.query.Query()
             .selectFrom('testDatabase1', 'testTable1')
             .where(new neon.query.WhereClause('testTextField', '!=', null))
-            .withFields([
-                'testTextField',
-                'testIdField'
-            ])
+            .withFields(['testTextField', 'testIdField'])
             .limit(50)
             .offset(0);
         expect(component.createQuery()).toEqual(query);
 
-        // Then add a date field and ensure the result is properly sorting.
+        // Then add a date field and ensure the sort is not effectivedthe result is properly sorting.
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
-        query = query.sortBy('testDateField', neonVariables.DESCENDING)
+        query = query.withFields([
+            'testTextField',
+            'testDateField',
+            'testIdField'
+        ]);
+        expect(component.createQuery()).toEqual(query);
+    });
+
+    it('returns expected query from createQuery with sort', () => {
+        component.options.database = new DatabaseMetaData('testDatabase1');
+        component.options.table = new TableMetaData('testTable1');
+        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
+        component.options.dateField = DatasetServiceMock.DATE_FIELD;
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.sortField = DatasetServiceMock.NAME_FIELD;
+        let query = new neon.query.Query()
+            .selectFrom('testDatabase1', 'testTable1')
+            .where(new neon.query.WhereClause('testTextField', '!=', null))
             .withFields([
                 'testTextField',
                 'testDateField',
                 'testIdField'
-            ]);
+            ])
+            .sortBy('testNameField', neonVariables.DESCENDING)
+            .limit(50)
+            .offset(0);
         expect(component.createQuery()).toEqual(query);
     });
 
