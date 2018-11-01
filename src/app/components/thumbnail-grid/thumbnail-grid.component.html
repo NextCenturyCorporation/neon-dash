@@ -193,31 +193,31 @@
                 </div>
                 <p></p>
 
-                <mat-form-field>
-                    <input matInput placeholder="Border" [(ngModel)]="options.border" required="false">
-                </mat-form-field>
+                <mat-select placeholder="Border" [(ngModel)]="options.border" required="true" (ngModelChange)="updatePageData()">
+                    <mat-option [value]="''">Off</mat-option>
+                    <mat-option [value]="'valueCompare'">Comparison Field (Blue / Red)</mat-option>
+                    <mat-option [value]="'percentCompare'">Comparison and Probability Fields (Blue / Red)</mat-option>
+                    <mat-option [value]="'percentField'">Probability Field (Blue / Red)</mat-option>
+                    <mat-option [value]="'blue'">Blue</mat-option>
+                    <mat-option [value]="'grey'">Grey</mat-option>
+                    <mat-option [value]="'red'">Red</mat-option>
+                    <mat-option [value]="'yellow'">Yellow</mat-option>
+                </mat-select>
                 <p></p>
 
-                <mat-form-field>
-                    <input matInput placeholder="Border By Comparison To Category" [(ngModel)]="options.borderCompareValue" required="false">
+                <mat-form-field *ngIf="options.border === 'percentCompare' || options.border === 'valueCompare'">
+                    <input matInput placeholder="Border Comparison Field Equals..." [(ngModel)]="options.borderCompareValue" required="false">
                 </mat-form-field>
-                <p></p>
+                <p *ngIf="options.border === 'percentCompare' || options.border === 'valueCompare'"></p>
 
-                <mat-form-field>
-                    <input matInput placeholder="Border Percent Threshold" [(ngModel)]="options.borderPercentThreshold" required="false">
+                <mat-form-field *ngIf="options.border === 'percentCompare' || options.border === 'percentField'">
+                    <input matInput placeholder="Border Probability Greater Than..." [(ngModel)]="options.borderPercentThreshold" required="false">
                 </mat-form-field>
-                <p></p>
+                <p *ngIf="options.border === 'percentCompare' || options.border === 'percentField'"></p>
 
                 <mat-form-field>
                     <input matInput placeholder="Link Prefix" [(ngModel)]="options.linkPrefix" required="false">
                 </mat-form-field>
-                <p></p>
-
-                <span class="toggle-text">Thumbnail Border:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="borderOn" (ngModelChange)="updatePageData()">
-                    <mat-button-toggle [value]="true">On</mat-button-toggle>
-                    <mat-button-toggle [value]="false">Off</mat-button-toggle>
-                </mat-button-toggle-group>
                 <p></p>
 
                 <span class="toggle-text">Crop or Scale:</span>

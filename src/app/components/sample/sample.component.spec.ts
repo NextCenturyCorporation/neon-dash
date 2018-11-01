@@ -45,6 +45,35 @@ import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
+// Helper functions.
+
+let validateSelect = (element: any, name: string, required: boolean = false, disabled: boolean = false) => {
+    expect(element.componentInstance.disabled).toEqual(disabled);
+    expect(element.componentInstance.placeholder).toEqual(name);
+    expect(element.componentInstance.required).toEqual(required);
+};
+
+let validateSelectFields = (element: any, required: boolean = false, selected: string = '') => {
+    let options = element.componentInstance.options.toArray();
+    expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + (required ? 0 : 1));
+    if (!required) {
+        // Check for the empty field!
+        expect(options[0].getLabel()).toEqual('(None)');
+    }
+    // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
+    for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+        let index = (required ? i : (i + 1));
+        expect(options[index].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+        expect(options[index].selected).toEqual(selected ? (DatasetServiceMock.FIELDS[i].columnName === selected) : false);
+    }
+};
+
+let validateToggle = (element: any, value: any, content: string, checked: boolean) => {
+    expect(element.componentInstance.value).toEqual(value);
+    expect(element.nativeElement.textContent).toContain(content);
+    expect(element.nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(checked);
+};
+
 // Must define the test component.
 @Component({
         selector: 'app-test-sample',
@@ -1337,76 +1366,46 @@ describe('Component: Sample', () => {
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
             expect(selects.length).toEqual(6); // The final select is in the unshared filter.
-            let options;
 
             // Database Dropdown
-            expect(selects[0].componentInstance.disabled).toEqual(false);
-            expect(selects[0].componentInstance.placeholder).toEqual('Database');
-            expect(selects[0].componentInstance.required).toEqual(true);
-            options = selects[0].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Test Database 1');
-            expect(options[0].selected).toEqual(true);
-            expect(options[1].getLabel()).toEqual('Test Database 2');
-            expect(options[1].selected).toEqual(false);
+            validateSelect(selects[0], 'Database', true);
+            let databaseOptions = selects[0].componentInstance.options.toArray();
+            expect(databaseOptions.length).toEqual(2);
+            expect(databaseOptions[0].getLabel()).toEqual('Test Database 1');
+            expect(databaseOptions[0].selected).toEqual(true);
+            expect(databaseOptions[1].getLabel()).toEqual('Test Database 2');
+            expect(databaseOptions[1].selected).toEqual(false);
 
             // Table Dropdown
-            expect(selects[1].componentInstance.disabled).toEqual(false);
-            expect(selects[1].componentInstance.placeholder).toEqual('Table');
-            expect(selects[1].componentInstance.required).toEqual(true);
-            options = selects[1].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Test Table 1');
-            expect(options[0].selected).toEqual(true);
-            expect(options[1].getLabel()).toEqual('Test Table 2');
-            expect(options[1].selected).toEqual(false);
+            validateSelect(selects[1], 'Table', true);
+            let tableOptions = selects[1].componentInstance.options.toArray();
+            expect(tableOptions.length).toEqual(2);
+            expect(tableOptions[0].getLabel()).toEqual('Test Table 1');
+            expect(tableOptions[0].selected).toEqual(true);
+            expect(tableOptions[1].getLabel()).toEqual('Test Table 2');
+            expect(tableOptions[1].selected).toEqual(false);
 
             // Sample Required Field Dropdown
-            expect(selects[2].componentInstance.disabled).toEqual(false);
-            expect(selects[2].componentInstance.placeholder).toEqual('Sample Required Field');
-            expect(selects[2].componentInstance.required).toEqual(true);
-            options = selects[2].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
-            // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i].selected).toEqual(false);
-            }
+            validateSelect(selects[2], 'Sample Required Field', true);
+            validateSelectFields(selects[2], true);
 
             // Sample Optional Field Dropdown
-            expect(selects[3].componentInstance.disabled).toEqual(false);
-            expect(selects[3].componentInstance.placeholder).toEqual('Sample Optional Field');
-            expect(selects[3].componentInstance.required).toEqual(false);
-            options = selects[3].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
-            // Check for the empty field!
-            expect(options[0].getLabel()).toEqual('(None)');
-            // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(false);
-            }
+            validateSelect(selects[3], 'Sample Optional Field', false);
+            validateSelectFields(selects[3], false);
 
             // Subcomponent Type Dropdown
-            expect(selects[4].componentInstance.disabled).toEqual(false);
-            expect(selects[4].componentInstance.placeholder).toEqual('Subcomponent Type');
-            expect(selects[4].componentInstance.required).toEqual(true);
-            options = selects[4].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Impl1');
-            expect(options[1].getLabel()).toEqual('Impl2');
+            validateSelect(selects[4], 'Subcomponent Type', true);
+            let subcomponentOptions = selects[4].componentInstance.options.toArray();
+            expect(subcomponentOptions.length).toEqual(2);
+            expect(subcomponentOptions[0].getLabel()).toEqual('Impl1');
+            expect(subcomponentOptions[1].getLabel()).toEqual('Impl2');
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
             expect(toggles.length).toEqual(2);
 
-            expect(toggles[0].componentInstance.value).toEqual(false);
-            expect(toggles[0].nativeElement.textContent).toContain('Ascending');
-            expect(toggles[0].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[1].componentInstance.value).toEqual(true);
-            expect(toggles[1].nativeElement.textContent).toContain('Descending');
-            expect(toggles[1].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+            validateToggle(toggles[0], false, 'Ascending', true);
+            validateToggle(toggles[1], true, 'Descending', false);
         });
     }));
 
@@ -1850,76 +1849,46 @@ describe('Component: Sample with config', () => {
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
             expect(selects.length).toEqual(6); // The final select is in the unshared filter.
-            let options;
 
             // Database Dropdown
-            expect(selects[0].componentInstance.disabled).toEqual(false);
-            expect(selects[0].componentInstance.placeholder).toEqual('Database');
-            expect(selects[0].componentInstance.required).toEqual(true);
-            options = selects[0].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Test Database 1');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('Test Database 2');
-            expect(options[1].selected).toEqual(true);
+            validateSelect(selects[0], 'Database', true);
+            let databaseOptions = selects[0].componentInstance.options.toArray();
+            expect(databaseOptions.length).toEqual(2);
+            expect(databaseOptions[0].getLabel()).toEqual('Test Database 1');
+            expect(databaseOptions[0].selected).toEqual(false);
+            expect(databaseOptions[1].getLabel()).toEqual('Test Database 2');
+            expect(databaseOptions[1].selected).toEqual(true);
 
             // Table Dropdown
-            expect(selects[1].componentInstance.disabled).toEqual(false);
-            expect(selects[1].componentInstance.placeholder).toEqual('Table');
-            expect(selects[1].componentInstance.required).toEqual(true);
-            options = selects[1].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Test Table 1');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('Test Table 2');
-            expect(options[1].selected).toEqual(true);
+            validateSelect(selects[1], 'Table', true);
+            let tableOptions = selects[1].componentInstance.options.toArray();
+            expect(tableOptions.length).toEqual(2);
+            expect(tableOptions[0].getLabel()).toEqual('Test Table 1');
+            expect(tableOptions[0].selected).toEqual(false);
+            expect(tableOptions[1].getLabel()).toEqual('Test Table 2');
+            expect(tableOptions[1].selected).toEqual(true);
 
             // Sample Required Field Dropdown
-            expect(selects[2].componentInstance.disabled).toEqual(false);
-            expect(selects[2].componentInstance.placeholder).toEqual('Sample Required Field');
-            expect(selects[2].componentInstance.required).toEqual(true);
-            options = selects[2].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
-            // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testCategoryField');
-            }
+            validateSelect(selects[2], 'Sample Required Field', true);
+            validateSelectFields(selects[2], true, 'testCategoryField');
 
             // Sample Optional Field Dropdown
-            expect(selects[3].componentInstance.disabled).toEqual(false);
-            expect(selects[3].componentInstance.placeholder).toEqual('Sample Optional Field');
-            expect(selects[3].componentInstance.required).toEqual(false);
-            options = selects[3].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
-            // Check for the empty field!
-            expect(options[0].getLabel()).toEqual('(None)');
-            // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testNameField');
-            }
+            validateSelect(selects[3], 'Sample Optional Field', false);
+            validateSelectFields(selects[3], false, 'testNameField');
 
             // Subcomponent Type Dropdown
-            expect(selects[4].componentInstance.disabled).toEqual(false);
-            expect(selects[4].componentInstance.placeholder).toEqual('Subcomponent Type');
-            expect(selects[4].componentInstance.required).toEqual(true);
-            options = selects[4].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Impl1');
-            expect(options[1].getLabel()).toEqual('Impl2');
+            validateSelect(selects[4], 'Subcomponent Type', true);
+            let subcomponentOptions = selects[4].componentInstance.options.toArray();
+            expect(subcomponentOptions.length).toEqual(2);
+            expect(subcomponentOptions[0].getLabel()).toEqual('Impl1');
+            expect(subcomponentOptions[1].getLabel()).toEqual('Impl2');
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
             expect(toggles.length).toEqual(2);
 
-            expect(toggles[0].componentInstance.value).toEqual(false);
-            expect(toggles[0].nativeElement.textContent).toContain('Ascending');
-            expect(toggles[0].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[1].componentInstance.value).toEqual(true);
-            expect(toggles[1].nativeElement.textContent).toContain('Descending');
-            expect(toggles[1].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+            validateToggle(toggles[0], false, 'Ascending', false);
+            validateToggle(toggles[1], true, 'Descending', true);
         });
     }));
 });
