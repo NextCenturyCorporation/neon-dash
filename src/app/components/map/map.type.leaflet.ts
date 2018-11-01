@@ -91,7 +91,7 @@ export class LeafletNeonMap extends AbstractMap {
             let circleOptions = {};
             let mapIsSelected = this.mapOptions.id && point.idValue;          //is point selected record
             let pointIsSelected = point.idList.includes(this.mapOptions.id);  //check if point is in list
-            
+
             circleOptions = {
                         color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
                         fillColor: point.cssColorString,
@@ -101,7 +101,7 @@ export class LeafletNeonMap extends AbstractMap {
                         stroke: mapIsSelected && pointIsSelected ? false : true,
                         opacity: mapIsSelected ? (pointIsSelected ? 0 : .2) : 1,
                         fillOpacity: mapIsSelected ? (pointIsSelected ? 1 : .1) : .3,
-                        radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30), // Default is 10           
+                        radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30) // Default is 10
             };
 
             let circle = new L.CircleMarker([point.lat, point.lng], circleOptions)/*.setRadius(6)*/;
