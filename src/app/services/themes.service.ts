@@ -30,6 +30,7 @@ export class ThemesService {
 
     constructor() {
         // Do nothing.
+
     }
 
     getThemes(): string[] {
