@@ -94,7 +94,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
         this.formData.currentTheme = this.themesService.getCurrentTheme().id;
         this.checkSimpleFilter();
-        this.validDatasetService();
+        this.validateDatasetService();
         this.messenger.subscribe('showSimpleSearch', (message) => {
             this.showSimpleSearch = message.showSimpleSearch;
             this.changeDetection.detectChanges();
