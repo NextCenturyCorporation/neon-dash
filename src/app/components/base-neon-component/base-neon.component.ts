@@ -600,6 +600,24 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Adds all the given filters to this component and neon with an optional callback function
+     * @param filters
+     * @param callback
+     */
+    addMultipleFilters(filters: {singleFilter: any, clause: neon.query.WherePredicate}[], callback?: Function) {
+        if (!filters.length) {
+            if (callback) {
+                callback();
+            }
+            return;
+        }
+
+        this.addNeonFilter(true, filters[0].singleFilter, filters[0].clause, () => {
+            this.addMultipleFilters(filters.slice(1), callback);
+        });
+    }
+
+    /**
      * Replace a filter and register the change with Neon.
      *
      * @arg {boolean} executeQueryChainOnSuccess
