@@ -665,9 +665,12 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             let lngCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, lngField)),
                 latCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, latField)),
                 colorValue = neonUtilities.deepFind(point, colorField),
-                idValue = neonUtilities.deepFind(point, idField);
+                idValue = neonUtilities.deepFind(point, idField),
+                hoverPopupValue = hoverPopupField ? neonUtilities.deepFind(point, hoverPopupField) : '';
 
-            let hoverPopupValue = hoverPopupField ? neonUtilities.deepFind(point, hoverPopupField) : '';
+            //use first value if deepFind returns an array
+            colorValue = colorValue instanceof Array ? (colorValue.length ? colorValue[0] : '') : colorValue;
+            idValue = idValue instanceof Array ? (idValue.length ? idValue[0] : '') : idValue;
 
             if (latCoord instanceof Array && lngCoord instanceof Array) {
                 for (let pos = latCoord.length - 1; pos >= 0; pos--) {
