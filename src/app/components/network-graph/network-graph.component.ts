@@ -498,20 +498,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return null;
     }
 
-    addFilter(myFilter) {
-        if (!this.filters.length || this.filters.length === 0) {
-            this.filters.push(myFilter);
-            let whereClause = neon.query.where(myFilter.field, myFilter.operator, myFilter.value);
-            this.addNeonFilter(true, myFilter, whereClause);
-        } else if (this.filterIsUnique(myFilter)) {
-            myFilter.id = this.filters[0].id;
-            this.filters.push(myFilter);
-            let whereClauses = this.filters.map((existingFilter) => {
-                return neon.query.where(existingFilter.field, existingFilter.operator, existingFilter.value);
-            });
-            let whereClause = whereClauses.length === 1 ? whereClauses[0] : (this.options.andFilters ? neon.query.and.apply(neon.query,
-                whereClauses) : neon.query.or.apply(neon.query, whereClauses));
-            this.replaceNeonFilter(true, myFilter, whereClause);
+    addFilter(myFilter, clause) {
+        if (this.filterIsUnique(myFilter)) {
+            this.addLocalFilter(myFilter);
+            this.addNeonFilter(true, myFilter, clause);
         }
     }
 
@@ -1086,15 +1076,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
         if (currentlyActive) {
             //create filter
-            let myFilter = {
-                id: undefined,
-                field: field.columnName,
-                prettyField: field.prettyName,
-                value: value,
-                operator: '!='
-            };
-
-            this.addFilter(myFilter);
+            let myFilter = this.createFilterObject(field.columnName, value, field.prettyName, '!=');
+            let whereClause = neon.query.where(myFilter.field, myFilter.operator, myFilter.value);
+            this.addFilter(myFilter, whereClause);
             this.disabledSet.push([field.columnName, value]);
         } else {
             //find the filter to remove and remove the item from the disabled set
@@ -1116,27 +1100,57 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * Filters the data using the name of the selected node
      * @param properties
      */
-    onSelect(properties) {
+    onSelect = (properties: {nodes: string[]}) => {
         if (properties.nodes.length === 1) {
             //find the selected node
             let nodeName = properties.nodes[0];
-            let selectedNode = <Node> this.graphData.nodes.get({
-                filter: function(item: Node) {
-                    return (item.label === nodeName);
-                }
-            })[0];
+            let selectedNode = <Node> this.graphData.nodes.get(nodeName);
+            let clause: neon.query.WherePredicate;
+            let singleFilter;
 
             //create filter
-            let field = selectedNode.isLink ? this.options.linkField : this.options.nodeField;
-            let myFilter = {
-                id: undefined,
-                field: field.columnName,
-                prettyField: field.prettyName,
-                value: nodeName,
-                operator: '='
-            };
-            this.addFilter(myFilter);
+            for (let filterField of selectedNode.filterFields) {
+                let filterArray: {singleFilter: any, clause: neon.query.WherePredicate}[] = [];
+                if (this.options.multiFilterOperator === 'or') {
+                    let clauses = filterField.data.map((element) =>
+                        neon.query.where(filterField.field, '=', element));
+                    singleFilter = this.createFilterObject(filterField.field, filterField.data.toString(), filterField.field);
+                    clause = neon.query.or.apply(neon.query, clauses);
+                    filterArray.push({singleFilter, clause});
+                } else {
+                    for (let data of filterField.data) {
+                        singleFilter = this.createFilterObject(filterField.field, data, filterField.field, '=');
+                        clause = neon.query.where(singleFilter.field, singleFilter.operator, singleFilter.value);
+                        filterArray.push({singleFilter, clause});
+                    }
+
+                }
+                // add neon filters and provide callback function that adds them as local filters
+                this.addMultipleFilters(filterArray, () => {
+                    for (let myFilter of filterArray) {
+                        this.addLocalFilter(myFilter.singleFilter);
+                    }
+                });
+            }
         }
+    }
+
+    /**
+     * Helper function that creates and returns filter object
+     * @param field
+     * @param value
+     * @param prettyField
+     * @param operator
+     */
+    createFilterObject(field: string, value: string, prettyField: string, operator?: string): any {
+        let myFilter = {
+            id: undefined, // This will be set in the success callback of addNeonFilter.
+            field: field,
+            value: value,
+            prettyField: prettyField,
+            operator: operator
+        };
+        return myFilter;
     }
 
     /*
