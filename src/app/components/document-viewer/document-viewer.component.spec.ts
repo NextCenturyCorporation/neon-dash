@@ -134,23 +134,27 @@ describe('Component: DocumentViewer', () => {
             dataField: '',
             dateField: '',
             idField: '',
+            sortField: '',
             hideSource: false,
             metadataFields: [],
             nameWidthCss: '',
             popoutFields: [],
             showSelect: false,
-            showText: false
+            showText: false,
+            sortOrder: 'DESCENDING'
         });
 
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.sortField = DatasetServiceMock.SORT_FIELD;
         component.options.hideSource = true;
         component.options.metadataFields = ['A', 'B'];
         component.options.nameWidthCss = '50%';
         component.options.popoutFields = ['C', 'D'];
         component.options.showSelect = true;
         component.options.showText = true;
+        component.options.sortOrder = 'ASCENDING';
 
         expect(component.options.createBindings()).toEqual({
             configFilter: undefined,
@@ -166,12 +170,14 @@ describe('Component: DocumentViewer', () => {
             dataField: 'testTextField',
             dateField: 'testDateField',
             idField: 'testIdField',
+            sortField: 'testSortField',
             hideSource: true,
             metadataFields: ['A', 'B'],
             nameWidthCss: '50%',
             popoutFields: ['C', 'D'],
             showSelect: true,
-            showText: true
+            showText: true,
+            sortOrder: 'ASCENDING'
         });
     });
 
@@ -196,27 +202,18 @@ describe('Component: DocumentViewer', () => {
         expect(component.isValidQuery()).toBe(true);
     });
 
-    it('returns expected query from createQuery', () => {
+    it('returns expected query from createQuery with no sort', () => {
         component.options.database = new DatabaseMetaData('testDatabase1');
         component.options.table = new TableMetaData('testTable1');
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        // Start with no date field to make sure we don't sort without it.
+        component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
         let query = new neon.query.Query()
             .selectFrom('testDatabase1', 'testTable1')
             .where(new neon.query.WhereClause('testTextField', '!=', null))
-            .withFields(['testTextField', 'testIdField'])
+            .withFields(['testTextField', 'testDateField', 'testIdField'])
             .limit(50)
             .offset(0);
-        expect(component.createQuery()).toEqual(query);
-
-        // Then add a date field and ensure the sort is not effectivedthe result is properly sorting.
-        component.options.dateField = DatasetServiceMock.DATE_FIELD;
-        query = query.withFields([
-            'testTextField',
-            'testDateField',
-            'testIdField'
-        ]);
         expect(component.createQuery()).toEqual(query);
     });
 
@@ -226,7 +223,7 @@ describe('Component: DocumentViewer', () => {
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.sortField = DatasetServiceMock.NAME_FIELD;
+        component.options.sortField = DatasetServiceMock.SORT_FIELD;
         let query = new neon.query.Query()
             .selectFrom('testDatabase1', 'testTable1')
             .where(new neon.query.WhereClause('testTextField', '!=', null))
@@ -235,7 +232,7 @@ describe('Component: DocumentViewer', () => {
                 'testDateField',
                 'testIdField'
             ])
-            .sortBy('testNameField', neonVariables.DESCENDING)
+            .sortBy('testSortField', neonVariables.DESCENDING)
             .limit(50)
             .offset(0);
         expect(component.createQuery()).toEqual(query);
