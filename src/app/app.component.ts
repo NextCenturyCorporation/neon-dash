@@ -31,7 +31,7 @@ import { ActiveGridService } from './services/active-grid.service';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
-import { Dataset } from './dataset';
+import { Datastore } from './dataset';
 import { DatasetService } from './services/dataset.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../app/services/filter.service';
@@ -70,7 +70,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public gridItems: NeonGridItem[] = [];
 
-    public datasets: Dataset[] = [];
+    public datasets: Datastore[] = [];
 
     public gridConfig: NgGridConfig = {
         resizable: true,
@@ -134,10 +134,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             snackBarRef.instance.addErrors('Configuration Errors', neonConfig.errors);
         }
 
+        // TODO: 825: incorporate commented out lines into future dashboard options.
+        /*
         if (this.datasets && this.datasets.length > 0) {
             this.projectTitle = this.datasets[0].title ? this.datasets[0].title : this.projectTitle;
             this.projectIcon = this.datasets[0].icon ? this.datasets[0].icon : this.projectIcon;
-        }
+        }*/
 
         this.matIconRegistry.addSvgIcon(
             'filter_builder',
@@ -151,7 +153,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.changeFavicon();
         this.filterBuilderIcon = 'filter_builder';
-
     }
 
     changeFavicon() {
@@ -189,7 +190,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         return JSON.stringify(this.gridItems);
     }
 
-    getDatasets(): Dataset[] {
+    getDatasets(): Datastore[] {
         return this.datasets;
     }
 

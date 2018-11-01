@@ -402,8 +402,6 @@ describe('Component: BaseNeonOptions with config', () => {
             VisualizationService,
             ErrorNotificationService,
             { provide: 'config', useValue: testConfig },
-            { provide: 'database', useValue: 1 },
-            { provide: 'table', useValue: 1 },
             { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
             { provide: 'customEventsToPublish', useValue: [ { id: 'testPublishId', fields: [ { columnName: 'testPublishColumnName',
                 prettyName: 'testPublishPrettyName' } ] } ] },
@@ -411,6 +409,7 @@ describe('Component: BaseNeonOptions with config', () => {
                 type: 'testReceiveType' } ] } ] },
             { provide: 'hideUnfiltered', useValue: true },
             { provide: 'limit', useValue: 1234 },
+            { provide: 'tableKey', useValue: 'table_key_2'},
             { provide: 'title', useValue: 'VisualizationTitle' },
             { provide: 'unsharedFilterField', useValue: 'testFilterField' },
             { provide: 'unsharedFilterValue', useValue: 'testFilterValue' }
@@ -488,7 +487,7 @@ describe('Component: BaseNeonOptions with config', () => {
         });
     });
 
-    it('updateDatabases does update database if given an array index', () => {
+    it('updateDatabases does update database if given a key', () => {
         options.updateDatabases();
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[1]);
@@ -508,7 +507,7 @@ describe('Component: BaseNeonOptions with config', () => {
         expect(options.unsharedFilterField).toEqual(DatasetServiceMock.FILTER_FIELD);
     });
 
-    it('updateTables does update tables if given an array index', () => {
+    it('updateTables does update tables if given a key', () => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
         options.updateTables();

@@ -18,34 +18,42 @@ import * as neon from 'neon-framework';
 
 @Injectable()
 export class ConnectionService {
-
-    private activeConnection: neon.query.Connection;
+    // TODO: 825: incorporate obtaining activeConnection via key throughout code.
+    private activeConnections: Map<string, neon.query.Connection> = new Map<string, neon.query.Connection>();
+    private defaultKeyName: string = 'default';
 
     /**
-     * Creates a Neon connection to the given host with the given database type.
+     * Creates a Neon connection to the given host with the given database type. If no key
+     * is specified, the default key will be used.
      * @param {String} databaseType
      * @param {String} host
+     * @param {String} key
      * @method createActiveConnection
      * @return {neon.query.Connection}
      */
-    public createActiveConnection(databaseType?: string, host?: string): neon.query.Connection {
-        if (!this.activeConnection || this.activeConnection.databaseType_ !== databaseType || this.activeConnection.host_ !== host) {
-            this.activeConnection = new neon.query.Connection();
+    public createActiveConnection(databaseType?: string, host?: string, key?: string): neon.query.Connection {
+        let keyToUse = key ? key : this.defaultKeyName;
+
+        if (!this.activeConnections[keyToUse] || this.activeConnections[keyToUse].databaseType_ !== databaseType
+            || this.activeConnections[keyToUse].host_ !== host) {
+            this.activeConnections[keyToUse] = new neon.query.Connection();
         }
 
         if (databaseType && host) {
-            this.activeConnection.connect(databaseType, host);
+            this.activeConnections[keyToUse].connect(databaseType, host);
         }
-
-        return this.activeConnection;
+        return this.activeConnections[keyToUse];
     }
 
     /**
-     * Returns the active connection.
+     * Returns the active connection with the specified key. If no key specified,
+     * the activeConnection under the defaultKeyName will be returned.
+     * @param {String} key
      * @method getActiveConnection
      * @return {neon.query.Connection}
      */
-    public getActiveConnection(): neon.query.Connection {
-        return this.activeConnection;
+    public getActiveConnection(key?: string): neon.query.Connection {
+        let keyToUse = key ? key : this.defaultKeyName;
+        return this.activeConnections[keyToUse];
     }
 }
