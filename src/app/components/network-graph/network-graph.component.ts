@@ -499,27 +499,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return null;
     }
 
-    addMultiFilter(myFilter, clause) {
+    addFilter(myFilter, clause) {
         if (this.filterIsUnique(myFilter)) {
             this.addLocalFilter(myFilter);
             this.addNeonFilter(true, myFilter, clause);
-        }
-    }
-
-    addFilter(myFilter) {
-        if (!this.filters.length || this.filters.length === 0) {
-            this.filters.push(myFilter);
-            let whereClause = neon.query.where(myFilter.field, myFilter.operator, myFilter.value);
-            this.addNeonFilter(true, myFilter, whereClause);
-        } else if (this.filterIsUnique(myFilter)) {
-            myFilter.id = this.filters[0].id;
-            this.filters.push(myFilter);
-            let whereClauses = this.filters.map((existingFilter) => {
-                return neon.query.where(existingFilter.field, existingFilter.operator, existingFilter.value);
-            });
-            let whereClause = whereClauses.length === 1 ? whereClauses[0] : (this.options.andFilters ? neon.query.and.apply(neon.query,
-                whereClauses) : neon.query.or.apply(neon.query, whereClauses));
-            this.replaceNeonFilter(true, myFilter, whereClause);
         }
     }
 
@@ -947,9 +930,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             }
 
             //sets the colorList index for edges based on the length of an array in order to provide color uniqueness
-        if (this.options.setColorScheme) {
+            if (this.options.setColorScheme) {
                 this.colorSchemeService.setColorListByLength(this.prettifiedEdgeLabels.length);
-        }
+            }
 
             // create edges between nodes and destinations specified by linkfield
             let linkNames = !linkNameField ? [].fill('', 0, links.length)
@@ -1125,15 +1108,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
         if (currentlyActive) {
             //create filter
-            let myFilter = {
-                id: undefined,
-                field: field.columnName,
-                prettyField: field.prettyName,
-                value: value,
-                operator: '!='
-            };
-
-            this.addFilter(myFilter);
+            let myFilter = this.createFilterObject(field.columnName, value, field.prettyName, '!=');
+            let whereClause = neon.query.where(myFilter.field, myFilter.operator, myFilter.value);
+            this.addFilter(myFilter, whereClause);
             this.disabledSet.push([field.columnName, value]);
         } else {
             //find the filter to remove and remove the item from the disabled set
@@ -1160,57 +1137,57 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             //find the selected node
             let nodeName = properties.nodes[0];
             let selectedNode = <Node> this.graphData.nodes.get(nodeName);
-            let value;
-            let clause;
-            let myFilter;
-            // create filter
-            //let field = selectedNode.isLink ? this.options.linkField : this.options.nodeField;
+            let clause: neon.query.WherePredicate;
+            let singleFilter;
+
+            //create filter
             for (let filterField of selectedNode.filterFields) {
+                let filterArray: {singleFilter: any, clause: neon.query.WherePredicate}[] = [];
                 if (this.options.multiFilterOperator === 'or') {
-                    let clauses = [];
-
-                    if (filterField.data instanceof Array) {
-                        clauses = filterField.data.map((element) =>
-                            neon.query.where(filterField.field, '=', element));
-                    } else {
-                        clauses.push(neon.query.where(filterField.field, '=', filterField.data));
-                    }
-                    value = filterField.data.toString();
-                    myFilter = this.createFilterObject(filterField.field, value, filterField.field);
+                    let clauses = filterField.data.map((element) =>
+                        neon.query.where(filterField.field, '=', element));
+                    singleFilter = this.createFilterObject(filterField.field, filterField.data.toString(), filterField.field);
                     clause = neon.query.or.apply(neon.query, clauses);
-                    this.addMultiFilter(myFilter, clause);
+                    filterArray.push({singleFilter, clause});
                 } else {
-
-                    if (filterField.data instanceof Array) {
-                        for (let data of filterField.data) {
-                            myFilter = this.createFilterObject(filterField.field, data, filterField.field);
-                            clause = neon.query.where(myFilter.field, '=', myFilter.value);
-                            this.addMultiFilter(myFilter, clause);
-                        }
-                    } else {
-                        myFilter = this.createFilterObject(filterField.field, filterField.data, filterField.field);
-                        clause = neon.query.where(myFilter.field, '=', myFilter.value);
-                        this.addMultiFilter(myFilter, clause);
+                    for (let data of filterField.data) {
+                        singleFilter = this.createFilterObject(filterField.field, data, filterField.field, '=');
+                        clause = neon.query.where(singleFilter.field, singleFilter.operator, singleFilter.value);
+                        filterArray.push({singleFilter, clause});
                     }
-                }
-            }
 
+                }
+                // add neon filters and provide callback function that adds them as local filters
+                this.addMultipleFilters(filterArray, () => {
+                    for (let myFilter of filterArray) {
+                        this.addLocalFilter(myFilter.singleFilter);
+                    }
+                });
+            }
         }
     }
 
-    createFilterObject(field: string, value: string, prettyField: string): any {
+    /**
+     * Helper function that creates and returns filter object
+     * @param field
+     * @param value
+     * @param prettyField
+     * @param operator
+     */
+    createFilterObject(field: string, value: string, prettyField: string, operator?: string): any {
         let myFilter = {
             id: undefined, // This will be set in the success callback of addNeonFilter.
             field: field,
             value: value,
-            prettyField: prettyField
+            prettyField: prettyField,
+            operator: operator
         };
         return myFilter;
     }
 
     /*
-* Used when changing colors and other optional non-field values in the guere settings
-*/
+    * Used when changing colors and other optional non-field values in the guere settings
+    */
     reloadGraph() {
         this.totalNodes = 0;
         this.existingNodeNames = [];
