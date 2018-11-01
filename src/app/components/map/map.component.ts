@@ -46,16 +46,16 @@ import {
 } from './map.type.abstract';
 import { BaseLayeredNeonComponent, BaseNeonLayer, BaseNeonMultiLayerOptions } from '../base-neon-component/base-layered-neon.component';
 import { CesiumNeonMap } from './map.type.cesium';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { neonMappings, neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import * as geohash from 'geo-hash';
 
 class UniqueLocationPoint {
     constructor(public lat: number, public lng: number, public count: number,
-        public colorField: string, public colorValue: string) { }
+        public colorField: string, public colorValue: string, public hoverPopupValue: string) { }
 }
 
 export class MapLayer extends BaseNeonLayer {
@@ -64,27 +64,53 @@ export class MapLayer extends BaseNeonLayer {
     public latitudeField: FieldMetaData;
     public longitudeField: FieldMetaData;
     public sizeField: FieldMetaData;
+    public hoverPopupField: FieldMetaData;
 
     /**
-     * Initializes all the non-field options for the specific layer.
+     * Appends all the non-field bindings for the specific layer to the given bindings object and returns the bindings object.
      *
+     * @arg {any} bindings
+     * @return {any}
      * @override
      */
-    onInit() {
-        // Do nothing.
+    appendNonFieldBindings(bindings: any): any {
+        return bindings;
     }
 
     /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
+     * Returns the list of field properties for the specific layer.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'colorField',
+            'dateField',
+            'hoverPopupField',
+            'latitudeField',
+            'longitudeField',
+            'sizeField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific layer.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific layer.
      *
      * @override
      */
-    updateFieldsOnTableChanged() {
-        this.colorField = this.findFieldObject('colorField');
-        this.dateField = this.findFieldObject('dateField', neonMappings.DATE);
-        this.latitudeField = this.findFieldObject('latitudeField', neonMappings.LATITUDE);
-        this.longitudeField = this.findFieldObject('longitudeField', neonMappings.LONGITUDE);
-        this.sizeField = this.findFieldObject('sizeField');
+    initializeNonFieldBindings() {
+        // Do nothing.
     }
 }
 
@@ -123,11 +149,11 @@ export class MapOptions extends BaseNeonMultiLayerOptions {
     }
 
     /**
-     * Initializes all the options for the specific visualization.
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    public onInit() {
+    public initializeNonFieldBindings() {
         this.clustering = this.injector.get('clustering', 'points');
         this.clusterPixelRange = this.injector.get('clusterPixelRange', 15);
         this.customServer = this.injector.get('customServer', null);
@@ -221,6 +247,24 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     /**
+     * Converts the given input to a float if it is a string (or to an array of floats if it is an array of strings) and returns the value.
+     *
+     * @arg {any} input
+     * @return {any}
+     */
+    convertToFloatIfString(input: any): any {
+        if (input.constructor.name === 'Array') {
+            return input.map((element) => this.convertToFloatIfString(element));
+        }
+        if (input.constructor.name === 'String') {
+            if (parseFloat(input) > -181 && parseFloat(input) < 181) {
+                return parseFloat(input);
+            }
+        }
+        return input;
+    }
+
+    /**
      * Initializes any map sub-components needed.
      *
      * @override
@@ -254,26 +298,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
         // Update the map
         this.handleChangeData();
-    }
-
-    /**
-     * Sets the properties in the given bindings for the map.
-     *
-     * @arg {any} bindings
-     * @override
-     */
-    subGetBindings(bindings: any) {
-        // The map layers objects are different, clear out the old stuff;
-        bindings.layers = [];
-        for (let layer of this.options.layers) {
-            bindings.layers.push({
-                latitudeField: layer.latitudeField.columnName,
-                longitudeField: layer.longitudeField.columnName,
-                sizeField: layer.sizeField.columnName,
-                colorField: layer.colorField.columnName,
-                dateField: layer.dateField.columnName
-            });
-        }
     }
 
     /**
@@ -318,33 +342,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @override
      */
     subAddLayer(config: any) {
-        let layer: MapLayer = new MapLayer(config, this.datasetService);
+        let layer: MapLayer = new MapLayer(config, this.injector, this.datasetService);
         this.options.layers.push(layer);
         this.docCount[this.options.layers.length - 1] = 0;
         this.filterVisible[this.options.layers.length - 1] = true;
-    }
-
-    /**
-     * Returns the map export fields for the map layer at the given index.
-     *
-     * @arg {number} layerIndex
-     * @return {array}
-     * @override
-     */
-    getExportFields(layerIndex: number): any[] {
-        let usedFields = [this.options.layers[layerIndex].latitudeField,
-        this.options.layers[layerIndex].longitudeField,
-        this.options.layers[layerIndex].colorField,
-        this.options.layers[layerIndex].sizeField,
-        this.options.layers[layerIndex].dateField];
-        return usedFields
-            .filter((header) => header && header.columnName)
-            .map((header) => {
-                return {
-                    columnName: header.columnName,
-                    prettyName: header.prettyName
-                };
-            });
     }
 
     /**
@@ -556,6 +557,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         let colorField = this.options.layers[layerIndex].colorField.columnName;
         let sizeField = this.options.layers[layerIndex].sizeField.columnName;
         let dateField = this.options.layers[layerIndex].dateField.columnName;
+        let hoverPopupField = this.options.layers[layerIndex].hoverPopupField.columnName;
 
         let fields = [this.FIELD_ID, latitudeField, longitudeField];
         if (colorField) {
@@ -566,6 +568,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         }
         if (dateField) {
             fields.push(dateField);
+        }
+        if (hoverPopupField) {
+            fields.push(hoverPopupField);
         }
 
         return this.createBasicQuery(layerIndex).withFields(fields).limit(this.options.limit);
@@ -605,24 +610,32 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @arg {string} lngField
      * @arg {string} latField
      * @arg {string} colorField
+     * @arg {string} hoverPopupField
      * @arg {array} data
      * @return {array}
      * @protected
      */
-    protected getMapPoints(lngField: string, latField: string, colorField: string, data: any[]): any[] {
+    protected getMapPoints(lngField: string, latField: string, colorField: string, hoverPopupField: string, data: any[]): any[] {
         let map = new Map<string, UniqueLocationPoint>();
 
         for (let point of data) {
-            let lngCoord = this.retrieveLocationField(point, lngField),
-                latCoord = this.retrieveLocationField(point, latField),
+            let lngCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, lngField)),
+                latCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, latField)),
+                hoverPopupValue = neonUtilities.deepFind(point, hoverPopupField),
                 colorValue = colorField && point[colorField];
 
             if (latCoord instanceof Array && lngCoord instanceof Array) {
                 for (let pos = latCoord.length - 1; pos >= 0; pos--) {
-                    this.addOrUpdateUniquePoint(map, latCoord[pos], lngCoord[pos], colorField, colorValue);
+
+                    //check if hover popup value is nested within coordinate array
+                    if (hoverPopupValue instanceof Array) {
+                        this.addOrUpdateUniquePoint(map, latCoord[pos], lngCoord[pos], colorField, colorValue, hoverPopupValue[pos]);
+                    } else {
+                        this.addOrUpdateUniquePoint(map, latCoord[pos], lngCoord[pos], colorField, colorValue, hoverPopupValue);
+                    }
                 }
             } else {
-                this.addOrUpdateUniquePoint(map, latCoord, lngCoord, colorField, colorValue);
+                this.addOrUpdateUniquePoint(map, latCoord, lngCoord, colorField, colorValue, hoverPopupValue);
             }
         }
 
@@ -637,7 +650,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 new MapPoint(`${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`,
                     unique.lat, unique.lng, unique.count, color,
                     'Count: ' + unique.count,
-                    unique.colorField, unique.colorValue
+                    unique.colorField, unique.colorValue, unique.hoverPopupValue
                 ));
         });
         mapPoints.sort((a, b) => b.count - a.count);
@@ -676,6 +689,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 layer.longitudeField.columnName,
                 layer.latitudeField.columnName,
                 layer.colorField.columnName,
+                layer.hoverPopupField.columnName,
                 response.data
             );
 
@@ -720,40 +734,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         }
     }
 
-    // This allows the map to function if the config file is a little off, i.e. if point isn't a flat dict;
-    // like if latFied holds 'JSONMapping.status.geolocation.latitude', but the actual latitude value is
-    // saved at point['JSONMapping']['status']['geolocation']['latitude']
-    // It also will convert a string to a number, if the lat/lon fields are strings for some reason.
-    //    Note that this only solves the problem for this one widget, and does nothing to help the rest of the workspace.
-    //     even selecting a bunch of points on the map using shift-click/drag won't work if the lat/lon are stored as strings,
-    //     because the region query looks at the data in the database and expects numbers there.
-    retrieveLocationField(point, locField) {
-        let coordinate = point[locField];
-        let fieldSplit = locField.split('.');
-
-        if (!coordinate && fieldSplit.length > 1) {
-            coordinate = point[fieldSplit[0]];
-            fieldSplit.shift();
-            while (fieldSplit.length > 0) {
-                if (fieldSplit.length === 1 && coordinate instanceof Array) {
-                    coordinate = coordinate.map((elem) => {
-                        return elem[fieldSplit[0]];
-                    });
-                } else {
-                    coordinate = coordinate[fieldSplit[0]];
-                }
-                fieldSplit.shift();
-            }
-        }
-        if (coordinate.constructor.name === 'String') {
-            if (parseFloat(coordinate) > -181 && parseFloat(coordinate) < 181) {
-                coordinate = parseFloat(coordinate);
-            }
-        }
-        return coordinate;
-    }
-
-    addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, lat: number, lng: number, colorField: string, colorValue: string) {
+    addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, lat: number, lng: number, colorField: string, colorValue: string,
+         hoverPopupValue: string) {
         if (!super.isNumber(lat) || !super.isNumber(lng)) {
             return;
         }
@@ -762,7 +744,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             obj = map.get(hashCode);
 
         if (!obj) {
-            obj = new UniqueLocationPoint(lat, lng, 0, colorField, colorValue);
+            obj = new UniqueLocationPoint(lat, lng, 0, colorField, colorValue, hoverPopupValue);
             map.set(hashCode, obj);
         }
 
