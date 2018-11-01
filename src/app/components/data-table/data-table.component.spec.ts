@@ -397,39 +397,6 @@ describe('Component: DataTable', () => {
         expect(component.getHeaderByName('notFound', headers)).toEqual(null);
     }));
 
-    it('getExportFields does return list of active headers in expected format', (() => {
-        component.options.headers = [{
-            prop: 'createdDate',
-            name: 'Date Created',
-            active: true,
-            style: {},
-            cellClass: '',
-            width: 100
-        }, {
-            prop: 'testField',
-            name: 'Test Field',
-            active: true,
-            style: {},
-            cellClass: '',
-            width: 100
-        }, {
-            prop: 'inactiveField',
-            name: 'Inactive Field',
-            active: false,
-            style: {},
-            cellClass: '',
-            width: 100
-        }];
-
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'createdDate',
-            prettyName: 'Date Created'
-        }, {
-            columnName: 'testField',
-            prettyName: 'Test Field'
-        }]);
-    }));
-
     it('closeColumnSelector does hide column selector and call detectChanges', (() => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
         component.showColumnSelector = 'show';

@@ -150,6 +150,23 @@ export class BarChartOptions extends BaseNeonOptions {
     }
 
     /**
+     * Returns the list of fields to export.
+     *
+     * @return {{ columnName: string, prettyName: string }[]}
+     * @override
+     */
+    getExportFields(): any[] {
+        return [{
+            columnName: this.dataField.columnName,
+            prettyName: this.dataField.prettyName
+        }, {
+            columnName: 'value',
+            prettyName: (this.aggregation.charAt(0).toUpperCase() + this.aggregation.slice(1)) + (this.aggregation === 'count' ? '' :
+                ('_' + this.aggregationField.prettyName))
+        }];
+    }
+
+    /**
      * Returns the list of field properties for the specific visualization.
      *
      * @return {string[]}
@@ -476,25 +493,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     subNgOnDestroy() {
         this.chartModule.chart.destroy();
-    }
-
-    /**
-     * Returns the bar chart export fields.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        let valuePrettyName = this.options.aggregation +
-            (this.options.aggregation === 'count' ? '' : '-' + this.options.aggregationField.prettyName);
-        valuePrettyName = valuePrettyName.charAt(0).toUpperCase() + valuePrettyName.slice(1);
-        return [{
-            columnName: this.options.dataField.columnName,
-            prettyName: this.options.dataField.prettyName
-        }, {
-            columnName: 'value',
-            prettyName: valuePrettyName
-        }];
     }
 
     /**

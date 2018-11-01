@@ -426,22 +426,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         }
     }
 
-    getExportFields() {
-        return [{
-            columnName: this.options.nodeField.columnName,
-            prettyName: this.options.nodeField.prettyName
-        }, {
-            columnName: this.options.linkField.columnName,
-            prettyName: this.options.linkField.prettyName
-        }, {
-            columnName: this.options.nodeColorField.columnName,
-            prettyName: this.options.nodeColorField.prettyName
-        }, {
-            columnName: this.options.edgeColorField.columnName,
-            prettyName: this.options.edgeColorField.prettyName
-        }];
-    }
-
     refreshVisualization() {
         //
     }

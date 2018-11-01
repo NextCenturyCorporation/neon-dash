@@ -72,6 +72,52 @@ export class TimelineOptions extends BaseNeonOptions {
     }
 
     /**
+     * Returns the list of fields to export.
+     *
+     * @return {{ columnName: string, prettyName: string }[]}
+     * @override
+     */
+    getExportFields() {
+        let exportFields = [{
+            columnName: 'value',
+            prettyName: 'Count'
+        }];
+        switch (this.granularity) {
+            case 'minute':
+                exportFields.push({
+                    columnName: 'minute',
+                    prettyName: 'Minute'
+                });
+                /* falls through */
+            case 'hour':
+                exportFields.push({
+                    columnName: 'hour',
+                    prettyName: 'Hour'
+                });
+                /* falls through */
+            case 'day':
+                exportFields.push({
+                    columnName: 'day',
+                    prettyName: 'Day'
+                });
+                /* falls through */
+            case 'month':
+                exportFields.push({
+                    columnName: 'month',
+                    prettyName: 'Month'
+                });
+                /* falls through */
+            case 'year':
+                exportFields.push({
+                    columnName: 'year',
+                    prettyName: 'Year'
+                });
+                /* falls through */
+        }
+        return exportFields;
+    }
+
+    /**
      * Returns the list of field properties for the specific visualization.
      *
      * @return {string[]}
@@ -191,46 +237,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     subNgOnDestroy() {
         // Do nothing.
-    }
-
-    getExportFields() {
-        let fields = [{
-            columnName: 'value',
-            prettyName: 'Count'
-        }];
-        switch (this.options.granularity) {
-            case 'minute':
-                fields.push({
-                    columnName: 'minute',
-                    prettyName: 'Minute'
-                });
-                /* falls through */
-            case 'hour':
-                fields.push({
-                    columnName: 'hour',
-                    prettyName: 'Hour'
-                });
-                /* falls through */
-            case 'day':
-                fields.push({
-                    columnName: 'day',
-                    prettyName: 'Day'
-                });
-                /* falls through */
-            case 'month':
-                fields.push({
-                    columnName: 'month',
-                    prettyName: 'Month'
-                });
-                /* falls through */
-            case 'year':
-                fields.push({
-                    columnName: 'year',
-                    prettyName: 'Year'
-                });
-                /* falls through */
-        }
-        return fields;
     }
 
     addLocalFilter(id: string, field: string, prettyField: string, startDate: Date, endDate: Date, local?: boolean) {
