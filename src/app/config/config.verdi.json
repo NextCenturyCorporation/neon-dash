@@ -737,7 +737,7 @@
                 "name": "Network Graph",
                 "type": "networkGraph",
                 "icon": "Graph",
-                "sizex": 6,
+                "sizex": 7,
                 "sizey": 14.5,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -786,7 +786,7 @@
                 "name": "Thumbnail Grid",
                 "type": "thumbnailGrid",
                 "icon": "ThumbnailGrid",
-                "sizex": 3,
+                "sizex": 2,
                 "sizey": 14.5,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -829,7 +829,7 @@
                     }
                 },
                 "row": 2,
-                "col": 10
+                "col": 11
             }
         ],
         "verdi-taxonomy": [
