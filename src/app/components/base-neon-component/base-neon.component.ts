@@ -250,21 +250,16 @@ export abstract class BaseNeonOptions {
         this.database = this.databases[0] || new DatabaseMetaData();
 
         if (this.databases.length) {
-            let configDatabase = this.injector.get('database', null);
-            if (configDatabase) {
-                let isName = false;
-                for (let database of this.databases) {
-                    if (configDatabase === database.name) {
-                        this.database = database;
-                        isName = true;
-                        break;
-                    }
-                }
-                if (!isName) {
-                    // Check if the config database is actually an array index rather than a name.
-                    let databaseIndex = parseInt(configDatabase, 10);
-                    if (!isNaN(databaseIndex) && databaseIndex < this.databases.length) {
-                        this.database = this.databases[databaseIndex];
+            let key = this.injector.get('tableKey', null);
+
+            if (key) {
+                let configDatabase = this.datasetService.getDatabaseNameByKey(key);
+                if (configDatabase) {
+                    for (let database of this.databases) {
+                        if (configDatabase === database.name) {
+                            this.database = database;
+                            break;
+                        }
                     }
                 }
             }
@@ -301,21 +296,16 @@ export abstract class BaseNeonOptions {
         this.table = this.tables[0] || new TableMetaData();
 
         if (this.tables.length > 0) {
-            let configTable = this.injector.get('table', null);
-            if (configTable) {
-                let isName = false;
-                for (let table of this.tables) {
-                    if (configTable === table.name) {
-                        this.table = table;
-                        isName = true;
-                        break;
-                    }
-                }
-                if (!isName) {
-                    // Check if the config table is actually an array index rather than a name.
-                    let tableIndex = parseInt(configTable, 10);
-                    if (!isNaN(tableIndex) && tableIndex < this.tables.length) {
-                        this.table = this.tables[tableIndex];
+            let key = this.injector.get('tableKey', null);
+
+            if (key) {
+                let configTable = this.datasetService.getTableNameByKey(key);
+                if (configTable) {
+                    for (let table of this.tables) {
+                        if (configTable === table.name) {
+                            this.table = table;
+                            break;
+                        }
                     }
                 }
             }

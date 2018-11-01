@@ -1,0 +1,131 @@
+{
+    "datasets": [{
+            "name": "DARPA60: Uyghur LDC Situation Discovery",
+            "connectOnLoad": true,
+            "layout": "uyghur-ldc-sd",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [{
+                    "name": "ldc_uyg_jul_18",
+                    "prettyName": "Uyghur LDC, July 2018",
+                    "tables": [{
+                        "name": "ui_out",
+                        "prettyName": "UI out",
+                        "fields": [{
+                                "columnName": "createdDate",
+                                "prettyName": "Date Created"
+                            },
+                            {
+                                "columnName": "topic",
+                                "prettyName": "Need Type"
+                            },
+                            {
+                                "columnName": "location",
+                                "prettyName": "Location"
+                            },
+                            {
+                                "columnName": "status",
+                                "prettyName": "Status"
+                            },
+                            {
+                                "columnName": "translatedText",
+                                "prettyName": "Translated Text"
+                            },
+                            {
+                                "columnName": "originalText",
+                                "prettyName": "Original Text"
+                            }
+                        ],
+                        "labelOptions": {
+                        "topic": {
+                            "food": "Food",
+                            "water": "Water",
+                            "shelter": "Shelter",
+                            "med": "Medicine",
+                            "search": "Search and Rescue",
+                            "evac": "Evacuation",
+                            "infra": "Infrastructure",
+                            "utils": "Utilities",
+                            "crimeviolence": "Crime /  Violence",
+                            "terrorism": "Terrorism",
+                            "regimechange": "Regime Change"
+                        }
+                    },
+                        "mappings": {
+                            "date": "createDate"
+                        }
+                    }]
+                }],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "simpleFilter": {
+                    "databaseName": "ldc_uyg_jul_18",
+                    "tableName": "ui_out",
+                    "fieldName": "translatedText",
+                    "placeHolder": "Search"
+                }
+            }
+        }
+    ],
+    "layouts": {
+        "uyghur-ldc-sd": [{
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 1,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 14,
+                "bindings": {
+                    "title": "Document Feed",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "ui_out",
+                    "idField": "_id",
+                    "sortField": "createdDate",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+						"createdDate",
+						"originalText"
+					],
+					"customColumnWidths": [
+                        ["createdDate", 15],
+                        ["originalText", 360]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false,
+                    "checkDuplicateField": "originalText"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 7,
+                "minSizey": 3
+            }
+        ]
+    },
+    "routeService": {
+        "url": "http://localhost:8090/ghREST/",
+        "get": "route?lat1=LAT1&lon1=LON1&lat2=LAT2&lon2=LON2",
+        "post": "dynamicroute",
+        "disabled": true
+    },
+    "dashboard": {
+        "gridsterColumns": 24,
+        "gridsterMargins": 10,
+        "hideNavbarItems": false,
+        "hideAdvancedOptions": false,
+        "hideAddVisualizationsButton": false,
+        "hideErrorNotifications": true,
+        "hideHeaders": false,
+        "showFilterStatusTray": true,
+        "hideCloseButton": false,
+        "showVideoOnLoad": false,
+        "showImport": true,
+        "showExport": true,
+        "translationKeys": {
+            "google": "AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8"
+        }
+    }
+}

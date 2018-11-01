@@ -207,12 +207,16 @@ export abstract class BaseNeonLayer {
         this.database = this.databases[0] || new DatabaseMetaData();
 
         if (this.databases.length > 0) {
-            let configDatabase = this.config ? this.config.database : undefined;
-            if (configDatabase) {
-                for (let database of this.databases) {
-                    if (configDatabase === database.name) {
-                        this.database = database;
-                        break;
+            let key = this.config ? this.config.tableKey : undefined;
+
+            if (key) {
+                let configDatabase = this.datasetService.getDatabaseNameByKey(key);
+                if (configDatabase) {
+                    for (let database of this.databases) {
+                        if (configDatabase === database.name) {
+                            this.database = database;
+                            break;
+                        }
                     }
                 }
             }
@@ -249,12 +253,16 @@ export abstract class BaseNeonLayer {
         this.table = this.tables[0] || new TableMetaData();
 
         if (this.tables.length > 0) {
-            let configTable = this.config ? this.config.table : undefined;
-            if (configTable) {
-                for (let table of this.tables) {
-                    if (configTable === table.name) {
-                        this.table = table;
-                        break;
+            let key = this.config ? this.config.tableKey : undefined;
+
+            if (key) {
+                let configTable = this.datasetService.getTableNameByKey(key);
+                if (configTable) {
+                    for (let table of this.tables) {
+                        if (configTable === table.name) {
+                            this.table = table;
+                            break;
+                        }
                     }
                 }
             }
