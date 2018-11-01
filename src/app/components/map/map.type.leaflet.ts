@@ -88,7 +88,7 @@ export class LeafletNeonMap extends AbstractMap {
 
         for (let point of points) {
 
-            let circlOptions = {};
+            let circleOptions = {};
 
             //check if an item was selected via select_id in the Messenger and idField is
             if (this.mapOptions.id && point.idValue) {
@@ -96,7 +96,7 @@ export class LeafletNeonMap extends AbstractMap {
                 //check if selected point is present or within collapsed group of points
                 //emphasize corresponding selected points
                 if (point.idList.includes(this.mapOptions.id)) {
-                    circlOptions = {
+                    circleOptions = {
                         color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
                         stroke: false,
                         fill: true,
@@ -109,7 +109,7 @@ export class LeafletNeonMap extends AbstractMap {
 
                 } else {
 
-                    circlOptions = {
+                    circleOptions = {
                         color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
                         fillColor: point.cssColorString,
                         weight: 1,
@@ -122,7 +122,7 @@ export class LeafletNeonMap extends AbstractMap {
                 }
             } else {
                 //default circle options
-                circlOptions = {
+                circleOptions = {
                     color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
                     fillColor: point.cssColorString,
                     weight: 1,
@@ -133,7 +133,7 @@ export class LeafletNeonMap extends AbstractMap {
 
             }
 
-            let circle = new L.CircleMarker([point.lat, point.lng], circlOptions)/*.setRadius(6)*/;
+            let circle = new L.CircleMarker([point.lat, point.lng], circleOptions)/*.setRadius(6)*/;
             circle = this.addClickEventListener(circle);
             if (this.mapOptions.hoverPopupEnabled) {
 
