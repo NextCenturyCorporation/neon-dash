@@ -47,7 +47,6 @@ import * as neon from 'neon-framework';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { stringify } from '@angular/core/src/util';
 
 function webgl_support(): any {
     try {

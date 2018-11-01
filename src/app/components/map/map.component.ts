@@ -665,7 +665,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             let lngCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, lngField)),
                 latCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, latField)),
                 colorValue = neonUtilities.deepFind(point, colorField),
-                idValue = neonUtilities.deepFind(point, idField); 
+                idValue = neonUtilities.deepFind(point, idField);
 
             let hoverPopupValue = hoverPopupField ? neonUtilities.deepFind(point, hoverPopupField) : '';
 
@@ -1075,11 +1075,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             //get the message id and set it
             this.options.id = Array.isArray(eventMessage.id) ? eventMessage.id[0] : eventMessage.id;
 
-            //loop through all of the layers 
+            //loop through all of the layers
             this.options.layers.forEach((elem, index) => {
 
                 //check if database and table exists in the current layer
-                if ((eventMessage.database === elem.database.name) && (eventMessage.table === elem.table.name) ) {
+                if ((eventMessage.database === elem.database.name) && (eventMessage.table === elem.table.name)) {
 
                     if (this.options.id !== this.previousId) {
                         this.previousId = this.options.id;
