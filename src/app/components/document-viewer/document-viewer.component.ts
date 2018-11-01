@@ -36,7 +36,7 @@ import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
@@ -61,11 +61,55 @@ export class DocumentViewerOptions extends BaseNeonOptions {
     public sortOrder: string;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
+     *
+     * @arg {any} bindings
+     * @return {any}
+     * @override
+     */
+    appendNonFieldBindings(bindings: any): any {
+        bindings.hideSource = this.hideSource;
+        bindings.metadataFields = this.metadataFields;
+        bindings.nameWidthCss = this.nameWidthCss;
+        bindings.popoutFields = this.popoutFields;
+        bindings.showSelect = this.showSelect;
+        bindings.showText = this.showText;
+        bindings.sortOrder = this.sortOrder;
+
+        return bindings;
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'dataField',
+            'dateField',
+            'idField',
+            'sortField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    onInit() {
+    initializeNonFieldBindings() {
         this.hideSource = this.injector.get('hideSource', false);
         this.metadataFields = neonUtilities.flatten(this.injector.get('metadataFields', []));
         this.nameWidthCss = this.injector.get('nameWidthCss', '');
@@ -73,18 +117,6 @@ export class DocumentViewerOptions extends BaseNeonOptions {
         this.showSelect = this.injector.get('showSelect', false);
         this.showText = this.injector.get('showText', false);
         this.sortOrder = this.injector.get('sortOrder', 'DESCENDING');
-
-    }
-
-    /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
-     *
-     * @override
-     */
-    updateFieldsOnTableChanged() {
-        this.dataField = this.findFieldObject('dataField');
-        this.dateField = this.findFieldObject('dateField');
-        this.idField = this.findFieldObject('idField');
     }
 }
 
@@ -149,38 +181,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         // Do nothing.
     }
 
-    subGetBindings(bindings) {
-        /*TODO: Fix 22001 Error
-        bindings.data = this.activeData;
-        bindings.dataField = this.options.dataField;
-        bindings.dateField = this.options.dateField;
-        bindings.docCount = this.docCount;
-        bindings.hideSource = this.options.hideSource;
-        bindings.idField = this.options.idField;
-        bindings.page = this.page;
-        bindings.metadataFields = this.options.metadataFields;
-        bindings.nameWidthCss = this.options.nameWidthCss;
-        bindings.popoutFields = this.options.popoutFields;
-        bindings.showSelect = this.options.showSelect;
-        bindings.showText = this.options.showText;
-        */
-    }
-
-    getExportFields() {
-        return [{
-            columnName: this.options.dataField.columnName,
-            prettyName: this.options.dataField.prettyName
-        },
-        {
-            columnName: this.options.dateField.columnName,
-            prettyName: this.options.dateField.prettyName
-        },
-        {
-            columnName: this.options.idField.columnName,
-            prettyName: this.options.idField.prettyName
-        }];
-    }
-
     getFilterText(filter) {
         return '';
     }
@@ -225,7 +225,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         if (this.options.dateField.columnName) {
             fields = fields.concat(this.options.dateField.columnName);
         }
-        if (this.options.sortField) {
+        if (this.options.sortField.columnName) {
             query = query.sortBy(this.options.sortField.columnName,
                 (this.options.sortOrder === 'DESCENDING') ? neonVariables.DESCENDING : neonVariables.ASCENDING);
         }
@@ -309,7 +309,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let activeItemText = this.createTableRowText(activeItemData, arrayFilter);
         if (activeItemText) {
             activeItem.rows.push({
-                name: name || (this.options.findField(field) || this.emptyField).prettyName || field,
+                name: name || (this.options.findField(field) || this.createEmptyField()).prettyName || field,
                 text: activeItemText
             });
         }

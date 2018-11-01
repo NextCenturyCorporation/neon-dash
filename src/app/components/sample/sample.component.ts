@@ -36,7 +36,7 @@ import { VisualizationService } from '../../services/visualization.service';
 
 import { AbstractSubcomponent, SubcomponentListener } from './subcomponent.abstract';
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { neonVariables } from '../../neon-namespaces';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
@@ -47,7 +47,7 @@ import * as neon from 'neon-framework';
  * Manages configurable options for the specific visualization.
  */
 export class SampleOptions extends BaseNeonOptions {
-    // TODO Add and remove properties as needed.  Do NOT assign defaults to fields or else they will override updateFieldsOnTableChanged.
+    // TODO Add and remove properties as needed.  Do NOT assign defaults to fields or else they will override the bindings.
     public sampleOptionalField: FieldMetaData;
     public sampleRequiredField: FieldMetaData;
     public sortDescending: boolean;
@@ -55,27 +55,57 @@ export class SampleOptions extends BaseNeonOptions {
     public subcomponentTypes: string[] = ['Impl1', 'Impl2'];
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
      *
+     * @arg {any} bindings
+     * @return {any}
      * @override
      */
-    onInit() {
-        // Set the non-fields config bindings for the visualization.
-        this.sortDescending = this.injector.get('sortDescending', false);
-        this.subcomponentType = this.injector.get('subcomponentType', 'Impl1');
-        // TODO Add or remove properties as needed.
+    appendNonFieldBindings(bindings: any): any {
+        // Set the non-field config bindings for the visualization.
+        bindings.sortDescending = this.sortDescending;
+        bindings.subcomponentType = this.subcomponentType;
+        // TODO Add or remove non-field bindings as needed.
+        return bindings;
     }
 
     /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        // Add the names of the field properties in the bindings for the visualization.
+        return [
+            'sampleOptionalField',
+            'sampleRequiredField'
+        ];
+        // TODO Add or remove field names as needed.
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        // Add the names of the field array properties in the bindings for the visualization.
+        return [];
+        // TODO Add or remove field array names as needed.
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    updateFieldsOnTableChanged() {
-        // Set the fields config bindings for the visualization.
-        this.sampleOptionalField = this.findFieldObject('sampleOptionalField');
-        this.sampleRequiredField = this.findFieldObject('sampleRequiredField');
-        // TODO Add or remove fields as needed.
+    initializeNonFieldBindings() {
+        // Set the non-field config bindings for the visualization.
+        this.sortDescending = this.injector.get('sortDescending', false);
+        this.subcomponentType = this.injector.get('subcomponentType', 'Impl1');
+        // TODO Add or remove non-field bindings as needed.
     }
 }
 
@@ -333,23 +363,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      */
     getOptions(): BaseNeonOptions {
         return this.options;
-    }
-
-    /**
-     * Returns the export fields for the visualization.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        // TODO Add or remove fields and properties as needed.
-        return [{
-            columnName: this.options.sampleOptionalField.columnName,
-            prettyName: this.options.sampleOptionalField.prettyName
-        }, {
-            columnName: this.options.sampleRequiredField.columnName,
-            prettyName: this.options.sampleRequiredField.prettyName
-        }];
     }
 
     /**
@@ -621,20 +634,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     showFooterContainer(): boolean {
         // TODO Check for any other components.
         return this.activeData.length < this.responseData.length;
-    }
-
-    /**
-     * Sets the visualization fields and properties in the given bindings object needed to save layout states.
-     *
-     * @arg {object} bindings
-     * @override
-     */
-    subGetBindings(bindings: any) {
-        // TODO Add or remove fields and properties as needed.
-        bindings.sampleOptionalField = this.options.sampleOptionalField.columnName;
-        bindings.sampleRequiredField = this.options.sampleRequiredField.columnName;
-        bindings.sortDescending = this.options.sortDescending;
-        bindings.subcomponentType = this.options.subcomponentType;
     }
 
     // TODO If you don't need to do anything here (like update properties), just remove this function and use the superclass one!

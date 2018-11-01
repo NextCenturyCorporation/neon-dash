@@ -63,7 +63,7 @@
 
                     <mat-form-field>
                         <mat-select placeholder="Flag Label" [(ngModel)]="options.flagLabel" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                            <mat-option [value]="emptyField">(None)</mat-option>
+                            <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -71,7 +71,7 @@
 
                     <mat-form-field>
                         <mat-select placeholder="Flag Sub-Label 1" [(ngModel)]="options.flagSubLabel1" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                            <mat-option [value]="emptyField">(None)</mat-option>
+                            <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -79,7 +79,7 @@
 
                     <mat-form-field>
                         <mat-select placeholder="Flag Sub-Label 2" [(ngModel)]="options.flagSubLabel2" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                            <mat-option [value]="emptyField">(None)</mat-option>
+                            <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -87,7 +87,7 @@
 
                     <mat-form-field>
                         <mat-select placeholder="Flag Sub-Label 3" [(ngModel)]="options.flagSubLabel3" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                            <mat-option [value]="emptyField">(None)</mat-option>
+                            <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -97,7 +97,7 @@
                 <div *ngIf="!options.detailedThumbnails">
                     <mat-form-field>
                         <mat-select placeholder="Name Field" [(ngModel)]="options.nameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                            <mat-option [value]="emptyField">(None)</mat-option>
+                            <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -105,7 +105,7 @@
 
                     <mat-form-field>
                         <mat-select placeholder="Actual Name Field" [(ngModel)]="options.objectNameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                            <mat-option [value]="emptyField">(None)</mat-option>
+                            <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -113,7 +113,7 @@
 
                     <mat-form-field>
                         <mat-select placeholder="Predicted Name Field" [(ngModel)]="options.predictedNameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                            <mat-option [value]="emptyField">(None)</mat-option>
+                            <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -121,7 +121,7 @@
 
                     <mat-form-field>
                         <mat-select placeholder="Predicted Probability Field" [(ngModel)]="options.percentField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                            <mat-option [value]="emptyField">(None)</mat-option>
+                            <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -129,7 +129,7 @@
 
                     <mat-form-field>
                         <mat-select placeholder="Category Field" [(ngModel)]="options.categoryField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                            <mat-option [value]="emptyField">(None)</mat-option>
+                            <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -137,7 +137,7 @@
 
                     <mat-form-field>
                         <mat-select placeholder="Comparison Field" [(ngModel)]="options.compareField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                            <mat-option [value]="emptyField">(None)</mat-option>
+                            <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -146,7 +146,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Filter Field" [(ngModel)]="options.filterField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -154,7 +154,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="ID Field" [(ngModel)]="options.idField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -176,7 +176,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Type Field" [(ngModel)]="options.typeField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
