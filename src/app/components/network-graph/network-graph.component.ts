@@ -899,7 +899,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     let linkEntry = links[j];
                    let linkNode  = this.allData.find((item) => item.kbid === linkEntry);
                    if (linkNode) {
-                       //If linkNode exists then get the existing position and name in order to avoid node relocation
+                       //If edge node exists then get the existing position and name in order to avoid node duplication and relocation
                         nodeType = linkNode[nodeColorField];
                         linkNodeName = linkNode[nodeNameColumn];
                         xPosition = linkNode[xPositionField];
@@ -910,7 +910,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                         filterFields.push({field: nodeName, data: linkEntry});
                     }
 
-                    if (this.isUniqueNode(linkEntry) && graph.nodes.length < limit) {
+                    if (linkEntry && this.isUniqueNode(linkEntry)) {
                         //If legend labels have been modified, override the link
                         if (this.prettifiedNodeLabels.length > 0 && this.options.displayLegend && nodeType && nodeType !== '') {
                             let shortName = this.labelCleanUp(nodeType);
@@ -935,9 +935,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             }
 
             // create edges between nodes and destinations specified by linkfield
-            let linkNames = !linkNameField ? [].fill('', 0, links.length)
-                : linkNameField instanceof Array ? linkNameField : [linkNameField],
-                nodes = nodeField instanceof Array ? nodeField : [nodeField];
+            let linkNames = !linkNameField ? [].fill('', 0, links.length) : getArray(linkNameField),
+                nodes = getArray(nodeField);
 
             if (nodes) {
                 for (const nodeEntry of nodes) {
