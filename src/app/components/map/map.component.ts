@@ -664,8 +664,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         for (let point of data) {
             let lngCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, lngField)),
                 latCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, latField)),
-                colorValue = colorField && point[colorField],
-                idValue = idField && point[idField];  //value must be top level nost nested array
+                colorValue = neonUtilities.deepFind(point, colorField),
+                idValue = neonUtilities.deepFind(point, idField); 
 
             let hoverPopupValue = hoverPopupField ? neonUtilities.deepFind(point, hoverPopupField) : '';
 
@@ -1072,22 +1072,24 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     private getSelectIdCallback() {
         return (eventMessage) => {
 
-            //check if database and table exist in any of the layers
-            let dbExists = false;
-            let tableExists = false;
-            this.options.layers.forEach((elem) => {
-                if (eventMessage.database === elem.database.name) { dbExists = true; }
-                if (eventMessage.table === elem.table.name) { tableExists = true; }
-            });
+            //get the message id and set it
+            this.options.id = Array.isArray(eventMessage.id) ? eventMessage.id[0] : eventMessage.id;
 
-            if (dbExists && tableExists) {
-                this.options.id = Array.isArray(eventMessage.id) ? eventMessage.id[0] : eventMessage.id;
-                if (this.options.id !== this.previousId) {
-                    //this.tabsAndMedia = [];
-                    this.previousId = this.options.id;
-                    this.executeQueryChain(0);
+            //loop through all of the layers 
+            this.options.layers.forEach((elem, index) => {
+
+                //check if database and table exists in the current layer
+                if ((eventMessage.database === elem.database.name) && (eventMessage.table === elem.table.name) ) {
+
+                    if (this.options.id !== this.previousId) {
+                        this.previousId = this.options.id;
+                        this.executeQueryChain(index);
+                    }
                 }
-            }
+
+                //reset previousId for next layer
+                this.previousId = '';
+            });
         };
     }
 
