@@ -60,6 +60,15 @@ export class LegendComponent implements OnInit {
      * Switch for adding or removing filtering capability for the legend
      */
     @Input() filteringOn: boolean = true;
+
+    /**
+     * name for custom ColorSet
+     */
+    @Input() customName: string;
+    /**
+     * colorList for custom ColorSet
+     */
+    @Input() customColorList: any[];
     /**
      * Event triggered when an item in the legend has been selected.
      * The event includes the field name, value, and a boolean if the value is currently selected
@@ -78,7 +87,12 @@ export class LegendComponent implements OnInit {
 
     @Input() set fieldNames(names: string[]) {
         this._FieldNames = names;
-        this.loadAllColorSets();
+        if (this.customName && this.customColorList) {
+           this.getCustomColorSet();
+        } else {
+            this.loadAllColorSets();
+        }
+
     }
     get fieldNames(): string[] {
         return this._FieldNames;
@@ -88,6 +102,7 @@ export class LegendComponent implements OnInit {
      * Get all the color sets we need from the ColorSchemeService
      */
     private loadAllColorSets() {
+
         this.colorSets = [];
         for (let name of (this.fieldNames || [])) {
             let colorSet = this.colorSchemeService.getColorSet(name || '');
@@ -97,8 +112,20 @@ export class LegendComponent implements OnInit {
         }
     }
 
+    /**
+     * Get all the color sets we need from the ColorSchemeService
+     */
+    private getCustomColorSet() {
+        let colorSet = this.colorSchemeService.createCustomColorSet(this.customName, this.fieldNames, this.customColorList);
+        this.colorSets.push(colorSet);
+    }
+
+
     ngOnInit() {
-        this.loadAllColorSets();
+        if (!this.colorSets) {
+            this.loadAllColorSets();
+        }
+
     }
 
     getColorFor(colorSet: ColorSet, key: string): string {
