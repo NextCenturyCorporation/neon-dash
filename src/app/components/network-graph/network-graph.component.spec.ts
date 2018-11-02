@@ -94,7 +94,7 @@ describe('Component: NetworkGraph', () => {
         expect(component.options.isReified).toEqual(false);
         expect(component.options.displayLegend).toEqual(false);
         expect(component.options.nodeShape).toEqual('box');
-        expect(component.options.nodeColor).toEqual('#96c1fc');
+        expect(component.options.nodeColor).toEqual(['#96c1fc']);
         expect(component.options.linkColor).toEqual('#96c1fc');
         expect(component.options.edgeColor).toEqual('#2b7ce9');
         expect(component.options.fontColor).toEqual('#343434');
@@ -106,7 +106,6 @@ describe('Component: NetworkGraph', () => {
         expect(component.options.filterable).toEqual(false);
         expect(component.options.multiFilterOperator).toEqual('or');
         expect(component.options.cleanLegendLabels).toEqual(false);
-        expect(component.options.setColorScheme).toEqual(false);
         expect(component.options.legendFiltering).toEqual(true);
 
         expect(component.options.nodeColorField).toEqual(component.emptyField);
@@ -200,7 +199,7 @@ describe('Component: NetworkGraph', () => {
         component.options.nodeField = new FieldMetaData('testNodeField');
         component.options.xPositionField = new FieldMetaData('testXPositionField');
         component.options.yPositionField = new FieldMetaData('testYPositionField');
-        component.options.nodeColor = '#96f4f2';
+        component.options.nodeColor = ['#96f4f2'];
         component.options.edgeColor = '#93663e';
         component.options.linkColor = '#938d8f';
         component.options.nodeShape = 'star';
@@ -376,7 +375,7 @@ describe('Component: NetworkGraph', () => {
         component.options.nodeField = new FieldMetaData('testNodeField');
         component.options.xPositionField = new FieldMetaData('testXPositionField');
         component.options.yPositionField = new FieldMetaData('testYPositionField');
-        component.options.nodeColor = '#715e93';
+        component.options.nodeColor = ['#715e93'];
         component.options.edgeColor = '#93663e';
         component.options.linkColor = '#938d8f';
         component.options.nodeShape = 'star';
@@ -426,7 +425,7 @@ describe('Component: NetworkGraph', () => {
         component.options.nodeField = new FieldMetaData('testNodeField');
         component.options.xPositionField = new FieldMetaData('testXPositionField');
         component.options.yPositionField = new FieldMetaData('testYPositionField');
-        component.options.nodeColor = '#96f4f2';
+        component.options.nodeColor = ['#96f4f2'];
         component.options.edgeColor = '#93663e';
         component.options.linkColor = '#938d8f';
         component.options.nodeShape = 'star';

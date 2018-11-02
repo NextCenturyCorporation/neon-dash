@@ -22,7 +22,7 @@ export class ColorSet {
     public name: string;
     public colorList: Color[];
     private currentIndex: number = 0;
-    private mappings: Map<string, Color> = new Map<string, Color>();
+    public mappings: Map<string, Color> = new Map<string, Color>();
 
     constructor(name: string) {
         this.name = name;
@@ -40,6 +40,7 @@ export class ColorSet {
             this.mappings.set(value, color);
             this.currentIndex = (this.currentIndex + 1) % this.colorList.length;
         }
+
         return color;
     }
 
@@ -229,6 +230,38 @@ export class ColorSchemeService {
      */
     public setColorListByIndex(index: number) {
         this.colorPosition = index;
+    }
+
+    /**
+     * Get all the color sets we need from the ColorSchemeService
+     * @arg {string} name
+     * @arg {array} fields
+     * @arg {array} colors
+     */
+    public createCustomColorSet(name: string, fields: string[], colors: any[]) {
+        let colorSet = new ColorSet(name);
+        colorSet.colorList = [];
+
+        for (let i = 0; i < fields.length; i++) {
+            let color = this.getRgb(colors[i]);
+            colorSet.colorList.push(color);
+            colorSet.mappings.set(fields[i], color);
+        }
+
+        return colorSet;
+    }
+
+    /**
+     * Converts hex color like #774F00 to a RGB color object like new Color(119, 79, 0)
+     * @arg {string} hex
+     */
+    public getRgb(hex: string) {
+        let rgb = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
+            , (m, r, g, b) => '#' + r + r + g + g + b + b)
+            .substring(1).match(/.{2}/g)
+            .map((x) => parseInt(x, 16));
+
+        return Color.fromRgbArray(rgb);
     }
 }
 
