@@ -62,15 +62,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     @Input() sidenav = MatSidenav;
     // Used to determine which pane is show in the right sidenav
 
-    public showAboutNeon: boolean = false;
-    public showAddVis: boolean = false;
+    public currentPanel: string = '';
     public showCustomConnectionButton: boolean = false;
-    public showDashboardLayouts: boolean = false;
     public showFilterBuilder: boolean = false;
     public showFilterTrayButton: boolean = false;
-    public showGear: boolean = false;
-    public showSaveState: boolean = false;
-    public showSettings: boolean = false;
     //Toolbar
     public showSimpleSearch: boolean = false;
     public showVisShortcut: boolean = true;
@@ -196,6 +191,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         return true;
     }
 
+    checkPanel(panel: string) {
+        return this.currentPanel === panel;
+    }
+
     gridItemsToString(): string {
         return JSON.stringify(this.gridItems);
     }
@@ -279,13 +278,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         });
     }
 
-    resetPanel() {
-        this.showAboutNeon = false;
-        this.showAddVis = false;
-        this.showDashboardLayouts = false;
-        this.showGear = false;
-        this.showSaveState = false;
-        this.showSettings = false;
+    setPanel(newPanel: string, newTitle: string) {
+        this.currentPanel = newPanel;
+        this.rightPanelTitle = newTitle;
     }
 
     showItemLocation(event) {
@@ -299,39 +294,4 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
          * console.log(str);
          */
     }
-
-    toggleAboutNeon() {
-        this.resetPanel();
-        this.rightPanelTitle = 'About Neon';
-        this.showAboutNeon = true;
-    }
-
-    toggleAddVisualization() {
-        this.resetPanel();
-        this.rightPanelTitle = 'Visulization';
-        this.showAddVis = true;
-
-    }
-
-    toggleDashboardLayouts() {
-        //this.resetPanel();
-        //this.rightPanelTitle = 'Dashboard Layouts';
-        //this.showDashboardLayouts = true;
-    }
-
-    toggleSaveState() {
-        if (this.SaveStateComponent) {
-            this.SaveStateComponent.loadStateNames();
-        }
-        this.resetPanel();
-        this.rightPanelTitle = 'Save States';
-        this.showSaveState = true;
-    }
-
-    toggleSettings() {
-        this.resetPanel();
-        this.rightPanelTitle = 'Settings';
-        this.showSettings = true;
-    }
-
 }
