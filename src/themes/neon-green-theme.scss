@@ -117,5 +117,10 @@ $green-theme: (
     --color-background-contrast: #D7D7D7;
     --color-text-header: #666666;
     --color-text-main: #333333;
+
+    &.mat-autocomplete-panel {
+        background: white;
+        color: rgba(black, 0.87);
+    }
 }
 

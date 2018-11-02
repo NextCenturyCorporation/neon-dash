@@ -65,7 +65,7 @@ export class DashboardOptionsComponent implements OnInit {
 
     ngOnInit() {
         this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
-        this.formData.currentTheme = this.themesService.getCurrentTheme().id;
+        this.formData.currentTheme = this.themesService.getCurrentTheme();
         this.messenger = new neon.eventing.Messenger();
         this.loadStateNames();
     }
@@ -261,7 +261,7 @@ export class DashboardOptionsComponent implements OnInit {
         this.snackBar.open(message, 'x', {
             duration: 5000,
             verticalPosition: 'top',
-            panelClass: [this.themesService.getCurrentTheme().id, 'simpleSnackBar']
+            panelClass: [this.themesService.getCurrentTheme(), 'simpleSnackBar']
          });
     }
 }

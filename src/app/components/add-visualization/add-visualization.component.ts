@@ -56,7 +56,7 @@ export class AddVisualizationComponent implements OnInit {
          this.snackBar.open('Visualization Added', 'x', {
             duration: 5000,
             verticalPosition: 'top',
-            panelClass: [this.themesService.getCurrentTheme().id, 'simpleSnackBar']
+            panelClass: [this.themesService.getCurrentTheme(), 'simpleSnackBar']
          });
     }
 }

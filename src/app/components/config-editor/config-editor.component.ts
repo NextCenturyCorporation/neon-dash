@@ -97,13 +97,13 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
         this.propertyService.setProperty(this.CONFIG_PROP_NAME, text,
         (response) => {
             this.snackBar.open('Configuration updated successfully.  Refresh to reflect changes.', 'OK', {
-                panelClass: this.themesService.getCurrentTheme().id,
+                panelClass: this.themesService.getCurrentTheme(),
                 duration: this.DEFAULT_SNACK_BAR_DURATION
             });
         },
         (response) => {
             this.snackBar.open('Error attempting to save configuration', 'OK', {
-                panelClass: this.themesService.getCurrentTheme().id,
+                panelClass: this.themesService.getCurrentTheme(),
                 duration: this.DEFAULT_SNACK_BAR_DURATION
             });
             console.warn('Error attempting to save configuration:');
@@ -117,14 +117,14 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
             this.propertyService.deleteProperty(this.CONFIG_PROP_NAME, (response) => {
                 this.snackBar.open('Configuration deleted from Property Service successfully.  ' +
                     'Configuration will be loaded from internal \'json\' or \'yaml\' files.', 'OK', {
-                        panelClass: this.themesService.getCurrentTheme().id,
+                        panelClass: this.themesService.getCurrentTheme(),
                         duration: this.DEFAULT_SNACK_BAR_DURATION
                     }
                 );
             },
             (response) => {
                 this.snackBar.open('Error attempting to delete property configuration', 'OK', {
-                    panelClass: this.themesService.getCurrentTheme().id,
+                    panelClass: this.themesService.getCurrentTheme(),
                     duration: this.DEFAULT_SNACK_BAR_DURATION
                 });
                 console.warn('Error attempting to delete property configuration:');
