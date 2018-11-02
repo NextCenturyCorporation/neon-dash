@@ -14,16 +14,16 @@
             </mat-toolbar>
         
             <div class="right-panel-container">
-                <div class="about-neon-container" *ngIf="showAboutNeon">
+                <div class="about-neon-container" *ngIf="checkPanel('aboutNeon')">
                     <app-about-neon></app-about-neon>
                 </div>
-                <div class="add-visualization-container" *ngIf="showAddVis">
+                <div class="add-visualization-container" *ngIf="checkPanel('addVis')">
                     <app-add-visualization></app-add-visualization>
                 </div>
-                <div class="saved-state-container" *ngIf="showSaveState">
+                <div class="saved-state-container" *ngIf="checkPanel('saveState')">
                     <app-save-state></app-save-state>
                 </div>
-                <div class="setting-container" *ngIf="showSettings">
+                <div class="setting-container" *ngIf="checkPanel('settings')">
                     <app-settings></app-settings>
                 </div>
             </div>
@@ -59,16 +59,16 @@
         </button>
 
         <mat-menu #appMenu="matMenu" yPosition="below" [overlapTrigger]="false">
-            <button mat-menu-item (click)="toggleAddVisualization(); sideNavRight.toggle()">
+            <button mat-menu-item (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()">
                 <mat-icon>add_circle</mat-icon>Visualizations</button>
-            <button mat-menu-item (click)="toggleDashboardLayouts(); sideNavLeft.toggle()">
+            <button mat-menu-item (click)="setPanel('dashboardLayouts', 'Dashboard Layouts'); sideNavLeft.toggle()">
                 <mat-icon>dashboard</mat-icon>Dashboard Layouts</button>
-            <button mat-menu-item (click)="toggleSaveState(); sideNavRight.toggle()">
+            <button mat-menu-item (click)="setPanel('saveState', 'Save States'); sideNavRight.toggle()">
                 <mat-icon>save</mat-icon>Saved States</button>
-            <button mat-menu-item (click)="toggleSettings(); sideNavRight.toggle()">
+            <button mat-menu-item (click)="setPanel('settings', 'Settings'); sideNavRight.toggle()">
                 <mat-icon>settings</mat-icon>Settings
             </button>
-            <button mat-menu-item (click)="toggleAboutNeon(); sideNavRight.toggle()">
+            <button mat-menu-item (click)="setPanel('aboutNeon', 'About Neon'); sideNavRight.toggle()">
                 <mat-icon>info</mat-icon>About
             </button>
         </mat-menu>
