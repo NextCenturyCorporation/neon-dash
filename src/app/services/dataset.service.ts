@@ -186,9 +186,9 @@ export class DatasetService {
 
     /**
      * returns the simple search field
-     * @return {Object}
+     * @return {string}
      */
-    public getActiveDatasetSimpleFilterFieldName() {
+    public getActiveDatasetSimpleFilterFieldName(): string {
         return this.dataset.options.simpleFilter.fieldName;
     }
 
