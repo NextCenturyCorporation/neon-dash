@@ -252,8 +252,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         type: 'list'
     }];
 
+    public colorKeys: any[] = [];
     public legendActiveGroups: any[] = [];
-    public legendFields: any[] = [];
     public legendGroups: any[] = [];
 
     public xList: any[] = [];
@@ -635,7 +635,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     handleChangeData() {
         this.legendActiveGroups = [];
         this.legendGroups = [];
-        this.legendFields = [];
+        this.colorKeys = [];
         this.xList = [];
         this.yList = [];
         super.handleChangeData();
@@ -819,13 +819,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let yList = [];
         let groupsToColors = new Map<string, Color>();
         if (!this.options.groupField.columnName) {
-            groupsToColors.set(this.DEFAULT_GROUP, this.colorSchemeService.getColorFor('', this.DEFAULT_GROUP));
+            groupsToColors.set(this.DEFAULT_GROUP, this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name,
+                '', this.DEFAULT_GROUP));
         }
 
         let findGroupColor = (group: string): Color => {
             let color = groupsToColors.get(group);
             if (!color) {
-                color = this.colorSchemeService.getColorFor(this.options.groupField.columnName, group);
+                color = this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name,
+                    this.options.groupField.columnName, group);
                 groupsToColors.set(group, color);
             }
             return color;
@@ -1040,7 +1042,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         this.subOnResizeStop();
 
-        this.legendFields = this.options.groupField.columnName ? [this.options.groupField.columnName] : [''];
+        this.colorKeys = [this.colorSchemeService.getColorKey(this.options.database.name, this.options.table.name,
+            this.options.groupField.columnName || '')];
     }
 
     /**
@@ -1323,7 +1326,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     subHandleChangeLimit() {
         this.legendActiveGroups = [];
         this.legendGroups = [];
-        this.legendFields = [];
+        this.colorKeys = [];
         this.xList = [];
         this.yList = [];
         super.subHandleChangeLimit();

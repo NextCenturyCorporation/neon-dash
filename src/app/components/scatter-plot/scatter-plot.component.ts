@@ -180,7 +180,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         options: any
     };
 
-    public colorByFields: string[] = [];
+    public colorKeys: string[] = [];
     public defaultActiveColor;
     public displayGridLines: boolean;
     public displayTicks: boolean;
@@ -610,7 +610,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
             if (!dataSet) {
                 let color = this.defaultActiveColor;
                 if (!!this.options.colorField.columnName) {
-                    color = this.colorSchemeService.getColorFor(this.options.colorField.columnName, dataSetKey);
+                    color = this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name,
+                        this.options.colorField.columnName, dataSetKey);
                 }
                 dataSet = new ScatterDataSet(color);
                 dataSet.label = dataSetKey;
@@ -683,7 +684,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
 
         this.refreshVisualization();
         // Force the legend to update
-        this.colorByFields = [this.options.colorField.columnName];
+        this.colorKeys = [this.colorSchemeService.getColorKey(this.options.database.name, this.options.table.name,
+            this.options.colorField.columnName)];
     }
 
     xAxisTickCallback(value): string {

@@ -112,7 +112,7 @@
 
     <div #filterContainer class="filter-container">
         <app-legend *ngIf="!!this.options.colorField.columnName" (itemSelected)="legendItemSelected($event)" [disabledList]="disabledSet"
-            [fieldNames]="colorByFields"></app-legend>
+                [colorKeys]="colorKeys"></app-legend>
 
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
             <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">Scatter Filter</span>

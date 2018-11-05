@@ -179,14 +179,14 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     public seenTypes: string[] = [];
     public disabledSet: [string[]] = [] as [string[]];
-    public colorByFields: string[] = [];
+    public colorKeys: string[] = [];
     public indexInclusive: boolean;
     public offset = 0;
     public previousId: string = '';
 
     constructor(
         activeGridService: ActiveGridService,
-        private colorSchemaService: ColorSchemeService,
+        private colorSchemeService: ColorSchemeService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
@@ -472,7 +472,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     let currentPart = new Part();
                     let currentText = document.annotationTextList[index];
                     let currentType = document.annotationTypeList[index];
-                    let highlightColor = this.colorSchemaService.getColorFor(currentType, currentType).toRgba(0.4);
+                    let highlightColor = this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name,
+                        currentType, currentType).toRgba(0.4);
 
                     currentPart.highlightColor = highlightColor;
                     currentPart.text = currentText;
@@ -486,7 +487,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                         this.seenTypes.push(type);
                     }
                 }
-                this.colorByFields = this.seenTypes;
+                this.colorKeys = this.seenTypes.map((type) => this.colorSchemeService.getColorKey(this.options.database.name,
+                    this.options.table.name, type));
             }
 
             for (let index = 0; index < annotationsPartList.length; index++) {
@@ -886,7 +888,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     updateLegend() {
-        this.seenTypes.sort();
+        this.colorKeys.sort();
     }
 
     legendItemSelected(event: any) {
@@ -921,7 +923,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     part.highlightColor = 'rgb(255,255,255)';
                 } else {
                     if (part.highlightColor && part.highlightColor.includes('rgb(255,255,255')) {
-                        part.highlightColor = this.colorSchemaService.getColorFor(part.type, part.type).toRgba(0.4);
+                        part.highlightColor = this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name,
+                            part.type, part.type).toRgba(0.4);
                     }
                 }
 
@@ -956,7 +959,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         });
 
         this.disabledSet = [] as [string[]];
-        this.colorByFields = [];
+        this.colorKeys = [];
 
         this.page = 1;
         this.updateDocuemnts(response);
@@ -1080,7 +1083,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     showLegendContainer(): boolean {
         let showLegend = false;
-        if (!this.options.singleColor && this.colorByFields.length > 0) {
+        if (!this.options.singleColor && this.colorKeys.length > 0) {
             showLegend = true;
         }
         return showLegend;

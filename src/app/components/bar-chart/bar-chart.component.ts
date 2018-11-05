@@ -846,7 +846,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
             if (!barDataset) {
                 barDataset = new BarDataSet(this.bars.length, barSegment, (colorFieldExists ?
-                    this.colorSchemeService.getColorFor(this.options.colorField.columnName, barSegment) : this.defaultBarColor),
+                    this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name,
+                        this.options.colorField.columnName, barSegment) : this.defaultBarColor),
                     this.defaultHighlightColor);
                 groupsToDatasets.set(barSegment, barDataset);
             }
