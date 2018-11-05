@@ -134,6 +134,9 @@ function validateConfig(config) {
 
 function bootstrapWithData(configFromFile) {
     let configObject = validateConfig(configFromFile);
+    if (configObject && configObject.neonServerUrl) {
+        neon.setNeonServerUrl(configObject.neonServerUrl);
+    }
     let errors = neonConfigErrors;
     neonConfigErrors = null;
     if (errors && errors.length > 0) {
