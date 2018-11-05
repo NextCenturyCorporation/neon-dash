@@ -38,7 +38,8 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { Color } from '../../color';
+import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
