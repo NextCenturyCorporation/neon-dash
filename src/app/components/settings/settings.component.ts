@@ -30,7 +30,7 @@ import * as _ from 'lodash';
 import * as neon from 'neon-framework';
 
 import { BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { DatasetOptions, EMPTY_FIELD, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
+import { DatasetOptions, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
 
 @Component({
     selector: 'app-settings',
