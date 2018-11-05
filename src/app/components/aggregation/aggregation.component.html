@@ -348,8 +348,8 @@
     </div>
 
     <div class="filter-container" *ngIf="showHeaderContainer()">
-        <app-legend *ngIf="showLegend()" [activeList]="legendActiveGroups" [fieldNames]="legendFields"
-            (itemSelected)="handleLegendItemSelected($event)"></app-legend>
+        <app-legend *ngIf="showLegend()" [activeList]="legendActiveGroups" [colorKeys]="colorKeys"
+                (itemSelected)="handleLegendItemSelected($event)"></app-legend>
 
         <div class="filter-reset" *ngFor="let filter of groupFilters">
             <span class="filter-label" [matTooltip]="createFilterPrettyText(filter)" tooltip-position="below">

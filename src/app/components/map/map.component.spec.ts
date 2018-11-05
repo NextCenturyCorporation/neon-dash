@@ -110,8 +110,10 @@ class TestMapComponent extends MapComponent {
         return this.filters;
     }
 
-    getMapPoints(lngField: string, latField: string, colorField: string, hoverPopupField: string, data: any[]) {
-        return super.getMapPoints(lngField, latField, colorField, hoverPopupField, data);
+    getMapPoints(databaseName: string, tableName: string, lngField: string, latField: string, colorField: string, hoverPopupField: string,
+        data: any[]
+    ) {
+        return super.getMapPoints(databaseName, tableName, lngField, latField, colorField, hoverPopupField, data);
     }
 
     setFilterBoundingBox(box: BoundingBoxByDegrees) {
@@ -283,7 +285,7 @@ describe('Component: Map', () => {
     });
 
     it('does have expected public properties', () => {
-        expect(component.colorByFields).toEqual([]);
+        expect(component.colorKeys).toEqual([]);
         expect(component.disabledSet).toEqual([]);
         expect(component.docCount).toEqual([0]);
         expect(component.filterVisible).toEqual([true]);
@@ -321,140 +323,88 @@ describe('Component: Map', () => {
 
     it('should create uncollapsed map points, largest first', () => {
         let colorService = getService(ColorSchemeService),
-            datasets = [
-                {
-                    data: [
-                        { lat: 0, lng: 0, category: 'a', hoverPopupField: 'A'},
-                        { lat: 0, lng: 0, category: 'b', hoverPopupField: 'B' },
-                        { lat: 0, lng: 0, category: 'c', hoverPopupField: 'C'},
-                        { lat: 0, lng: 0, category: 'd', hoverPopupField: 'D'},
-                        { lat: 0, lng: 0, category: 'd', hoverPopupField: 'D'}
-                    ],
-                    expected: [
-                        new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
-                            colorService.getColorFor('category', 'd').toRgb(), 'Count: 2',
-                            'category', 'd', 'D'
-                        ),
-                        new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a', 'A'
-                        ),
-                        new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b', 'B'
-                        ),
-                        new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                            colorService.getColorFor('category', 'c').toRgb(), 'Count: 1',
-                            'category', 'c', 'C'
-                        )
-                    ]
-                },
-                {
-                    data: [
-                        { lat: 0, lng: 0, category: 'a', hoverPopupField: 'A' },
-                        { lat: 0, lng: 1, category: 'b', hoverPopupField: 'B'},
-                        { lat: 0, lng: 2, category: 'c', hoverPopupField: 'C' },
-                        { lat: 0, lng: 3, category: 'd', hoverPopupField: 'D'}
-                    ],
-                    expected: [
-                        new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a', 'A'
-                        ),
-                        new MapPoint(
-                            '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
-                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b', 'B'
-                        ),
-                        new MapPoint(
-                            '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
-                            colorService.getColorFor('category', 'c').toRgb(), 'Count: 1',
-                            'category', 'c', 'C'
-                        ),
-                        new MapPoint(
-                            '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
-                            colorService.getColorFor('category', 'd').toRgb(), 'Count: 1',
-                            'category', 'd', 'D'
-                        )
-                    ]
-                },
-                {
-                    data: [
-                        { lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a', hoverPopupField: 'A'},
-                        { lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b', hoverPopupField: 'B' }
-                    ],
-                    expected: [
-                        new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 4',
-                            'category', 'a', 'A'
-                        ),
-                        new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
-                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 4',
-                            'category', 'b', 'B'
-                        )
-                    ]
-                },
-                {
-                    data: [
-                        { lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a', hoverPopupField: 'A' },
-                        { lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b', hoverPopupField: 'B' }
-                    ],
-                    expected: [
-                        new MapPoint(
-                            '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a', 'A'
-                        ),
-                        new MapPoint(
-                            '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a', 'A'
-                        ),
-                        new MapPoint(
-                            '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a', 'A'
-                        ),
-                        new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a', 'A'
-                        ),
-                        new MapPoint(
-                            '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
-                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b', 'B'
-                        ),
-                        new MapPoint(
-                            '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
-                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b', 'B'
-                        ),
-                        new MapPoint(
-                            '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
-                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b', 'B'
-                        ),
-                        new MapPoint(
-                            '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
-                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b', 'B'
-                        )
-                    ]
-                }
-            ];
+            dataset1 = {
+                data: [
+                    { lat: 0, lng: 0, category: 'a', hoverPopupField: 'A'},
+                    { lat: 0, lng: 0, category: 'b', hoverPopupField: 'B' },
+                    { lat: 0, lng: 0, category: 'c', hoverPopupField: 'C'},
+                    { lat: 0, lng: 0, category: 'd', hoverPopupField: 'D'},
+                    { lat: 0, lng: 0, category: 'd', hoverPopupField: 'D'}
+                ],
+                expected: [
+                    new MapPoint('0.000\u00b0, 0.000\u00b0', 0, 0, 2,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'd').toRgb(), 'Count: 2', 'category', 'd', 'D'),
+                    new MapPoint('0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', 'A'),
+                    new MapPoint('0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', 'B'),
+                    new MapPoint('0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'c').toRgb(), 'Count: 1', 'category', 'c', 'C')
+                ]
+            },
+            dataset2 = {
+                data: [
+                    { lat: 0, lng: 0, category: 'a', hoverPopupField: 'A' },
+                    { lat: 0, lng: 1, category: 'b', hoverPopupField: 'B'},
+                    { lat: 0, lng: 2, category: 'c', hoverPopupField: 'C' },
+                    { lat: 0, lng: 3, category: 'd', hoverPopupField: 'D'}
+                ],
+                expected: [
+                    new MapPoint('0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', 'A'),
+                    new MapPoint('0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', 'B'),
+                    new MapPoint('0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'c').toRgb(), 'Count: 1', 'category', 'c', 'C'),
+                    new MapPoint('0.000\u00b0, 3.000\u00b0', 0, 3, 1,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'd').toRgb(), 'Count: 1', 'category', 'd', 'D')
+                ]
+            },
+            dataset3 = {
+                data: [
+                    { lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a', hoverPopupField: 'A'},
+                    { lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b', hoverPopupField: 'B' }
+                ],
+                expected: [
+                    new MapPoint('0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 4', 'category', 'a', 'A'),
+                    new MapPoint('0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 4', 'category', 'b', 'B')
+                ]
+            },
+            dataset4 = {
+                data: [
+                    { lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a', hoverPopupField: 'A' },
+                    { lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b', hoverPopupField: 'B' }
+                ],
+                expected: [
+                    new MapPoint('0.000\u00b0, 3.000\u00b0', 0, 3, 1,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', 'A'),
+                    new MapPoint('0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', 'A'),
+                    new MapPoint('0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', 'A'),
+                    new MapPoint('0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', 'A'),
+                    new MapPoint('0.000\u00b0, 7.000\u00b0', 0, 7, 1,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', 'B'),
+                    new MapPoint('0.000\u00b0, 6.000\u00b0', 0, 6, 1,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', 'B'),
+                    new MapPoint('0.000\u00b0, 5.000\u00b0', 0, 5, 1,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', 'B'),
+                    new MapPoint('0.000\u00b0, 4.000\u00b0', 0, 4, 1,
+                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', 'B')
+                ]
+            };
 
-        for (let dataset of datasets) {
-            let mapPoints = component.getMapPoints('lng', 'lat', 'category', 'hoverPopupField', dataset.data);
-            expect(mapPoints).toEqual(dataset.expected);
-        }
+        let mapPoints1 = component.getMapPoints('myDatabase', 'myTable', 'lng', 'lat', 'category', 'hoverPopupField', dataset1.data);
+        expect(mapPoints1).toEqual(dataset1.expected);
+        let mapPoints2 = component.getMapPoints('myDatabase', 'myTable', 'lng', 'lat', 'category', 'hoverPopupField', dataset2.data);
+        expect(mapPoints2).toEqual(dataset2.expected);
+        let mapPoints3 = component.getMapPoints('myDatabase', 'myTable', 'lng', 'lat', 'category', 'hoverPopupField', dataset3.data);
+        expect(mapPoints3).toEqual(dataset3.expected);
+        let mapPoints4 = component.getMapPoints('myDatabase', 'myTable', 'lng', 'lat', 'category', 'hoverPopupField', dataset4.data);
+        expect(mapPoints4).toEqual(dataset4.expected);
     });
 
     it('should filter by bounding box', () => {
@@ -911,17 +861,17 @@ describe('Component: Map', () => {
         expect(component.docCount[1]).toEqual(2222);
     });
 
-    it('updateLegend does update colorByFields', () => {
+    it('updateLegend does update colorKeys', () => {
         component.updateLegend();
-        expect(component.colorByFields).toEqual([]);
+        expect(component.colorKeys).toEqual([]);
 
         updateMapLayer1(component);
         component.updateLegend();
-        expect(component.colorByFields).toEqual(['testColor1']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testColor1']);
 
         updateMapLayer2(component);
         component.updateLegend();
-        expect(component.colorByFields).toEqual(['testColor1', 'testColor2']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testColor1', 'testDatabase2_testTable2_testColor2']);
     });
 
     it('convertToFloatIfString does parse float string', () => {
