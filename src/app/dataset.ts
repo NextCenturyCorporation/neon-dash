@@ -92,7 +92,6 @@ export class Dataset {
  * Represents a single datastore from the datastores key/value pairs in the config file.
  */
 export class Datastore {
-    public connectOnLoad: boolean = false;
     public databases: DatabaseMetaData[] = [];
     public hasUpdatedFields: boolean = false;
     public options: DatasetOptions = new DatasetOptions(); // TODO: 825: might move this -- leave this alone for now
@@ -118,7 +117,14 @@ export class Dashboard {
     public layout?: string = '';
     public tables?: Map<string, string> = new Map<string, string>();
     public fields?: Map<string, string> = new Map<string, string>();
-    public options?: Map<string, string> = new Map<string, string>();
+    public options?: DashboardOptions = new DashboardOptions();
+}
+
+/**
+ * Class to represent additional dashboard options specified in the last level of nesting.
+ */
+export class DashboardOptions {
+    public connectOnLoad?: boolean = false;
 }
 
 export class Relation {

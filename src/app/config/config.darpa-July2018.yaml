@@ -1,11 +1,7 @@
-translationKeys:
-    google: AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8
-
 datastores:
     es1:
         host: localhost
         type: elasticsearch
-        connectOnLoad: true # TODO: 825: does this need to be moved?
         databases:
             ldc_uyg_jul_18: # layout: uyghur-ldc-sd: "DARPA60: Uyghur LDC Situation Discovery"
                 prettyName: 'Uyghur LDC, July 2018'
@@ -328,8 +324,7 @@ dashboards:
                             fields:
                                 field_key_1: es1.ldc_uyg_jul_18.ui_out.originalText
                             options:
-                                # TODO: 825: perhaps make options here later if needed
-                                test: someValue
+                                connectOnLoad: true
                         # TODO: 825: The uyg_elisa_discovery dashboard probably won't work correctly until layouts are using field keys
                         uyg_elisa_discovery:
                             name: ELISA Situation Discovery
@@ -341,8 +336,7 @@ dashboards:
                             fields:
                                 field_key_1: es1.uyg_elisa_sd.ui_out.JustificationIL
                             options:
-                                # TODO: 825: perhaps make options here later if needed
-                                test: someValue
+                                connectOnLoad: false
                 nepal:
                     name: Nepal
                     choices:
@@ -356,8 +350,7 @@ dashboards:
                             fields:
                                 field_key_1: es1.ll_nepal_07_11_3.annotations.originalText
                             options:
-                                # TODO: 825: perhaps make options here later if needed
-                                test: someValue
+                                connectOnLoad: false
                 car:
                     name: Central African Republic
                     choices:
@@ -371,8 +364,7 @@ dashboards:
                             fields:
                                 field_key_1: es1.elisa_car_1.annotations.JustificationEN
                             options:
-                                # TODO: 825: perhaps make options here later if needed
-                                test: someValue
+                                connectOnLoad: false
         dev:
             category: 'Select an option...'
             name: 'DEV:'
@@ -390,6 +382,8 @@ dashboards:
                                 table_key_1: es1.ll_nepal_06_14.situations
                                 table_key_2: es1.ll_nepal_06_14.annotations
                                 table_key_3: es1.ll_nepal_06_14.documents
+                            options:
+                                connectOnLoad: false
                         terrain:
                             name: Human Terrain
                             layout: human-terrain
@@ -397,6 +391,8 @@ dashboards:
                             datastore: es1
                             tables:
                                 table_key_1: es1.ll_nepal_06_14_2.annotations1Author
+                            options:
+                                connectOnLoad: false
 
 layouts:
     uyghur-sd:
