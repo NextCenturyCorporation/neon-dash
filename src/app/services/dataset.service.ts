@@ -181,9 +181,7 @@ export class DatasetService {
      * @param simpleField The new field for the simple search
      */
     public setActiveDatasetSimpleFilterFieldName(simpleField: FieldMetaData) {
-        if (!this.dataset.options.simpleFilter) {
-            this.createSimpleFilter();
-        }
+        this.createSimpleFilter();
         this.dataset.options.simpleFilter.fieldName = simpleField.columnName;
     }
 
@@ -205,9 +203,7 @@ export class DatasetService {
      * @return {string}
      */
     public getActiveDatasetSimpleFilterFieldName(): string {
-        if (!this.dataset.options.simpleFilter) {
-            this.createSimpleFilter();
-        }
+        this.createSimpleFilter();
         return this.dataset.options.simpleFilter.fieldName;
     }
 
