@@ -82,8 +82,8 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('does set expected options properties', () => {
-        expect(component.options.idField).toEqual(component.emptyField);
-        expect(component.options.linkField).toEqual(component.emptyField);
+        expect(component.options.idField).toEqual(new FieldMetaData());
+        expect(component.options.linkField).toEqual(new FieldMetaData());
         expect(component.options.id).toEqual('');
     });
 
@@ -129,19 +129,6 @@ describe('Component: WikiViewer', () => {
         expect(refs.infoText).toBeDefined();
         expect(refs.visualization).toBeDefined();
     });
-
-    it('getExportFields does return expected array', (() => {
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testIdField',
-            prettyName: 'Test ID Field'
-        }, {
-            columnName: 'testLinkField',
-            prettyName: 'Test Link Field'
-        }]);
-    }));
 
     it('getFiltersToIgnore does return null', (() => {
         expect(component.getFiltersToIgnore()).toBeNull();
@@ -325,13 +312,21 @@ describe('Component: WikiViewer', () => {
         expect(component.setupFilters).toBeDefined();
     }));
 
-    it('subGetBindings does set expected bindings', (() => {
+    it('options.createBindings does set expected bindings', (() => {
         component.options.idField = new FieldMetaData('testIdField');
         component.options.linkField = new FieldMetaData('testLinkField');
 
-        let bindings = {};
-        component.subGetBindings(bindings);
-        expect(bindings).toEqual({
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: '',
+            hideUnfiltered: false,
+            limit: 10,
+            table: '',
+            title: 'Wiki Viewer',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             idField: 'testIdField',
             linkField: 'testLinkField'
         });

@@ -22,8 +22,6 @@ export class FieldMetaData {
     ) {}
 }
 
-export const EMPTY_FIELD = new FieldMetaData();
-
 export class TableMetaData {
     constructor(
         public name: string = '',

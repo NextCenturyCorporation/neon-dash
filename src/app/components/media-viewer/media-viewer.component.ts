@@ -44,13 +44,14 @@ import * as neon from 'neon-framework';
  * Manages configurable options for the specific visualization.
  */
 export class MediaViewerOptions extends BaseNeonOptions {
+    public autoplay: boolean;
     public border: string;
     public clearMedia: boolean;
     public delimiter: string;
     public id: string;
     public idField: FieldMetaData;
     public maskField: FieldMetaData;
-    public linkField: FieldMetaData;
+    public linkField: FieldMetaData; // DEPRECATED
     public linkFields: FieldMetaData[];
     public linkPrefix: string;
     public nameField: FieldMetaData;
@@ -62,11 +63,58 @@ export class MediaViewerOptions extends BaseNeonOptions {
     public url: string;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
+     *
+     * @arg {any} bindings
+     * @return {any}
+     * @override
+     */
+    appendNonFieldBindings(bindings: any): any {
+        bindings.autoplay = this.autoplay;
+        bindings.border = this.border;
+        bindings.clearMedia = this.clearMedia;
+        bindings.delimiter = this.delimiter;
+        bindings.linkPrefix = this.linkPrefix;
+        bindings.oneTabPerArray = this.oneTabPerArray;
+        bindings.resize = this.resize;
+        bindings.sliderValue = this.sliderValue;
+        bindings.typeMap = this.typeMap;
+
+        return bindings;
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'idField',
+            'linkField', // DEPRECATED
+            'maskField',
+            'nameField',
+            'typeField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return ['linkFields'];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    onInit() {
+    initializeNonFieldBindings() {
         this.border = this.injector.get('border', '');
         this.clearMedia = this.injector.get('clearMedia', false);
         this.delimiter = this.injector.get('delimiter', ',');
@@ -77,23 +125,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
         this.sliderValue = this.injector.get('sliderValue', 0);
         this.typeMap = this.injector.get('typeMap', {});
         this.url = this.injector.get('url', '');
-    }
-
-    /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
-     *
-     * @override
-     */
-    updateFieldsOnTableChanged() {
-        this.idField = this.findFieldObject('idField');
-        this.nameField = this.findFieldObject('nameField');
-        this.typeField = this.findFieldObject('typeField');
-        this.maskField = this.findFieldObject('maskField');
-        this.linkField = this.findFieldObject('linkField');
-        this.linkFields = this.findFieldObjects('linkFields');
-        if (this.linkField.columnName && !this.linkFields.length) {
-            this.linkFields.push(this.linkField);
-        }
+        this.autoplay = this.injector.get('autoplay', false);
     }
 }
 
@@ -109,7 +141,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
 })
 export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     protected MEDIA_PADDING: number = 10;
-    protected SLIDER_HEIGHT: number = 66;
+    protected SLIDER_HEIGHT: number = 60;
     protected TAB_HEIGHT: number = 30;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
@@ -173,6 +205,11 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         );
 
         this.options = new MediaViewerOptions(this.injector, this.datasetService, 'Media Viewer', 10);
+
+        // Backwards compatibility.
+        if (this.options.linkField.columnName && !this.options.linkFields.length) {
+            this.options.linkFields.push(this.options.linkField);
+        }
 
         this.subscribeToSelectId(this.getSelectIdCallback());
 
@@ -338,36 +375,42 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         let tabs = this.options.oneTabPerArray ? [oneTab] : [];
 
         links.filter((link) => !!link).forEach((link, index) => {
-            let prettyName = link.substring(link.lastIndexOf('/') + 1);
-            let linkTypeFromConfig = this.getMediaType(link) || '';
+            let mask = this.appendLinkPrefixIfNeeded(this.findElementAtIndex(masks, index));
+            let name = this.findElementAtIndex(names, index, (link ? link.substring(link.lastIndexOf('/') + 1) : oneTabName));
+            let type = this.findElementAtIndex(types, index, (this.getMediaType(link) || ''));
 
-            let tab = oneTab;
-            if (!this.options.oneTabPerArray) {
-                tab = {
-                    selected: undefined,
-                    slider: this.options.sliderValue,
-                    name: prettyName,
-                    loaded: false,
-                    list: []
-                };
+            // If the type is "mask,img" then change the type to "mask" if the mask link exists else change the type to "img" (the backup).
+            if (type === (this.mediaTypes.maskImage + ',' + this.mediaTypes.image)) {
+                type = (mask ? this.mediaTypes.maskImage : this.mediaTypes.image);
             }
 
-            tab.list.push({
-                // TODO Add a boolean borderField with border options like:  true = red, false = yellow
-                border: this.options.border,
-                link: this.appendLinkPrefixIfNeeded(link),
-                mask: this.appendLinkPrefixIfNeeded(this.findElementAtIndex(masks, index)),
-                name: this.findElementAtIndex(names, index, prettyName),
-                type: this.findElementAtIndex(types, index, linkTypeFromConfig)
-            });
-
-            tab.selected = tab.list[0];
-
-            if (!this.options.oneTabPerArray) {
-                if (tab.list[0].name) {
-                    tab.name = tab.list[0].name + ((links.length > 1 && names.length === 1) ? (' ' + (index + 1)) : '');
+            // Only add a tab if the link is non-empty; only add a tab for a mask-type if the mask is also non-empty.
+            if (link && (type === this.mediaTypes.maskImage ? mask : true)) {
+                let tab = oneTab;
+                if (!this.options.oneTabPerArray) {
+                    tab = {
+                        selected: undefined,
+                        slider: this.options.sliderValue,
+                        name: (links.length > 1 ? ((index + 1) + ': ') : '') + name,
+                        loaded: false,
+                        list: []
+                    };
                 }
-                tabs.push(tab);
+
+                tab.list.push({
+                    // TODO Add a boolean borderField with border options like:  true = red, false = yellow
+                    border: this.options.border,
+                    link: this.appendLinkPrefixIfNeeded(link),
+                    mask: mask,
+                    name: name,
+                    type: type
+                });
+
+                tab.selected = tab.list[0];
+
+                if (!this.options.oneTabPerArray) {
+                    tabs.push(tab);
+                }
             }
         });
 
@@ -429,47 +472,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             headerText: this.headerText,
             infoText: this.infoText
         };
-    }
-
-    /**
-     * Returns the media viewer export fields.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        let fields = [{
-            columnName: this.options.idField.columnName,
-            prettyName: this.options.idField.prettyName
-        }].concat(this.options.linkFields.map((linkField) => {
-            return {
-                columnName: linkField.columnName,
-                prettyName: linkField.prettyName
-            };
-        }));
-
-        if (this.options.nameField.columnName) {
-            fields.push({
-                columnName: this.options.nameField.columnName,
-                prettyName: this.options.nameField.prettyName
-            });
-        }
-
-        if (this.options.typeField.columnName) {
-            fields.push({
-                columnName: this.options.typeField.columnName,
-                prettyName: this.options.typeField.prettyName
-            });
-        }
-
-        if (this.options.maskField.columnName) {
-            fields.push({
-                columnName: this.options.maskField.columnName,
-                prettyName: this.options.maskField.prettyName
-            });
-        }
-
-        return fields;
     }
 
     /**
@@ -713,31 +715,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Sets the given bindings for the media viewer.
-     *
-     * @arg {any} bindings
-     * @override
-     */
-    subGetBindings(bindings: any) {
-        bindings.idField = this.options.idField.columnName;
-        bindings.linkField = this.options.linkField.columnName;
-        bindings.linkFields = this.options.linkFields.map((linkField) => {
-            return linkField.columnName;
-        });
-        bindings.maskField = this.options.maskField.columnName;
-        bindings.nameField = this.options.nameField.columnName;
-        bindings.typeField = this.options.typeField.columnName;
-        bindings.border = this.options.border;
-        bindings.clearMedia = this.options.clearMedia;
-        bindings.delimiter = this.options.delimiter;
-        bindings.linkPrefix = this.options.linkPrefix;
-        bindings.oneTabPerArray = this.options.oneTabPerArray;
-        bindings.resize = this.options.resize;
-        bindings.sliderValue = this.options.sliderValue;
-        bindings.typeMap = this.options.typeMap;
-    }
-
-    /**
      * Destroys any media viewer sub-components if needed.
      *
      * @override
@@ -755,7 +732,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         // Do nothing.
     }
 
-    subOnResizeStop() {
+    subOnResizeStop(event?: any) {
         if (!this.visualization) {
             return;
         }
@@ -763,6 +740,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         let frames = this.visualization.nativeElement.querySelectorAll('.frame');
         let images = this.visualization.nativeElement.querySelectorAll('.image');
         let videos = this.visualization.nativeElement.querySelectorAll('.video');
+        let audios = this.visualization.nativeElement.querySelectorAll('.audio');
 
         if (!this.options.resize) {
             frames.forEach((frame) => {
@@ -777,12 +755,16 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 video.style.maxHeight = '';
                 video.style.maxWidth = '';
             });
+            audios.forEach((audio) => {
+                audio.style.maxHeight = '';
+                audio.style.maxWidth = '';
+            });
             return;
         }
 
-        // TODO FIXME
-        // let sliderHeight = this.tabsAndMedia.length && this.tabsAndMedia[0].list.length > 1 ? this.SLIDER_HEIGHT : 0;
-        let sliderHeight = this.SLIDER_HEIGHT;
+        let tabIndex = event ? event.index : this.selectedTabIndex;
+        let sliderHeight = ((this.tabsAndMedia.length > tabIndex && this.tabsAndMedia[tabIndex].selected.type ===
+            this.mediaTypes.maskImage) ?  this.SLIDER_HEIGHT : 0);
 
         frames.forEach((frame) => {
             frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
@@ -803,6 +785,12 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             video.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
                 this.MEDIA_PADDING - sliderHeight - 5) + 'px';
             video.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
+        });
+
+        audios.forEach((audio) => {
+            audio.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            audio.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         });
     }
 

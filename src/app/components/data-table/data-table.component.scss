@@ -100,7 +100,7 @@
 
 /deep/ .datatable-header-cell {
     /* Background fade from $white to $accent. */
-    background: linear-gradient(#fafafa,#e6e7e8);
+    background: linear-gradient(#fafafa, #e6e7e8);
     border-bottom: 1px solid $black-87-opacity;
     border-right: 1px solid $black-87-opacity;
     line-height: 20px !important;
@@ -110,12 +110,12 @@
 
 /* This is only needed if the table is reorderable. */
 /deep/ .datatable-header-cell.longpress {
-    background: linear-gradient(#ddd,#b3b3b3);
+    background: linear-gradient(#ddd, #b3b3b3);
     border: 1px dashed $black-87-opacity;
     z-index: 100;
 }
 
-/deep/ .datatable-header-cell > div {
+/deep/ .datatable-header-cell>div {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -132,11 +132,23 @@
 }
 
 /deep/ .datatable-header-cell-label,
-/deep/ .datatable-body-cell-label > span {
+/deep/ .datatable-body-cell-label>span {
     display: block;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    -webkit-touch-callout: none;
+    /* iOS Safari */
+    -webkit-user-select: none;
+    /* Safari */
+    -khtml-user-select: none;
+    /* Konqueror HTML */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently supported by Chrome and Opera */
 }
 
 /deep/ .datatable-icon-up,
@@ -218,11 +230,12 @@
 }
 
 /deep/ .color-field:before {
-    border-radius: 15px;
+    border: 2px solid black;
+    border-radius: 16px;
     content: '';
     display: inline-block;
-    height: 15px;
-    width: 15px;
+    height: 16px;
+    width: 16px;
 }
 
 .skinny {
@@ -258,6 +271,7 @@
 }
 
 .selectable {
+
     /deep/ .datatable-body-row:hover .datatable-row-group,
     /deep/ .datatable-body-row.active:hover .datatable-row-group,
     &.skinny /deep/ .datatable-body-row:hover .datatable-row-group,
@@ -302,4 +316,3 @@
         background-color: #ffa726; // orange-400
     }
 }
-
