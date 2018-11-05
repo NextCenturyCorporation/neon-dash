@@ -244,9 +244,8 @@
     <div class=" legend-container ">
         <div *ngIf="legendIsNeeded()">
             <app-legend *ngIf="options.legendFiltering" [fieldNames]="colorByFields" [disabledSets]="disabledSet" [filteringOn]="options.legendFiltering"
-                [customName]="options.nodeColorField" [customColorList]="options.nodeColor" (itemSelected)="legendItemSelected($event)"></app-legend>
-            <app-legend *ngIf="!options.legendFiltering" [fieldNames]="colorByFields"  [filteringOn]="options.legendFiltering" [customName]="options.nodeColorField"
-                [customColorList]="options.nodeColor"></app-legend>
+                (itemSelected)="legendItemSelected($event)"></app-legend>
+            <app-legend *ngIf="!options.legendFiltering" [fieldNames]="colorByFields"  [filteringOn]="options.legendFiltering"></app-legend>
         </div>
     </div>
 

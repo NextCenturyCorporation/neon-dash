@@ -118,7 +118,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public isDirected: boolean;
     public isReified: boolean;
     public displayLegend: boolean;
-    public nodeColor: string[];
+    public nodeColor: string;
     public nodeShape: string;
     public linkColor: string;
     public edgeColor: string;
@@ -157,7 +157,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
         this.isReified = this.injector.get('isReified', false);
         this.displayLegend = this.injector.get('displayLegend', false);
         this.nodeShape = this.injector.get('nodeShape', 'box');
-        this.nodeColor = this.injector.get('nodeColor', ['#96c1fc']);
+        this.nodeColor = this.injector.get('nodeColor', '#96c1fc');
         this.linkColor = this.injector.get('linkColor', '#96c1fc');
         this.edgeColor = this.injector.get('edgeColor', '#2b7ce9');
         this.fontColor = this.injector.get('fontColor', '#343434');
@@ -725,7 +725,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     private createReifiedGraphProperties() {
         let graph = new GraphProperties(),
             limit = this.options.limit,
-            nodeColor = this.getArray(this.options.nodeColor),
+            nodeColor = this.options.nodeColor,
             textColor = {color: this.options.fontColor},
             nodeShape = this.options.nodeShape;
 
@@ -737,7 +737,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
                 for (let sNode of subject) {
                     for (let oNode of object) {
-                        this.addTriple(graph, sNode, predicate, oNode, nodeColor[0], textColor, nodeShape);
+                        this.addTriple(graph, sNode, predicate, oNode, nodeColor, textColor, nodeShape);
                     }
                 }
             }
@@ -779,7 +779,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             nodeColorField = this.options.nodeColorField.columnName,
             edgeColorField = this.options.edgeColorField.columnName,
             targetColorField = this.options.targetColorField.columnName,
-            nodeColor = this.getArray(this.options.nodeColor),
+            nodeColor = this.options.nodeColor,
             edgeColor = this.options.edgeColor,
             linkColor = this.options.linkColor,
             textColor = {color: this.options.fontColor},
@@ -810,7 +810,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             // if there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
             if (nodeColorField && this.prettifiedNodeLabels.length === 0) {
                 let colorMapVal = nodeColorField && nodeType;
-                nodeColor = this.getArray(this.colorSchemeService.getColorFor(nodeColorField, colorMapVal).toRgb());
+                nodeColor = this.colorSchemeService.getColorFor(nodeColorField, colorMapVal).toRgb();
             }
 
             // create a new node for each unique nodeId
@@ -825,13 +825,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                         for (const nodeLabel of this.prettifiedNodeLabels) {
                             if (nodeLabel === shortName) {
                                 let colorMapVal = nodeColorField && nodeLabel;
-                                nodeColor = this.getArray(this.colorSchemeService.getColorFor(nodeColorField, colorMapVal).toRgb());
+                                nodeColor = this.colorSchemeService.getColorFor(nodeColorField, colorMapVal).toRgb();
                                 break;
                             }
                         }
                     }
 
-                    graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor[0], false, textColor, nodeShape,
+                    graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor, false, textColor, nodeShape,
                         xPosition, yPosition, filterFields));
                 }
             }
@@ -1027,9 +1027,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      */
     updateLegend() {
         let colorByFields: string[] = [];
-        /*if (this.prettifiedNodeLabels) {
-            colorByFields = this.prettifiedNodeLabels;
-        } else */if (this.options.nodeColorField.columnName !== '') {
+        if (this.options.nodeColorField.columnName !== '') {
             colorByFields.push(this.options.nodeColorField.columnName);
         } else if (this.options.edgeColorField.columnName !== '') {
             colorByFields.push(this.options.edgeColorField.columnName);
