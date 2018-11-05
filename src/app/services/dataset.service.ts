@@ -28,6 +28,8 @@ export class DatasetService {
     // The Dataset Service may ask the visualizations to update their data.
     static UPDATE_DATA_CHANNEL: string = 'update_data';
 
+    private static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
+
     private datasets: Datastore[] = [];
 
     // The active dataset.
@@ -102,44 +104,56 @@ export class DatasetService {
         this.removeFromArray(dataset.databases, indexListToRemove);
     }
 
+    /**
+     * Validate top level category of dashboards object in the config, then call
+     * separate function to check the choices within recursively.
+     * @param {any} dashboards config dashboards object
+     */
     static validateDashboards(dashboards: any): void {
         let dashboardKeys = dashboards.choices ? Object.keys(dashboards.choices) : [];
 
         if (!dashboards.category) {
-            dashboards.category = 'Select an option...';
+            dashboards.category = this.DASHBOARD_CATEGORY_DEFAULT;
         }
 
-        this.validateDashboardProperties(dashboards, dashboardKeys);
+        this.validateDashboardChoices(dashboards.choices, dashboardKeys);
     }
 
-    static validateDashboardProperties(dashboards: any, keys: string[]): void {
+    /**
+     * Validate the choices map within each level of dashboards object, and make appropriate
+     * changes when expected values are missing.
+     * @param {Map<string, Dashboard>} dashboardChoices
+     * @param {string[]} keys for dashboardChoices map
+     */
+    static validateDashboardChoices(dashboardChoices: Map<string, Dashboard>, keys: string[]): void {
         if (!keys.length) {
             return;
         }
 
         keys.forEach((choiceKey) => {
-            let nestedChoiceKeys = dashboards.choices[choiceKey].choices ? Object.keys(dashboards.choices[choiceKey].choices) : [];
+            let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
 
             if (!nestedChoiceKeys.length) {
                 // If no choices are present, then this might be the last level of nested choices,
                 // which should instead have table keys and a layout specified. If not, delete choice.
                 // TODO: 825: Add field keys later.
-                if (!dashboards.choices[choiceKey].layout || !dashboards.choices[choiceKey].tables) {
-                    delete dashboards.choices[choiceKey];
+                if (!dashboardChoices[choiceKey].layout || !dashboardChoices[choiceKey].tables) {
+                    delete dashboardChoices[choiceKey];
                 }
             }
 
-            if (dashboards.choices[choiceKey]) {
-                if (!dashboards.choices[choiceKey].name) {
-                    dashboards.choices[choiceKey].name = choiceKey;
+            if (dashboardChoices[choiceKey]) {
+                if (!dashboardChoices[choiceKey].name) {
+                    dashboardChoices[choiceKey].name = choiceKey;
                 }
 
                 // Only auto fill category if this is not the last level of nesting
-                if (!dashboards.choices[choiceKey].category && !dashboards.choices[choiceKey].tables) {
-                    dashboards.choices[choiceKey].category = 'Select an option...';
+                 if (!dashboardChoices[choiceKey].category && !dashboardChoices[choiceKey].tables) {
+                    dashboardChoices[choiceKey].category = this.DASHBOARD_CATEGORY_DEFAULT;
                 }
+
+                this.validateDashboardChoices(dashboardChoices[choiceKey].choices, nestedChoiceKeys);
             }
-            this.validateDashboardProperties(dashboards.choices[choiceKey], nestedChoiceKeys);
         });
     }
 
