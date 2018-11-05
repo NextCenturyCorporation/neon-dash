@@ -148,7 +148,7 @@ export class DatasetService {
                 }
 
                 // Only auto fill category if this is not the last level of nesting
-                 if (!dashboardChoices[choiceKey].category && !dashboardChoices[choiceKey].tables) {
+                if (!dashboardChoices[choiceKey].category && !dashboardChoices[choiceKey].tables) {
                     dashboardChoices[choiceKey].category = this.DASHBOARD_CATEGORY_DEFAULT;
                 }
 
