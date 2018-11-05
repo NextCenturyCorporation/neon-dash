@@ -126,11 +126,11 @@ describe('Component: Aggregation', () => {
 
     it('class properties are set to expected defaults', () => {
         expect(component.activeData).toEqual([]);
+        expect(component.colorKeys).toEqual([]);
         expect(component.filterToPassToSuperclass).toEqual({});
         expect(component.groupFilters).toEqual([]);
         expect(component.lastPage).toEqual(true);
         expect(component.legendActiveGroups).toEqual([]);
-        expect(component.legendFields).toEqual([]);
         expect(component.legendGroups).toEqual([]);
         expect(component.minimumDimensionsMain.height).toBeDefined();
         expect(component.minimumDimensionsMain.width).toBeDefined();
@@ -2201,7 +2201,7 @@ describe('Component: Aggregation', () => {
             yList: [2, 4]
         }]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
     it('refreshVisualization with XY subcomponent does draw data', () => {
@@ -2258,7 +2258,7 @@ describe('Component: Aggregation', () => {
             yList: [2, 4]
         }]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
     it('refreshVisualization does work as expected with date fields', () => {
@@ -2314,7 +2314,7 @@ describe('Component: Aggregation', () => {
             yList: [2, 4]
         }]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.legendFields).toEqual(['']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_']);
     });
 
     it('refreshVisualization does work as expected with string fields', () => {
@@ -2370,7 +2370,7 @@ describe('Component: Aggregation', () => {
             yList: [2, 4]
         }]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.legendFields).toEqual(['']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_']);
     });
 
     it('refreshVisualization does draw zoom data if dualView is truthy', () => {
@@ -2431,7 +2431,7 @@ describe('Component: Aggregation', () => {
             yAxis: 'number',
             yList: [2, 4]
         }]);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
 
         component.options.dualView = 'filter';
 
@@ -2472,7 +2472,7 @@ describe('Component: Aggregation', () => {
             yAxis: 'number',
             yList: [2, 4]
         }]);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
     it('refreshVisualization does not draw main data if filterToPassToSuperclass.id is defined unless dualView is falsey', () => {
@@ -2517,7 +2517,7 @@ describe('Component: Aggregation', () => {
             yAxis: 'number',
             yList: [2, 4]
         }]);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
 
         component.options.dualView = '';
 
@@ -2541,7 +2541,7 @@ describe('Component: Aggregation', () => {
             yList: [2, 4]
         }]);
         expect(spy2.calls.count()).toEqual(1);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
     it('refreshVisualization does draw main data if given true argument', () => {
@@ -2603,7 +2603,7 @@ describe('Component: Aggregation', () => {
             yAxis: 'number',
             yList: [2, 4]
         }]);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
     it('removeFilter does delete filters and call subcomponentMain.deselect', () => {

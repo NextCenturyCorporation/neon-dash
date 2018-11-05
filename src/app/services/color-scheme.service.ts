@@ -25,29 +25,45 @@ export class ColorSchemeService {
     private colorMap: Map<string, ColorSet> = new Map<string, ColorSet>();
 
     /**
-     * Returns the color for the given value from an existing color set for the given color field or creates a new color set if none
-     * exists for the color field.
+     * Returns the color for the given value from an existing color set for the given database/table/field or creates a new color set if
+     * none exists.
      *
-     * @arg {string} colorField
+     * @arg {string} databaseName
+     * @arg {string} tableName
+     * @arg {string} fieldName
      * @arg {string|string[]} value
      * @return {Color}
      */
-    public getColorFor(colorField: string, value: string | string[]): Color {
-        let colorSet = this.colorMap.get(colorField);
+    public getColorFor(databaseName: string, tableName: string, fieldName: string, value: string | string[]): Color {
+        let colorKey = this.getColorKey(databaseName, tableName, fieldName);
+        let colorSet = this.colorMap.get(colorKey);
         if (!colorSet) {
-            colorSet = new ColorSet(colorField);
-            this.colorMap.set(colorField, colorSet);
+            colorSet = new ColorSet(colorKey, databaseName, tableName, fieldName);
+            this.colorMap.set(colorKey, colorSet);
         }
         let colorValue = (value instanceof Array) ? value.join() : value;
         return colorSet.getColorForValue(colorValue);
     }
 
     /**
-     * Get the color set for a key
-     * @arg {string} colorField
+     * Returns the unique key for the given database/table/field.
+     *
+     * @arg {string} databaseName
+     * @arg {string} tableName
+     * @arg {string} fieldName
+     * @return {string}
+     */
+    public getColorKey(databaseName: string, tableName: string, fieldName: string): string {
+        return databaseName + '_' + tableName + '_' + fieldName;
+    }
+
+    /**
+     * Returns the color set for the given database/table/field key.
+     *
+     * @arg {string} colorKey
      * @return {ColorSet}
      */
-    getColorSet(colorField: string): ColorSet {
-        return this.colorMap.get(colorField);
+    getColorSet(colorKey: string): ColorSet {
+        return this.colorMap.get(colorKey);
     }
 }

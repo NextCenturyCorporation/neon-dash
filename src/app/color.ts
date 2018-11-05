@@ -139,7 +139,7 @@ export class ColorSet {
     private currentIndex: number = 0;
     private colorMap: Map<string, Color> = new Map<string, Color>();
 
-    constructor(private colorField: string) {
+    constructor(private colorKey: string, private databaseName: string, private tableName: string, private fieldName: string) {
         // Do nothing.
     }
 
@@ -149,7 +149,7 @@ export class ColorSet {
      * @return {string}
      */
     getColorField(): string {
-        return this.colorField;
+        return this.fieldName;
     }
 
     /**
