@@ -29,7 +29,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
-import { EMPTY_FIELD, FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
+import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import * as uuid from 'node-uuid';
@@ -52,9 +52,44 @@ export abstract class BaseNeonLayer {
      * @arg {any} config
      * @arg {DatasetService} datasetService
      */
-    constructor(protected config: any, protected datasetService: DatasetService) {
+    constructor(protected config: any, protected injector: Injector, protected datasetService: DatasetService) {
         this.title = config.title || 'New Layer';
+        this.unsharedFilterValue = injector.get('unsharedFilterValue', '');
+        this.initializeNonFieldBindings();
         this.updateDatabases();
+    }
+
+    /**
+     * Appends all the non-field bindings for the specific layer to the given bindings object and returns the bindings object.
+     *
+     * @arg {any} bindings
+     * @return {any}
+     * @abstract
+     */
+    protected abstract appendNonFieldBindings(bindings: any): any;
+
+    /**
+     * Creates and returns the bindings for the layer.
+     *
+     * @return {any}
+     */
+    public createBindings(): any {
+        let bindings = {
+            database: this.database.name,
+            table: this.table.name,
+            title: this.title,
+            unsharedFilterValue: this.unsharedFilterValue
+        };
+
+        this.getAllFieldProperties().forEach((property) => {
+            bindings[property] = this[property].columnName;
+        });
+
+        this.getAllFieldArrayProperties().forEach((property) => {
+            bindings[property] = this[property].map((fieldsObject) => fieldsObject.columnName);
+        });
+
+        return this.appendNonFieldBindings(bindings);
     }
 
     /**
@@ -78,7 +113,7 @@ export abstract class BaseNeonLayer {
      * @return {FieldMetaData}
      */
     public findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
-        return this.getFieldObject((this.config[bindingKey] || ''), mappingKey);
+        return this.findFieldObjectByName((this.config[bindingKey] || ''), mappingKey);
     }
 
     /**
@@ -90,7 +125,7 @@ export abstract class BaseNeonLayer {
      */
     public findFieldObjects(bindingKey: string, mappingKey?: string): FieldMetaData[] {
         let bindings = this.config[bindingKey] || [];
-        return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.getFieldObject(columnName, mappingKey));
+        return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.findFieldObjectByName(columnName, mappingKey));
     }
 
     /**
@@ -101,22 +136,68 @@ export abstract class BaseNeonLayer {
      * @return {FieldMetaData}
      * @private
      */
-    private getFieldObject(columnName: string, mappingKey?: string): FieldMetaData {
+    private findFieldObjectByName(columnName: string, mappingKey?: string): FieldMetaData {
         let field = columnName ? this.findField(columnName) : undefined;
 
         if (!field && mappingKey) {
             field = this.findField(this.datasetService.getMapping(this.database.name, this.table.name, mappingKey));
         }
 
-        return field || EMPTY_FIELD;
+        return field || new FieldMetaData();
     }
 
     /**
-     * Initializes all the non-field options for the specific layer.
+     * Returns the list of field array properties.
+     *
+     * @return {string[]}
+     */
+    public getAllFieldArrayProperties(): string[] {
+        return [].concat(this.getFieldArrayProperties());
+    }
+
+    /**
+     * Returns the list of field properties.
+     *
+     * @return {string[]}
+     */
+    public getAllFieldProperties(): string[] {
+        return ['unsharedFilterField'].concat(this.getFieldProperties());
+    }
+
+    /**
+     * Returns the list of fields to export.
+     *
+     * @return {{ columnName: string, prettyName: string }[]}
+     */
+    public getExportFields(): { columnName: string, prettyName: string }[] {
+        return this.getFieldProperties().map((property) => ({
+            columnName: this[property].columnName,
+            prettyName: this[property].prettyName
+        })).filter((exportFieldsObject) => !!exportFieldsObject.columnName);
+    }
+
+    /**
+     * Returns the list of field array properties for the specific layer.
+     *
+     * @return {string[]}
+     * @abstract
+     */
+    protected abstract getFieldArrayProperties(): string[];
+
+    /**
+     * Returns the list of field properties for the specific layer.
+     *
+     * @return {string[]}
+     * @abstract
+     */
+    protected abstract getFieldProperties(): string[];
+
+    /**
+     * Initializes all the non-field bindings for the specific layer.
      *
      * @abstract
      */
-    public abstract onInit(): void;
+    public abstract initializeNonFieldBindings(): void;
 
     /**
      * Updates all the database options, then calls updateTables().  Called on init.
@@ -141,7 +222,7 @@ export abstract class BaseNeonLayer {
     }
 
     /**
-     * Updates all the field options, then calls updateFieldsOnTableChanged().  Called on init and whenever the table is changed.
+     * Updates all the field options.  Called on init and whenever the table is changed.
      */
     public updateFields() {
         if (this.database && this.table) {
@@ -151,10 +232,13 @@ export abstract class BaseNeonLayer {
             });
         }
 
-        this.unsharedFilterField = new FieldMetaData();
-        this.unsharedFilterValue = '';
+        this.getAllFieldProperties().forEach((property) => {
+            this[property] = this.findFieldObject(property);
+        });
 
-        this.updateFieldsOnTableChanged();
+        this.getAllFieldArrayProperties().forEach((property) => {
+            this[property] = this.findFieldObjects(property);
+        });
     }
 
     /**
@@ -178,13 +262,6 @@ export abstract class BaseNeonLayer {
 
         this.updateFields();
     }
-
-    /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
-     *
-     * @abstract
-     */
-    public abstract updateFieldsOnTableChanged(): void;
 }
 
 /**
@@ -213,7 +290,21 @@ export abstract class BaseNeonMultiLayerOptions {
         this.limit = injector.get('limit', defaultLimit);
         this.newLimit = this.limit;
         this.title = injector.get('title', visualizationTitle);
-        this.onInit();
+        this.initializeNonFieldBindings();
+    }
+
+    /**
+     * Creates and returns the bindings for the options.
+     *
+     * @return {any}
+     */
+    public createBindings(): any {
+        return {
+            configFilter: this.filter || undefined,
+            title: this.title,
+            limit: this.limit,
+            layers: this.getLayers().map((layer) => layer.createBindings())
+        };
     }
 
     /**
@@ -225,11 +316,11 @@ export abstract class BaseNeonMultiLayerOptions {
     public abstract getLayers(): BaseNeonLayer[];
 
     /**
-     * Initializes all the options for the specific visualization.
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @abstract
      */
-    public abstract onInit(): void;
+    public abstract initializeNonFieldBindings(): void;
 }
 
 /**
@@ -254,8 +345,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
 
     public isLoading: number = 0;
     public isExportable: boolean = true;
-
-    public emptyField = EMPTY_FIELD;
 
     public errorMessage: string = '';
 
@@ -337,12 +426,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     abstract subNgOnDestroy();
 
     /**
-     * Get the list of fields to export for the layer index
-     * @return {[]} List of {columnName, prettyName} values of the fields
-     */
-    abstract getExportFields(layerIndex: number): { columnName: string, prettyName: string }[];
-
-    /**
      * Adds a new layer for the specific visualization using the given config.
      *
      * @arg {any} config
@@ -356,49 +439,11 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     abstract subRemoveLayer(layerIndex: number);
 
     /**
-     * Add any fields needed to restore the state to the bindings parameter
-     * Note that the base class handles the title and basic layer metadata
-     * @param bindings
-     */
-    abstract subGetBindings(bindings: any);
-
-    /**
      * Function to get any bindings needed to re-create the visualization
      * @return {any}
      */
     getBindings(): any {
-        let bindings = {
-            title: this.getOptions().title,
-            limit: this.getOptions().limit,
-            layers: []
-        };
-        for (let layer of this.getOptions().getLayers()) {
-            let layerBindings = {
-                databases: [],
-                database: layer.database.name,
-                fields: [],
-                tables: [],
-                table: layer.table.name,
-                title: layer.title,
-                unsharedFilterField: layer.unsharedFilterField.columnName,
-                unsharedFilterValue: layer.unsharedFilterValue
-            };
-            for (let field of layer.fields) {
-                layerBindings.fields.push(field.columnName);
-            }
-            for (let table of layer.tables) {
-                layerBindings.tables.push(table.name);
-            }
-            for (let database of layer.databases) {
-                layerBindings.databases.push(database.name);
-            }
-            bindings.layers.push(layerBindings);
-        }
-
-        // Get the bindings from the subclass
-        this.subGetBindings(bindings);
-
-        return bindings;
+        return this.getOptions().createBindings();
     }
 
     /**
@@ -432,32 +477,22 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * @return {}
      */
     exportOneLayer(query: neon.query.Query, layerIndex: number) {
-        let exportName = this.getOptions().title;
-        if (exportName) {
-            // replaceAll
-            exportName = exportName.split(':').join(' ');
-        }
-        let finalObject = {
+        let exportName = this.getOptions().title.split(':').join(' ');
+        return {
             name: 'Query_Results_Table',
             data: [{
                 query: query,
                 name: exportName + '-' + this.exportId,
-                fields: [],
+                fields: this.getOptions().getLayers()[layerIndex].getExportFields().map((exportFieldsObject) => ({
+                    query: exportFieldsObject.columnName,
+                    pretty: exportFieldsObject.prettyName || exportFieldsObject.columnName
+                })),
                 ignoreFilters: query.ignoreFilters,
                 selectionOnly: query.selectionOnly,
                 ignoredFilterIds: [],
                 type: 'query'
             }]
         };
-        let fields = this.getExportFields(layerIndex);
-        for (let field of fields) {
-            finalObject.data[0].fields.push({
-                query: field.columnName,
-                pretty: field.prettyName || field.columnName
-            });
-        }
-
-        return finalObject;
     }
 
     /**
@@ -466,13 +501,12 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     export() {
         // TODO this function needs to be changed  to abstract once we get through all the visualizations.
         let queries = this.createAllQueries();
-        let mapFunction = this.exportOneLayer.bind(this);
         if (queries) {
-            return queries.map(mapFunction).filter((fo) => fo);
-        } else {
-            console.error('SKIPPING EXPORT FOR ' + this.getOptions().title);
-            return null;
+            return queries.map((layerQuery, layerIndex) => this.exportOneLayer(layerQuery, layerIndex))
+                .filter((exportLayersObject) => !!exportLayersObject);
         }
+        console.error('SKIPPING EXPORT FOR ' + this.getOptions().title);
+        return null;
     }
 
     doExport() {
@@ -963,6 +997,16 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         return '';
     }
 
+    /**
+     * Subscribes the given callback function to the select_id event.
+     *
+     * @arg {function} callback
+     * @listens select_id
+     */
+    subscribeToSelectId(callback) {
+        this.messenger.subscribe('select_id', callback);
+    }
+
     getHighlightThemeColor() {
         let elements = document.getElementsByClassName('color-highlight');
         let color = elements.length ? window.getComputedStyle(elements[0], null).getPropertyValue('color') : '';
@@ -1080,5 +1124,9 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         let table = _.find(database.tables, (t) => t.name === tableName);
         let labelOptions = table.labelOptions;
         return labelOptions;
+    }
+
+    protected createEmptyField(): FieldMetaData {
+        return new FieldMetaData();
     }
 }

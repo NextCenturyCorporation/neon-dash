@@ -97,9 +97,9 @@ describe('Component: BarChart', () => {
         expect(component.options.type).toBe('bar');
         expect(component.options.yPercentage).toBe(0.2);
 
-        expect(component.options.aggregationField).toEqual(component.emptyField);
-        expect(component.options.colorField).toEqual(component.emptyField);
-        expect(component.options.dataField).toEqual(component.emptyField);
+        expect(component.options.aggregationField).toEqual(new FieldMetaData());
+        expect(component.options.colorField).toEqual(new FieldMetaData());
+        expect(component.options.dataField).toEqual(new FieldMetaData());
     });
 
     it('does have expected class properties', () => {
@@ -115,7 +115,7 @@ describe('Component: BarChart', () => {
         expect(component.seenBars).toEqual([]);
     });
 
-    it('Checks for expected value from getExportFields', (() => {
+    it('Checks for expected value from options.getExportFields', (() => {
         component.options.dataField = new FieldMetaData('Test datafield column', 'Test datafield prettyName');
         let expectedObject = [{
             columnName: 'Test datafield column',
@@ -124,7 +124,7 @@ describe('Component: BarChart', () => {
             columnName: 'value',
             prettyName: 'Count'
         }];
-        expect(component.getExportFields()).toEqual(expectedObject);
+        expect(component.options.getExportFields()).toEqual(expectedObject);
     }));
 
     it('Filter Check', (() => {
@@ -554,21 +554,21 @@ describe('Component: BarChart', () => {
             }]
         });
 
-        let dataset1 = new BarDataSet(4, 'group1', new Color(31, 120, 180), new Color(255, 255, 255));
+        let dataset1 = new BarDataSet(4, 'group1', new Color(255, 135, 55), new Color(255, 255, 255));
         dataset1.data = [400, 40, 4, 0];
-        expect(dataset1.backgroundColor).toEqual(['rgb(31,120,180)', 'rgb(31,120,180)', 'rgb(31,120,180)', 'rgb(31,120,180)']);
+        expect(dataset1.backgroundColor).toEqual(['rgb(255,135,55)', 'rgb(255,135,55)', 'rgb(255,135,55)', 'rgb(255,135,55)']);
 
-        let dataset2 = new BarDataSet(4, 'group2', new Color(51, 160, 44), new Color(255, 255, 255));
+        let dataset2 = new BarDataSet(4, 'group2', new Color(94, 80, 143), new Color(255, 255, 255));
         dataset2.data = [300, 30, 3, 0];
-        expect(dataset2.backgroundColor).toEqual(['rgb(51,160,44)', 'rgb(51,160,44)', 'rgb(51,160,44)', 'rgb(51,160,44)']);
+        expect(dataset2.backgroundColor).toEqual(['rgb(94,80,143)', 'rgb(94,80,143)', 'rgb(94,80,143)', 'rgb(94,80,143)']);
 
-        let dataset3 = new BarDataSet(4, 'group3', new Color(227, 26, 28), new Color(255, 255, 255));
+        let dataset3 = new BarDataSet(4, 'group3', new Color(177, 194, 54), new Color(255, 255, 255));
         dataset3.data = [200, 20, 0, 2];
-        expect(dataset3.backgroundColor).toEqual(['rgb(227,26,28)', 'rgb(227,26,28)', 'rgb(227,26,28)', 'rgb(227,26,28)']);
+        expect(dataset3.backgroundColor).toEqual(['rgb(177,194,54)', 'rgb(177,194,54)', 'rgb(177,194,54)', 'rgb(177,194,54)']);
 
-        let dataset4 = new BarDataSet(4, 'group4', new Color(255, 127, 0), new Color(255, 255, 255));
+        let dataset4 = new BarDataSet(4, 'group4', new Color(243, 88, 112), new Color(255, 255, 255));
         dataset4.data = [100, 10, 0, 0];
-        expect(dataset4.backgroundColor).toEqual(['rgb(255,127,0)', 'rgb(255,127,0)', 'rgb(255,127,0)', 'rgb(255,127,0)']);
+        expect(dataset4.backgroundColor).toEqual(['rgb(243,88,112)', 'rgb(243,88,112)', 'rgb(243,88,112)', 'rgb(243,88,112)']);
 
         expect(component.bars).toEqual(['bar1', 'bar2', 'bar3', 'bar4']);
         expect(component.activeData).toEqual([dataset1, dataset2, dataset3, dataset4]);

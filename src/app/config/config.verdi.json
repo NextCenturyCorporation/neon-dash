@@ -699,7 +699,6 @@
                     "nodeColorField": "categories",
                     "edgeColorField": "",
                     "cleanLegendLabels": true,
-                    "setColorScheme" : true,
                     "legendFiltering" : false
                 },
                 "row": 2,
