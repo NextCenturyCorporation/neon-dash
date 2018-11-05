@@ -1027,9 +1027,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      */
     updateLegend() {
         let colorByFields: string[] = [];
-        if (this.prettifiedNodeLabels) {
+        /*if (this.prettifiedNodeLabels) {
             colorByFields = this.prettifiedNodeLabels;
-        } else if (this.options.nodeColorField.columnName !== '') {
+        } else */if (this.options.nodeColorField.columnName !== '') {
             colorByFields.push(this.options.nodeColorField.columnName);
         } else if (this.options.edgeColorField.columnName !== '') {
             colorByFields.push(this.options.edgeColorField.columnName);

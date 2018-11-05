@@ -205,25 +205,7 @@ export class ColorSchemeService {
     getColorSet(set: string): ColorSet {
         return this.colorMaps.get(set);
     }
-    /**
-     * Sets the colorList position based on the amount of available colors being greater than the array length
-     * in order to provide color uniqueness
-     * @param {number} length
-     */
-    public setColorListByLength(length: number) {
-        for (let i = 0; i < this.colorList.length; i++) {
-            if (length <= this.colorList[i].length) {
-                this.colorPosition = i;
-                break;
-            }
-        }
 
-        //if there is no palette large enough to cover the length of the array,
-        // then select the largest palette
-        if (this.colorPosition === 0 && length > this.colorList[0].length) {
-            this.colorPosition = this.colorList.length - 1;
-        }
-    }
     /**
      * Sets the colorList position based on a given index
      * @param {number} index
