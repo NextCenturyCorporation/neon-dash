@@ -82,24 +82,24 @@ export namespace neonMappings {
 }
 
 export const neonCustomConnectionMappings: { name: string, prettyName: string }[] = [{
-        name: 'date',
-        prettyName: 'Date'
-    },
-    {
-        name: 'id',
-        prettyName: 'ID'
-    },
-    {
-        name: 'latitude',
-        prettyName: 'Latitude'
-    },
-    {
-        name: 'longitude',
-        prettyName: 'Longitude'
-    },
-    {
-        name: 'url',
-        prettyName: 'URL'
+    name: 'date',
+    prettyName: 'Date'
+},
+{
+    name: 'id',
+    prettyName: 'ID'
+},
+{
+    name: 'latitude',
+    prettyName: 'Latitude'
+},
+{
+    name: 'longitude',
+    prettyName: 'Longitude'
+},
+{
+    name: 'url',
+    prettyName: 'URL'
 }];
 
 export namespace neonVisualizationMinPixel { // jshint ignore:line
@@ -175,6 +175,10 @@ export const neonVisualizations: any[] = [{
     icon: 'network_graph',
     bindings: {}
 }, {
+    name: 'News Feed',
+    type: 'newsFeed',
+    icon: 'newspaper'
+}, {
     name: 'Pie Chart',
     type: 'aggregation',
     icon: 'pie_chart',
@@ -182,10 +186,6 @@ export const neonVisualizations: any[] = [{
         title: 'Pie Chart',
         type: 'pie'
     }
-}, {
-    name: 'News Feed',
-    type: 'newsFeed',
-    icon: 'newspaper'
 }, {
     name: 'Sample',
     type: 'sample',

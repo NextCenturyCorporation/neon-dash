@@ -29,7 +29,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
-import { EMPTY_FIELD, FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
+import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
 import * as uuid from 'node-uuid';
 import * as _ from 'lodash';
@@ -75,7 +75,7 @@ export abstract class BaseNeonOptions {
      * @arg {number} [defaultLimit=10]
      */
     constructor(protected injector: Injector, protected datasetService: DatasetService, visualizationTitle: string = '',
-        defaultLimit: number = 10) {
+                defaultLimit: number = 10) {
 
         this.customEventsToPublish = injector.get('customEventsToPublish', []);
         this.customEventsToReceive = injector.get('customEventsToReceive', []);
@@ -84,8 +84,47 @@ export abstract class BaseNeonOptions {
         this.limit = injector.get('limit', defaultLimit);
         this.newLimit = this.limit;
         this.title = injector.get('title', visualizationTitle);
-        this.onInit();
+        this.unsharedFilterValue = injector.get('unsharedFilterValue', '');
+        this.initializeNonFieldBindings();
         this.updateDatabases();
+    }
+
+    /**
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
+     *
+     * @arg {any} bindings
+     * @return {any}
+     * @abstract
+     */
+    protected abstract appendNonFieldBindings(bindings: any): any;
+
+    /**
+     * Creates and returns the bindings for the options.
+     *
+     * @return {any}
+     */
+    public createBindings(): any {
+        let bindings = {
+            configFilter: this.filter || undefined,
+            customEventsToPublish: this.customEventsToPublish,
+            customEventsToReceive: this.customEventsToReceive,
+            database: this.database.name,
+            hideUnfiltered: this.hideUnfiltered,
+            limit: this.limit,
+            table: this.table.name,
+            title: this.title,
+            unsharedFilterValue: this.unsharedFilterValue
+        };
+
+        this.getAllFieldProperties().forEach((property) => {
+            bindings[property] = this[property].columnName;
+        });
+
+        this.getAllFieldArrayProperties().forEach((property) => {
+            bindings[property] = this[property].map((fieldsObject) => fieldsObject.columnName);
+        });
+
+        return this.appendNonFieldBindings(bindings);
     }
 
     /**
@@ -116,7 +155,7 @@ export abstract class BaseNeonOptions {
      * @return {FieldMetaData}
      */
     public findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
-        return this.getFieldObject((this.injector.get(bindingKey, null) || ''), mappingKey);
+        return this.findFieldObjectByName((this.injector.get(bindingKey, null) || ''), mappingKey);
     }
 
     /**
@@ -129,7 +168,7 @@ export abstract class BaseNeonOptions {
     public findFieldObjects(bindingKey: string, mappingKey?: string): FieldMetaData[] {
         let bindings = this.injector.get(bindingKey, null) || [];
         // TODO Should we remove empty field objects from the array?
-        return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.getFieldObject(columnName, mappingKey));
+        return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.findFieldObjectByName(columnName, mappingKey));
     }
 
     /**
@@ -140,22 +179,68 @@ export abstract class BaseNeonOptions {
      * @return {FieldMetaData}
      * @private
      */
-    private getFieldObject(columnName: string, mappingKey?: string): FieldMetaData {
+    private findFieldObjectByName(columnName: string, mappingKey?: string): FieldMetaData {
         let field = columnName ? this.findField(columnName) : undefined;
 
         if (!field && mappingKey) {
             field = this.findField(this.datasetService.getMapping(this.database.name, this.table.name, mappingKey));
         }
 
-        return field || EMPTY_FIELD;
+        return field || new FieldMetaData();
     }
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Returns the list of field array properties.
+     *
+     * @return {string[]}
+     */
+    public getAllFieldArrayProperties(): string[] {
+        return [].concat(this.getFieldArrayProperties());
+    }
+
+    /**
+     * Returns the list of field properties.
+     *
+     * @return {string[]}
+     */
+    public getAllFieldProperties(): string[] {
+        return ['unsharedFilterField'].concat(this.getFieldProperties());
+    }
+
+    /**
+     * Returns the list of fields to export.
+     *
+     * @return {{ columnName: string, prettyName: string }[]}
+     */
+    public getExportFields(): { columnName: string, prettyName: string }[] {
+        return this.getFieldProperties().map((property) => ({
+            columnName: this[property].columnName,
+            prettyName: this[property].prettyName
+        })).filter((exportFieldsObject) => !!exportFieldsObject.columnName);
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @abstract
+     */
+    protected abstract getFieldArrayProperties(): string[];
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @abstract
+     */
+    protected abstract getFieldProperties(): string[];
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @abstract
      */
-    public abstract onInit(): void;
+    public abstract initializeNonFieldBindings(): void;
 
     /**
      * Updates all the database options, then calls updateTables().  Called on init.
@@ -189,7 +274,7 @@ export abstract class BaseNeonOptions {
     }
 
     /**
-     * Updates all the field options, then calls updateFieldsOnTableChanged().  Called on init and whenever the table is changed.
+     * Updates all the field options.  Called on init and whenever the table is changed.
      */
     public updateFields() {
         if (this.database && this.table) {
@@ -199,10 +284,13 @@ export abstract class BaseNeonOptions {
             });
         }
 
-        this.unsharedFilterField = this.findFieldObject('unsharedFilterField');
-        this.unsharedFilterValue = this.injector.get('unsharedFilterValue', '');
+        this.getAllFieldProperties().forEach((property) => {
+            this[property] = this.findFieldObject(property);
+        });
 
-        this.updateFieldsOnTableChanged();
+        this.getAllFieldArrayProperties().forEach((property) => {
+            this[property] = this.findFieldObjects(property);
+        });
     }
 
     /**
@@ -235,13 +323,6 @@ export abstract class BaseNeonOptions {
 
         this.updateFields();
     }
-
-    /**
-     * Initializes all the field options for the specific visualizations.
-     *
-     * @abstract
-     */
-    public abstract updateFieldsOnTableChanged(): void;
 }
 
 /**
@@ -268,8 +349,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
     public isLoading: boolean = false;
     public isExportable: boolean = true;
-
-    public emptyField: FieldMetaData = EMPTY_FIELD;
 
     public errorMessage: string = '';
 
@@ -354,36 +433,11 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     abstract subNgOnDestroy();
 
     /**
-     * Get the list of fields to export
-     * @return {[]} List of {columnName, prettyName} values of the fields
-     */
-    abstract getExportFields(): { columnName: string, prettyName: string }[];
-
-    /**
-     * Add any fields needed to restore the state to the bindings parameter.
-     * Note that title, database, table, and unshared filter are all handled by the base class
-     * @param bindings
-     */
-    abstract subGetBindings(bindings: any);
-
-    /**
      * Function to get any bindings needed to re-create the visualization
      * @return {any}
      */
     getBindings(): any {
-        let bindings = {
-            title: this.getOptions().title,
-            database: this.getOptions().database.name,
-            table: this.getOptions().table.name,
-            unsharedFilterField: this.getOptions().unsharedFilterField.columnName,
-            unsharedFilterValue: this.getOptions().unsharedFilterValue,
-            limit: this.getOptions().limit
-        };
-
-        // Get the bindings from the subclass
-        this.subGetBindings(bindings);
-
-        return bindings;
+        return this.getOptions().createBindings();
     }
 
     /**
@@ -393,38 +447,26 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         // TODO this function needs to be changed  to abstract once we get through all the visualizations.
 
         let query = this.createQuery();
-        let exportName = this.getOptions().title;
+        let exportName = this.getOptions().title.split(':').join(' ');
         if (query) {
-            if (exportName) {
-                // replaceAll
-                exportName = exportName.split(':').join(' ');
-            }
-            let finalObject = {
+            return {
                 name: 'Query_Results_Table',
                 data: [{
                     query: query,
                     name: exportName + '-' + this.exportId,
-                    fields: [],
+                    fields: this.getOptions().getExportFields().map((exportFieldsObject) => ({
+                        query: exportFieldsObject.columnName,
+                        pretty: exportFieldsObject.prettyName || exportFieldsObject.columnName
+                    })),
                     ignoreFilters: query.ignoreFilters,
                     selectionOnly: query.selectionOnly,
                     ignoredFilterIds: [],
                     type: 'query'
                 }]
             };
-            let fields = this.getExportFields();
-            for (let field of fields) {
-                finalObject.data[0].fields.push({
-                    query: field.columnName,
-                    pretty: field.prettyName || field.columnName
-                });
-            }
-
-            return finalObject;
-        } else {
-            console.error('SKIPPING EXPORT FOR ' + exportName);
-            return null;
         }
-
+        console.error('SKIPPING EXPORT FOR ' + exportName);
+        return null;
     }
 
     doExport() {
@@ -523,7 +565,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {function} [callback]
      */
     addNeonFilter(executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate,
-        callback?: Function) {
+                  callback?: Function) {
 
         let filterName = {
             visName: this.getOptions().title,
@@ -584,7 +626,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {function} [callback]
      */
     replaceNeonFilter(executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate,
-        callback?: Function) {
+                      callback?: Function) {
 
         let filterName = {
             visName: this.getOptions().title,
@@ -860,8 +902,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @return {boolean}
      */
     hasUnsharedFilter(): boolean {
-        return this.getOptions().unsharedFilterField && this.getOptions().unsharedFilterField.columnName !== '' &&
-            this.getOptions().unsharedFilterValue && this.getOptions().unsharedFilterValue.trim() !== '';
+        return !!(this.getOptions().unsharedFilterField && this.getOptions().unsharedFilterField.columnName &&
+            this.getOptions().unsharedFilterValue && this.getOptions().unsharedFilterValue.trim());
     }
 
     /**
@@ -1093,6 +1135,10 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         let tableName = _.find(database.tables, (table) => table.name === this.getOptions().table.name);
         let labelOptions = tableName.labelOptions;
         return labelOptions;
+    }
+
+    protected createEmptyField(): FieldMetaData {
+        return new FieldMetaData();
     }
 
     /**

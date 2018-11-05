@@ -1,0 +1,10 @@
+<h2 mat-dialog-title>
+    {{ tite }}
+</h2>
+<mat-dialog-content>
+    {{ confirmMessage }} <b>"{{ target }}"</b>?
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-raised-button color="primary" (click)="dialogRef.close(false)">{{ cancelText }}</button>
+    <button mat-raised-button color="primary" (click)="dialogRef.close(true)">{{ confirmText }}</button>
+</mat-dialog-actions>
