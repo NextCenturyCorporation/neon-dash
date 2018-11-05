@@ -830,7 +830,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         let groupsToDatasets = new Map<string, BarDataSet>();
         let colorFieldExists = (this.options.colorField && this.options.colorField.columnName !== '');
-        this.colorSchemeService.setColorListByIndex(3);
+
         // Update the segments and counts from the bars and the data.
         for (let item of data) {
             let barLabel: string = item[this.options.dataField.columnName];
