@@ -180,7 +180,7 @@ describe('ChartJsSubcomponent', () => {
         expect(dataAndOptions.options.legend.display).toEqual(false);
         expect(dataAndOptions.options.maintainAspectRatio).toEqual(false);
         expect(dataAndOptions.options.onClick).toBeDefined();
-        expect(dataAndOptions.options.scales.xAxes[0].afterBuildTicks).toBeDefined();
+        expect(dataAndOptions.options.scales.xAxes[0].afterTickToLabelConversion).toBeDefined();
         expect(dataAndOptions.options.scales.xAxes[0].afterFit).toBeDefined();
         expect(dataAndOptions.options.scales.xAxes[0].gridLines.display).toEqual(true);
         expect(dataAndOptions.options.scales.xAxes[0].labels).toEqual([1, 3, 5, 7]);
@@ -190,7 +190,7 @@ describe('ChartJsSubcomponent', () => {
         expect(dataAndOptions.options.scales.xAxes[0].ticks.minRotation).toEqual(0);
         expect(dataAndOptions.options.scales.xAxes[0].ticks.callback).toBeDefined();
         expect(dataAndOptions.options.scales.xAxes[0].type).toEqual('category');
-        expect(dataAndOptions.options.scales.yAxes[0].afterBuildTicks).toBeDefined();
+        expect(dataAndOptions.options.scales.yAxes[0].afterTickToLabelConversion).toBeDefined();
         expect(dataAndOptions.options.scales.yAxes[0].afterFit).toBeDefined();
         expect(dataAndOptions.options.scales.yAxes[0].gridLines.display).toEqual(true);
         expect(dataAndOptions.options.scales.yAxes[0].labels).toEqual([2, 4, 6, 8]);
@@ -287,7 +287,7 @@ describe('ChartJsSubcomponent', () => {
         expect(dataAndOptions.options.legend.display).toEqual(false);
         expect(dataAndOptions.options.maintainAspectRatio).toEqual(false);
         expect(dataAndOptions.options.onClick).toBeDefined();
-        expect(dataAndOptions.options.scales.xAxes[0].afterBuildTicks).toBeDefined();
+        expect(dataAndOptions.options.scales.xAxes[0].afterTickToLabelConversion).toBeDefined();
         expect(dataAndOptions.options.scales.xAxes[0].afterFit).toBeDefined();
         expect(dataAndOptions.options.scales.xAxes[0].gridLines.display).toEqual(false);
         expect(dataAndOptions.options.scales.xAxes[0].labels).toEqual([2, 4, 6, 8]);
@@ -299,7 +299,7 @@ describe('ChartJsSubcomponent', () => {
         expect(dataAndOptions.options.scales.xAxes[0].ticks.min).toEqual(2);
         expect(dataAndOptions.options.scales.xAxes[0].ticks.callback).toBeDefined();
         expect(dataAndOptions.options.scales.xAxes[0].type).toEqual('category');
-        expect(dataAndOptions.options.scales.yAxes[0].afterBuildTicks).toBeDefined();
+        expect(dataAndOptions.options.scales.yAxes[0].afterTickToLabelConversion).toBeDefined();
         expect(dataAndOptions.options.scales.yAxes[0].afterFit).toBeDefined();
         expect(dataAndOptions.options.scales.yAxes[0].gridLines.display).toEqual(false);
         expect(dataAndOptions.options.scales.yAxes[0].labels).toEqual([1, 3, 5, 7]);
