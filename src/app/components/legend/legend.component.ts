@@ -120,7 +120,6 @@ export class LegendComponent implements OnInit {
         this.colorSets.push(colorSet);
     }
 
-
     ngOnInit() {
         if (!this.colorSets) {
             this.loadAllColorSets();
