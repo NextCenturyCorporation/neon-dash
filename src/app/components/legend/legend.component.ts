@@ -62,14 +62,6 @@ export class LegendComponent implements OnInit {
     @Input() filteringOn: boolean = true;
 
     /**
-     * name for custom ColorSet
-     */
-    @Input() customName: string;
-    /**
-     * colorList for custom ColorSet
-     */
-    @Input() customColorList: any[];
-    /**
      * Event triggered when an item in the legend has been selected.
      * The event includes the field name, value, and a boolean if the value is currently selected
      */
@@ -87,12 +79,7 @@ export class LegendComponent implements OnInit {
 
     @Input() set fieldNames(names: string[]) {
         this._FieldNames = names;
-        if (this.customName && this.customColorList) {
-           this.getCustomColorSet();
-        } else {
-            this.loadAllColorSets();
-        }
-
+        this.loadAllColorSets();
     }
     get fieldNames(): string[] {
         return this._FieldNames;
@@ -110,14 +97,6 @@ export class LegendComponent implements OnInit {
                 this.colorSets.push(colorSet);
             }
         }
-    }
-
-    /**
-     * Get all the color sets we need from the ColorSchemeService
-     */
-    private getCustomColorSet() {
-        let colorSet = this.colorSchemeService.createCustomColorSet(this.customName, this.fieldNames, this.customColorList);
-        this.colorSets.push(colorSet);
     }
 
     ngOnInit() {
