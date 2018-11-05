@@ -148,9 +148,7 @@
 
         <div class=" legend-container ">
             <div *ngIf="!options.singleColor">
-                <app-legend [fieldNames]="colorByFields"
-                    [disabledSets]="disabledSet"
-                    (itemSelected)="legendItemSelected($event)"></app-legend>
+                <app-legend [colorKeys]="colorKeys" [disabledSets]="disabledSet" (itemSelected)="legendItemSelected($event)"></app-legend>
             </div>
 
             <div class="filter-reset" *ngFor="let filter of getCloseableFilters() ">
