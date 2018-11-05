@@ -97,9 +97,9 @@ describe('Component: BarChart', () => {
         expect(component.options.type).toBe('bar');
         expect(component.options.yPercentage).toBe(0.2);
 
-        expect(component.options.aggregationField).toEqual(component.emptyField);
-        expect(component.options.colorField).toEqual(component.emptyField);
-        expect(component.options.dataField).toEqual(component.emptyField);
+        expect(component.options.aggregationField).toEqual(new FieldMetaData());
+        expect(component.options.colorField).toEqual(new FieldMetaData());
+        expect(component.options.dataField).toEqual(new FieldMetaData());
     });
 
     it('does have expected class properties', () => {
@@ -115,7 +115,7 @@ describe('Component: BarChart', () => {
         expect(component.seenBars).toEqual([]);
     });
 
-    it('Checks for expected value from getExportFields', (() => {
+    it('Checks for expected value from options.getExportFields', (() => {
         component.options.dataField = new FieldMetaData('Test datafield column', 'Test datafield prettyName');
         let expectedObject = [{
             columnName: 'Test datafield column',
@@ -124,7 +124,7 @@ describe('Component: BarChart', () => {
             columnName: 'value',
             prettyName: 'Count'
         }];
-        expect(component.getExportFields()).toEqual(expectedObject);
+        expect(component.options.getExportFields()).toEqual(expectedObject);
     }));
 
     it('Filter Check', (() => {

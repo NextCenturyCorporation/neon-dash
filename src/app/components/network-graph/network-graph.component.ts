@@ -43,8 +43,6 @@ import * as d3shape from 'd3-shape';
 import 'd3-transition';
 import * as neon from 'neon-framework';
 import * as vis from 'vis';
-import { findNode } from '@angular/compiler';
-import { filter } from 'rxjs/operators';
 
 class GraphData {
     constructor(
@@ -151,11 +149,58 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public legendFiltering: boolean;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
+     *
+     * @arg {any} bindings
+     * @return {any}
+     * @override
+     */
+    appendNonFieldBindings(bindings: any): any {
+        bindings.andFilters = this.andFilters;
+
+        return bindings;
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'nodeField',
+            'nodeNameField',
+            'targetNameField',
+            'linkField',
+            'linkNameField',
+            'nodeColorField',
+            'edgeColorField',
+            'targetColorField',
+            'typeField',
+            'xPositionField',
+            'yPositionField',
+            'xTargetPositionField',
+            'yTargetPositionField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    onInit() {
+    initializeNonFieldBindings() {
         this.isDirected = this.injector.get('isDirected', false);
         this.isReified = this.injector.get('isReified', false);
         this.displayLegend = this.injector.get('displayLegend', false);
@@ -175,28 +220,6 @@ export class NetworkGraphOptions extends BaseNeonOptions {
         this.cleanLegendLabels = this.injector.get('cleanLegendLabels', false);
         this.setColorScheme = this.injector.get('setColorScheme', false);
         this.legendFiltering = this.injector.get('legendFiltering', true);
-
-    }
-
-    /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
-     *
-     * @override
-     */
-    updateFieldsOnTableChanged() {
-        this.nodeField = this.findFieldObject('nodeField');
-        this.nodeNameField = this.findFieldObject('nodeNameField');
-        this.targetNameField = this.findFieldObject('targetNameField');
-        this.linkField = this.findFieldObject('linkField');
-        this.linkNameField = this.findFieldObject('linkNameField');
-        this.nodeColorField = this.findFieldObject('nodeColorField');
-        this.edgeColorField = this.findFieldObject('edgeColorField');
-        this.targetColorField = this.findFieldObject('targetColorField');
-        this.typeField = this.findFieldObject('typeField');
-        this.xPositionField = this.findFieldObject('xPositionField');
-        this.yPositionField = this.findFieldObject('yPositionField');
-        this.xTargetPositionField = this.findFieldObject('xTargetPositionField');
-        this.yTargetPositionField = this.findFieldObject('yTargetPositionField');
     }
 }
 
@@ -340,22 +363,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.createQuery();
     }
 
-    subGetBindings(bindings: any) {
-        bindings.nodeField = this.options.nodeField.columnName;
-        bindings.nodeNameField = this.options.nodeNameField.columnName;
-        bindings.targetNameField = this.options.targetNameField.columnName;
-        bindings.linkField = this.options.linkField.columnName;
-        bindings.linkNameField = this.options.linkNameField.columnName;
-        bindings.nodeColorField = this.options.nodeColorField.columnName;
-        bindings.edgeColorField = this.options.edgeColorField.columnName;
-        bindings.targetColorField = this.options.targetColorField.columnName;
-        bindings.andFilters = this.options.andFilters;
-        bindings.xPositionField = this.options.xPositionField.columnName;
-        bindings.yPositionField = this.options.yPositionField.columnName;
-        bindings.xTargetPositionField = this.options.xTargetPositionField.columnName;
-        bindings.yTargetPositionField = this.options.yTargetPositionField.columnName;
-    }
-
     ngAfterViewInit() {
         // note: options is REQUIRED. Fails to initialize physics properly without at least empty object
         let options: vis.Options = {
@@ -420,22 +427,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         if (curveType === 'Step Before') {
             this.curve = d3shape.curveStepBefore;
         }
-    }
-
-    getExportFields() {
-        return [{
-            columnName: this.options.nodeField.columnName,
-            prettyName: this.options.nodeField.prettyName
-        }, {
-            columnName: this.options.linkField.columnName,
-            prettyName: this.options.linkField.prettyName
-        }, {
-            columnName: this.options.nodeColorField.columnName,
-            prettyName: this.options.nodeColorField.prettyName
-        }, {
-            columnName: this.options.edgeColorField.columnName,
-            prettyName: this.options.edgeColorField.prettyName
-        }];
     }
 
     refreshVisualization() {

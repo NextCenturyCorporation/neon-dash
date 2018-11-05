@@ -1,0 +1,190 @@
+{
+    "datasets": [
+        {
+            "name": "Testing Audio Data",
+            "connectOnLoad": true,
+            "layout": "test-audio-layout",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [
+                {
+                    "name": "test_data_audio",
+                    "prettyName": "audio",
+                    "tables": [
+                        {
+                            "name": "annotations",
+                            "prettyName": "Annotations",
+                            "fields": [
+                                {
+                                    "columnName": "id",
+                                    "prettyName": "ID"
+                                },
+                                {
+                                    "columnName": "createdDate",
+                                    "prettyName": "Date Created"
+                                },
+                                {
+                                    "columnName": "audioLink",
+                                    "prettyName": "Audio Link"
+                                },
+                                {
+                                    "columnName": "pgeos.pid",
+                                    "prettyName": "Pid Array"
+                                },
+                                {
+                                    "columnName": "pgeos.lat",
+                                    "prettyName": "Pid Latitude Array"
+                                },
+                                {
+                                    "columnName": "pgeos.lon",
+                                    "prettyName": "Pid Longitude Array"
+                                }
+                            ],
+                            "mappings": {
+                                "date": "createdDate"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "simpleFilter": {
+                    "databaseName": "test_data_audio",
+                    "tableName": "annotations",
+                    "fieldName": "",
+                    "placeHolder": "Search"
+                }
+            }
+        }
+    ],
+    "layouts": {
+        "test-audio-layout": [
+            {
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 1,
+                "sizex": 4,
+                "row": 1,
+                "sizey": 9,
+                "bindings": {
+                    "title": "Documents",
+                    "database": "test_data_audio",
+                    "table": "annotations",
+                    "idField": "_id",
+                    "sortField": "createdDate",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": ["createdDate", "audioLink"],
+                    "customColumnWidths": [
+                        ["createdDate", 150],
+                        ["audioLink", 225]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["_id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false,
+                    "checkDuplicateField": "id"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 7
+            },
+            {
+                "name": "Map",
+                "type": "map",
+                "icon": "Map64",
+                "col": 5,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 9,
+                "bindings": {
+                    "title": "Locations",
+                    "database": "test_data_audio",
+                    "table": "annotations",
+                    "filterable": true,
+                    "name": "EVENTS",
+                    "show": true,
+                    "type": "cluster",
+                    "limit": 5000,
+                    "hoverPopupEnabled": true,
+                    "layers": [
+                        {
+                            "title": "Map",
+                            "database": "test_data_audio",
+                            "table": "annotations",
+                            "idField": "_id",
+                            "latitudeField": "pgeos.lat",
+                            "longitudeField": "pgeos.lon",
+                            "dateField": "createdDate",
+                            "hoverPopupField": "pgeos.pid",
+                            "colorField": ""
+                        }
+                    ],
+                    "mapType": "leaflet",
+                    "west": 2,
+                    "north": 52,
+                    "east": 14,
+                    "south": 40
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+            },
+            {
+                "name": "Media Viewer",
+                "type": "mediaViewer",
+                "icon": "mediaViewer",
+                "col": 9,
+                "row": 1,
+                "sizex": 3,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Media Viewer",
+                    "database": "test_data_audio",
+                    "table": "annotations",
+                    "id": "_id",
+                    "idField": "_id",
+                    "linkField": "audioLink",
+                    "resize": true,
+                    "maxHeight": 500,
+                    "maxWidth": 540,
+                    "typeMap": {
+                        "wav": "aud"
+                    },
+                    "autoplay": true
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 4
+            }
+        ]
+    },
+    "routeService": {
+        "url": "http://localhost:8090/ghREST/",
+        "get": "route?lat1=LAT1&lon1=LON1&lat2=LAT2&lon2=LON2",
+        "post": "dynamicroute",
+        "disabled": true
+    },
+    "dashboard": {
+        "gridsterColumns": 24,
+        "gridsterMargins": 10,
+        "hideNavbarItems": false,
+        "hideAdvancedOptions": false,
+        "hideAddVisualizationsButton": false,
+        "hideErrorNotifications": true,
+        "hideHeaders": false,
+        "showFilterStatusTray": true,
+        "hideCloseButton": false,
+        "showVideoOnLoad": false,
+        "showImport": true,
+        "showExport": true,
+        "translationKeys": {
+            "google": "AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8"
+        }
+    }
+}

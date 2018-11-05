@@ -59,36 +59,57 @@ export class NewsFeedOptions extends BaseNeonOptions {
     public sortField: FieldMetaData;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
      *
+     * @arg {any} bindings
+     * @return {any}
      * @override
      */
-    onInit() {
-        this.id = this.injector.get('id', '');
-        this.ascending = this.injector.get('ascending', false);
-        this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
+    appendNonFieldBindings(bindings: any): any {
+        bindings.ignoreSelf = this.ignoreSelf;
+
+        return bindings;
     }
 
     /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'contentField',
+            'dateField',
+            'filterField',
+            'idField',
+            'linkField',
+            'primaryTitleField',
+            'secondaryTitleField',
+            'sortField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    updateFieldsOnTableChanged() {
-        this.filterField = this.findFieldObject('filterField');
-        this.unsharedFilterField = this.findFieldObject('unsharedFilterField');
-        this.idField = this.findFieldObject('idField');
-        this.linkField = this.findFieldObject('linkField');
-        this.dateField = this.findFieldObject('dateField');
-        this.primaryTitleField = this.findFieldObject('primaryTitleField');
-        this.secondaryTitleField = this.findFieldObject('secondaryTitleField');
-        this.contentField = this.findFieldObject('contentField');
-        this.sortField = this.findFieldObject('sortField');
+    initializeNonFieldBindings() {
+        this.id = this.injector.get('id', '');
+        this.ascending = this.injector.get('ascending', false);
         this.ignoreSelf = this.injector.get('ignoreSelf', false);
-
-        if (!this.sortField.columnName) {
-            this.sortField = this.findFieldObject('idField');
-        }
+        this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
     }
 }
 
@@ -135,6 +156,11 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             filterService, exportService, injector, themesService, ref, visualizationService);
 
         this.options = new NewsFeedOptions(this.injector, this.datasetService, 'News Feed', 10);
+
+        if (!this.options.sortField.columnName) {
+            this.options.sortField = this.options.idField;
+        }
+
         this.showGrid = !this.options.showOnlyFiltered;
     }
 
@@ -310,40 +336,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             newsFeed: this.newsFeed,
             filter: this.filter
         };
-    }
-
-    /**
-     * Returns the news feed export fields.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        return [{
-            columnName: this.options.filterField.columnName,
-            prettyName: this.options.filterField.prettyName
-        }, {
-            columnName: this.options.idField.columnName,
-            prettyName: this.options.idField.prettyName
-        }, {
-            columnName: this.options.linkField.columnName,
-            prettyName: this.options.linkField.prettyName
-        }, {
-            columnName: this.options.dateField.columnName,
-            prettyName: this.options.dateField.prettyName
-        }, {
-            columnName: this.options.primaryTitleField.columnName,
-            prettyName: this.options.primaryTitleField.prettyName
-        }, {
-            columnName: this.options.secondaryTitleField.columnName,
-            prettyName: this.options.secondaryTitleField.prettyName
-        }, {
-            columnName: this.options.contentField.columnName,
-            prettyName: this.options.contentField.prettyName
-        }, {
-            columnName: this.options.sortField.columnName,
-            prettyName: this.options.sortField.prettyName
-        }];
     }
 
     /**
@@ -563,24 +555,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                 }
             }
         }
-    }
-
-    /**
-     * Sets the given bindings for the thumbnail grid.
-     *
-     * @arg {any} bindings
-     * @override
-     */
-    subGetBindings(bindings: any) {
-        bindings.idField = this.options.idField.columnName;
-        bindings.ignoreSelf = this.options.ignoreSelf;
-        bindings.linkField = this.options.linkField.columnName;
-        bindings.dateField = this.options.dateField.columnName;
-        bindings.primaryTitleField = this.options.primaryTitleField.columnName;
-        bindings.secondaryTitleField = this.options.secondaryTitleField.columnName;
-        bindings.contentField = this.options.contentField.columnName;
-        bindings.filterField = this.options.filterField.columnName;
-        bindings.sortField = this.options.sortField.columnName;
     }
 
     /**
