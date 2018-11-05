@@ -192,7 +192,8 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                 let index = this.findMatchingIndex(configItem);
                 let dataset = this.datasets[index];
 
-                if ((activeDataset && activeDataset === dataset.name.toLowerCase()) || (!activeDataset && dataset.connectOnLoad)) {
+                if ((activeDataset && activeDataset === dataset.name.toLowerCase())
+                    || (!activeDataset && configItem.options.connectOnLoad)) {
                     this.connectToPreset(index, true, dashboardName);
                     this.activeDatasetChanged.emit(); // Close the sidenav opened by connectToPreset.
                     return true;

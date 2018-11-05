@@ -1,11 +1,7 @@
-translationKeys:
-    google: AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8
-
 datastores:
     es1:
         host: localhost
         type: elasticsearch
-        connectOnLoad: true # TODO: 825: does this need to be moved?
         databases:
             ldc_uyg_jul_18:
                 prettyName: Uyghur LDC, July 2018
@@ -77,8 +73,7 @@ dashboards:
                             fields:
                                 field_key_1: es1.ldc_uyg_jul_18.ui_out.originalText
                             options:
-                                # TODO: 825: perhaps make options here later if needed
-                                test: someValue
+                                connectOnLoad: true
 
 layouts:
   DISCOVERY:
