@@ -80,11 +80,75 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public showLabelName: boolean;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
+     *
+     * @arg {any} bindings
+     * @return {any}
+     * @override
+     */
+    appendNonFieldBindings(bindings: any): any {
+        bindings.ascending = this.ascending;
+        bindings.border = this.border;
+        bindings.borderCompareValue = this.borderCompareValue;
+        bindings.borderPercentThreshold = this.borderPercentThreshold;
+        bindings.cropAndScale = this.cropAndScale;
+        bindings.defaultLabel = this.defaultLabel;
+        bindings.defaultPercent = this.defaultPercent;
+        bindings.detailedThumbnails = this.detailedThumbnails;
+        bindings.ignoreSelf = this.ignoreSelf;
+        bindings.linkPrefix = this.linkPrefix;
+        bindings.openOnMouseClick = this.openOnMouseClick;
+        bindings.showLabelName = this.showLabelName;
+        bindings.textMap = this.textMap;
+        bindings.typeMap = this.typeMap;
+
+        return bindings;
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'categoryField',
+            'compareField',
+            'dateField',
+            'filterField',
+            'flagLabel',
+            'flagSubLabel1',
+            'flagSubLabel2',
+            'flagSubLabel3',
+            'idField',
+            'linkField',
+            'nameField',
+            'objectIdField',
+            'objectNameField',
+            'percentField',
+            'predictedNameField',
+            'sortField',
+            'typeField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    onInit() {
+    initializeNonFieldBindings() {
         this.ascending = this.injector.get('ascending', false);
         this.border = this.injector.get('border', '');
         this.borderCompareValue = this.injector.get('borderCompareValue', '');
@@ -101,39 +165,6 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.typeMap = this.injector.get('typeMap', {});
         this.detailedThumbnails = this.injector.get('detailedThumbnails', false);
         this.showLabelName = this.injector.get('showLabelName', false);
-    }
-
-    /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
-     *
-     * @override
-     */
-    updateFieldsOnTableChanged() {
-        this.categoryField = this.findFieldObject('categoryField');
-        this.compareField = this.findFieldObject('compareField');
-        this.filterField = this.findFieldObject('filterField');
-        this.idField = this.findFieldObject('idField');
-        this.linkField = this.findFieldObject('linkField');
-        this.dateField = this.findFieldObject('dateField');
-        this.nameField = this.findFieldObject('nameField');
-        this.objectIdField = this.findFieldObject('objectIdField');
-        this.objectNameField = this.findFieldObject('objectNameField');
-        this.percentField = this.findFieldObject('percentField');
-        this.predictedNameField = this.findFieldObject('predictedNameField');
-        this.sortField = this.findFieldObject('sortField');
-        this.typeField = this.findFieldObject('typeField');
-        this.flagLabel = this.findFieldObject('flagLabel');
-        this.flagSubLabel1 = this.findFieldObject('flagSubLabel1');
-        this.flagSubLabel2 = this.findFieldObject('flagSubLabel2');
-        this.flagSubLabel3 = this.findFieldObject('flagSubLabel3');
-
-        if (!this.sortField.columnName) {
-            this.sortField = this.findFieldObject('percentField');
-        }
-
-        if (!this.flagLabel.columnName) {
-            this.flagLabel = this.findFieldObject('idField');
-        }
     }
 }
 
@@ -174,8 +205,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     public isLoading: boolean = false;
     public showGrid: boolean;
     public mediaTypes: any = MediaTypes;
-    public borderOn: boolean;
-    public borderColor: string;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
         filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -185,8 +214,16 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             filterService, exportService, injector, themesService, ref, visualizationService);
 
         this.options = new ThumbnailGridOptions(this.injector, this.datasetService, 'Thumbnail Grid', 30);
+
+        if (!this.options.sortField.columnName) {
+            this.options.sortField = this.options.percentField;
+        }
+
+        if (!this.options.flagLabel.columnName) {
+            this.options.flagLabel = this.options.idField;
+        }
+
         this.showGrid = !this.options.showOnlyFiltered;
-        this.borderOn = !!this.options.border;
     }
 
     /**
@@ -353,7 +390,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         }
 
         if (this.gridArray.length <= this.options.limit) {
-            return 'Total Items ' + super.prettifyInteger(this.gridArray.length);
+            return 'Total ' + super.prettifyInteger(this.gridArray.length);
         }
 
         let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1),
@@ -391,7 +428,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.pagingGrid = this.gridArray.slice(offset,
             Math.min(this.page * this.options.limit, this.gridArray.length));
         this.showGrid = true;
-        this.options.border = this.borderOn ? this.borderColor : '';
         this.refreshVisualization();
         this.createMediaThumbnail();
         this.thumbnailGrid.nativeElement.scrollTop = 0;
@@ -420,55 +456,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             infoText: this.infoText,
             thumbnailGrid: this.thumbnailGrid
         };
-    }
-
-    /**
-     * Returns the thumbnail grid export fields.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        return [{
-            columnName: this.options.categoryField.columnName,
-            prettyName: this.options.categoryField.prettyName
-        }, {
-            columnName: this.options.compareField.columnName,
-            prettyName: this.options.compareField.prettyName
-        }, {
-            columnName: this.options.filterField.columnName,
-            prettyName: this.options.filterField.prettyName
-        }, {
-            columnName: this.options.idField.columnName,
-            prettyName: this.options.idField.prettyName
-        }, {
-            columnName: this.options.linkField.columnName,
-            prettyName: this.options.linkField.prettyName
-        }, {
-            columnName: this.options.dateField.columnName,
-            prettyName: this.options.dateField.prettyName
-        }, {
-            columnName: this.options.nameField.columnName,
-            prettyName: this.options.nameField.prettyName
-        }, {
-            columnName: this.options.objectIdField.columnName,
-            prettyName: this.options.objectIdField.prettyName
-        }, {
-            columnName: this.options.objectNameField.columnName,
-            prettyName: this.options.objectNameField.prettyName
-        }, {
-            columnName: this.options.percentField.columnName,
-            prettyName: this.options.percentField.prettyName
-        }, {
-            columnName: this.options.predictedNameField.columnName,
-            prettyName: this.options.predictedNameField.prettyName
-        }, {
-            columnName: this.options.sortField.columnName,
-            prettyName: this.options.sortField.prettyName
-        }, {
-            columnName: this.options.typeField.columnName,
-            prettyName: this.options.typeField.prettyName
-        }];
     }
 
     /**
@@ -862,71 +849,51 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             }
 
             // TODO Move this to a separate function and unit test all behavior.
+            let borderColor = '';
             if (this.options.border) {
                 switch (this.options.border) {
                     case 'percentField': {
                         if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
                             let percentFloat = parseFloat(percentage);
-                            if (percentFloat >= this.options.borderPercentThreshold) {
-                                this.borderColor = 'blue';
-                            } else {
-                                this.borderColor = 'red';
-                            }
+                            borderColor = ((percentFloat > this.options.borderPercentThreshold) ? 'blue' : 'red');
                         } else {
-                            this.borderColor = 'grey';
+                            borderColor = 'grey';
                         }
-
-                        thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' +
-                            this.borderColor);
                         break;
                     }
                     case 'percentCompare': {
                         if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
                             let percentFloat = parseFloat(percentage);
-                            if ((percentFloat >= this.options.borderPercentThreshold && comparison === this.options.borderCompareValue) ||
+                            if ((percentFloat > this.options.borderPercentThreshold && comparison === this.options.borderCompareValue) ||
                                 (percentFloat < this.options.borderPercentThreshold && comparison !== this.options.borderCompareValue)) {
-                                this.borderColor = 'blue';
+                                borderColor = 'blue';
                             } else {
-                                this.borderColor = 'red';
+                                borderColor = 'red';
                             }
                         } else {
-                            this.borderColor = 'grey';
+                            borderColor = 'grey';
                         }
-
-                        thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' +
-                            this.borderColor);
                         break;
                     }
                     case 'valueCompare': {
-                        if (comparison === this.options.borderCompareValue) {
-                            this.borderColor = 'blue';
-                        } else {
-                            this.borderColor = 'red';
-                        }
-                        thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' +
-                            this.borderColor);
+                        borderColor = ((comparison === this.options.borderCompareValue) ? 'blue' : 'red');
                         break;
                     }
                     default: {
-                        this.borderColor = 'grey';
-                        thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' +
-                            this.borderColor);
+                        borderColor = 'grey';
                     }
-
                 }
             } else if (objectId && categoryId) {
-                if (objectId === categoryId) {
-                    this.borderColor = 'blue';
-                } else {
-                    this.borderColor = 'red';
-                }
-                thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' + this.borderColor);
-            } else if (this.borderOn) {
-                this.borderColor = this.borderColor ? this.borderColor : 'grey';
-                thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' + this.borderColor);
-            } else if (!this.options.border && thumbnail.canvas.getAttribute('class').includes('border-mat-')) {
+                borderColor = ((objectId === categoryId) ? 'blue' : 'red');
+            }
+
+            if (thumbnail.canvas.getAttribute('class').includes('border-mat-')) {
                 thumbnail.canvas.setAttribute('class',
                     thumbnail.canvas.getAttribute('class').replace(thumbnail.canvas.getAttribute('class').split(' ').pop(), ''));
+            }
+
+            if (borderColor) {
+                thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' + borderColor);
             }
         });
     }
@@ -1012,47 +979,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 }
             }
         }
-    }
-
-    /**
-     * Sets the given bindings for the thumbnail grid.
-     *
-     * @arg {any} bindings
-     * @override
-     */
-    subGetBindings(bindings: any) {
-        bindings.categoryField = this.options.categoryField.columnName;
-        bindings.compareField = this.options.compareField.columnName;
-        bindings.filterField = this.options.filterField.columnName;
-        bindings.idField = this.options.idField.columnName;
-        bindings.linkField = this.options.linkField.columnName;
-        bindings.dateField = this.options.dateField.columnName;
-        bindings.nameField = this.options.nameField.columnName;
-        bindings.objectIdField = this.options.objectIdField.columnName;
-        bindings.objectNameField = this.options.objectNameField.columnName;
-        bindings.percentField = this.options.percentField.columnName;
-        bindings.predictedNameField = this.options.predictedNameField.columnName;
-        bindings.sortField = this.options.sortField.columnName;
-        bindings.typeField = this.options.typeField.columnName;
-        bindings.flagLabel = this.options.flagLabel.columnName;
-        bindings.flagSubLabel1 = this.options.flagSubLabel1.columnName;
-        bindings.flagSubLabel2 = this.options.flagSubLabel2.columnName;
-        bindings.flagSubLabel3 = this.options.flagSubLabel3.columnName;
-
-        bindings.ascending = this.options.ascending;
-        bindings.border = this.options.border;
-        bindings.borderCompareValue = this.options.borderCompareValue;
-        bindings.borderPercentThreshold = this.options.borderPercentThreshold;
-        bindings.cropAndScale = this.options.cropAndScale;
-        bindings.defaultLabel = this.options.defaultLabel;
-        bindings.defaultPercent = this.options.defaultPercent;
-        bindings.ignoreSelf = this.options.ignoreSelf;
-        bindings.linkPrefix = this.options.linkPrefix;
-        bindings.openOnMouseClick = this.options.openOnMouseClick;
-        bindings.textMap = this.options.textMap;
-        bindings.typeMap = this.options.typeMap;
-        bindings.detailedThumbnails = this.options.detailedThumbnails;
-        bindings.showLabelName = this.options.showLabelName;
     }
 
     /**

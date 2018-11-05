@@ -86,25 +86,61 @@ export class AnnotationViewerOptions extends BaseNeonOptions {
     respondMode: boolean;
     highlightInRespondMode: boolean; // True if text should be highlighted on hover while responseMode is true, false otherwise.
 
-    onInit() {
-        this.documentLimit = this.injector.get('documentLimit', 50);
-        this.documentTextField = this.injector.get('documentTextField', '');
-        this.idField = this.injector.get('idField', '');
-        this.linkField = this.injector.get('linkField', '');
-        this.respondMode = this.injector.get('respondMode', false);
-        this.highlightInRespondMode = this.injector.get('highlightInRespondMode', false);
-        this.singleColor = this.injector.get('singleColor', false);
-        this.documentLimit = this.injector.get('documentLimit', 50);
+    /**
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
+     *
+     * @arg {any} bindings
+     * @return {any}
+     * @override
+     */
+    appendNonFieldBindings(bindings: any): any {
+        bindings.documentLimit = this.documentLimit;
+        bindings.highlightInRespondMode = this.highlightInRespondMode;
+        bindings.respondMode = this.respondMode;
+        bindings.singleColor = this.singleColor;
+
+        return bindings;
     }
 
-    updateFieldsOnTableChanged() {
-        this.documentTextField = this.findFieldObject('documentTextField');
-        this.idField = this.findFieldObject('idField');
-        this.linkField = this.findFieldObject('linkField');
-        this.startCharacterField = this.findFieldObject('startCharacterField');
-        this.endCharacterField = this.findFieldObject('endCharacterField');
-        this.textField = this.findFieldObject('textField');
-        this.typeField = this.findFieldObject('typeField');
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'documentTextField',
+            'endCharacterField',
+            'idField',
+            'linkField',
+            'startCharacterField',
+            'textField',
+            'typeField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
+     *
+     * @override
+     */
+    initializeNonFieldBindings() {
+        this.documentLimit = this.injector.get('documentLimit', 50);
+        this.highlightInRespondMode = this.injector.get('highlightInRespondMode', false);
+        this.id = this.injector.get('id', '');
+        this.respondMode = this.injector.get('respondMode', false);
+        this.singleColor = this.injector.get('singleColor', false);
     }
 }
 
@@ -753,19 +789,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Returns the export fields for the visualization.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        return [{
-            columnName: this.options.documentTextField.columnName,
-            prettyName: this.options.documentTextField.prettyName
-        }];
-    }
-
-    /**
      * Returns the list of filter IDs for the visualization to ignore.
      *
      * @return {array}
@@ -1094,24 +1117,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      */
     showFooterContainer(): boolean {
         return (this.activeData.length < this.responseData.length) && (this.activeData.length > 1);
-    }
-
-    /**
-     * Sets the visualization fields and properties in the given bindings object needed to save layout states.
-     *
-     * @arg {object} bindings
-     * @override
-     */
-    subGetBindings(bindings: any) {
-        bindings.documentTextField = this.options.documentTextField.columnName;
-        bindings.endCharacterField = this.options.endCharacterField.columnName;
-        bindings.idField = this.options.idField.columnName;
-        bindings.id = this.id;
-        bindings.linkField = this.options.linkField.columnName;
-        bindings.respondMode = this.options.respondMode;
-        bindings.startCharacterField = this.options.startCharacterField.columnName;
-        bindings.textField = this.options.textField.columnName;
-        bindings.typeField = this.options.typeField.columnName;
     }
 
     /**
