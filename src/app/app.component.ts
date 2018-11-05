@@ -125,7 +125,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         if (neonConfig.errors && neonConfig.errors.length > 0) {
             let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
-                panelClass: this.themesService.getCurrentTheme().id,
+                panelClass: this.themesService.getCurrentTheme(),
                 viewContainerRef: this.viewContainerRef
             });
             snackBarRef.instance.snackBarRef = snackBarRef;
@@ -228,7 +228,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     openAddVisualizationDialog() {
         let config = new MatDialogConfig();
-        config.panelClass = this.themesService.getCurrentTheme().id;
+        config.panelClass = this.themesService.getCurrentTheme();
         config.viewContainerRef = this.viewContainerRef;
 
         this.addVisDialogRef = this.dialog.open(AddVisualizationComponent, config);
@@ -241,7 +241,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     openCustomConnectionDialog() {
         let config = new MatDialogConfig();
-        config.panelClass = this.themesService.getCurrentTheme().id;
+        config.panelClass = this.themesService.getCurrentTheme();
         config.viewContainerRef = this.viewContainerRef;
 
         this.customConnectionDialogRef = this.dialog.open(CustomConnectionComponent, config);
@@ -266,7 +266,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     openFilterTrayDialog() {
         let config = new MatDialogConfig();
-        config.panelClass = this.themesService.getCurrentTheme().id;
+        config.panelClass = this.themesService.getCurrentTheme();
         config.viewContainerRef = this.viewContainerRef;
 
         this.filterTrayDialogRef = this.dialog.open(FilterTrayComponent, config);
