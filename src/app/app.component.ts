@@ -56,7 +56,6 @@ import * as neon from 'neon-framework';
 })
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChild(NgGrid) grid: NgGrid;
-    @ViewChild(SaveStateComponent) SaveStateComponent: SaveStateComponent;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
 
     @Input() sidenav = MatSidenav;
