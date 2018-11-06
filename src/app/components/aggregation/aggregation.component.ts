@@ -14,6 +14,7 @@
  *
  */
 import {
+    AfterViewInit,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
@@ -68,6 +69,8 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
     public yField: FieldMetaData;
 
     public aggregation: string;
+    public axisLabelX: string;
+    public axisLabelY: string;
     public dualView: string;
     public granularity: string;
     public hideGridLines: boolean;
@@ -92,7 +95,8 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
     public yPercentage: number;
 
     /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
+     * Appends all the non-field bindings for the specific visualization to the
+     * given bindings object and returns the bindings object.
      *
      * @arg {any} bindings
      * @return {any}
@@ -100,6 +104,8 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
      */
     appendNonFieldBindings(bindings: any): any {
         bindings.aggregation = this.aggregation;
+        bindings.axisLabelX = this.axisLabelX;
+        bindings.axisLabelY = this.axisLabelY;
         bindings.dualView = this.dualView;
         bindings.granularity = this.granularity;
         bindings.hideGridLines = this.hideGridLines;
@@ -141,7 +147,8 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
     }
 
     /**
-     * Returns the list of field array properties for the specific visualization.
+     * Returns the list of field array properties for the specific
+     * visualization.
      *
      * @return {string[]}
      * @override
@@ -156,6 +163,8 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
      * @override
      */
     initializeNonFieldBindings() {
+        this.axisLabelX = this.injector.get('axisLabelX', null);
+        this.axisLabelY = this.injector.get('axisLabelY', null);
         this.aggregation = this.injector.get('aggregation', 'count');
         this.dualView = this.injector.get('dualView', '');
         this.granularity = this.injector.get('granularity', 'year');
@@ -197,7 +206,7 @@ class Filter {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AggregationComponent extends BaseNeonComponent implements OnInit, OnDestroy, AggregationSubcomponentListener {
+export class AggregationComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit, AggregationSubcomponentListener {
     @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('hiddenCanvas') hiddenCanvas: ElementRef;
@@ -340,6 +349,21 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
     }
 
+    public ngAfterViewInit() {
+        if (this.options.axisLabelX == null) {
+            this.options.axisLabelX =
+                (this.subcomponentMain && this.subcomponentMain.isHorizontal()) ?
+                    this.options.aggregation || this.options.yField.prettyName :
+                    this.options.xField.prettyName;
+        }
+        if (this.options.axisLabelY == null) {
+            this.options.axisLabelY =
+                (this.subcomponentMain && this.subcomponentMain.isHorizontal()) ?
+                    this.options.xField.prettyName :
+                    this.options.aggregation || this.options.yField.prettyName;
+        }
+    }
+
     /**
      * Returns whether the given subcomponent type allows dual view.
      *
@@ -388,7 +412,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Creates (and replaces) or removes the neon filter using the visualization filters.
+     * Creates (and replaces) or removes the neon filter using the
+     * visualization filters.
      */
     createOrRemoveNeonFilter() {
         // Always AND all group filters.
@@ -525,9 +550,11 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns an object containing the ElementRef objects for the visualization needed for the resizing behavior.
+     * Returns an object containing the ElementRef objects for the
+     * visualization needed for the resizing behavior.
      *
-     * @return {object} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @return {object} Object containing:  {ElementRef} headerText,
+     *     {ElementRef} infoText, {ElementRef} visualization
      * @override
      */
     getElementRefs(): any {
@@ -610,7 +637,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the hidden canvas element reference for the SubcomponentListener interface.
+     * Returns the hidden canvas element reference for the SubcomponentListener
+     * interface.
      *
      * @return {ElementRef}
      */
@@ -629,7 +657,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the label for the X Field in the gear option menu using the given subcomponent type.
+     * Returns the label for the X Field in the gear option menu using the
+     * given subcomponent type.
      *
      * @arg {string} type
      * @return {string}
@@ -675,7 +704,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Updates properties and/or sub-components whenever a config option is changed and reruns the visualization query.
+     * Updates properties and/or sub-components whenever a config option is
+     * changed and reruns the visualization query.
      *
      * @override
      */
@@ -821,6 +851,31 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Returns whether the given subcomponent type has axes (e.g., line does,
+     * pie does not).
+     *
+     * @arg {string} type
+     * @return {boolean}
+     */
+    hasAxes(type: string): boolean {
+        switch (type) {
+            case 'bar-h':
+            case 'bar-v':
+            case 'histogram':
+            case 'line':
+            case 'line-xy':
+            case 'scatter':
+            case 'scatter-xy':
+                return true;
+            case 'doughnut':
+            case 'list':
+            case 'pie':
+            default:
+                return false;
+        }
+    }
+
+    /**
      * Returns whether the data and fields for the visualization are valid.
      *
      * @return {boolean}
@@ -844,7 +899,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Handles the query results for the visualization; updates and/or redraws any properties and/or sub-components as needed.
+     * Handles the query results for the visualization; updates and/or redraws
+     * any properties and/or sub-components as needed.
      *
      * @arg {object} response
      * @override
@@ -1017,7 +1073,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Handles any post-initialization behavior needed with properties or sub-components for the visualization.
+     * Handles any post-initialization behavior needed with properties or
+     * sub-components for the visualization.
      *
      * @override
      */
@@ -1092,7 +1149,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Deselects the selected area and removes the superclass filter object and all visualization filters.
+     * Deselects the selected area and removes the superclass filter object and
+     * all visualization filters.
      *
      * @arg {any} filter
      * @override
@@ -1108,7 +1166,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Updates the filters for the visualization on initialization or whenever filters are changed externally.
+     * Updates the filters for the visualization on initialization or whenever
+     * filters are changed externally.
      *
      * @override
      */
@@ -1328,7 +1387,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Updates properties and/or sub-components whenever the limit is changed and reruns the visualization query.
+     * Updates properties and/or sub-components whenever the limit is changed
+     * and reruns the visualization query.
      *
      * @override
      */
@@ -1356,7 +1416,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Initializes any properties and/or sub-components needed once databases, tables, fields, and other options properties are set.
+     * Initializes any properties and/or sub-components needed once databases,
+     * tables, fields, and other options properties are set.
      *
      * @override
      */
@@ -1404,7 +1465,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Toggles the given filter in the given filter list and recreates or removes the neon filter.
+     * Toggles the given filter in the given filter list and recreates or
+     * removes the neon filter.
      *
      * @arg {Filter} filter
      */
