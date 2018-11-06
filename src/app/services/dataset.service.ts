@@ -262,21 +262,6 @@ export class DatasetService {
         this.dataset.host = dataset.host || '';
         this.dataset.databases = dataset.databases || [];
         this.dataset.options = dataset.options || {};
-
-        // Shutdown any previous update intervals.
-        if (this.updateInterval) {
-            this.updateSubscription.unsubscribe();
-            delete this.updateSubscription;
-            delete this.updateInterval;
-        }
-
-        if (this.dataset.options.requeryInterval) {
-            let delay = Math.max(0.5, this.dataset.options.requeryInterval) * 60000;
-            this.updateInterval = Observable.interval(delay);
-            this.updateSubscription = this.updateInterval.subscribe(() => {
-                this.publishUpdateData();
-            });
-        }
     }
 
     // TODO: 825: combine setCurrentDashboardName and setCurrentDashboard.
@@ -302,6 +287,21 @@ export class DatasetService {
      */
     public setCurrentDashboard(config: Dashboard) {
         this.currentDashboard = config;
+
+        // Shutdown any previous update intervals.
+        if (this.updateInterval) {
+            this.updateSubscription.unsubscribe();
+            delete this.updateSubscription;
+            delete this.updateInterval;
+        }
+
+        if (this.currentDashboard.options.requeryInterval) {
+            let delay = Math.max(0.5, this.currentDashboard.options.requeryInterval) * 60000;
+            this.updateInterval = Observable.interval(delay);
+            this.updateSubscription = this.updateInterval.subscribe(() => {
+                this.publishUpdateData();
+            });
+        }
     }
 
     /**
@@ -942,24 +942,14 @@ export class DatasetService {
      * @method getActiveDatasetOptions
      * @return {Object}
      * TODO: 825: options will be moved
+     * TODO: 872: make into get current dashboard options?
+     * TODO: 872: this is how colorMaps are being grabbed now
+     * so make sure that still works after AIDA-401 changes
+     * are merged in
      *
      */
     public getActiveDatasetOptions(): DatasetOptions {
         return this.dataset.options;
-    }
-
-    /**
-     * Returns the color maps option for the database, table, and field in the active dataset with the given names.
-     * @param {String} databaseName
-     * @param {String} tableName
-     * @param {String} fieldName
-     * @method getActiveDatasetColorMaps
-     * @return {Object}
-     * TODO: 825: options will be moved
-     */
-    public getActiveDatasetColorMaps(databaseName: string, tableName: string, fieldName: string): Object {
-        let colorMaps = this.getActiveDatasetOptions().colorMaps || {};
-        return colorMaps[databaseName] && colorMaps[databaseName][tableName] ? colorMaps[databaseName][tableName][fieldName] || {} : {};
     }
 
     /**
