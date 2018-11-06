@@ -44,41 +44,88 @@ import * as neon from 'neon-framework';
  * Manages configurable options for the specific visualization.
  */
 export class MediaViewerOptions extends BaseNeonOptions {
+    public autoplay: boolean;
     public border: string;
+    public clearMedia: boolean;
+    public delimiter: string;
     public id: string;
     public idField: FieldMetaData;
-    public linkField: FieldMetaData;
+    public maskField: FieldMetaData;
+    public linkField: FieldMetaData; // DEPRECATED
+    public linkFields: FieldMetaData[];
     public linkPrefix: string;
     public nameField: FieldMetaData;
+    public oneTabPerArray: boolean;
     public resize: boolean;
+    public sliderValue: number;
     public typeField: FieldMetaData;
     public typeMap: any;
     public url: string;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
      *
+     * @arg {any} bindings
+     * @return {any}
      * @override
      */
-    onInit() {
-        this.border = this.injector.get('border', '');
-        this.id = this.injector.get('id', '');
-        this.linkPrefix = this.injector.get('linkPrefix', '');
-        this.resize = this.injector.get('resize', true);
-        this.typeMap = this.injector.get('typeMap', {});
-        this.url = this.injector.get('url', '');
+    appendNonFieldBindings(bindings: any): any {
+        bindings.autoplay = this.autoplay;
+        bindings.border = this.border;
+        bindings.clearMedia = this.clearMedia;
+        bindings.delimiter = this.delimiter;
+        bindings.linkPrefix = this.linkPrefix;
+        bindings.oneTabPerArray = this.oneTabPerArray;
+        bindings.resize = this.resize;
+        bindings.sliderValue = this.sliderValue;
+        bindings.typeMap = this.typeMap;
+
+        return bindings;
     }
 
     /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'idField',
+            'linkField', // DEPRECATED
+            'maskField',
+            'nameField',
+            'typeField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return ['linkFields'];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    updateFieldsOnTableChanged() {
-        this.idField = this.findFieldObject('idField');
-        this.linkField = this.findFieldObject('linkField');
-        this.nameField = this.findFieldObject('nameField');
-        this.typeField = this.findFieldObject('typeField');
+    initializeNonFieldBindings() {
+        this.border = this.injector.get('border', '');
+        this.clearMedia = this.injector.get('clearMedia', false);
+        this.delimiter = this.injector.get('delimiter', ',');
+        this.id = this.injector.get('id', '');
+        this.linkPrefix = this.injector.get('linkPrefix', '');
+        this.oneTabPerArray = this.injector.get('oneTabPerArray', false);
+        this.resize = this.injector.get('resize', true);
+        this.sliderValue = this.injector.get('sliderValue', 0);
+        this.typeMap = this.injector.get('typeMap', {});
+        this.url = this.injector.get('url', '');
+        this.autoplay = this.injector.get('autoplay', false);
     }
 }
 
@@ -93,43 +140,44 @@ export class MediaViewerOptions extends BaseNeonOptions {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    protected MEDIA_PADDING: number = 5;
+    protected MEDIA_PADDING: number = 10;
+    protected SLIDER_HEIGHT: number = 60;
     protected TAB_HEIGHT: number = 30;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
-    // Must have a ViewChild with a set function because the element is in an ngIf/ngFor.
-    private frame: ElementRef;
-    private image: ElementRef;
-    private video: ElementRef;
-
-    @ViewChild('frame') set frameViewChild(frame: ElementRef) {
-        this.frame = frame;
-        this.subOnResizeStop();
-    }
-    @ViewChild('image') set imageViewChild(image: ElementRef) {
-        this.image = image;
-        this.subOnResizeStop();
-    }
-    @ViewChild('video') set videoViewChild(video: ElementRef) {
-        this.video = video;
-        this.subOnResizeStop();
-    }
-
     public options: MediaViewerOptions;
 
-    public documentArray: {
-        border: string,
-        link: string,
+    public mediaTypes: any = MediaTypes;
+
+    // TODO Add a way for the user to select other items from the list.
+    public tabsAndMedia: {
+        loaded: boolean,
         name: string,
-        type: string
+        slider: number,
+        selected: {
+            border: string,
+            link: string,
+            mask: string,
+            name: string,
+            type: string
+        },
+        list: {
+            border: string,
+            link: string,
+            mask: string,
+            name: string,
+            type: string
+        }[]
     }[] = [];
 
     public isLoadingMedia: boolean = false;
+    public noDataId: string = undefined;
     public previousId: string = '';
-    public mediaTypes: any = MediaTypes;
+    public queryItems: any[] = [];
+    public selectedTabIndex: number = 0;
 
     constructor(
         activeGridService: ActiveGridService,
@@ -158,7 +206,117 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
         this.options = new MediaViewerOptions(this.injector, this.datasetService, 'Media Viewer', 10);
 
+        // Backwards compatibility.
+        if (this.options.linkField.columnName && !this.options.linkFields.length) {
+            this.options.linkFields.push(this.options.linkField);
+        }
+
         this.subscribeToSelectId(this.getSelectIdCallback());
+
+        this.options.customEventsToReceive.forEach((config) => {
+            this.messenger.subscribe(config.id, (eventMessage) => {
+                this.waitForQuery(config.fields || [], eventMessage.metadata, eventMessage.item);
+            });
+        });
+    }
+
+    /**
+     * Adds the links for the given fields in the given metadata object to the component as a new tab with the given name next to the
+     * existing queryItems.
+     *
+     * @arg {any[]} fields
+     * @arg {any} metadata
+     * @arg {string} name
+     */
+    addEventLinks(fields: any[], metadata: any, name: string) {
+        let tabIndex = this.tabsAndMedia.length;
+
+        let links = [];
+        let masks = [];
+        let names = [];
+        let types = [];
+
+        fields.forEach((fieldsConfig) => {
+            if (fieldsConfig.type === 'base' || fieldsConfig.type === 'link') {
+                links = links.concat(this.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
+            }
+            if (fieldsConfig.type === 'mask') {
+                masks = masks.concat(this.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
+            }
+            if (fieldsConfig.type === 'name') {
+                names = names.concat(this.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
+            }
+            if (fieldsConfig.type === 'type') {
+                types = types.concat(this.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
+            }
+        });
+
+        // If the event has link or mask data, but is missing other data, use the query data as the defaults.
+        if (this.queryItems.length && (links.length || masks.length)) {
+            if (!links.length) {
+                links = this.queryItems.map((item) => item.link);
+            }
+            if (links.length === 1 && masks.length > 1) {
+                while (links.length < masks.length) {
+                    links.push(links[0]);
+                }
+            }
+            if (!masks.length) {
+                masks = this.queryItems.map((item) => item.mask);
+            }
+            if (!names.length) {
+                names = this.queryItems.map((item) => item.name);
+            }
+            if (!types.length) {
+                types = this.queryItems.map((item) => item.type);
+            }
+        }
+
+        let tabs = this.createTabs(links, masks, names, types);
+
+        tabs.forEach((tab) => {
+            if (tab.list.length) {
+                // Check to see if the tab already exists before adding it again.
+                let tabExists = false;
+                this.tabsAndMedia.forEach((previousTab, index) => {
+                    if (previousTab.name === tab.name) {
+                        tabExists = true;
+                        tabIndex = index;
+                        return false;
+                    }
+                });
+
+                if (!tabExists) {
+                    this.tabsAndMedia.push(tab);
+                }
+            }
+        });
+
+        if (this.tabsAndMedia.length >= tabIndex) {
+            this.selectedTabIndex = tabIndex;
+        }
+
+        this.refreshVisualization();
+    }
+
+    /**
+     * Appends the global linkPrefix to the given link if it is not already there.
+     *
+     * @arg {string} link
+     * @return {string}
+     */
+    appendLinkPrefixIfNeeded(link: string) {
+        return ((!!link && link.indexOf(this.options.linkPrefix) !== 0) ? (this.options.linkPrefix + link) : link);
+    }
+
+    /**
+     * Returns the opacity for the given percent.
+     *
+     * @arg {number} percent
+     * @return {number}
+     */
+    calculateOpacity(percent: number): number {
+        return (100 - percent) / 100;
     }
 
     /**
@@ -170,7 +328,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     createQuery(): neon.query.Query {
         let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
 
-        let fields = [this.options.idField.columnName, this.options.linkField.columnName];
+        let fields = [this.options.idField.columnName].concat(this.options.linkFields.map((linkField) => {
+            return linkField.columnName;
+        }));
 
         if (this.options.nameField.columnName) {
             fields.push(this.options.nameField.columnName);
@@ -180,13 +340,93 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             fields.push(this.options.typeField.columnName);
         }
 
-        let whereClauses = [
-            neon.query.where(this.options.idField.columnName, '=', this.options.id),
-            neon.query.where(this.options.linkField.columnName, '!=', null),
-            neon.query.where(this.options.linkField.columnName, '!=', '')
-        ];
+        if (this.options.maskField.columnName) {
+            fields.push(this.options.maskField.columnName);
+        }
 
-        return query.withFields(fields).where(neon.query.and.apply(query, whereClauses));
+        let idFilter = neon.query.where(this.options.idField.columnName, '=', this.options.id);
+        let wherePredicates = [idFilter].concat(this.options.linkFields.map((linkField) => {
+            return neon.query.where(linkField.columnName, '!=', null);
+        }));
+
+        return query.withFields(fields).where(neon.query.and.apply(query, wherePredicates));
+    }
+
+    /**
+     * Adds the given links to the global list.
+     *
+     * @arg {any} tab
+     * @arg {any[]} links
+     * @arg {any[]} masks
+     * @arg {any[]} names
+     * @arg {any[]} types
+     * @arg {string} [oneTabName='']
+     * @return {any[]}
+     */
+    createTabs(links: any, masks: any, names: any[], types: any[], oneTabName: string = '') {
+        let oneTab = {
+            selected: undefined,
+            slider: this.options.sliderValue,
+            name: oneTabName,
+            loaded: false,
+            list: []
+        };
+
+        let tabs = this.options.oneTabPerArray ? [oneTab] : [];
+
+        links.filter((link) => !!link).forEach((link, index) => {
+            let mask = this.appendLinkPrefixIfNeeded(this.findElementAtIndex(masks, index));
+            let name = this.findElementAtIndex(names, index, (link ? link.substring(link.lastIndexOf('/') + 1) : oneTabName));
+            let type = this.findElementAtIndex(types, index, (this.getMediaType(link) || ''));
+
+            // If the type is "mask,img" then change the type to "mask" if the mask link exists else change the type to "img" (the backup).
+            if (type === (this.mediaTypes.maskImage + ',' + this.mediaTypes.image)) {
+                type = (mask ? this.mediaTypes.maskImage : this.mediaTypes.image);
+            }
+
+            // Only add a tab if the link is non-empty; only add a tab for a mask-type if the mask is also non-empty.
+            if (link && (type === this.mediaTypes.maskImage ? mask : true)) {
+                let tab = oneTab;
+                if (!this.options.oneTabPerArray) {
+                    tab = {
+                        selected: undefined,
+                        slider: this.options.sliderValue,
+                        name: (links.length > 1 ? ((index + 1) + ': ') : '') + name,
+                        loaded: false,
+                        list: []
+                    };
+                }
+
+                tab.list.push({
+                    // TODO Add a boolean borderField with border options like:  true = red, false = yellow
+                    border: this.options.border,
+                    link: this.appendLinkPrefixIfNeeded(link),
+                    mask: mask,
+                    name: name,
+                    type: type
+                });
+
+                tab.selected = tab.list[0];
+
+                if (!this.options.oneTabPerArray) {
+                    tabs.push(tab);
+                }
+            }
+        });
+
+        return tabs;
+    }
+
+    /**
+     * Returns the element in the given array at the given index if possible or the first element or the default value.
+     *
+     * @arg {any[]} array
+     * @arg {number} index
+     * @arg {any} defaultValue
+     * @return {any}
+     */
+    findElementAtIndex(array: any[], index: number, defaultValue: any = ''): any {
+        return (array.length > 1 ? (index < array.length ? array[index] : '') : array[0]) || defaultValue;
     }
 
     /**
@@ -196,12 +436,28 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     getButtonText() {
-        if (!this.documentArray.length && !this.options.url) {
-            return 'No Data';
-        } else if (this.options.url) {
-            return '';
+        if (!this.tabsAndMedia.length && !this.options.url) {
+            return 'Please Select';
         }
-        return 'Total Files ' + super.prettifyInteger(this.documentArray.length);
+        if (!this.tabsAndMedia.length && this.options.url) {
+            if (this.options.hideUnfiltered) {
+                return 'Please Filter';
+            }
+            return 'No Data';
+        }
+        return 'Total Files ' + super.prettifyInteger(this.tabsAndMedia.reduce((sum, tab) => {
+            return sum + tab.list.length;
+        }, 0));
+    }
+
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
+    getCloseableFilters(): any[] {
+        return [];
     }
 
     /**
@@ -219,45 +475,14 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the options for the specific visualization.
+     * Returns the text for the given filter.
      *
-     * @return {BaseNeonOptions}
+     * @arg {object} filter
+     * @return {string}
      * @override
      */
-    getOptions(): BaseNeonOptions {
-        return this.options;
-    }
-
-    /**
-     * Returns the media viewer export fields.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        let fields = [{
-            columnName: this.options.idField.columnName,
-            prettyName: this.options.idField.prettyName
-        }, {
-            columnName: this.options.linkField.columnName,
-            prettyName: this.options.linkField.prettyName
-        }];
-
-        if (this.options.nameField.columnName) {
-            fields.push({
-                columnName: this.options.nameField.columnName,
-                prettyName: this.options.nameField.prettyName
-            });
-        }
-
-        if (this.options.typeField.columnName) {
-            fields.push({
-                columnName: this.options.typeField.columnName,
-                prettyName: this.options.typeField.prettyName
-            });
-        }
-
-        return fields;
+    getFilterText(filter: any): string {
+        return '';
     }
 
     /**
@@ -280,24 +505,14 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the text for the given filter.
-     *
-     * @arg {object} filter
-     * @return {string}
-     * @override
+     * returns the media type for the thumbnail
+     * @arg {object} item
+     * @return string
      */
-    getFilterText(filter: any): string {
-        return '';
-    }
-
-    /**
-     * Returns the list of filter objects.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters(): any[] {
-        return [];
+    getMediaType(item) {
+        let fileType = item.substring(item.lastIndexOf('.') + 1).toLowerCase();
+        return this.options.typeField.columnName ? this.options.typeField.columnName : this.options.typeMap[fileType] ?
+            this.options.typeMap[fileType] : '';
     }
 
     /**
@@ -307,16 +522,26 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @private
      */
     private getSelectIdCallback() {
-        return (message) => {
-            if (message.database === this.options.database.name && message.table === this.options.table.name) {
-                this.options.id = Array.isArray(message.id) ? message.id[0] : message.id;
+        return (eventMessage) => {
+            if (eventMessage.database === this.options.database.name && eventMessage.table === this.options.table.name) {
+                this.options.id = Array.isArray(eventMessage.id) ? eventMessage.id[0] : eventMessage.id;
                 if (this.options.id !== this.previousId) {
-                    this.documentArray = [];
+                    this.tabsAndMedia = [];
                     this.previousId = this.options.id;
                     this.executeQueryChain();
                 }
             }
         };
+    }
+
+    /**
+     * Returns the options for the specific visualization.
+     *
+     * @return {BaseNeonOptions}
+     * @override
+     */
+    getOptions(): BaseNeonOptions {
+        return this.options;
     }
 
     /**
@@ -338,8 +563,11 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     isValidQuery(): boolean {
+        let validLinkFields = this.options.linkFields.length ? this.options.linkFields.every((linkField) => {
+            return !!linkField.columnName;
+        }) : false;
         return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name && this.options.id &&
-            this.options.idField && this.options.idField.columnName && this.options.linkField && this.options.linkField.columnName);
+            this.options.idField && this.options.idField.columnName && validLinkFields);
     }
 
     /**
@@ -349,33 +577,86 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     onQuerySuccess(response: any) {
-        this.documentArray = [];
+        this.noDataId = this.options.id;
+        this.options.id = undefined;
+        this.tabsAndMedia = [];
+        this.selectedTabIndex = 0;
+        this.queryItems = [];
+
+        if (this.options.clearMedia) {
+            let neonFilters = this.options.idField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
+                this.options.table.name, [this.options.idField.columnName]) : [];
+
+            if (!neonFilters[0] || (neonFilters[0] && !neonFilters[0].filter.whereClause.rhs)) {
+                this.errorMessage = 'No Data';
+                this.options.id = '_id';
+                return;
+            }
+        }
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.errorMessage = '';
                 this.isLoadingMedia = true;
 
-                let links = neonUtilities.deepFind(response.data[0], this.options.linkField.columnName) || '';
-                let names = this.options.nameField.columnName ? neonUtilities.deepFind(response.data[0],
-                    this.options.nameField.columnName) || '' : '';
-                let types = this.options.typeField.columnName ? neonUtilities.deepFind(response.data[0],
-                    this.options.typeField.columnName) || '' : '';
+                response.data.forEach((responseItem) => {
+                    let masks = [];
+                    let names = [];
+                    let types = [];
 
-                this.retreiveMedia(
-                    Array.isArray(links) ? links : (links.toString().search(/,/g) > -1 ? links.toString().split(',') : [links]),
-                    Array.isArray(names) ? names : (names.toString().search(/,/g) > -1 ? names.toString().split(',') : names),
-                    Array.isArray(types) ? types : (types.toString().search(/,/g) > -1 ? types.toString().split(',') : types)
-                );
+                    if (this.options.maskField.columnName) {
+                        masks = neonUtilities.deepFind(responseItem, this.options.maskField.columnName) || '';
+                        masks = this.transformToStringArray(masks, this.options.delimiter);
+                    }
+
+                    if (this.options.nameField.columnName) {
+                        names = neonUtilities.deepFind(responseItem, this.options.nameField.columnName) || '';
+                        names = this.transformToStringArray(names, this.options.delimiter);
+                    }
+
+                    if (this.options.typeField.columnName) {
+                        types = neonUtilities.deepFind(responseItem, this.options.typeField.columnName) || '';
+                        types = this.transformToStringArray(types, this.options.delimiter);
+                    }
+
+                    this.options.linkFields.forEach((linkField) => {
+                        let links = neonUtilities.deepFind(responseItem, linkField.columnName) || '';
+                        links = this.transformToStringArray(links, this.options.delimiter);
+                        let tabs = this.createTabs(links, masks, names, types, this.noDataId);
+                        tabs.forEach((tab) => {
+                            if (tab.list.length) {
+                                this.tabsAndMedia.push(tab);
+                                // Use concat to copy the list.
+                                this.queryItems = this.queryItems.concat(tab.list);
+                                this.noDataId = undefined;
+                            }
+                        });
+                    });
+                });
+
+                this.isLoadingMedia = false;
             } else {
                 this.errorMessage = 'No Data';
-                this.refreshVisualization();
             }
+
+            this.refreshVisualization();
         } catch (e) {
+            console.error(e);
             this.isLoadingMedia = false;
             this.errorMessage = 'Error';
             this.refreshVisualization();
         }
+    }
+
+    /**
+     * Changes the selected source image in the given tab to the element in the tab's list at the given index.
+     *
+     * @arg {any} tab
+     * @arg {number} percent
+     */
+    onSliderChange(tab: any, percent: number) {
+        tab.slider = percent;
+        this.refreshVisualization();
     }
 
     /**
@@ -393,7 +674,12 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     refreshVisualization() {
-        this.changeDetection.detectChanges();
+        /* tslint:disable:no-string-literal */
+        if (!this.changeDetection['destroyed']) {
+            this.changeDetection.detectChanges();
+        }
+        /* tslint:enable:no-string-literal */
+        this.subOnResizeStop();
     }
 
     /**
@@ -406,33 +692,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         // Do nothing.
     }
 
-    /**
-     * Retrieves the media pages recursively using the given array of links.  Refreshes the visualization once finished.
-     *
-     * @arg {array} links
-     * @arg {array|string} names
-     * @arg {array|string} types
-     * @private
-     */
-    private retreiveMedia(links, names, types) {
-        if (!links.length) {
-            this.isLoadingMedia = false;
-            this.refreshVisualization();
-            return;
-        }
-
-        if (links[0]) {
-            let typeFromConfig = this.options.typeMap[links[0].substring(links[0].lastIndexOf('.') + 1).toLowerCase()];
-            // TODO Add a boolean borderField with border options like:  true = red, false = yellow
-            this.documentArray.push({
-                border: this.options.border,
-                link: this.options.linkPrefix + links[0],
-                name: (Array.isArray(names) ? names[0] : names) || links[0],
-                type: (Array.isArray(types) ? types[0] : types) || typeFromConfig || ''
-            });
-        }
-
-        this.retreiveMedia(links.slice(1), Array.isArray(names) ? names.slice(1) : names, Array.isArray(types) ? types.slice(1) : types);
+    sanitize(url) {
+        return this.sanitizer.bypassSecurityTrustResourceUrl(url);
     }
 
     /**
@@ -445,20 +706,12 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Sets the given bindings for the media viewer.
+     * Ensures that the source image loads before the mask.
      *
-     * @arg {any} bindings
-     * @override
+     * @arg {any} tab
      */
-    subGetBindings(bindings: any) {
-        bindings.idField = this.options.idField.columnName;
-        bindings.linkField = this.options.linkField.columnName;
-        bindings.nameField = this.options.nameField.columnName;
-        bindings.typeField = this.options.typeField.columnName;
-        bindings.border = this.options.border;
-        bindings.linkPrefix = this.options.linkPrefix;
-        bindings.resize = this.options.resize;
-        bindings.typeMap = this.options.typeMap;
+    setTabLoaded(tab: any) {
+        tab.loaded = true;
     }
 
     /**
@@ -479,64 +732,103 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         // Do nothing.
     }
 
-    subOnResizeStop() {
-        let refs = this.getElementRefs();
+    subOnResizeStop(event?: any) {
+        if (!this.visualization) {
+            return;
+        }
+
+        let frames = this.visualization.nativeElement.querySelectorAll('.frame');
+        let images = this.visualization.nativeElement.querySelectorAll('.image');
+        let videos = this.visualization.nativeElement.querySelectorAll('.video');
+        let audios = this.visualization.nativeElement.querySelectorAll('.audio');
 
         if (!this.options.resize) {
-            if (this.frame) {
-                this.frame.nativeElement.style.maxHeight = '';
-                this.frame.nativeElement.style.maxWidth = '';
-            }
-            if (this.image) {
-                this.image.nativeElement.style.maxHeight = '';
-                this.image.nativeElement.style.maxWidth = '';
-            }
-            if (this.video) {
-                this.video.nativeElement.style.maxHeight = '';
-                this.video.nativeElement.style.maxWidth = '';
-            }
+            frames.forEach((frame) => {
+                frame.style.maxHeight = '';
+                frame.style.maxWidth = '';
+            });
+            images.forEach((image) => {
+                image.style.maxHeight = '';
+                image.style.maxWidth = '';
+            });
+            videos.forEach((video) => {
+                video.style.maxHeight = '';
+                video.style.maxWidth = '';
+            });
+            audios.forEach((audio) => {
+                audio.style.maxHeight = '';
+                audio.style.maxWidth = '';
+            });
             return;
         }
 
-        if (!refs.visualization) {
-            return;
-        }
+        let tabIndex = event ? event.index : this.selectedTabIndex;
+        let sliderHeight = ((this.tabsAndMedia.length > tabIndex && this.tabsAndMedia[tabIndex].selected.type ===
+            this.mediaTypes.maskImage) ?  this.SLIDER_HEIGHT : 0);
 
-        if (this.frame) {
-            this.frame.nativeElement.style.height = (refs.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT
-                - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            this.frame.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT
-                - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            this.frame.nativeElement.style.width = (refs.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-            this.frame.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        }
+        frames.forEach((frame) => {
+            frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            frame.style.width = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
+            frame.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
+        });
 
-        if (this.image) {
-            this.image.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT
-                - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            this.image.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        }
+        images.forEach((image) => {
+            image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            image.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
+        });
 
-        if (this.video) {
-            this.video.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT
-                - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            this.video.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        }
+        videos.forEach((video) => {
+            video.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            video.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
+        });
+
+        audios.forEach((audio) => {
+            audio.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            audio.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
+        });
     }
 
-    setResize() {
-        let size = {
-            'height':  this.frame ? this.frame.nativeElement.style.height : '',
-            'max-height':  this.video  ? this.video.nativeElement.style.maxHeight : this.image ? this.image.nativeElement.style.maxHeight
-                : this.frame ? this.frame.nativeElement.style.maxHeight : '',
-            'width':   this.frame  ? this.frame.nativeElement.style.width : '',
-            'max-width':   this.video  ? this.video.nativeElement.style.maxWidth : this.image ? this.image.nativeElement.style.maxWidth
-                : this.frame ? this.frame.nativeElement.style.maxWidth : ''
-        };
-        return size;
+    /**
+     * Transforms the given string or string array into a string array and returns the array.
+     *
+     * @arg {string|string[]} input
+     * @return {string[]}
+     */
+    transformToStringArray(input, delimiter: string) {
+        if (Array.isArray(input)) {
+            return input;
+        }
+        if (input !== '' && input !== null && typeof input !== 'undefined') {
+            let inputValue = input.toString();
+            if (inputValue.indexOf('[') === 0 && inputValue.lastIndexOf(']') === (inputValue.length - 1) &&
+                typeof inputValue !== 'undefined') {
+                inputValue = inputValue.substring(1, inputValue.length - 1);
+            }
+            return inputValue.indexOf(delimiter) > -1 ? inputValue.split(delimiter) : [inputValue];
+        }
+        return [];
     }
 
-    sanitize(url) {
-        return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    /**
+     * Waits for the current query to end, if it is running, then calls addEventLinks with the given data.
+     *
+     * @arg {any[]} fields
+     * @arg {any} metadata
+     * @arg {string} name
+     */
+    waitForQuery(fields: any[], metadata: any, name: string) {
+        if (this.isLoading) {
+            setTimeout(() => {
+                this.waitForQuery(fields, metadata, name);
+            }, 500);
+        } else {
+            this.addEventLinks(fields, metadata, name);
+        }
     }
 }

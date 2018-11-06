@@ -1,0 +1,12 @@
+<coverageStore>
+  <name>NATURAL_EARTH_II</name>
+  <description>Natural Earth 2</description>
+  <type>GeoTIFF</type>
+  <enabled>true</enabled>
+  <workspace>
+     <name>ne2</name>
+  </workspace>
+  <__default>true</__default>
+  <url>file:///usr/local/geoserver/data/NATURAL_EARTH_II/NE2_HR_LC_SR_W_DR.tif</url>
+</coverageStore>
+

@@ -86,7 +86,7 @@
                 <mat-form-field>
                     <mat-select placeholder="Color Field" [(ngModel)]="options.colorField"
                                (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -199,8 +199,6 @@
     </div>
 
     <div class="filter-container">
-        <app-legend *ngIf="!!this.options.colorField.columnName" [activeList]="selectedLabels" [fieldNames]="colorFieldNames"></app-legend>
-
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
             <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">{{ filter.value }}</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
@@ -210,8 +208,8 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="!!this.options.colorField.columnName || getCloseableFilters().length" [class.with-footer]="bars.length > options.limit">
-        <div #chartContainer class="chart-container" [style.minHeight.px]="this.minSize.height" [style.minWidth.px]="this.minSize.width">
+    <div class="body-container" [class.with-filter]="!!options.colorField.columnName || getCloseableFilters().length" [class.with-footer]="bars.length > options.limit">
+        <div #chartContainer class="chart-container" [style.minHeight.px]="minSize.height" [style.minWidth.px]="minSize.width">
             <app-chart class="chart" #barChart [type]="chartInfo.type" [data]="chartInfo.data" [options]="chartInfo.options"></app-chart>
         </div>
     </div>

@@ -13,10 +13,10 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -26,6 +26,7 @@ import { ParameterService } from '../../services/parameter.service';
 import { ThemesService } from '../../services/themes.service';
 
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
+import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 
 import * as _ from 'lodash';
 import * as neon from 'neon-framework';
@@ -37,6 +38,9 @@ import { VisualizationService } from '../../services/visualization.service';
   styleUrls: ['./dashboard-options.component.scss']
 })
 export class DashboardOptionsComponent implements OnInit {
+
+    @Input() sidenav: MatSidenav;
+
     public formData: any = {
         exportFormat: 0,
         currentTheme: 'neon-green-theme',
@@ -45,6 +49,7 @@ export class DashboardOptionsComponent implements OnInit {
         stateToDelete: ''
     };
 
+    public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
     private dashboardStateId: string = '';
     private filterStateId: string = '';
     private isLoading: boolean = false;
@@ -54,7 +59,7 @@ export class DashboardOptionsComponent implements OnInit {
 
     constructor(private connectionService: ConnectionService,  private datasetService: DatasetService,
         private errorNotificationService: ErrorNotificationService, public exportService: ExportService,
-        private matSnackBar: MatSnackBar, private parameterService: ParameterService,
+        private snackBar: MatSnackBar, private parameterService: ParameterService,
         public themesService: ThemesService, private viewContainerRef: ViewContainerRef, private dialog: MatDialog,
         private visualizationService: VisualizationService) { }
 
@@ -109,10 +114,12 @@ export class DashboardOptionsComponent implements OnInit {
 
             connection.saveState(stateParams, (response) => {
                 this.handleSaveStateSuccess(response);
+                this.openNotification(name, 'saved');
             }, (response) => {
                 this.handleStateFailure(response);
             });
         }
+        this.sidenav.close();
     }
 
     /*
@@ -136,7 +143,11 @@ export class DashboardOptionsComponent implements OnInit {
             };
             connection.loadState(stateParams, (dashboardState) => {
                 if (_.keys(dashboardState).length) {
+                    // ensure that active dataset matches the one we're attempting to load
+                    dashboardState.dataset.name += ' (' + name + ')';
+                    this.datasetService.setActiveDataset(dashboardState.dataset);
                     this.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
+                    this.openNotification(name, 'loaded');
                 } else {
                     this.errorNotificationService.showErrorMessage(null, 'State ' + name + ' not found.');
                 }
@@ -144,6 +155,7 @@ export class DashboardOptionsComponent implements OnInit {
                 this.handleStateFailure(response);
             });
         }
+        this.sidenav.close();
     }
 
     /*
@@ -158,10 +170,12 @@ export class DashboardOptionsComponent implements OnInit {
         if (connection) {
             connection.deleteState(this.formData.stateToDelete, (stateIds) => {
                 this.loadStateNames();
+                this.openNotification(name, 'deleted');
             }, (response) => {
                 this.handleStateFailure(response);
             });
         }
+        this.sidenav.close();
     }
 
     getDefaultOptionTitle() {
@@ -178,10 +192,7 @@ export class DashboardOptionsComponent implements OnInit {
         this.filterStateId = response.filterStateId;
         this.formData.stateToSave = '';
 
-        // Add/Replace state ids in the url parameters
-        // TODO: Enable after replacing old $location calls with appropriate router calls.
-        // $location.search("dashboard_state_id", response.dashboardStateId);
-        // $location.search("filter_state_id", response.filterStateId);
+        this.parameterService.updateStateParameters(response.dashboardStateId, response.filterStateId);
         this.loadStateNames();
     }
 
@@ -223,5 +234,34 @@ export class DashboardOptionsComponent implements OnInit {
 
     setStateToDelete(name: string) {
         this.formData.stateToDelete = name;
+    }
+
+    openConfirmationDialog() {
+        this.confirmDialogRef = this.dialog.open(ConfirmationDialogComponent, {
+            height: '130px',
+            width: '500px',
+            disableClose: false
+        });
+
+        this.confirmDialogRef.componentInstance.confirmMessage = 'Are you sure you want to delete ';
+        this.confirmDialogRef.componentInstance.cancelText = 'Cancel';
+        this.confirmDialogRef.componentInstance.confirmText = 'Delete';
+        this.confirmDialogRef.componentInstance.target = this.formData.stateToDelete;
+
+        this.confirmDialogRef.afterClosed().subscribe((result) => {
+            if (result) {
+                this.deleteState(this.formData.stateToDelete);
+            }
+            this.confirmDialogRef = null;
+        });
+    }
+
+    public openNotification(stateName: String, actionName: String) {
+        let message = 'State "' + stateName + '" has been ' + actionName;
+        this.snackBar.open(message, 'x', {
+            duration: 5000,
+            verticalPosition: 'top',
+            panelClass: ['simpleSnackBar']
+         });
     }
 }

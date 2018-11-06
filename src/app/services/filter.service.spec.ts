@@ -39,7 +39,7 @@ class TestFilterService extends FilterService {
         super(errorNotificationService, datasetService);
     }
 
-    protected createFilterId(database: string, table: string) {
+    public createFilterId(database: string, table: string) {
         return database + '-' + table + '-' + (this.idCounter++);
     }
 

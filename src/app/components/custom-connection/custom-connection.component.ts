@@ -88,6 +88,10 @@ export class CustomConnectionComponent implements AfterViewInit {
         this.dialogRef.close();
     }
 
+    close() {
+        this.dialogRef.close();
+    }
+
     validateStep() {
         return this.steps.length > 0 ? this.steps[this.currentStepIndex].isStepValid() : false;
     }

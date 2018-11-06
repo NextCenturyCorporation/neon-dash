@@ -27,8 +27,17 @@
 
     &:hover {
         cursor: pointer;
+    }
+}
+
+.document-row-no-highlight-respond {
+    list-style-type: none;
+    border-bottom:grey solid 1px;
+    padding: 5px;
+
+    &:hover {
+        cursor: pointer;
         text-decoration: none;
-        background-color: #b4E2E4!important;
     }
 }
 
@@ -40,10 +49,14 @@
     z-index: 1000; 
 }
 
+
 .visualization-sidenav {
+    overflow: hidden !important;
 
     .body-container {
+        
         top: calc(#{$vis-title-expected-height} - 25px);
+        height: calc(100% - 20px);
 
         &.with-filter {
             top: calc(#{$vis-title-expected-height} + 20px);
@@ -51,10 +64,10 @@
         }
 
         &.with-footer {
-            height: calc(100% - #{$vis-title-expected-height} - 25px);
+            height: calc(100% - #{$footer-height} - 25px);
 
             &.with-filter {
-                height: calc(100% - #{$vis-title-expected-height} - 25px);
+                height: calc(100% - #{$vis-title-expected-height} - #{$footer-height} - 25px);
             }
         }
     }

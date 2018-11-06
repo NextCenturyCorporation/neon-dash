@@ -1,0 +1,9 @@
+#!/bin/bash
+
+
+# Debug the entrypoint.sh script
+#docker run -v ~/Desktop/data:/usr/local/data/geoserver/data --name lorelei -it -p 2222:22 -p 8080:8080 -p 8888:8888 -p 9200:9200 --name lorelei lorelei
+
+# Normal deployment
+docker run -v ~/Desktop/data:/usr/local/data/geoserver/data --name lorelei -d -p 2222:22 -p 8080:8080 -p 8888:8888 -p 9200:9200 --name lorelei lorelei
+

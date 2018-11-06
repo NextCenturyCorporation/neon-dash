@@ -1,0 +1,410 @@
+<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+        <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
+        <span class="fill-remaining"></span>
+        <span #infoText class="info text">
+            <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
+                {{ errorMessage }}
+            </span>
+            <span *ngIf="!errorMessage" class="data-info" [matTooltip]="getButtonText()" tooltip-position="below">
+                {{ getButtonText() }}
+            </span>
+        </span>
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
+            (click)="optionsMenu.toggle();">
+            <mat-icon>settings</mat-icon>
+        </button>
+    </mat-toolbar>
+
+    <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+        <mat-card align="left">
+            <mat-card-content>
+                <div *ngIf="errorMessage">
+                    <label class="icon-with-text error-message" [matTooltip]="errorMessage" tooltip-position="below">
+                        <mat-icon class="neon-icon-small">error</mat-icon>
+                        <span>{{ errorMessage }}</span>
+                    </label>
+                    <p></p>
+                </div>
+
+                <div *ngIf="getButtonText()">
+                    <label class="icon-with-text data-info" [matTooltip]="getButtonText()" tooltip-position="below">
+                        <mat-icon class="neon-icon-small">info</mat-icon>
+                        <span>{{ getButtonText() }}</span>
+                    </label>
+                    <p></p>
+                </div>
+
+                <mat-form-field>
+                    <input matInput placeholder="Title" [(ngModel)]="options.title" required="false">
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Subcomponent Type" [(ngModel)]="options.newType" required="true"
+                        (ngModelChange)="handleChangeSubcomponentType()">
+                        <mat-option *ngFor="let item of subcomponentTypes" [value]="item.type">{{ item.name }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-toolbar color="primary">
+                    <span>Required</span>
+                </mat-toolbar>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Database" [(ngModel)]="options.database" required="true" (ngModelChange)="handleChangeDatabase()"
+                        [disabled]="options.databases.length < 2">
+                        <mat-option *ngFor="let database of options.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Table" [(ngModel)]="options.table" required="true" (ngModelChange)="handleChangeTable()"
+                        [disabled]="options.tables.length < 2">
+                        <mat-option *ngFor="let table of options.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select [placeholder]="getXFieldLabel(options.type)" [(ngModel)]="options.xField" required="true"
+                        (ngModelChange)="handleChangeFilterField()" [disabled]="options.fields.length == 0">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field *ngIf="isXYSubcomponent(options.type)">
+                    <mat-select placeholder="Y Field" [(ngModel)]="options.yField" required="true"
+                        (ngModelChange)="handleChangeFilterField()" [disabled]="options.fields.length == 0">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p *ngIf="isXYSubcomponent(options.type)"></p>
+
+                <mat-toolbar color="primary">
+                    <span>Optional</span>
+                </mat-toolbar>
+                <p></p>
+
+                <mat-form-field *ngIf="!isXYSubcomponent(options.type)">
+                    <mat-select placeholder="Aggregation" [(ngModel)]="options.aggregation" required="true"
+                        (ngModelChange)="handleChangeData()">
+                        <mat-option value="count">Count</mat-option>
+                        <mat-option value="average">Average</mat-option>
+                        <mat-option value="max">Max</mat-option>
+                        <mat-option value="min">Min</mat-option>
+                        <mat-option value="sum">Sum</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p *ngIf="!isXYSubcomponent(options.type)"></p>
+
+                <mat-form-field *ngIf="!isXYSubcomponent(options.type)">
+                    <mat-select placeholder="Aggregation Field" [(ngModel)]="options.aggregationField" required="options.aggregation != 'count'"
+                        (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p *ngIf="!isXYSubcomponent(options.type)"></p>
+
+                <span class="toggle-text" *ngIf="options.xField.type == 'date'">Date Fill</span>
+                <mat-button-toggle-group *ngIf="options.xField.type == 'date'" class="neon-button-toggle-group-small"
+                    [(ngModel)]="options.timeFill" (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p *ngIf="options.xField.type == 'date'"></p>
+
+                <mat-form-field *ngIf="options.xField.type == 'date'">
+                    <mat-select placeholder="Date Granularity" [(ngModel)]="options.granularity" required="true"
+                        (ngModelChange)="handleChangeData()">
+                        <mat-option value="year">Year</mat-option>
+                        <mat-option value="month">Month</mat-option>
+                        <mat-option value="day">Day</mat-option>
+                        <mat-option value="hour">Hour</mat-option>
+                        <mat-option value="minute">Minute</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p *ngIf="options.xField.type == 'date'"></p>
+
+                <mat-form-field *ngIf="allowDualView(options.type)">
+                    <mat-select placeholder="Dual View" [(ngModel)]="options.dualView" required="false"
+                        (ngModelChange)="redrawSubcomponents()">
+                        <mat-option [value]="''">Always Off</mat-option>
+                        <mat-option [value]="'on'">Always On</mat-option>
+                        <mat-option [value]="'filter'">Only On Filter</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p *ngIf="allowDualView(options.type)"></p>
+
+                <span class="toggle-text">Filterable</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.notFilterable"
+                    (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="false">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="true">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text">Filter Operator</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.requireAll"
+                    (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="false">OR</mat-button-toggle>
+                    <mat-button-toggle [value]="true">AND</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text">Filter Self</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.ignoreSelf"
+                    (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="false">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="true">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text" *ngIf="isScaled(options.type)">Grid Lines</span>
+                <mat-button-toggle-group *ngIf="isScaled(options.type)" class="neon-button-toggle-group-small"
+                    [(ngModel)]="options.hideGridLines" (ngModelChange)="refreshVisualization()">
+                    <mat-button-toggle [value]="false">Show</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Hide</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p *ngIf="isScaled(options.type)"></p>
+
+                <span class="toggle-text" *ngIf="isScaled(options.type)">Grid Ticks</span>
+                <mat-button-toggle-group *ngIf="isScaled(options.type)" class="neon-button-toggle-group-small"
+                    [(ngModel)]="options.hideGridTicks" (ngModelChange)="refreshVisualization()">
+                    <mat-button-toggle [value]="false">Show</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Hide</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p *ngIf="isScaled(options.type)"></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Group Field" [(ngModel)]="options.groupField" required="false"
+                        (ngModelChange)="handleChangeFilterField()" [disabled]="options.fields.length == 0">
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <div mat-fill class="flex center">
+                    <mat-form-field>
+                        <input matInput placeholder="Limit" [(ngModel)]="options.newLimit" required="true"
+                            (keyup.enter)="handleChangeLimit()">
+                    </mat-form-field>
+
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below"
+                        (click)="handleChangeLimit()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </div>
+                <p></p>
+
+                <mat-form-field *ngIf="options.type == 'line' || options.type == 'line-xy'">
+                    <mat-select placeholder="Line Curve Tension" [(ngModel)]="options.lineCurveTension" required="false"
+                        (ngModelChange)="refreshVisualization()">
+                        <mat-option [value]="0.0">0%</mat-option>
+                        <mat-option [value]="0.1">10%</mat-option>
+                        <mat-option [value]="0.2">20%</mat-option>
+                        <mat-option [value]="0.3">30%</mat-option>
+                        <mat-option [value]="0.4">40%</mat-option>
+                        <mat-option [value]="0.5">50%</mat-option>
+                        <mat-option [value]="0.6">60%</mat-option>
+                        <mat-option [value]="0.7">70%</mat-option>
+                        <mat-option [value]="0.8">80%</mat-option>
+                        <mat-option [value]="0.9">90%</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p *ngIf="options.type == 'line' || options.type == 'line-xy'"></p>
+
+                <span class="toggle-text" *ngIf="options.type == 'line' || options.type == 'line-xy'">Line Fill Area Under Curve</span>
+                <mat-button-toggle-group *ngIf="options.type == 'line' || options.type == 'line-xy'" class="neon-button-toggle-group-small"
+                    [(ngModel)]="options.lineFillArea" (ngModelChange)="refreshVisualization()">
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p *ngIf="options.type == 'line' || options.type == 'line-xy'"></p>
+
+                <span class="toggle-text" *ngIf="isScaled(options.type)">Log X Scale</span>
+                <mat-button-toggle-group *ngIf="isScaled(options.type)" class="neon-button-toggle-group-small"
+                    [(ngModel)]="options.logScaleX" (ngModelChange)="refreshVisualization()">
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p *ngIf="isScaled(options.type)"></p>
+
+                <span class="toggle-text" *ngIf="isScaled(options.type)">Log Y Scale</span>
+                <mat-button-toggle-group *ngIf="isScaled(options.type)" class="neon-button-toggle-group-small"
+                    [(ngModel)]="options.logScaleY" (ngModelChange)="refreshVisualization()">
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p *ngIf="isScaled(options.type)"></p>
+
+                <span class="toggle-text">Save Previously Seen</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.savePrevious"
+                    (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text" *ngIf="isScaled(options.type)">Manual Scales</span>
+                <div mat-fill class="flex center" *ngIf="isScaled(options.type)">
+                    <mat-form-field>
+                        <input matInput placeholder="X Scale Min" [(ngModel)]="options.scaleMinX" required="false"
+                            (keyup.enter)="refreshVisualization()">
+                    </mat-form-field>
+
+                    <mat-form-field>
+                        <input matInput placeholder="X Scale Max" [(ngModel)]="options.scaleMaxX" required="false"
+                            (keyup.enter)="refreshVisualization()">
+                    </mat-form-field>
+
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below"
+                        (click)="refreshVisualization()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </div>
+                <div mat-fill class="flex center" *ngIf="isScaled(options.type)">
+                    <mat-form-field>
+                        <input matInput placeholder="Y Scale Min" [(ngModel)]="options.scaleMinY" required="false"
+                            (keyup.enter)="refreshVisualization()">
+                    </mat-form-field>
+
+                    <mat-form-field>
+                        <input matInput placeholder="Y Scale Max" [(ngModel)]="options.scaleMaxY" required="false"
+                            (keyup.enter)="refreshVisualization()">
+                    </mat-form-field>
+
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below"
+                        (click)="refreshVisualization()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </div>
+                <p></p>
+
+                <span class="toggle-text" *ngIf="options.type === 'list'">Show Heated List</span>
+                <mat-button-toggle-group *ngIf="options.type === 'list'" class="neon-button-toggle-group-small"
+                    [(ngModel)]="options.showHeat" (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p *ngIf="options.type === 'list'"></p>
+
+                <span class="toggle-text" *ngIf="options.type === 'list' && options.sortByAggregation">Show Heat with Manual Scales</span>
+                <div mat-fill class="flex center" *ngIf="options.type === 'list' && options.sortByAggregation">
+                    <mat-form-field>
+                        <input matInput placeholder="Heat Scale Min" [(ngModel)]="options.scaleMinY" required="false"
+                            (keyup.enter)="refreshVisualization()">
+                    </mat-form-field>
+
+                    <mat-form-field>
+                        <input matInput placeholder="Heat Scale Max" [(ngModel)]="options.scaleMaxY" required="false"
+                            (keyup.enter)="refreshVisualization()">
+                    </mat-form-field>
+
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below"
+                        (click)="refreshVisualization()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </div>
+                <p *ngIf="options.type === 'list' && options.sortByAggregation"></p>
+
+                <span class="toggle-text" *ngIf="!isContinuous(options.type)">Sort By</span>
+                <mat-button-toggle-group *ngIf="!isContinuous(options.type)" class="neon-button-toggle-group-small"
+                    [(ngModel)]="options.sortByAggregation" (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="false">Label</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Aggregation</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p *ngIf="!isContinuous(options.type)"></p>
+
+                <mat-form-field *ngIf="isScaled(options.type)">
+                    <mat-select placeholder="Y-Axis Max Width" [(ngModel)]="options.yPercentage" required="false"
+                        (ngModelChange)="refreshVisualization()">
+                        <mat-option [value]="0.1">10%</mat-option>
+                        <mat-option [value]="0.2">20%</mat-option>
+                        <mat-option [value]="0.3">30%</mat-option>
+                        <mat-option [value]="0.4">40%</mat-option>
+                        <mat-option [value]="0.5">50%</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p *ngIf="isScaled(options.type)"></p>
+
+                <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()"
+                    (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
+                <p></p>
+
+                <app-export-control [exportId]="exportId"></app-export-control>
+            </mat-card-content>
+        </mat-card>
+    </mat-sidenav>
+
+    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+        <mat-spinner></mat-spinner>
+    </div>
+
+    <div class="filter-container" *ngIf="showHeaderContainer()">
+        <app-legend *ngIf="showLegend()" [activeList]="legendActiveGroups" [fieldNames]="legendFields"
+            (itemSelected)="handleLegendItemSelected($event)"></app-legend>
+
+        <div class="filter-reset" *ngFor="let filter of groupFilters">
+            <span class="filter-label" [matTooltip]="createFilterPrettyText(filter)" tooltip-position="below">
+                {{ filter.label || 'Filter' }}
+            </span>
+            <button mat-icon-button class="neon-icon-button-small" aria-label="Close"
+                [matTooltip]="'Delete Filter ' + createFilterPrettyText(filter)" tooltip-position="below"
+                (click)="toggleFilter(groupFilters, filter)">
+                <mat-icon class="neon-icon-small">close</mat-icon>
+            </button>
+        </div>
+
+        <div class="filter-reset" *ngFor="let filter of valueFilters">
+            <span class="filter-label" [matTooltip]="createFilterPrettyText(filter)" tooltip-position="below">
+                {{ filter.label || 'Filter' }}
+            </span>
+            <button mat-icon-button class="neon-icon-button-small" aria-label="Close"
+                [matTooltip]="'Delete Filter ' + createFilterPrettyText(filter)" tooltip-position="below"
+                (click)="toggleFilter(valueFilters, filter)">
+                <mat-icon class="neon-icon-small">close</mat-icon>
+            </button>
+        </div>
+    </div>
+
+    <div class="body-container" [class.with-filter]="showHeaderContainer()" [class.with-footer]="showFooterContainer()">
+        <div class="subcomponent-container zoom" [class.hide]="!showBothViews()" [style.minHeight.px]="minimumDimensionsZoom.height"
+            [style.minWidth.px]="minimumDimensionsZoom.width" (click)="stopEventPropagation($event)">
+
+            <div #subcomponentZoom class="subcomponent-element"></div>
+        </div>
+
+        <div class="subcomponent-container" [class.main]="showBothViews()" [style.minHeight.px]="minimumDimensionsMain.height"
+            [style.minWidth.px]="minimumDimensionsMain.width" (click)="stopEventPropagation($event)">
+
+            <div class="subcomponent-selection" *ngIf="selectedArea" [style.width.px]="selectedArea.width"
+                [style.height.px]="selectedArea.height" [style.left.px]="selectedAreaOffset.x + selectedArea.x"
+                [style.top.px]="selectedAreaOffset.y + selectedArea.y"></div>
+
+            <div #subcomponentMain class="subcomponent-element"></div>
+        </div>
+    </div>
+
+    <div class="footer" *ngIf="showFooterContainer()">
+        <div class="footer-button-container">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
+                (click)="goToPreviousPage()">
+                Previous
+            </button>
+            <span class="pagination-button-spacer"></span>
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary"
+                (click)="goToNextPage()">
+                Next
+            </button>
+        </div>
+    </div>
+
+    <canvas #hiddenCanvas class="hidden-canvas"></canvas>
+</mat-sidenav-container>

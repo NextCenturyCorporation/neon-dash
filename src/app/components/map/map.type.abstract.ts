@@ -36,6 +36,8 @@ export class BoundingBoxByDegrees {
 
 export class MapPoint {
     constructor(
+        public idValue: string,
+        public idList: string[],
         public name: string,
         public lat: number,
         public lng: number,
@@ -43,12 +45,14 @@ export class MapPoint {
         public cssColorString: string,
         public description: string,
         public colorByField: string,
-        public colorByValue: string
+        public colorByValue: string,
+        public hoverPopupMap: Map<string, number>
     ) {}
 }
 
 export interface FilterListener {
     filterByLocation(box: BoundingBoxByDegrees);
+    filterByMapPoint(lat: number, lng: number);
 }
 
 export abstract class AbstractMap {

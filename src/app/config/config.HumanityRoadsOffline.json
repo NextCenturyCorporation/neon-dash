@@ -1,0 +1,1768 @@
+{
+    "datasets": [{
+            "name": "DARPA60: Uyghur LDC Situation Discovery",
+            "connectOnLoad": true,
+            "layout": "uyghur-ldc-sd",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [{
+                "name": "ldc_uyg_jul_18",
+                "prettyName": "Uyghur LDC, July 2018",
+                "tables": [{
+                    "name": "ui_out",
+                    "prettyName": "UI out",
+                    "fields": [{
+                            "columnName": "createdDate",
+                            "prettyName": "Date Created"
+                        },
+                        {
+                            "columnName": "topic",
+                            "prettyName": "Need Type"
+                        },
+                        {
+                            "columnName": "location",
+                            "prettyName": "Location"
+                        },
+                        {
+                            "columnName": "status",
+                            "prettyName": "Status"
+                        },
+                        {
+                            "columnName": "translatedText",
+                            "prettyName": "Translated Text"
+                        },
+                        {
+                            "columnName": "originalText",
+                            "prettyName": "Original Text"
+                        }
+                    ],
+                    "labelOptions": {
+                        "topic": {
+                            "food": "Food",
+                            "water": "Water",
+                            "shelter": "Shelter",
+                            "med": "Medicine",
+                            "search": "Search and Rescue",
+                            "evac": "Evacuation",
+                            "infra": "Infrastructure",
+                            "utils": "Utilities",
+                            "crimeviolence": "Crime /  Violence",
+                            "terrorism": "Terrorism",
+                            "regimechange": "Regime Change"
+                        }
+                    },
+                    "mappings": {
+                        "date": "createDate"
+                    }
+                }]
+            }],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "simpleFilter": {
+                    "databaseName": "ldc_uyg_jul_18",
+                    "tableName": "ui_out",
+                    "fieldName": "translatedText",
+                    "placeHolder": "Search"
+                }
+            }
+        },
+        {
+            "name": "DARPA60: Uyghur ELISA Situation Discovery",
+            "connectOnLoad": false,
+            "layout": "uyghur-elisa-sd",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [{
+                "name": "uyg_elisa_sd",
+                "prettyName": "Uyghur ELISA",
+                "tables": [{
+                    "name": "ui_out",
+                    "prettyName": "ui_out",
+                    "fields": [{
+                            "columnName": "createdAt",
+                            "prettyName": "Date Created"
+                        },
+                        {
+                            "columnName": "location",
+                            "prettyName": "Location"
+                        },
+                        {
+                            "columnName": "JustificationEN",
+                            "prettyName": "Translated Text"
+                        },
+                        {
+                            "columnName": "JustificationIL",
+                            "prettyName": "Original Text"
+                        }
+                    ],
+                    "labelOptions": {
+                        "Type": {
+                            "food": "Food",
+                            "water": "Water",
+                            "shelter": "Shelter",
+                            "med": "Medicine",
+                            "search": "Search and Rescue",
+                            "evac": "Evacuation",
+                            "infra": "Infrastructure",
+                            "utils": "Utilities",
+                            "crimeviolence": "Crime / Violence",
+                            "terrorism": "Terrorism",
+                            "regimechange": "Regime Change"
+                        }
+                    },
+                    "mappings": {
+                        "date": "createdAt"
+                    }
+                }]
+            }],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "simpleFilter": {
+                    "databaseName": "uyg_elisa_sd",
+                    "tableName": "ui_out",
+                    "fieldName": "JustificationEN",
+                    "placeHolder": "Search"
+                }
+            }
+        },
+        {
+            "name": "DARPA60: Nepal ELISA Situation Discovery",
+            "connectOnLoad": false,
+            "layout": "nepal-elisa-sd",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [{
+                "name": "ll_nepal_07_11_3",
+                "prettyName": "Nepal 07_11_3",
+                "tables": [{
+                    "name": "annotations",
+                    "prettyName": "Annotations",
+                    "fields": [{
+                            "columnName": "createdAt",
+                            "prettyName": "Date Created"
+                        },
+                        {
+                            "columnName": "topic",
+                            "prettyName": "Need Type"
+                        },
+                        {
+                            "columnName": "location",
+                            "prettyName": "Location"
+                        },
+                        {
+                            "columnName": "status",
+                            "prettyName": "Status"
+                        },
+                        {
+                            "columnName": "translatedText",
+                            "prettyName": "Translated Text"
+                        },
+                        {
+                            "columnName": "originalText",
+                            "prettyName": "Original Text"
+                        }
+                    ],
+                    "labelOptions": {
+                        "topic": {
+                            "food": "Food",
+                            "water": "Water",
+                            "shelter": "Shelter",
+                            "med": "Medicine",
+                            "search": "Search and Rescue",
+                            "evac": "Evacuation",
+                            "infra": "Infrastructure",
+                            "utils": "Utilities",
+                            "crimeviolence": "Crime /  Violence",
+                            "terrorism": "Terrorism",
+                            "regimechange": "Regime Change"
+                        }
+                    },
+                    "mappings": {
+                        "date": "createdAt"
+                    }
+                }]
+            }],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "simpleFilter": {
+                    "databaseName": "ll_nepal_07_11_3",
+                    "tableName": "annotations",
+                    "fieldName": "originalText",
+                    "placeHolder": "Search"
+                }
+            }
+        },
+        {
+            "name": "DARPA60 Central African Republic ELISA Situation Discovery",
+            "connectOnLoad": false,
+            "layout": "car-elisa-sd",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [{
+                "name": "elisa_car_1",
+                "prettyName": "ELISA Central African Republic Data",
+                "tables": [{
+                    "name": "annotations",
+                    "prettyName": "Annotations",
+                    "fields": [{
+                            "columnName": "createdAt",
+                            "prettyName": "Date Created"
+                        },
+                        {
+                            "columnName": "topic",
+                            "prettyName": "Need Type"
+                        },
+                        {
+                            "columnName": "location",
+                            "prettyName": "Location"
+                        },
+                        {
+                            "columnName": "status",
+                            "prettyName": "Status"
+                        },
+                        {
+                            "columnName": "JustificationEN",
+                            "prettyName": "Original Text"
+                        }
+                    ],
+                    "mappings": {
+                        "date": "createdAt"
+                    },
+                    "labelOptions": {
+                        "Type": {
+                            "food": "Food",
+                            "water": "Water",
+                            "shelter": "Shelter",
+                            "med": "Medicine",
+                            "search": "Search and Rescue",
+                            "evac": "Evacuation",
+                            "infra": "Infrastructure",
+                            "utils": "Utilities",
+                            "crimeviolence": "Crime /  Violence",
+                            "terrorism": "Terrorism",
+                            "regimechange": "Regime Change"
+                        }
+                    }
+                }]
+            }],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "colorMaps": {
+                    "elisa_car_1": {
+                        "mapping": {
+                            "entities.type": {
+                                "LOC": "#98DF8A",
+                                "ORG": "#FF9896",
+                                "PER": "#AEC7E8",
+                                "GPE": "#98DF8A"
+                            },
+                            "types": {}
+                        }
+                    }
+                },
+                "simpleFilter": {
+                    "databaseName": "elisa_car_1",
+                    "tableName": "annotations",
+                    "fieldName": "JustificationEN",
+                    "placeHolder": "Search"
+                }
+            }
+        },
+        {
+            "name": "DEV: Nepal ELISA Situation Awareness",
+            "connectOnLoad": false,
+            "layout": "nepal-elisa-sa",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [{
+                "name": "ll_nepal_06_14",
+                "prettyName": "Nepal Earthquake 2015, ELISA Annotations",
+                "tables": [{
+                        "name": "annotations",
+                        "prettyName": "Annotations",
+                        "mappings": {
+                            "date": "createdAt"
+                        }
+                    },
+                    {
+                        "name": "situations",
+                        "prettyName": "Situations",
+                        "mappings": {}
+                    }
+                ]
+            }],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "simpleFilter": {
+                    "databaseName": "ll_nepal_06_14",
+                    "tableName": "annotations",
+                    "fieldName": "originalText",
+                    "placeHolder": "Search"
+                }
+            },
+            "relations": [{
+                    "members": [{
+                            "database": "ll_nepal_06_14",
+                            "table": "situations",
+                            "field": "documents"
+                        },
+                        {
+                            "database": "ll_nepal_06_14",
+                            "table": "annotations",
+                            "field": "id"
+                        }
+                    ]
+                },
+                {
+                    "members": [{
+                            "database": "ll_nepal_06_14",
+                            "table": "situations",
+                            "field": "topic"
+                        },
+                        {
+                            "database": "ll_nepal_06_14",
+                            "table": "annotations",
+                            "field": "llAnnotation.Type"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "DEV: Nepal ELISA Human Terrain",
+            "connectOnLoad": false,
+            "layout": "human-terrain",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [{
+                "name": "ll_nepal_06_14_2",
+                "prettyName": "Human Terrain",
+                "tables": [{
+                    "name": "annotations1Author",
+                    "prettyName": "Annotations",
+                    "mappings": {
+                        "date": "createdAt"
+                    }
+                }]
+            }],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "colorMaps": {
+                    "ll_nepal_simplified": {
+                        "mapping": {
+                            "entities.entityType": {
+                                "LOC": "#98DF8A",
+                                "ORG": "#FF9896",
+                                "PER": "#AEC7E8"
+                            },
+                            "types": {
+
+                            }
+                        }
+                    }
+                },
+                "simpleFilter": {
+                    "databaseName": "ll_nepal_06_14_2",
+                    "tableName": "annotations1Author",
+                    "fieldName": "translatedText",
+                    "placeHolder": "Search"
+                }
+            }
+        }
+    ],
+    "layouts": {
+        "uyghur-ldc-sd": [{
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 1,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 14,
+                "bindings": {
+                    "title": "Document Feed",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "ui_out",
+                    "idField": "_id",
+                    "sortField": "createdDate",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "createdDate",
+                        "originalText"
+                    ],
+                    "customColumnWidths": [
+                        ["createdDate", 15],
+                        ["originalText", 360]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false,
+                    "checkDuplicateField": "originalText"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 7,
+                "minSizey": 3
+            },
+            {
+                "name": "Map",
+                "type": "map",
+                "icon": "Map64",
+                "col": 5,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 9,
+                "bindings": {
+                    "title": "Locations",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "annotations",
+                    "filterable": true,
+                    "name": "EVENTS",
+                    "show": true,
+                    "type": "cluster",
+                    "limit": 5000,
+                    "layers": [{
+                        "title": "Map",
+                        "database": "ldc_uyg_jul_18",
+                        "table": "ui_out",
+                        "latitudeField": "geoLocation.lat",
+                        "longitudeField": "geoLocation.lon",
+                        "dateField": "createdDate",
+                        "colorField": "topic"
+                    }],
+                    "customServer": {
+                        "useCustomServer": true,
+                        "mapUrl": "http://localhost:8080/geoserver/offline/wms",
+                        "layer": " offline:NE2_HR_LC_SR_W_DR"
+                    },
+                    "mapType": "leaflet",
+                    "west": 30.5,
+                    "north": 49,
+                    "east": 127,
+                    "south": 10.6
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+            },
+            {
+                "name": "Bar Chart",
+                "type": "barChart",
+                "icon": "BarChart64",
+                "col": 5,
+                "row": 9,
+                "sizex": 4,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Need Type",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "ui_out",
+                    "dataField": "topic",
+                    "limit": 11,
+                    "chartType": "horizontalBar",
+                    "colorField": "topic"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 3
+            },
+            {
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 9,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 9,
+                "bindings": {
+                    "title": "Situation Frames",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "ui_out",
+                    "sortField": "createdDate",
+                    "idField": "_id",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "createdDate",
+                        "topic",
+                        "location"
+                    ],
+                    "customColumnWidths": [
+                        ["createdDate", 25],
+                        ["topic", 100],
+                        ["location", 150]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["_id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false,
+                    "checkDuplicateField": "originalText"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+
+            },
+            {
+                "name": "Annotation Viewer",
+                "type": "annotationViewer",
+                "icon": "documentViewer64",
+                "col": 9,
+                "row": 10,
+                "sizex": 2,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Original Text",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "ui_output",
+                    "linkField": "originalText",
+                    "idField": "_id",
+                    "respondMode": "true"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 3
+            },
+            {
+                "name": "Annotation Viewer",
+                "type": "annotationViewer",
+                "icon": "documentViewer64",
+                "col": 11,
+                "row": 10,
+                "sizex": 2,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Translated Text",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "ui_output",
+                    "linkField": "translatedText",
+                    "idField": "_id",
+                    "respondMode": "true"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 3
+            },
+            {
+                "name": "Filter Builder",
+                "type": "filterBuilder",
+                "icon": "CreateFilter64",
+                "col": 1,
+                "row": 14,
+                "sizex": 6,
+                "sizey": 4,
+                "bindings": {
+                    "title": "Filter Builder",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "ui_output"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 2
+            },
+            {
+                "name": "Text Cloud",
+                "type": "textCloud",
+                "icon": "TagCloud64",
+                "col": 7,
+                "row": 14,
+                "sizex": 6,
+                "sizey": 4,
+                "$$hashKey": "object:35",
+                "selected": true,
+                "bindings": {
+                    "title": "Locations",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "ui_output",
+                    "dataField": "location",
+                    "preFilter": false
+                },
+                "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+            }
+        ],
+        "uyghur-elisa-sd": [{
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 1,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 14,
+                "bindings": {
+                    "title": "Document Feed",
+                    "database": "uyg_elisa_sd",
+                    "table": "ui_out",
+                    "idField": "_id",
+                    "sortField": "createdAt",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "createdAt",
+                        "JustificationIL"
+                    ],
+                    "customColumnWidths": [
+                        ["createdAt", 15],
+                        ["JustificationIL", 360]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false,
+                    "checkDuplicateField": "JustificationIL"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 7,
+                "minSizey": 3
+            },
+            {
+                "name": "Map",
+                "type": "map",
+                "icon": "Map64",
+                "col": 5,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 9,
+                "bindings": {
+                    "title": "Locations",
+                    "database": "uyg_elisa_sd",
+                    "table": "ui_out",
+                    "filterable": true,
+                    "name": "EVENTS",
+                    "show": true,
+                    "type": "cluster",
+                    "limit": 5000,
+                    "layers": [{
+                        "title": "Map",
+                        "database": "uyg_elisa_sd",
+                        "table": "ui_out",
+                        "latitudeField": "geoLocation.lat",
+                        "longitudeField": "geoLocation.lon",
+                        "dateField": "createdDate",
+                        "colorField": "Type"
+                    }],
+                    "customServer": {
+                        "useCustomServer": true,
+                        "mapUrl": "http://localhost:8080/geoserver/offline/wms",
+                        "layer": " offline:NE2_HR_LC_SR_W_DR"
+                    },
+                    "mapType": "leaflet",
+                    "west": 30.5,
+                    "north": 49,
+                    "east": 127,
+                    "south": 10.6
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+            },
+            {
+                "name": "Bar Chart",
+                "type": "barChart",
+                "icon": "BarChart64",
+                "col": 5,
+                "row": 9,
+                "sizex": 4,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Topics",
+                    "database": "uyg_elisa_sd",
+                    "table": "ui_out",
+                    "dataField": "Type",
+                    "limit": 101,
+                    "chartType": "horizontalBar",
+                    "colorField": "Type"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 3
+            },
+            {
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 9,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 9,
+                "bindings": {
+                    "title": "Situation Frames",
+                    "database": "uyg_elisa_sd",
+                    "table": "ui_out",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "sortField": "createdAt",
+                    "idField": "_id",
+                    "exceptionsToStatus": [
+                        "createdAt",
+                        "Type",
+                        "location"
+                    ],
+                    "customColumnWidths": [
+                        ["createdAt", 25],
+                        ["Type", 100],
+                        ["Status", 150]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+            },
+            {
+                "name": "Annotation Viewer",
+                "type": "annotationViewer",
+                "icon": "documentViewer64",
+                "col": 9,
+                "row": 10,
+                "sizex": 2,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Original Text",
+                    "database": "uyg_elisa_sd",
+                    "table": "ui_out",
+                    "linkField": "JustificationIL",
+                    "idField": "_id",
+                    "respondMode": "true"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 3
+            },
+            {
+                "name": "Annotation Viewer",
+                "type": "annotationViewer",
+                "icon": "documentViewer64",
+                "col": 11,
+                "row": 10,
+                "sizex": 2,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Translated Text",
+                    "database": "uyg_elisa_sd",
+                    "table": "ui_out",
+                    "linkField": "JustificationEN",
+                    "idField": "_id",
+                    "respondMode": "true"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 3
+            },
+            {
+                "name": "Filter Builder",
+                "type": "filterBuilder",
+                "icon": "CreateFilter64",
+                "col": 1,
+                "row": 14,
+                "sizex": 6,
+                "sizey": 4,
+                "bindings": {
+                    "title": "Filter Builder",
+                    "database": "uyg_elisa_sd",
+                    "table": "ui_out"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 2
+            },
+            {
+                "name": "Text Cloud",
+                "type": "textCloud",
+                "icon": "TagCloud64",
+                "col": 7,
+                "row": 14,
+                "sizex": 6,
+                "sizey": 4,
+                "$$hashKey": "object:35",
+                "selected": true,
+                "bindings": {
+                    "title": "Locations",
+                    "database": "uyg_elisa_sd",
+                    "table": "ui_out",
+                    "dataField": "location",
+                    "preFilter": false
+                },
+                "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+
+            }
+        ],
+        "nepal-elisa-sd": [{
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 1,
+                "sizex": 4,
+                "row": 1,
+                "sizey": 14,
+                "bindings": {
+                    "title": "Documents",
+                    "database": "ll_nepal_07_11_3",
+                    "table": "annotations",
+                    "idField": "_id",
+                    "sortField": "createdAt",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "createdAt",
+                        "originalText"
+                    ],
+                    "customColumnWidths": [
+                        ["createdAt", 15],
+                        ["originalText", 360]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false,
+                    "checkDuplicateField": "originalText"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 7,
+                "minSizey": 3
+            },
+            {
+                "name": "Map",
+                "type": "map",
+                "icon": "Map64",
+                "col": 5,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 9,
+                "bindings": {
+                    "title": "Locations",
+                    "database": "ll_nepal_07_11_3",
+                    "table": "annotations",
+                    "filterable": true,
+                    "name": "EVENTS",
+                    "show": true,
+                    "type": "cluster",
+                    "limit": 5000,
+                    "layers": [{
+                        "title": "Map",
+                        "database": "ll_nepal_07_11_3",
+                        "table": "annotations",
+                        "latitudeField": "geoLocation.lat",
+                        "longitudeField": "geoLocation.lon",
+                        "dateField": "createdDate",
+                        "colorField": "topic"
+                    }],
+                    "customServer": {
+                        "useCustomServer": true,
+                        "mapUrl": "http://localhost:8080/geoserver/offline/wms",
+                        "layer": " offline:NE2_HR_LC_SR_W_DR"
+                    },
+                    "mapType": "leaflet"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+            },
+            {
+                "name": "Bar Chart",
+                "type": "barChart",
+                "icon": "BarChart64",
+                "col": 5,
+                "row": 9,
+                "sizex": 4,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Topics",
+                    "database": "ll_nepal_07_11_3",
+                    "table": "annotations",
+                    "dataField": "topic",
+                    "limit": 10,
+                    "chartType": "horizontalBar",
+                    "colorField": "topic"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 3
+            },
+            {
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 9,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 9,
+                "bindings": {
+                    "title": "Situation Frames",
+                    "database": "ll_nepal_07_11_3",
+                    "table": "annotations",
+                    "idField": "_id",
+                    "sortField": "createdAt",
+                    "limit": 100,
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "createdAt",
+                        "topic",
+                        "location",
+                        "mediaEntities.displayURL"
+                    ],
+                    "customColumnWidths": [
+                        ["createdAt", 122],
+                        ["location", 100],
+                        ["topic", 85],
+                        ["mediaEntities.displayURL", 85]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 7,
+                "minSizey": 3
+            },
+            {
+                "name": "Annotation Viewer",
+                "type": "annotationViewer",
+                "icon": "documentViewer64",
+                "col": 9,
+                "row": 8,
+                "sizex": 2,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Selected Text",
+                    "database": "ll_nepal_07_11_3",
+                    "table": "annotations",
+                    "linkField": "originalText",
+                    "idField": "_id",
+                    "respondMode": "true"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 3
+            },
+            {
+                "name": "Media Viewer",
+                "type": "mediaViewer",
+                "icon": "mediaViewer",
+                "col": 11,
+                "row": 8,
+                "sizex": 2,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Media Viewer",
+                    "database": "ll_nepal_07_11_3",
+                    "table": "annotations",
+                    "id": "_id",
+                    "idField": "_id",
+                    "linkField": "mediaEntities.mediaURLHttps",
+                    "linkPrefix": "http://0.0.0.0:8000/ll_nepal_08_14/",
+                    "resize": true,
+                    "maxHeight": 500,
+                    "maxWidth": 540,
+                    "typeMap": {
+                        "bmp": "img",
+                        "jpg": "img",
+                        "jpeg": "img",
+                        "png": "img"
+                    }
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 4
+            },
+            {
+                "name": "Filter Builder",
+                "type": "filterBuilder",
+                "icon": "CreateFilter64",
+                "col": 1,
+                "row": 14,
+                "sizex": 6,
+                "sizey": 4,
+                "bindings": {
+                    "title": "Filter Builder",
+                    "database": "ll_nepal_07_11_3",
+                    "table": "annotations"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 2
+            },
+            {
+                "name": "Text Cloud",
+                "type": "textCloud",
+                "icon": "TagCloud64",
+                "col": 7,
+                "row": 14,
+                "sizex": 6,
+                "sizey": 4,
+                "$$hashKey": "object:35",
+                "selected": true,
+                "bindings": {
+                    "title": "Locations",
+                    "database": "ll_nepal_07_11_3",
+                    "table": "annotations",
+                    "dataField": "location",
+                    "preFilter": false
+                },
+                "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+            }
+        ],
+        "car-elisa-sd": [{
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "sizex": 4,
+                "sizey": 14,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 7,
+                "minSizey": 3,
+                "$$hashKey": "object:43",
+                "selected": true,
+                "bindings": {
+                    "title": "Document Feed",
+                    "database": "elisa_car_1",
+                    "table": "annotations",
+                    "idField": "_id",
+                    "sortField": "createdAt",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "Date Created",
+                        "JustificationEN"
+                    ],
+                    "customColumnWidths": [
+                        ["Date Created", 10],
+                        ["JustificationEN", 360]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false
+                },
+                "row": 1,
+                "col": 1
+            },
+            {
+                "name": "Map",
+                "type": "map",
+                "icon": "Map64",
+                "sizex": 4,
+                "sizey": 9,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5,
+                "$$hashKey": "object:29",
+                "selected": true,
+                "bindings": {
+                    "title": "Locations",
+                    "database": "elisa_car_1",
+                    "filterable": true,
+                    "name": "EVENTS",
+                    "show": true,
+                    "table": "annotations",
+                    "type": "cluster",
+                    "limit": 5000,
+                    "latitudeField": "geoLocation.lat",
+                    "longitudeField": "geoLocation.lon",
+                    "sourceLatitudeField": "",
+                    "sourceLongitudeField": "",
+                    "targetLatitudeField": "",
+                    "targetLongitudeField": "",
+                    "colorField": "",
+                    "colorMapping": [{
+                            "match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
+                            "label": "Need",
+                            "color": "rgb(0,255,0)"
+                        },
+                        {
+                            "match": "(?=.*evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?=.*regimechange|crimeviolence|terrorism|earthquake).*",
+                            "label": "Need and Issue",
+                            "color": "rgb(255,255,0)"
+                        },
+                        {
+                            "match": "(regimechange|crimeviolence|terrorism|earthquake)(?!=.*(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing))",
+                            "label": "Issue",
+                            "color": "rgb(255,0,0)"
+                        }
+                    ],
+                    "dateField": "createdAt",
+                    "sizeField": "",
+                    "idField": "",
+                    "colorCode": "",
+                    "lineColorField": "",
+                    "nodeColorField": "",
+                    "lineSizeField": "",
+                    "nodeSizeField": "",
+                    "lineColorCode": "",
+                    "nodeColorCode": "",
+                    "gradientColorCode1": "",
+                    "gradientColorCode2": "",
+                    "gradientColorCode3": "",
+                    "gradientColorCode4": "",
+                    "gradientColorCode5": "",
+                    "applyTransientDateFilter": false,
+                    "popupFields": [
+                        "JustificationEN"
+                    ],
+                    "layers": [{
+                        "title": "NepalEarthquake 2015 Documents Point Layer",
+                        "database": "elisa_car_1",
+                        "table": "annotations",
+                        "latitudeField": "geoLocation.lat",
+                        "longitudeField": "geoLocation.lon",
+                        "dateField": "createdAt",
+                        "colorField": "Type"
+                    }],
+                    "west": 16.0,
+                    "east": 22.32982,
+                    "north": 7.245497,
+                    "south": 4.778990,
+                    "customServer": {
+                        "useCustomServer": true,
+                        "mapUrl": "http://localhost:8080/geoserver/offline/wms",
+                        "layer": " offline:NE2_HR_LC_SR_W_DR"
+                    },
+                    "mapType": "leaflet"
+                },
+                "id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
+                "row": 1,
+                "col": 5
+            },
+            {
+                "name": "Bar Chart",
+                "type": "barChart",
+                "icon": "BarChart64",
+                "sizex": 4,
+                "sizey": 5,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 3,
+                "$$hashKey": "object:30",
+                "selected": true,
+                "bindings": {
+                    "title": "Situation Types",
+                    "database": "elisa_car_1",
+                    "table": "annotations",
+                    "dataField": "Type",
+                    "colorField": "Type",
+                    "chartType": "horizontalBar",
+                    "colors": [{
+                            "value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
+                            "color": "77, 190, 194"
+                        },
+                        {
+                            "value": "regimechange|crimeviolence|terrorism|earthquake",
+                            "color": "39, 96, 126"
+                        }
+                    ]
+                },
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 7,
+                "col": 5
+            },
+            {
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 9,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 9,
+                "bindings": {
+                    "title": "Situation Frames",
+                    "database": "elisa_car_1",
+                    "table": "annotations",
+                    "idField": "_id",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "sortField": "createdAt",
+                    "exceptionsToStatus": [
+                        "createdAt",
+                        "Type",
+                        "location"
+                    ],
+                    "customColumnWidths": [
+                        ["createdAt", 25],
+                        ["Type", 100],
+                        ["Status", 150]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+            },
+            {
+                "name": "Annotation Viewer",
+                "type": "annotationViewer",
+                "icon": "documentViewer64",
+                "col": 9,
+                "row": 9,
+                "sizex": 4,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Original Text",
+                    "database": "elisa_car_1",
+                    "table": "annotations",
+                    "linkField": "JustificationEN",
+                    "idField": "_id",
+                    "respondMode": "true"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 3
+            },
+            {
+                "name": "Text Cloud",
+                "type": "textCloud",
+                "icon": "TagCloud64",
+                "sizex": 6,
+                "sizey": 4,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5,
+                "$$hashKey": "object:35",
+                "selected": true,
+                "bindings": {
+                    "title": "Entities",
+                    "database": "elisa_car_1",
+                    "table": "annotations",
+                    "dataField": "entities.name"
+                },
+                "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+                "row": 14,
+                "col": 7
+            },
+            {
+                "name": "Filter Builder",
+                "type": "filterBuilder",
+                "icon": "CreateFilter64",
+                "sizex": 6,
+                "sizey": 4,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:31",
+                "selected": true,
+                "bindings": {
+                    "title": "Filter Builder",
+                    "database": "elisa_car_1",
+                    "table": "annotations"
+                },
+                "row": 14,
+                "col": 1
+            }
+        ],
+        "nepal-elisa-sa": [{
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 1,
+                "sizex": 4,
+                "row": 1,
+                "sizey": 7,
+                "bindings": {
+                    "title": "Situations",
+                    "database": "ll_nepal_06_14",
+                    "table": "situations",
+                    "idField": "_id",
+                    "sortField": "situationName",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "situationName",
+                        "docCount",
+                        "topic"
+                    ],
+                    "customColumnWidths": [
+                        ["situationName", 281],
+                        ["docCount", 105]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["documents", "_id"],
+                    "arrayFilterOperator": "or",
+                    "singleFilter": false,
+                    "ignoreSelf": false
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 7,
+                "minSizey": 3
+            },
+            {
+                "name": "Map",
+                "type": "map",
+                "icon": "Map64",
+                "col": 5,
+                "sizex": 4,
+                "row": 1,
+                "sizey": 9,
+                "bindings": {
+                    "title": "Locations",
+                    "database": "ll_nepal_06_14",
+                    "table": "annotations",
+                    "filterable": true,
+                    "name": "EVENTS",
+                    "show": true,
+                    "type": "cluster",
+                    "limit": 5000,
+                    "layers": [{
+                        "title": "Nepal Earthquake 2015 Annotations Point Layer",
+                        "database": "ll_nepal_06_14",
+                        "table": "annotations",
+                        "latitudeField": "geoLocations.lat",
+                        "longitudeField": "geoLocations.lon",
+                        "dateField": "createdAt",
+                        "colorField": "sentimentString"
+                    }],
+                    "customServer": {
+                        "useCustomServer": true,
+                        "mapUrl": "http://localhost:8080/geoserver/offline/wms",
+                        "layer": " offline:NE2_HR_LC_SR_W_DR"
+                    },
+                    "mapType": "leaflet"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+            },
+            {
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 9,
+                "sizex": 4,
+                "row": 1,
+                "sizey": 7,
+                "bindings": {
+                    "title": "Documents",
+                    "database": "ll_nepal_06_14",
+                    "table": "documents",
+                    "idField": "id",
+                    "sortField": "createdAt",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "createdAt",
+                        "translatedText",
+                        "mediaEntities.displayURL"
+                    ],
+                    "customColumnWidths": [
+                        ["createdAt", 186],
+                        ["translatedText", 235],
+                        ["mediaEntities.displayURL", 103]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 7,
+                "minSizey": 3
+            },
+            {
+                "name": "Bar Chart",
+                "type": "barChart",
+                "icon": "BarChart64",
+                "col": 1,
+                "sizex": 4,
+                "row": 8,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Topics",
+                    "database": "ll_nepal_06_14",
+                    "table": "annotations",
+                    "dataField": "llAnnotation.Type",
+                    "limit": 11,
+                    "chartType": "horizontalBar"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 3
+            },
+            {
+                "name": "Text Cloud",
+                "type": "textCloud",
+                "icon": "TagCloud64",
+                "col": 7,
+                "row": 3,
+                "sizex": 2,
+                "sizey": 3,
+                "$$hashKey": "object:35",
+                "selected": true,
+                "bindings": {
+                    "title": "Locations",
+                    "database": "ll_nepal_06_14",
+                    "table": "annotations",
+                    "dataField": "LOC",
+                    "preFilter": false
+                },
+                "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+
+            },
+            {
+                "name": "Timeline",
+                "type": "timeline",
+                "icon": "Timeline64",
+                "col": 5,
+                "sizex": 2,
+                "row": 10,
+                "sizey": 3,
+                "bindings": {
+                    "title": "Times",
+                    "database": "ll_nepal_06_14",
+                    "table": "annotations",
+                    "dateField": "createdAt",
+                    "granularity": "hour"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 3
+            },
+            {
+                "name": "Media Viewer",
+                "type": "mediaViewer",
+                "icon": "mediaViewer",
+                "col": 9,
+                "sizex": 4,
+                "row": 13,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Media Viewer",
+                    "database": "ll_nepal_06_14",
+                    "table": "annotations",
+                    "id": "_id",
+                    "idField": "id",
+                    "linkField": "mediaEntities.mediaURLHttps",
+                    "linkPrefix": "http://0.0.0.0:8000/ll_nepal_08_14/"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 4
+            }
+        ],
+        "human-terrain": [{
+                "name": "Filter Builder",
+                "type": "filterBuilder",
+                "icon": "CreateFilter64",
+                "sizex": 8,
+                "sizey": 2,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:31",
+                "selected": true,
+                "bindings": {
+                    "title": "Filter Builder",
+                    "database": "ll_nepal_06_14_2",
+                    "table": "annotations1Author"
+                },
+                "row": 1,
+                "col": 1
+            },
+            {
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "sizex": 4,
+                "sizey": 12,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 7,
+                "minSizey": 3,
+                "$$hashKey": "object:43",
+                "selected": true,
+                "bindings": {
+                    "title": "Documents",
+                    "database": "ll_nepal_06_14_2",
+                    "table": "annotations1Author",
+                    "sortField": "createdAt",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "createdAt",
+                        "translatedText"
+                    ],
+                    "customColumnWidths": [
+                        ["createdAt", 186],
+                        ["translatedText", 342]
+                    ]
+                },
+                "row": 1,
+                "col": 9
+            }, {
+                "name": "Network Graph",
+                "type": "networkGraph",
+                "icon": "Graph64",
+                "sizex": 8,
+                "sizey": 10,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5,
+                "$$hashKey": "object:43",
+                "selected": true,
+                "bindings": {
+                    "title": "Network Graph",
+                    "database": "ll_nepal_06_14_2",
+                    "table": "annotations1Author",
+                    "nodeField": "entities",
+                    "linkField": "authorScreenName",
+                    "nodeColor": "#4DBCC1",
+                    "linkColor": "#F68B4E",
+                    "limit": 100,
+                    "edgeColorField": "sentimentString"
+                },
+                "row": 15,
+                "col": 1
+            }
+        ]
+    },
+    "legends": {
+        "ll_nepal_07_02": {
+            "documents": [{
+                    "label": "Text",
+                    "customized": {
+                        "field": "originalText",
+                        "operator": "contains"
+                    },
+                    "items": [{
+                            "label": "Evacuation",
+                            "field": "originalText",
+                            "operator": "contains",
+                            "value": "evac"
+                        },
+                        {
+                            "label": "Food",
+                            "field": "originalText",
+                            "operator": "contains",
+                            "value": "food"
+                        },
+                        {
+                            "label": "Rescue",
+                            "field": "originalText",
+                            "operator": "contains",
+                            "value": "rescue"
+                        },
+                        {
+                            "label": "Water",
+                            "field": "originalText",
+                            "operator": "contains",
+                            "value": "water"
+                        }
+                    ]
+                },
+                {
+                    "label": "Situation Frame Type",
+                    "items": [{
+                            "label": "Any",
+                            "field": "topics",
+                            "operator": "!=",
+                            "value": "None"
+                        },
+                        {
+                            "label": "Energy",
+                            "field": "topics",
+                            "operator": "contains",
+                            "value": "Energy"
+                        },
+                        {
+                            "label": "Evacuation",
+                            "field": "topics",
+                            "operator": "contains",
+                            "value": "evac"
+                        },
+                        {
+                            "label": "Food",
+                            "field": "topics",
+                            "operator": "contains",
+                            "value": "food"
+                        },
+                        {
+                            "label": "Infrastructure",
+                            "field": "topics",
+                            "operator": "contains",
+                            "value": "infra"
+                        },
+                        {
+                            "label": "Medical",
+                            "field": "topics",
+                            "operator": "contains",
+                            "value": "med"
+                        },
+                        {
+                            "label": "Rescue",
+                            "field": "topics",
+                            "operator": "contains",
+                            "value": "rescue"
+                        },
+                        {
+                            "label": "Sanitation",
+                            "field": "topics",
+                            "operator": "contains",
+                            "value": "Sanitation"
+                        },
+                        {
+                            "label": "Search",
+                            "field": "topics",
+                            "operator": "contains",
+                            "value": "search"
+                        },
+                        {
+                            "label": "Shelter",
+                            "field": "topics",
+                            "operator": "contains",
+                            "value": "shelter"
+                        },
+                        {
+                            "label": "Utilities",
+                            "field": "topics",
+                            "operator": "contains",
+                            "value": "utils"
+                        },
+                        {
+                            "label": "Water",
+                            "field": "topics",
+                            "operator": "contains",
+                            "value": "water"
+                        }
+                    ]
+                },
+                {
+                    "label": "SEC",
+                    "items": [{
+                            "label": "Activation",
+                            "field": "sentimentString",
+                            "value": "Activation"
+                        },
+                        {
+                            "label": "N/A",
+                            "field": "sentimentString",
+                            "value": "N/A"
+                        },
+                        {
+                            "label": "Negative",
+                            "field": "sentimentString",
+                            "value": "Negative"
+                        },
+                        {
+                            "label": "Negative, Activation",
+                            "field": "sentimentString",
+                            "value": "Negative, Activation"
+                        },
+                        {
+                            "label": "Positive",
+                            "field": "sentimentString",
+                            "value": "Positive"
+                        },
+                        {
+                            "label": "Positive, Activation",
+                            "field": "sentimentString",
+                            "value": "Positive, Activation"
+                        }
+                    ]
+                },
+                {
+                    "label": "Entity Type",
+                    "items": [{
+                            "label": "Person",
+                            "field": "entities.entityType",
+                            "value": "PER"
+                        },
+                        {
+                            "label": "Organization",
+                            "field": "entities.entityType",
+                            "value": "ORG"
+                        },
+                        {
+                            "label": "Location",
+                            "field": "entities.entityType",
+                            "value": "LOC"
+                        },
+                        {
+                            "label": "Geopolitical Entity",
+                            "field": "entities.entityType",
+                            "value": "GPE"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "routeService": {
+        "url": "http://localhost:8090/ghREST/",
+        "get": "route?lat1=LAT1&lon1=LON1&lat2=LAT2&lon2=LON2",
+        "post": "dynamicroute",
+        "disabled": true
+    },
+    "dashboard": {
+        "gridsterColumns": 24,
+        "gridsterMargins": 10,
+        "hideNavbarItems": false,
+        "hideAdvancedOptions": false,
+        "hideAddVisualizationsButton": false,
+        "hideErrorNotifications": true,
+        "hideHeaders": false,
+        "showFilterStatusTray": true,
+        "hideCloseButton": false,
+        "showVideoOnLoad": false,
+        "showImport": true,
+        "showExport": true,
+        "translationKeys": {
+            "google": "AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8"
+        }
+    }
+}

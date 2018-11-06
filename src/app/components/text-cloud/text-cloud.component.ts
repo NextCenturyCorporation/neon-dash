@@ -35,7 +35,7 @@ import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { neonVariables } from '../../neon-namespaces';
 import { TextCloud, SizeOptions, ColorOptions } from './text-cloud-namespace';
 import * as neon from 'neon-framework';
@@ -53,26 +53,73 @@ export class TextCloudOptions extends BaseNeonOptions {
     public sizeField: FieldMetaData;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
+     *
+     * @arg {any} bindings
+     * @return {any}
+     * @override
+     */
+    appendNonFieldBindings(bindings: any): any {
+        bindings.andFilters = this.andFilters;
+        bindings.ignoreSelf = this.ignoreSelf;
+        bindings.paragraphs = this.paragraphs;
+        bindings.showCounts = this.showCounts;
+        bindings.sizeAggregation = this.aggregation;
+
+        return bindings;
+    }
+
+    /**
+     * Returns the list of fields to export.
+     *
+     * @return {{ columnName: string, prettyName: string }[]}
+     * @override
+     */
+    getExportFields() {
+        // TODO Do we really need this behavior for the sizeField or can we just simplify it and use the superclass getExportFields?
+        return [{
+            columnName: this.dataField.columnName,
+            prettyName: this.dataField.prettyName
+        }, {
+            columnName: 'value',
+            prettyName: this.sizeField.prettyName || 'Count'
+        }];
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'dataField',
+            'sizeField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    onInit() {
+    initializeNonFieldBindings() {
         this.aggregation = this.injector.get('sizeAggregation', 'AVG');
         this.andFilters = this.injector.get('andFilters', true);
         this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.paragraphs = this.injector.get('paragraphs', false);
         this.showCounts = this.injector.get('showCounts', false);
-    }
-
-    /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
-     *
-     * @override
-     */
-    updateFieldsOnTableChanged() {
-        this.dataField = this.findFieldObject('dataField');
-        this.sizeField = this.findFieldObject('sizeField');
     }
 }
 
@@ -147,28 +194,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         // Do nothing
     }
 
-    subGetBindings(bindings: any) {
-        bindings.dataField = this.options.dataField.columnName;
-        bindings.sizeField = this.options.sizeField.columnName;
-        bindings.sizeAggregation = this.options.aggregation;
-        bindings.andFilters = this.options.andFilters;
-        bindings.ignoreSelf = this.options.ignoreSelf;
-        bindings.paragraphs = this.options.paragraphs;
-        bindings.showCounts = this.options.showCounts;
-    }
-
-    getExportFields() {
-        let countField = this.options.sizeField.prettyName === '' ? 'Count' :
-            this.options.sizeField.prettyName;
-        return [{
-            columnName: this.options.dataField.columnName,
-            prettyName: this.options.dataField.prettyName
-        }, {
-            columnName: 'value',
-            prettyName: countField
-        }];
-    }
-
     private updateTextCloudSettings() {
         this.textCloud = new TextCloud(new SizeOptions(80, 140, '%'), new ColorOptions('#aaaaaa', this.textColor));
     }
@@ -178,6 +203,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getFilterText(filter) {
+        //console.log(filter);
         return filter.prettyField + ' = ' + filter.value;
     }
 
@@ -294,8 +320,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             [this.options.dataField.columnName]);
         this.filters = [];
-
+        //console.log("Filters");
+        //console.log(neonFilters);
         for (let neonFilter of neonFilters) {
+            //console.log(neonFilter);
             if (!neonFilter.filter.whereClause.whereClauses) {
                 let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
@@ -330,6 +358,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         if (!this.filters.length) {
             this.filters.push(filter);
             let whereClause = neon.query.where(filter.field, '=', filter.value);
+            //console.log("Text Cloud");
+            //console.log(filter);
+            //console.log(whereClause);
+            //console.log(this.filters);
             this.addNeonFilter(true, filter, whereClause);
         } else if (this.filterIsUnique(filter)) {
             filter.id = this.filters[0].id;
@@ -364,6 +396,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getButtonText() {
         if (!this.filters.length && !this.termsCount) {
+            if (this.options.hideUnfiltered) {
+                return 'Please Filter';
+            }
             return 'No Data';
         }
         if (this.termsCount <= this.activeData.length) {

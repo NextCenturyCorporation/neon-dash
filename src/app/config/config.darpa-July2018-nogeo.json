@@ -1,0 +1,482 @@
+{
+    "datasets": [{
+            "name": "DARPA60: Uyghur LDC Situation Discovery",
+            "connectOnLoad": true,
+            "layout": "uyghur-ldc-sd",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [{
+                    "name": "ldc_uyg_jul_18",
+                    "prettyName": "Uyghur LDC, July 2018",
+                    "tables": [{
+                        "name": "ui_out",
+                        "prettyName": "UI out",
+                        "fields": [{
+                                "columnName": "createdDate",
+                                "prettyName": "Date Created"
+                            },
+                            {
+                                "columnName": "topic",
+                                "prettyName": "Need Type"
+                            },
+                            {
+                                "columnName": "location",
+                                "prettyName": "Location"
+                            },
+                            {
+                                "columnName": "status",
+                                "prettyName": "Status"
+                            },
+                            {
+                                "columnName": "translatedText",
+                                "prettyName": "Translated Text"
+                            },
+                            {
+                                "columnName": "originalText",
+                                "prettyName": "Original Text"
+                            }
+                        ],
+                        "labelOptions": {
+                        "topic": {
+                            "food": "Food",
+                            "water": "Water",
+                            "shelter": "Shelter",
+                            "med": "Medicine",
+                            "search": "Search and Rescue",
+                            "evac": "Evacuation",
+                            "infra": "Infrastructure",
+                            "utils": "Utilities",
+                            "crimeviolence": "Crime /  Violence",
+                            "terrorism": "Terrorism",
+                            "regimechange": "Regime Change"
+                        }
+                    },
+                        "mappings": {
+                            "date": "createDate"
+                        }
+                    }]
+                }],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "simpleFilter": {
+                    "databaseName": "ldc_uyg_jul_18",
+                    "tableName": "ui_out",
+                    "fieldName": "translatedText",
+                    "placeHolder": "Search"
+                }
+            }
+        }
+    ],
+    "layouts": {
+        "uyghur-ldc-sd": [{
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 1,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 14,
+                "bindings": {
+                    "title": "Document Feed",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "ui_out",
+                    "idField": "_id",
+                    "sortField": "createdDate",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+						"createdDate",
+						"originalText"
+					],
+					"customColumnWidths": [
+                        ["createdDate", 15],
+                        ["originalText", 360]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false,
+                    "checkDuplicateField": "originalText"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 7,
+                "minSizey": 3
+            },
+            {
+                "name": "Map",
+                "type": "map",
+                "icon": "Map64",
+                "col": 5,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 9,
+                "bindings": {
+                    "title": "Locations",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "annotations",
+                    "filterable": true,
+                    "name": "EVENTS",
+                    "show": true,
+                    "type": "cluster",
+                    "limit": 5000,
+                    "layers": [{
+                        "title": "Map",
+                        "database": "ldc_uyg_jul_18",
+                        "table": "ui_out",
+                        "latitudeField": "geoLocation.lat",
+                        "longitudeField": "geoLocation.lon",
+                        "dateField": "createdDate",
+                        "colorField": "topic"
+                    }],
+                    "mapType": "leaflet",
+                    "west": 30.5,
+                    "north": 49,
+                    "east": 127,
+                    "south": 10.6
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+            },
+            {
+                "name": "Bar Chart",
+                "type": "barChart",
+                "icon": "BarChart64",
+                "col": 5,
+                "row": 9,
+                "sizex": 4,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Need Type",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "ui_out",
+                    "dataField": "topic",
+                    "limit": 11,
+                    "chartType": "horizontalBar",
+                    "colorField": "topic"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 3
+            },
+            {
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 9,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 9,
+                "bindings": {
+                    "title": "Situation Frames",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "ui_out",
+                    "sortField": "createdDate",
+                    "idField": "_id",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "createdDate",
+                        "topic",
+                        "location"
+                    ],
+                    "customColumnWidths": [
+                        ["createdDate", 25],
+                        ["topic", 100],
+                        ["location", 150]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["_id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false,
+                    "checkDuplicateField": "originalText"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+
+            },
+            {
+                "name": "Annotation Viewer",
+                "type": "annotationViewer",
+                "icon": "documentViewer64",
+                "col": 9,
+                "row": 10,
+                "sizex": 2,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Original Text",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "ui_output",
+                    "linkField": "originalText",
+                    "idField": "_id",
+                    "respondMode": "true"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 3
+            },
+            {
+                "name": "Annotation Viewer",
+                "type": "annotationViewer",
+                "icon": "documentViewer64",
+                "col": 11,
+                "row": 10,
+                "sizex": 2,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Translated Text",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "ui_output",
+                    "linkField": "translatedText",
+                    "idField": "_id",
+                    "respondMode": "true"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 3
+            },
+            {
+                "name": "Filter Builder",
+                "type": "filterBuilder",
+                "icon": "CreateFilter64",
+                "col": 1,
+                "row": 14,
+                "sizex": 6,
+                "sizey": 4,
+                "bindings": {
+                    "title": "Filter Builder",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "ui_output"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 2
+            },
+            {
+                "name": "Text Cloud",
+                "type": "textCloud",
+                "icon": "TagCloud64",
+                "col": 7,
+                "row": 14,
+                "sizex": 6,
+                "sizey": 4,
+                "$$hashKey": "object:35",
+                "selected": true,
+                "bindings": {
+                    "title": "Locations",
+                    "database": "ldc_uyg_jul_18",
+                    "table": "ui_output",
+                    "dataField": "location",
+                    "preFilter": false
+                },
+                "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+            }
+        ]
+    },
+    "legends": {
+        "ll_nepal_07_02": {
+            "documents": [{
+                "label": "Text",
+                "customized": {
+                    "field": "originalText",
+                    "operator": "contains"
+                },
+                "items": [{
+                        "label": "Evacuation",
+                        "field": "originalText",
+                        "operator": "contains",
+                        "value": "evac"
+                    },
+                    {
+                        "label": "Food",
+                        "field": "originalText",
+                        "operator": "contains",
+                        "value": "food"
+                    },
+                    {
+                        "label": "Rescue",
+                        "field": "originalText",
+                        "operator": "contains",
+                        "value": "rescue"
+                    },
+                    {
+                        "label": "Water",
+                        "field": "originalText",
+                        "operator": "contains",
+                        "value": "water"
+                    }
+                ]
+            },
+            {
+                "label": "Situation Frame Type",
+                "items": [{
+                        "label": "Any",
+                        "field": "topics",
+                        "operator": "!=",
+                        "value": "None"
+                    },
+                    {
+                        "label": "Energy",
+                        "field": "topics",
+                        "operator": "contains",
+                        "value": "Energy"
+                    },
+                    {
+                        "label": "Evacuation",
+                        "field": "topics",
+                        "operator": "contains",
+                        "value": "evac"
+                    },
+                    {
+                        "label": "Food",
+                        "field": "topics",
+                        "operator": "contains",
+                        "value": "food"
+                    },
+                    {
+                        "label": "Infrastructure",
+                        "field": "topics",
+                        "operator": "contains",
+                        "value": "infra"
+                    },
+                    {
+                        "label": "Medical",
+                        "field": "topics",
+                        "operator": "contains",
+                        "value": "med"
+                    },
+                    {
+                        "label": "Rescue",
+                        "field": "topics",
+                        "operator": "contains",
+                        "value": "rescue"
+                    },
+                    {
+                        "label": "Sanitation",
+                        "field": "topics",
+                        "operator": "contains",
+                        "value": "Sanitation"
+                    },
+                    {
+                        "label": "Search",
+                        "field": "topics",
+                        "operator": "contains",
+                        "value": "search"
+                    },
+                    {
+                        "label": "Shelter",
+                        "field": "topics",
+                        "operator": "contains",
+                        "value": "shelter"
+                    },
+                    {
+                        "label": "Utilities",
+                        "field": "topics",
+                        "operator": "contains",
+                        "value": "utils"
+                    },
+                    {
+                        "label": "Water",
+                        "field": "topics",
+                        "operator": "contains",
+                        "value": "water"
+                    }
+                ]
+            },
+            {
+                "label": "SEC",
+                "items": [{
+                        "label": "Activation",
+                        "field": "sentimentString",
+                        "value": "Activation"
+                    },
+                    {
+                        "label": "N/A",
+                        "field": "sentimentString",
+                        "value": "N/A"
+                    },
+                    {
+                        "label": "Negative",
+                        "field": "sentimentString",
+                        "value": "Negative"
+                    },
+                    {
+                        "label": "Negative, Activation",
+                        "field": "sentimentString",
+                        "value": "Negative, Activation"
+                    },
+                    {
+                        "label": "Positive",
+                        "field": "sentimentString",
+                        "value": "Positive"
+                    },
+                    {
+                        "label": "Positive, Activation",
+                        "field": "sentimentString",
+                        "value": "Positive, Activation"
+                    }
+                ]
+            },
+            {
+                "label": "Entity Type",
+                "items": [{
+                        "label": "Person",
+                        "field": "entities.entityType",
+                        "value": "PER"
+                    },
+                    {
+                        "label": "Organization",
+                        "field": "entities.entityType",
+                        "value": "ORG"
+                    },
+                    {
+                        "label": "Location",
+                        "field": "entities.entityType",
+                        "value": "LOC"
+                    },
+                    {
+                        "label": "Geopolitical Entity",
+                        "field": "entities.entityType",
+                        "value": "GPE"
+                    }
+                ]
+            }
+        ]
+    }
+    },
+    "routeService": {
+        "url": "http://localhost:8090/ghREST/",
+        "get": "route?lat1=LAT1&lon1=LON1&lat2=LAT2&lon2=LON2",
+        "post": "dynamicroute",
+        "disabled": true
+    },
+    "dashboard": {
+        "gridsterColumns": 24,
+        "gridsterMargins": 10,
+        "hideNavbarItems": false,
+        "hideAdvancedOptions": false,
+        "hideAddVisualizationsButton": false,
+        "hideErrorNotifications": true,
+        "hideHeaders": false,
+        "showFilterStatusTray": true,
+        "hideCloseButton": false,
+        "showVideoOnLoad": false,
+        "showImport": true,
+        "showExport": true,
+        "translationKeys": {
+            "google": "AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8"
+        }
+    }
+}

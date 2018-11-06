@@ -110,8 +110,12 @@ class TestMapComponent extends MapComponent {
         return this.filters;
     }
 
-    getMapPoints(lngField: string, latField: string, colorField: string, data: any[]) {
-        return super.getMapPoints(lngField, latField, colorField, data);
+    getInjector(): Injector {
+        return this.injector;
+    }
+
+    getMapPoints(idField: string, lngField: string, latField: string, colorField: string, hoverPopupField: string, data: any[]) {
+        return super.getMapPoints(idField, lngField, latField, colorField, hoverPopupField, data);
     }
 
     setFilterBoundingBox(box: BoundingBoxByDegrees) {
@@ -164,7 +168,7 @@ class TestMap extends AbstractMap {
 function updateMapLayer1(component: TestMapComponent) {
     component.docCount[0] = 1234;
 
-    component.options.layers[0] = new MapLayer({}, component.getDatasetService());
+    component.options.layers[0] = new MapLayer({}, component.getInjector(), component.getDatasetService());
     component.options.layers[0].databases = [];
     component.options.layers[0].database = new DatabaseMetaData('testDatabase1');
     component.options.layers[0].fields = [];
@@ -174,7 +178,9 @@ function updateMapLayer1(component: TestMapComponent) {
     component.options.layers[0].unsharedFilterField = new FieldMetaData();
     component.options.layers[0].unsharedFilterValue = '';
 
+    component.options.layers[0].idField = new FieldMetaData('testId1', 'Test ID 1');
     component.options.layers[0].colorField = new FieldMetaData('testColor1', 'Test Color 1');
+    component.options.layers[0].hoverPopupField = new FieldMetaData('testHover1', 'Test Hover 1');
     component.options.layers[0].dateField = new FieldMetaData('testDate1', 'Test Date 1');
     component.options.layers[0].latitudeField = new FieldMetaData('testLatitude1', 'Test Latitude 1');
     component.options.layers[0].longitudeField = new FieldMetaData('testLongitude1', 'Test Longitude 1');
@@ -184,7 +190,7 @@ function updateMapLayer1(component: TestMapComponent) {
 function updateMapLayer2(component: TestMapComponent) {
     component.docCount[1] = 5678;
 
-    component.options.layers[1] = new MapLayer({}, component.getDatasetService());
+    component.options.layers[1] = new MapLayer({}, component.getInjector(), component.getDatasetService());
     component.options.layers[1].databases = [];
     component.options.layers[1].database = new DatabaseMetaData('testDatabase2');
     component.options.layers[1].fields = [];
@@ -194,7 +200,9 @@ function updateMapLayer2(component: TestMapComponent) {
     component.options.layers[1].unsharedFilterField = new FieldMetaData();
     component.options.layers[1].unsharedFilterValue = '';
 
+    component.options.layers[1].idField = new FieldMetaData('testId2', 'Test ID 2');
     component.options.layers[1].colorField = new FieldMetaData('testColor2', 'Test Color 2');
+    component.options.layers[1].hoverPopupField = new FieldMetaData('testHover2', 'Test Hover 2');
     component.options.layers[1].dateField = new FieldMetaData('testDate2', 'Test Date 2');
     component.options.layers[1].latitudeField = new FieldMetaData('testLatitude2', 'Test Latitude 2');
     component.options.layers[1].longitudeField = new FieldMetaData('testLongitude2', 'Test Longitude 2');
@@ -294,11 +302,13 @@ describe('Component: Map', () => {
         expect(component.options.layers[0].table).toEqual(new TableMetaData());
         expect(component.options.layers[0].fields).toEqual([]);
         expect(component.options.layers[0].title).toEqual('New Layer');
-        expect(component.options.layers[0].colorField).toEqual(component.emptyField);
-        expect(component.options.layers[0].dateField).toEqual(component.emptyField);
-        expect(component.options.layers[0].latitudeField).toEqual(component.emptyField);
-        expect(component.options.layers[0].longitudeField).toEqual(component.emptyField);
-        expect(component.options.layers[0].sizeField).toEqual(component.emptyField);
+        expect(component.options.layers[0].idField).toEqual(new FieldMetaData());
+        expect(component.options.layers[0].colorField).toEqual(new FieldMetaData());
+        expect(component.options.layers[0].hoverPopupField).toEqual(new FieldMetaData());
+        expect(component.options.layers[0].dateField).toEqual(new FieldMetaData());
+        expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData());
+        expect(component.options.layers[0].longitudeField).toEqual(new FieldMetaData());
+        expect(component.options.layers[0].sizeField).toEqual(new FieldMetaData());
     });
 
     it('should create the default map (Leaflet)', () => {
@@ -316,119 +326,147 @@ describe('Component: Map', () => {
         }
     });
 
-    it('should create collapsed map points', () => {
+    it('should create uncollapsed map points, largest first', () => {
+
+        //define maps for all test cases
+        let aHoverMap1 = new Map<string, number>().set('a', 1),
+            bHoverMap1 = new Map<string, number>().set('b', 1),
+            cHoverMap1 = new Map<string, number>().set('c', 1),
+            dHoverMap1 = new Map<string, number>().set('d', 1);
+
         let colorService = getService(ColorSchemeService),
             datasets = [
                 {
                     data: [
-                        { lat: 0, lng: 0, category: 'a' },
-                        { lat: 0, lng: 0, category: 'b' },
-                        { lat: 0, lng: 0, category: 'c' },
-                        { lat: 0, lng: 0, category: 'd' }
+                        { id: 'testId1', lat: 0, lng: 0, category: 'a', aHoverMap1 },
+                        { id: 'testId2', lat: 0, lng: 0, category: 'b', bHoverMap1 },
+                        { id: 'testId3', lat: 0, lng: 0, category: 'c', cHoverMap1 },
+                        { id: 'testId4', lat: 0, lng: 0, category: 'd', dHoverMap1 },
+                        { id: 'testId5', lat: 0, lng: 0, category: 'd', dHoverMap1 }
                     ],
                     expected: [
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 4',
-                            'category', 'a'
-                        )
-                    ]
-                },
-                {
-                    data: [
-                        { lat: 0, lng: 0, category: 'a' },
-                        { lat: 0, lng: 1, category: 'b' },
-                        { lat: 0, lng: 2, category: 'c' },
-                        { lat: 0, lng: 3, category: 'd' }
-                    ],
-                    expected: [
+                            'testId4', ['testId4', 'testId5'], '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
+                            colorService.getColorFor('category', 'd').toRgb(), 'Count: 2',
+                            'category', 'd', dHoverMap1
+                        ),
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            'testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a'
+                            'category', 'a', aHoverMap1
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                            'testId2', ['testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b'
+                            'category', 'b', bHoverMap1
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                            'testId3', ['testId3'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'c').toRgb(), 'Count: 1',
-                            'category', 'c'
+                            'category', 'c', cHoverMap1
+                        )
+                    ]
+                },
+                {
+                    data: [
+                        { id: 'testId1', lat: 0, lng: 0, category: 'a', aHoverMap1 },
+                        { id: 'testId2', lat: 0, lng: 1, category: 'b', bHoverMap1 },
+                        { id: 'testId3', lat: 0, lng: 2, category: 'c', cHoverMap1 },
+                        { id: 'testId4', lat: 0, lng: 3, category: 'd', dHoverMap1 }
+                    ],
+                    expected: [
+                        new MapPoint(
+                            'testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
+                            'category', 'a', aHoverMap1
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
+                            'testId2', ['testId2'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
+                            'category', 'b', bHoverMap1
+                        ),
+                        new MapPoint(
+                            'testId3', ['testId3'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                            colorService.getColorFor('category', 'c').toRgb(), 'Count: 1',
+                            'category', 'c', cHoverMap1
+                        ),
+                        new MapPoint(
+                            'testId4', ['testId4'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
                             colorService.getColorFor('category', 'd').toRgb(), 'Count: 1',
-                            'category', 'd'
+                            'category', 'd', dHoverMap1
                         )
                     ]
                 },
                 {
                     data: [
-                        { lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a' },
-                        { lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b' }
+                        { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a', aHoverMap1 },
+                        { id: 'testId2', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b', bHoverMap1 }
                     ],
                     expected: [
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 8,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 8',
-                            'category', 'a'
+                            'testId1', ['testId1', 'testId1', 'testId1', 'testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 4',
+                            'category', 'a', aHoverMap1
+                        ),
+                        new MapPoint(
+                            'testId2', ['testId2', 'testId2', 'testId2', 'testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 4',
+                            'category', 'b', bHoverMap1
                         )
                     ]
                 },
                 {
                     data: [
-                        { lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a' },
-                        { lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b' }
+                        { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a', aHoverMap1},
+                        { id: 'testId2', lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b', bHoverMap1 }
                     ],
                     expected: [
                         new MapPoint(
-                            '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
+                            'testId1', ['testId1'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a'
+                            'category', 'a', aHoverMap1
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                            'testId1', ['testId1'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a'
+                            'category', 'a', aHoverMap1
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                            'testId1', ['testId1'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a'
+                            'category', 'a', aHoverMap1
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            'testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
-                            'category', 'a'
+                            'category', 'a', aHoverMap1
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
+                            'testId2', ['testId2'], '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b'
+                            'category', 'b', bHoverMap1
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
+                            'testId2', ['testId2'], '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b'
+                            'category', 'b', bHoverMap1
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
+                            'testId2', ['testId2'], '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b'
+                            'category', 'b', bHoverMap1
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
+                            'testId2', ['testId2'], '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
-                            'category', 'b'
+                            'category', 'b', bHoverMap1
                         )
                     ]
                 }
             ];
 
         for (let dataset of datasets) {
-            let mapPoints = component.getMapPoints('lng', 'lat', 'category', dataset.data);
+            let mapPoints = component.getMapPoints('id', 'lng', 'lat', 'category', 'hoverPopupField', dataset.data);
             expect(mapPoints).toEqual(dataset.expected);
         }
     });
@@ -442,7 +480,7 @@ describe('Component: Map', () => {
 
         addFilter(box, dbName, tableName, latName, lngName);
 
-        let whereClauses = component.createNeonFilter(box, latName, lngName),
+        let whereClauses = component.createNeonBoxFilter(box, latName, lngName),
             filterClauses = [
                 neon.query.where(latName, '>=', box.south),
                 neon.query.where(latName, '<=', box.north),
@@ -490,8 +528,11 @@ describe('Component: Map', () => {
         let spy = spyOn(component, 'handleChangeData');
 
         component.subRemoveLayer(1);
+
         expect(component.options.layers[0].title).toEqual('Layer A');
+        expect(component.options.layers[0].idField).toEqual(new FieldMetaData('testId1', 'Test ID 1'));
         expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testColor1', 'Test Color 1'));
+        expect(component.options.layers[0].hoverPopupField).toEqual(new FieldMetaData('testHover1', 'Test Hover 1'));
         expect(component.options.layers[0].dateField).toEqual(new FieldMetaData('testDate1', 'Test Date 1'));
         expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData('testLatitude1', 'Test Latitude 1'));
         expect(component.options.layers[0].longitudeField).toEqual(new FieldMetaData('testLongitude1', 'Test Longitude 1'));
@@ -503,36 +544,60 @@ describe('Component: Map', () => {
         expect(spy.calls.count()).toBe(2);
     });
 
-    it('subGetBindings does set expected bindings', () => {
-        let bindings = {};
-        component.subGetBindings(bindings);
-        expect(bindings).toEqual({
+    it('options.createBindings does set expected bindings', () => {
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            title: 'Map',
+            limit: 1000,
             layers: [{
+                idField: '',
+                database: '',
+                table: '',
+                title: 'New Layer',
+                unsharedFilterValue: '',
+                unsharedFilterField: '',
                 latitudeField: '',
                 longitudeField: '',
                 sizeField: '',
                 colorField: '',
-                dateField: ''
+                dateField: '',
+                hoverPopupField: ''
             }]
         });
 
         updateMapLayer1(component);
         updateMapLayer2(component);
 
-        component.subGetBindings(bindings);
-        expect(bindings).toEqual({
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            title: 'Map',
+            limit: 1000,
             layers: [{
+                idField: 'testId1',
+                database: 'testDatabase1',
+                table: 'testTable1',
+                title: 'Layer A',
+                unsharedFilterValue: '',
+                unsharedFilterField: '',
                 latitudeField: 'testLatitude1',
                 longitudeField: 'testLongitude1',
                 sizeField: 'testSize1',
                 colorField: 'testColor1',
-                dateField: 'testDate1'
+                dateField: 'testDate1',
+                hoverPopupField: 'testHover1'
             }, {
+                idField: 'testId2',
+                database: 'testDatabase2',
+                table: 'testTable2',
+                title: 'Layer B',
+                unsharedFilterValue: '',
+                unsharedFilterField: '',
                 latitudeField: 'testLatitude2',
                 longitudeField: 'testLongitude2',
                 sizeField: 'testSize2',
                 colorField: 'testColor2',
-                dateField: 'testDate2'
+                dateField: 'testDate2',
+                hoverPopupField: 'testHover2'
             }]
         });
     });
@@ -557,11 +622,13 @@ describe('Component: Map', () => {
         let layer = component.subAddLayer({});
 
         expect(component.options.layers[1].title).toEqual('New Layer');
-        expect(component.options.layers[1].colorField).toEqual(component.emptyField);
-        expect(component.options.layers[1].dateField).toEqual(component.emptyField);
-        expect(component.options.layers[1].latitudeField).toEqual(component.emptyField);
-        expect(component.options.layers[1].longitudeField).toEqual(component.emptyField);
-        expect(component.options.layers[1].sizeField).toEqual(component.emptyField);
+        expect(component.options.layers[1].idField).toEqual(new FieldMetaData());
+        expect(component.options.layers[1].colorField).toEqual(new FieldMetaData());
+        expect(component.options.layers[1].hoverPopupField).toEqual(new FieldMetaData());
+        expect(component.options.layers[1].dateField).toEqual(new FieldMetaData());
+        expect(component.options.layers[1].latitudeField).toEqual(new FieldMetaData());
+        expect(component.options.layers[1].longitudeField).toEqual(new FieldMetaData());
+        expect(component.options.layers[1].sizeField).toEqual(new FieldMetaData());
 
         expect(component.docCount).toEqual([0, 0]);
         expect(component.filterVisible).toEqual([true, true]);
@@ -572,48 +639,6 @@ describe('Component: Map', () => {
         expect(refs.headerText).toBeDefined();
         expect(refs.infoText).toBeDefined();
         expect(refs.visualization).toBeDefined();
-    });
-
-    it('getExportFields does return expected array', () => {
-        expect(component.getExportFields(0)).toEqual([]);
-
-        updateMapLayer1(component);
-
-        expect(component.getExportFields(0)).toEqual([{
-            columnName: 'testLatitude1',
-            prettyName: 'Test Latitude 1'
-        }, {
-            columnName: 'testLongitude1',
-            prettyName: 'Test Longitude 1'
-        }, {
-            columnName: 'testColor1',
-            prettyName: 'Test Color 1'
-        }, {
-            columnName: 'testSize1',
-            prettyName: 'Test Size 1'
-        }, {
-            columnName: 'testDate1',
-            prettyName: 'Test Date 1'
-        }]);
-
-        updateMapLayer2(component);
-
-        expect(component.getExportFields(1)).toEqual([{
-            columnName: 'testLatitude2',
-            prettyName: 'Test Latitude 2'
-        }, {
-            columnName: 'testLongitude2',
-            prettyName: 'Test Longitude 2'
-        }, {
-            columnName: 'testColor2',
-            prettyName: 'Test Color 2'
-        }, {
-            columnName: 'testSize2',
-            prettyName: 'Test Size 2'
-        }, {
-            columnName: 'testDate2',
-            prettyName: 'Test Date 2'
-        }]);
     });
 
     it('filterByLocation does set filterBoundingBox and does call addNeonFilter on each layer', () => {
@@ -727,7 +752,7 @@ describe('Component: Map', () => {
         }]);
     });
 
-    it('createNeonFilter does return expected object', () => {
+    it('createNeonBoxFilter does return expected object', () => {
         let box1 = new BoundingBoxByDegrees(1, 2, 3, 4);
 
         let query1 = neon.query.and.apply(neon.query, [
@@ -737,7 +762,7 @@ describe('Component: Map', () => {
             neon.query.where('testLongitude1', '<=', 4)
         ]);
 
-        expect(component.createNeonFilter(box1, 'testLatitude1', 'testLongitude1')).toEqual(query1);
+        expect(component.createNeonBoxFilter(box1, 'testLatitude1', 'testLongitude1')).toEqual(query1);
 
         let box2 = new BoundingBoxByDegrees(5, 6, 7, 8);
 
@@ -748,7 +773,7 @@ describe('Component: Map', () => {
             neon.query.where('testLongitude1', '<=', 8)
         ]);
 
-        expect(component.createNeonFilter(box2, 'testLatitude1', 'testLongitude1')).toEqual(query2);
+        expect(component.createNeonBoxFilter(box2, 'testLatitude1', 'testLongitude1')).toEqual(query2);
     });
 
     it('getFilterText does return expected string', () => {
@@ -799,7 +824,8 @@ describe('Component: Map', () => {
 
         let where1 = [neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)];
         let query1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1').where(neon.query.and.apply(neon.query, where1))
-            .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testColor1', 'testSize1', 'testDate1']).limit(5678);
+            .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testId1', 'testColor1', 'testSize1',
+            'testDate1', 'testHover1']).limit(5678);
 
         expect(component.createQuery(0)).toEqual(query1);
 
@@ -807,7 +833,8 @@ describe('Component: Map', () => {
 
         let where2 = [neon.query.where('testLatitude2', '!=', null), neon.query.where('testLongitude2', '!=', null)];
         let query2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2').where(neon.query.and.apply(neon.query, where2))
-            .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testColor2', 'testSize2', 'testDate2']).limit(5678);
+            .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testId2', 'testColor2', 'testSize2',
+            'testDate2', 'testHover2']).limit(5678);
 
         expect(component.createQuery(1)).toEqual(query2);
     });
@@ -821,6 +848,7 @@ describe('Component: Map', () => {
 
         component.onQuerySuccess(0, {
             data: [{
+                testId1: 'testId1',
                 testColor1: 'testValue',
                 testDate1: '2018-01-01T00:00:00',
                 testLatitude1: 0,
@@ -836,6 +864,7 @@ describe('Component: Map', () => {
 
         component.onQuerySuccess(1, {
             data: [{
+                testId2: 'testId2',
                 testColor2: 'testValue',
                 testDate2: '2018-01-01T00:00:00',
                 testLatitude2: 0,
@@ -888,76 +917,15 @@ describe('Component: Map', () => {
         expect(component.colorByFields).toEqual(['testColor1', 'testColor2']);
     });
 
-    it('retrieveLocationField does return nested number', () => {
-        expect(component.retrieveLocationField({
-            outer: 12.34
-        }, 'outer')).toBe(12.34);
+    it('convertToFloatIfString does parse float string', () => {
+        expect(component.convertToFloatIfString(12.34)).toEqual(12.34);
+        expect(component.convertToFloatIfString(-56.78)).toEqual(-56.78);
 
-        expect(component.retrieveLocationField({
-            outer: -12.34
-        }, 'outer')).toBe(-12.34);
+        expect(component.convertToFloatIfString('12.34')).toEqual(12.34);
+        expect(component.convertToFloatIfString('-56.78')).toEqual(-56.78);
 
-        expect(component.retrieveLocationField({
-            outer: {
-                inner: 12.34
-            }
-        }, 'outer.inner')).toBe(12.34);
-
-        expect(component.retrieveLocationField({
-            outer: {
-                inner: -12.34
-            }
-        }, 'outer.inner')).toBe(-12.34);
-    });
-
-    it('retrieveLocationField does return nested number array', () => {
-        expect(component.retrieveLocationField({
-            outer: {
-                inner: [12.34]
-            }
-        }, 'outer.inner')).toEqual([12.34]);
-
-        expect(component.retrieveLocationField({
-            outer: {
-                inner: [-12.34]
-            }
-        }, 'outer.inner')).toEqual([-12.34]);
-
-        expect(component.retrieveLocationField({
-            outer: {
-                inner: [12.34, 56.78]
-            }
-        }, 'outer.inner')).toEqual([12.34, 56.78]);
-
-        expect(component.retrieveLocationField({
-            outer: [{
-                inner: 12.34
-            }]
-        }, 'outer.inner')).toEqual([12.34]);
-
-        expect(component.retrieveLocationField({
-            outer: [{
-                inner: -12.34
-            }]
-        }, 'outer.inner')).toEqual([-12.34]);
-
-        expect(component.retrieveLocationField({
-            outer: [{
-                inner: 12.34
-            }, {
-                inner: 56.78
-            }]
-        }, 'outer.inner')).toEqual([12.34, 56.78]);
-    });
-
-    it('retrieveLocationField does parse float string', () => {
-        expect(component.retrieveLocationField({
-            outer: '12.34'
-        }, 'outer')).toBe(12.34);
-
-        expect(component.retrieveLocationField({
-            outer: '-12.34'
-        }, 'outer')).toBe(-12.34);
+        expect(component.convertToFloatIfString(['12.34'])).toEqual([12.34]);
+        expect(component.convertToFloatIfString(['12.34', 43.21, '-56.78', 87.65, '90'])).toEqual([12.34, 43.21, -56.78, 87.65, 90]);
     });
 
     it('addOrUpdateUniquePoint does update data in given map object', () => {
@@ -1173,6 +1141,7 @@ describe('Component: Map with config', () => {
             {
                 provide: 'layers', useValue: [{
                     colorField: 'testColorField',
+                    hoverPopupField: 'testHoverField',
                     dateField: 'testDateField',
                     latitudeField: 'testLatitudeField',
                     longitudeField: 'testLongitudeField',
@@ -1239,12 +1208,5 @@ describe('Component: Map with config', () => {
         expect(component.options.layers[0].table).toEqual(DatasetServiceMock.TABLES[0]);
         expect(component.options.layers[0].fields).toEqual(DatasetServiceMock.FIELDS);
         expect(component.options.layers[0].title).toEqual('Test Layer Title');
-        expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testColorField', 'Test Color Field', false, 'string'));
-        expect(component.options.layers[0].dateField).toEqual(new FieldMetaData('testDateField', 'Test Date Field', false, 'date'));
-        expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData('testLatitudeField', 'Test Latitude Field', false,
-            'float'));
-        expect(component.options.layers[0].longitudeField).toEqual(new FieldMetaData('testLongitudeField', 'Test Longitude Field', false,
-            'float'));
-        expect(component.options.layers[0].sizeField).toEqual(new FieldMetaData('testSizeField', 'Test Size Field', false, 'float'));
     });
 });
