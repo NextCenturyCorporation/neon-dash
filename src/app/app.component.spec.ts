@@ -15,7 +15,7 @@
  */
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 import { DebugElement, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { APP_BASE_HREF, CommonModule } from '@angular/common';
 
 import 'hammerjs';
@@ -23,6 +23,7 @@ import 'hammerjs';
 import { AppComponent } from './app.component';
 import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
+import { AggregationComponent } from './components/aggregation/aggregation.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
@@ -35,7 +36,6 @@ import { LineChartComponent } from './components/line-chart/line-chart.component
 import { MapComponent } from './components//map/map.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
-import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
@@ -62,6 +62,7 @@ import { NgGridModule } from 'angular2-grid';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { AppMaterialModule } from './app.material.module';
 import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
 import { ChartComponent } from './components/chart/chart.component';
@@ -70,6 +71,13 @@ import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
 import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-grid.component';
+import { NewsFeedComponent } from './components/news-feed/news-feed.component';
+import { MatAutocompleteModule } from '@angular/material';
+import { QueryBarComponent } from './components/query-bar/query-bar.component';
+import {
+    ThumbnailDetailsContractedComponent,
+    ThumbnailDetailsExpandedComponent
+} from './components/thumbnail-grid/thumbnail-details.component';
 
 describe('App: NeonGtd', () => {
     let fixture: ComponentFixture<AppComponent>;
@@ -82,6 +90,7 @@ describe('App: NeonGtd', () => {
                 ChartComponent,
                 AppComponent,
                 AboutNeonComponent,
+                AggregationComponent,
                 AnnotationViewerComponent,
                 BarChartComponent,
                 ChartComponent,
@@ -96,11 +105,14 @@ describe('App: NeonGtd', () => {
                 MapComponent,
                 MediaViewerComponent,
                 NetworkGraphComponent,
+                NewsFeedComponent,
+                QueryBarComponent,
                 SampleComponent,
                 ScatterPlotComponent,
                 SimpleFilterComponent,
-                StackedTimelineComponent,
                 TextCloudComponent,
+                ThumbnailDetailsContractedComponent,
+                ThumbnailDetailsExpandedComponent,
                 ThumbnailGridComponent,
                 TimelineComponent,
                 UnsharedFilterComponent,
@@ -111,12 +123,15 @@ describe('App: NeonGtd', () => {
             imports: [
                 FormsModule,
                 AppMaterialModule,
+                MatAutocompleteModule,
                 NgxChartsModule,
                 NgGridModule,
                 NgxGraphModule,
                 NgxDatatableModule,
                 HttpModule,
-                BrowserAnimationsModule
+                HttpClientModule,
+                BrowserAnimationsModule,
+                ReactiveFormsModule
             ],
             providers: [
                 { provide: 'config', useValue: new NeonGTDConfig() },

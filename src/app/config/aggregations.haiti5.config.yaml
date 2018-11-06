@@ -1,0 +1,183 @@
+datasets:
+  -
+    name: HAITI V5
+    datastore: elasticsearch
+    hostname: localhost
+    layout: HAITI
+    connectOnLoad: true
+    databases:
+      -
+        name: haiti_5
+        prettyName: HAITI V5
+        tables:
+          -
+            name: ui_output
+            prettyName: UI OUTPUT
+            fields:
+
+layouts:
+  HAITI:
+    -
+      col: 1
+      row: 1
+      sizex: 4
+      sizey: 4
+      type: aggregation
+      bindings:
+        title: Bar Chart Vertical
+        type: bar-v
+        database: 0
+        table: 0
+        xField: topics
+
+    -
+      col: 5
+      row: 1
+      sizex: 4
+      sizey: 4
+      type: aggregation
+      bindings:
+        title: Bar Chart Vertical Date Groups
+        type: bar-v
+        database: 0
+        table: 0
+        xField: createdAt
+        groupField: topics
+        granularity: month
+
+    -
+      col: 9
+      row: 1
+      sizex: 4
+      sizey: 4
+      type: aggregation
+      bindings:
+        title: Bar Chart Horizontal Date Groups
+        type: bar-h
+        database: 0
+        table: 0
+        xField: createdAt
+        groupField: topics
+        granularity: month
+
+    -
+      col: 1
+      row: 5
+      sizex: 4
+      sizey: 4
+      type: aggregation
+      bindings:
+        title: Histogram Strings
+        type: histogram
+        database: 0
+        table: 0
+        xField: topics
+
+    -
+      col: 5
+      row: 5
+      sizex: 4
+      sizey: 4
+      type: aggregation
+      bindings:
+        title: Histogram Date Groups
+        type: histogram
+        database: 0
+        table: 0
+        xField: createdAt
+        groupField: topics
+        granularity: month
+
+    -
+      col: 9
+      row: 5
+      sizex: 4
+      sizey: 4
+      type: aggregation
+      bindings:
+        title: Pie Chart
+        type: pie
+        database: 0
+        table: 0
+        xField: topics
+
+    -
+      col: 1
+      row: 9
+      sizex: 4
+      sizey: 4
+      type: aggregation
+      bindings:
+        title: Line Chart Strings
+        type: line
+        database: 0
+        table: 0
+        xField: topics
+
+    -
+      col: 5
+      row: 9
+      sizex: 4
+      sizey: 4
+      type: aggregation
+      bindings:
+        title: Line Chart Date Groups
+        type: line
+        database: 0
+        table: 0
+        xField: createdAt
+        groupField: topics
+        granularity: month
+
+    -
+      col: 9
+      row: 9
+      sizex: 4
+      sizey: 4
+      type: aggregation
+      bindings:
+        title: Pie Chart Date Groups
+        type: pie
+        database: 0
+        table: 0
+        xField: createdAt
+        groupField: topics
+        granularity: year
+
+    -
+      col: 1
+      row: 13
+      sizex: 4
+      sizey: 4
+      type: aggregation
+      bindings:
+        title: Scatter Chart Strings
+        type: scatter
+        database: 0
+        table: 0
+        xField: topics
+
+    -
+      col: 5
+      row: 13
+      sizex: 4
+      sizey: 4
+      type: aggregation
+      bindings:
+        title: Scatter Chart XY Numbers
+        type: scatter-xy
+        database: 0
+        table: 0
+        xField: geoLocations.lat
+        yField: geoLocations.lon
+
+    -
+      col: 9
+      row: 13
+      sizex: 4
+      sizey: 4
+      type: aggregation
+      bindings:
+        title: TODO
+        type: pie
+

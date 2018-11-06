@@ -22,7 +22,8 @@ import {
     OnDestroy,
     OnInit,
     ViewChild,
-    ViewEncapsulation
+    ViewEncapsulation,
+    HostListener
 } from '@angular/core';
 
 import { ActiveGridService } from '../../services/active-grid.service';
@@ -34,7 +35,7 @@ import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 
@@ -44,43 +45,109 @@ import * as neon from 'neon-framework';
 export class DataTableOptions extends BaseNeonOptions {
     public allColumnStatus: string;
     public arrayFilterOperator: string;
+    public colorField: FieldMetaData;
     public exceptionsToStatus: string[];
+    public customColumnWidths: [[string, number]];
     public fieldsConfig: any[];
     public filterable: boolean;
     public filterFields: FieldMetaData[];
+    public headers: { prop: string, name: string, active: boolean, style: Object, cellClass: any, width: number }[] = [];
+    public heatmapDivisor: number;
+    public heatmapField: FieldMetaData;
     public idField: FieldMetaData;
     public ignoreSelf: boolean;
+    public reorderable: boolean;
     public singleFilter: boolean;
     public skinny: boolean;
     public sortField: FieldMetaData;
     public sortDescending: boolean;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
      *
+     * @arg {any} bindings
+     * @return {any}
      * @override
      */
-    onInit() {
-        this.allColumnStatus = this.injector.get('allColumnStatus', 'show');
-        this.arrayFilterOperator = this.injector.get('arrayFilterOperator', 'and');
-        this.exceptionsToStatus = this.injector.get('exceptionsToStatus', []);
-        this.fieldsConfig = this.injector.get('fieldsConfig', []);
-        this.filterable = this.injector.get('filterable', false);
-        this.ignoreSelf = this.injector.get('ignoreSelf', false);
-        this.singleFilter = this.injector.get('singleFilter', false);
-        this.skinny = this.injector.get('skinny', false);
-        this.sortDescending = this.injector.get('sortDescending', true);
+    appendNonFieldBindings(bindings: any): any {
+        bindings.arrayFilterOperator = this.arrayFilterOperator;
+        bindings.exceptionsToStatus = this.exceptionsToStatus;
+        bindings.filterable = this.filterable;
+        bindings.heatmapDivisor = this.heatmapDivisor;
+        bindings.ignoreSelf = this.ignoreSelf;
+        bindings.reorderable = this.reorderable;
+        bindings.singleFilter = this.singleFilter;
+        bindings.skinny = this.skinny;
+        bindings.sortDescending = this.sortDescending;
+
+        bindings.fieldsConfig = this.headers.map((header) => {
+            return {
+                name: header.name,
+                hide: !header.active
+            };
+        });
+
+        return bindings;
     }
 
     /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
+     * Returns the list of fields to export.
+     *
+     * @return {{ columnName: string, prettyName: string }[]}
+     * @override
+     */
+    getExportFields() {
+        return this.headers.filter((header) => header.active).map((header) => {
+            return {
+                columnName: header.prop,
+                prettyName: header.name
+            };
+        });
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'colorField',
+            'heatmapField',
+            'idField',
+            'sortField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return ['filterFields'];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    updateFieldsOnTableChanged() {
-        this.idField = this.findFieldObject('idField');
-        this.sortField = this.findFieldObject('sortField');
-        this.filterFields = this.findFieldObjects('filterFields');
+    initializeNonFieldBindings() {
+        this.allColumnStatus = this.injector.get('allColumnStatus', 'show');
+        this.arrayFilterOperator = this.injector.get('arrayFilterOperator', 'and');
+        this.exceptionsToStatus = this.injector.get('exceptionsToStatus', []);
+        this.customColumnWidths = this.injector.get('customColumnWidths', {});
+        this.fieldsConfig = this.injector.get('fieldsConfig', []);
+        this.filterable = this.injector.get('filterable', false);
+        this.heatmapDivisor = this.injector.get('heatmapDivisor', 0);
+        this.ignoreSelf = this.injector.get('ignoreSelf', false);
+        this.reorderable = this.injector.get('reorderable', true);
+        this.singleFilter = this.injector.get('singleFilter', false);
+        this.skinny = this.injector.get('skinny', false);
+        this.sortDescending = this.injector.get('sortDescending', true);
     }
 }
 
@@ -92,7 +159,7 @@ export class DataTableOptions extends BaseNeonOptions {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -115,12 +182,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     public docCount: number = 0;
     public responseData: any[] = [];
 
-    public activeHeaders: { prop: string, name: string, active: boolean, style: Object }[] = [];
-    public headers: { prop: string, name: string, active: boolean, style: Object, width: number}[] = [];
+    public activeHeaders: { prop: string, name: string, active: boolean, style: Object, cellClass: any }[] = [];
     public headerWidths: Map<string, number> = new Map<string, number>();
     public page: number = 1;
     public selected: any[] = [];
     public showColumnSelector: string = 'hide';
+    public styleRules: string[] = [];
+    public styleSheet: any;
 
     public drag: {
         mousedown: boolean,
@@ -130,13 +198,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         x: number,
         y: number
     } = {
-        mousedown: false,
-        downIndex: -1,
-        currentIndex: -1,
-        field: null,
-        x: 0,
-        y: 0
-    };
+            mousedown: false,
+            downIndex: -1,
+            currentIndex: -1,
+            field: null,
+            x: 0,
+            y: 0
+        };
+
+    public duplicateNumber = 0;
+    public seenValues = [];
 
     constructor(
         activeGridService: ActiveGridService,
@@ -164,6 +235,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
         this.options = new DataTableOptions(this.injector, this.datasetService, 'Data Table', 100);
         this.enableRedrawAfterResize(true);
+
+        let style = document.createElement('style');
+        style.appendChild(document.createTextNode(''));
+        document.head.appendChild(style);
+        this.styleSheet = style.sheet;
+    }
+
+    @HostListener('window:resize')
+    onResize() {
+        this.refreshVisualization();
     }
 
     initializeHeadersFromExceptionsToStatus() {
@@ -177,53 +258,70 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             // If field is an exception, set active to oppositve of show status.
             if (this.headerIsInExceptions(fieldObject)) {
                 orderedHeaders.push({
+                    cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: !show && orderedHeaders.length < initialHeaderLimit,
                     style: {},
-                    width: this.DEFAULT_COLUMN_WIDTH
+                    width: this.getColumnWidth(fieldObject)
                 });
             } else {
                 unorderedHeaders.push({
+                    cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: show && unorderedHeaders.length < initialHeaderLimit,
                     style: {},
-                    width: this.DEFAULT_COLUMN_WIDTH
+                    width: this.getColumnWidth(fieldObject)
                 });
             }
         }
         // Order fields in exceptions first.
         orderedHeaders = this.sortOrderedHeaders(orderedHeaders);
-        this.headers = orderedHeaders.concat(unorderedHeaders);
+        this.options.headers = orderedHeaders.concat(unorderedHeaders);
     }
 
     initializeHeadersFromFieldsConfig() {
         let existingFields = [];
         for (let fieldConfig of this.options.fieldsConfig) {
             let fieldObject = this.options.findField(fieldConfig.name);
-            if (fieldObject.columnName) {
+            if (fieldObject && fieldObject.columnName) {
                 existingFields.push(fieldObject.columnName);
-                this.headers.push({
+                this.options.headers.push({
+                    cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: !fieldConfig.hide,
                     style: {},
-                    width: this.DEFAULT_COLUMN_WIDTH
+                    width: this.getColumnWidth(fieldConfig)
                 });
             }
         }
         for (let fieldObject of this.options.fields) {
             if (existingFields.indexOf(fieldObject.columnName) < 0) {
-                this.headers.push({
+                this.options.headers.push({
+                    cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: (this.options.allColumnStatus === 'show'),
                     style: {},
-                    width: this.DEFAULT_COLUMN_WIDTH
+                    width: this.getColumnWidth(fieldObject)
                 });
             }
         }
+    }
+
+    /**
+     * Returns the custom width for a column (or default if not specified in the config)
+     * @returns width for a specific column
+     */
+    getColumnWidth(fieldConfig) {
+        for (let miniArray of this.options.customColumnWidths) {
+            if (fieldConfig.columnName === miniArray[0]) {
+                return miniArray[1];
+            }
+        }
+        return this.DEFAULT_COLUMN_WIDTH;
     }
 
     subNgOnInit() {
@@ -242,26 +340,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     subNgOnDestroy() {
         // Do nothing
-    }
-
-    subGetBindings(bindings: any) {
-        bindings.idField = this.options.idField.columnName;
-        bindings.sortField = this.options.sortField.columnName;
-        bindings.filterFields = this.options.filterFields;
-
-        bindings.arrayFilterOperator = this.options.arrayFilterOperator;
-        bindings.filterable = this.options.filterable;
-        bindings.ignoreSelf = this.options.ignoreSelf;
-        bindings.singleFilter = this.options.singleFilter;
-        bindings.skinny = this.options.skinny;
-        bindings.sortDescending = this.options.sortDescending;
-
-        bindings.fieldsConfig = this.headers.map((header) => {
-            return {
-                name: header.name,
-                hide: !header.active
-            };
-        });
     }
 
     headerIsInExceptions(header) {
@@ -327,7 +405,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     getActiveHeaders() {
         let active = [];
-        for (let header of this.headers) {
+        for (let header of this.options.headers) {
             if (header.active) {
                 active.push(header);
             }
@@ -344,17 +422,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return null;
     }
 
-    getExportFields() {
-        return this.headers
-            .filter((header) => header.active)
-            .map((header) => {
-                return {
-                    columnName: header.prop,
-                    prettyName: header.name
-                };
-            });
-    }
-
     closeColumnSelector() {
         this.showColumnSelector = 'hide';
         this.changeDetection.detectChanges();
@@ -362,15 +429,15 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     deactivateAllHeaders() {
         this.activeHeaders = [];
-        for (let header of this.headers) {
+        for (let header of this.options.headers) {
             header.active = false;
         }
         this.changeDetection.detectChanges();
     }
 
     activateAllHeaders() {
-        this.activeHeaders = this.headers;
-        for (let header of this.headers) {
+        this.activeHeaders = this.options.headers;
+        for (let header of this.options.headers) {
             header.active = true;
         }
         this.changeDetection.detectChanges();
@@ -501,9 +568,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     onQuerySuccess(response): void {
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
-            this.docCount = response.data[0]._docCount;
+            this.docCount = response.data[0]._docCount - this.duplicateNumber;
         } else {
-            let data = response.data.map((d) => {
+            let responses = response.data;
+            let data = responses.map((d) => {
                 let row = {};
                 for (let field of this.options.fields) {
                     if (field.type || field.columnName === '_id') {
@@ -522,15 +590,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getDocCount() {
-        let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createClause())
-            .aggregate(neonVariables.COUNT, '*', '_docCount');
+        if (!this.cannotExecuteQuery()) {
+            let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
+                .where(this.createClause()).aggregate(neonVariables.COUNT, '*', '_docCount');
 
-        let ignoreFilters = this.getFiltersToIgnore();
-        if (ignoreFilters && ignoreFilters.length) {
-            countQuery.ignoreFilters(ignoreFilters);
+            let ignoreFilters = this.getFiltersToIgnore();
+            if (ignoreFilters && ignoreFilters.length) {
+                countQuery.ignoreFilters(ignoreFilters);
+            }
+
+            this.executeQuery(countQuery);
         }
-
-        this.executeQuery(countQuery);
     }
 
     setupFilters() {
@@ -565,11 +635,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     // mouse up in a drag and drop element
     onMouseUp(i) {
         if (this.isDragging && this.drag.downIndex !== this.drag.currentIndex) {
-            let length = this.headers.length;
+            let length = this.options.headers.length;
             if (this.drag.downIndex >= length || i >= length || this.drag.downIndex < 0 || i < 0) {
                 // Do nothing
             } else {
-                let h = this.headers;
+                let h = this.options.headers;
                 let si = this.drag.downIndex; // startIndex
                 let ei = i; // endIndex
                 let dir = (si > ei ? -1 : 1);
@@ -592,7 +662,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.drag.downIndex = i;
             this.drag.mousedown = true;
             this.setStyle(i, 'backgroundColor', 'rgba(0, 0, 0, .2)');
-            this.setStyle(i, 'border', 'gray dashed 1px');
+            this.setStyle(i, 'border', 'grey dashed 1px');
         }
     }
 
@@ -600,7 +670,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     onMouseEnter(i) {
         if (this.isDragging()) {
             this.drag.currentIndex = i;
-            let style = 'thick solid gray';
+            let style = 'thick solid grey';
             if (i < this.drag.downIndex) {
                 this.setStyle(i, 'borderTop', style);
             } else if (i > this.drag.downIndex) {
@@ -634,7 +704,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     clearHeaderStyles() {
-        for (let header of this.headers) {
+        for (let header of this.options.headers) {
             header.style = {};
         }
     }
@@ -671,6 +741,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getButtonText() {
         if (!this.docCount) {
+            if (this.options.hideUnfiltered) {
+                return 'Please Filter';
+            }
             return 'No Data';
         }
         if (this.docCount <= this.options.limit) {
@@ -689,8 +762,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @private
      */
     onSelect({ selected }) {
-        if (selected && selected.length && this.options.idField.columnName && selected[0][this.options.idField.columnName]) {
-            this.publishSelectId(selected[0][this.options.idField.columnName]);
+        let selectedItem = selected && selected.length ? selected[0] : null;
+        if (this.options.idField.columnName && selectedItem[this.options.idField.columnName]) {
+            this.publishSelectId(selectedItem[this.options.idField.columnName]);
         }
         this.selected.splice(0, this.selected.length);
         this.selected.push(...selected);
@@ -723,6 +797,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 }
             });
         }
+
+        this.publishAnyCustomEvents(selectedItem, this.options.idField.columnName);
     }
 
     createFilterObject(field: string, value: string, prettyField: string): any {
@@ -772,7 +848,42 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @private
      */
     private setStyle(index: number, style: string, value: string) {
-        this.headers[index].style[style] = value;
+        this.options.headers[index].style[style] = value;
+    }
+
+    /**
+     * Returns the cellClass property of an ngx-datatable column object that, given a cell, returns an object with the style classes for
+     * the cell as keys and booleans as values.
+     *
+     * @arg {object} column
+     * @arg {string} value
+     * @return {function}
+     */
+    getCellClassFunction(): any {
+        let self = this;
+        return function({ column, value }): any {
+            let cellClass: any = {};
+            if (column && self.options.colorField.columnName === column.prop) {
+                let colorClass = value;
+                let colorValue = value;
+                if (colorClass.indexOf('#') === 0) {
+                    colorClass = 'hex_' + colorClass.substring(1);
+                } else {
+                    let regexMatch = value.match(/.*?(\d{1,3})[,\s]*(\d{1,3})[,\s]*(\d{1,3}).*?/);
+                    if (regexMatch) {
+                        colorClass = 'rgb_' + regexMatch[1] + '_' + regexMatch[2] + '_' + regexMatch[3];
+                        colorValue = 'rgb(' + regexMatch[1] + ',' + regexMatch[2] + ',' + regexMatch[3] + ')';
+                    }
+                }
+                if (self.styleRules.indexOf(colorClass) < 0) {
+                    self.styleSheet.insertRule('.' + colorClass + ':before { background-color: ' + colorValue + '; }');
+                    self.styleRules.push(colorClass);
+                }
+                cellClass['color-field'] = true;
+                cellClass[colorClass] = true;
+            }
+            return cellClass;
+        };
     }
 
     /**
@@ -799,19 +910,45 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return this.options;
     }
 
-    getRowClassFunction() {
+    /**
+     * Returns a function for the rowClass property of the ngx-datatable that, given a row, returns an object with the style classes for
+     * the row as keys and booleans as values.
+     *
+     * @return {function}
+     */
+    getRowClassFunction(): any {
         let self = this;
-        return function(row) {
-            let active = self.options.filterFields.some((filterField: any) => {
+        return function(row): any {
+            let rowClass: any = {};
+            rowClass.active = self.options.filterFields.some((filterField: any) => {
                 return self.filters.some((filter) => {
                     return filterField.columnName && filterField.columnName === filter.field &&
                         row[filterField.columnName] === filter.value;
                 });
             });
 
-            return {
-                active: active
-            };
+            if (self.options.heatmapField.columnName && self.options.heatmapDivisor) {
+                let heatmapClass = 'heat-0';
+                let heatmapDivisor = self.options.heatmapDivisor;
+                let heatmapValue = row[self.options.heatmapField.columnName];
+
+                // Ignore undefined, nulls, strings, or NaNs.
+                if (typeof heatmapValue !== 'undefined' && self.isNumber(heatmapValue)) {
+                    // If the divisor is a fraction, transform it and the value into whole numbers in order to avoid floating point errors.
+                    if (heatmapDivisor % 1) {
+                        // Find the number of digits following the decimal point in the divisor.
+                        let digits = ('' + heatmapDivisor).substring(('' + heatmapDivisor).indexOf('.') + 1).length;
+                        // Transform the divisor and the value into whole numbers using the number of digits.
+                        heatmapDivisor = heatmapDivisor * Math.pow(10, digits);
+                        heatmapValue = heatmapValue * Math.pow(10, digits);
+                    }
+                    heatmapClass = 'heat-' + Math.min(Math.max(Math.floor(parseFloat(heatmapValue) / heatmapDivisor), 1), 5);
+                    heatmapClass = 'heat-' + Math.min(Math.max(Math.floor(parseFloat(heatmapValue) / heatmapDivisor), 1), 5);
+                }
+                rowClass[heatmapClass] = true;
+            }
+
+            return rowClass;
         };
     }
 

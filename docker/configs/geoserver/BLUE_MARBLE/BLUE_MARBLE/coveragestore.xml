@@ -1,0 +1,13 @@
+<coverageStore>
+  <name>BLUE_MARBLE</name>
+  <description>Blue Marble</description>
+  <type>GeoTIFF</type>
+  <enabled>true</enabled>
+  <workspace>
+          <name>bm</name>
+          <link></link>
+  </workspace>
+  <__default>false</__default>
+  <url>file:///usr/local/geoserver/data/BLUE_MARBLE/BlueMarbleNG-TB_2004-12-01_rgb_3600x1800.TIFF</url>
+</coverageStore>
+~                   

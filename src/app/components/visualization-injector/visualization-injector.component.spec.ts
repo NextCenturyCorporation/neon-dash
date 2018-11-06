@@ -15,9 +15,10 @@
  */
 import { TestBed, inject } from '@angular/core/testing';
 import { ComponentFactoryResolver } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
+import { AggregationComponent } from '../aggregation/aggregation.component';
 import { AnnotationViewerComponent } from '../annotation-viewer/annotation-viewer.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { DataTableComponent } from '../data-table/data-table.component';
@@ -30,7 +31,6 @@ import { MapComponent } from '../map/map.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
 import { SampleComponent } from '../sample/sample.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
-import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
@@ -45,14 +45,19 @@ import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { NewsFeedComponent } from '../news-feed/news-feed.component';
+import { QueryBarComponent } from '../query-bar/query-bar.component';
+import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from '../thumbnail-grid/thumbnail-details.component';
+import { MatAutocompleteModule } from '@angular/material';
 
 describe('Component: VisualizationInjector', () => {
 
     initializeTestBed({
         declarations: [
+            AggregationComponent,
             AnnotationViewerComponent,
-            ChartComponent,
             BarChartComponent,
+            ChartComponent,
             DataTableComponent,
             DocumentViewerComponent,
             ExportControlComponent,
@@ -62,10 +67,13 @@ describe('Component: VisualizationInjector', () => {
             MapComponent,
             MediaViewerComponent,
             NetworkGraphComponent,
+            NewsFeedComponent,
+            QueryBarComponent,
             SampleComponent,
             ScatterPlotComponent,
-            StackedTimelineComponent,
             TextCloudComponent,
+            ThumbnailDetailsContractedComponent,
+            ThumbnailDetailsExpandedComponent,
             ThumbnailGridComponent,
             TimelineComponent,
             UnsharedFilterComponent,
@@ -76,9 +84,11 @@ describe('Component: VisualizationInjector', () => {
         imports: [
             AppMaterialModule,
             FormsModule,
+            MatAutocompleteModule,
             NgxDatatableModule,
             NgxGraphModule,
-            BrowserAnimationsModule
+            BrowserAnimationsModule,
+            ReactiveFormsModule
         ]
     });
 

@@ -1,6 +1,4 @@
 {
-
-
     "dashboard": {
         "gridsterColumns": 24,
         "gridsterMargins": 10,
@@ -159,7 +157,7 @@
 
     "layouts": {
         "default": [{
-                "sizex": 20,
+                "sizex": 10,
                 "sizey": 6,
                 "type": "filterBuilder",
                 "bindings": {
@@ -168,7 +166,7 @@
                 }
             },
             {
-                "sizex": 20,
+                "sizex": 10,
                 "sizey": 6,
                 "type": "scatterPlot",
                 "bindings": {
@@ -180,7 +178,7 @@
                 }
             },
             {
-                "sizex": 20,
+                "sizex": 10,
                 "sizey": 6,
                 "type": "dataTable",
                 "bindings": {
@@ -191,7 +189,7 @@
                 }
             },
             {
-                "sizex": 18,
+                "sizex": 8,
                 "sizey": 8,
                 "type": "map",
                 "bindings": {
@@ -207,7 +205,7 @@
                 }
             },
             {
-                "sizex": 12,
+                "sizex": 6,
                 "sizey": 4,
                 "type": "barChart",
                 "bindings": {
@@ -218,7 +216,7 @@
                 }
             },
             {
-                "sizex": 12,
+                "sizex": 6,
                 "sizey": 4,
                 "type": "lineChart",
                 "bindings": {
@@ -230,7 +228,7 @@
                 }
             },
             {
-                "sizex": 20,
+                "sizex": 10,
                 "sizey": 6,
                 "type": "textCloud",
                 "bindings": {
@@ -240,7 +238,7 @@
                 }
             },
             {
-                "sizex": 12,
+                "sizex": 6,
                 "sizey": 4,
                 "type": "timeline",
                 "bindings": {
@@ -252,7 +250,7 @@
         ],
 
         "example-with-bindings": [{
-            "sizex": 12,
+            "sizex": 6,
             "type": "timeline",
             "bindings": {
                 "title": "myTitle",
@@ -264,7 +262,7 @@
                 "overrideEndDate": "1388534399000"
             }
         }, {
-            "sizex": 12,
+            "sizex": 6,
             "type": "map",
             "bindings": {
                 "title": "myTitle",
@@ -304,7 +302,7 @@
                 }]
             }
         }, {
-            "sizex": 12,
+            "sizex": 6,
             "type": "lineChart",
             "bindings": {
                 "title": "myTitle",
@@ -326,7 +324,7 @@
                 }]
             }
         }, {
-            "sizex": 12,
+            "sizex": 6,
             "type": "dataTable",
             "bindings": {
                 "title": "myTitle",
@@ -337,7 +335,7 @@
                 "limit": 500
             }
         }, {
-            "sizex": 6,
+            "sizex": 3,
             "type": "aggregationTable",
             "bindings": {
                 "title": "myTitle",
@@ -349,7 +347,7 @@
                 "limit": 100
             }
         }, {
-            "sizex": 6,
+            "sizex": 3,
             "type": "barChart",
             "bindings": {
                 "title": "myTitle",
@@ -361,7 +359,7 @@
                 "limit": 50
             }
         }, {
-            "sizex": 6,
+            "sizex": 3,
             "type": "newsFeed",
             "bindings": {
                 "title": "myTitle",
@@ -373,7 +371,7 @@
                 "contentField": "mag"
             }
         }, {
-            "sizex": 6,
+            "sizex": 3,
             "type": "opsClock",
             "bindings": {
                 "title": "myTitle",
@@ -382,7 +380,7 @@
                 "dateField": "time"
             }
         }, {
-            "sizex": 6,
+            "sizex": 3,
             "type": "scatterPlot",
             "bindings": {
                 "title": "myTitle",
@@ -394,7 +392,7 @@
                 "limit": "time"
             }
         }, {
-            "sizex": 6,
+            "sizex": 3,
             "type": "sunburstChart",
             "bindings": {
                 "title": "myTitle",
@@ -405,7 +403,7 @@
                 "arcValue": "count"
             }
         }, {
-            "sizex": 6,
+            "sizex": 3,
             "type": "textCloud",
             "bindings": {
                 "title": "myTitle",

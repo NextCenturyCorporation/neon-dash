@@ -46,23 +46,46 @@ import * as neon from 'neon-framework';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import * as _ from 'lodash';
 
 export class TestOptions extends BaseNeonOptions {
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
      *
+     * @arg {any} bindings
+     * @return {any}
      * @override
      */
-    onInit() {
-        // Do nothing.
+    appendNonFieldBindings(bindings: any): any {
+        return bindings;
     }
 
     /**
-     * Initializes all the field options for the specific visualization.
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    updateFieldsOnTableChanged() {
+    initializeNonFieldBindings() {
         // Do nothing.
     }
 }
@@ -114,10 +137,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         //Get an option from the visualization's config
     }
 
-    subGetBindings(bindings: any) {
-        //
-    }
-
     createQuery() {
         let query = new neon.query.Query();
         return query;
@@ -129,14 +148,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
 
     getElementRefs() {
         return {};
-    }
-
-    getExportFields() {
-        let fields = [{
-            columnName: 'value',
-            prettyName: 'Count'
-        }];
-        return fields;
     }
 
     getFiltersToIgnore() {
@@ -195,6 +206,320 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     }
 }
 
+describe('Component: BaseNeonOptions', () => {
+    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let component: BaseNeonComponent;
+    let options: BaseNeonOptions;
+    let fixture: ComponentFixture<BaseNeonComponent>;
+
+    initializeTestBed({
+        declarations: [
+            TestBaseNeonComponent,
+            ExportControlComponent
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            {
+                provide: DatasetService,
+                useClass: DatasetServiceMock
+            },
+            FilterService,
+            ExportService,
+            Injector,
+            ThemesService,
+            VisualizationService,
+            ErrorNotificationService,
+            { provide: 'config', useValue: testConfig },
+            { provide: 'testDate', useValue: 'testDateField' },
+            { provide: 'testFake', useValue: 'testFakeField' },
+            { provide: 'testList', useValue: ['testDateField', 'testFakeField', 'testNameField', 'testSizeField'] },
+            { provide: 'testName', useValue: 'testNameField' },
+            { provide: 'testSize', useValue: 'testSizeField' }
+        ]
+    });
+
+    beforeEach(() => {
+        fixture = TestBed.createComponent(TestBaseNeonComponent);
+        component = fixture.componentInstance;
+        options = component.getOptions();
+        fixture.detectChanges();
+    });
+
+    it('does have expected properties', () => {
+        expect(options.customEventsToPublish).toEqual([]);
+        expect(options.customEventsToReceive).toEqual([]);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(options.filter).toEqual(null);
+        expect(options.hideUnfiltered).toEqual(false);
+        expect(options.limit).toEqual(10);
+        expect(options.newLimit).toEqual(10);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.title).toEqual('TestName');
+        expect(options.unsharedFilterField).toEqual(new FieldMetaData());
+        expect(options.unsharedFilterValue).toEqual('');
+    });
+
+    it('createBindings does return expected object', () => {
+        expect(options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 10,
+            table: 'testTable1',
+            title: 'TestName',
+            unsharedFilterValue: '',
+            unsharedFilterField: ''
+        });
+    });
+
+    it('findField does return expected object or undefined', () => {
+        expect(options.findField('testDateField')).toEqual(DatasetServiceMock.DATE_FIELD);
+        expect(options.findField('testNameField')).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(options.findField('testSizeField')).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(options.findField('testFakeField')).toEqual(undefined);
+    });
+
+    it('findField does work as expected if given an array index', () => {
+        let dateIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => {
+            return fieldObject.columnName === 'testDateField';
+        });
+        let nameIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => {
+            return fieldObject.columnName === 'testNameField';
+        });
+        let sizeIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => {
+            return fieldObject.columnName === 'testSizeField';
+        });
+        expect(options.findField('' + dateIndex)).toEqual(DatasetServiceMock.DATE_FIELD);
+        expect(options.findField('' + nameIndex)).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(options.findField('' + sizeIndex)).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(options.findField('' + DatasetServiceMock.FIELDS.length)).toEqual(undefined);
+        expect(options.findField('-1')).toEqual(undefined);
+    });
+
+    it('findFieldObject does return expected object', () => {
+        expect(options.findFieldObject('testDate')).toEqual(DatasetServiceMock.DATE_FIELD);
+        expect(options.findFieldObject('testName')).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(options.findFieldObject('testSize')).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(options.findFieldObject('testFake')).toEqual(new FieldMetaData());
+        expect(options.findFieldObject('fakeBind')).toEqual(new FieldMetaData());
+    });
+
+    it('findFieldObjects does return expected array', () => {
+        expect(options.findFieldObjects('testList')).toEqual([
+            DatasetServiceMock.DATE_FIELD,
+            new FieldMetaData(),
+            DatasetServiceMock.NAME_FIELD,
+            DatasetServiceMock.SIZE_FIELD
+        ]);
+        expect(options.findFieldObjects('testName')).toEqual([]);
+        expect(options.findFieldObjects('fakeBind')).toEqual([]);
+    });
+
+    it('getAllFieldArrayProperties does return expected array', () => {
+        expect(options.getAllFieldArrayProperties()).toEqual([]);
+    });
+
+    it('getAllFieldProperties does return expected array', () => {
+        expect(options.getAllFieldProperties()).toEqual(['unsharedFilterField']);
+    });
+
+    it('getExportFields does return expected array', () => {
+        expect(options.getExportFields()).toEqual([]);
+    });
+
+    it('updateDatabases does update databases, tables, and fields', () => {
+        options.updateDatabases();
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+    });
+
+    it('updateFields does update fields', () => {
+        options.databases = DatasetServiceMock.DATABASES;
+        options.database = DatasetServiceMock.DATABASES[0];
+        options.tables = DatasetServiceMock.TABLES;
+        options.table = DatasetServiceMock.TABLES[0];
+        options.updateFields();
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+    });
+
+    it('updateTables does update tables and fields', () => {
+        options.databases = DatasetServiceMock.DATABASES;
+        options.database = DatasetServiceMock.DATABASES[0];
+        options.updateTables();
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+    });
+});
+
+describe('Component: BaseNeonOptions with config', () => {
+    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let component: BaseNeonComponent;
+    let options: BaseNeonOptions;
+    let fixture: ComponentFixture<BaseNeonComponent>;
+
+    initializeTestBed({
+        declarations: [
+            TestBaseNeonComponent,
+            ExportControlComponent
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            {
+                provide: DatasetService,
+                useClass: DatasetServiceMock
+            },
+            FilterService,
+            ExportService,
+            Injector,
+            ThemesService,
+            VisualizationService,
+            ErrorNotificationService,
+            { provide: 'config', useValue: testConfig },
+            { provide: 'database', useValue: 1 },
+            { provide: 'table', useValue: 1 },
+            { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
+            { provide: 'customEventsToPublish', useValue: [ { id: 'testPublishId', fields: [ { columnName: 'testPublishColumnName',
+                prettyName: 'testPublishPrettyName' } ] } ] },
+            { provide: 'customEventsToReceive', useValue: [ { id: 'testReceiveId', fields: [ { columnName: 'testReceiveColumnName',
+                type: 'testReceiveType' } ] } ] },
+            { provide: 'hideUnfiltered', useValue: true },
+            { provide: 'limit', useValue: 1234 },
+            { provide: 'title', useValue: 'VisualizationTitle' },
+            { provide: 'unsharedFilterField', useValue: 'testFilterField' },
+            { provide: 'unsharedFilterValue', useValue: 'testFilterValue' }
+        ]
+    });
+
+    beforeEach(() => {
+        fixture = TestBed.createComponent(TestBaseNeonComponent);
+        component = fixture.componentInstance;
+        options = component.getOptions();
+        fixture.detectChanges();
+    });
+
+    it('does have expected properties', () => {
+        expect(options.customEventsToPublish).toEqual([{
+            id: 'testPublishId',
+            fields: [{
+                columnName: 'testPublishColumnName',
+                prettyName: 'testPublishPrettyName'
+            }]
+        }]);
+        expect(options.customEventsToReceive).toEqual([{
+            id: 'testReceiveId',
+            fields: [{
+                columnName: 'testReceiveColumnName',
+                type: 'testReceiveType'
+            }]
+        }]);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(options.filter).toEqual({
+            lhs: 'testConfigField',
+            operator: '!=',
+            rhs: 'testConfigValue'
+        });
+        expect(options.hideUnfiltered).toEqual(true);
+        expect(options.limit).toEqual(1234);
+        expect(options.newLimit).toEqual(1234);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.title).toEqual('VisualizationTitle');
+        expect(options.unsharedFilterField).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect(options.unsharedFilterValue).toEqual('testFilterValue');
+    });
+
+    it('createBindings does return expected object', () => {
+        expect(options.createBindings()).toEqual({
+            configFilter: {
+                lhs: 'testConfigField',
+                operator: '!=',
+                rhs: 'testConfigValue'
+            },
+            customEventsToPublish: [{
+                id: 'testPublishId',
+                fields: [{
+                    columnName: 'testPublishColumnName',
+                    prettyName: 'testPublishPrettyName'
+                }]
+            }],
+            customEventsToReceive: [{
+                id: 'testReceiveId',
+                fields: [{
+                    columnName: 'testReceiveColumnName',
+                    type: 'testReceiveType'
+                }]
+            }],
+            database: 'testDatabase2',
+            hideUnfiltered: true,
+            limit: 1234,
+            table: 'testTable2',
+            title: 'VisualizationTitle',
+            unsharedFilterValue: 'testFilterValue',
+            unsharedFilterField: 'testFilterField'
+        });
+    });
+
+    it('updateDatabases does update database if given an array index', () => {
+        options.updateDatabases();
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+    });
+
+    it('updateFields does update unshared filter', () => {
+        options.databases = DatasetServiceMock.DATABASES;
+        options.database = DatasetServiceMock.DATABASES[0];
+        options.tables = DatasetServiceMock.TABLES;
+        options.table = DatasetServiceMock.TABLES[0];
+        options.unsharedFilterField = null;
+        options.unsharedFilterValue = null;
+        options.updateFields();
+        expect(options.unsharedFilterField).toEqual(DatasetServiceMock.FILTER_FIELD);
+    });
+
+    it('updateTables does update tables if given an array index', () => {
+        options.databases = DatasetServiceMock.DATABASES;
+        options.database = DatasetServiceMock.DATABASES[0];
+        options.updateTables();
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+    });
+});
+
 describe('Component: base-neon', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: BaseNeonComponent;
@@ -233,36 +558,22 @@ describe('Component: base-neon', () => {
         fixture.detectChanges();
     });
 
-    it('should create a component', (() => {
-        expect(component).toBeTruthy();
-    }));
-
     it('should return expected value from bindings', (() => {
         component.getOptions().database = new DatabaseMetaData('testDatabase1');
         component.getOptions().table = new TableMetaData('testTable1');
         expect(component.getBindings()).toEqual({
-            title: 'TestName',
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
             database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 10,
             table: 'testTable1',
-            unsharedFilterField: '',
+            title: 'TestName',
             unsharedFilterValue: '',
-            limit: 10
+            unsharedFilterField: ''
         });
     }));
-
-    it('does have expected options properties', () => {
-        let options = component.getOptions();
-        expect(options.title).toEqual('TestName');
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
-        expect(options.unsharedFilterField).toEqual(new FieldMetaData());
-        expect(options.unsharedFilterValue).toEqual('');
-        expect(options.limit).toEqual(10);
-        expect(options.newLimit).toEqual(10);
-    });
 
     it('Checks both export functions', (() => {
         let query = component.createQuery();
@@ -299,51 +610,8 @@ describe('Component: base-neon', () => {
         expect(spy.calls.count()).toBe(1);
     }));
 
-    it('updateFields does update fields and does call updateFieldsOnTableChanged', () => {
+    it('handleChangeDatabase does update options and does call logChangeAndStartQueryChain', () => {
         let options = component.getOptions();
-        let spy = spyOn(options, 'updateFieldsOnTableChanged');
-        options.databases = DatasetServiceMock.DATABASES;
-        options.database = DatasetServiceMock.DATABASES[0];
-        options.tables = DatasetServiceMock.TABLES;
-        options.table = DatasetServiceMock.TABLES[0];
-        options.updateFields();
-        expect(spy.calls.count()).toBe(1);
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
-    });
-
-    it('updateTables does update tables and fields and does call updateFieldsOnTableChanged', () => {
-        let options = component.getOptions();
-        let spy = spyOn(options, 'updateFieldsOnTableChanged');
-        options.databases = DatasetServiceMock.DATABASES;
-        options.database = DatasetServiceMock.DATABASES[0];
-        options.updateTables();
-        expect(spy.calls.count()).toBe(1);
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
-    });
-
-    it('updateDatabases does update databases, tables, and fields and does call updateFieldsOnTableChanged', () => {
-        let options = component.getOptions();
-        let spy = spyOn(options, 'updateFieldsOnTableChanged');
-        options.updateDatabases();
-        expect(spy.calls.count()).toBe(1);
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
-    });
-
-    it('handleChangeDatabase does update options and does call updateFieldsOnTableChanged and logChangeAndStartQueryChain', () => {
-        let options = component.getOptions();
-        let spyUpdate = spyOn(options, 'updateFieldsOnTableChanged');
         let spyLog = spyOn(component, 'logChangeAndStartQueryChain');
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
@@ -351,7 +619,6 @@ describe('Component: base-neon', () => {
         options.table = null;
         options.fields = [];
         component.handleChangeDatabase();
-        expect(spyUpdate.calls.count()).toBe(1);
         expect(spyLog.calls.count()).toBe(1);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
@@ -362,9 +629,8 @@ describe('Component: base-neon', () => {
         expect(options.unsharedFilterValue).toEqual('');
     });
 
-    it('handleChangeTable does update options and does call updateFieldsOnTableChanged and logChangeAndStartQueryChain', () => {
+    it('handleChangeTable does update options and does call logChangeAndStartQueryChain', () => {
         let options = component.getOptions();
-        let spyUpdate = spyOn(options, 'updateFieldsOnTableChanged');
         let spyLog = spyOn(component, 'logChangeAndStartQueryChain');
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
@@ -372,7 +638,6 @@ describe('Component: base-neon', () => {
         options.table = DatasetServiceMock.TABLES[0];
         options.fields = [];
         component.handleChangeTable();
-        expect(spyUpdate.calls.count()).toBe(1);
         expect(spyLog.calls.count()).toBe(1);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);

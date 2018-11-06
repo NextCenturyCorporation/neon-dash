@@ -37,9 +37,10 @@ import { VisualizationService } from '../../services/visualization.service';
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from '../chart/chart.component';
 import { Chart } from 'chart.js';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
+import { IfStmt } from '@angular/compiler';
 
 /**
  * Data used to draw the bar chart
@@ -126,11 +127,75 @@ export class BarChartOptions extends BaseNeonOptions {
     public yPercentage: number;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
+     *
+     * @arg {any} bindings
+     * @return {any}
+     * @override
+     */
+    appendNonFieldBindings(bindings: any): any {
+        bindings.aggregation = this.aggregation;
+        bindings.andFilters = this.andFilters;
+        bindings.chartType = this.type;
+        bindings.ignoreSelf = this.ignoreSelf;
+        bindings.logScale = this.logScale;
+        bindings.saveSeenBars = this.saveSeenBars;
+        bindings.scaleManually = this.scaleManually;
+        bindings.scaleMax = this.scaleMax;
+        bindings.scaleMin = this.scaleMin;
+        bindings.sortAlphabetically = this.sortAlphabetically;
+        bindings.yPercentage = this.yPercentage;
+
+        return bindings;
+    }
+
+    /**
+     * Returns the list of fields to export.
+     *
+     * @return {{ columnName: string, prettyName: string }[]}
+     * @override
+     */
+    getExportFields(): any[] {
+        return [{
+            columnName: this.dataField.columnName,
+            prettyName: this.dataField.prettyName
+        }, {
+            columnName: 'value',
+            prettyName: (this.aggregation.charAt(0).toUpperCase() + this.aggregation.slice(1)) + (this.aggregation === 'count' ? '' :
+                ('_' + this.aggregationField.prettyName))
+        }];
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'aggregationField',
+            'dataField',
+            'colorField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    onInit() {
+    initializeNonFieldBindings() {
         this.aggregation = this.injector.get('aggregation', 'count');
         this.andFilters = this.injector.get('andFilters', true);
         this.ignoreSelf = this.injector.get('ignoreSelf', true);
@@ -142,17 +207,6 @@ export class BarChartOptions extends BaseNeonOptions {
         this.sortAlphabetically = this.injector.get('sortAlphabetically', false);
         this.type = this.injector.get('chartType', 'bar');
         this.yPercentage = this.injector.get('yPercentage', 0.2);
-    }
-
-    /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
-     *
-     * @override
-     */
-    updateFieldsOnTableChanged() {
-        this.aggregationField = this.findFieldObject('aggregationField');
-        this.dataField = this.findFieldObject('dataField');
-        this.colorField = this.findFieldObject('colorField');
     }
 }
 
@@ -176,7 +230,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         id: string,
         field: string,
         value: string,
-        prettyField: string
+        prettyField: string,
+        operator: any
     }[] = [];
 
     public options: BarChartOptions;
@@ -241,6 +296,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             visualizationService
         );
 
+        console.warn('The bar-chart component is deprecated.  Please use the aggregation component with type=bar-v or type=bar-h.');
+
         this.options = new BarChartOptions(this.injector, this.datasetService, 'Bar Chart', 10);
 
         this.onClick = this.onClick.bind(this);
@@ -286,7 +343,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             // Format number strings first.
             let formatted = this.formatNumber(text);
             // Subtract three characters for the ellipsis.
-            let truncated = ('' + text).substring(0, ('' + text).length - 3);
+            let truncated = ('' + formatted).substring(0, ('' + formatted).length - 3);
             let elementWidth = calculateTextWidth(formatted + suffix);
 
             if (!elementWidth || elementWidth < 0 || !containerWidth || containerWidth < 0 || elementWidth < containerWidth) {
@@ -439,49 +496,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Sets the properties in the given bindings for the bar chart.
-     *
-     * @arg {object} bindings
-     * @override
-     */
-    subGetBindings(bindings: any) {
-        bindings.dataField = this.options.dataField.columnName;
-        bindings.aggregation = this.options.aggregation;
-        bindings.aggregationField = this.options.aggregationField.columnName;
-        bindings.andFilters = this.options.andFilters;
-        bindings.chartType = this.options.type;
-        bindings.colorField = this.options.colorField.columnName;
-        bindings.dataField = this.options.dataField.columnName;
-        bindings.ignoreSelf = this.options.ignoreSelf;
-        bindings.logScale = this.options.logScale;
-        bindings.saveSeenBars = this.options.saveSeenBars;
-        bindings.scaleManually = this.options.scaleManually;
-        bindings.scaleMax = this.options.scaleMax;
-        bindings.scaleMin = this.options.scaleMin;
-        bindings.sortAlphabetically = this.options.sortAlphabetically;
-        bindings.yPercentage = this.options.yPercentage;
-    }
-
-    /**
-     * Returns the bar chart export fields.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        let valuePrettyName = this.options.aggregation +
-            (this.options.aggregation === 'count' ? '' : '-' + this.options.aggregationField.prettyName);
-        valuePrettyName = valuePrettyName.charAt(0).toUpperCase() + valuePrettyName.slice(1);
-        return [{
-            columnName: this.options.dataField.columnName,
-            prettyName: this.options.dataField.prettyName
-        }, {
-            columnName: 'value',
-            prettyName: valuePrettyName
-        }];
-    }
-
-    /**
      * Adds, replaces, or removes filters using the bar chart data in the given elements.
      *
      * @arg {object} _event
@@ -493,12 +507,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 id: undefined,
                 field: this.options.dataField.columnName,
                 value: elements[0]._model.label,
-                prettyField: this.options.dataField.prettyName
+                prettyField: this.options.dataField.prettyName,
+                operator: '='
             };
             if (_event.ctrlKey || _event.metaKey) { // If Ctrl (or Command on Mac) is pressed...
                 if (this.filterIsUnique(filter)) {
                     this.addLocalFilter(filter);
-                    let whereClause = neon.query.where(filter.field, '=', filter.value);
+                    let whereClause = neon.query.where(filter.field, filter.operator, filter.value);
                     this.addNeonFilter(true, filter, whereClause);
                 } else {
                     for (let existingFilter of this.filters) {
@@ -536,7 +551,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     addLocalFilter(filter: any) {
         this.filters = this.filters.filter((existingFilter) => {
-            return existingFilter.id !== filter.id;
+            return existingFilter.value !== filter.value;
         }).concat([filter]);
     }
 
@@ -593,23 +608,70 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     refreshVisualization() {
         let selectedLabels: string[] = [];
-        if (this.filters.length >= 1) {
-            let activeFilterValues = this.filters.map((el) => el.value);
-            let activeLabelIndexes = this.chartInfo.data.labels.map((label, index) => {
-                return (activeFilterValues.indexOf(label) >= 0 ? index : -1);
-            }).filter((index) => {
-                return index >= 0;
-            });
+        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
+            [this.options.dataField.columnName]);
+        let andFilter;
+        if (this.filters.length > 0) {
+            let activeLabelIndexes = [];
 
+            if (neonFilters.length === 0 || neonFilters[0].filter.whereClause.type === undefined) {
+                andFilter = false;
+            } else {
+                andFilter = neonFilters[0].filter.whereClause.type === 'and';
+            }
+            for (let thisFilter of this.filters) {
+                let activeFilterValue = thisFilter.value;
+                activeLabelIndexes = activeLabelIndexes.concat(this.chartInfo.data.labels.map((label, index) => {
+                    let labelNum = <any> label;
+                        switch (thisFilter.operator) {
+                            case '<':
+                                return label < activeFilterValue ? index : -1;
+                            case '>':
+                                return label > activeFilterValue ? index : -1;
+                            case '>=':
+                                return label >= activeFilterValue ? index : -1;
+                            case '<=':
+                                return label <= activeFilterValue ? index : -1;
+                            case 'not contains':
+                                if (isNaN(labelNum)) { //.incluses() created an error if label is a number.
+                                    return !label.includes(activeFilterValue) ? index : -1;
+                                }
+                                return index;
+                            case 'contains':
+                                if (isNaN(labelNum)) { //.incluses() created an error if label is a number.
+                                    return label.includes(activeFilterValue) ? index : -1;
+                                }
+                                return index;
+                            case '!=':
+                                return label !== activeFilterValue ? index : -1;
+                            case '=':
+                                return label === activeFilterValue ? index : -1;
+                        }
+
+                }));
+            }
+            activeLabelIndexes = activeLabelIndexes.filter((index) => {
+                if (index < 0) {
+                    return false;
+                } else {
+                    if (andFilter) {
+                        let count = activeLabelIndexes.reduce(function(n, val) {
+                            return n + (val === index);
+                        }, 0);
+                        return (count === this.filters.length);
+                    } else {
+                        return true;
+                    }
+                }
+            });
+            //change bars to the correct color
             for (let dataset of this.chartInfo.data.datasets) {
                 dataset.setAllInactive();
                 for (let index = activeLabelIndexes.length - 1; index >= 0; index--) {
                     dataset.setActiveColor(activeLabelIndexes[index]);
-                }
-                for (let index = activeLabelIndexes.length - 1; index >= 0; index--) {
                     if (dataset.data[activeLabelIndexes[index]] > 0) {
                         selectedLabels.push(dataset.label);
-                        continue;
+
                     }
                 }
             }
@@ -619,7 +681,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 dataset.setAllActive();
             }
         }
-
         this.selectedLabels = selectedLabels;
         this.subOnResizeStop();
     }
@@ -713,9 +774,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             [this.options.dataField.columnName]);
 
-        let ignoredFilterIds = neonFilters.filter((neonFilter) => {
-            return !neonFilter.filter.whereClause.whereClauses;
-        }).map((neonFilter) => {
+        let ignoredFilterIds = neonFilters.map((neonFilter) => {
             return neonFilter.id;
         });
 
@@ -781,7 +840,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         let groupsToDatasets = new Map<string, BarDataSet>();
         let colorFieldExists = (this.options.colorField && this.options.colorField.columnName !== '');
-
+        this.colorSchemeService.setColorListByIndex(3);
         // Update the segments and counts from the bars and the data.
         for (let item of data) {
             let barLabel: string = item[this.options.dataField.columnName];
@@ -989,14 +1048,32 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             if (!neonFilter.filter.whereClause.whereClauses) {
                 let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
+                let operator = neonFilter.filter.whereClause.operator;
                 let filter = {
                     id: neonFilter.id,
                     field: field.columnName,
                     value: value,
-                    prettyField: field.prettyName
+                    prettyField: field.prettyName,
+                    operator: operator
                 };
                 if (this.filterIsUnique(filter)) {
                     this.addLocalFilter(filter);
+                }
+            } else {
+                for (let clause of neonFilter.filter.whereClause.whereClauses) {
+                    let field = this.options.findField(clause.lhs);
+                    let value = clause.rhs;
+                    let operator = clause.operator;
+                    let filter = {
+                        id: neonFilter.id,
+                        field: field.columnName,
+                        value: value,
+                        prettyField: field.prettyName,
+                        operator: operator
+                    };
+                    if (this.filterIsUnique(filter)) {
+                        this.addLocalFilter(filter);
+                    }
                 }
             }
         }

@@ -36,7 +36,7 @@ import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from '../chart/chart.component';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 
@@ -107,25 +107,52 @@ export class ScatterPlotOptions extends BaseNeonOptions {
     public yField: FieldMetaData;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
      *
+     * @arg {any} bindings
+     * @return {any}
      * @override
      */
-    onInit() {
-        this.displayGridLines = this.injector.get('displayGridLines', true);
-        this.displayTicks = this.injector.get('displayTicks', true);
+    appendNonFieldBindings(bindings: any): any {
+        bindings.displayGridLines = this.displayGridLines;
+        bindings.displayTicks = this.displayTicks;
+
+        return bindings;
     }
 
     /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'colorField',
+            'labelField',
+            'xField',
+            'yField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    updateFieldsOnTableChanged() {
-        this.colorField = this.findFieldObject('colorField');
-        this.labelField = this.findFieldObject('labelField');
-        this.xField = this.findFieldObject('xField');
-        this.yField = this.findFieldObject('yField');
+    initializeNonFieldBindings() {
+        this.displayGridLines = this.injector.get('displayGridLines', true);
+        this.displayTicks = this.injector.get('displayTicks', true);
     }
 }
 
@@ -218,6 +245,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
             ref,
             visualizationService
         );
+
+        console.warn('The scatter-plot component is deprecated.  Please use the aggregation component with type=scatter-xy.');
 
         this.options = new ScatterPlotOptions(this.injector, this.datasetService, 'Scatter Plot', 1000);
 
@@ -328,13 +357,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         this.getChart().destroy();
     }
 
-    subGetBindings(bindings: any) {
-        bindings.xField = this.options.xField.columnName;
-        bindings.yField = this.options.yField.columnName;
-        bindings.labelField = this.options.labelField.columnName;
-        bindings.colorField = this.options.colorField.columnName;
-    }
-
     createFilter(key, startDate, endDate) {
         return {
             key: key,
@@ -345,30 +367,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
 
     addLocalFilter(filter) {
         this.filters[0] = filter;
-    }
-
-    getExportFields() {
-        let usedFields = [this.options.xField, this.options.yField, this.options.labelField];
-        return usedFields
-          .filter((header) => header && header.columnName)
-          .map((header) => {
-              return {
-                  columnName: header.columnName,
-                  prettyName: header.prettyName
-              };
-          });
-    }
-
-    /**
-     * returns -1 if cannot be found
-     */
-    getPointXLocationByIndex(chart, index): number {
-        let dsMeta = chart.controller.getDatasetMeta(0);
-        if (dsMeta.data.length > index) {
-            let pointMeta = dsMeta.data[index];
-            return pointMeta.getCenterPoint().x;
-        }
-        return -1;
     }
 
     forcePosInsideChart(pos, min, max) {

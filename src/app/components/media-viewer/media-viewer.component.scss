@@ -21,24 +21,28 @@
 }
 
 .viewer-text {
-    font-size: 12px;
-    line-height: 15px;
+    font-size: 14px;
+    line-height: 20px;
     padding: 5px;
 }
 
-iframe.with-border, img.with-border, video.with-border {
-    border: 5px solid mat-color($white);
+iframe.with-border, img.with-border, video.with-border, audio.with-border {
+    border: 3px solid #fafafa;
 }
 
-iframe.border-mat-grey, img.border-mat-grey, video.border-mat-grey {
+iframe.border-mat-blue, img.border-mat-blue, video.border-mat-blue, audio.border-mat-blue {
+    border-color: #2196f3; /* mat-color-blue-500 */
+}
+
+iframe.border-mat-grey, img.border-mat-grey, video.border-mat-grey, audio.border-mat-grey {
     border-color: #9e9e9e; /* mat-color-grey-500 */
 }
 
-iframe.border-mat-red, img.border-mat-red, video.border-mat-red {
+iframe.border-mat-red, img.border-mat-red, video.border-mat-red, audio.border-mat-grey {
     border-color: #f44336; /* mat-color-red-500 */
 }
 
-iframe.border-mat-yellow, img.border-mat-yellow, video.border-mat-yellow {
+iframe.border-mat-yellow, img.border-mat-yellow, video.border-mat-yellow, audio.border-mat-grey {
     border-color: #ffeb3b; /* mat-color-yellow-500 */
 }
 
@@ -60,4 +64,42 @@ img, video {
 .mat-tab-group ::ng-deep .mat-tab-body-content {
     overflow: hidden !important;
 }
+
+.mat-slider {
+    margin: 0 10px;
+    width: calc(100% - 20px);
+    z-index: 4;
+
+    ::ng-deep div.mat-slider-thumb-label {
+        ::after {
+            content: "%";
+        }
+    }
+
+    ::ng-deep span.mat-slider-thumb-label-text {
+        font-size: 11px;
+    }
+}
+
+.maskingDiv{
+    position: relative;
+
+    .medium {
+        z-index: 3;
+        position: relative;
+    }
+
+    .mask {
+        z-index: 1;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+}
+
+
+
+
+
+
 

@@ -39,7 +39,7 @@ import { VisualizationService } from '../../services/visualization.service';
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { Bucketizer } from '../bucketizers/Bucketizer';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
 import { neonMappings, neonVariables } from '../../neon-namespaces';
 import { TimelineSelectorChart, TimelineSeries, TimelineData } from './TimelineSelectorChart';
@@ -58,22 +58,95 @@ export class TimelineOptions extends BaseNeonOptions {
     public yLabel: string;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
      *
+     * @arg {any} bindings
+     * @return {any}
      * @override
      */
-    onInit() {
-        this.granularity = this.injector.get('granularity', 'day');
-        this.yLabel = this.injector.get('yLabel', 'Count');
+    appendNonFieldBindings(bindings: any): any {
+        bindings.granularity = this.granularity;
+        bindings.yLabel = this.yLabel;
+
+        return bindings;
     }
 
     /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
+     * Returns the list of fields to export.
+     *
+     * @return {{ columnName: string, prettyName: string }[]}
+     * @override
+     */
+    getExportFields() {
+        let exportFields = [{
+            columnName: 'value',
+            prettyName: 'Count'
+        }];
+        switch (this.granularity) {
+            case 'minute':
+                exportFields.push({
+                    columnName: 'minute',
+                    prettyName: 'Minute'
+                });
+                /* falls through */
+            case 'hour':
+                exportFields.push({
+                    columnName: 'hour',
+                    prettyName: 'Hour'
+                });
+                /* falls through */
+            case 'day':
+                exportFields.push({
+                    columnName: 'day',
+                    prettyName: 'Day'
+                });
+                /* falls through */
+            case 'month':
+                exportFields.push({
+                    columnName: 'month',
+                    prettyName: 'Month'
+                });
+                /* falls through */
+            case 'year':
+                exportFields.push({
+                    columnName: 'year',
+                    prettyName: 'Year'
+                });
+                /* falls through */
+        }
+        return exportFields;
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'dateField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    updateFieldsOnTableChanged() {
-        this.dateField = this.findFieldObject('dateField');
+    initializeNonFieldBindings() {
+        this.granularity = this.injector.get('granularity', 'day');
+        this.yLabel = this.injector.get('yLabel', 'Count');
     }
 }
 
@@ -142,6 +215,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             visualizationService
         );
 
+        console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');
+
         this.options = new TimelineOptions(this.injector, this.datasetService, 'Timeline', 10);
 
         this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
@@ -162,51 +237,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     subNgOnDestroy() {
         // Do nothing.
-    }
-
-    subGetBindings(bindings: any) {
-        bindings.dateField = this.options.dateField.columnName;
-        bindings.granularity = this.options.granularity;
-    }
-
-    getExportFields() {
-        let fields = [{
-            columnName: 'value',
-            prettyName: 'Count'
-        }];
-        switch (this.options.granularity) {
-            case 'minute':
-                fields.push({
-                    columnName: 'minute',
-                    prettyName: 'Minute'
-                });
-                /* falls through */
-            case 'hour':
-                fields.push({
-                    columnName: 'hour',
-                    prettyName: 'Hour'
-                });
-                /* falls through */
-            case 'day':
-                fields.push({
-                    columnName: 'day',
-                    prettyName: 'Day'
-                });
-                /* falls through */
-            case 'month':
-                fields.push({
-                    columnName: 'month',
-                    prettyName: 'Month'
-                });
-                /* falls through */
-            case 'year':
-                fields.push({
-                    columnName: 'year',
-                    prettyName: 'Year'
-                });
-                /* falls through */
-        }
-        return fields;
     }
 
     addLocalFilter(id: string, field: string, prettyField: string, startDate: Date, endDate: Date, local?: boolean) {
@@ -327,9 +357,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     getDocCount() {
-        let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createClause())
-            .aggregate(neonVariables.COUNT, '*', '_docCount');
-        this.executeQuery(countQuery);
+        if (!this.cannotExecuteQuery()) {
+            let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
+                .where(this.createClause()).aggregate(neonVariables.COUNT, '*', '_docCount');
+            this.executeQuery(countQuery);
+        }
     }
 
     getFiltersToIgnore() {

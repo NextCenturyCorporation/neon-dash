@@ -16,6 +16,7 @@
 import { TestBed, async, ComponentFixture } from '@angular/core/testing';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
+import { AggregationComponent } from '../aggregation/aggregation.component';
 import { AnnotationViewerComponent } from '../annotation-viewer/annotation-viewer.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { DataTableComponent } from '../data-table/data-table.component';
@@ -28,7 +29,6 @@ import { MapComponent } from '../map/map.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
 import { SampleComponent } from '../sample/sample.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
-import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
@@ -39,7 +39,7 @@ import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { VisualizationService } from '../../services/visualization.service';
 
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -48,6 +48,10 @@ import { ChartComponent } from '../chart/chart.component';
 import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { NewsFeedComponent } from '../news-feed/news-feed.component';
+import { QueryBarComponent } from '../query-bar/query-bar.component';
+import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from '../thumbnail-grid/thumbnail-details.component';
+import { MatAutocompleteModule } from '@angular/material';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -56,8 +60,8 @@ describe('Component: VisualizationContainer', () => {
 
     initializeTestBed({
         declarations: [
-            ChartComponent,
             AnnotationViewerComponent,
+            AggregationComponent,
             BarChartComponent,
             ChartComponent,
             DataTableComponent,
@@ -69,11 +73,16 @@ describe('Component: VisualizationContainer', () => {
             MapComponent,
             MediaViewerComponent,
             NetworkGraphComponent,
+            NewsFeedComponent,
+            QueryBarComponent,
             SampleComponent,
             ScatterPlotComponent,
-            StackedTimelineComponent,
             TextCloudComponent,
+            ThumbnailDetailsContractedComponent,
+            ThumbnailDetailsExpandedComponent,
             ThumbnailGridComponent,
+            ThumbnailDetailsContractedComponent,
+            ThumbnailDetailsExpandedComponent,
             TimelineComponent,
             UnsharedFilterComponent,
             VisualizationContainerComponent,
@@ -88,9 +97,11 @@ describe('Component: VisualizationContainer', () => {
         imports: [
             AppMaterialModule,
             FormsModule,
+            MatAutocompleteModule,
             NgxDatatableModule,
             NgxGraphModule,
-            BrowserAnimationsModule
+            BrowserAnimationsModule,
+            ReactiveFormsModule
         ]
     });
 

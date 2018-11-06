@@ -22,14 +22,13 @@ export class FieldMetaData {
     ) {}
 }
 
-export const EMPTY_FIELD = new FieldMetaData();
-
 export class TableMetaData {
     constructor(
         public name: string = '',
         public prettyName: string = '',
         public fields: FieldMetaData[] = [],
-        public mappings: TableMappings = {}
+        public mappings: TableMappings = {},
+        public labelOptions: TableMappings = {}
     ) {}
 }
 
@@ -100,5 +99,7 @@ export const MediaTypes = {
     image: 'img',
     video: 'vid',
     html: 'htm',
-    pdf: 'pdf'
+    pdf: 'pdf',
+    audio: 'aud',
+    maskImage: 'mask'
 };

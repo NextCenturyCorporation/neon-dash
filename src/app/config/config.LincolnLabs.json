@@ -63,14 +63,14 @@
 					"database": "ll_nepal_cs_out",
 					"table": "ui_ouput_1"
 				},
-				"row": 0,
-				"col": 0
+				"row": 1,
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 9,
+				"sizex": 4,
 				"sizey": 5,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -98,14 +98,14 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
-				"col": 0
+				"row": 1,
+				"col": 1
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 11,
+				"sizex": 5,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -121,13 +121,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 4,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 11,
+				"sizex": 5,
 				"sizey": 5,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -144,13 +144,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 12,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Data Table",
 				"type": "dataTable",
 				"icon": "ViewData64",
-				"sizex": 15,
+				"sizex": 7,
 				"sizey": 5,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -168,14 +168,14 @@
 					"exceptionsToStatus": [
 					]
 				},
-				"row": 0,
-				"col": 10
+				"row": 1,
+				"col": 5
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 13,
+				"sizex": 6,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -255,7 +255,7 @@
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 3,
-				"col": 12
+				"col": 6
 			}
 		]
 	},

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# CREDS follows the format username:password. If you have an @ symbol in your CREDS password you will need to escape it by replacing it with %40
+docker build \
+        --build-arg CREDS=XXXXXXXXX \
+        --build-arg GIT_REPO=gitlab.nextcentury.com \
+        --build-arg NEON_REPO=LORELEI.THOR/neon.git \
+        --build-arg NEON_BRANCH=master \
+        --build-arg LORELEI_REPO=LORELEI.THOR/Lorelei-demo.git \
+        --build-arg LORELEI_BRANCH=master \
+        --build-arg LORELEI_CONFIG=config.darpa-July2018-docker.json \
+        --build-arg THOR_DATA_REPO=LORELEI.THOR/thor_data.git \
+        --build-arg THOR_DATA_BRANCH=master \
+        --build-arg ES_DATA_MAPPING_TUPLE=ldc_uyg_jul_18:ui_out,ll_nepal_06_14:ll_nepal_06_14,ll_nepal_07_11_3:annotations,uyg_elisa_sd:ui_out \
+        --build-arg NATURAL_EARTH_DIR=NATURAL_EARTH_II \
+        --build-arg NATURAL_EARTH_FILE=NE2_HR_LC_SR_W_DR.tif \
+        --build-arg NATURAL_EARTH_NS=ne2 \
+        --build-arg BLUE_MARBLE_DIR=BLUE_MARBLE \
+        --build-arg BLUE_MARBLE_FILE=BlueMarbleNG-TB_2004-12-01_rgb_3600x1800.TIFF \
+        --build-arg BLUE_MARBLE_NS=bm \
+        --squash \
+        -t lorelei .
+
