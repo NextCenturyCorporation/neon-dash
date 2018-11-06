@@ -228,17 +228,15 @@
                 </mat-button-toggle-group>
                 <p *ngIf="options.type == 'line' || options.type == 'line-xy'"></p>
 
-                <div mat-fill class="flex center" *ngIf="hasAxes(options.type)">
-                    <span class="toggle-text">X Axis Label</span>
+                <div mat-fill *ngIf="hasAxes(options.type)">
                     <mat-form-field>
-                        <input matInput placeholder="X Axis Label" [(ngModel)]="options.axisLabelX" required="false"
+                        <input matInput placeholder="X axis Label" [(ngModel)]="options.axisLabelX" required="false"
                                (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
                     <p></p>
 
-                    <span class="toggle-text">Y Axis Label</span>
                     <mat-form-field>
-                        <input matInput placeholder="Y Axis Label" [(ngModel)]="options.axisLabelY" required="false"
+                        <input matInput placeholder="Y axis Label" [(ngModel)]="options.axisLabelY" required="false"
                                (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
                     <p></p>
