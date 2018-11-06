@@ -41,8 +41,6 @@ export class DatabaseMetaData {
 }
 
 export class DatasetOptions {
-    colorMaps?: Object;
-    requeryInterval?: number;
     simpleFilter?: SimpleFilter;
 }
 
@@ -125,6 +123,8 @@ export class Dashboard {
  */
 export class DashboardOptions {
     public connectOnLoad?: boolean = false;
+    public colorMaps?: Object; // TODO: 872: Check references to this when AIDA-401 changes are merged in
+    public requeryInterval?: number;
 }
 
 export class Relation {
