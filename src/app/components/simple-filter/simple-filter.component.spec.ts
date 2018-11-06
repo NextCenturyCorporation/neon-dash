@@ -253,4 +253,7 @@ describe('Component: SimpleFilter unconfigured', () => {
     beforeEach(() => tester = new SimpleFilterTester(false));
 
     it('should create an instance', () => expect(tester.component).toBeTruthy());
+
+    it('should not show in the UI when the configuration does not include a simpleFilter option',
+        () => expect(tester.element != null).toBe(true));
 });
