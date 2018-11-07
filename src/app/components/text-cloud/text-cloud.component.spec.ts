@@ -25,7 +25,6 @@ import { ActiveGridService } from '../../services/active-grid.service';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { TranslationService } from '../../services/translation.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
@@ -64,7 +63,6 @@ describe('Component: TextCloud', () => {
             },
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            TranslationService,
             VisualizationService,
             ErrorNotificationService,
             ThemesService,
@@ -569,7 +567,6 @@ describe('Component: Textcloud with config', () => {
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            TranslationService,
             VisualizationService,
             ErrorNotificationService,
             ThemesService,
@@ -637,7 +634,6 @@ describe('Component: Textcloud with config including configFilter', () => {
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            TranslationService,
             VisualizationService,
             ErrorNotificationService,
             ThemesService,
