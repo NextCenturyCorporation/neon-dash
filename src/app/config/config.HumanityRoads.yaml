@@ -71,15 +71,6 @@ datastores:
                                 regimechange: Regime Change
                         mappings:
                             date: createDate
-        options:
-            checkForCoordinateValidation: null_values
-            # TODO: 825: move/restructure simpleFilter or entire options out so that
-            # we can specify config for multiple databases instead of just one
-            #simpleFilter:
-            #    databaseName: ldc_uyg_jul_18 #ll_nepal_08_14
-            #    tableName: ui_out #annotations
-            #    fieldName: translatedText #originalText
-            #    placeHolder: Search
 
 dashboards:
     category: 'Select an option...'
@@ -102,8 +93,13 @@ dashboards:
                             # TODO: 825: use field keys
                             fields:
                                 field_key_1: es1.ldc_uyg_jul_18.ui_out.originalText
+                                field_key_2: es1.ldc_uyg_jul_18.ui_out.translatedText
                             options:
                                 connectOnLoad: true
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: field_key_2
+                                    placeHolder: Search
         nepal:
             category: 'Select an option...'
             name: Nepal
@@ -119,8 +115,14 @@ dashboards:
                             datastore: es1
                             tables:
                                 table_key_1: es1.ll_nepal_08_14.annotations
+                            fields:
+                                field_key_1: es1.ll_nepal_08_14.annotations.originalText
                             options:
                                 connectOnLoad: false
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: field_key_1
+                                    placeHolder: Search
 
 layouts:
     ELISA_DISCOVERY:

@@ -165,32 +165,6 @@ datastores:
                         prettyName: Annotations
                         mappings:
                             date: createdAt
-        options:
-            checkForCoordinateValidation: 'null_values'
-            # TODO: 825: do colorMaps also need to be moved, or will they work here?
-            colorMaps:
-                elisa_car_1:
-                    mapping:
-                        entities.type:
-                            LOC: '#98DF8A'
-                            ORG: '#FF9896'
-                            PER: '#AEC7E8'
-                            GPE: '#98DF8A'
-                        types: # empty
-                ll_nepal_simplified:
-                    mapping:
-                        entities.type:
-                            LOC: '#98DF8A'
-                            ORG: '#FF9896'
-                            PER: '#AEC7E8'
-                        types: # empty
-            # TODO: 825: move/restructure simpleFilter or entire options out so that
-            # we can specify config for multiple databases instead of just one
-            #simpleFilter:
-            #    databaseName: ldc_uyg_jul_18 #uyg_elisa_sd #ll_nepal_07_11_3 #elisa_car_1 #ll_nepal_06_14 #ll_nepal_06_14_2
-            #    tableName: ui_out #ui_out #annotations #annotations #annotations #annotations1Author
-            #    fieldName: translatedText #JustificationEN #originalText #JustificationEN #originalText #translatedText
-            #    placeHolder: Search
 
 dashboards:
     category: 'Select an option...'
@@ -212,8 +186,13 @@ dashboards:
                                 table_key_1: es1.ldc_uyg_jul_18.ui_out
                             fields:
                                 field_key_1: es1.ldc_uyg_jul_18.ui_out.originalText
+                                field_key_2: es1.ldc_uyg_jul_18.ui_out.translatedText
                             options:
                                 connectOnLoad: true
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: field_key_2
+                                    placeHolder: Search
                         # TODO: 825: The uyg_elisa_discovery dashboard probably won't work correctly until layouts are using field keys
                         uyg_elisa_discovery:
                             name: ELISA Situation Discovery
@@ -224,8 +203,13 @@ dashboards:
                                 table_key_1: es1.uyg_elisa_sd.ui_out
                             fields:
                                 field_key_1: es1.uyg_elisa_sd.ui_out.JustificationIL
+                                field_key_2: es1.uyg_elisa_sd.ui_out.JustificationEN
                             options:
                                 connectOnLoad: false
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: field_key_2
+                                    placeHolder: Search
                 nepal:
                     name: Nepal
                     choices:
@@ -240,6 +224,10 @@ dashboards:
                                 field_key_1: es1.ll_nepal_07_11_3.annotations.originalText
                             options:
                                 connectOnLoad: false
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: field_key_1
+                                    placeHolder: Search
                 car:
                     name: Central African Republic
                     choices:
@@ -254,6 +242,20 @@ dashboards:
                                 field_key_1: es1.elisa_car_1.annotations.JustificationEN
                             options:
                                 connectOnLoad: false
+                                # TODO: 872: make sure colorMaps work after AIDA-401 is merged
+                                colorMaps:
+                                    # TODO: 872: probably don't need this database name part anymore: elisa_car_1:
+                                    mapping:
+                                        entities.type:
+                                            LOC: '#98DF8A'
+                                            ORG: '#FF9896'
+                                            PER: '#AEC7E8'
+                                            GPE: '#98DF8A'
+                                        types: # empty
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: field_key_1
+                                    placeHolder: Search
         dev:
             category: 'Select an option...'
             name: 'DEV:'
@@ -271,8 +273,14 @@ dashboards:
                                 table_key_1: es1.ll_nepal_06_14.situations
                                 table_key_2: es1.ll_nepal_06_14.annotations
                                 table_key_3: es1.ll_nepal_06_14.documents
+                            fields:
+                                field_key_1: es1.ll_nepal_06_14.annotations.originalText
                             options:
                                 connectOnLoad: false
+                                simpleFilter:
+                                    tableKey: table_key_2
+                                    fieldKey: field_key_1
+                                    placeHolder: Search
                         terrain:
                             name: Human Terrain
                             layout: human-terrain
@@ -280,8 +288,14 @@ dashboards:
                             datastore: es1
                             tables:
                                 table_key_1: es1.ll_nepal_06_14_2.annotations1Author
+                            fields:
+                                field_key_1: es1.ll_nepal_06_14_2.annotations1Author.translatedText
                             options:
                                 connectOnLoad: false
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: field_key_1
+                                    placeHolder: Search
 
 layouts:
     uyghur-sd:
