@@ -48,17 +48,21 @@ class GraphData {
     constructor(
         public nodes = new vis.DataSet(),
         public edges = new vis.DataSet()
-    ) {}
+    ) {
+    }
 }
 
 class GraphProperties {
     constructor(
         public nodes: Node[] = [],
         public edges: Edge[] = []
-    ) {}
+    ) {
+    }
+
     addNode(node: Node) {
         this.nodes.push(node);
     }
+
     addEdge(edge: Edge) {
         this.edges.push(edge);
     }
@@ -78,7 +82,8 @@ class Node {
         public x?: number,
         public y?: number,
         public filterFields?: any[]
-    ) {}
+    ) {
+    }
 }
 
 interface ArrowProperties {
@@ -106,9 +111,10 @@ class Edge {
         public count?: number,
         public color?: EdgeColorProperties,
         public type?: string //used to identify that category of edge (to hide/show when legend option is clicked)
-    /* TODO: width seem to breaking directed arrows, removing for now
-    public width?: number*/
-    ) {}
+        /* TODO: width seem to breaking directed arrows, removing for now
+        public width?: number*/
+    ) {
+    }
 }
 
 /**
@@ -383,12 +389,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 stabilization: {iterations: 150}
             },
             edges: {
-               smooth: {
-                   enabled: true,
-                   type: 'continuous',
-                   roundness: 0
-               }
-            }};
+                smooth: {
+                    enabled: true,
+                    type: 'continuous',
+                    roundness: 0
+                }
+            }
+        };
         this.graph = new vis.Network(this.graphElement.nativeElement, this.graphData, options);
         this.graph.on('stabilized', () => this.graph.setOptions({physics: {enabled: false}}));
         if (this.options.filterable) {
@@ -604,9 +611,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
             this.allData.forEach((d) => {
                 for (let field of this.options.fields) {
-                if ([this.options.nodeColorField.columnName, this.options.targetColorField.columnName].includes(field.columnName)
-                    && this.options.cleanLegendLabels && this.options.displayLegend) {
-                    let types = neonUtilities.deepFind(d, field.columnName);
+                    if ([this.options.nodeColorField.columnName, this.options.targetColorField.columnName].includes(field.columnName)
+                        && this.options.cleanLegendLabels && this.options.displayLegend) {
+                        let types = neonUtilities.deepFind(d, field.columnName);
                         if (types instanceof Array) {
                             for (let value of types) {
                                 this.prettifiedNodeLabels.push(this.labelCleanUp(value));
@@ -765,7 +772,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string,
                               colorValue?: string, edgeColorField?: string) {
-        let edgeColor = { color: colorValue, highlight: colorValue};
+        let edgeColor = {color: colorValue, highlight: colorValue};
         //TODO: edgeWidth being passed into Edge class is currently breaking directed arrows, removing for now
         // let edgeWidth = this.options.edgeWidth;
         if (Array.isArray(linkField)) {
@@ -888,9 +895,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             if (links) {
                 for (let j = 0; j < links.length && graph.nodes.length < limit; j++) {
                     let linkEntry = links[j];
-                   let linkNode  = this.allData.find((item) => item.kbid === linkEntry);
-                   if (linkNode) {
-                       //If edge node exists then get the existing position and name in order to avoid node duplication and relocation
+                    let linkNode = this.allData.find((item) => item.kbid === linkEntry);
+                    if (linkNode) {
+                        //If edge node exists then get the existing position and name in order to avoid node duplication and relocation
                         nodeType = linkNode[nodeColorField];
                         linkNodeName = linkNode[nodeNameColumn];
                         xPosition = linkNode[xPositionField];
@@ -1122,7 +1129,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * Filters the data using the name of the selected node
      * @param properties
      */
-    onSelect = (properties: {nodes: string[]}) => {
+    onSelect = (properties: { nodes: string[] }) => {
         if (properties.nodes.length === 1) {
             //find the selected node
             let nodeName = properties.nodes[0];
@@ -1132,7 +1139,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
             //create filter
             for (let filterField of selectedNode.filterFields) {
-                let filterArray: {singleFilter: any, clause: neon.query.WherePredicate}[] = [];
+                let filterArray: { singleFilter: any, clause: neon.query.WherePredicate }[] = [];
                 if (this.options.multiFilterOperator === 'or') {
                     let clauses = filterField.data.map((element) =>
                         neon.query.where(filterField.field, '=', element));
