@@ -31,20 +31,21 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     // this.data is inherited from the superclass
 
     // Variables associated with connecting to a datastore.
-    private datasetNameIsValid: boolean = false;
-    private isLoading: boolean = false;
-    private isConnected: boolean = false;
-    private error: boolean = false;
+    public datasetNameIsValid: boolean = false;
+    public isLoading: boolean = false;
+    public isConnected: boolean = false;
+    public error: boolean = false;
+    public tooltip: string = '';
 
     //Variables associated with selecting databases and tables.
-    private selectedDatabase: {
+    public selectedDatabase: {
         database: DatabaseMetaData,
         selectedTable: {
             selected: boolean,
             table: TableMetaData
         }
     };
-    private customDatabases: {
+    public customDatabases: {
         database: DatabaseMetaData,
         customTables: {
             selected: boolean,
@@ -64,9 +65,9 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
 
     isStepValid(): boolean {
         return this.datasetNameIsValid &&
-               this.isConnected &&
-               this.customDatabases.length > 0 &&
-               this.customDatabases[0].customTables.length > 0;
+            this.isConnected &&
+            this.customDatabases.length > 0 &&
+            this.customDatabases[0].customTables.length > 0;
     }
 
     onComplete(): void {
@@ -115,25 +116,46 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     updateDatabases(connection: neon.query.Connection, index: number = 0): void {
         let database = this.data.allDatabases[index];
         connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
-                Object.keys(tableNamesAndFieldNames).forEach((tableName) => {
-                    let table = new TableMetaData(tableName, tableName, []);
-                    tableNamesAndFieldNames[tableName].forEach((fieldName) => {
-                        table.fields.push(new FieldMetaData(fieldName, fieldName));
-                    });
-                    database.tables.push(table);
+            let tableNames = Object.keys(tableNamesAndFieldNames);
+            let tablesDone = 0;
+            if (!tableNames.length || (tableNames.length === 1 && tableNames[0] === null)) {
+                this.tableDone(tablesDone, tableNames, connection, index);
+
+            }
+            tableNames.forEach((tableName) => {
+                let table = new TableMetaData(tableName, tableName, []);
+                tableNamesAndFieldNames[tableName].forEach((fieldName) => {
+                    table.fields.push(new FieldMetaData(fieldName, fieldName));
                 });
-                if (this.data.allDatabases.length > index + 1) {
-                    this.updateDatabases(connection, index + 1);
-                } else {
-                    this.isLoading = false;
-                    this.isConnected = true;
-                    this.error = false;
-                }
-            }, () => {
-                this.isLoading = false;
-                this.isConnected = false;
-                this.error = true;
+                database.tables.push(table);
+                connection.getFieldTypes(database.name, table.name, (types) => {
+                    for (let f of table.fields) {
+                        if (types && types[f.columnName]) {
+                            f.type = types[f.columnName];
+                        }
+                    }
+                    tablesDone++;
+                    this.tableDone(tablesDone, tableNames, connection, index);
+                });
+
             });
+        }, () => {
+            this.isLoading = false;
+            this.isConnected = false;
+            this.error = true;
+        });
+    }
+
+    tableDone(tablesDone, tableNames, connection, index) {
+        if (tablesDone === tableNames.length) {
+            if (this.data.allDatabases.length > index + 1) {
+                this.updateDatabases(connection, index + 1);
+            } else {
+                this.isLoading = false;
+                this.isConnected = true;
+                this.error = false;
+            }
+        }
     }
 
     selectDatabase(): void {
