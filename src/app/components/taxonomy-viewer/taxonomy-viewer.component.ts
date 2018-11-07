@@ -46,42 +46,67 @@ import { current } from 'codelyzer/util/syntaxKind';
  * Manages configurable options for the specific visualization.
  */
 export class TaxonomyViewerOptions extends BaseNeonOptions {
-    // TODO Add and remove properties as needed.  Do NOT assign defaults to fields or else they will override updateFieldsOnTableChanged.
-
     public ascending: boolean;
     public id: string;
-
     public categoryField: FieldMetaData;
     public idField: FieldMetaData;
-    public linkField: FieldMetaData;
     public typeField: FieldMetaData;
     public subTypeField: FieldMetaData;
     public filterFields: string[];
     public ignoreSelf: boolean;
 
     /**
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
+     *
+     * @arg {any} bindings
+     * @return {any}
+     * @override
+     */
+    appendNonFieldBindings(bindings: any): any {
+        bindings.ascending = this.ascending;
+        bindings.id = this.id;
+        bindings.filterFields = this.filterFields;
+        bindings.ignoreSelf = this.ignoreSelf;
+
+        return bindings;
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'categoryField',
+            'idField',
+            'linkField',
+            'typeField',
+            'subTypeField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
      * Initializes all the non-field options for the specific visualization.
      *
      * @override
      */
-    onInit() {
+    initializeNonFieldBindings() {
         this.ascending = this.injector.get('ascending', false);
         this.id = this.injector.get('id', '');
         this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.filterFields = this.injector.get('filterFields', []);
-    }
-
-    /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
-     *
-     * @override
-     */
-    updateFieldsOnTableChanged() {
-        this.categoryField = this.findFieldObject('categoryField');
-        this.idField = this.findFieldObject('idField');
-        this.linkField = this.findFieldObject('linkField');
-        this.typeField = this.findFieldObject('typeField');
-        this.subTypeField = this.findFieldObject('subTypeField');
     }
 }
 
@@ -95,7 +120,7 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
 export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
 
     //HTML element references used by the superclass for the resizing behavior.
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('treeRoot') treeRoot: ElementRef;
@@ -115,7 +140,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         actionMapping: {
             mouse: {
                 dblClick: (tree, node, $event) => {
-                    if (node.hasChildren) { TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event); }
+                    if (node.hasChildren) {
+                        TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
+                    }
                 }
             },
             keys: {
@@ -155,10 +182,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             fields.push(this.options.categoryField.columnName);
         }
 
-        if (this.options.linkField.columnName) {
-            fields.push(this.options.linkField.columnName);
-        }
-
         if (this.options.typeField.columnName) {
             fields.push(this.options.typeField.columnName);
         }
@@ -173,7 +196,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         ];
 
         return query.withFields(fields).where(neon.query.and.apply(query, whereClauses)).sortBy(
-            this.options.categoryField.columnName, neonVariables.ASCENDING);
+            this.options.categoryField.columnName, this.options.ascending ? neonVariables.ASCENDING : neonVariables.DESCENDING);
     }
 
     /**
@@ -239,9 +262,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             columnName: this.options.idField.columnName,
             prettyName: this.options.idField.prettyName
         }, {
-            columnName: this.options.linkField.columnName,
-            prettyName: this.options.linkField.prettyName
-        }, {
             columnName: this.options.subTypeField.columnName,
             prettyName: this.options.subTypeField.prettyName
         }];
@@ -254,8 +274,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     getFiltersToIgnore() {
-            return null;
-        }
+        return null;
+    }
 
     /**
      * Returns the filter text for the given visualization filter object.
@@ -324,10 +344,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
     }
 
-    handleChangeData() {
-        super.handleChangeData();
-    }
-
     /**
      * Returns whether the data and fields for the visualization are valid.
      *
@@ -337,7 +353,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     isValidQuery(): boolean {
         return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name &&
             this.options.idField && this.options.idField.columnName && this.options.categoryField &&
-            this.options.categoryField.columnName && this.options.typeField && this.options.typeField.columnName);
+            this.options.categoryField.columnName);
     }
 
     /**
@@ -370,7 +386,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                         types = neonUtilities.deepFind(d, this.options.typeField.columnName);
                     }
 
-                    //TODO: Not fully implemented because subTypes do not currently exist, but might need to be in the future
+                    //TODO: Not fully implemented because subTypes do not currently exist, but might need to be in the future THOR-908
                     if (this.options.subTypeField.columnName) {
                         subTypes = neonUtilities.deepFind(d, this.options.typeField.columnName);
                     }
@@ -385,100 +401,117 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
                         //If the parent(category) node does not exist in the tree, add it
                         if (!foundCategory) {
-                        let parent = {
-                            id: counter++,
-                            name: category,
-                            children: [],
-                            description: this.options.categoryField.columnName,
-                            checked: true
-                        };
+                            let parent = {
+                                id: counter++,
+                                name: category,
+                                children: [],
+                                description: this.options.categoryField.columnName,
+                                checked: true
+                            };
 
                             groups.push(parent);
                             foundCategory = groups[groups.length - 1];
                             categoryIndex = groups.length - 1;
                         }
 
-                                if (types) {
-                                    for (let type of types) {
-                                        //checks if a subChild node will be needed based on if dot notation exists
-                                        // within the child node string
-                                        let subTypeNeeded  = type.includes('.') || (subTypes && types !== subTypes);
+                        if (types) {
+                            for (let type of types) {
+                                //checks if a subChild node will be needed based on if dot notation exists
+                                // within the child node string
+                                let subTypeNeeded = type.includes('.') || (subTypes && types !== subTypes);
 
-                                        //checks if child(type) node exists in the tree and if not, adds it
+                                //checks if child(type) node exists in the tree and if not, adds it
                                 let foundType = null;
                                 if (foundCategory.children) {
                                     foundType = foundCategory.children.find((typeItem, index) => {
-                                        let setType = type.includes('.') ?  type.split('.')[0] : type;
+                                        let setType = type.includes('.') ? type.split('.')[0] : type;
                                         let found = typeItem.name === setType;
-                                            typeIndex = index;
-                                            return found;
-                                        });
+                                        typeIndex = index;
+                                        return found;
+                                    });
                                 }
 
-                                        if (foundType) {
-                                            if (subTypeNeeded) {
+                                if (foundType) {
+                                    if (subTypeNeeded) {
 
-                                                let foundSubType = foundType.children.find((subType, index) => {
-                                                    subTypeIndex = index;
-                                                    let found = subType.name === type;
-                                                    return found;
-                                                });
+                                        let foundSubType = foundType.children.find((subType, index) => {
+                                            subTypeIndex = index;
+                                            let found = subType.name === type;
+                                            return found;
+                                        });
 
-                                                if (!foundSubType) {
-                                                    let subTypeObject = {
-                                                        id: counter++,
-                                                        name: type,
-                                                        lineage: category,
-                                                        description: this.options.subTypeField.columnName,
-                                                        checked: true
-                                                    };
-                                                    //Alphabetize all values added to the taxonomy
-                                                    groups[categoryIndex].children[typeIndex].children.push(subTypeObject);
-                                                    groups[categoryIndex].children[typeIndex].children.sort(this.compareValues('name'));
-                                                }
-                                            }
-                                        } else {
-                                    let setType = type.includes('.') ?  type.split('.')[0] : type;
-                                            let typeObject = {
+                                        if (!foundSubType) {
+                                            let subTypeObject = {
                                                 id: counter++,
-                                        name: setType,
-                                                children: [],
+                                                name: type,
                                                 lineage: category,
-                                                description: this.options.typeField.columnName,
+                                                description: this.options.subTypeField.columnName,
                                                 checked: true
                                             };
-
-                                            typeIndex = 0;
-
-                                            //Alphabetize all values added to the taxanomy
-                                            groups[categoryIndex].children.push(typeObject);
-                                            groups[categoryIndex].children.sort(this.compareValues('name'));
-
-                                            if (groups[categoryIndex].children && groups[categoryIndex].children.length > 1) {
-                                                for (let i = 0; i < groups[categoryIndex].children.length; i++) {
-                                                    if (type.includes(groups[categoryIndex].children[i].name)) {
-                                                        typeIndex = i;
-                                                    }
-                                                }
+                                            //Alphabetize all values added to the taxonomy
+                                            groups[categoryIndex].children[typeIndex].children.push(subTypeObject);
+                                            if (this.options.ascending) {
+                                                neonUtilities.sortArrayOfObjects(groups[categoryIndex]
+                                                    .children[typeIndex].children, 'name');
+                                            } else {
+                                                neonUtilities.sortArrayOfObjects(groups[categoryIndex]
+                                                    .children[typeIndex].children, 'name', neonVariables.DESCENDING);
                                             }
 
-                                            if (subTypeNeeded) {
-                                                let subTypeObject = {
-                                                    id: counter++,
-                                                    name: type,
-                                                    lineage: category,
-                                                    description: this.options.subTypeField.columnName,
-                                                    checked: true,
-                                                    expanded: false
-                                                };
+                                        }
+                                    }
+                                } else {
+                                    let setType = type.includes('.') ? type.split('.')[0] : type;
+                                    let typeObject = {
+                                        id: counter++,
+                                        name: setType,
+                                        children: [],
+                                        lineage: category,
+                                        description: this.options.typeField.columnName,
+                                        checked: true
+                                    };
 
-                                                groups[categoryIndex].children[typeIndex].children.push(subTypeObject);
-                                                groups[categoryIndex].children[typeIndex].children.sort(this.compareValues('name'));
+                                    typeIndex = 0;
+
+                                    //Alphabetize all values added to the taxonomy
+                                    groups[categoryIndex].children.push(typeObject);
+                                    if (this.options.ascending) {
+                                        neonUtilities.sortArrayOfObjects(groups[categoryIndex].children, 'name');
+                                    } else {
+                                        neonUtilities.sortArrayOfObjects(groups[categoryIndex].children, 'name', neonVariables.DESCENDING);
+                                    }
+
+                                    if (groups[categoryIndex].children && groups[categoryIndex].children.length > 1) {
+                                        for (let i = 0; i < groups[categoryIndex].children.length; i++) {
+                                            if (type.includes(groups[categoryIndex].children[i].name)) {
+                                                typeIndex = i;
                                             }
                                         }
                                     }
+
+                                    if (subTypeNeeded) {
+                                        let subTypeObject = {
+                                            id: counter++,
+                                            name: type,
+                                            lineage: category,
+                                            description: this.options.subTypeField.columnName,
+                                            checked: true,
+                                            expanded: false
+                                        };
+
+                                        groups[categoryIndex].children[typeIndex].children.push(subTypeObject);
+                                        if (this.options.ascending) {
+                                            neonUtilities.sortArrayOfObjects(groups[categoryIndex]
+                                                .children[typeIndex].children, 'name');
+                                        } else {
+                                            neonUtilities.sortArrayOfObjects(groups[categoryIndex]
+                                                .children[typeIndex].children, 'name', neonVariables.DESCENDING);
+                                        }
+                                    }
                                 }
+                            }
                         }
+                    }
 
                 });
 
@@ -506,8 +539,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         this.executeQueryChain();
     }
 
-    onEvent = ($event) => {
-        //needed for the taxonomy options
+    onEvent = () => {
+        /* This is needed to capture the double click event defined in the taxonomy options.
+           Without it, the double click event does not work.*/
     }
 
     checkRelatedNodes(node, $event) {
@@ -541,12 +575,14 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         }
 
     }
+
     updateChildNodesCheckBox(node, checked) {
         node.data.checked = checked;
         if (node.children) {
             node.children.forEach((child) => this.updateChildNodesCheckBox(child, checked));
         }
     }
+
     updateParentNodesCheckBox(node) {
         if (node && node.level > 0 && node.children) {
             let allChildChecked = true,
@@ -560,7 +596,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                 }
             }
 
-//todo: toggling children causes indeterminate to turn into checked
+//todo: toggling children causes indeterminate to turn into checked AIDA-403
             if (allChildChecked) {
                 node.data.checked = true;
                 node.data.indeterminate = false;
@@ -611,7 +647,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     removeFilter(filter: any) {
-        //TODO:Update Taxonomy when filter from filter tray is deleted
+        //TODO:Update Taxonomy when filter from filter tray is deleted AIDA-390
 
         this.filters = this.filters.filter((existingFilter) => {
             return existingFilter.id !== filter.id;
@@ -651,9 +687,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * Defaults to calling setupFilters() then executeQueryChain()
      */
     handleFiltersChangedEvent(): void {
-        //TODO:Update Taxonomy when filter from filter tray is deleted
-/*        console.log(this.getElementRefs().treeRoot.treeModel.nodes);
-        console.log(this.treeRoot.treeModel.nodes);*/
+        //TODO:Update Taxonomy when filter from filter tray is deleted AIDA-390
+        /*        console.log(this.getElementRefs().treeRoot.treeModel.nodes);
+                console.log(this.treeRoot.treeModel.nodes);*/
     }
 
     /**
@@ -664,7 +700,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     subGetBindings(bindings: any) {
         bindings.idField = this.options.idField.columnName;
-        bindings.linkField = this.options.linkField.columnName;
         bindings.categoryField = this.options.categoryField.columnName;
         bindings.typeField = this.options.typeField.columnName;
         bindings.subTypeField = this.options.subTypeField.columnName;

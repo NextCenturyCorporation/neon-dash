@@ -122,11 +122,11 @@ describe('Component: TaxonomyViewer', () => {
         expect(component.options.id).toEqual('');
         expect(component.options.ignoreSelf).toEqual(false);
         expect(component.options.filterFields).toEqual([]);
-        expect(component.options.categoryField).toEqual(component.emptyField);
-        expect(component.options.typeField).toEqual(component.emptyField);
-        expect(component.options.subTypeField).toEqual(component.emptyField);
-        expect(component.options.linkField).toEqual(component.emptyField);
-        expect(component.options.idField).toEqual(component.emptyField);
+
+        expect(component.options.categoryField).toEqual(new FieldMetaData());
+        expect(component.options.typeField).toEqual(new FieldMetaData());
+        expect(component.options.subTypeField).toEqual(new FieldMetaData());
+        expect(component.options.idField).toEqual(new FieldMetaData());
     });
 
     it('does have expected class properties', () => {
@@ -140,14 +140,14 @@ describe('Component: TaxonomyViewer', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.linkField = DatasetServiceMock.LINK_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
+        component.options.ascending = true;
 
         let query = new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
-            .withFields(['testIdField', 'testFilter1', 'testFilter2', 'testCategoryField', 'testLinkField', 'testTypeField',
+            .withFields(['testIdField', 'testFilter1', 'testFilter2', 'testCategoryField', 'testTypeField',
                 'testSubTypeField']);
 
         let whereClauses = [
@@ -176,7 +176,6 @@ describe('Component: TaxonomyViewer', () => {
 
     it('getExportFields does return expected array', (() => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.linkField = DatasetServiceMock.LINK_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField', 'Test SubType Field');
@@ -190,9 +189,6 @@ describe('Component: TaxonomyViewer', () => {
         }, {
             columnName: 'testIdField',
             prettyName: 'Test ID Field'
-        }, {
-            columnName: 'testLinkField',
-            prettyName: 'Test Link Field'
         }, {
             columnName: 'testSubTypeField',
             prettyName: 'Test SubType Field'
@@ -251,9 +247,6 @@ describe('Component: TaxonomyViewer', () => {
         expect(component.isValidQuery()).toBe(false);
 
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        expect(component.isValidQuery()).toBe(false);
-
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         expect(component.isValidQuery()).toBe(true);
     }));
 
@@ -283,7 +276,6 @@ describe('Component: TaxonomyViewer', () => {
     it('does create filter when a parent node in the taxonomy is unselected', (() => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.linkField = DatasetServiceMock.LINK_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
@@ -309,7 +301,6 @@ describe('Component: TaxonomyViewer', () => {
     it('does remove parent filter and create a new filter when a child node in the taxonomy is selected', (() => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.linkField = DatasetServiceMock.LINK_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
@@ -337,7 +328,6 @@ describe('Component: TaxonomyViewer', () => {
     it('does remove and create a new filter when a child node in the taxonomy is unselected', (() => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.linkField = DatasetServiceMock.LINK_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
@@ -364,7 +354,6 @@ describe('Component: TaxonomyViewer', () => {
         let refs = component.getElementRefs();
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.linkField = DatasetServiceMock.LINK_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
@@ -386,7 +375,6 @@ describe('Component: TaxonomyViewer', () => {
     it('does update parent node when child node is selected in the taxonomy', (() => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.linkField = DatasetServiceMock.LINK_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
@@ -437,14 +425,12 @@ describe('Component: TaxonomyViewer', () => {
         component.subGetBindings(bindings);
         expect(bindings).toEqual({
             idField: '',
-            linkField: '',
             categoryField: '',
             typeField: '',
             subTypeField: ''
         });
 
         component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.linkField = DatasetServiceMock.LINK_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
@@ -452,7 +438,6 @@ describe('Component: TaxonomyViewer', () => {
         component.subGetBindings(bindings);
         expect(bindings).toEqual({
             idField: 'testIdField',
-            linkField: 'testLinkField',
             categoryField: 'testCategoryField',
             typeField: 'testTypeField',
             subTypeField: 'testSubTypeField'

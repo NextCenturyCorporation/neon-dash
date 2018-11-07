@@ -317,15 +317,15 @@ describe('Component: NetworkGraph', () => {
 
         component.onQuerySuccess({
             data: [{
-                testLinkField: 'testLinkValue',
-                testLinkNameField: 'testLinkNameValue',
-                testNodeField: 'testNodeValue',
-                testNodeNameField: 'testNodeNameValue',
-                testTypeField: 'testTypeValue',
-                testEdgeColorField: '#5f9365',
-                testXPositionField: 100,
-                testYPositionField: 215
-            },
+                    testLinkField: 'testLinkValue',
+                    testLinkNameField: 'testLinkNameValue',
+                    testNodeField: 'testNodeValue',
+                    testNodeNameField: 'testNodeNameValue',
+                    testTypeField: 'testTypeValue',
+                    testEdgeColorField: '#5f9365',
+                    testXPositionField: 100,
+                    testYPositionField: 215
+                },
                 {
                     testLinkField: 'testLinkValue2',
                     testLinkNameField: 'testLinkNameValue2',
@@ -433,6 +433,7 @@ describe('Component: NetworkGraph', () => {
         component.options.isReified = false;
         component.options.filterFields = ['testTypeField'];
         component.options.limit = Infinity;
+        component.options.multiFilterOperator = 'and';
 
         component.onQuerySuccess({
             data: [{
@@ -460,12 +461,13 @@ describe('Component: NetworkGraph', () => {
         component.onSelect({nodes: ['testNodeValue2']});
 
         let filters = getService(FilterService).getFiltersForFields(component.options.database.name, component.options.table.name,
-        component.options.filterFields);
+            component.options.filterFields);
         expect(filters.length).toEqual(1);
 
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
         }));
+
     }));
 
 });

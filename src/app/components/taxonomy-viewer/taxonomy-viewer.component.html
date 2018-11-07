@@ -54,7 +54,7 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Parent Field" [(ngModel)]="options.categoryField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                    <mat-select placeholder="Parent Field" [(ngModel)]="options.categoryField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                         <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -69,7 +69,23 @@
                 </mat-form-field>
                 <p></p>
 
-                <!--             TODO: Implement sub-child
+                <mat-form-field>
+                    <mat-select placeholder="Filter Field" [(ngModel)]="options.filterFields" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="ID Field" [(ngModel)]="options.idField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <!--TODO: Implement sub-child THOR-908
                 <mat-form-field>
                                     <mat-select placeholder="Sub-child Field" [(ngModel)]="options.subTypeField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                         <mat-option [value]="emptyField">(None)</mat-option>
@@ -77,6 +93,13 @@
                     </mat-select>
                 </mat-form-field>
                                 <p></p>-->
+
+                <span class="toggle-text">Sort:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.ascending" (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="true">Ascending</mat-button-toggle>
+                    <mat-button-toggle [value]="false">Descending</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
             </mat-card-content>
