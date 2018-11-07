@@ -495,7 +495,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             let documentText = document.documents;
             let annotationsPartList = [];
 
-            //console.log(document);
             if (!this.doesAnnotationExist(document)) {
                 let part = new Part();
                 part.text = document.documents;
@@ -994,7 +993,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     updateDocuemnts(response) {
         this.options.data = [];
         for (let document of response.data) {
-            //console.log(document);
             let data = {
                 annotationStartIndex: [],
                 annotationEndIndex: [],

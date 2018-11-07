@@ -33,11 +33,11 @@ import * as neon from 'neon-framework';
 import { VisualizationService } from '../../services/visualization.service';
 
 @Component({
-  selector: 'app-dashboard-options',
-  templateUrl: './dashboard-options.component.html',
-  styleUrls: ['./dashboard-options.component.scss']
+  selector: 'app-save-state',
+  templateUrl: 'save-state.component.html',
+  styleUrls: ['save-state.component.scss']
 })
-export class DashboardOptionsComponent implements OnInit {
+export class SaveStateComponent implements OnInit {
 
     @Input() sidenav: MatSidenav;
 
