@@ -24,7 +24,6 @@ import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FieldMetaData } from '../../dataset';
-import { TranslationService } from '../../services/translation.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
@@ -62,7 +61,6 @@ describe('Component: NetworkGraph', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            TranslationService,
             ErrorNotificationService,
             VisualizationService,
             ThemesService,
