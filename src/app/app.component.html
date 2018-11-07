@@ -1,12 +1,4 @@
 <mat-sidenav-container class="neon-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-sidenav #sideNavLeft class="neon-sidenav neon-sidenav-datasets" mat-fill align="start">
-        <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary">
-            <span>Datasets</span>
-        </mat-toolbar>
-        <app-dataset-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); sideNavLeft.toggle()">
-        </app-dataset-selector>
-    </mat-sidenav>
-
     <mat-sidenav #sideNavRight class="neon-sidenav neon-sidenav-info" mat-fill align="end">
         <div [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
             <mat-toolbar class="title" color="primary">
@@ -20,6 +12,10 @@
                 <div class="add-visualization-container" *ngIf="checkPanel('addVis')">
                     <app-add-visualization></app-add-visualization>
                 </div>
+                <div class="dataset-selector-container" *ngIf="checkPanel('dashboardLayouts')">
+                    <app-dataset-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); sideNavRight.toggle()">
+                    </app-dataset-selector>
+                </div>
                 <div class="saved-state-container" *ngIf="checkPanel('saveState')">
                     <app-save-state></app-save-state>
                 </div>
@@ -31,10 +27,6 @@
     </mat-sidenav>
 
     <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary" layout-align="space-between center" flex>
-        <button mat-icon-button class="neon-icon-button-large" [attr.aria-label]="datasetService.getName() || 'Choose Data'"
-            tooltip-position="below" matTooltip="Select a Dataset" (click)="sideNavLeft.toggle()">
-            <mat-icon class="neon-icon-large">menu</mat-icon>
-        </button>
         <span>{{ datasetService.getName() || "Choose Data..." }}</span>
         <span class="fill-remaining"></span>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
@@ -61,7 +53,7 @@
         <mat-menu #appMenu="matMenu" yPosition="below" [overlapTrigger]="false">
             <button mat-menu-item (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()">
                 <mat-icon>add_circle</mat-icon>Visualizations</button>
-            <button mat-menu-item (click)="setPanel('dashboardLayouts', 'Dashboard Layouts'); sideNavLeft.toggle()">
+            <button mat-menu-item (click)="setPanel('dashboardLayouts', 'Dashboard Layouts'); sideNavRight.toggle()">
                 <mat-icon>dashboard</mat-icon>Dashboard Layouts</button>
             <button mat-menu-item (click)="setPanel('saveState', 'Save States'); sideNavRight.toggle()">
                 <mat-icon>save</mat-icon>Saved States</button>
