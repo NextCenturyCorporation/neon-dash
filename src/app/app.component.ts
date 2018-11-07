@@ -30,21 +30,22 @@ import * as L from 'leaflet'; // imported for use of DomUtil.enable/disableTextS
 import { ActiveGridService } from './services/active-grid.service';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
-import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { Dataset } from './dataset';
 import { DatasetService } from './services/dataset.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../app/services/filter.service';
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
-import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatSidenav } from '@angular/material';
+import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatSidenav, MatMenuTrigger } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from './neon-grid-item';
 import { NeonGTDConfig } from './neon-gtd-config';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
+import { SaveStateComponent } from './components/save-state/save-state.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { ThemesService } from './services/themes.service';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 
+import * as neon from 'neon-framework';
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
@@ -54,22 +55,24 @@ import { VisualizationContainerComponent } from './components/visualization-cont
     ]
 })
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
-    @ViewChild(DashboardOptionsComponent) dashboardOptionsComponent: DashboardOptionsComponent;
     @ViewChild(NgGrid) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
 
     @Input() sidenav = MatSidenav;
     // Used to determine which pane is show in the right sidenav
 
-    public showAbout: boolean = true;
-    public showAddVisualizationButton: boolean = false;
-    public showFilterTrayButton: boolean = false;
+    public currentPanel: string = '';
     public showCustomConnectionButton: boolean = false;
     public showFilterBuilder: boolean = false;
+    public showFilterTrayButton: boolean = false;
+    //Toolbar
+    public showSimpleSearch: boolean = false;
+    public showVisShortcut: boolean = true;
+
+    public rightPanelTitle: string = '';
+
     public createFilterBuilder: boolean = false; //This is used to create the Filter Builder later
-
     public gridItems: NeonGridItem[] = [];
-
     public datasets: Dataset[] = [];
 
     public gridConfig: NgGridConfig = {
@@ -90,6 +93,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         limit_to_screen: true,
         resize_directions: ['bottomright', 'bottomleft', 'right', 'left', 'bottom']
     };
+
+    public messenger: neon.eventing.Messenger;
 
     public projectTitle: string = 'Neon';
     public projectIcon: string = 'assets/favicon.blue.ico?v=1';
@@ -118,13 +123,14 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         @Inject('config') private neonConfig: NeonGTDConfig
     ) {
         // TODO: Default to false and set to true only after a dataset has been selected.
-        this.showAddVisualizationButton = true;
         this.showFilterTrayButton = true;
         this.showCustomConnectionButton = true;
         this.datasets = this.datasetService.getDatasets();
         this.themesService = themesService;
         this.neonConfig = neonConfig;
         this.snackBar = snackBar;
+
+        this.messenger = new neon.eventing.Messenger();
 
         if (neonConfig.errors && neonConfig.errors.length > 0) {
             let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
@@ -151,7 +157,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.changeFavicon();
         this.filterBuilderIcon = 'filter_builder';
-
     }
 
     changeFavicon() {
@@ -185,6 +190,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         return true;
     }
 
+    checkPanel(panel: string) {
+        return this.currentPanel === panel;
+    }
+
     gridItemsToString(): string {
         return JSON.stringify(this.gridItems);
     }
@@ -213,6 +222,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.gridItems = this.activeGridService.getGridItems();
         this.activeGridService.setGrid(this.grid);
         this.activeGridService.setGridConfig(this.gridConfig);
+        this.messenger.subscribe('showSimpleSearch', (message) => {
+            this.showSimpleSearch = message.showSimpleSearch;
+        });
+        this.messenger.subscribe('showVisShortcut', (message) => {
+            this.showVisShortcut = message.showVisShortcut;
+        });
     }
 
     onDragStop(i, event) {
@@ -226,18 +241,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     onResizeStop(i, event) {
         this.showItemLocation(event);
         this.visualizations.toArray()[i].onResizeStop();
-    }
-
-    openAddVisualizationDialog() {
-        let config = new MatDialogConfig();
-        config.viewContainerRef = this.viewContainerRef;
-
-        this.addVisDialogRef = this.dialog.open(AddVisualizationComponent, config);
-        L.DomUtil.disableTextSelection();
-        this.addVisDialogRef.afterClosed().subscribe(() => {
-            this.addVisDialogRef = null;
-            L.DomUtil.enableTextSelection();
-        });
     }
 
     openCustomConnectionDialog() {
@@ -274,6 +277,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         });
     }
 
+    setPanel(newPanel: string, newTitle: string) {
+        this.currentPanel = newPanel;
+        this.rightPanelTitle = newTitle;
+    }
+
     showItemLocation(event) {
         /**
          * COMMENTED OUT!  If you are debugging, you can uncomment this, and see what is going on
@@ -285,12 +293,4 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
          * console.log(str);
          */
     }
-
-    toggleDashboardOptions() {
-        if (this.dashboardOptionsComponent) {
-            this.dashboardOptionsComponent.loadStateNames();
-        }
-        this.showAbout = false;
-    }
-
 }
