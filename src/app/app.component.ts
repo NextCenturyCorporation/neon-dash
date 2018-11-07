@@ -61,7 +61,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     @Input() sidenav = MatSidenav;
     // Used to determine which pane is show in the right sidenav
 
-    public currentPanel: string = '';
+    public currentPanel: string = 'dashboardLayouts';
     public showCustomConnectionButton: boolean = false;
     public showFilterBuilder: boolean = false;
     public showFilterTrayButton: boolean = false;
