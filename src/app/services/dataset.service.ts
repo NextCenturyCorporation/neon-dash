@@ -16,8 +16,8 @@
 import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
-import { DatasetOptions, DatabaseMetaData, TableMetaData,
-    TableMappings, FieldMetaData, Datastore, Dashboard } from '../dataset';
+import { DatabaseMetaData, TableMetaData,
+    TableMappings, FieldMetaData, Datastore, Dashboard, DashboardOptions } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import * as _ from 'lodash';
@@ -261,7 +261,6 @@ export class DatasetService {
         this.dataset.type = dataset.type || '';
         this.dataset.host = dataset.host || '';
         this.dataset.databases = dataset.databases || [];
-        this.dataset.options = dataset.options || {};
     }
 
     // TODO: 825: combine setCurrentDashboardName and setCurrentDashboard.
@@ -938,18 +937,18 @@ export class DatasetService {
     }
 
     /**
-     * Returns the options for the active dataset.
-     * @method getActiveDatasetOptions
+     * Returns the options for the current dashboard.
+     * @method getCurrentDashboardOptions
      * @return {Object}
-     * TODO: 825: options will be moved
-     * TODO: 872: make into get current dashboard options?
      * TODO: 872: this is how colorMaps are being grabbed now
      * so make sure that still works after AIDA-401 changes
      * are merged in
      *
      */
-    public getActiveDatasetOptions(): DatasetOptions {
-        return this.dataset.options;
+    public getCurrentDashboardOptions(): DashboardOptions {
+        if (this.currentDashboard) {
+            return this.currentDashboard.options;
+        }
     }
 
     /**
@@ -1043,4 +1042,17 @@ export class DatasetService {
             return currentConfig.tables[key].split('.')[2];
         }
     }
+
+    /**
+     * Returns field name from matching field key from current dashboard.
+     * @param {String} key
+     * @return {String}
+     */
+    public getFieldNameByKey(key: string): string {
+        let currentConfig = this.getCurrentDashboard();
+        if (currentConfig) {
+            return currentConfig.fields[key].split('.')[3];
+        }
+    }
+
 }

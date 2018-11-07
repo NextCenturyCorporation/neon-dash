@@ -47,13 +47,13 @@ class MockFilterService extends FilterServiceMock {
 }
 
 class MockDatasetService extends DatasetService {
-    options = new DatasetOptions();
+    options = new DashboardOptions();
     constructor() {
         super(new NeonGTDConfig());
         this.options.queryBar = new SimpleFilter(databaseName, tableName, fieldName);
     }
 
-    getActiveDatasetOptions() {
+    getCurrentDashboardOptions() {
         return this.options;
     }
 }
