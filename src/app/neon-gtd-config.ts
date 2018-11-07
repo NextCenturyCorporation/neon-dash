@@ -16,6 +16,8 @@
 import { Datastore, Dashboard } from './dataset';
 
 export class NeonGTDConfig {
+    projectTitle: string;
+    projectIcon: string;
     datastores: Map<string, Datastore> = new Map<string, Datastore>();
     dashboards: Dashboard;
     layouts: Map<string, any> = new Map<string, any>();
