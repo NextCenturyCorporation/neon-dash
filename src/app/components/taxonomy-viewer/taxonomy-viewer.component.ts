@@ -363,7 +363,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     onQuerySuccess(response: any) {
-        let groups = [];
         let counter = 0;
         this.taxonomyGroups = [];
 
@@ -373,10 +372,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
                 response.data.forEach((d) => {
 
-                    let categoryIndex = -1,
-                        typeIndex = -1,
-                        subTypeIndex = -1,
-                        categories: string[],
+                    let categories: string[],
                         types: string[],
                         subTypes: string[];
 
@@ -393,129 +389,84 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
                     for (let category of categories) {
                         //checks if there are any parent(category) nodes in the tree
-                        let foundCategory = groups.find((item, index) => {
-                            let found = item.name === category;
-                            categoryIndex = index;
-                            return found;
-                        });
+                        let foundCategory = this.getTaxonomyObject(this.taxonomyGroups, category);
 
                         //If the parent(category) node does not exist in the tree, add it
-                        if (!foundCategory) {
+                        if (!foundCategory.object) {
                             let parent = {
-                                id: counter++,
-                                name: category,
-                                children: [],
-                                description: this.options.categoryField.columnName,
-                                checked: true
+                                id: counter++, name: category, children: [],
+                                description: this.options.categoryField.columnName, checked: true
                             };
 
-                            groups.push(parent);
-                            foundCategory = groups[groups.length - 1];
-                            categoryIndex = groups.length - 1;
+                            this.taxonomyGroups.push(parent);
+                            foundCategory.object = this.taxonomyGroups[this.taxonomyGroups.length - 1];
+                            foundCategory.index = this.taxonomyGroups.length - 1;
                         }
 
                         if (types) {
                             for (let type of types) {
                                 //checks if a subChild node will be needed based on if dot notation exists
                                 // within the child node string
-                                let subTypeNeeded = type.includes('.') || (subTypes && types !== subTypes);
+                                let subTypeNeeded = type.includes('.') || (subTypes && types !== subTypes),
+                                    foundType = null;
 
                                 //checks if child(type) node exists in the tree and if not, adds it
-                                let foundType = null;
-                                if (foundCategory.children) {
-                                    foundType = foundCategory.children.find((typeItem, index) => {
-                                        let setType = type.includes('.') ? type.split('.')[0] : type;
-                                        let found = typeItem.name === setType;
-                                        typeIndex = index;
-                                        return found;
-                                    });
+                                if (foundCategory.object.children) {
+                                    foundType = this.getTaxonomyObject(foundCategory.object.children,
+                                        type.includes('.') ? type.split('.')[0] : type);
                                 }
 
-                                if (foundType) {
+                                if (foundType && foundType.object) {
                                     if (subTypeNeeded) {
+                                        let foundSubType = this.getTaxonomyObject(foundType.object.children, type);
 
-                                        let foundSubType = foundType.children.find((subType, index) => {
-                                            subTypeIndex = index;
-                                            let found = subType.name === type;
-                                            return found;
-                                        });
-
-                                        if (!foundSubType) {
+                                        if (!foundSubType.object) {
                                             let subTypeObject = {
-                                                id: counter++,
-                                                name: type,
-                                                lineage: category,
-                                                description: this.options.subTypeField.columnName,
-                                                checked: true
+                                                id: counter++, name: type, lineage: category,
+                                                description: this.options.subTypeField.columnName, checked: true
                                             };
-                                            //Alphabetize all values added to the taxonomy
-                                            groups[categoryIndex].children[typeIndex].children.push(subTypeObject);
-                                            if (this.options.ascending) {
-                                                neonUtilities.sortArrayOfObjects(groups[categoryIndex]
-                                                    .children[typeIndex].children, 'name');
-                                            } else {
-                                                neonUtilities.sortArrayOfObjects(groups[categoryIndex]
-                                                    .children[typeIndex].children, 'name', neonVariables.DESCENDING);
-                                            }
 
+                                            this.taxonomyGroups[foundCategory.index].children[foundType.index]
+                                                .children.push(subTypeObject);
                                         }
                                     }
                                 } else {
-                                    let setType = type.includes('.') ? type.split('.')[0] : type;
-                                    let typeObject = {
-                                        id: counter++,
-                                        name: setType,
-                                        children: [],
-                                        lineage: category,
-                                        description: this.options.typeField.columnName,
-                                        checked: true
-                                    };
+                                    let setType = type.includes('.') ? type.split('.')[0] : type,
+                                        typeObject = {
+                                            id: counter++, name: setType, children: [], lineage: category,
+                                            description: this.options.typeField.columnName, checked: true
+                                        };
 
-                                    typeIndex = 0;
+                                    foundType.index = 0;
+                                    this.taxonomyGroups[foundCategory.index].children.push(typeObject);
 
-                                    //Alphabetize all values added to the taxonomy
-                                    groups[categoryIndex].children.push(typeObject);
-                                    if (this.options.ascending) {
-                                        neonUtilities.sortArrayOfObjects(groups[categoryIndex].children, 'name');
-                                    } else {
-                                        neonUtilities.sortArrayOfObjects(groups[categoryIndex].children, 'name', neonVariables.DESCENDING);
-                                    }
-
-                                    if (groups[categoryIndex].children && groups[categoryIndex].children.length > 1) {
-                                        for (let i = 0; i < groups[categoryIndex].children.length; i++) {
-                                            if (type.includes(groups[categoryIndex].children[i].name)) {
-                                                typeIndex = i;
+                                    if (this.taxonomyGroups[foundCategory.index].children &&
+                                        this.taxonomyGroups[foundCategory.index].children.length > 1) {
+                                        for (let i = 0; i < this.taxonomyGroups[foundCategory.index].children.length; i++) {
+                                            if (type.includes(this.taxonomyGroups[foundCategory.index].children[i].name)) {
+                                                foundType.index = i;
                                             }
                                         }
                                     }
 
                                     if (subTypeNeeded) {
                                         let subTypeObject = {
-                                            id: counter++,
-                                            name: type,
-                                            lineage: category,
-                                            description: this.options.subTypeField.columnName,
-                                            checked: true,
-                                            expanded: false
+                                            id: counter++, name: type, lineage: category,
+                                            description: this.options.subTypeField.columnName, checked: true
                                         };
 
-                                        groups[categoryIndex].children[typeIndex].children.push(subTypeObject);
-                                        if (this.options.ascending) {
-                                            neonUtilities.sortArrayOfObjects(groups[categoryIndex]
-                                                .children[typeIndex].children, 'name');
-                                        } else {
-                                            neonUtilities.sortArrayOfObjects(groups[categoryIndex]
-                                                .children[typeIndex].children, 'name', neonVariables.DESCENDING);
-                                        }
+                                        this.taxonomyGroups[foundCategory.index].children[foundType.index].children.push(subTypeObject);
                                     }
                                 }
-                            }
+                                this.sortTaxonomyArrays(this.taxonomyGroups[foundCategory.index].children[foundType.index].children);
+                            }//end types loop
                         }
-                    }
+                        this.sortTaxonomyArrays(this.taxonomyGroups[foundCategory.index].children);
+                    }   //end categories loop
 
                 });
 
-                this.taxonomyGroups = groups;
+                this.sortTaxonomyArrays(this.taxonomyGroups);
                 this.refreshVisualization();
 
             } else {
@@ -539,13 +490,44 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         this.executeQueryChain();
     }
 
+    /**
+     * This is needed to capture the double click event defined in the taxonomy options.
+     * Without it, the double click event does not work.
+     *
+     */
     onEvent = () => {
-        /* This is needed to capture the double click event defined in the taxonomy options.
-           Without it, the double click event does not work.*/
+        //Intentionally empty
+    }
+
+    /**
+     * Alphabetize the values added to the taxonomy
+     *
+     * @arg {any[]} array
+     * @return {array}
+     */
+    sortTaxonomyArrays(array: any[]) {
+        if (this.options.ascending) {
+            neonUtilities.sortArrayOfObjects(array, 'name');
+        } else {
+            neonUtilities.sortArrayOfObjects(array, 'name', neonVariables.DESCENDING);
+        }
+    }
+
+    getTaxonomyObject(group: any[], name: string) {
+        let foundIndex = 0,
+            foundObject = group.find((item, index) => {
+                let found = item.name === name;
+                foundIndex = index;
+                return found;
+            });
+
+        return {
+            index: foundIndex,
+            object: foundObject
+        };
     }
 
     checkRelatedNodes(node, $event) {
-
         let relatives = [];
         this.updateChildNodesCheckBox(node, $event.target.checked);
         this.updateParentNodesCheckBox(node.parent);
