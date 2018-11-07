@@ -260,9 +260,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         }
         this.showFilterBuilder = !this.showFilterBuilder;
         let filterBuilderContainer: HTMLElement = document.getElementById('filter.builder');
-        if (this.showFilterBuilder) {
+        if (this.showFilterBuilder && filterBuilderContainer) {
             filterBuilderContainer.setAttribute('style', 'display: show');
-        } else {
+        } else if (filterBuilderContainer) {
             filterBuilderContainer.setAttribute('style', 'display: none');
         }
     }
