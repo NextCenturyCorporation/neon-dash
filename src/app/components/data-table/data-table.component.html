@@ -57,7 +57,7 @@
                     <mat-select placeholder="ID Field" [(ngModel)]="options.idField"
                                 required="false" (ngModelChange)="handleChangeData()"
                                 [disabled]="options.fields.length == 0">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -141,6 +141,13 @@
                 </mat-button-toggle-group>
                 <p></p>
 
+                <span class="toggle-text">Make Columns Reorderable:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.reorderable">
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
                 <span class="toggle-text">Sort:</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.sortDescending" (ngModelChange)="handleChangeData()">
                     <mat-button-toggle [value]="false">Ascending</mat-button-toggle>
@@ -200,7 +207,7 @@
                 [rowHeight]="getTableRowHeight()"
                 [scrollbarH]="true"
                 [scrollbarV]="true"
-                [reorderable]="false"
+                [reorderable]="options.reorderable"
                 [selected]="selected"
                 [selectionType]="'multi'"
                 (resize)="onTableResize($event)"
@@ -223,7 +230,7 @@
                     </button>
                 </div>
                 <mat-list dense class="column-selector-list" (mouseleave)="onMouseLeaveArea(i)" (mousemove)="onMouseMove($event)">
-                    <mat-list-item *ngFor="let header of headers; let i = index" (mouseenter)="onMouseEnter(i)" (mouseup)="onMouseUp(i)"
+                    <mat-list-item *ngFor="let header of options.headers; let i = index" (mouseenter)="onMouseEnter(i)" (mouseup)="onMouseUp(i)"
                         (mouseleave)="onMouseLeaveItem(i)" [ngStyle]="{'border': header.style.border, 'background-color': header.style.backgroundColor, 'border-top': header.style.borderTop, 'border-bottom': header.style.borderBottom}">
                         <mat-icon (mousedown)="onMouseDown(i)">drag_handle</mat-icon>
                         <mat-checkbox color="primary" [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">{{ header.name }}</mat-checkbox>

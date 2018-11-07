@@ -37,7 +37,7 @@ import { VisualizationService } from '../../services/visualization.service';
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from '../chart/chart.component';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
 import { neonVariables } from '../../neon-namespaces';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
@@ -55,24 +55,95 @@ export class LineChartOptions extends BaseNeonOptions {
     public groupField: FieldMetaData;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
      *
+     * @arg {any} bindings
+     * @return {any}
      * @override
      */
-    onInit() {
-        this.aggregation = this.injector.get('aggregation', 'count');
-        this.granularity = this.injector.get('granularity', 'day');
+    appendNonFieldBindings(bindings: any): any {
+        bindings.aggregation = this.aggregation;
+        bindings.granularity = this.granularity;
+
+        return bindings;
     }
 
     /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
+     * Returns the list of fields to export.
+     *
+     * @return {{ columnName: string, prettyName: string }[]}
+     * @override
+     */
+    getExportFields() {
+        let exportFields = [{
+            columnName: this.groupField.columnName,
+            prettyName: this.groupField.prettyName
+        }, {
+            columnName: 'value',
+            prettyName: (this.aggregation.charAt(0).toUpperCase() + this.aggregation.slice(1)) + (this.aggregation === 'count' ? '' :
+                ('_' + this.aggregationField.prettyName))
+        }];
+        switch (this.granularity) {
+            case 'hour':
+                exportFields.push({
+                    columnName: 'hour',
+                    prettyName: 'Hour'
+                });
+                /* falls through */
+            case 'day':
+                exportFields.push({
+                    columnName: 'day',
+                    prettyName: 'Day'
+                });
+                /* falls through */
+            case 'month':
+                exportFields.push({
+                    columnName: 'month',
+                    prettyName: 'Month'
+                });
+                /* falls through */
+            case 'year':
+                exportFields.push({
+                    columnName: 'year',
+                    prettyName: 'Year'
+                });
+                /* falls through */
+        }
+        return exportFields;
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'aggregationField',
+            'dateField',
+            'groupField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    updateFieldsOnTableChanged() {
-        this.aggregationField = this.findFieldObject('aggregationField');
-        this.dateField = this.findFieldObject('dateField');
-        this.groupField = this.findFieldObject('groupField');
+    initializeNonFieldBindings() {
+        this.aggregation = this.injector.get('aggregation', 'count');
+        this.granularity = this.injector.get('granularity', 'day');
     }
 }
 
@@ -282,53 +353,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             datasets: []
         };
         this.chart.options = {};
-    }
-
-    getExportFields() {
-        let valuePrettyName = this.options.aggregation +
-            (this.options.aggregation === 'count' ? '' : '-' + this.options.aggregationField.prettyName);
-        valuePrettyName = valuePrettyName.charAt(0).toUpperCase() + valuePrettyName.slice(1);
-        let fields = [{
-                columnName: this.options.groupField.columnName,
-                prettyName: this.options.groupField.prettyName
-            }, {
-                columnName: 'value',
-                prettyName: valuePrettyName
-        }];
-        switch (this.options.granularity) {
-            case 'hour':
-                fields.push({
-                    columnName: 'hour',
-                    prettyName: 'Hour'
-                });
-                /* falls through */
-            case 'day':
-                fields.push({
-                    columnName: 'day',
-                    prettyName: 'Day'
-                });
-                /* falls through */
-            case 'month':
-                fields.push({
-                    columnName: 'month',
-                    prettyName: 'Month'
-                });
-                /* falls through */
-            case 'year':
-                fields.push({
-                    columnName: 'year',
-                    prettyName: 'Year'
-                });
-                /* falls through */
-        }
-        return fields;
-    }
-
-    subGetBindings(bindings: any) {
-        bindings.dateField = this.options.dateField.columnName;
-        bindings.groupField = this.options.groupField.columnName;
-        bindings.aggregation = this.options.aggregation;
-        bindings.aggregationField = this.options.aggregationField.columnName;
     }
 
     legendItemSelected(data: any): void {

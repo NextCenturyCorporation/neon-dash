@@ -85,20 +85,39 @@ export class LeafletNeonMap extends AbstractMap {
 
     addPoints(points: MapPoint[], layer?: MapLayer, cluster?: boolean) {
         let group = this.getGroup(layer);
+
         for (let point of points) {
-            let circlOptions = {
-                    color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
-                    fillColor: point.cssColorString,
-                    weight: 1,
-                    colorByField: point.colorByField,
-                    colorByValue: point.colorByValue,
-                    radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30) // Default is 10
-                },
-                circle = new L.CircleMarker([point.lat, point.lng], circlOptions)/*.setRadius(6)*/;
+
+            let circleOptions = {};
+            let mapIsSelected = this.mapOptions.id && point.idValue;          //is point selected record
+            let pointIsSelected = point.idList.includes(this.mapOptions.id);  //check if point is in list
+
+            circleOptions = {
+                        color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
+                        fillColor: point.cssColorString,
+                        colorByField: point.colorByField,
+                        colorByValue: point.colorByValue,
+                        weight: 1,
+                        stroke: mapIsSelected && pointIsSelected ? false : true,
+                        opacity: mapIsSelected ? (pointIsSelected ? 0 : .2) : 1,
+                        fillOpacity: mapIsSelected ? (pointIsSelected ? 1 : .1) : .3,
+                        radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30) // Default is 10
+            };
+
+            let circle = new L.CircleMarker([point.lat, point.lng], circleOptions)/*.setRadius(6)*/;
             circle = this.addClickEventListener(circle);
             if (this.mapOptions.hoverPopupEnabled) {
-                circle.bindTooltip(`<span>${point.name}</span><br/><span>${point.description}</span>`);
+
+                //check if popup value has been set in the map layer config, if no use default
+                if (point.hoverPopupMap.size > 0) {
+
+                    //build hover value and add to tooltip
+                    circle.bindTooltip(`<span>${this.createHoverPopupString(point.hoverPopupMap)}</span>`);
+                } else {
+                    circle.bindTooltip(`<span>${point.name}</span><br/><span>${point.description}</span>`);
+                }
             }
+
             group.addLayer(circle);
         }
         //TODO: cluster layer based on cluster boolean
@@ -225,5 +244,22 @@ export class LeafletNeonMap extends AbstractMap {
             let castEvent = event as L.LeafletMouseEvent;
             this.filterListener.filterByMapPoint(castEvent.target._latlng.lat, castEvent.target._latlng.lng);
         });
+    }
+
+    private createHoverPopupString(hoverPopupMap: Map<string, number>) {
+
+        let result = [];
+
+        //loop through and push values to array
+        hoverPopupMap.forEach((value: number, key: string) => {
+            if (value <= 1) {
+                result.push(key);
+            } else {
+                result.push(key + '(' + value + ')');
+            }
+        });
+
+        return result.join(','); // return comma separated string
+
     }
 }
