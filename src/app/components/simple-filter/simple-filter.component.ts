@@ -18,7 +18,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { DatasetService } from '../../services/dataset.service';
 import { SimpleFilter } from '../../dataset';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { BehaviorSubject } from 'rxjs';
 import * as neon from 'neon-framework';
 import * as uuid from 'node-uuid';
 
