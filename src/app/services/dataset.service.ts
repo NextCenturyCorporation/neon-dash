@@ -17,7 +17,7 @@ import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
 import { DatasetOptions, DatabaseMetaData, TableMetaData,
-    TableMappings, FieldMetaData, Datastore, Dashboard } from '../dataset';
+    TableMappings, FieldMetaData, Datastore, Dashboard, SimpleFilter } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import * as _ from 'lodash';
@@ -318,6 +318,45 @@ export class DatasetService {
      */
     public getDashboards(): Dashboard {
         return this.dashboards;
+    }
+
+    /**
+     *
+     * @param simpleField The new field for the simple search
+     */
+    public setActiveDatasetSimpleFilterFieldName(simpleField: FieldMetaData) {
+        this.createSimpleFilter();
+        this.dataset.options.simpleFilter.fieldName = simpleField.columnName;
+    }
+
+    /**
+     * Creates a simpleFilter if it doesn't exist
+     */
+    public createSimpleFilter() {
+        if (!this.dataset.options.simpleFilter) {
+            this.dataset.options.simpleFilter = new SimpleFilter(
+                this.dataset.databases[0].name,
+                this.dataset.databases[0].tables[0].name,
+                ''
+            );
+        }
+    }
+
+    /**
+     * returns the simple search field
+     * @return {string}
+     */
+    public getActiveDatasetSimpleFilterFieldName(): string {
+        this.createSimpleFilter();
+        return this.dataset.options.simpleFilter.fieldName;
+    }
+
+    /**
+     * returns the active table fields
+     * @return {Object}
+     */
+    public getActiveFields() {
+        return this.dataset.databases[0].tables[0].fields;
     }
 
     /**

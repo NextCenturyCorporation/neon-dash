@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -28,7 +28,7 @@ import * as uuid from 'node-uuid';
     styleUrls: ['./simple-filter.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SimpleFilterComponent {
+export class SimpleFilterComponent implements OnInit, OnDestroy {
 
     public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
     public filterId = new BehaviorSubject<string>(undefined);
@@ -36,7 +36,14 @@ export class SimpleFilterComponent {
     private id = uuid.v4();
     private messenger = new neon.eventing.Messenger();
 
-    constructor(private datasetService: DatasetService, private filterService: FilterService, public themesService: ThemesService) {
+    public showSimpleSearch: boolean;
+
+    constructor(
+        private changeDetection: ChangeDetectorRef,
+        private datasetService: DatasetService,
+        private filterService: FilterService,
+        public themesService: ThemesService
+    ) {
         this.setSimpleFilter();
     }
 
@@ -72,6 +79,34 @@ export class SimpleFilterComponent {
                 noOp
             );
         }
+    }
+
+    checkSimpleFilter() {
+        if (this.simpleFilter && this.showSimpleSearch !== false) {
+            this.showSimpleSearch = true;
+        } else {
+            this.showSimpleSearch = false;
+        }
+        this.publishShowSimpleSearch();
+    }
+
+    ngOnDestroy() {
+        this.messenger.unsubscribeAll();
+    }
+
+    ngOnInit() {
+        this.checkSimpleFilter();
+
+        this.messenger.subscribe('showSimpleSearch', (message) => {
+            this.showSimpleSearch = message.showSimpleSearch;
+            this.changeDetection.detectChanges();
+        });
+    }
+
+    publishShowSimpleSearch() {
+        this.messenger.publish('showSimpleSearch', {
+            showSimpleSearch: this.showSimpleSearch
+        });
     }
 
     removeFilter() {
