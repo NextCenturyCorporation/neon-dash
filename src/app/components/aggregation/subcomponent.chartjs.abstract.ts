@@ -19,8 +19,9 @@ import { AggregationOptions } from './aggregation.component';
 import { Color } from '../../services/color-scheme.service';
 
 import * as _ from 'lodash';
+import 'chart.js';
 
-import * as Chart from 'chart.js';
+declare let Chart;
 
 export abstract class AbstractChartJsDataset {
     public data: any[] = [];
@@ -190,10 +191,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     },
                     labels: (this.isHorizontal() ? meta.yList : meta.xList),
                     position: 'bottom',
-                    scaleLabel: {
-                        display: true,
-                        labelString: this.options.axisLabelX
-                    },
                     ticks: {
                         display: !this.options.hideGridTicks,
                         maxRotation: 0,
@@ -210,10 +207,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     },
                     labels: (this.isHorizontal() ? meta.xList : meta.yList),
                     position: 'left',
-                    scaleLabel: {
-                        display: true,
-                        labelString: this.options.axisLabelY
-                    },
                     ticks: {
                         display: !this.options.hideGridTicks,
                         maxRotation: 0,
@@ -663,7 +656,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {boolean}
      * @protected
      */
-    public isHorizontal(): boolean {
+    protected isHorizontal(): boolean {
         return false;
     }
 
