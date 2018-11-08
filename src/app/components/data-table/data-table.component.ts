@@ -103,7 +103,7 @@ export class DataTableOptions extends BaseNeonOptions {
         this.colorField = this.findFieldObject('colorField');
         this.filterFields = this.findFieldObjects('filterFields');
         this.groupByFields = this.aggregation.groupByColumnNames &&
-            this.aggregation.groupByColumnNames.map(name => this.findField(name));
+            this.aggregation.groupByColumnNames.map((name) => this.findField(name));
         this.heatmapField = this.findFieldObject('heatmapField');
         this.idField = this.findFieldObject('idField');
         this.sortField = this.findFieldObject('sortField');
@@ -591,7 +591,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.docCount = response.data[0]._docCount - this.duplicateNumber;
         } else {
             let responses = response.data,
-                fields = this.options.fields.map(field => field.columnName);
+                fields = this.options.fields.map((field) => field.columnName);
 
             // The query response is being stringified and stored in activeData
             this.activeData = responses.map((d) => {
@@ -903,7 +903,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             cellClass[colorClass] = true;
         }
         return cellClass;
-    };
+    }
 
     /**
      * Returns an object containing the ElementRef objects for the visualization.
@@ -966,7 +966,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
 
         return rowClass;
-    };
+    }
 
     getTableHeaderHeight() {
         return this.options.skinny ? 20 : 30;

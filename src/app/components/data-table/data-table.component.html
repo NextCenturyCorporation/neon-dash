@@ -1,7 +1,6 @@
 <mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{
-            options.title }}</div>
+        <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
         <span #infoText class="info text">
             <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
@@ -42,8 +41,7 @@
                 <mat-form-field>
                     <mat-select placeholder="Database" [(ngModel)]="options.database" required="true" (ngModelChange)="handleChangeDatabase()"
                         [disabled]="options.databases.length < 2">
-                        <mat-option *ngFor="let database of options.databases" [value]="database">{{
-                            database.prettyName }}</mat-option>
+                        <mat-option *ngFor="let database of options.databases" [value]="database">{{ database.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
@@ -189,8 +187,7 @@
                 [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, false)">
                 <mat-icon class="neon-icon-small">close</mat-icon>
             </button>
-            <span class="datatable-filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{
-                filter.value }}</span>
+            <span class="datatable-filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.value }}</span>
         </div>
     </div>
 
@@ -223,8 +220,7 @@
                     <mat-list-item *ngFor="let header of headers; let i = index" (mouseenter)="onMouseEnter(i)"
                         (mouseup)="onMouseUp(i)" (mouseleave)="onMouseLeaveItem(i)" [ngStyle]="{'border': header.style.border, 'background-color': header.style.backgroundColor, 'border-top': header.style.borderTop, 'border-bottom': header.style.borderBottom}">
                         <mat-icon (mousedown)="onMouseDown(i)">drag_handle</mat-icon>
-                        <mat-checkbox color="primary" [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">{{
-                            header.name }}</mat-checkbox>
+                        <mat-checkbox color="primary" [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">{{ header.name }}</mat-checkbox>
                     </mat-list-item>
                 </mat-list>
             </div>
