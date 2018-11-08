@@ -22,8 +22,6 @@ import { Color } from '../../services/color-scheme.service';
 import { ElementRef } from '@angular/core';
 
 class TestAggregationSubcomponentOptions implements AggregationSubcomponentOptions {
-    public axisLabelX: string = '';
-    public axisLabelY: string = '';
     public granularity: string = 'year';
     public hideGridLines: boolean = false;
     public hideGridTicks: boolean = false;
@@ -129,7 +127,7 @@ class TestChartJsSubcomponent extends AbstractChartJsSubcomponent {
         return this.selectedLabels;
     }
 
-    public isHorizontal(): boolean {
+    protected isHorizontal(): boolean {
         return this.horizontal;
     }
 }
