@@ -32,7 +32,7 @@ import { AppModule } from './app/app.module';
 import * as yaml from 'js-yaml';
 import * as neon from 'neon-framework';
 import 'rxjs/Rx';
-import 'rxjs/add/operator/toPromise';
+
 
 const HTTP_PROVIDERS = [
     {provide: Http, useFactory:
