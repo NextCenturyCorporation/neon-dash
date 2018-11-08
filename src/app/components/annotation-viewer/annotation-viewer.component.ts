@@ -215,7 +215,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     public colorList: any[] = [];
 
     public seenTypes: string[] = [];
-    public disabledSet: [string[]] = [] as [string[]];
+    public disabledSet: [string[]] = [] as any;
     public colorByFields: string[] = [];
     public indexInclusive: boolean;
     public offset = 0;
@@ -979,7 +979,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             };
         });
 
-        this.disabledSet = [] as [string[]];
+        this.disabledSet = [] as any;
         this.colorByFields = [];
 
         this.page = 1;

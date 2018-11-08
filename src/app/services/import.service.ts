@@ -88,7 +88,7 @@ export class ImportService {
                 pair.keys.forEach((key) => {
                     let indx = _.findIndex(toReturn, {
                         name: pair.name + '__' + key
-                    });
+                    } as any);
                     objectFTPairs.push({
                         name: key,
                         type: toReturn[indx].type
@@ -106,7 +106,7 @@ export class ImportService {
                 pair.keys.forEach((key) => {
                     let indx = _.findIndex(toReturn, {
                         name: pair.name + '__' + key
-                    });
+                    } as any);
                     toRemoveIndices.push(indx);
                 });
 

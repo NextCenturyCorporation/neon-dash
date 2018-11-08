@@ -682,8 +682,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * from another visualization
      */
     executeQueryChain(layerIndex) {
-        let isValidQuery = this.isValidQuery(layerIndex);
-        if (!isValidQuery) {
+        if (!this.isValidQuery(layerIndex)) {
             return;
         }
         this.isLoading++;
@@ -714,7 +713,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * Check if the current query (Including filters) is valid for a layer
      * @param {number} layerIndex
      */
-    abstract isValidQuery(layerIndex: number): void;
+    abstract isValidQuery(layerIndex: number): boolean;
 
     /**
      * Create the query needed to get the data for the visualization for a layer

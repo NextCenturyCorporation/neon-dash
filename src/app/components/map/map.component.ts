@@ -219,7 +219,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     protected mapObject: AbstractMap;
     protected filterBoundingBox: BoundingBoxByDegrees;
 
-    public disabledSet: [string[]] = [] as [string[]];
+    public disabledSet: [string[]] = [] as any;
     protected defaultActiveColor: Color;
 
     constructor(

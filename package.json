@@ -127,7 +127,7 @@
     "@types/jquery": "~2.0.41",
     "@types/js-yaml": "3.9.1",
     "@types/leaflet": "1.2.0",
-    "@types/lodash": "~4.14.62",
+    "@types/lodash": "~4.14.110",
     "@types/log4javascript": "0.0.28",
     "@types/node": "~6.0.60",
     "@types/uuid": "3.4.2",
