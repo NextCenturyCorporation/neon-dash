@@ -14,49 +14,64 @@
  *
  */
 import { Injectable } from '@angular/core';
+import * as neon from 'neon-framework';
+
+import { DatasetService } from './dataset.service';
 
 /**
  * A set of colors, used to keep track of which values map to which colors
  */
 export class ColorSet {
-    public name: string;
-    public colorList: Color[];
+    // TODO Change on theme changed
+    private colors: Color[] = THEME_TEAL_COLORS;
     private currentIndex: number = 0;
-    private mappings: Map<string, Color> = new Map<string, Color>();
 
-    constructor(name: string) {
-        this.name = name;
+    constructor(private colorField: string, private valueToColor: Map<string, Color> = new Map<string, Color>()) {
+        // Do nothing.
     }
 
     /**
-     * Get the color for a value
-     * @param {string} value
+     * Returns the color field.
+     *
+     * @return {string}
+     */
+    getColorField(): string {
+        return this.colorField;
+    }
+
+    /**
+     * Returns the color for the given value.
+     *
+     * @arg {string} value
      * @return {Color}
      */
     getColorForValue(value: string): Color {
-        let color = this.mappings.get(value);
-        if (color == null) {
-            color = this.colorList[this.currentIndex];
-            this.mappings.set(value, color);
-            this.currentIndex = (this.currentIndex + 1) % this.colorList.length;
+        let color = this.valueToColor.get(value);
+        if (!color) {
+            color = this.colors[this.currentIndex];
+            this.valueToColor.set(value, color);
+            this.currentIndex = (this.currentIndex + 1) % this.colors.length;
         }
+
         return color;
     }
 
     /**
-     * Get the map of colors
+     * Returns the map of colors.
+     *
      * @return {Map<string, Color>}
      */
     getColorMap(): Map<string, Color> {
-        return this.mappings;
+        return this.valueToColor;
     }
 
     /**
-     * Get the list of all the keys that have a color in the set
+     * Returns the list of keys in this color set.
+     *
      * @return {string[]}
      */
     getAllKeys(): string[] {
-        return Array.from(this.mappings.keys()).sort();
+        return Array.from(this.valueToColor.keys()).sort();
     }
 }
 
@@ -66,169 +81,61 @@ export class ColorSet {
  */
 @Injectable()
 export class ColorSchemeService {
-    private colorMaps: Map<string, ColorSet> = new Map<string, ColorSet>();
+    // TODO Let different databases and tables in the same dataset have different color maps.
+    private colorFieldToColorSet: Map<string, ColorSet> = new Map<string, ColorSet>();
+    private messenger: neon.eventing.Messenger;
 
-    // Palettes generated with http://tools.medialab.sciences-po.fr/iwanthue/
-    private colorList = [
-        [   //3 colors - defined palette
-            new Color(173, 216, 230),
-            new Color(223, 159, 159),
-            new Color(255, 218, 153)
-        ],
-        [   //9 colors
-            new Color(228, 26, 28),
-            new Color(55, 126, 184),
-            new Color(77, 175, 74),
-            new Color(152, 78, 163),
-            new Color(255, 127, 0),
-            new Color(96, 69, 20),
-            new Color(166, 86, 40),
-            new Color(247, 129, 191),
-            new Color(153, 153, 153)
-        ],
-        [   //11 colors
-            new Color(103, 0, 31),
-            new Color(178, 24, 43),
-            new Color(214, 96, 77),
-            new Color(244, 165, 130),
-            new Color(253, 219, 199),
-            new Color(247, 247, 247),
-            new Color(209, 229, 240),
-            new Color(146, 197, 222),
-            new Color(67, 147, 195),
-            new Color(33, 102, 172),
-            new Color(5, 48, 97)
-        ],
-        [   //12 colors
-            new Color(31, 120, 180),
-            new Color(51, 160, 44),
-            new Color(227, 26, 28),
-            new Color(255, 127, 0),
-            new Color(106, 61, 154),
-            new Color(177, 89, 40),
-            new Color(166, 206, 227),
-            new Color(178, 223, 138),
-            new Color(251, 154, 153),
-            new Color(253, 191, 111),
-            new Color(202, 178, 214),
-            new Color(255, 255, 153)
-        ],
-        [   //24 colors
-            new Color(163, 180, 4),
-            new Color(19, 97, 255),
-            new Color(49, 148, 0),
-            new Color(255, 100, 243),
-            new Color(0, 158, 87),
-            new Color(143, 105, 255),
-            new Color(166, 155, 0),
-            new Color(91, 5, 147),
-            new Color(224, 159, 15),
-            new Color(54, 44, 138),
-            new Color(253, 20, 20),
-            new Color(2, 139, 216),
-            new Color(174, 0, 15),
-            new Color(0, 57, 129),
-            new Color(202, 166, 85),
-            new Color(222, 131, 255),
-            new Color(93, 80, 0),
-            new Color(195, 0, 131),
-            new Color(255, 89, 95),
-            new Color(114, 0, 102),
-            new Color(255, 63, 133),
-            new Color(129, 89, 133),
-            new Color(120, 15, 31),
-            new Color(232, 143, 190)
-        ],
-        [   //35 colors - random palette
-            new Color(31, 120, 180),
-            new Color(127, 19, 242),
-            new Color(7, 87, 8),
-            new Color(177, 89, 40),
-            new Color(227, 26, 28),
-            new Color(51, 160, 44),
-            new Color(241, 103, 32),
-            new Color(103, 0, 31),
-            new Color(5, 48, 97),
-            new Color(251, 154, 153),
-            new Color(178, 223, 138),
-            new Color(77, 207, 214),
-            new Color(253, 191, 111),
-            new Color(166, 206, 227),
-            new Color(20, 171, 145),
-            new Color(255, 255, 153),
-            new Color(200, 22, 192),
-            new Color(136, 232, 164),
-            new Color(253, 219, 199),
-            new Color(0, 89, 162),
-            new Color(178, 141, 124),
-            new Color(67, 147, 195),
-            new Color(255, 163, 72),
-            new Color(209, 229, 240),
-            new Color(177, 177, 177),
-            new Color(31, 137, 255),
-            new Color(146, 197, 222),
-            new Color(202, 178, 214),
-            new Color(144, 186, 48),
-            new Color(250, 122, 109),
-            new Color(111, 0, 60),
-            new Color(217, 66, 163),
-            new Color(0, 123, 45),
-            new Color(221, 142, 194),
-            new Color(119, 79, 0)
-        ]
-    ];
-    private colorPosition = 0;
+    constructor(private datasetService: DatasetService) {
+        this.messenger = new neon.eventing.Messenger();
+        this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.resetColorMap);
+        this.resetColorMap();
+    }
+
+    public resetColorMap() {
+        this.colorFieldToColorSet = new Map<string, ColorSet>();
+        let datasetOptions = this.datasetService.getActiveDatasetOptions();
+        let colorMaps = datasetOptions.colorMaps || {};
+        Object.keys(colorMaps).forEach((databaseName) => {
+            Object.keys(colorMaps[databaseName]).forEach((tableName) => {
+                Object.keys(colorMaps[databaseName][tableName]).forEach((fieldName) => {
+                    let valueToColor = new Map<string, Color>();
+                    Object.keys(colorMaps[databaseName][tableName][fieldName]).forEach((valueName) => {
+                        let color = colorMaps[databaseName][tableName][fieldName][valueName];
+                        let isRGB = (color.indexOf('#') < 0);
+                        valueToColor.set(valueName, isRGB ? Color.fromRgbString(color) : Color.fromHexString(color));
+                    });
+                    let colorSet = new ColorSet(fieldName, valueToColor);
+                    this.colorFieldToColorSet.set(fieldName, colorSet);
+                });
+            });
+        });
+    }
 
     /**
-     * Get the color for a value within a set
-     * @param {string} set
-     * @param {string} value
+     * Returns the color for the given value from an existing color set for the given color field or creates a new color set if none
+     * exists for the color field.
+     *
+     * @arg {string} colorField
+     * @arg {string|string[]} value
+     * @return {Color}
      */
-    public getColorFor(set: string, value: string | string[]): Color {
-        let colorSet = this.colorMaps.get(set);
-        if (colorSet == null) {
-            colorSet = new ColorSet(set);
-            colorSet.colorList = this.colorList[this.colorPosition];
-            this.colorMaps.set(set, colorSet);
-            this.colorPosition = (this.colorPosition + 1) % this.colorList.length;
+    public getColorFor(colorField: string, value: string | string[]): Color {
+        let colorSet = this.colorFieldToColorSet.get(colorField);
+        if (!colorSet) {
+            colorSet = new ColorSet(colorField);
+            this.colorFieldToColorSet.set(colorField, colorSet);
         }
-        let colorKey = (value instanceof Array) ? value.join() : value;
-        return colorSet.getColorForValue(colorKey);
+        let colorValue = (value instanceof Array) ? value.join() : value;
+        return colorSet.getColorForValue(colorValue);
     }
 
     /**
      * Get the color set for a key
-     * @param {string} set
+     * @arg {string} colorField
      * @return {ColorSet}
      */
-    getColorSet(set: string): ColorSet {
-        return this.colorMaps.get(set);
-    }
-    /**
-     * Sets the colorList position based on the amount of available colors being greater than the array length
-     * in order to provide color uniqueness
-     * @param {number} length
-     */
-    public setColorListByLength(length: number) {
-        for (let i = 0; i < this.colorList.length; i++) {
-            if (length <= this.colorList[i].length) {
-                this.colorPosition = i;
-                break;
-            }
-        }
-
-        //if there is no palette large enough to cover the length of the array,
-        // then select the largest palette
-        if (this.colorPosition === 0 && length > this.colorList[0].length) {
-            this.colorPosition = this.colorList.length - 1;
-        }
-    }
-    /**
-     * Sets the colorList position based on a given index
-     * @param {number} index
-     */
-    public setColorListByIndex(index: number) {
-        this.colorPosition = index;
+    getColorSet(colorField: string): ColorSet {
+        return this.colorFieldToColorSet.get(colorField);
     }
 }
 
@@ -244,7 +151,7 @@ export class Color {
     /**
      * Create a color object from an array of RGB values.
      * The array must have 3 elements in it
-     * @param {number[]} rgb
+     * @arg {number[]} rgb
      * @return {Color}
      */
     static fromRgbArray(rgb: number[]): Color {
@@ -256,7 +163,7 @@ export class Color {
 
     /**
      * Create a color object from an RGB string, like "rgb(39, 96, 126)"
-     * @param {string} rgbstring
+     * @arg {string} rgbstring
      * @return {Color}
      */
     static fromRgbString(rgbstring: string): Color {
@@ -268,6 +175,26 @@ export class Color {
         let green = Number(rgbstringarray[1]);
         let blue = Number(rgbstringarray[2]);
         return Color.fromRgbArray([red, green, blue]);
+    }
+
+    /**
+     * Creates and returns a Color object using the given Hex string like #123 or #112233.
+     * @arg {string} inputHex
+     * @return {Color}
+     */
+    static fromHexString(inputHex: string): Color {
+        // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+        let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+        let hex = inputHex.replace(shorthandRegex, function(m, r, g, b) {
+            return r + r + g + g + b + b;
+        });
+
+        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? new Color(
+            parseInt(result[1], 16),
+            parseInt(result[2], 16),
+            parseInt(result[3], 16)
+        ) : null;
     }
 
     constructor(r: number, g: number, b: number) {
@@ -318,7 +245,7 @@ export class Color {
 
     /**
      * Get the color as a rgba(0,0,0,a) string
-     * @param a alpha value (0-1)
+     * @arg a alpha value (0-1)
      * @return {string}
      */
     toRgba(a: number): string {
@@ -338,3 +265,15 @@ export class Color {
             this.getHex(this.blue);
     }
 }
+
+// TODO Move to ThemesService
+let THEME_TEAL_COLORS: Color[] = [
+    new Color(255, 135, 55),  // #FF8737 (orange)
+    new Color(94, 80, 143),   // #5E508F (deep purple)
+    new Color(177, 194, 54),  // #B1C236 (lime)
+    new Color(243, 88, 112),  // #F35870 (pink)
+    new Color(255, 214, 0),   // #FFD600 (yellow)
+    new Color(179, 79, 146),  // #B34F92 (purple)
+    new Color(106, 204, 127), // #6ACC7F (sea green)
+    new Color(255, 107, 86)   // #FF6b56 (deep orange)
+];

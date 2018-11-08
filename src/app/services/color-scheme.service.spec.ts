@@ -16,10 +16,17 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { ColorSchemeService } from './color-scheme.service';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
+import { DatasetService } from './dataset.service';
+import { NeonGTDConfig } from '../neon-gtd-config';
 
 describe('Service: ColorScheme', () => {
+    let testConfig: NeonGTDConfig = new NeonGTDConfig();
     initializeTestBed({
-        providers: [ColorSchemeService]
+        providers: [
+            ColorSchemeService,
+            DatasetService,
+            { provide: 'config', useValue: testConfig }
+        ]
     });
 
     it('should ...', inject([ColorSchemeService], (service: ColorSchemeService) => {

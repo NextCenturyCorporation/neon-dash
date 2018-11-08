@@ -66,7 +66,9 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
     removeFilter(filterIds: string[]) {
         let onSuccess = (removedFilter) => {
             let visualization = this.activeGridService.getVisualizationById(removedFilter.ownerId);
-            visualization.removeFilter(removedFilter);
+            if (visualization) {
+                visualization.removeFilter(removedFilter);
+            }
             this.onEventChanged();
         };
         this.filterService.removeFilters(this.messenger, filterIds, onSuccess.bind(this));

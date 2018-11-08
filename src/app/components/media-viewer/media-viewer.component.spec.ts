@@ -505,7 +505,7 @@ describe('Component: MediaViewer', () => {
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
             slider: 0,
-            name: 'testNameValue 1',
+            name: '1: testNameValue',
             selected: {
                 border: '',
                 link: 'testLinkValue1',
@@ -523,7 +523,7 @@ describe('Component: MediaViewer', () => {
         }, {
             loaded: false,
             slider: 0,
-            name: 'testNameValue 2',
+            name: '2: testNameValue',
             selected: {
                 border: '',
                 link: 'testLinkValue2',
@@ -567,7 +567,7 @@ describe('Component: MediaViewer', () => {
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
             slider: 0,
-            name: 'testNameValue1',
+            name: '1: testNameValue1',
             selected: {
                 border: '',
                 link: 'testLinkValue1',
@@ -585,7 +585,7 @@ describe('Component: MediaViewer', () => {
         }, {
             loaded: false,
             slider: 0,
-            name: 'testNameValue2',
+            name: '2: testNameValue2',
             selected: {
                 border: '',
                 link: 'testLinkValue2',
@@ -806,7 +806,7 @@ describe('Component: MediaViewer', () => {
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
             slider: 0,
-            name: 'video.avi',
+            name: '1: video.avi',
             selected: {
                 border: '',
                 link: 'video.avi',
@@ -824,7 +824,7 @@ describe('Component: MediaViewer', () => {
         }, {
             loaded: false,
             slider: 0,
-            name: 'image.jpg',
+            name: '2: image.jpg',
             selected: {
                 border: '',
                 link: 'image.jpg',
@@ -842,7 +842,7 @@ describe('Component: MediaViewer', () => {
         }, {
             loaded: false,
             slider: 0,
-            name: 'alpha.txt',
+            name: '3: alpha.txt',
             selected: {
                 border: '',
                 link: 'alpha.txt',
@@ -860,7 +860,7 @@ describe('Component: MediaViewer', () => {
         }, {
             loaded: false,
             slider: 0,
-            name: 'audio.wav',
+            name: '4: audio.wav',
             selected: {
                 border: '',
                 link: 'audio.wav',
@@ -878,7 +878,7 @@ describe('Component: MediaViewer', () => {
         }, {
             loaded: false,
             slider: 0,
-            name: 'other.xyz',
+            name: '5: other.xyz',
             selected: {
                 border: '',
                 link: 'other.xyz',
