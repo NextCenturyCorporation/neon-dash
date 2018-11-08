@@ -14,7 +14,7 @@
  *
  */
 import { Injectable, Inject } from '@angular/core';
-import { Http } from '@angular/http';
+import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import * as _ from 'lodash';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { ConnectionService } from './connection.service';
@@ -28,7 +28,7 @@ export class TranslationService {
     private translationCache: {};
 
     constructor(@Inject('config') private config: NeonGTDConfig, private connectionService: ConnectionService,
-        private http: Http) {
+        private http: HttpClient) {
         this.apis = {
             google: {
                 base: 'https://www.googleapis.com/language/translate/v2',
