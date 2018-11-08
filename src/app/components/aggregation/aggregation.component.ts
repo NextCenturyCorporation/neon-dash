@@ -827,30 +827,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns whether the given subcomponent type is scaled.
-     *
-     * @arg {string} type
-     * @return {boolean}
-     */
-    isScaled(type: string): boolean {
-        switch (type) {
-            case 'bar-h':
-            case 'bar-v':
-            case 'histogram':
-            case 'line':
-            case 'line-xy':
-            case 'scatter':
-            case 'scatter-xy':
-                return true;
-            case 'doughnut':
-            case 'list':
-            case 'pie':
-            default:
-                return false;
-        }
-    }
-
-    /**
      * Returns whether the given subcomponent type has axes (e.g., line does,
      * pie does not).
      *
