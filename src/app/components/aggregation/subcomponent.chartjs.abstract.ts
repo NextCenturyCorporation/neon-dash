@@ -19,9 +19,8 @@ import { AggregationOptions } from './aggregation.component';
 import { Color } from '../../services/color-scheme.service';
 
 import * as _ from 'lodash';
-import 'chart.js';
 
-declare let Chart;
+import * as Chart from 'chart.js';
 
 export abstract class AbstractChartJsDataset {
     public data: any[] = [];
@@ -68,6 +67,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     private DEFAULT_CHART_ELEMENT_WIDTH = 10;
     private HORIZONTAL_MARGIN = 10;
     private X_AXIS_HEIGHT = 20;
+    private Y_AXIS_LABEL_WIDTH = 20;
 
     private canvas: any;
     private chart: any;
@@ -138,14 +138,14 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @private
      */
     private computeCurrentWidthAxisY(chartWidth: number, withMargins: boolean = false) {
-        let maxWidth = Math.floor(this.options.yPercentage * chartWidth);
+        let maxWidth = this.computeMaximumWidthAxisY(chartWidth);
         if (!this.tickLabels.y || !this.tickLabels.y.length) {
             return maxWidth;
         }
         let labelWidth = this.tickLabels.y.reduce((max, yLabel) => {
             return Math.max(max, this.computeTextWidth(yLabel));
         }, 0);
-        return Math.min(labelWidth, maxWidth) + (withMargins ? (2 * this.HORIZONTAL_MARGIN) : 0);
+        return Math.min(labelWidth, maxWidth) + (withMargins ? (2 * this.HORIZONTAL_MARGIN) : 0) + this.Y_AXIS_LABEL_WIDTH;
     }
 
     /**
@@ -191,6 +191,11 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     },
                     labels: (this.isHorizontal() ? meta.yList : meta.xList),
                     position: 'bottom',
+                    scaleLabel: {
+                        display: true,
+                        labelString: this.options.axisLabelX,
+                        padding: 0
+                    },
                     ticks: {
                         display: !this.options.hideGridTicks,
                         maxRotation: 0,
@@ -207,6 +212,11 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     },
                     labels: (this.isHorizontal() ? meta.xList : meta.yList),
                     position: 'left',
+                    scaleLabel: {
+                        display: true,
+                        labelString: this.options.axisLabelY,
+                        padding: -10 // Set a negative padding because ChartJS adds too much y-axis label padding by default.
+                    },
                     ticks: {
                         display: !this.options.hideGridTicks,
                         maxRotation: 0,
@@ -656,7 +666,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {boolean}
      * @protected
      */
-    protected isHorizontal(): boolean {
+    public isHorizontal(): boolean {
         return false;
     }
 
