@@ -2,19 +2,19 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 
 | Software  | License |
 | ---  | --- |
-| @angular/animations@5.2.3 | [MIT](https://github.com/angular/angular) |
+| @angular/animations@7.0.3 | [MIT](https://github.com/angular/angular) |
 | @angular/cdk@5.2.0 | [MIT](https://github.com/angular/material2/raw/master/LICENSE) |
-| @angular/common@5.2.3 | [MIT](https://github.com/angular/angular) |
-| @angular/compiler@5.2.3 | [MIT](https://github.com/angular/angular) |
-| @angular/core@5.2.3 | [MIT](https://github.com/angular/angular) |
-| @angular/forms@5.2.3 | [MIT](https://github.com/angular/angular) |
-| @angular/http@5.2.3 | [MIT](https://github.com/angular/angular) |
+| @angular/common@7.0.3 | [MIT](https://github.com/angular/angular) |
+| @angular/compiler@7.0.3 | [MIT](https://github.com/angular/angular) |
+| @angular/core@7.0.3 | [MIT](https://github.com/angular/angular) |
+| @angular/forms@7.0.3 | [MIT](https://github.com/angular/angular) |
+| @angular/http@7.0.3 | [MIT](https://github.com/angular/angular) |
 | @angular/material@5.2.0 | [MIT](https://github.com/angular/material2/raw/master/LICENSE) |
-| @angular/platform-browser-dynamic@5.2.3 | [MIT](https://github.com/angular/angular) |
-| @angular/platform-browser@5.2.3 | [MIT](https://github.com/angular/angular) |
-| @angular/platform-server@5.2.3 | [MIT](https://github.com/angular/angular) |
-| @angular/router@5.2.3 | [MIT](https://github.com/angular/angular) |
-| @angular/upgrade@5.2.3 | [MIT](https://github.com/angular/angular) |
+| @angular/platform-browser-dynamic@7.0.3 | [MIT](https://github.com/angular/angular) |
+| @angular/platform-browser@7.0.3 | [MIT](https://github.com/angular/angular) |
+| @angular/platform-server@7.0.3 | [MIT](https://github.com/angular/angular) |
+| @angular/router@7.0.3 | [MIT](https://github.com/angular/angular) |
+| @angular/upgrade@7.0.3 | [MIT](https://github.com/angular/angular) |
 | @swimlane/ngx-charts@7.4.0 | [MIT](https://github.com/swimlane/ngx-charts/raw/master/LICENSE.md) |
 | @swimlane/ngx-datatable@11.1.5 | [MIT](https://github.com/swimlane/ngx-datatable/raw/master/LICENSE) |
 | @swimlane/ngx-graph@4.3.0 | [MIT](https://github.com/swimlane/ngx-graph/raw/master/LICENSE) |
@@ -36,7 +36,6 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | geo-hash@0.0.2 | [MIT](https://github.com/Wayla/geo-hash) |
 | glob@7.1.3 | [ISC](https://github.com/isaacs/node-glob/raw/master/LICENSE) |
 | hammerjs@2.0.8 | [MIT](https://github.com/hammerjs/hammer.js/raw/master/LICENSE.md) |
-| hash-set-map@1.0.2 | [MIT](https://github.com/CaselIT/hash-set-map/raw/master/LICENSE) |
 | intl@1.2.5 | [MIT](https://github.com/andyearnshaw/Intl.js/raw/master/LICENSE.txt) |
 | javascript-natural-sort@0.7.1 | [MIT](https://github.com/Bill4Time/javascript-natural-sort) |
 | jquery@2.2.4 | [MIT](https://github.com/jquery/jquery/raw/master/LICENSE.txt) |
@@ -53,6 +52,6 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | npm-license-crawler@0.1.9 | [BSD-3-Clause](https://github.com/mwittig/npm-license-crawler/raw/master/LICENSE) |
 | reflect-metadata@0.1.10 | [Apache-2.0](https://github.com/rbuckton/reflect-metadata/raw/master/LICENSE) |
 | requirejs@2.3.5 | [MIT](https://github.com/jrburke/r.js) |
-| rxjs@5.5.5 | [Apache-2.0](https://github.com/ReactiveX/RxJS/raw/master/LICENSE.txt) |
+| rxjs@6.3.3 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
 | vis@4.21.0 | [(Apache-2.0 OR MIT)](https://github.com/almende/vis/raw/master/LICENSE-APACHE-2.0) |
 | zone.js@0.8.26 | [MIT](https://github.com/angular/zone.js/raw/master/LICENSE) |
