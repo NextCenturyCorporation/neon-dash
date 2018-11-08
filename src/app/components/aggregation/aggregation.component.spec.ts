@@ -53,9 +53,8 @@ describe('Component: Aggregation', () => {
     let fixture: ComponentFixture<AggregationComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    let COLOR_1 = new Color(173, 216, 230);
-    let COLOR_2 = new Color(228, 26, 28);
-    let COLOR_3 = new Color(55, 126, 184);
+    let COLOR_1 = new Color(255, 135, 55);
+    let COLOR_2 = new Color(94, 80, 143);
 
     initializeTestBed({
         declarations: [
@@ -1540,22 +1539,22 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['a', 'b']);
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([{
-            color: COLOR_2,
+            color: COLOR_1,
             group: 'a',
             x: 1,
             y: 2
         }, {
-            color: COLOR_2,
+            color: COLOR_1,
             group: 'a',
             x: 3,
             y: 4
         }, {
-            color: COLOR_3,
+            color: COLOR_2,
             group: 'b',
             x: 5,
             y: 6
         }, {
-            color: COLOR_3,
+            color: COLOR_2,
             group: 'b',
             x: 7,
             y: 8
@@ -1596,22 +1595,22 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['a', 'b']);
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([{
-            color: COLOR_2,
+            color: COLOR_1,
             group: 'a',
             x: 1,
             y: 2
         }, {
-            color: COLOR_2,
+            color: COLOR_1,
             group: 'a',
             x: 3,
             y: 4
         }, {
-            color: COLOR_3,
+            color: COLOR_2,
             group: 'b',
             x: 5,
             y: 6
         }, {
-            color: COLOR_3,
+            color: COLOR_2,
             group: 'b',
             x: 7,
             y: 8
@@ -1946,42 +1945,42 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['a', 'b']);
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([{
-            color: COLOR_2,
+            color: COLOR_1,
             group: 'a',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
-            color: COLOR_2,
+            color: COLOR_1,
             group: 'a',
             x: '2018-01-02T00:00:00.000Z',
             y: 0
         }, {
-            color: COLOR_2,
+            color: COLOR_1,
             group: 'a',
             x: '2018-01-03T00:00:00.000Z',
             y: 4
         }, {
-            color: COLOR_2,
+            color: COLOR_1,
             group: 'a',
             x: '2018-01-04T00:00:00.000Z',
             y: 0
         }, {
-            color: COLOR_3,
+            color: COLOR_2,
             group: 'b',
             x: '2018-01-01T00:00:00.000Z',
             y: 0
         }, {
-            color: COLOR_3,
+            color: COLOR_2,
             group: 'b',
             x: '2018-01-02T00:00:00.000Z',
             y: 3
         }, {
-            color: COLOR_3,
+            color: COLOR_2,
             group: 'b',
             x: '2018-01-03T00:00:00.000Z',
             y: 0
         }, {
-            color: COLOR_3,
+            color: COLOR_2,
             group: 'b',
             x: '2018-01-04T00:00:00.000Z',
             y: 5
