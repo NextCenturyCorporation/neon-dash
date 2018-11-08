@@ -1371,17 +1371,17 @@ describe('Component: Aggregation', () => {
     });
 
     it('isScaled does return expected boolean', () => {
-        expect(component.isScaled('bar-h')).toEqual(true);
-        expect(component.isScaled('bar-v')).toEqual(true);
-        expect(component.isScaled('histogram')).toEqual(true);
-        expect(component.isScaled('line')).toEqual(true);
-        expect(component.isScaled('line-xy')).toEqual(true);
-        expect(component.isScaled('scatter')).toEqual(true);
-        expect(component.isScaled('scatter-xy')).toEqual(true);
+        expect(component.hasAxes('bar-h')).toEqual(true);
+        expect(component.hasAxes('bar-v')).toEqual(true);
+        expect(component.hasAxes('histogram')).toEqual(true);
+        expect(component.hasAxes('line')).toEqual(true);
+        expect(component.hasAxes('line-xy')).toEqual(true);
+        expect(component.hasAxes('scatter')).toEqual(true);
+        expect(component.hasAxes('scatter-xy')).toEqual(true);
 
-        expect(component.isScaled('doughnut')).toEqual(false);
-        expect(component.isScaled('pie')).toEqual(false);
-        expect(component.isScaled('table')).toEqual(false);
+        expect(component.hasAxes('doughnut')).toEqual(false);
+        expect(component.hasAxes('pie')).toEqual(false);
+        expect(component.hasAxes('table')).toEqual(false);
     });
 
     it('isValidQuery does return expected boolean', () => {
@@ -3351,6 +3351,8 @@ describe('Component: Aggregation', () => {
 
     it('options.createBindings does set expected properties in bindings', () => {
         expect(component.options.createBindings()).toEqual({
+            axisLabelX: '',
+            axisLabelY: 'count',
             configFilter: undefined,
             customEventsToPublish: [],
             customEventsToReceive: [],
@@ -3418,6 +3420,8 @@ describe('Component: Aggregation', () => {
         component.options.yPercentage = 0.5;
 
         expect(component.options.createBindings()).toEqual({
+            axisLabelX: '',
+            axisLabelY: 'count',
             configFilter: undefined,
             customEventsToPublish: [],
             customEventsToReceive: [],
@@ -4049,25 +4053,32 @@ describe('Component: Aggregation', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(7);
+            expect(inputs.length).toEqual(9);
 
-            expect(inputs[0].attributes.placeholder).toBe('Title');
-            expect(inputs[0].nativeElement.value).toContain('Aggregation');
+            let n = 0;
+            expect(inputs[n].attributes.placeholder).toBe('Title');
+            expect(inputs[n++].nativeElement.value).toContain('Aggregation');
 
-            expect(inputs[1].attributes.placeholder).toBe('Limit');
-            expect(inputs[1].nativeElement.value).toContain('10');
+            expect(inputs[n].attributes.placeholder).toBe('Limit');
+            expect(inputs[n++].nativeElement.value).toContain('10');
 
-            expect(inputs[2].attributes.placeholder).toBe('X Scale Min');
-            expect(inputs[2].nativeElement.value).toEqual('');
+            expect(inputs[n].attributes.placeholder).toBe('X axis Label');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[3].attributes.placeholder).toBe('X Scale Max');
-            expect(inputs[3].nativeElement.value).toEqual('');
+            expect(inputs[n].attributes.placeholder).toBe('Y axis Label');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[4].attributes.placeholder).toBe('Y Scale Min');
-            expect(inputs[4].nativeElement.value).toEqual('');
+            expect(inputs[n].attributes.placeholder).toBe('X Scale Min');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[5].attributes.placeholder).toBe('Y Scale Max');
-            expect(inputs[5].nativeElement.value).toEqual('');
+            expect(inputs[n].attributes.placeholder).toBe('X Scale Max');
+            expect(inputs[n++].nativeElement.value).toEqual('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y Scale Min');
+            expect(inputs[n++].nativeElement.value).toEqual('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y Scale Max');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
@@ -4324,25 +4335,32 @@ describe('Component: Aggregation with config', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(7);
+            expect(inputs.length).toEqual(9);
 
-            expect(inputs[0].attributes.placeholder).toBe('Title');
-            expect(inputs[0].nativeElement.value).toContain('Test Title');
+            let n = 0;
+            expect(inputs[n].attributes.placeholder).toBe('Title');
+            expect(inputs[n++].nativeElement.value).toContain('Test Title');
 
-            expect(inputs[1].attributes.placeholder).toBe('Limit');
-            expect(inputs[1].nativeElement.value).toContain('1234');
+            expect(inputs[n].attributes.placeholder).toBe('Limit');
+            expect(inputs[n++].nativeElement.value).toContain('1234');
 
-            expect(inputs[2].attributes.placeholder).toBe('X Scale Min');
-            expect(inputs[2].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X axis Label');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[3].attributes.placeholder).toBe('X Scale Max');
-            expect(inputs[3].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('Y axis Label');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[4].attributes.placeholder).toBe('Y Scale Min');
-            expect(inputs[4].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
-            expect(inputs[5].attributes.placeholder).toBe('Y Scale Max');
-            expect(inputs[5].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
@@ -4542,25 +4560,32 @@ describe('Component: Aggregation with XY config', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(7);
+            expect(inputs.length).toEqual(9);
 
-            expect(inputs[0].attributes.placeholder).toBe('Title');
-            expect(inputs[0].nativeElement.value).toContain('Test Title');
+            let n = 0;
+            expect(inputs[n].attributes.placeholder).toBe('Title');
+            expect(inputs[n++].nativeElement.value).toContain('Test Title');
 
-            expect(inputs[1].attributes.placeholder).toBe('Limit');
-            expect(inputs[1].nativeElement.value).toContain('1234');
+            expect(inputs[n].attributes.placeholder).toBe('Limit');
+            expect(inputs[n++].nativeElement.value).toContain('1234');
 
-            expect(inputs[2].attributes.placeholder).toBe('X Scale Min');
-            expect(inputs[2].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X axis Label');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[3].attributes.placeholder).toBe('X Scale Max');
-            expect(inputs[3].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('Y axis Label');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[4].attributes.placeholder).toBe('Y Scale Min');
-            expect(inputs[4].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
-            expect(inputs[5].attributes.placeholder).toBe('Y Scale Max');
-            expect(inputs[5].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
@@ -4743,25 +4768,32 @@ describe('Component: Aggregation with date config', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(7);
+            expect(inputs.length).toEqual(9);
 
-            expect(inputs[0].attributes.placeholder).toBe('Title');
-            expect(inputs[0].nativeElement.value).toContain('Test Title');
+            let n = 0;
+            expect(inputs[n].attributes.placeholder).toBe('Title');
+            expect(inputs[n++].nativeElement.value).toContain('Test Title');
 
-            expect(inputs[1].attributes.placeholder).toBe('Limit');
-            expect(inputs[1].nativeElement.value).toContain('1234');
+            expect(inputs[n].attributes.placeholder).toBe('Limit');
+            expect(inputs[n++].nativeElement.value).toContain('1234');
 
-            expect(inputs[2].attributes.placeholder).toBe('X Scale Min');
-            expect(inputs[2].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X axis Label');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[3].attributes.placeholder).toBe('X Scale Max');
-            expect(inputs[3].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('Y axis Label');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[4].attributes.placeholder).toBe('Y Scale Min');
-            expect(inputs[4].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
-            expect(inputs[5].attributes.placeholder).toBe('Y Scale Max');
-            expect(inputs[5].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
