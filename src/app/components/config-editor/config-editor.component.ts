@@ -23,7 +23,6 @@ import * as JSONEditor from 'jsoneditor';
 declare var editor: any;
 import * as _ from 'lodash';
 
-
 @Component({
   selector: 'app-config-editor',
   templateUrl: 'config-editor.component.html',

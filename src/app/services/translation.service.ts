@@ -1,5 +1,3 @@
-
-import {throwError as observableThrowError,  Observable } from 'rxjs';
 /*
  * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +18,7 @@ import { Http } from '@angular/http';
 import * as _ from 'lodash';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { ConnectionService } from './connection.service';
+import {throwError as observableThrowError,  Observable } from 'rxjs';
 
 @Injectable()
 export class TranslationService {

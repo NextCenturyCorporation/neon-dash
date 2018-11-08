@@ -1,5 +1,3 @@
-
-import {throwError as observableThrowError,  Observable } from 'rxjs';
 /*
  * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +16,7 @@ import {throwError as observableThrowError,  Observable } from 'rxjs';
 import { Component, OnInit } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { map, catchError } from 'rxjs/operators';
+import {throwError as observableThrowError,  Observable } from 'rxjs';
 
 import * as neon from 'neon-framework';
 
