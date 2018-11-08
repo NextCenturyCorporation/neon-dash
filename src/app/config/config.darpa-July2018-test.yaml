@@ -116,9 +116,3 @@ layouts:
         minPixely: 240
         minSizex: 7
         minSizey: 3
-
-routeService:
-    url: http://localhost:8090/ghREST/
-    get: route?lat1=LAT1&lon1=LON1&lat2=LAT2&lon2=LON2
-    post: dynamicroute
-    disabled: true
