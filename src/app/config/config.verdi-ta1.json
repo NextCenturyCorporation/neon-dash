@@ -599,7 +599,7 @@
                     "database": "aida-docs",
                     "table": "parent_children",
                     "idField": "id",
-                    "sortField": "fileName",
+                    "sortField": "id",
                     "filterable": true,
                     "ignoreSelf": true,
                     "singleFilter": true,
@@ -612,7 +612,8 @@
                         "download_date",
                         "url",
                         "dtype",
-                        "parent_uid"
+                        "parent_uid",
+                        "reconstructed"
                     ]
                 },
                 "row": 1,
@@ -634,7 +635,7 @@
                     "title": "Subject",
                     "database": "jhu",
                     "table": "subjects",
-                    "sortField": "name",
+                    "sortField": "edges",
                     "idField": "id",
                     "arrayFilterOperator": "or",
                     "filterable": true,
@@ -644,7 +645,8 @@
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "name"
+                        "name",
+                        "edges"
                     ]
                 },
                 "row": 7,
@@ -665,7 +667,7 @@
                     "title": "Predicate",
                     "database": "jhu",
                     "table": "predicates",
-                    "sortField": "id",
+                    "sortField": "edges",
                     "idField": "id",
                     "arrayFilterOperator": "or",
                     "filterable": true,
@@ -675,7 +677,8 @@
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "id"
+                        "id",
+                        "edges"
                     ]
                 },
                 "row": 7,
@@ -697,7 +700,7 @@
                     "title": "Object",
                     "database": "jhu",
                     "table": "objects",
-                    "sortField": "name",
+                    "sortField": "edges",
                     "idField": "id",
                     "arrayFilterOperator": "or",
                     "filterable": true,
@@ -707,7 +710,8 @@
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "name"
+                        "name",
+                        "edges"
                     ]
                 },
                 "row": 7,
@@ -731,9 +735,9 @@
                     "database": "aida-docs",
                     "table": "parent_children",
                     "idField": "id",
-                    "linkField": "url",
+                    "linkField": "reconstructed",
                     "typeField": "dtype",
-                    "clearMedia": true
+                    "clearMedia": false
                 },
                 "row": 13,
                 "col": 1
@@ -765,7 +769,9 @@
                     "typeField": "types",
                     "nodeColorField": "categories",
                     "showOnlyFiltered": false,
-                    "filterFields": ["docIds"],
+                    "filterFields": [
+                        "docIds"
+                    ],
                     "isReified": false,
                     "isDirected": true,
                     "multifilter": true
@@ -847,7 +853,7 @@
                     "title": "Subject",
                     "database": "bbn",
                     "table": "subjects",
-                    "sortField": "name",
+                    "sortField": "edges",
                     "idField": "id",
                     "arrayFilterOperator": "or",
                     "filterable": true,
@@ -857,7 +863,8 @@
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "name"
+                        "name",
+                        "edges"
                     ]
                 },
                 "row": 7,
@@ -878,7 +885,7 @@
                     "title": "Predicate",
                     "database": "bbn",
                     "table": "predicates",
-                    "sortField": "id",
+                    "sortField": "edges",
                     "idField": "id",
                     "arrayFilterOperator": "or",
                     "filterable": true,
@@ -888,7 +895,8 @@
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "id"
+                        "id",
+                        "edges"
                     ]
                 },
                 "row": 7,
@@ -910,7 +918,7 @@
                     "title": "Object",
                     "database": "bbn",
                     "table": "objects",
-                    "sortField": "name",
+                    "sortField": "edges",
                     "idField": "id",
                     "arrayFilterOperator": "or",
                     "filterable": true,
@@ -920,7 +928,8 @@
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "name"
+                        "name",
+                        "edges"
                     ]
                 },
                 "row": 7,
@@ -978,7 +987,9 @@
                     "typeField": "types",
                     "nodeColorField": "categories",
                     "showOnlyFiltered": false,
-                    "filterFields": ["docIds"],
+                    "filterFields": [
+                        "docIds"
+                    ],
                     "isReified": false,
                     "isDirected": true,
                     "multifilter": true
@@ -1060,7 +1071,7 @@
                     "title": "Subject",
                     "database": "gaia",
                     "table": "subjects",
-                    "sortField": "name",
+                    "sortField": "edges",
                     "idField": "id",
                     "arrayFilterOperator": "or",
                     "filterable": true,
@@ -1070,7 +1081,8 @@
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "name"
+                        "name",
+                        "edges"
                     ]
                 },
                 "row": 7,
@@ -1091,7 +1103,7 @@
                     "title": "Predicate",
                     "database": "gaia",
                     "table": "predicates",
-                    "sortField": "id",
+                    "sortField": "edges",
                     "idField": "id",
                     "arrayFilterOperator": "or",
                     "filterable": true,
@@ -1101,7 +1113,8 @@
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "id"
+                        "id",
+                        "edges"
                     ]
                 },
                 "row": 7,
@@ -1123,7 +1136,7 @@
                     "title": "Object",
                     "database": "gaia",
                     "table": "objects",
-                    "sortField": "name",
+                    "sortField": "edges",
                     "idField": "id",
                     "arrayFilterOperator": "or",
                     "filterable": true,
@@ -1133,7 +1146,8 @@
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "name"
+                        "name",
+                        "edges"
                     ]
                 },
                 "row": 7,
@@ -1191,7 +1205,9 @@
                     "typeField": "types",
                     "nodeColorField": "categories",
                     "showOnlyFiltered": false,
-                    "filterFields": ["docIds"],
+                    "filterFields": [
+                        "docIds"
+                    ],
                     "isReified": false,
                     "isDirected": true,
                     "multifilter": true
@@ -1273,7 +1289,7 @@
                     "title": "Subject",
                     "database": "michigan",
                     "table": "subjects",
-                    "sortField": "name",
+                    "sortField": "edges",
                     "idField": "id",
                     "arrayFilterOperator": "or",
                     "filterable": true,
@@ -1283,7 +1299,8 @@
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "name"
+                        "name",
+                        "edges"
                     ]
                 },
                 "row": 7,
@@ -1304,7 +1321,7 @@
                     "title": "Predicate",
                     "database": "michigan",
                     "table": "predicates",
-                    "sortField": "id",
+                    "sortField": "edges",
                     "idField": "id",
                     "arrayFilterOperator": "or",
                     "filterable": true,
@@ -1314,7 +1331,8 @@
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "id"
+                        "id",
+                        "edges"
                     ]
                 },
                 "row": 7,
@@ -1336,7 +1354,7 @@
                     "title": "Object",
                     "database": "michigan",
                     "table": "objects",
-                    "sortField": "name",
+                    "sortField": "edges",
                     "idField": "id",
                     "arrayFilterOperator": "or",
                     "filterable": true,
@@ -1346,7 +1364,8 @@
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "name"
+                        "name",
+                        "edges"
                     ]
                 },
                 "row": 7,
@@ -1404,7 +1423,9 @@
                     "typeField": "types",
                     "nodeColorField": "categories",
                     "showOnlyFiltered": false,
-                    "filterFields": ["docIds"],
+                    "filterFields": [
+                        "docIds"
+                    ],
                     "isReified": false,
                     "isDirected": true,
                     "multifilter": true

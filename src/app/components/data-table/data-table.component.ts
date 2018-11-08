@@ -43,6 +43,13 @@ import * as neon from 'neon-framework';
  * Manages configurable options for the specific visualization.
  */
 export class DataTableOptions extends BaseNeonOptions {
+    public aggregation: {
+        columnName: string;       // name of column to aggregate
+        name: string;             // name of new column to contain aggregated value
+        type: string;             // type of aggregation (average, min, max, sum, count)
+        groupByColumnNames: string[];  // type of aggregation (average, min, max, sum, count)
+    };
+    public aggregationField: FieldMetaData;
     public allColumnStatus: string;
     public arrayFilterOperator: string;
     public colorField: FieldMetaData;
@@ -51,6 +58,7 @@ export class DataTableOptions extends BaseNeonOptions {
     public fieldsConfig: any[];
     public filterable: boolean;
     public filterFields: FieldMetaData[];
+    public groupByFields: FieldMetaData[];
     public heatmapDivisor: number;
     public heatmapField: FieldMetaData;
     public idField: FieldMetaData;
@@ -66,6 +74,8 @@ export class DataTableOptions extends BaseNeonOptions {
      * @override
      */
     onInit() {
+        this.aggregation = this.injector.get('aggregation', {});
+        this.aggregation.name = this.aggregation.name || '_aggregation';
         this.allColumnStatus = this.injector.get('allColumnStatus', 'show');
         this.arrayFilterOperator = this.injector.get('arrayFilterOperator', 'and');
         this.exceptionsToStatus = this.injector.get('exceptionsToStatus', []);
@@ -85,11 +95,18 @@ export class DataTableOptions extends BaseNeonOptions {
      * @override
      */
     updateFieldsOnTableChanged() {
+        if (this.aggregation.columnName) {
+            this.aggregationField = this.findField(this.aggregation.columnName);
+            this.fields.push(new FieldMetaData(this.aggregation.name, this.aggregation.name));
+        }
+
         this.colorField = this.findFieldObject('colorField');
+        this.filterFields = this.findFieldObjects('filterFields');
+        this.groupByFields = this.aggregation.groupByColumnNames &&
+            this.aggregation.groupByColumnNames.map(name => this.findField(name));
         this.heatmapField = this.findFieldObject('heatmapField');
         this.idField = this.findFieldObject('idField');
         this.sortField = this.findFieldObject('sortField');
-        this.filterFields = this.findFieldObjects('filterFields');
     }
 }
 
@@ -101,7 +118,7 @@ export class DataTableOptions extends BaseNeonOptions {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -141,13 +158,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         x: number,
         y: number
     } = {
-        mousedown: false,
-        downIndex: -1,
-        currentIndex: -1,
-        field: null,
-        x: 0,
-        y: 0
-    };
+            mousedown: false,
+            downIndex: -1,
+            currentIndex: -1,
+            field: null,
+            x: 0,
+            y: 0
+        };
 
     public duplicateNumber = 0;
     public seenValues = [];
@@ -192,31 +209,18 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     initializeHeadersFromExceptionsToStatus() {
         let initialHeaderLimit = 25;
-        let numHeaders = 0;
         let orderedHeaders = [];
         let unorderedHeaders = [];
         let show = (this.options.allColumnStatus === 'show');
 
         for (let fieldObject of this.options.fields) {
-            // If field is an exception, set active to oppositve of show status.
+            // If field is an exception, set active to opposite of show status.
             if (this.headerIsInExceptions(fieldObject)) {
-                orderedHeaders.push({
-                    cellClass: this.getCellClassFunction(),
-                    prop: fieldObject.columnName,
-                    name: fieldObject.prettyName,
-                    active: !show && orderedHeaders.length < initialHeaderLimit,
-                    style: {},
-                    width: this.getColumnWidth(fieldObject)
-                });
+                orderedHeaders.push(
+                    this.getHeaderFromFieldMetadata(fieldObject, !show && orderedHeaders.length < initialHeaderLimit));
             } else {
-                unorderedHeaders.push({
-                    cellClass: this.getCellClassFunction(),
-                    prop: fieldObject.columnName,
-                    name: fieldObject.prettyName,
-                    active: show && unorderedHeaders.length < initialHeaderLimit,
-                    style: {},
-                    width: this.getColumnWidth(fieldObject)
-                });
+                unorderedHeaders.push(
+                    this.getHeaderFromFieldMetadata(fieldObject, show && unorderedHeaders.length < initialHeaderLimit));
             }
         }
         // Order fields in exceptions first.
@@ -231,7 +235,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             if (fieldObject && fieldObject.columnName) {
                 existingFields.push(fieldObject.columnName);
                 this.headers.push({
-                    cellClass: this.getCellClassFunction(),
+                    cellClass: this.cellClassFunction,
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: !fieldConfig.hide,
@@ -242,16 +246,21 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
         for (let fieldObject of this.options.fields) {
             if (existingFields.indexOf(fieldObject.columnName) < 0) {
-                this.headers.push({
-                    cellClass: this.getCellClassFunction(),
-                    prop: fieldObject.columnName,
-                    name: fieldObject.prettyName,
-                    active: (this.options.allColumnStatus === 'show'),
-                    style: {},
-                    width: this.getColumnWidth(fieldObject)
-                });
+                this.headers.push(
+                    this.getHeaderFromFieldMetadata(fieldObject, this.options.allColumnStatus === 'show'));
             }
         }
+    }
+
+    private getHeaderFromFieldMetadata(fieldObject: FieldMetaData, active: boolean) {
+        return {
+            cellClass: this.cellClassFunction,
+            prop: fieldObject.columnName,
+            name: fieldObject.prettyName,
+            active: active,
+            style: {},
+            width: this.getColumnWidth(fieldObject)
+        };
     }
 
     /**
@@ -292,6 +301,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.sortField = this.options.sortField.columnName;
         bindings.filterFields = this.options.filterFields;
 
+        bindings.aggregation = this.options.aggregation;
         bindings.arrayFilterOperator = this.options.arrayFilterOperator;
         bindings.exceptionsToStatus = this.options.exceptionsToStatus;
         bindings.filterable = this.options.filterable;
@@ -465,7 +475,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @return {any}
      */
     createClause(): any {
-        let clause = neon.query.where(this.options.sortField.columnName, '!=', null);
+        let clause = neon.query.where(this.options.idField.columnName, '!=', null);
 
         if (this.hasUnsharedFilter()) {
             clause = neon.query.and(clause, neon.query.where(this.options.unsharedFilterField.columnName, '=',
@@ -476,12 +486,44 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     createQuery(): neon.query.Query {
-        let whereClause = this.createClause();
-        return new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
-            .where(whereClause)
+        let query = new neon.query.Query()
+            .selectFrom(this.options.database.name, this.options.table.name)
+            .where(this.createClause())
             .sortBy(this.options.sortField.columnName, this.options.sortDescending ? neonVariables.DESCENDING : neonVariables.ASCENDING)
             .limit(this.options.limit)
             .offset((this.page - 1) * this.options.limit);
+
+        if (this.options.aggregationField) {
+            let aggType: string,
+                column = this.options.aggregationField.columnName;
+
+            switch (this.options.aggregation.type) {
+                case 'average':
+                    aggType = neonVariables.AVG;
+                    break;
+                case 'min':
+                    aggType = neonVariables.MIN;
+                    break;
+                case 'max':
+                    aggType = neonVariables.MAX;
+                    break;
+                case 'sum':
+                    aggType = neonVariables.SUM;
+                    break;
+                case 'count':
+                default:
+                    aggType = neonVariables.COUNT;
+                    column = '*';
+            }
+            query.aggregate(aggType, column, this.options.aggregation.name);
+
+            // set group to groupByField if it exists. Default to id field
+            let group = this.options.groupByFields &&
+                this.options.aggregation.groupByColumnNames || this.options.idField.columnName;
+            query.groupBy(group);
+        }
+
+        return query;
     }
 
     /**
@@ -532,7 +574,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return '';
     }
 
-    toCellString(base, type) {
+    toCellString(base) {
         if (base === null) {
             return '';
         } else if (Array.isArray(base)) {
@@ -548,18 +590,20 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.docCount = response.data[0]._docCount - this.duplicateNumber;
         } else {
-            let responses = response.data;
-            let data = responses.map((d) => {
-                    let row = {};
-                    for (let field of this.options.fields) {
-                        if (field.type || field.columnName === '_id') {
-                            row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
-                        }
-                    }
-                    return row;
-                });
-            this.activeData = data;
+            let responses = response.data,
+                fields = this.options.fields.map(field => field.columnName);
+
             // The query response is being stringified and stored in activeData
+            this.activeData = responses.map((d) => {
+                let row = {};
+                for (let field of fields) {
+                    let value = neonUtilities.deepFind(d, field);
+                    if (value) {
+                        row[field] = this.toCellString(value);
+                    }
+                }
+                return row;
+            });
             // Store the response in responseData to preserve the data in its raw form for querying and filtering purposes
             this.responseData = response.data;
             this.getDocCount();
@@ -837,32 +881,29 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @arg {string} value
      * @return {function}
      */
-    getCellClassFunction(): any {
-        let self = this;
-        return function({ column, value }): any {
-            let cellClass: any = {};
-            if (column && self.options.colorField.columnName === column.prop) {
-                let colorClass = value;
-                let colorValue = value;
-                if (colorClass.indexOf('#') === 0) {
-                    colorClass = 'hex_' + colorClass.substring(1);
-                } else {
-                    let regexMatch = value.match(/.*?(\d{1,3})[,\s]*(\d{1,3})[,\s]*(\d{1,3}).*?/);
-                    if (regexMatch) {
-                        colorClass = 'rgb_' + regexMatch[1] + '_' + regexMatch[2] + '_' + regexMatch[3];
-                        colorValue = 'rgb(' + regexMatch[1] + ',' + regexMatch[2] + ',' + regexMatch[3] + ')';
-                    }
+    cellClassFunction = ({ column, value }) => {
+        let cellClass: any = {};
+        if (column && this.options.colorField.columnName === column.prop) {
+            let colorClass = value;
+            let colorValue = value;
+            if (colorClass.indexOf('#') === 0) {
+                colorClass = 'hex_' + colorClass.substring(1);
+            } else {
+                let regexMatch = value.match(/.*?(\d{1,3})[,\s]*(\d{1,3})[,\s]*(\d{1,3}).*?/);
+                if (regexMatch) {
+                    colorClass = 'rgb_' + regexMatch[1] + '_' + regexMatch[2] + '_' + regexMatch[3];
+                    colorValue = 'rgb(' + regexMatch[1] + ',' + regexMatch[2] + ',' + regexMatch[3] + ')';
                 }
-                if (self.styleRules.indexOf(colorClass) < 0) {
-                    self.styleSheet.insertRule('.' + colorClass + ':before { background-color: ' + colorValue + '; }');
-                    self.styleRules.push(colorClass);
-                }
-                cellClass['color-field'] = true;
-                cellClass[colorClass] = true;
             }
-            return cellClass;
-        };
-    }
+            if (this.styleRules.indexOf(colorClass) < 0) {
+                this.styleSheet.insertRule('.' + colorClass + ':before { background-color: ' + colorValue + '; }');
+                this.styleRules.push(colorClass);
+            }
+            cellClass['color-field'] = true;
+            cellClass[colorClass] = true;
+        }
+        return cellClass;
+    };
 
     /**
      * Returns an object containing the ElementRef objects for the visualization.
@@ -894,41 +935,38 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      *
      * @return {function}
      */
-    getRowClassFunction(): any {
-        let self = this;
-        return function(row): any {
-            let rowClass: any = {};
-            rowClass.active = self.options.filterFields.some((filterField: any) => {
-                return self.filters.some((filter) => {
-                    return filterField.columnName && filterField.columnName === filter.field &&
-                        row[filterField.columnName] === filter.value;
-                });
+    rowClassFunction = (row) => {
+        let rowClass: any = {};
+        rowClass.active = this.options.filterFields.some((filterField: any) => {
+            return this.filters.some((filter) => {
+                return filterField.columnName && filterField.columnName === filter.field &&
+                    row[filterField.columnName] === filter.value;
             });
+        });
 
-            if (self.options.heatmapField.columnName && self.options.heatmapDivisor) {
-                let heatmapClass = 'heat-0';
-                let heatmapDivisor = self.options.heatmapDivisor;
-                let heatmapValue = row[self.options.heatmapField.columnName];
+        if (this.options.heatmapField.columnName && this.options.heatmapDivisor) {
+            let heatmapClass = 'heat-0';
+            let heatmapDivisor = this.options.heatmapDivisor;
+            let heatmapValue = row[this.options.heatmapField.columnName];
 
-                // Ignore undefined, nulls, strings, or NaNs.
-                if (typeof heatmapValue !== 'undefined' && self.isNumber(heatmapValue)) {
-                    // If the divisor is a fraction, transform it and the value into whole numbers in order to avoid floating point errors.
-                    if (heatmapDivisor % 1) {
-                        // Find the number of digits following the decimal point in the divisor.
-                        let digits = ('' + heatmapDivisor).substring(('' + heatmapDivisor).indexOf('.') + 1).length;
-                        // Transform the divisor and the value into whole numbers using the number of digits.
-                        heatmapDivisor = heatmapDivisor * Math.pow(10, digits);
-                        heatmapValue = heatmapValue * Math.pow(10, digits);
-                    }
-                    heatmapClass = 'heat-' + Math.min(Math.max(Math.floor(parseFloat(heatmapValue) / heatmapDivisor), 1), 5);
-                    heatmapClass = 'heat-' + Math.min(Math.max(Math.floor(parseFloat(heatmapValue) / heatmapDivisor), 1), 5);
+            // Ignore undefined, nulls, strings, or NaNs.
+            if (typeof heatmapValue !== 'undefined' && this.isNumber(heatmapValue)) {
+                // If the divisor is a fraction, transform it and the value into whole numbers in order to avoid floating point errors.
+                if (heatmapDivisor % 1) {
+                    // Find the number of digits following the decimal point in the divisor.
+                    let digits = ('' + heatmapDivisor).substring(('' + heatmapDivisor).indexOf('.') + 1).length;
+                    // Transform the divisor and the value into whole numbers using the number of digits.
+                    heatmapDivisor = heatmapDivisor * Math.pow(10, digits);
+                    heatmapValue = heatmapValue * Math.pow(10, digits);
                 }
-                rowClass[heatmapClass] = true;
+                heatmapClass = 'heat-' + Math.min(Math.max(Math.floor(parseFloat(heatmapValue) / heatmapDivisor), 1), 5);
+                heatmapClass = 'heat-' + Math.min(Math.max(Math.floor(parseFloat(heatmapValue) / heatmapDivisor), 1), 5);
             }
+            rowClass[heatmapClass] = true;
+        }
 
-            return rowClass;
-        };
-    }
+        return rowClass;
+    };
 
     getTableHeaderHeight() {
         return this.options.skinny ? 20 : 30;
