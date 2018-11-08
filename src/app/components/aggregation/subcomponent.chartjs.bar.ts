@@ -225,7 +225,7 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
      *
      * @return {boolean}
      */
-    public isHorizontal() {
+    protected isHorizontal() {
         return this.horizontal;
     }
 }
