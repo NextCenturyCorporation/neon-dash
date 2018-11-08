@@ -4,23 +4,23 @@
         </div>
         <div class="visualization-toolbar" layout-align="space-between center" flex flex-direction="column">
             <div class="icon-container" *ngIf="showToolbar">
-                <button mat-icon-button aria-label="Move to top" matTooltip="Move to Top" tooltip-position="below"
+                <button mat-icon-button aria-label="Move to top" matTooltip="Move to Top" matTooltipPosition="below"
                     (click)="moveToTop()">
                   <mat-icon color="primary">arrow_upward</mat-icon>
                 </button>
-                <button mat-icon-button aria-label="Move to bottom" matTooltip="Move to Bottom" tooltip-position="below"
+                <button mat-icon-button aria-label="Move to bottom" matTooltip="Move to Bottom" matTooltipPosition="below"
                     (click)="moveToBottom()">
                   <mat-icon color="primary">arrow_downward</mat-icon>
                 </button>
-                <button mat-icon-button aria-label="Menu" matTooltip="Expand" tooltip-position="below" (click)="expand()"
+                <button mat-icon-button aria-label="Menu" matTooltip="Expand" matTooltipPosition="below" (click)="expand()"
                     *ngIf="!expanded">
                   <mat-icon color="primary">fullscreen</mat-icon>
                 </button>
-                <button mat-icon-button aria-label="Menu" matTooltip="Contract" tooltip-position="below" (click)="contract()"
+                <button mat-icon-button aria-label="Menu" matTooltip="Contract" matTooltipPosition="below" (click)="contract()"
                     *ngIf="expanded">
                   <mat-icon color="primary">fullscreen_exit</mat-icon>
                 </button>
-                <button mat-icon-button aria-label="Close" matTooltip="Close visualization" tooltip-position="below" (click)="close()">
+                <button mat-icon-button aria-label="Close" matTooltip="Close visualization" matTooltipPosition="below" (click)="close()">
                   <mat-icon color="warn">close</mat-icon>
                 </button>
             </div>

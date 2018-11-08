@@ -1,5 +1,5 @@
 <mat-sidenav-container class="neon-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-sidenav #sidenav class="neon-sidenav neon-sidenav-datasets" mat-fill align="start">
+    <mat-sidenav #sidenav class="neon-sidenav neon-sidenav-datasets" mat-fill position="start">
         <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary">
             <span>Datasets</span>
         </mat-toolbar>
@@ -7,7 +7,7 @@
         </app-dataset-selector>
     </mat-sidenav>
 
-    <mat-sidenav #sidenavright class="neon-sidenav neon-sidenav-info" mat-fill align="end">
+    <mat-sidenav #sidenavright class="neon-sidenav neon-sidenav-info" mat-fill position="end">
         <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary">
             <span>{{ (showAbout) ? 'About' : 'Options' }}</span>
         </mat-toolbar>
@@ -27,38 +27,38 @@
 
     <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary" layout-align="space-between center" flex>
         <button mat-icon-button class="neon-icon-button-large" [attr.aria-label]="datasetService.getName() || 'Choose Data'"
-            tooltip-position="below" matTooltip="Select a Dataset" (click)="sidenav.toggle()">
+            matTooltipPosition="below" matTooltip="Select a Dataset" (click)="sidenav.toggle()">
             <mat-icon class="neon-icon-large">menu</mat-icon>
         </button>
         <span>{{ datasetService.getName() || "Choose Data..." }}</span>
         <span class="fill-remaining"></span>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" matTooltipPosition="below"
             matTooltip="Add a New Visualization" (click)="openAddVisualizationDialog()" *ngIf="showAddVisualizationButton">
             <mat-icon class="neon-icon-large">add_circle</mat-icon>
         </button>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Connect to a Custom Data Source"
-            tooltip-position="below" matTooltip="Connect to a Custom Data Source" (click)="openCustomConnectionDialog()"
+            matTooltipPosition="below" matTooltip="Connect to a Custom Data Source" (click)="openCustomConnectionDialog()"
             *ngIf="showCustomConnectionButton">
             <mat-icon class="neon-icon-large">storage</mat-icon>
         </button>
         <app-simple-filter #simpleFilter></app-simple-filter>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filter Builder" tooltip-position="below"
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filter Builder" matTooltipPosition="below"
             matTooltip="Show Filters" (click)="openFilterBuilderDialog()" *ngIf="showFilterTrayButton">
             <mat-icon class="neon-icon-large" *ngIf="changeFilterBuilderIcon()" svgIcon="{{filterBuilderIcon}}"></mat-icon>
         </button>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" tooltip-position="below"
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below"
             matTooltip="Show Filters" (click)="openFilterTrayDialog()" *ngIf="showFilterTrayButton">
             <mat-icon class="neon-icon-large">filter_list</mat-icon>
         </button>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="Settings" tooltip-position="below"
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Settings" matTooltipPosition="below"
             matTooltip="Change the Settings" (click)="toggleDashboardOptions(); sidenavright.toggle();">
             <mat-icon class="neon-icon-large">settings</mat-icon>
         </button>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="About..." tooltip-position="below"
+        <button mat-icon-button class="neon-icon-button-large" aria-label="About..." matTooltipPosition="below"
             matTooltip="Show Application Information" (click)="showAbout = true; sidenavright.toggle()">
             <mat-icon class="neon-icon-large">info</mat-icon>
         </button>
-        <a class="neon-link" aria-label="Help" matTooltip="Open the User Guide" tooltip-position="below" target="_blank"
+        <a class="neon-link" aria-label="Help" matTooltip="Open the User Guide" matTooltipPosition="below" target="_blank"
             href="https://github.com/NextCenturyCorporation/neon-dash/wiki/Neon-Dashboard-User-Guide" target="_blank">
             <mat-icon class="neon-icon-large">help</mat-icon>
         </a>
