@@ -27,7 +27,8 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { Color } from '../../color';
+import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
@@ -181,7 +182,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
     public docCount: number[] = [];
 
-    public colorByFields: string[] = [];
+    public colorKeys: string[] = [];
 
     public filterVisible: boolean[] = [];
 
@@ -628,6 +629,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     /**
      * Creates and returns the map points in the given data using the given fields.
      *
+     * @arg {string} databaseName
+     * @arg {string} tableName
      * @arg {string} lngField
      * @arg {string} latField
      * @arg {string} colorField
@@ -636,7 +639,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @return {array}
      * @protected
      */
-    protected getMapPoints(lngField: string, latField: string, colorField: string, hoverPopupField: string, data: any[]): any[] {
+    protected getMapPoints(databaseName: string, tableName: string, lngField: string, latField: string, colorField: string,
+        hoverPopupField: string, data: any[]
+    ): any[] {
+
         let map = new Map<string, UniqueLocationPoint>();
 
         for (let point of data) {
@@ -665,7 +671,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         map.forEach((unique) => {
             let color = rgbColor;
             if (!this.options.singleColor) {
-                color = unique.colorValue ? this.colorSchemeService.getColorFor(colorField, unique.colorValue).toRgb() : whiteString;
+                color = unique.colorValue ? this.colorSchemeService.getColorFor(databaseName, tableName, colorField,
+                    unique.colorValue).toRgb() : whiteString;
             }
             mapPoints.push(
                 new MapPoint(`${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`,
@@ -707,6 +714,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
         let layer = this.options.layers[layerIndex],
             mapPoints = this.getMapPoints(
+                layer.database.name,
+                layer.table.name,
                 layer.longitudeField.columnName,
                 layer.latitudeField.columnName,
                 layer.colorField.columnName,
@@ -731,13 +740,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * Updates the map legend using the layers.
      */
     updateLegend() {
-        let colorByFields: string[] = [];
+        let colorKeys: string[] = [];
         for (let layer of this.options.layers) {
             if (layer.colorField.columnName !== '') {
-                colorByFields.push(layer.colorField.columnName);
+                colorKeys.push(this.colorSchemeService.getColorKey(layer.database.name, layer.table.name, layer.colorField.columnName));
             }
         }
-        this.colorByFields = colorByFields;
+        this.colorKeys = colorKeys;
     }
 
     /**
