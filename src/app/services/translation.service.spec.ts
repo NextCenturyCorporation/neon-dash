@@ -14,7 +14,7 @@
  *
  */
 import { TestBed, inject } from '@angular/core/testing';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { TranslationService } from './translation.service';
 import { ConnectionService } from './connection.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
@@ -31,7 +31,7 @@ describe('Service: Translation', () => {
             { provide: 'config', useValue: testConfig }
         ],
         imports: [
-            HttpModule
+            HttpClientModule
         ]
     });
 
