@@ -32,8 +32,8 @@ import { AppModule } from './app/app.module';
 import * as yaml from 'js-yaml';
 import * as neon from 'neon-framework';
 import { HttpClient, HttpHandler, HttpXhrBackend, HttpBackend, XhrFactory, HttpRequest, HttpEvent } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 @Injectable()
 export class HttpBasicHandler implements HttpHandler {
@@ -45,7 +45,7 @@ export class HttpBasicHandler implements HttpHandler {
     }
 }
 
-const HTTP_PROVIDERS = [
+const HTTP_PROVIDERS: any[] = [
     HttpClient,
         {provide: HttpHandler, useClass: HttpBasicHandler},
     HttpBasicHandler,
@@ -62,7 +62,9 @@ const HTTP_PROVIDERS = [
     {provide: RequestOptions, useClass: BaseRequestOptions},
     {provide: ResponseOptions, useClass: BaseResponseOptions},
     XHRBackend,
-    {provide: XSRFStrategy, useFactory: () => new CookieXSRFStrategy()}
+    {provide: XSRFStrategy, useFactory: () => new CookieXSRFStrategy()},
+    XSRFStrategy,
+    {provide: XSRFStrategy, useFactory: () => new NoCheckCookieXSRFStrategy()}
 ];
 
 const EMPTY_CONFIG = {
@@ -89,10 +91,7 @@ class NoCheckCookieXSRFStrategy extends CookieXSRFStrategy {
     }
 }
 
-let injector = ReflectiveInjector.resolveAndCreate([HTTP_PROVIDERS, {
-    provide: XSRFStrategy,
-    useValue: new NoCheckCookieXSRFStrategy()
-}]);
+let injector = ReflectiveInjector.resolveAndCreate(HTTP_PROVIDERS);
 let httpClient = injector.get(HttpClient);
 
 function handleConfigFileError(error, file) {
@@ -103,6 +102,7 @@ function handleConfigFileError(error, file) {
         showError('Error reading config file ' + file);
         showError(error.message);
     }
+    return throwError(error);
 }
 
 function handleConfigPropertyServiceError(error) {
@@ -115,21 +115,25 @@ function handleConfigPropertyServiceError(error) {
         showError('Error reading Property Service config!');
         showError(error.message);
     }
+    return throwError(error);
 }
 
 function loadConfigFromPropertyService() {
     return httpClient.get('../neon/services/propertyservice/config')
+        .pipe(catchError(handleConfigPropertyServiceError))
         .toPromise();
 }
 
 function loadConfigJson(path) {
     return httpClient.get(path)
+        .pipe(catchError(handleConfigFileError))
         .toPromise();
 }
 
 function loadConfigYaml(path) {
    return httpClient.get(path)
        .pipe(map((response: any) => yaml.load(response)))
+       .pipe(catchError(handleConfigFileError))
        .toPromise();
 }
 
