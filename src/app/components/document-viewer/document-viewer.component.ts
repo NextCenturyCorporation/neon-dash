@@ -439,6 +439,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     private openSingleRecord(activeItemData: any) {
         let config = new MatDialogConfig();
+        config.panelClass = this.themesService.getCurrentTheme();
         config.data = {
             item: activeItemData,
             showText: this.options.showText,

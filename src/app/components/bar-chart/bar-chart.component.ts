@@ -26,7 +26,8 @@ import {
 } from '@angular/core';
 
 import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { Color } from '../../color';
+import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -840,7 +841,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         let groupsToDatasets = new Map<string, BarDataSet>();
         let colorFieldExists = (this.options.colorField && this.options.colorField.columnName !== '');
-
         // Update the segments and counts from the bars and the data.
         for (let item of data) {
             let barLabel: string = item[this.options.dataField.columnName];
@@ -856,7 +856,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
             if (!barDataset) {
                 barDataset = new BarDataSet(this.bars.length, barSegment, (colorFieldExists ?
-                    this.colorSchemeService.getColorFor(this.options.colorField.columnName, barSegment) : this.defaultBarColor),
+                    this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name,
+                        this.options.colorField.columnName, barSegment) : this.defaultBarColor),
                     this.defaultHighlightColor);
                 groupsToDatasets.set(barSegment, barDataset);
             }
