@@ -1137,7 +1137,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         return labelOptions;
     }
 
-    protected createEmptyField(): FieldMetaData {
+    public createEmptyField(): FieldMetaData {
         return new FieldMetaData();
     }
 }

@@ -14,7 +14,7 @@
  *
  */
 import { Injectable, Inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import * as _ from 'lodash';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { ConnectionService } from './connection.service';
