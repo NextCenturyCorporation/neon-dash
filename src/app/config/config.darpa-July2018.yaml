@@ -243,6 +243,8 @@ dashboards:
                             options:
                                 connectOnLoad: false
                                 # TODO: 872: make sure colorMaps work after AIDA-401 is merged
+                                # TODO: 872: move to test file and rework to apply to that datastore/layout
+                                # TODO: 872: fix issue with pretty names vs field/config file names
                                 colorMaps:
                                     # TODO: 872: probably don't need this database name part anymore: elisa_car_1:
                                     mapping:

@@ -22,4 +22,5 @@ export class NeonGTDConfig {
     dashboards: Dashboard;
     layouts: Map<string, any> = new Map<string, any>();
     errors: String[];
+    neonServerUrl: string;
 }

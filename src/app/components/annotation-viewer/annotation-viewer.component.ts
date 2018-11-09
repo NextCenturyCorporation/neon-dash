@@ -212,8 +212,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     // The data returned by the visualization query response (not limited).
     public responseData: any[] = [];
 
-    public colorList: any[] = [];
-
     public seenTypes: string[] = [];
     public disabledSet: [string[]] = [] as [string[]];
     public colorByFields: string[] = [];
@@ -497,7 +495,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             let documentText = document.documents;
             let annotationsPartList = [];
 
-            //console.log(document);
             if (!this.doesAnnotationExist(document)) {
                 let part = new Part();
                 part.text = document.documents;
@@ -996,7 +993,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     updateDocuemnts(response) {
         this.options.data = [];
         for (let document of response.data) {
-            //console.log(document);
             let data = {
                 annotationStartIndex: [],
                 annotationEndIndex: [],

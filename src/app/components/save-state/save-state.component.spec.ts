@@ -18,7 +18,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { ViewContainerRef } from '@angular/core';
 
-import { DashboardOptionsComponent } from './dashboard-options.component';
+import { SaveStateComponent } from './save-state.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -35,14 +35,14 @@ import { AppMaterialModule } from '../../app.material.module';
 import { VisualizationService } from '../../services/visualization.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
-describe('Component: DashboardOptionsComponent', () => {
+describe('Component: SaveStateComponent', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
-    let fixture: ComponentFixture<DashboardOptionsComponent>;
-    let component: DashboardOptionsComponent;
+    let fixture: ComponentFixture<SaveStateComponent>;
+    let component: SaveStateComponent;
 
     initializeTestBed({
         declarations: [
-            DashboardOptionsComponent,
+            SaveStateComponent,
             ExportControlComponent
         ],
         imports: [
@@ -66,7 +66,7 @@ describe('Component: DashboardOptionsComponent', () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(DashboardOptionsComponent);
+        fixture = TestBed.createComponent(SaveStateComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

@@ -46,6 +46,17 @@ datastores:
                         mappings:
                             date: createDate
         options:
+            # TODO: 825: do colorMaps also need to be moved, or will they work here?
+            # TODO: 825: fix color maps to work for this test dataset
+            colorMaps:
+                ldc_uyg_jul_18:
+                    ui_out:
+                        topic:
+                            # TODO: 825: Fix to match pretty names to field/config names
+                            crimeviolence: '#98DF8A'
+                            Medicine: '#FF9896'
+                            Terrorism: '#AEC7E8'
+                            regimechange: '#98DF8A'
             checkForCoordinateValidation: null_values
 
 dashboards:

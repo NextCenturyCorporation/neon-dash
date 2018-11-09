@@ -46,15 +46,8 @@
                 </mat-form-field>
                 <p></p>
 
-                <span class="toggle-text">Show Select Button:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showSelect">
-                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-                    <mat-button-toggle [value]="false">No</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <span *ngIf="options.riefiedOption" class="toggle-text">Data Format:</span>
-                <mat-button-toggle-group *ngIf="options.riefiedOption" class="neon-button-toggle-group-small" [(ngModel)]="options.isReified" (ngModelChange)="handleChangeReified()">
+                <span *ngIf="options.isReified" class="toggle-text">Data Format:</span>
+                <mat-button-toggle-group *ngIf="options.isReified" class="neon-button-toggle-group-small" [(ngModel)]="options.isReified" (ngModelChange)="handleChangeReified()">
                     <mat-button-toggle [value]="true">Reified</mat-button-toggle>
                     <mat-button-toggle [value]="false">Tabular</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -71,6 +64,15 @@
 
                     <mat-form-field>
                         <mat-select placeholder="Node Name Field" [(ngModel)]="options.nodeNameField" required="false" (ngModelChange)="handleChangeData()"
+                                    [disabled]="options.fields.length == 0">
+                            <mat-option [value]="createEmptyField()">(None)</mat-option>
+                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <p></p>
+
+                    <mat-form-field>
+                        <mat-select placeholder="Target Name Field" [(ngModel)]="options.targetNameField" required="false" (ngModelChange)="handleChangeData()"
                                     [disabled]="options.fields.length == 0">
                             <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
@@ -104,16 +106,7 @@
                     </mat-form-field>
                     <p></p>
                 </div>
-
-                <mat-form-field>
-                    <mat-select placeholder="Node Shape" [(ngModel)]="options.nodeShape" required="false" (ngModelChange)="handleChangeData()"
-                                [disabled]="nodeShapes.length == 0">
-                        <mat-option [value]="createEmptyField()">(Default)</mat-option>
-                        <mat-option *ngFor="let shape of nodeShapes" [value]="shape">{{ shape }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
                 <p></p>
-
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
@@ -128,41 +121,71 @@
                 <p></p>
 
                 <!-- Color Options -->
-                <mat-form-field *ngIf="!options.isReified">
-                    <input matInput type="color" placeholder="Node Color" [(ngModel)]="options.nodeColor" [value]="options.nodeColor" (ngModelChange)="reloadGraph()">
-                  </mat-form-field>
-                <p></p>
+                <div *ngIf="!options.isReified">
+                    <mat-form-field>
+                        <input matInput type="color" placeholder="Node Color" [(ngModel)]="options.nodeColor"
+                               [value]="options.nodeColor" (ngModelChange)="reloadGraph()">
+                    </mat-form-field>
+                    <p></p>
 
-                <mat-form-field *ngIf="!options.isReified">
-                    <input matInput type="color" placeholder="Link Color" [(ngModel)]="options.linkColor" [value]="options.linkColor" (ngModelChange)="reloadGraph()">
-                  </mat-form-field>
-                <p></p>
+                    <mat-form-field>
+                        <input matInput type="color" placeholder="Link Color" [(ngModel)]="options.linkColor"
+                               [value]="options.linkColor" (ngModelChange)="reloadGraph()">
+                    </mat-form-field>
+                    <p></p>
 
-                <mat-form-field *ngIf="!options.isReified">
-                    <input matInput type="color" placeholder="Text Color" [(ngModel)]="options.fontColor" [value]="options.fontColor" (ngModelChange)="reloadGraph()">
-                </mat-form-field>
-                <p></p>
+                    <mat-form-field>
+                        <input matInput type="color" placeholder="Text Color" [(ngModel)]="options.fontColor"
+                               [value]="options.fontColor" (ngModelChange)="reloadGraph()">
+                    </mat-form-field>
+                    <p></p>
 
-                <mat-form-field *ngIf="!options.isReified">
-                    <input matInput type="color" placeholder="Edge Color" [(ngModel)]="options.edgeColor" [value]="options.edgeColor" (ngModelChange)="reloadGraph()">
-                </mat-form-field>
-                <p></p>
+                    <mat-form-field>
+                        <input matInput type="color" placeholder="Edge Color" [(ngModel)]="options.edgeColor"
+                               [value]="options.edgeColor" (ngModelChange)="reloadGraph()">
+                    </mat-form-field>
+                    <p></p>
+                </div>
 
                 <button mat-raised-button class="neon-button-small" color="accent" (click)="resetColors()">
                     <span>Reset Colors</span>
                 </button>
                 <p></p>
 
-                <mat-form-field *ngIf="!options.isReified">
-                    <mat-select placeholder="Edge Color Field" [(ngModel)]="options.edgeColorField" (ngModelChange)="handleChangeData()"
-                        [disabled]="options.fields.length == 0">
-                        <mat-option [value]="createEmptyField()">(None)</mat-option>
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
+                <div *ngIf="!options.isReified">
+                    <mat-form-field>
+                        <mat-select placeholder="Node Color Field" [(ngModel)]="options.nodeColorField"
+                                    (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
+                            <mat-option [value]="createEmptyField()">(None)</mat-option>
+                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <p></p>
 
-                <div *ngIf="options.nodeColorField.columnName || options.edgeColorField.columnName">
+                    <mat-form-field>
+                        <mat-select placeholder="Edge Color Field" [(ngModel)]="options.edgeColorField"
+                                    (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
+                            <mat-option [value]="createEmptyField()">(None)</mat-option>
+                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <p></p>
+
+                    <mat-form-field>
+                        <mat-select placeholder="Target Node Color Field" [(ngModel)]="options.targetColorField"
+                                    (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
+                            <mat-option [value]="createEmptyField()">(None)</mat-option>
+                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <p></p>
+                </div>
+
+                <div
+                    *ngIf="options.nodeColorField.columnName || options.edgeColorField.columnName || options.targetColorField.columnName">
                     <span class="toggle-text">Show Legend:</span>
                     <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.displayLegend">
                         <mat-button-toggle [value]="true">Yes</mat-button-toggle>
