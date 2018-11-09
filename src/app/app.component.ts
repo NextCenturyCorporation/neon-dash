@@ -26,9 +26,13 @@ import {
     ViewContainerRef
 } from '@angular/core';
 
+import * as _ from 'lodash';
+import * as neon from 'neon-framework';
 import * as L from 'leaflet'; // imported for use of DomUtil.enable/disableTextSelection
-import { ActiveGridService } from './services/active-grid.service';
+
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
+import { BaseNeonComponent } from './components/base-neon-component/base-neon.component';
+import { BaseLayeredNeonComponent } from './components/base-neon-component/base-layered-neon.component';
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { Dataset } from './dataset';
@@ -40,6 +44,7 @@ import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatS
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from './neon-grid-item';
 import { NeonGTDConfig } from './neon-gtd-config';
+import { neonEvents } from './neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { ThemesService } from './services/themes.service';
@@ -54,6 +59,9 @@ import { VisualizationContainerComponent } from './components/visualization-cont
     ]
 })
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
+    private static DEFAULT_SIZEX = 4;
+    private static DEFAULT_SIZEY = 4;
+
     @ViewChild(DashboardOptionsComponent) dashboardOptionsComponent: DashboardOptionsComponent;
     @ViewChild(NgGrid) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
@@ -69,6 +77,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public createFilterBuilder: boolean = false; //This is used to create the Filter Builder later
 
     public gridItems: NeonGridItem[] = [];
+    public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent> = new Map();
 
     public datasets: Dataset[] = [];
 
@@ -105,8 +114,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public filterBuilderIcon;
 
+    private messenger: neon.eventing.Messenger;
+
     constructor(
-        private activeGridService: ActiveGridService,
         public datasetService: DatasetService,
         public dialog: MatDialog,
         private domSanitizer: DomSanitizer,
@@ -117,6 +127,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         public viewContainerRef: ViewContainerRef,
         @Inject('config') private neonConfig: NeonGTDConfig
     ) {
+        this.messenger = new neon.eventing.Messenger();
+
         // TODO: Default to false and set to true only after a dataset has been selected.
         this.showAddVisualizationButton = true;
         this.showFilterTrayButton = true;
@@ -150,6 +162,60 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.changeFavicon();
         this.filterBuilderIcon = 'filter_builder';
 
+        this.messenger.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearDashboard.bind(this));
+        this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, this.refreshDashboard.bind(this));
+        this.messenger.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));
+        this.messenger.subscribe(neonEvents.WIDGET_DELETE, this.deleteWidget.bind(this));
+        this.messenger.subscribe(neonEvents.WIDGET_CONTRACT, this.contractWidget.bind(this));
+        this.messenger.subscribe(neonEvents.WIDGET_EXPAND, this.expandWidget.bind(this));
+        this.messenger.subscribe(neonEvents.WIDGET_MOVE_TO_BOTTOM, this.moveWidgetToBottom.bind(this));
+        this.messenger.subscribe(neonEvents.WIDGET_MOVE_TO_TOP, this.moveWidgetToTop.bind(this));
+        this.messenger.subscribe(neonEvents.WIDGET_REGISTER, this.registerWidget.bind(this));
+        this.messenger.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
+    }
+
+    /**
+     * Adds the given widget to the grid in its specified column and row or in the first open space if no column and row are specified.
+     *
+     * @arg {{widget:NeonGridItem}} eventMessage
+     */
+    addWidget(eventMessage: { widget: NeonGridItem }) {
+        if (eventMessage.widget.col && eventMessage.widget.row) {
+            eventMessage.widget.sizex = eventMessage.widget.sizex || AppComponent.DEFAULT_SIZEX;
+            eventMessage.widget.sizey = eventMessage.widget.sizey || AppComponent.DEFAULT_SIZEY;
+            this.gridItems.push(eventMessage.widget);
+            return;
+        }
+
+        let widgetCopy: NeonGridItem = _.cloneDeep(eventMessage.widget);
+        widgetCopy.gridItemConfig = {
+            col: eventMessage.widget.col || 1,
+            row: eventMessage.widget.row || 1,
+            sizex: eventMessage.widget.sizex || AppComponent.DEFAULT_SIZEX,
+            sizey: eventMessage.widget.sizey || AppComponent.DEFAULT_SIZEY,
+            dragHandle: '.drag-handle'
+        };
+
+        // Zero max rows or columns denotes unlimited.  Adjust the rows and columns for the widget size.
+        let maxCol: number = (this.gridConfig.max_cols || Number.MAX_SAFE_INTEGER.valueOf()) - widgetCopy.gridItemConfig.sizex + 1;
+        let maxRow: number = (this.gridConfig.max_rows || Number.MAX_SAFE_INTEGER.valueOf()) - widgetCopy.gridItemConfig.sizey + 1;
+
+        // Find the first spot in which the visualization fits.
+        let x = 1;
+        let y = 1;
+        let found = false;
+        while (y <= maxRow && !found) {
+            x = 1;
+            while (x <= maxCol && !found) {
+                widgetCopy.gridItemConfig.col = x;
+                widgetCopy.gridItemConfig.row = y;
+                found = this.widgetFits(widgetCopy);
+                x++;
+            }
+            y++;
+        }
+
+        this.gridItems.push(widgetCopy);
     }
 
     changeFavicon() {
@@ -183,12 +249,116 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         return true;
     }
 
-    gridItemsToString(): string {
-        return JSON.stringify(this.gridItems);
+    /**
+     * Clears the grid.
+     */
+    clearDashboard() {
+        this.gridItems = [];
+    }
+
+    /**
+     * Contracts the given widget to its previous size.
+     *
+     * @arg {{widget:NeonGridItem}} eventMessage
+     */
+    contractWidget(eventMessage: { widget: NeonGridItem }) {
+        eventMessage.widget.gridItemConfig.sizex = eventMessage.widget.lastGridItemConfig.sizex;
+        eventMessage.widget.gridItemConfig.sizey = eventMessage.widget.lastGridItemConfig.sizey;
+        eventMessage.widget.gridItemConfig.row = eventMessage.widget.lastGridItemConfig.row;
+        eventMessage.widget.gridItemConfig.col = eventMessage.widget.lastGridItemConfig.col;
+    }
+
+    /**
+     * Deletes the widget with the given ID from the grid.
+     *
+     * @arg {{id:string}} eventMessage
+     */
+    deleteWidget(eventMessage: { id: string }) {
+        for (let i = 0; i < this.gridItems.length; i++) {
+            if (this.gridItems[i].id === eventMessage.id) {
+                this.gridItems.splice(i, 1);
+            }
+        }
+    }
+
+    /**
+     * Expands the given widget to fill the width of the grid.
+     *
+     * @arg {{widget:NeonGridItem}} eventMessage
+     */
+    expandWidget(eventMessage: { widget: NeonGridItem }) {
+        let visibleRows = 0;
+        let gridElement = this.getGridElement();
+        if (this.grid && gridElement) {
+            visibleRows = Math.floor(gridElement.nativeElement.offsetParent.clientHeight /
+                this.grid.rowHeight);
+        }
+
+        eventMessage.widget.lastGridItemConfig  = _.clone(eventMessage.widget.gridItemConfig);
+        eventMessage.widget.gridItemConfig.sizex = (this.gridConfig) ? this.gridConfig.max_cols : this.getMaxColInUse();
+        eventMessage.widget.gridItemConfig.col = 1;
+        // TODO:  Puzzle out why this exceeds the visible space by a couple rows.
+        eventMessage.widget.gridItemConfig.sizey = (visibleRows > 0) ? visibleRows : eventMessage.widget.gridItemConfig.sizex;
     }
 
     getDatasets(): Dataset[] {
         return this.datasets;
+    }
+
+    /**
+     * Returns the grid element.
+     *
+     * @return {object}
+     * @private
+     */
+    private getGridElement() {
+        /* tslint:disable:no-string-literal */
+        return this.grid['_ngEl'];
+        /* tslint:enable:no-string-literal */
+    }
+
+    /**
+     * Returns the 1-based index of the last column occupied.  Thus, for a 10 column grid, 10 would be the
+     * largest possble max column in use.  If no columns are filled (i.e., an empty grid), 0 is returned.
+     */
+    getMaxColInUse(): number {
+        let maxCol = 0;
+
+        for (let gridItem of this.gridItems) {
+            maxCol = Math.max(maxCol, (gridItem.gridItemConfig.col + gridItem.gridItemConfig.sizex - 1));
+        }
+        return maxCol;
+    }
+
+    /**
+     * Returns the 1-based index of the last row occupied.  Thus, for a 10 row grid, 10 would be the
+     * largest possble max row in use.  If no rows are filled (i.e., an empty grid), 0 is returned.
+     */
+    getMaxRowInUse(): number {
+        let maxRow = 0;
+
+        for (let gridItem of this.gridItems) {
+            maxRow = Math.max(maxRow, (gridItem.gridItemConfig.row + gridItem.gridItemConfig.sizey - 1));
+        }
+        return maxRow;
+    }
+
+    /**
+     * Moves the given widget to the bottom of the grid.
+     *
+     * @arg {{widget:NeonGridItem}} eventMessage
+     */
+    moveWidgetToBottom(eventMessage: { widget: NeonGridItem }) {
+        eventMessage.widget.gridItemConfig.row = this.getMaxRowInUse() + 1;
+    }
+
+    /**
+     * Moves the given widget to the top of the grid.
+     *
+     * @arg {{widget:NeonGridItem}} eventMessage
+     */
+    moveWidgetToTop(eventMessage: { widget: NeonGridItem }) {
+        eventMessage.widget.gridItemConfig.row = 0;
     }
 
     ngAfterViewInit() {
@@ -200,7 +370,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
          * To work around this, trigger a resize event in the grid on page load so that it measures
          * correctly
          */
-        this.activeGridService.triggerResize();
+        this.refreshDashboard();
     }
 
     ngOnDestroy(): void {
@@ -208,9 +378,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.gridItems = this.activeGridService.getGridItems();
-        this.activeGridService.setGrid(this.grid);
-        this.activeGridService.setGridConfig(this.gridConfig);
+        // Do nothing.
     }
 
     onDragStop(i, event) {
@@ -268,11 +436,30 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         let config = new MatDialogConfig();
         config.panelClass = this.themesService.getCurrentTheme();
         config.viewContainerRef = this.viewContainerRef;
+        config.data = this.widgets;
 
         this.filterTrayDialogRef = this.dialog.open(FilterTrayComponent, config);
         this.filterTrayDialogRef.afterClosed().subscribe(() => {
             this.filterTrayDialogRef = null;
         });
+    }
+
+    /**
+     * Refreshes the grid.
+     */
+    refreshDashboard() {
+        this.grid.triggerResize();
+    }
+
+    /**
+     * Registers the given widget with the given ID.
+     *
+     * @arg {{id:string,widget:NeonGridItem}} eventMessage
+     */
+    registerWidget(eventMessage: { id: string, widget: BaseNeonComponent | BaseLayeredNeonComponent }) {
+        if (this.widgets.get(eventMessage.id) === undefined) {
+            this.widgets.set(eventMessage.id, eventMessage.widget);
+        }
     }
 
     showItemLocation(event) {
@@ -294,4 +481,48 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.showAbout = false;
     }
 
+    /**
+     * Unregisters the widget with the given ID.
+     *
+     * @arg {{id:string}} eventMessage
+     */
+    unregisterWidget(eventMessage: { id: string }) {
+        this.widgets.delete(eventMessage.id);
+    }
+
+    /**
+     * This function determines if a widget will overlap any existing grid items if placed
+     * at the given row and column.  This function assumes the given widget has valid sizes.
+     * @arg widget The widget to place
+     * @arg col the column in which to place the widget's top-left corner
+     * @arg row the row in which to place the widget's top-left corner
+     */
+    widgetFits(widget: NeonGridItem) {
+        for (let gridItem of this.gridItems) {
+            if (this.widgetOverlaps(widget, gridItem)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * This function uses a simple Axis-Aligned Bounding Box (AABB)
+     * calculation to check for overlap of two items.  This function assumes the given items have valid sizes.
+     * @arg one the first widget
+     * @arg two the second widget
+     */
+    widgetOverlaps(one: NeonGridItem, two: NeonGridItem) {
+        if (one.gridItemConfig.col > (two.gridItemConfig.col + two.gridItemConfig.sizex - 1) ||
+            two.gridItemConfig.col > (one.gridItemConfig.col + one.gridItemConfig.sizex - 1)) {
+            return false;
+        }
+        if (one.gridItemConfig.row > (two.gridItemConfig.row + two.gridItemConfig.sizey - 1) ||
+            two.gridItemConfig.row > (one.gridItemConfig.row + one.gridItemConfig.sizey - 1)) {
+            return false;
+        }
+
+        return true;
+    }
 }

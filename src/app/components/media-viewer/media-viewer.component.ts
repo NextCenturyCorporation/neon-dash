@@ -27,7 +27,6 @@ import {
 
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
@@ -150,7 +149,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     public selectedTabIndex: number = 0;
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
@@ -163,7 +161,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,

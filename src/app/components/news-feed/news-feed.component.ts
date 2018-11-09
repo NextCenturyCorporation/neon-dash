@@ -27,7 +27,6 @@ import {
 
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
@@ -127,12 +126,11 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     public neonFilters: any[] = [];
     public showGrid: boolean;
 
-    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+    constructor(connectionService: ConnectionService, datasetService: DatasetService,
         filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
         ref: ChangeDetectorRef, visualizationService: VisualizationService, private sanitizer: DomSanitizer) {
 
-        super(activeGridService, connectionService, datasetService,
-            filterService, exportService, injector, themesService, ref, visualizationService);
+        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
 
         this.options = new NewsFeedOptions(this.injector, this.datasetService, 'News Feed', 10);
         this.showGrid = !this.options.showOnlyFiltered;

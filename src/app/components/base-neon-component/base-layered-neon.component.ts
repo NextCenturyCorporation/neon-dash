@@ -20,7 +20,6 @@ import {
     ChangeDetectorRef
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { Color } from '../../color';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -30,6 +29,7 @@ import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
 import { EMPTY_FIELD, FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
+import { neonEvents } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import * as uuid from 'node-uuid';
@@ -260,7 +260,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     public errorMessage: string = '';
 
     constructor(
-        protected activeGridService: ActiveGridService,
         protected connectionService: ConnectionService,
         protected datasetService: DatasetService,
         protected filterService: FilterService,
@@ -306,7 +305,10 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
         this.visualizationService.registerBindings(this.id, this);
-        this.activeGridService.register(this.id, this);
+        this.messenger.publish(neonEvents.WIDGET_REGISTER, {
+            id: this.id,
+            widget: this
+        });
 
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
@@ -530,7 +532,9 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         this.messenger.unsubscribeAll();
         this.exportService.unregister(this.exportId);
         this.visualizationService.unregister(this.id);
-        this.activeGridService.unregister(this.id);
+        this.messenger.publish(neonEvents.WIDGET_UNREGISTER, {
+            id: this.id
+        });
         this.subNgOnDestroy();
     }
 

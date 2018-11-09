@@ -37,7 +37,6 @@ import { AnnotationViewerComponent } from './annotation-viewer.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { Color } from '../../color';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -68,7 +67,6 @@ import * as neon from 'neon-framework';
 
 class TestAnnotationViewerComponent extends AnnotationViewerComponent {
     constructor(
-        activeGridService: ActiveGridService,
         colorSchemaService: ColorSchemeService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
@@ -80,7 +78,6 @@ class TestAnnotationViewerComponent extends AnnotationViewerComponent {
         visualizationService: VisualizationService
     ) {
         super(
-            activeGridService,
             colorSchemaService,
             connectionService,
             datasetService,
@@ -112,7 +109,6 @@ describe('Component: AnnotationViewer', () => {
                 UnsharedFilterComponent
             ],
             providers: [
-                ActiveGridService,
                 ConnectionService,
                 ColorSchemeService,
                 { provide: DatasetService, useClass: DatasetServiceMock },

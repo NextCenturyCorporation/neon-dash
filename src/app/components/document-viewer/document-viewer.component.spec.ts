@@ -27,7 +27,6 @@ import { DocumentViewerComponent } from './document-viewer.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 
 import { neonVariables } from '../../neon-namespaces';
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
@@ -57,7 +56,6 @@ describe('Component: DocumentViewer', () => {
             ExportControlComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
             ErrorNotificationService,
@@ -1030,7 +1028,6 @@ describe('Component: Document Viewer with Config', () => {
             ExportControlComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             {
                 provide: DatasetService,

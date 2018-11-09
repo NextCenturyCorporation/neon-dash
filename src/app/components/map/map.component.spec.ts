@@ -28,7 +28,6 @@ import { MapComponent, MapLayer } from './map.component';
 import { LegendComponent } from '../legend/legend.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { ExportService } from '../../services/export.service';
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -67,7 +66,6 @@ function webgl_support(): any {
 
 class TestMapComponent extends MapComponent {
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
@@ -79,7 +77,6 @@ class TestMapComponent extends MapComponent {
         visualizationService: VisualizationService
     ) {
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
@@ -234,7 +231,6 @@ describe('Component: Map', () => {
             ExportControlComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
@@ -1079,7 +1075,6 @@ describe('Component: Map with config', () => {
             ExportControlComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },

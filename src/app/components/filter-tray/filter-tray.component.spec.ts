@@ -17,8 +17,9 @@ import { TestBed, inject } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { FilterTrayComponent } from './filter-tray.component';
-import { ActiveGridService } from '../../services/active-grid.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -36,7 +37,6 @@ describe('Component: FilterTray', () => {
             FilterTrayComponent
         ],
         providers: [
-            ActiveGridService,
             FilterService,
             ThemesService,
             DatasetService,
@@ -50,10 +50,11 @@ describe('Component: FilterTray', () => {
         ]
     });
 
-    it('should create an instance', inject([ActiveGridService, FilterService, ThemesService],
-        (activeGridService: ActiveGridService, filterService: FilterService, themesService: ThemesService,
-            matDialogRef: MatDialogRef<FilterTrayComponent>) => {
-        let component = new FilterTrayComponent(activeGridService, filterService, themesService, matDialogRef);
+    it('should create an instance', inject([FilterService, ThemesService], (filterService: FilterService, themesService: ThemesService,
+        matDialogRef: MatDialogRef<FilterTrayComponent>
+    ) => {
+        let component = new FilterTrayComponent(new Map<string, BaseNeonComponent | BaseLayeredNeonComponent>(), filterService,
+            themesService, matDialogRef);
         expect(component).toBeTruthy();
     }));
 });

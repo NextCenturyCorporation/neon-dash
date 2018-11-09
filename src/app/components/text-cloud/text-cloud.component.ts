@@ -25,7 +25,6 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { Color } from '../../color';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -106,7 +105,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     public textColor: string = '#111';
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
@@ -118,7 +116,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,

@@ -25,7 +25,6 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { Color } from '../../color';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -185,7 +184,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     public previousId: string = '';
 
     constructor(
-        activeGridService: ActiveGridService,
         private colorSchemeService: ColorSchemeService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
@@ -197,7 +195,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         visualizationService: VisualizationService
     ) {
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,

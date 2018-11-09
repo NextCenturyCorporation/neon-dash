@@ -27,7 +27,6 @@ import { SubcomponentImpl2 } from './subcomponent.impl2';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
@@ -56,7 +55,6 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 class TestSampleComponent extends SampleComponent {
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
@@ -68,7 +66,6 @@ class TestSampleComponent extends SampleComponent {
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
@@ -113,7 +110,6 @@ describe('Component: Sample', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             ErrorNotificationService,
@@ -1634,7 +1630,6 @@ describe('Component: Sample with config', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             ErrorNotificationService,

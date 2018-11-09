@@ -18,6 +18,20 @@
 
 import * as neon from 'neon-framework';
 
+export namespace neonEvents {
+    export const DASHBOARD_BUILD = 'DASHBOARD_BUILD';
+    export const DASHBOARD_CLEAR = 'DASHBOARD_CLEAR';
+    export const DASHBOARD_REFRESH = 'DASHBOARD_REFRESH';
+    export const WIDGET_ADD = 'WIDGET_ADD';
+    export const WIDGET_DELETE = 'WIDGET_DELETE';
+    export const WIDGET_CONTRACT = 'WIDGET_CONTRACT';
+    export const WIDGET_EXPAND = 'WIDGET_EXPAND';
+    export const WIDGET_MOVE_TO_BOTTOM = 'WIDGET_MOVE_TO_BOTTOM';
+    export const WIDGET_MOVE_TO_TOP = 'WIDGET_MOVE_TO_TOP';
+    export const WIDGET_REGISTER = 'WIDGET_REGISTER';
+    export const WIDGET_UNREGISTER = 'WIDGET_UNREGISTER';
+}
+
 export namespace neonVariables {
     /* tslint:disable:no-string-literal */
     export const ASCENDING = neon.query['ASCENDING'];

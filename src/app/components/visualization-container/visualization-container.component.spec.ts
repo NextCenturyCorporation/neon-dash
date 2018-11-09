@@ -36,7 +36,6 @@ import { VisualizationContainerComponent } from './visualization-container.compo
 import { VisualizationInjectorComponent } from '../visualization-injector/visualization-injector.component';
 import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { VisualizationService } from '../../services/visualization.service';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -90,7 +89,6 @@ describe('Component: VisualizationContainer', () => {
             WikiViewerComponent
         ],
         providers: [
-            ActiveGridService,
             VisualizationService,
             { provide: 'config', useValue: testConfig }
         ],

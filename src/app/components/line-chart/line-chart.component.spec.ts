@@ -22,7 +22,6 @@ import {} from 'jasmine-core';
 import { LineChartComponent } from './line-chart.component';
 import { LegendComponent } from '../legend/legend.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -50,7 +49,6 @@ describe('Component: LineChart', () => {
             ChartComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
             FilterService,

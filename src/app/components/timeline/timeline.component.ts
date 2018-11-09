@@ -27,7 +27,6 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { Color } from '../../color';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -119,7 +118,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     public timelineData: TimelineData = new TimelineData();
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
@@ -132,7 +130,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,

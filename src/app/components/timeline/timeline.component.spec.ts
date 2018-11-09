@@ -30,7 +30,6 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { TimelineComponent } from './timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -56,7 +55,6 @@ describe('Component: Timeline', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
             FilterService,

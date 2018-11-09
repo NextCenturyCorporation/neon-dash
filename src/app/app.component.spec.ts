@@ -45,7 +45,6 @@ import { WikiViewerComponent } from './components/wiki-viewer/wiki-viewer.compon
 
 import { NeonGTDConfig } from './neon-gtd-config';
 
-import { ActiveGridService } from './services/active-grid.service';
 import { DatasetService } from './services/dataset.service';
 import { ConnectionService } from './services/connection.service';
 import { ErrorNotificationService } from './services/error-notification.service';
@@ -136,7 +135,6 @@ describe('App: NeonGtd', () => {
             providers: [
                 { provide: 'config', useValue: new NeonGTDConfig() },
                 { provide: APP_BASE_HREF, useValue: '/' },
-                ActiveGridService,
                 DatasetService,
                 ConnectionService,
                 ErrorNotificationService,
@@ -169,5 +167,69 @@ describe('App: NeonGtd', () => {
         // these should not exist upon initial render.
         expect(debugElement.nativeElement.querySelectorAll('app-about-neon').length === 0).toBeTruthy();
         expect(debugElement.nativeElement.querySelectorAll('app-dashboard-options').length === 0).toBeTruthy();
+    }));
+
+    it('addWidget does add the given widget with specified position to the grid', async(() => {
+        // TODO
+    }));
+
+    it('addWidget does set the position of the given widget with unspecified position and add it to the end of the grid', async(() => {
+        // TODO
+    }));
+
+    it('addWidget does set the position of the given widget with unspecified position and add it to the middle of the grid', async(() => {
+        // TODO
+    }));
+
+    it('clearDashboard does delete all elements from the grid', async(() => {
+        // TODO
+    }));
+
+    it('contractWidget does update the size and position of the given widget to its previous config', async(() => {
+        // TODO
+    }));
+
+    it('deleteWidget does delete the widget from the grid', async(() => {
+        // TODO
+    }));
+
+    it('expandWidget does update the size and position of the given widget and save its previous config', async(() => {
+        // TODO
+    }));
+
+    it('getMaxColInUse does return expected number', async(() => {
+        // TODO
+    }));
+
+    it('getMaxRowInUse does return expected number', async(() => {
+        // TODO
+    }));
+
+    it('moveWidgetToBottom does update the row of the given widget', async(() => {
+        // TODO
+    }));
+
+    it('moveWidgetToTop does update the row of the given widget', async(() => {
+        // TODO
+    }));
+
+    it('refreshDashboard does resize the grid', async(() => {
+        // TODO
+    }));
+
+    it('registerWidget does update the global collection of widgets', async(() => {
+        // TODO
+    }));
+
+    it('unregisterWidget does update the global collection of widgets', async(() => {
+        // TODO
+    }));
+
+    it('widgetFits does return expected boolean', async(() => {
+        // TODO
+    }));
+
+    it('widgetOverlaps does return expected boolean', async(() => {
+        // TODO
     }));
 });

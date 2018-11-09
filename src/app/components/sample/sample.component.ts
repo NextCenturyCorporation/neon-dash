@@ -25,7 +25,6 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -126,7 +125,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     public subcomponentObject: AbstractSubcomponent;
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
@@ -138,7 +136,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
