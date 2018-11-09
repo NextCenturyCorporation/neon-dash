@@ -14,7 +14,7 @@
  *
  */
 import { AbstractChartJsDataset, AbstractChartJsSubcomponent, ChartJsData } from './subcomponent.chartjs.abstract';
-import { Color } from '../../services/color-scheme.service';
+import { Color } from '../../color';
 
 // http://www.chartjs.org/docs/latest/charts/line.html#dataset-properties
 export class ChartJsLineDataset extends AbstractChartJsDataset {

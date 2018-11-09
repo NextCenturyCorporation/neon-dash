@@ -137,7 +137,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         options: any
     };
 
-    public colorByFields: string[] = [];
+    public colorKeys: string[] = [];
     public dateBucketizer: any;
     public disabledDatasets: Map<string, any> = new Map<string, any>();
     public disabledList: string[] = [];
@@ -583,7 +583,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getColorFromScheme(name): string {
-        return this.colorSchemeService.getColorFor(this.options.groupField.columnName, name).toRgb();
+        return this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name, this.options.groupField.columnName,
+            name).toRgb();
     }
 
     getFiltersToIgnore() {
@@ -718,7 +719,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     updateLegend() {
-        this.colorByFields = [this.options.groupField.columnName];
+        this.colorKeys = [this.colorSchemeService.getColorKey(this.options.database.name, this.options.table.name,
+            this.options.groupField.columnName)];
     }
 
     dateToIsoDayHour(date: Date): string {

@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Color } from '../../services/color-scheme.service';
+import { Color } from '../../color';
 import { ElementRef } from '@angular/core';
 import { MapLayer, MapOptions } from './map.component';
 
