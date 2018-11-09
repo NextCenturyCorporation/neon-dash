@@ -242,18 +242,6 @@ dashboards:
                                 field_key_1: es1.elisa_car_1.annotations.JustificationEN
                             options:
                                 connectOnLoad: false
-                                # TODO: 872: make sure colorMaps work after AIDA-401 is merged
-                                # TODO: 872: move to test file and rework to apply to that datastore/layout
-                                # TODO: 872: fix issue with pretty names vs field/config file names
-                                colorMaps:
-                                    # TODO: 872: probably don't need this database name part anymore: elisa_car_1:
-                                    mapping:
-                                        entities.type:
-                                            LOC: '#98DF8A'
-                                            ORG: '#FF9896'
-                                            PER: '#AEC7E8'
-                                            GPE: '#98DF8A'
-                                        types: # empty
                                 simpleFilter:
                                     tableKey: table_key_1
                                     fieldKey: field_key_1

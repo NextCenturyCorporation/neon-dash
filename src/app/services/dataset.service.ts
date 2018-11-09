@@ -986,9 +986,6 @@ export class DatasetService {
      * Returns the options for the current dashboard.
      * @method getCurrentDashboardOptions
      * @return {Object}
-     * TODO: 872: this is how colorMaps are being grabbed now
-     * so make sure that still works after AIDA-401 changes
-     * are merged in
      *
      */
     public getCurrentDashboardOptions(): DashboardOptions {
