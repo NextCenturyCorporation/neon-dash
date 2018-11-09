@@ -25,7 +25,6 @@ import { FieldMetaData } from '../../dataset';
 import { FilterBuilderComponent } from './filter-builder.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
@@ -48,7 +47,6 @@ describe('Component: Filter Builder', () => {
             FilterBuilderComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
@@ -382,7 +380,6 @@ describe('Component: Filter Builder with config', () => {
             FilterBuilderComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },

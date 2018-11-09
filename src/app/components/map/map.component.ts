@@ -26,7 +26,6 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
-import { ActiveGridService } from '../../services/active-grid.service';
 import { Color } from '../../color';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -195,7 +194,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     protected defaultActiveColor: Color;
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
@@ -207,7 +205,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         visualizationService: VisualizationService
     ) {
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,

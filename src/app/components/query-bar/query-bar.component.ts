@@ -29,7 +29,6 @@ import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { VisualizationService } from '../../services/visualization.service';
-import { ActiveGridService } from '../../services/active-grid.service';
 import WherePredicate = neon.query.WherePredicate;
 
 /**
@@ -94,12 +93,11 @@ export class QueryBarComponent  extends BaseNeonComponent {
     public messenger = new neon.eventing.Messenger();
     private filterFormControl: FormControl;
 
-    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+    constructor(connectionService: ConnectionService, datasetService: DatasetService,
                 filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
                 ref: ChangeDetectorRef, visualizationService: VisualizationService) {
 
-        super(activeGridService, connectionService, datasetService,
-            filterService, exportService, injector, themesService, ref, visualizationService);
+        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
 
         this.filterFormControl = new FormControl();
         this.options = new QueryBarOptions(this.injector, this.datasetService, 'Query Bar');

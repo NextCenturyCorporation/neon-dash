@@ -16,9 +16,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MatDialogRef, MatSnackBar } from '@angular/material';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ThemesService } from '../../services/themes.service';
-import { neonVisualizations } from '../../neon-namespaces';
+import { neonEvents, neonVisualizations } from '../../neon-namespaces';
+import * as neon from 'neon-framework';
 
 @Component({
   selector: 'app-add-visualization-dialog',
@@ -27,11 +27,16 @@ import { neonVisualizations } from '../../neon-namespaces';
 })
 export class AddVisualizationComponent implements OnInit {
 
+    private messenger: neon.eventing.Messenger;
+
     public visualizations: any[];
     public selectedIndex: number = -1;
 
-    constructor(private activeGridService: ActiveGridService, public themesService: ThemesService,
-        public dialogRef: MatDialogRef<AddVisualizationComponent>, public snackBar: MatSnackBar) {}
+    constructor(public themesService: ThemesService, public dialogRef: MatDialogRef<AddVisualizationComponent>,
+        public snackBar: MatSnackBar) {
+
+        this.messenger = new neon.eventing.Messenger();
+    }
 
     ngOnInit() {
         // Ignore the sample visualization.
@@ -47,7 +52,9 @@ export class AddVisualizationComponent implements OnInit {
         this.visualizations[index].selected = true;
         this.selectedIndex = index;
 
-        this.activeGridService.addItemInFirstFit(this.visualizations[index]);
+        this.messenger.publish(neonEvents.WIDGET_ADD, {
+            widget: this.visualizations[index]
+        });
 
         if (!shiftKey) {
             this.dialogRef.close();

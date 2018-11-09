@@ -28,7 +28,6 @@ import {
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
@@ -93,7 +92,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     public wikiText: SafeHtml[] = [];
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
@@ -107,7 +105,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,

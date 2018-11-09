@@ -30,7 +30,6 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
@@ -58,7 +57,6 @@ describe('Component: ThumbnailGrid', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,
@@ -2354,7 +2352,6 @@ describe('Component: ThumbnailGrid with config', () => {
         ],
 
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,

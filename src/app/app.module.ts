@@ -25,7 +25,6 @@ import 'hammerjs';
 
 import { NgGridModule } from 'angular2-grid';
 
-import { ActiveGridService } from './services/active-grid.service';
 import { ColorSchemeService } from './services/color-scheme.service';
 import { ConnectionService } from './services/connection.service';
 import { DatasetService } from './services/dataset.service';
@@ -150,7 +149,6 @@ export function getAppConfig() {
         ReactiveFormsModule
     ],
     providers: [
-        ActiveGridService,
         ConnectionService,
         DatasetService,
         ErrorNotificationService,

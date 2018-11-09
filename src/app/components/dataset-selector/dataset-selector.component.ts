@@ -15,13 +15,12 @@
  */
 import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { Dataset, DatabaseMetaData, TableMetaData, FieldMetaData, Relation } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ParameterService } from '../../services/parameter.service';
-import { neonVisualizationMinPixel } from '../../neon-namespaces';
+import { neonEvents, neonVisualizationMinPixel } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 
 import * as _ from 'lodash';
@@ -122,9 +121,9 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         private connectionService: ConnectionService,
         private datasetService: DatasetService,
         private filterService: FilterService,
-        private parameterService: ParameterService,
-        private activeGridService: ActiveGridService
+        private parameterService: ParameterService
     ) {
+        this.messenger = new neon.eventing.Messenger();
     }
 
     getDatasets(): Dataset[] {
@@ -134,7 +133,6 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         let dashboardStateId: string = this.parameterService.findDashboardStateIdInUrl();
 
-        this.messenger = new neon.eventing.Messenger();
         this.datasets = this.datasetService.getDatasets();
         this.layouts = this.datasetService.getLayouts();
 
@@ -176,7 +174,13 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                     for (let dashboard of message.dashboard) {
                         dashboard.id = uuid.v4();
                     }
-                    this.activeGridService.setGridItems(message.dashboard);
+
+                    this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});
+                    message.dashboard.forEach((widget) => {
+                        this.messenger.publish(neonEvents.WIDGET_ADD, {
+                            widget: widget
+                        });
+                    });
                     this.activeDatasetChanged.emit(this.activeDataset);
                     this.gridItemsChanged.emit(message.dashboard.length);
                 }
@@ -242,23 +246,24 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         // Clear any old filters prior to loading the new layout and dataset.
         this.messenger.clearFiltersSilently();
 
-        // Clear the old grid items;
-        this.activeGridService.clear();
+        this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});
 
         // Recreate the layout each time to ensure all visualizations are using the new dataset.
         // Use an empty array of visualizations if the new dataset has no defined layout.
-        for (let layoutItem of layout) {
-            let item = _.cloneDeep(layoutItem);
-            item.gridItemConfig = {
-                row: item.row,
-                col: item.col,
-                sizex: item.sizex,
-                sizey: item.sizey,
+        for (let widgetInLayout of layout) {
+            let widget = _.cloneDeep(widgetInLayout);
+            widget.gridItemConfig = {
+                row: widget.row,
+                col: widget.col,
+                sizex: widget.sizex,
+                sizey: widget.sizey,
                 dragHandle: '.drag-handle',
                 borderSize: 10
             };
-            item.id = uuid.v4();
-            this.activeGridService.addItem(item);
+            widget.id = uuid.v4();
+            this.messenger.publish(neonEvents.WIDGET_ADD, {
+                widget: widget
+            });
         }
 
         this.gridItemsChanged.emit(layout.length);
@@ -272,15 +277,14 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      * @private
      */
     updateCustomLayout() {
-        // Clear the old grid items;
-        this.activeGridService.clear();
+        this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});
 
         // Clear any old filters prior to loading the new layout and dataset.
         this.messenger.clearFilters();
 
         _.each(this.customVisualizations, (visualization) => {
             let id: string = uuid.v4();
-            let layout: any = {
+            let widget: any = {
                 id: id,
                 bindings: {},
                 bordersize: 5,
@@ -303,17 +307,19 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             };
 
             if (visualization.database && visualization.table) {
-                layout.bindings = {
+                widget.bindings = {
                     'bind-database': '\'' + visualization.database + '\'',
                     'bind-table': '\'' + visualization.table + '\''
                 };
             }
 
             _.each(visualization.bindings, (value, key) => {
-                layout.bindings[key] = '\'' + value + '\'';
+                widget.bindings[key] = '\'' + value + '\'';
             });
 
-            this.activeGridService.addItem(layout);
+            this.messenger.publish(neonEvents.WIDGET_ADD, {
+                widget: widget
+            });
         });
 
         this.parameterService.removeStateParameters();

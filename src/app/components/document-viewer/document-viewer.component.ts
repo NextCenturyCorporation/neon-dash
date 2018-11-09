@@ -26,7 +26,6 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
@@ -105,7 +104,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     public page: number = 1;
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
@@ -119,7 +117,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,

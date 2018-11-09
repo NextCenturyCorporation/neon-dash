@@ -27,7 +27,6 @@ import { DataTableComponent } from './data-table.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
@@ -55,7 +54,6 @@ describe('Component: DataTable', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },

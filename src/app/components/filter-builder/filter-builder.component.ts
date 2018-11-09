@@ -25,7 +25,6 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService, ServiceFilter } from '../../services/filter.service';
@@ -104,7 +103,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     public counter: number = 0;
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
@@ -116,7 +114,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,

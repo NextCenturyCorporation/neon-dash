@@ -21,7 +21,6 @@ import { Injector } from '@angular/core';
 
 import { TextCloudComponent } from './text-cloud.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -55,7 +54,6 @@ describe('Component: TextCloud', () => {
             ChartComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             {
                 provide: DatasetService,
@@ -567,7 +565,6 @@ describe('Component: Textcloud with config', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
@@ -635,7 +632,6 @@ describe('Component: Textcloud with config including configFilter', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },

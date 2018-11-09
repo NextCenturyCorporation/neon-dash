@@ -15,7 +15,6 @@
  */
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 import { DatasetSelectorComponent } from './dataset-selector.component';
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
@@ -38,7 +37,6 @@ describe('Component: DatasetSelector', () => {
             DatasetSelectorComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
             ParameterService,

@@ -25,7 +25,6 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -148,7 +147,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     };
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
@@ -161,7 +159,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,

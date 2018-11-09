@@ -13,10 +13,12 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { MatDialogRef } from '@angular/material';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { NeonGridItem } from '../../neon-grid-item';
 
-import { ActiveGridService } from '../../services/active-grid.service';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { ParameterService } from '../../services/parameter.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
@@ -36,8 +38,8 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
         formatted: any[]
     };
 
-    constructor(private activeGridService: ActiveGridService, private filterService: FilterService,
-        public themesService: ThemesService, public dialogRef: MatDialogRef<FilterTrayComponent>) {
+    constructor(@Inject(MAT_DIALOG_DATA) public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent>,
+        private filterService: FilterService, public themesService: ThemesService, public dialogRef: MatDialogRef<FilterTrayComponent>) {
         this.messenger = new neon.eventing.Messenger();
         this.themesService = themesService;
         this.filters = {
@@ -65,7 +67,7 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
 
     removeFilter(filterIds: string[]) {
         let onSuccess = (removedFilter) => {
-            let visualization = this.activeGridService.getVisualizationById(removedFilter.ownerId);
+            let visualization = this.widgets.get(removedFilter.ownerId);
             visualization.removeFilter(removedFilter);
             this.onEventChanged();
         };

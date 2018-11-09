@@ -26,7 +26,6 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -268,7 +267,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     private graph: vis.Network;
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
@@ -281,7 +279,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
