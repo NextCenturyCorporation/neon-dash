@@ -69,7 +69,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public showSimpleSearch: boolean = false;
     public showVisShortcut: boolean = true;
 
-    public rightPanelTitle: string = '';
+    public rightPanelTitle: string = 'Dashboard Layouts';
 
     public createFilterBuilder: boolean = false; //This is used to create the Filter Builder later
     public gridItems: NeonGridItem[] = [];
