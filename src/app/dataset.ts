@@ -118,7 +118,7 @@ export class Dashboard {
  */
 export class DashboardOptions {
     public connectOnLoad?: boolean = false;
-    public colorMaps?: Object; // TODO: 872: Check references to this when AIDA-401 changes are merged in
+    public colorMaps?: Object;
     public requeryInterval?: number;
     public simpleFilter?: SimpleFilter;
 }
