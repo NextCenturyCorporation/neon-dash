@@ -16,8 +16,8 @@
 import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
-import { DatabaseMetaData, TableMetaData,
-    TableMappings, FieldMetaData, Datastore, Dashboard, DashboardOptions } from '../dataset';
+import { DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData,
+    Datastore, Dashboard, DashboardOptions, SimpleFilter } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import * as _ from 'lodash';
@@ -317,6 +317,52 @@ export class DatasetService {
      */
     public getDashboards(): Dashboard {
         return this.dashboards;
+    }
+
+    // TODO: 872: rename active dataset simple filter methods? should be dashboard simple filter now
+    // TODO: 825: what should we do in the future if simpleFilter is undefined, since now we have
+    // optional field/table keys?
+    // TODO: 872: translate table/field keys ahead of time and pass around table/field NAMES instead
+    /**
+     *
+     * @param simpleField The new field for the simple search
+     */
+    public setActiveDatasetSimpleFilterFieldName(simpleField: FieldMetaData) {
+        this.createSimpleFilter();
+        this.currentDashboard.options.simpleFilter.fieldKey = simpleField.columnName;
+    }
+
+    /**
+     * Creates a simpleFilter if it doesn't exist
+     */
+    public createSimpleFilter() {
+        if (!this.currentDashboard.options.simpleFilter) {
+
+            let tableKey = Object.keys(this.currentDashboard.tables)[0];
+
+            this.currentDashboard.options.simpleFilter = new SimpleFilter(
+                this.getDatabaseNameByKey(tableKey),
+                this.getTableNameByKey(tableKey),
+                ''
+            );
+        }
+    }
+
+    /**
+     * returns the simple search field
+     * @return {string}
+     */
+    public getActiveDatasetSimpleFilterFieldName(): string {
+        this.createSimpleFilter();
+        return this.currentDashboard.options.simpleFilter.fieldName;
+    }
+
+    /**
+     * returns the active table fields
+     * @return {Object}
+     */
+    public getActiveFields() {
+        return this.dataset.databases[0].tables[0].fields;
     }
 
     /**

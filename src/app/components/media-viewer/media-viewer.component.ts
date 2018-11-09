@@ -141,7 +141,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
 })
 export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     protected MEDIA_PADDING: number = 10;
-    protected SLIDER_HEIGHT: number = 66;
+    protected SLIDER_HEIGHT: number = 60;
     protected TAB_HEIGHT: number = 30;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
@@ -375,36 +375,42 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         let tabs = this.options.oneTabPerArray ? [oneTab] : [];
 
         links.filter((link) => !!link).forEach((link, index) => {
-            let prettyName = link.substring(link.lastIndexOf('/') + 1);
-            let linkTypeFromConfig = this.getMediaType(link) || '';
+            let mask = this.appendLinkPrefixIfNeeded(this.findElementAtIndex(masks, index));
+            let name = this.findElementAtIndex(names, index, (link ? link.substring(link.lastIndexOf('/') + 1) : oneTabName));
+            let type = this.findElementAtIndex(types, index, (this.getMediaType(link) || ''));
 
-            let tab = oneTab;
-            if (!this.options.oneTabPerArray) {
-                tab = {
-                    selected: undefined,
-                    slider: this.options.sliderValue,
-                    name: prettyName,
-                    loaded: false,
-                    list: []
-                };
+            // If the type is "mask,img" then change the type to "mask" if the mask link exists else change the type to "img" (the backup).
+            if (type === (this.mediaTypes.maskImage + ',' + this.mediaTypes.image)) {
+                type = (mask ? this.mediaTypes.maskImage : this.mediaTypes.image);
             }
 
-            tab.list.push({
-                // TODO Add a boolean borderField with border options like:  true = red, false = yellow
-                border: this.options.border,
-                link: this.appendLinkPrefixIfNeeded(link),
-                mask: this.appendLinkPrefixIfNeeded(this.findElementAtIndex(masks, index)),
-                name: this.findElementAtIndex(names, index, prettyName),
-                type: this.findElementAtIndex(types, index, linkTypeFromConfig)
-            });
-
-            tab.selected = tab.list[0];
-
-            if (!this.options.oneTabPerArray) {
-                if (tab.list[0].name) {
-                    tab.name = tab.list[0].name + ((links.length > 1 && names.length === 1) ? (' ' + (index + 1)) : '');
+            // Only add a tab if the link is non-empty; only add a tab for a mask-type if the mask is also non-empty.
+            if (link && (type === this.mediaTypes.maskImage ? mask : true)) {
+                let tab = oneTab;
+                if (!this.options.oneTabPerArray) {
+                    tab = {
+                        selected: undefined,
+                        slider: this.options.sliderValue,
+                        name: (links.length > 1 ? ((index + 1) + ': ') : '') + name,
+                        loaded: false,
+                        list: []
+                    };
                 }
-                tabs.push(tab);
+
+                tab.list.push({
+                    // TODO Add a boolean borderField with border options like:  true = red, false = yellow
+                    border: this.options.border,
+                    link: this.appendLinkPrefixIfNeeded(link),
+                    mask: mask,
+                    name: name,
+                    type: type
+                });
+
+                tab.selected = tab.list[0];
+
+                if (!this.options.oneTabPerArray) {
+                    tabs.push(tab);
+                }
             }
         });
 
@@ -726,7 +732,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         // Do nothing.
     }
 
-    subOnResizeStop() {
+    subOnResizeStop(event?: any) {
         if (!this.visualization) {
             return;
         }
@@ -756,9 +762,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        // TODO FIXME
-        // let sliderHeight = this.tabsAndMedia.length && this.tabsAndMedia[0].list.length > 1 ? this.SLIDER_HEIGHT : 0;
-        let sliderHeight = this.SLIDER_HEIGHT;
+        let tabIndex = event ? event.index : this.selectedTabIndex;
+        let sliderHeight = ((this.tabsAndMedia.length > tabIndex && this.tabsAndMedia[tabIndex].selected.type ===
+            this.mediaTypes.maskImage) ?  this.SLIDER_HEIGHT : 0);
 
         frames.forEach((frame) => {
             frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -

@@ -47,7 +47,6 @@ import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { ChartComponent } from './components/chart/chart.component';
 import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
-import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
@@ -60,7 +59,9 @@ import { LineChartComponent } from './components/line-chart/line-chart.component
 import { MapComponent } from './components/map/map.component';
 import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
 import { SampleComponent } from './components/sample/sample.component';
+import { SaveStateComponent } from './components/save-state/save-state.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
+import { SettingsComponent } from './components/settings/settings.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
@@ -106,7 +107,6 @@ export function getAppConfig() {
         ConfirmationDialogComponent,
         CustomConnectionComponent,
         CustomConnectionSimpleSetupStepComponent,
-        DashboardOptionsComponent,
         DatasetSelectorComponent,
         DataTableComponent,
         DocumentViewerComponent,
@@ -122,7 +122,9 @@ export function getAppConfig() {
         NewsFeedComponent,
         QueryBarComponent,
         SampleComponent,
+        SaveStateComponent,
         ScatterPlotComponent,
+        SettingsComponent,
         SimpleFilterComponent,
         SnackBarComponent,
         TextCloudComponent,
@@ -176,6 +178,8 @@ export function getAppConfig() {
         CustomConnectionComponent,
         DocumentViewerSingleItemComponent,
         FilterTrayComponent,
+        SaveStateComponent,
+        SettingsComponent,
         SnackBarComponent
     ],
     bootstrap: [AppComponent]
