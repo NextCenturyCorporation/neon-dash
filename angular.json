@@ -19,8 +19,8 @@
             "assets": [
               "src/assets",
               "src/favicon.ico",
-              "src/app/config/*.json",
-              "src/app/config/*.yaml"
+              { "glob": "*.json", "input": "src/app/config", "output": "app/config/" },
+              { "glob": "*.yaml", "input": "src/app/config", "output": "app/config/" }
             ],
             "styles": [
               "src/styles.scss",
