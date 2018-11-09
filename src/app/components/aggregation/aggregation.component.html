@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -362,8 +362,8 @@
     </div>
 
     <div class="filter-container" *ngIf="showHeaderContainer()">
-        <app-legend *ngIf="showLegend()" [activeList]="legendActiveGroups" [fieldNames]="legendFields"
-            (itemSelected)="handleLegendItemSelected($event)"></app-legend>
+        <app-legend *ngIf="showLegend()" [activeList]="legendActiveGroups" [colorKeys]="colorKeys"
+                (itemSelected)="handleLegendItemSelected($event)"></app-legend>
 
         <div class="filter-reset" *ngFor="let filter of groupFilters">
             <span class="filter-label" [matTooltip]="createFilterPrettyText(filter)" tooltip-position="below">

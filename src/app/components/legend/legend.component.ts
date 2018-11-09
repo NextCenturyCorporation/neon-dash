@@ -24,7 +24,8 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
-import { ColorSchemeService, ColorSet } from '../../services/color-scheme.service';
+import { ColorSchemeService } from '../../services/color-scheme.service';
+import { ColorSet } from '../../color';
 
 /**
  * Component that will display a legend of colors.
@@ -45,11 +46,13 @@ export class LegendComponent implements OnInit {
      * from just this list.
      */
     @Input() activeList: string[];
+
     /**
      * List of fields that should be colored as 'inactive'
      * If the active list is empty, any values in this list will be marked as inactive
      */
     @Input() disabledList: string[];
+
     /**
      * List of [columnName, value] pairs that should be marked as inactive.
      * If this list is populated, it will be used over the disabledList
@@ -60,6 +63,7 @@ export class LegendComponent implements OnInit {
      * Switch for adding or removing filtering capability for the legend
      */
     @Input() filteringOn: boolean = true;
+
     /**
      * Event triggered when an item in the legend has been selected.
      * The event includes the field name, value, and a boolean if the value is currently selected
@@ -70,19 +74,19 @@ export class LegendComponent implements OnInit {
 
     public menuIcon: string;
     public colorSets: ColorSet[] = [];
-    private _FieldNames: string[];
+    private _colorKeys: string[];
 
     constructor(private colorSchemeService: ColorSchemeService) {
         this.menuIcon = 'keyboard_arrow_down';
     }
 
-    @Input() set fieldNames(names: string[]) {
-        this._FieldNames = names;
+    @Input() set colorKeys(colorKeys: string[]) {
+        this._colorKeys = colorKeys;
         this.loadAllColorSets();
     }
 
-    get fieldNames(): string[] {
-        return this._FieldNames;
+    get colorKeys(): string[] {
+        return this._colorKeys;
     }
 
     /**
@@ -90,8 +94,8 @@ export class LegendComponent implements OnInit {
      */
     private loadAllColorSets() {
         this.colorSets = [];
-        for (let name of (this.fieldNames || [])) {
-            let colorSet = this.colorSchemeService.getColorSet(name || '');
+        for (let colorKey of (this.colorKeys || [])) {
+            let colorSet = this.colorSchemeService.getColorSet(colorKey || '');
             if (colorSet) {
                 this.colorSets.push(colorSet);
             }

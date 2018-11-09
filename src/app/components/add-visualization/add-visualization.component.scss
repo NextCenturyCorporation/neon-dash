@@ -51,7 +51,7 @@
         &:focus,
         &:hover {
             cursor: pointer;
-            color: mat-color($primary);
+            color: var(--color-primary, grey);
         }
     }
 }
@@ -63,12 +63,12 @@
 }
 
 .add-visualization-tile:hover {
-    border: 1px solid mat-color($primary);
+    border: 1px solid var(--color-primary, grey);
     border-radius: 7px;
 }
 
 .add-visualization-tile:active {
-    border: 1px solid  mat-color($primary);
+    border: 1px solid  var(--color-primary, grey);
     border-radius: 7px;
 }
 

@@ -16,7 +16,7 @@
 import { ElementRef } from '@angular/core';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { AggregationOptions } from './aggregation.component';
-import { Color } from '../../services/color-scheme.service';
+import { Color } from '../../color';
 
 import * as _ from 'lodash';
 
