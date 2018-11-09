@@ -57,6 +57,9 @@ export class NewsFeedOptions extends BaseNeonOptions {
     public secondaryTitleField: FieldMetaData;
     public contentField: FieldMetaData;
     public sortField: FieldMetaData;
+    public border: string;
+    public linkPrefix: string;
+    public cropAndScale: boolean;
 
     /**
      * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
