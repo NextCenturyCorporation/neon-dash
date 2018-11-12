@@ -18,10 +18,12 @@
 
 import { ListSubcomponent } from './subcomponent.list';
 import { AggregationSubcomponentListener, AggregationSubcomponentOptions } from './subcomponent.aggregation.abstract';
-import { Color } from '../../services/color-scheme.service';
+import { Color } from '../../color';
 import { ElementRef } from '@angular/core';
 
 class TestAggregationSubcomponentOptions implements AggregationSubcomponentOptions {
+    public axisLabelX: string = '';
+    public axisLabelY: string = '';
     public granularity: string = 'year';
     public hideGridLines: boolean = false;
     public hideGridTicks: boolean = false;

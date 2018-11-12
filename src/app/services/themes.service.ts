@@ -18,37 +18,42 @@
 
 @Injectable()
 export class ThemesService {
-    public static THEMES: any[] = [{
-        id: 'neon-green-theme',
-        name: 'Neon Green'
-    }, {
-        id: 'neon-green-dark-theme',
-        name: 'Neon Green (dark)'
-    }];
+    public static THEME_DARK: { id: string, name: string } = {
+        id: 'neon-dark',
+        name: 'Dark'
+    };
 
-    private currentTheme: any = ThemesService.THEMES[0];
+    public static THEME_GREEN: { id: string, name: string } = {
+        id: 'neon-green',
+        name: 'Green'
+    };
+
+    public static THEME_TEAL: { id: string, name: string } = {
+        id: 'neon-teal',
+        name: 'Teal'
+    };
+
+    private currentTheme: string = ThemesService.THEME_TEAL.id;
 
     constructor() {
         // Do nothing.
     }
 
-    getThemes(): string[] {
-        return ThemesService.THEMES;
-    }
-
-    getCurrentTheme() {
+    getCurrentTheme(): string {
         return this.currentTheme;
     }
 
-    setCurrentTheme(theme: string) {
-        let index: number = _.findIndex(ThemesService.THEMES, (item) => {
-            return item.id === theme;
-        });
+    getThemes(): { id: string, name: string }[] {
+        return [
+            // TODO THOR-853 Add dark theme
+            // ThemesService.THEME_DARK,
+            // TODO THOR-852 Add green theme
+            // ThemesService.THEME_GREEN,
+            ThemesService.THEME_TEAL
+        ];
+    }
 
-        if (index >= 0) {
-            this.currentTheme = ThemesService.THEMES[index];
-        } else {
-            throw Error(theme + ' is not an available theme');
-        }
+    setCurrentTheme(id: string) {
+        this.currentTheme = id;
     }
 }
