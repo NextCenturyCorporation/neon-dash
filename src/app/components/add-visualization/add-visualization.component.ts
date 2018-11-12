@@ -41,7 +41,6 @@ export class AddVisualizationComponent implements OnInit {
         public snackBar: MatSnackBar,
         public themesService: ThemesService
     ) {
-        this.themesService = themesService;
         this.messenger = new neon.eventing.Messenger();
     }
 
@@ -67,8 +66,8 @@ export class AddVisualizationComponent implements OnInit {
         this.snackBar.open('Visualization Added', 'x', {
             duration: 5000,
             verticalPosition: 'top',
-            panelClass: ['simpleSnackBar']
-        });
+            panelClass: [this.themesService.getCurrentTheme(), 'simpleSnackBar']
+         });
     }
 
     publishShowVisShortcut() {

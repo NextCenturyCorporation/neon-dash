@@ -21,7 +21,7 @@ import {
 } from '@angular/core';
 
 import { ActiveGridService } from '../../services/active-grid.service';
-import { Color } from '../../services/color-scheme.service';
+import { Color } from '../../color';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';

@@ -16,8 +16,8 @@
 @import '../base-neon-component/base-neon.component.scss';
 
 .simple-filter {
-    background-color: $main-background;
-    color: mat-color($header-text);
+    background-color: var(--color-background, white);
+    color: var(--color-text-main, dimgrey);
     height: 90%;
     display: flex;
     width: 300px;

@@ -35,7 +35,7 @@
         text-align: center;
         vertical-align: middle;
         font-size: 1.4em;
-        border: 1px solid mat-color($accent);
+        border: 1px solid var(--color-accent, lightgrey);
     }
 
     .column-selector-close {
@@ -91,18 +91,17 @@
 }
 
 /deep/ .datatable-row-even {
-    background-color: #fafafa;
+    background-color: var(--background, white);
 }
 
 /deep/ .datatable-header-inner {
-    border-right: 1px solid $black-87-opacity;
+    border-right: 1px solid var(--color-text-main, dimgrey);
 }
 
 /deep/ .datatable-header-cell {
-    /* Background fade from $white to $accent. */
-    background: linear-gradient(#fafafa, #e6e7e8);
-    border-bottom: 1px solid $black-87-opacity;
-    border-right: 1px solid $black-87-opacity;
+    background: linear-gradient(var(--background, white), var(--background-contrast, lightgrey));
+    border-bottom: 1px solid var(--color-text-main, dimgrey);
+    border-right: 1px solid var(--color-text-main, dimgrey);
     line-height: 20px !important;
     height: 30px;
     text-align: center;
@@ -111,7 +110,7 @@
 /* This is only needed if the table is reorderable. */
 /deep/ .datatable-header-cell.longpress {
     background: linear-gradient(#ddd, #b3b3b3);
-    border: 1px dashed $black-87-opacity;
+    border: 1px dashed var(--color-text-main, dimgrey);
     z-index: 100;
 }
 
@@ -171,14 +170,14 @@
 }
 
 /deep/ .datatable-body-cell {
-    border-right: 1px dashed $black-87-opacity;
+    border-right: 1px dashed var(--color-text-main, dimgrey);
     line-height: 20px !important;
     padding: 2px 5px;
 }
 
 /deep/ .datatable-body-row.active .datatable-row-group {
-    background-color: mat-color($primary);
-    color: #fafafa;
+    background-color: var(--color-primary, grey);
+    color: var(--color-primary-contrast, white);
 }
 
 /deep/ .datatable-body-row.heat-1 .datatable-row-group {
@@ -242,7 +241,7 @@
     font-size: 14px;
 
     /deep/ .datatable-row-odd {
-        background-color: mat-color($accent);
+        background-color: var(--color-accent, lightgrey);
     }
 
     /deep/ .datatable-header-cell {
@@ -276,8 +275,8 @@
     /deep/ .datatable-body-row.active:hover .datatable-row-group,
     &.skinny /deep/ .datatable-body-row:hover .datatable-row-group,
     &.skinny /deep/ .datatable-body-row.active:hover .datatable-row-group {
-        background-color: $accent-bright-opacity;
-        color: $black-87-opacity;
+        background-color: var(--color-accent, lightgrey);
+        color: var(--color-text-main, dimgrey);
         cursor: pointer;
     }
 

@@ -43,7 +43,7 @@ export class SaveStateComponent implements OnInit {
 
     public formData: any = {
         exportFormat: 0,
-        currentTheme: 'neon-green-theme',
+        currentTheme: 'neon-teal',
         newStateName: '',
         stateToLoad: '',
         stateToDelete: ''
@@ -65,7 +65,7 @@ export class SaveStateComponent implements OnInit {
 
     ngOnInit() {
         this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
-        this.formData.currentTheme = this.themesService.getCurrentTheme().id;
+        this.formData.currentTheme = this.themesService.getCurrentTheme();
         this.messenger = new neon.eventing.Messenger();
         this.loadStateNames();
     }
@@ -261,7 +261,7 @@ export class SaveStateComponent implements OnInit {
         this.snackBar.open(message, 'x', {
             duration: 5000,
             verticalPosition: 'top',
-            panelClass: ['simpleSnackBar']
+            panelClass: [this.themesService.getCurrentTheme(), 'simpleSnackBar']
          });
     }
 }
