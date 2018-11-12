@@ -81,7 +81,7 @@
                         ["createdDate", 150],
                         ["audioLink", 225]
                     ],
-                    "filterable": true,
+                    "filterable": false,
                     "filterFields": ["_id"],
                     "singleFilter": true,
                     "ignoreSelf": false,
@@ -115,6 +115,7 @@
                             "title": "Map",
                             "database": "test_data_audio",
                             "table": "annotations",
+                            "idField": "_id",
                             "latitudeField": "pgeos.lat",
                             "longitudeField": "pgeos.lon",
                             "dateField": "createdDate",

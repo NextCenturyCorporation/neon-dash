@@ -43,25 +43,49 @@ export class QueryBarOptions extends BaseNeonOptions {
     public extensionFields: any[];
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
+     *
+     * @arg {any} bindings
+     * @return {any}
+     * @override
+     */
+    appendNonFieldBindings(bindings: any): any {
+        return bindings;
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'filterField',
+            'idField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    onInit() {
+    initializeNonFieldBindings() {
         this.id = this.injector.get('id', '');
         this.placeHolder = this.injector.get('placeHolder', 'Query');
         this.extendedFilter = this.injector.get('extendedFilter', false);
         this.extensionFields = this.injector.get('extensionFields', []);
-    }
-
-    /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
-     *
-     * @override
-     */
-    updateFieldsOnTableChanged() {
-        this.idField = this.findFieldObject('idField');
-        this.filterField = this.findFieldObject('filterField');
     }
 }
 
@@ -194,16 +218,6 @@ export class QueryBarComponent  extends BaseNeonComponent {
             visualization: this.visualization,
             headerText: this.queryBar
         };
-    }
-
-    /**
-     * Returns the Query Bar export fields.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        return [];
     }
 
     /**
@@ -438,19 +452,6 @@ export class QueryBarComponent  extends BaseNeonComponent {
      */
     setupFilters() {
         //
-    }
-
-    /**
-     * Sets the given bindings for the Query Bar.
-     *
-     * @arg {any} bindings
-     * @override
-     */
-    subGetBindings(bindings: any) {
-        bindings.idField = this.options.idField.columnName;
-        bindings.filterField = this.options.filterField.columnName;
-        bindings.extendedFilter = this.options.extendedFilter;
-        bindings.extensionFields = this.options.extensionFields;
     }
 
     /**

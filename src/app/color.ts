@@ -24,6 +24,26 @@ export class Color {
     private blue: number;
 
     /**
+     * Creates and returns a Color object using the given Hex string like #123 or #112233.
+     * @arg {string} inputHex
+     * @return {Color}
+     */
+    static fromHexString(inputHex: string): Color {
+        // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+        let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+        let hex = inputHex.replace(shorthandRegex, function(m, r, g, b) {
+            return r + r + g + g + b + b;
+        });
+
+        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? new Color(
+            parseInt(result[1], 16),
+            parseInt(result[2], 16),
+            parseInt(result[3], 16)
+        ) : null;
+    }
+
+    /**
      * Create a color object from an array of RGB values.
      * The array must have 3 elements in it
      * @arg {number[]} rgb
@@ -125,7 +145,8 @@ export class Color {
  * A set of colors, used to keep track of which values map to which colors
  */
 export class ColorSet {
-    private COLORS: Color[] = [
+    // TODO Move to ThemesService
+    private colors: Color[] = [
         // NEON TEAL COLOR THEME
         new Color(255, 135, 55),  // #FF8737 (orange)
         new Color(94, 80, 143),   // #5E508F (deep purple)
@@ -137,9 +158,10 @@ export class ColorSet {
         new Color(255, 107, 86)   // #FF6b56 (deep orange)
     ];
     private currentIndex: number = 0;
-    private colorMap: Map<string, Color> = new Map<string, Color>();
 
-    constructor(private colorKey: string, private databaseName: string, private tableName: string, private fieldName: string) {
+    constructor(private colorKey: string, private databaseName: string, private tableName: string, private fieldName: string,
+        private valueToColor: Map<string, Color> = new Map<string, Color>()) {
+
         // Do nothing.
     }
 
@@ -159,11 +181,11 @@ export class ColorSet {
      * @return {Color}
      */
     getColorForValue(value: string): Color {
-        let color = this.colorMap.get(value);
+        let color = this.valueToColor.get(value);
         if (!color) {
-            color = this.COLORS[this.currentIndex];
-            this.colorMap.set(value, color);
-            this.currentIndex = (this.currentIndex + 1) % this.COLORS.length;
+            color = this.colors[this.currentIndex];
+            this.valueToColor.set(value, color);
+            this.currentIndex = (this.currentIndex + 1) % this.colors.length;
         }
         return color;
     }
@@ -174,7 +196,7 @@ export class ColorSet {
      * @return {Map<string, Color>}
      */
     getColorMap(): Map<string, Color> {
-        return this.colorMap;
+        return this.valueToColor;
     }
 
     /**
@@ -183,6 +205,6 @@ export class ColorSet {
      * @return {string[]}
      */
     getAllKeys(): string[] {
-        return Array.from(this.colorMap.keys()).sort();
+        return Array.from(this.valueToColor.keys()).sort();
     }
 }

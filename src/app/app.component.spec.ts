@@ -20,12 +20,12 @@ import { APP_BASE_HREF, CommonModule } from '@angular/common';
 
 import 'hammerjs';
 
+import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { AppComponent } from './app.component';
 import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
-import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
@@ -35,7 +35,9 @@ import { LegendComponent } from './components/legend/legend.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components//map/map.component';
 import { SampleComponent } from './components/sample/sample.component';
+import { SaveStateComponent } from './components/save-state/save-state.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
+import { SettingsComponent } from './components/settings/settings.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
@@ -50,7 +52,6 @@ import { ConnectionService } from './services/connection.service';
 import { ErrorNotificationService } from './services/error-notification.service';
 import { ExportService } from './services/export.service';
 import { FilterService } from './services/filter.service';
-
 import { ParameterService } from './services/parameter.service';
 import { ThemesService } from './services/themes.service';
 import { VisualizationService } from './services/visualization.service';
@@ -87,13 +88,13 @@ describe('App: NeonGtd', () => {
         TestBed.configureTestingModule({
             declarations: [
                 ChartComponent,
+                AddVisualizationComponent,
                 AppComponent,
                 AboutNeonComponent,
                 AggregationComponent,
                 AnnotationViewerComponent,
                 BarChartComponent,
                 ChartComponent,
-                DashboardOptionsComponent,
                 DatasetSelectorComponent,
                 DataTableComponent,
                 DocumentViewerComponent,
@@ -107,7 +108,9 @@ describe('App: NeonGtd', () => {
                 NewsFeedComponent,
                 QueryBarComponent,
                 SampleComponent,
+                SaveStateComponent,
                 ScatterPlotComponent,
+                SettingsComponent,
                 SimpleFilterComponent,
                 TextCloudComponent,
                 ThumbnailDetailsContractedComponent,
@@ -165,8 +168,7 @@ describe('App: NeonGtd', () => {
         expect(debugElement.nativeElement.querySelectorAll('app-dataset-selector')).toBeTruthy();
         // Since the about pane and options pane are rendered only after a user opens their sidenav area,
         // these should not exist upon initial render.
-        expect(debugElement.nativeElement.querySelectorAll('app-about-neon').length === 0).toBeTruthy();
-        expect(debugElement.nativeElement.querySelectorAll('app-dashboard-options').length === 0).toBeTruthy();
+        expect(debugElement.nativeElement.querySelectorAll('app-right-panel').length === 0).toBeTruthy();
     }));
 
     it('addWidget does add the given widget with specified position to the grid', async(() => {

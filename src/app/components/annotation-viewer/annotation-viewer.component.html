@@ -59,7 +59,7 @@
                 <mat-form-field>
                     <mat-select placeholder="Document Text Field" [(ngModel)]="options.documentTextField" required="true" (ngModelChange)="handleChangeFilterField()"
                         [disabled]="options.fields.length == 0">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -68,7 +68,7 @@
                 <mat-form-field>
                     <mat-select placeholder="ID Field" [(ngModel)]="options.idField" required="false" (ngModelChange)="handleChangeFilterField()"
                         [disabled]="options.fields.length == 0">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -77,7 +77,7 @@
                 <mat-form-field>
                     <mat-select placeholder="Link Field" [(ngModel)]="options.linkField" required="false" (ngModelChange)="handleChangeFilterField()"
                         [disabled]="options.fields.length == 0">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -110,7 +110,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Annotation Start Character Field" [(ngModel)]="options.startCharacterField" required="true" [disabled]="options.fields.length == 0">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -118,7 +118,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Annotation End Character Field" [(ngModel)]="options.endCharacterField" required="true" [disabled]="options.fields.length == 0">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -126,7 +126,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Annotation Text Field" [(ngModel)]="options.textField" required="true" [disabled]="options.fields.length == 0">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -134,7 +134,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Annotation Type Field" [(ngModel)]="options.typeField" required="true" [disabled]="options.fields.length == 0">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>

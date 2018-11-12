@@ -49,20 +49,42 @@ import * as _ from 'lodash';
 
 export class TestOptions extends BaseNeonOptions {
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
      *
+     * @arg {any} bindings
+     * @return {any}
      * @override
      */
-    onInit() {
-        // Do nothing.
+    appendNonFieldBindings(bindings: any): any {
+        return bindings;
     }
 
     /**
-     * Initializes all the field options for the specific visualization.
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    updateFieldsOnTableChanged() {
+    initializeNonFieldBindings() {
         // Do nothing.
     }
 }
@@ -112,10 +134,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         //Get an option from the visualization's config
     }
 
-    subGetBindings(bindings: any) {
-        //
-    }
-
     createQuery() {
         let query = new neon.query.Query();
         return query;
@@ -127,14 +145,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
 
     getElementRefs() {
         return {};
-    }
-
-    getExportFields() {
-        let fields = [{
-            columnName: 'value',
-            prettyName: 'Count'
-        }];
-        return fields;
     }
 
     getFiltersToIgnore() {
@@ -254,6 +264,21 @@ describe('Component: BaseNeonOptions', () => {
         expect(options.unsharedFilterValue).toEqual('');
     });
 
+    it('createBindings does return expected object', () => {
+        expect(options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 10,
+            table: 'testTable1',
+            title: 'TestName',
+            unsharedFilterValue: '',
+            unsharedFilterField: ''
+        });
+    });
+
     it('findField does return expected object or undefined', () => {
         expect(options.findField('testDateField')).toEqual(DatasetServiceMock.DATE_FIELD);
         expect(options.findField('testNameField')).toEqual(DatasetServiceMock.NAME_FIELD);
@@ -297,10 +322,20 @@ describe('Component: BaseNeonOptions', () => {
         expect(options.findFieldObjects('fakeBind')).toEqual([]);
     });
 
-    it('updateDatabases does update databases, tables, and fields and does call updateFieldsOnTableChanged', () => {
-        let spy = spyOn(options, 'updateFieldsOnTableChanged');
+    it('getAllFieldArrayProperties does return expected array', () => {
+        expect(options.getAllFieldArrayProperties()).toEqual([]);
+    });
+
+    it('getAllFieldProperties does return expected array', () => {
+        expect(options.getAllFieldProperties()).toEqual(['unsharedFilterField']);
+    });
+
+    it('getExportFields does return expected array', () => {
+        expect(options.getExportFields()).toEqual([]);
+    });
+
+    it('updateDatabases does update databases, tables, and fields', () => {
         options.updateDatabases();
-        expect(spy.calls.count()).toBe(1);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -308,14 +343,12 @@ describe('Component: BaseNeonOptions', () => {
         expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
     });
 
-    it('updateFields does update fields and does call updateFieldsOnTableChanged', () => {
-        let spy = spyOn(options, 'updateFieldsOnTableChanged');
+    it('updateFields does update fields', () => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
         options.tables = DatasetServiceMock.TABLES;
         options.table = DatasetServiceMock.TABLES[0];
         options.updateFields();
-        expect(spy.calls.count()).toBe(1);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -323,12 +356,10 @@ describe('Component: BaseNeonOptions', () => {
         expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
     });
 
-    it('updateTables does update tables and fields and does call updateFieldsOnTableChanged', () => {
-        let spy = spyOn(options, 'updateFieldsOnTableChanged');
+    it('updateTables does update tables and fields', () => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
         options.updateTables();
-        expect(spy.calls.count()).toBe(1);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -421,10 +452,39 @@ describe('Component: BaseNeonOptions with config', () => {
         expect(options.unsharedFilterValue).toEqual('testFilterValue');
     });
 
+    it('createBindings does return expected object', () => {
+        expect(options.createBindings()).toEqual({
+            configFilter: {
+                lhs: 'testConfigField',
+                operator: '!=',
+                rhs: 'testConfigValue'
+            },
+            customEventsToPublish: [{
+                id: 'testPublishId',
+                fields: [{
+                    columnName: 'testPublishColumnName',
+                    prettyName: 'testPublishPrettyName'
+                }]
+            }],
+            customEventsToReceive: [{
+                id: 'testReceiveId',
+                fields: [{
+                    columnName: 'testReceiveColumnName',
+                    type: 'testReceiveType'
+                }]
+            }],
+            database: 'testDatabase2',
+            hideUnfiltered: true,
+            limit: 1234,
+            table: 'testTable2',
+            title: 'VisualizationTitle',
+            unsharedFilterValue: 'testFilterValue',
+            unsharedFilterField: 'testFilterField'
+        });
+    });
+
     it('updateDatabases does update database if given an array index', () => {
-        let spy = spyOn(options, 'updateFieldsOnTableChanged');
         options.updateDatabases();
-        expect(spy.calls.count()).toBe(1);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[1]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -433,7 +493,6 @@ describe('Component: BaseNeonOptions with config', () => {
     });
 
     it('updateFields does update unshared filter', () => {
-        let spy = spyOn(options, 'updateFieldsOnTableChanged');
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
         options.tables = DatasetServiceMock.TABLES;
@@ -441,17 +500,13 @@ describe('Component: BaseNeonOptions with config', () => {
         options.unsharedFilterField = null;
         options.unsharedFilterValue = null;
         options.updateFields();
-        expect(spy.calls.count()).toBe(1);
         expect(options.unsharedFilterField).toEqual(DatasetServiceMock.FILTER_FIELD);
-        expect(options.unsharedFilterValue).toEqual('testFilterValue');
     });
 
     it('updateTables does update tables if given an array index', () => {
-        let spy = spyOn(options, 'updateFieldsOnTableChanged');
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
         options.updateTables();
-        expect(spy.calls.count()).toBe(1);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -501,12 +556,16 @@ describe('Component: base-neon', () => {
         component.getOptions().database = new DatabaseMetaData('testDatabase1');
         component.getOptions().table = new TableMetaData('testTable1');
         expect(component.getBindings()).toEqual({
-            title: 'TestName',
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
             database: 'testDatabase1',
+            hideUnfiltered: false,
+            limit: 10,
             table: 'testTable1',
-            unsharedFilterField: '',
+            title: 'TestName',
             unsharedFilterValue: '',
-            limit: 10
+            unsharedFilterField: ''
         });
     }));
 
@@ -545,9 +604,8 @@ describe('Component: base-neon', () => {
         expect(spy.calls.count()).toBe(1);
     }));
 
-    it('handleChangeDatabase does update options and does call updateFieldsOnTableChanged and logChangeAndStartQueryChain', () => {
+    it('handleChangeDatabase does update options and does call logChangeAndStartQueryChain', () => {
         let options = component.getOptions();
-        let spyUpdate = spyOn(options, 'updateFieldsOnTableChanged');
         let spyLog = spyOn(component, 'logChangeAndStartQueryChain');
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
@@ -555,7 +613,6 @@ describe('Component: base-neon', () => {
         options.table = null;
         options.fields = [];
         component.handleChangeDatabase();
-        expect(spyUpdate.calls.count()).toBe(1);
         expect(spyLog.calls.count()).toBe(1);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
@@ -566,9 +623,8 @@ describe('Component: base-neon', () => {
         expect(options.unsharedFilterValue).toEqual('');
     });
 
-    it('handleChangeTable does update options and does call updateFieldsOnTableChanged and logChangeAndStartQueryChain', () => {
+    it('handleChangeTable does update options and does call logChangeAndStartQueryChain', () => {
         let options = component.getOptions();
-        let spyUpdate = spyOn(options, 'updateFieldsOnTableChanged');
         let spyLog = spyOn(component, 'logChangeAndStartQueryChain');
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
@@ -576,7 +632,6 @@ describe('Component: base-neon', () => {
         options.table = DatasetServiceMock.TABLES[0];
         options.fields = [];
         component.handleChangeTable();
-        expect(spyUpdate.calls.count()).toBe(1);
         expect(spyLog.calls.count()).toBe(1);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);

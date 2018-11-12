@@ -68,7 +68,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Name Field" [(ngModel)]="options.nameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -76,7 +76,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Type Field" [(ngModel)]="options.typeField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -128,7 +128,7 @@
     <div *ngIf="options.url == ''">
         <div *ngIf="noDataId && tabsAndMedia.length == 0" class="viewer-text">No Data: {{ noDataId }}</div>
 
-        <mat-tab-group *ngIf="tabsAndMedia.length > 1" [selectedIndex]="selectedTabIndex" (selectedTabChange)="subOnResizeStop()">
+        <mat-tab-group *ngIf="tabsAndMedia.length > 1" [selectedIndex]="selectedTabIndex" (selectedTabChange)="subOnResizeStop($event)">
             <mat-tab class="tab" *ngFor="let tab of tabsAndMedia" [label]="tab.name">
                 <div [ngSwitch]="tab.selected.type">
                     <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
