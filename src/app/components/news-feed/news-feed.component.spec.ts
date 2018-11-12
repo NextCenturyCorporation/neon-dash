@@ -79,14 +79,14 @@ describe('Component: NewsFeed', () => {
     it('does have expected class options properties', () => {
         expect(component.options.id).toEqual('');
         expect(component.options.ignoreSelf).toEqual(false);
-        expect(component.options.contentField).toEqual(component.emptyField);
-        expect(component.options.dateField).toEqual(component.emptyField);
-        expect(component.options.filterField).toEqual(component.emptyField);
-        expect(component.options.idField).toEqual(component.emptyField);
-        expect(component.options.linkField).toEqual(component.emptyField);
-        expect(component.options.primaryTitleField).toEqual(component.emptyField);
-        expect(component.options.secondaryTitleField).toEqual(component.emptyField);
-        expect(component.options.sortField).toEqual(component.emptyField);
+        expect(component.options.contentField).toEqual(new FieldMetaData());
+        expect(component.options.dateField).toEqual(new FieldMetaData());
+        expect(component.options.filterField).toEqual(new FieldMetaData());
+        expect(component.options.idField).toEqual(new FieldMetaData());
+        expect(component.options.linkField).toEqual(new FieldMetaData());
+        expect(component.options.primaryTitleField).toEqual(new FieldMetaData());
+        expect(component.options.secondaryTitleField).toEqual(new FieldMetaData());
+        expect(component.options.sortField).toEqual(new FieldMetaData());
     });
 
     it('does have expected class properties', () => {
@@ -606,70 +606,6 @@ describe('Component: NewsFeed', () => {
         //expect(refs.filter).toBeDefined();
     });
 
-    //for getExportField method
-    it('getExportFields does return expected array', () => {
-        expect(component.getExportFields()).toEqual([{
-            columnName: '',
-            prettyName: ''
-        }, {
-            columnName: '',
-            prettyName: ''
-        }, {
-            columnName: '',
-            prettyName: ''
-        }, {
-            columnName: '',
-            prettyName: ''
-        }, {
-            columnName: '',
-            prettyName: ''
-        }, {
-            columnName: '',
-            prettyName: ''
-        }, {
-            columnName: '',
-            prettyName: ''
-        }, {
-            columnName: '',
-            prettyName: ''
-        }]);
-
-        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        component.options.primaryTitleField = new FieldMetaData('testPrimaryTitleField', 'Test Primary Title Field');
-        component.options.secondaryTitleField = new FieldMetaData('testSecondaryTitleField', 'Test Secondary Title Field');
-        component.options.contentField = new FieldMetaData('testContentTitleField', 'Test Content Title Field');
-        component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
-
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testFilterField',
-            prettyName: 'Test Filter Field'
-        }, {
-            columnName: 'testIdField',
-            prettyName: 'Test ID Field'
-        }, {
-            columnName: 'testLinkField',
-            prettyName: 'Test Link Field'
-        }, {
-            columnName: 'testDateField',
-            prettyName: 'Test Date Field'
-        }, {
-            columnName: 'testPrimaryTitleField',
-            prettyName: 'Test Primary Title Field'
-        }, {
-            columnName: 'testSecondaryTitleField',
-            prettyName: 'Test Secondary Title Field'
-        }, {
-            columnName: 'testContentTitleField',
-            prettyName: 'Test Content Title Field'
-        }, {
-            columnName: 'testSortField',
-            prettyName: 'Test Sort Field'
-        }]);
-    });
-
     //for getFiltersToIgnore Method
     it('getFiltersToIgnore does return null if no filters are set', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
@@ -990,11 +926,11 @@ describe('Component: NewsFeed', () => {
     it('isSelectable does return expected boolean', () => {
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         expect(component.isSelectable()).toEqual(true);
-        component.options.filterField = component.emptyField;
+        component.options.filterField = new FieldMetaData();
 
         component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
         expect(component.isSelectable()).toEqual(true);
-        component.options.idField = component.emptyField;
+        component.options.idField = new FieldMetaData();
     });
 
     //for isSelected method
@@ -1262,11 +1198,18 @@ describe('Component: NewsFeed', () => {
         }));
     });
 
-    //for subGetBindings method
-    it('subGetBindings does set expected properties in bindings', () => {
-        let bindings1 = {};
-        component.subGetBindings(bindings1);
-        expect(bindings1).toEqual({
+    it('options.createBindings does set expected properties in bindings', () => {
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: '',
+            hideUnfiltered: false,
+            limit: 10,
+            table: '',
+            title: 'News Feed',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             idField: '',
             ignoreSelf: false,
             linkField: '',
@@ -1290,10 +1233,17 @@ describe('Component: NewsFeed', () => {
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
 
-        let bindings2 = {};
-        component.subGetBindings(bindings2);
-        expect(bindings2).toEqual({
-
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: '',
+            hideUnfiltered: false,
+            limit: 10,
+            table: '',
+            title: 'News Feed',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             idField: 'testIdField',
             ignoreSelf: false,
             linkField: 'testLinkField',

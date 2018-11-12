@@ -83,11 +83,11 @@ describe('Component: MediaViewer', () => {
         expect(component.options.resize).toEqual(true);
         expect(component.options.typeMap).toEqual({});
         expect(component.options.url).toEqual('');
-        expect(component.options.idField).toEqual(component.emptyField);
-        expect(component.options.linkField).toEqual(component.emptyField);
+        expect(component.options.idField).toEqual(new FieldMetaData());
+        expect(component.options.linkField).toEqual(new FieldMetaData());
         expect(component.options.linkFields).toEqual([]);
-        expect(component.options.nameField).toEqual(component.emptyField);
-        expect(component.options.typeField).toEqual(component.emptyField);
+        expect(component.options.nameField).toEqual(new FieldMetaData());
+        expect(component.options.typeField).toEqual(new FieldMetaData());
         expect(component.options.autoplay).toEqual(false);
     });
 
@@ -192,19 +192,6 @@ describe('Component: MediaViewer', () => {
         expect(refs.infoText).toBeDefined();
         expect(refs.visualization).toBeDefined();
     });
-
-    it('getExportFields does return expected array', (() => {
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
-
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testIdField',
-            prettyName: 'Test ID Field'
-        }, {
-            columnName: 'testLinkField',
-            prettyName: 'Test Link Field'
-        }]);
-    }));
 
     it('getFiltersToIgnore does return empty array if no filters are set', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
@@ -516,7 +503,7 @@ describe('Component: MediaViewer', () => {
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
             slider: 0,
-            name: 'testNameValue 1',
+            name: '1: testNameValue',
             selected: {
                 border: '',
                 link: 'testLinkValue1',
@@ -534,7 +521,7 @@ describe('Component: MediaViewer', () => {
         }, {
             loaded: false,
             slider: 0,
-            name: 'testNameValue 2',
+            name: '2: testNameValue',
             selected: {
                 border: '',
                 link: 'testLinkValue2',
@@ -578,7 +565,7 @@ describe('Component: MediaViewer', () => {
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
             slider: 0,
-            name: 'testNameValue1',
+            name: '1: testNameValue1',
             selected: {
                 border: '',
                 link: 'testLinkValue1',
@@ -596,7 +583,7 @@ describe('Component: MediaViewer', () => {
         }, {
             loaded: false,
             slider: 0,
-            name: 'testNameValue2',
+            name: '2: testNameValue2',
             selected: {
                 border: '',
                 link: 'testLinkValue2',
@@ -817,7 +804,7 @@ describe('Component: MediaViewer', () => {
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
             slider: 0,
-            name: 'video.avi',
+            name: '1: video.avi',
             selected: {
                 border: '',
                 link: 'video.avi',
@@ -835,7 +822,7 @@ describe('Component: MediaViewer', () => {
         }, {
             loaded: false,
             slider: 0,
-            name: 'image.jpg',
+            name: '2: image.jpg',
             selected: {
                 border: '',
                 link: 'image.jpg',
@@ -853,7 +840,7 @@ describe('Component: MediaViewer', () => {
         }, {
             loaded: false,
             slider: 0,
-            name: 'alpha.txt',
+            name: '3: alpha.txt',
             selected: {
                 border: '',
                 link: 'alpha.txt',
@@ -871,7 +858,7 @@ describe('Component: MediaViewer', () => {
         }, {
             loaded: false,
             slider: 0,
-            name: 'audio.wav',
+            name: '4: audio.wav',
             selected: {
                 border: '',
                 link: 'audio.wav',
@@ -889,7 +876,7 @@ describe('Component: MediaViewer', () => {
         }, {
             loaded: false,
             slider: 0,
-            name: 'other.xyz',
+            name: '5: other.xyz',
             selected: {
                 border: '',
                 link: 'other.xyz',
@@ -931,17 +918,25 @@ describe('Component: MediaViewer', () => {
         expect(component.setupFilters).toBeDefined();
     }));
 
-    it('subGetBindings does set expected bindings', (() => {
-        let bindings = {};
-
-        component.subGetBindings(bindings);
-        expect(bindings).toEqual({
+    it('options.createBindings does set expected bindings', (() => {
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: '',
+            hideUnfiltered: false,
+            limit: 10,
+            table: '',
+            title: 'Media Viewer',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             idField: '',
             linkField: '',
             linkFields: [],
             maskField: '',
             nameField: '',
             typeField: '',
+            autoplay: false,
             border: '',
             clearMedia: false,
             delimiter: ',',
@@ -949,8 +944,7 @@ describe('Component: MediaViewer', () => {
             oneTabPerArray: false,
             resize: true,
             sliderValue: 0,
-            typeMap: {},
-            autoplay: false
+            typeMap: {}
         });
 
         component.options.idField = DatasetServiceMock.ID_FIELD;
@@ -959,6 +953,7 @@ describe('Component: MediaViewer', () => {
         component.options.maskField = new FieldMetaData('testMaskField');
         component.options.nameField = DatasetServiceMock.NAME_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.autoplay = true;
         component.options.border = 'grey';
         component.options.clearMedia = true;
         component.options.delimiter = ';';
@@ -969,16 +964,25 @@ describe('Component: MediaViewer', () => {
         component.options.typeMap = {
             jpg: 'img'
         };
-        component.options.autoplay = true;
 
-        component.subGetBindings(bindings);
-        expect(bindings).toEqual({
+        expect(component.options.createBindings()).toEqual({
+            configFilter: undefined,
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: '',
+            hideUnfiltered: false,
+            limit: 10,
+            table: '',
+            title: 'Media Viewer',
+            unsharedFilterValue: '',
+            unsharedFilterField: '',
             idField: 'testIdField',
             linkField: 'testLinkField',
             linkFields: ['testLinkField1', 'testLinkField2'],
             maskField: 'testMaskField',
             nameField: 'testNameField',
             typeField: 'testTypeField',
+            autoplay: true,
             border: 'grey',
             clearMedia: true,
             delimiter: ';',
@@ -988,8 +992,7 @@ describe('Component: MediaViewer', () => {
             sliderValue: 0.5,
             typeMap: {
                 jpg: 'img'
-            },
-            autoplay: true
+            }
         });
     }));
 

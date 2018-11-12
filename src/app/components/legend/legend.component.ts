@@ -68,7 +68,7 @@ export class LegendComponent implements OnInit {
      * Event triggered when an item in the legend has been selected.
      * The event includes the field name, value, and a boolean if the value is currently selected
      */
-    @Output() itemSelected = new EventEmitter<{fieldName: string, value: string, currentlyActive: boolean}>();
+    @Output() itemSelected = new EventEmitter<{ fieldName: string, value: string, currentlyActive: boolean }>();
 
     @ViewChild('menu') menu: ElementRef;
 

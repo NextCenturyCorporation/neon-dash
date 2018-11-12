@@ -36,7 +36,7 @@ import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 
@@ -49,22 +49,46 @@ export class WikiViewerOptions extends BaseNeonOptions {
     public linkField: FieldMetaData;
 
     /**
-     * Initializes all the non-field options for the specific visualization.
+     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
      *
+     * @arg {any} bindings
+     * @return {any}
      * @override
      */
-    onInit() {
-        this.id = this.injector.get('id', '');
+    appendNonFieldBindings(bindings: any): any {
+        return bindings;
     }
 
     /**
-     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
+     * Returns the list of field properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldProperties(): string[] {
+        return [
+            'idField',
+            'linkField'
+        ];
+    }
+
+    /**
+     * Returns the list of field array properties for the specific visualization.
+     *
+     * @return {string[]}
+     * @override
+     */
+    getFieldArrayProperties(): string[] {
+        return [];
+    }
+
+    /**
+     * Initializes all the non-field bindings for the specific visualization.
      *
      * @override
      */
-    updateFieldsOnTableChanged() {
-        this.idField = this.findFieldObject('idField');
-        this.linkField = this.findFieldObject('linkField');
+    initializeNonFieldBindings() {
+        this.id = this.injector.get('id', '');
     }
 }
 
@@ -184,22 +208,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     getOptions(): BaseNeonOptions {
         return this.options;
-    }
-
-    /**
-     * Returns the wiki viewer export fields.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        return [{
-            columnName: this.options.idField.columnName,
-            prettyName: this.options.idField.prettyName
-        }, {
-            columnName: this.options.linkField.columnName,
-            prettyName: this.options.linkField.prettyName
-        }];
     }
 
     /**
@@ -364,17 +372,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     setupFilters() {
         // Do nothing.
-    }
-
-    /**
-     * Sets the given bindings for the wiki viewer.
-     *
-     * @arg {any} bindings
-     * @override
-     */
-    subGetBindings(bindings: any) {
-        bindings.idField = this.options.idField.columnName;
-        bindings.linkField = this.options.linkField.columnName;
     }
 
     /**

@@ -26,4 +26,5 @@ export class NeonGTDConfig {
     datasets: Dataset[] = [];
     layouts: { [ key: string ]: any } = {};
     errors: String[];
+    neonServerUrl: string;
 }

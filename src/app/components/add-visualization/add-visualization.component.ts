@@ -13,28 +13,32 @@
  * limitations under the License.
  *
  */
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnInit } from '@angular/core';
 import { MatDialogRef, MatSnackBar } from '@angular/material';
 
-import { ThemesService } from '../../services/themes.service';
 import { neonEvents, neonVisualizations } from '../../neon-namespaces';
+import { ThemesService } from '../../services/themes.service';
 import * as neon from 'neon-framework';
 
 @Component({
-  selector: 'app-add-visualization-dialog',
-  templateUrl: './add-visualization.component.html',
-  styleUrls: ['./add-visualization.component.scss']
+    selector: 'app-add-visualization',
+    templateUrl: 'add-visualization.component.html',
+    styleUrls: ['add-visualization.component.scss']
 })
 export class AddVisualizationComponent implements OnInit {
-
-    private messenger: neon.eventing.Messenger;
-
+    public chartsAndGraph: any[];
+    public GridsAndTable: any[];
+    public viewer: any[];
     public visualizations: any[];
     public selectedIndex: number = -1;
+    public showVisShortcut: boolean = true;
 
-    constructor(public themesService: ThemesService, public dialogRef: MatDialogRef<AddVisualizationComponent>,
-        public snackBar: MatSnackBar) {
+    public messenger: neon.eventing.Messenger;
 
+    constructor(
+        public snackBar: MatSnackBar,
+        public themesService: ThemesService
+    ) {
         this.messenger = new neon.eventing.Messenger();
     }
 
@@ -42,6 +46,9 @@ export class AddVisualizationComponent implements OnInit {
         // Ignore the sample visualization.
         this.visualizations = neonVisualizations.filter((visualization) => {
             return visualization.type !== 'sample';
+        });
+        this.messenger.subscribe('showVisShortcut', (message) => {
+            this.showVisShortcut = message.showVisShortcut;
         });
     }
 
@@ -56,14 +63,17 @@ export class AddVisualizationComponent implements OnInit {
             widget: this.visualizations[index]
         });
 
-        if (!shiftKey) {
-            this.dialogRef.close();
-        }
-
-         this.snackBar.open('Visualization Added', 'x', {
+        this.snackBar.open('Visualization Added', 'x', {
             duration: 5000,
             verticalPosition: 'top',
             panelClass: [this.themesService.getCurrentTheme(), 'simpleSnackBar']
          });
+    }
+
+    publishShowVisShortcut() {
+        this.showVisShortcut = !this.showVisShortcut;
+        this.messenger.publish('showVisShortcut', {
+            showVisShortcut: this.showVisShortcut
+        });
     }
 }

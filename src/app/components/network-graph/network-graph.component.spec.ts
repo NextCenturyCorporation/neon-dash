@@ -104,17 +104,17 @@ describe('Component: NetworkGraph', () => {
         expect(component.options.cleanLegendLabels).toEqual(false);
         expect(component.options.legendFiltering).toEqual(true);
 
-        expect(component.options.nodeColorField).toEqual(component.emptyField);
-        expect(component.options.edgeColorField).toEqual(component.emptyField);
-        expect(component.options.linkField).toEqual(component.emptyField);
-        expect(component.options.linkNameField).toEqual(component.emptyField);
-        expect(component.options.nodeField).toEqual(component.emptyField);
-        expect(component.options.nodeNameField).toEqual(component.emptyField);
-        expect(component.options.typeField).toEqual(component.emptyField);
-        expect(component.options.xPositionField).toEqual(component.emptyField);
-        expect(component.options.yPositionField).toEqual(component.emptyField);
-        expect(component.options.xTargetPositionField).toEqual(component.emptyField);
-        expect(component.options.yTargetPositionField).toEqual(component.emptyField);
+        expect(component.options.nodeColorField).toEqual(new FieldMetaData());
+        expect(component.options.edgeColorField).toEqual(new FieldMetaData());
+        expect(component.options.linkField).toEqual(new FieldMetaData());
+        expect(component.options.linkNameField).toEqual(new FieldMetaData());
+        expect(component.options.nodeField).toEqual(new FieldMetaData());
+        expect(component.options.nodeNameField).toEqual(new FieldMetaData());
+        expect(component.options.typeField).toEqual(new FieldMetaData());
+        expect(component.options.xPositionField).toEqual(new FieldMetaData());
+        expect(component.options.yPositionField).toEqual(new FieldMetaData());
+        expect(component.options.xTargetPositionField).toEqual(new FieldMetaData());
+        expect(component.options.yTargetPositionField).toEqual(new FieldMetaData());
     });
 
     it('createQuery does return expected query', (() => {
