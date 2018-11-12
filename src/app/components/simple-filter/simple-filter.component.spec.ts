@@ -24,7 +24,7 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { SimpleFilterComponent } from './simple-filter.component';
-import { SimpleFilter, DashboardOptions } from '../../dataset';
+import { SimpleFilter, DashboardOptions, Dashboard } from '../../dataset';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
@@ -59,20 +59,17 @@ class MockDatasetService extends DatasetService {
         dashboardFieldKeys['fieldKey'] = 'datastore1.' + databaseName + '.' + tableName + '.' + fieldName;
         /* tslint:enable:no-string-literal */
 
-        this.setCurrentDashboard({
+        let dashboard = {
             name: 'Test Discovery Config',
             layout: 'DISCOVERY',
             datastore: 'datastore1',
             tables: dashboardTableKeys,
             fields: dashboardFieldKeys,
             options: new DashboardOptions()
-        });
+        };
+        dashboard.options.simpleFilter = new SimpleFilter(databaseName, tableName, fieldName, 'Search', '', 'tableKey', 'fieldKey');
+        this.setCurrentDashboard(dashboard);
         this.setCurrentDashboardName('test_discovery');
-        this.options.simpleFilter = new SimpleFilter('tableKey', 'fieldKey');
-    }
-
-    getCurrentDashboardOptions() {
-        return this.options;
     }
 }
 

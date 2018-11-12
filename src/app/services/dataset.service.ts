@@ -17,7 +17,7 @@ import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
 import { DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData,
-    Datastore, Dashboard, DashboardOptions, SimpleFilter } from '../dataset';
+    Datastore, Dashboard, DashboardOptions, SimpleFilter, Dataset } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import * as _ from 'lodash';
@@ -121,7 +121,9 @@ export class DatasetService {
 
     /**
      * Validate the choices map within each level of dashboards object, and make appropriate
-     * changes when expected values are missing.
+     * changes when expected values are missing. Also used to translate tableKey/fieldKey
+     * values into databaseName, tableName, and fieldName.
+     *
      * @param {Map<string, Dashboard>} dashboardChoices
      * @param {string[]} keys for dashboardChoices map
      */
@@ -145,6 +147,33 @@ export class DatasetService {
             if (dashboardChoices[choiceKey]) {
                 if (!dashboardChoices[choiceKey].name) {
                     dashboardChoices[choiceKey].name = choiceKey;
+                }
+
+                // If simpleFilter present in config, make sure to translate keys to database, table, and
+                // field names.
+                if (dashboardChoices[choiceKey].options
+                    && dashboardChoices[choiceKey].options.simpleFilter
+                    && dashboardChoices[choiceKey].options.simpleFilter.tableKey) {
+
+                    let tableKey = dashboardChoices[choiceKey].options.simpleFilter.tableKey;
+
+                    let databaseName = dashboardChoices[choiceKey].tables[tableKey].split('.')[1];
+                    let tableName = dashboardChoices[choiceKey].tables[tableKey].split('.')[2];
+
+                    dashboardChoices[choiceKey].options.simpleFilter.databaseName = databaseName;
+                    dashboardChoices[choiceKey].options.simpleFilter.tableName = tableName;
+
+                    if (dashboardChoices[choiceKey].options.simpleFilter.fieldKey) {
+                        let fieldKey = dashboardChoices[choiceKey].options.simpleFilter.fieldKey;
+                        let fieldName = dashboardChoices[choiceKey].fields[fieldKey].split('.')[3];
+
+                        dashboardChoices[choiceKey].options.simpleFilter.fieldName = fieldName;
+                    } else {
+                        dashboardChoices[choiceKey].options.simpleFilter.fieldName = '';
+                    }
+                } else if (dashboardChoices[choiceKey].options && dashboardChoices[choiceKey].options.simpleFilter) {
+                    // delete simpleFilter from config if no tableKey present
+                    delete dashboardChoices[choiceKey].options.simpleFilter;
                 }
 
                 // Only auto fill category if this is not the last level of nesting
@@ -319,17 +348,13 @@ export class DatasetService {
         return this.dashboards;
     }
 
-    // TODO: 872: rename active dataset simple filter methods? should be dashboard simple filter now
-    // TODO: 825: what should we do in the future if simpleFilter is undefined, since now we have
-    // optional field/table keys?
-    // TODO: 872: translate table/field keys ahead of time and pass around table/field NAMES instead
     /**
      *
      * @param simpleField The new field for the simple search
      */
-    public setActiveDatasetSimpleFilterFieldName(simpleField: FieldMetaData) {
+    public setCurrentDashboardSimpleFilterFieldName(simpleField: FieldMetaData) {
         this.createSimpleFilter();
-        this.currentDashboard.options.simpleFilter.fieldKey = simpleField.columnName;
+        this.currentDashboard.options.simpleFilter.fieldName = simpleField.columnName;
     }
 
     /**
@@ -352,7 +377,7 @@ export class DatasetService {
      * returns the simple search field
      * @return {string}
      */
-    public getActiveDatasetSimpleFilterFieldName(): string {
+    public getCurrentDashboardSimpleFilterFieldName(): string {
         this.createSimpleFilter();
         return this.currentDashboard.options.simpleFilter.fieldName;
     }

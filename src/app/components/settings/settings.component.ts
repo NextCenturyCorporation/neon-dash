@@ -74,9 +74,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.messenger = new neon.eventing.Messenger();
     }
 
-    // TODO: 872: fix fieldKeys to be fieldNames?
     changeSimpleSearchFilter() {
-        //this.datasetService.setActiveDatasetSimpleFilterFieldName(this.searchField);
+        this.datasetService.setCurrentDashboardSimpleFilterFieldName(this.searchField);
     }
 
     checkSimpleFilter() {
@@ -150,9 +149,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.options = this.datasetService.getActiveFields();
         }
 
-        if (this.datasetService.getActiveDatasetSimpleFilterFieldName()) {
-            this.searchField = new FieldMetaData(this.datasetService.getActiveDatasetSimpleFilterFieldName(),
-                this.datasetService.getActiveDatasetSimpleFilterFieldName());
+        if (this.datasetService.getCurrentDashboardSimpleFilterFieldName()) {
+            this.searchField = new FieldMetaData(this.datasetService.getCurrentDashboardSimpleFilterFieldName(),
+                this.datasetService.getCurrentDashboardSimpleFilterFieldName());
         }
     }
 

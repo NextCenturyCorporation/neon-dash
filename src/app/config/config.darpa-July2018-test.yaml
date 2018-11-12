@@ -69,8 +69,6 @@ dashboards:
                                 field_key_2: es1.ldc_uyg_jul_18.ui_out.translatedText
                             options:
                                 connectOnLoad: true
-                                # TODO: 872: translate table/field keys and go back to using
-                                # tableName and fieldName in components
                                 simpleFilter:
                                     tableKey: table_key_1
                                     fieldKey: field_key_2

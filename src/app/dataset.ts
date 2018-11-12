@@ -56,11 +56,13 @@ export class RelationMetaData {
 
 export class SimpleFilter {
     constructor(
-        public tableKey: string,
-        public fieldKey: string, // TODO: 872: need to use fieldName instead
-        public fieldName?: string,
+        public databaseName: string,
+        public tableName: string,
+        public fieldName: string,
         public placeHolder?: string,
-        public icon?: string
+        public icon?: string,
+        public tableKey?: string,
+        public fieldKey?: string
     ) {}
 }
 

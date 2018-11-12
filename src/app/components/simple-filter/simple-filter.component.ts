@@ -60,9 +60,9 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
         }
 
         let sf = this.simpleFilter.getValue(),
-            fieldName = this.datasetService.getFieldNameByKey(sf.fieldKey),
-            databaseName = this.datasetService.getDatabaseNameByKey(sf.tableKey),
-            tableName = this.datasetService.getTableNameByKey(sf.tableKey),
+            fieldName = this.datasetService.getCurrentDashboardSimpleFilterFieldName(),
+            databaseName = this.datasetService.getCurrentDashboardOptions().simpleFilter.databaseName,
+            tableName = this.datasetService.getCurrentDashboardOptions().simpleFilter.tableName,
             whereContains = neon.query.where(fieldName, 'contains', term),
             filterName = `simple filter for ${fieldName} containing '${term}'`,
             filterId = this.filterId.getValue(),
