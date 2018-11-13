@@ -147,12 +147,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.matIconRegistry.addSvgIcon(
             'filter_builder',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/filter_builder.svg')
+            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filter_builder.svg')
         );
 
         this.matIconRegistry.addSvgIcon(
             'filter_builder_active',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/filter_builder_active.svg')
+            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filter_builder_active.svg')
         );
 
         this.changeFavicon();
