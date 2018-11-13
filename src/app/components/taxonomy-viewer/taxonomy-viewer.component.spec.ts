@@ -50,10 +50,10 @@ describe('Component: TaxonomyViewer', () => {
     let fixture: ComponentFixture<TaxonomyViewerComponent>;
 
     let responseData = [{
-        testIdField: 'testId1',
-        testTypeField: ['testTypeA', 'testTypeB', 'testTypeC', 'testTypeD'],
-        testCategoryField: ['testCategoryI', 'testCategoryII']
-    },
+            testIdField: 'testId1',
+            testTypeField: ['testTypeA', 'testTypeB', 'testTypeC', 'testTypeD', 'testTypeF'],
+            testCategoryField: ['testCategoryI', 'testCategoryII']
+        },
         {
             testIdField: 'testId2',
             testTypeField: ['testTypeA', 'testTypeB', 'testTypeC', 'testTypeD', 'testTypeE', 'testTypeF', 'testTypeG', 'testTypeH'],
@@ -73,11 +73,11 @@ describe('Component: TaxonomyViewer', () => {
         {
             testIdField: 'testId5',
             testTypeField: ['testTypeH'],
-            testCategoryField: ['testCategoryII', 'testCategoryIII']
+            testCategoryField: ['testCategoryIII']
         },
         {
             testIdField: 'testId6',
-            testTypeField: ['testTypeE'],
+            testTypeField: ['testTypeE', 'testTypeF'],
             testCategoryField: ['testCategoryI', 'testCategoryIIII']
         }];
 
@@ -250,7 +250,7 @@ describe('Component: TaxonomyViewer', () => {
         expect(component.isValidQuery()).toBe(true);
     }));
 
-    it('onQuerySuccess does load the Taxonomy', (() => {
+    it('onQuerySuccess does load the Taxonomy with names', (() => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
@@ -270,7 +270,30 @@ describe('Component: TaxonomyViewer', () => {
         expect(component.taxonomyGroups[2].name).toEqual('testCategoryIII');
         expect(component.taxonomyGroups[2].children.length).toEqual(5);
         expect(component.taxonomyGroups[3].name).toEqual('testCategoryIIII');
-        expect(component.taxonomyGroups[3].children.length).toEqual(1);
+        expect(component.taxonomyGroups[3].children.length).toEqual(2);
+
+    }));
+
+    it('onQuerySuccess does load the Taxonomy with counts', (() => {
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.ascending  = true;
+
+        component.onQuerySuccess({
+            data: responseData
+        });
+
+        expect(component.taxonomyGroups[0].nodeCount).toEqual(3);
+        expect(component.taxonomyGroups[0].children[4].nodeCount).toEqual(4);
+        expect(component.taxonomyGroups[1].nodeCount).toEqual(2);
+        expect(component.taxonomyGroups[1].children[1].nodeCount).toEqual(2);
+        expect(component.taxonomyGroups[2].nodeCount).toEqual(3);
+        expect(component.taxonomyGroups[2].children[1].nodeCount).toEqual(3);
+        expect(component.taxonomyGroups[3].nodeCount).toEqual(1);
+        expect(component.taxonomyGroups[3].children[0].nodeCount).toEqual(4);
 
     }));
 
