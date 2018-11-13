@@ -57,13 +57,13 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
 
     /**
      * @constructor
-     * @arg {AggregationOptions} options
+     * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
      * @arg {boolean} [cannotSelect=false]
      * @arg {boolean} [horizontal=false]
      */
-    constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef,
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
         cannotSelect: boolean = false, protected horizontal: boolean = false) {
 
         super(options, listener, elementRef, cannotSelect);

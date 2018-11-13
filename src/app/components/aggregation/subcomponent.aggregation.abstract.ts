@@ -18,7 +18,10 @@ import { ElementRef } from '@angular/core';
 import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
 
+// TODO THOR-909 REMOVE
+/* tslint:disable:no-empty-interface */
 export interface AggregationSubcomponentOptions {
+    /*
     granularity: string;
     hideGridLines: boolean;
     hideGridTicks: boolean;
@@ -32,7 +35,9 @@ export interface AggregationSubcomponentOptions {
     scaleMinY: string;
     showHeat: boolean;
     yPercentage: number;
+     */
 }
+/* tslint:enable:no-empty-interface */
 
 export interface AggregationSubcomponentListener {
     /**
@@ -105,12 +110,12 @@ export interface AggregationSubcomponentListener {
 export abstract class AbstractAggregationSubcomponent {
     /**
      * @constructor
-     * @arg {AggregationSubcomponentOptions} options
+     * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
      */
     constructor(
-        protected options: AggregationSubcomponentOptions,
+        protected options: any,
         protected listener: AggregationSubcomponentListener,
         protected elementRef: ElementRef
     ) {}

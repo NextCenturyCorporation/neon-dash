@@ -103,12 +103,12 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * @constructor
-     * @arg {AggregationOptions} options
+     * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
      * @arg {boolean} [cannotSelect=false]
      */
-    constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef,
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
         protected cannotSelect: boolean = false) {
 
         super(options, listener, elementRef);
