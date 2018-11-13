@@ -42,7 +42,8 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | jquery@2.2.4 | [MIT](https://github.com/jquery/jquery/raw/master/LICENSE.txt) |
 | js-yaml@3.9.1 | [MIT](https://github.com/nodeca/js-yaml/raw/master/LICENSE) |
 | jsoneditor@5.9.6 | [Apache-2.0](https://github.com/josdejong/jsoneditor/raw/master/LICENSE) |
-| leaflet@1.2.0 | [BSD-2-Clause](https://github.com/Leaflet/Leaflet/raw/master/LICENSE) |
+| leaflet.markercluster@1.4.1 | [MIT](https://github.com/Leaflet/Leaflet.markercluster/raw/master/MIT-LICENCE.txt) |
+| leaflet@1.3.4 | [BSD-2-Clause](https://github.com/Leaflet/Leaflet/raw/master/LICENSE) |
 | less@2.7.2 | [Apache-2.0](https://github.com/less/less.js/raw/master/LICENSE) |
 | license-crawler@0.0.5 | [MIT](https://github.com/marcelwinh/license-crawler/raw/master/LICENSE) |
 | lodash@4.15.0 | [MIT](https://github.com/lodash/lodash/raw/master/LICENSE) |
