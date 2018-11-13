@@ -506,7 +506,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             group.nodeIds = [];
             data.forEach((d) => {
                 let id = neonUtilities.deepFind(d, this.options.idField.columnName);
-                if (neonUtilities.deepFind(d, group.description).includes(group.name) &&  !group.nodeIds.includes(id)) {
+                if (neonUtilities.deepFind(d, group.description).includes(group.name) && !group.nodeIds.includes(id)) {
                     group.nodeIds.push(neonUtilities.deepFind(d, this.options.idField.columnName));
                     count++;
                 }

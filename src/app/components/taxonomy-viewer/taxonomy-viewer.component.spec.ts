@@ -256,7 +256,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.ascending  = true;
+        component.options.ascending = true;
 
         component.onQuerySuccess({
             data: responseData
@@ -280,7 +280,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.ascending  = true;
+        component.options.ascending = true;
 
         component.onQuerySuccess({
             data: responseData
