@@ -146,11 +146,9 @@ describe('App: NeonGtd', () => {
                 { provide: DatasetService, useClass: DatasetServiceMock },
                 { provide: FilterService, useClass: FilterServiceMock},
                 ActiveGridService,
-                DatasetService,
                 ConnectionService,
                 ErrorNotificationService,
                 ExportService,
-                FilterService,
                 ParameterService,
                 ThemesService,
                 VisualizationService,
@@ -196,7 +194,7 @@ describe('App: NeonGtd', () => {
         expect(component.filterBuilderIcon).toEqual('filter_builder');
     }));
 
-    /*it('should correctly toggle the panels', async(() => {
+    it('should correctly toggle the panels', async(() => {
         component.setPanel('aboutNeon', 'About Neon');
         expect(component.currentPanel).toEqual('aboutNeon');
         expect(component.rightPanelTitle).toEqual('About Neon');
@@ -217,5 +215,5 @@ describe('App: NeonGtd', () => {
         expect(component.currentPanel).toEqual('settings');
         expect(component.rightPanelTitle).toEqual('Settings');
 
-    }));*/
+    })); //*/
 });
