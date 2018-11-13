@@ -13,7 +13,7 @@
         </mat-toolbar>
         <app-about-neon *ngIf="showAbout"></app-about-neon>
 
-        <mat-card align="left">
+        <mat-card position="left">
             <mat-card-content>
                 <app-dashboard-options #mainDashboardOptions *ngIf="!showAbout" [sidenav]="sidenavright"></app-dashboard-options>
 
@@ -64,8 +64,8 @@
         </a>
     </mat-toolbar>
 
-    <div class="header-toggle-container">
-        <div class="filter-builder-container" id="filter.builder" *ngIf="createFilterBuilder" >
+    <div class="header-toggle-container" id="filter.builder">
+        <div class="filter-builder-container" *ngIf="createFilterBuilder" >
             <app-filter-builder></app-filter-builder>
             <div class="filter-builder-footer" >
                 
