@@ -192,6 +192,10 @@ describe('App: NeonGtd', () => {
 
     it('should be showing correct filter builder icons', async(() => {
         expect(component.filterBuilderIcon).toEqual('filter_builder');
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testFilterField', '=', 'value1'), 'testFilterField');
+        fixture.detectChanges();
+        expect(component.filterBuilderIcon).toEqual('filter_builder_active');
     }));
 
     it('should correctly toggle the panels', async(() => {
@@ -215,5 +219,5 @@ describe('App: NeonGtd', () => {
         expect(component.currentPanel).toEqual('settings');
         expect(component.rightPanelTitle).toEqual('Settings');
 
-    })); //*/
+    }));
 });
