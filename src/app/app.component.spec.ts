@@ -79,9 +79,13 @@ import {
     ThumbnailDetailsContractedComponent,
     ThumbnailDetailsExpandedComponent
 } from './components/thumbnail-grid/thumbnail-details.component';
+import { DatasetServiceMock } from '../testUtils/MockServices/DatasetServiceMock';
+import { FilterServiceMock } from '../testUtils/MockServices/FilterServiceMock';
+import * as neon from 'neon-framework';
 
 describe('App: NeonGtd', () => {
-    let fixture: ComponentFixture<AppComponent>;
+    let fixture: ComponentFixture<AppComponent>,
+    getService = (type: any) => fixture.debugElement.injector.get(type);
     let debugElement: DebugElement;
     let component: AppComponent;
 
@@ -139,6 +143,8 @@ describe('App: NeonGtd', () => {
             providers: [
                 { provide: 'config', useValue: new NeonGTDConfig() },
                 { provide: APP_BASE_HREF, useValue: '/' },
+                { provide: DatasetService, useClass: DatasetServiceMock },
+                { provide: FilterService, useClass: FilterServiceMock},
                 ActiveGridService,
                 DatasetService,
                 ConnectionService,
@@ -185,4 +191,31 @@ describe('App: NeonGtd', () => {
 
         expect(component.createFilterBuilder).toEqual(false);
     }));
+
+    it('should be showing correct filter builder icons', async(() => {
+        expect(component.filterBuilderIcon).toEqual('filter_builder');
+    }));
+
+    /*it('should correctly toggle the panels', async(() => {
+        component.setPanel('aboutNeon', 'About Neon');
+        expect(component.currentPanel).toEqual('aboutNeon');
+        expect(component.rightPanelTitle).toEqual('About Neon');
+
+        component.setPanel('addVis', 'Visualization');
+        expect(component.currentPanel).toEqual('addVis');
+        expect(component.rightPanelTitle).toEqual('Visualization');
+
+        component.setPanel('dashboardLayouts', 'Dashboard Layouts');
+        expect(component.currentPanel).toEqual('dashboardLayouts');
+        expect(component.rightPanelTitle).toEqual('Dashboard Layouts');
+
+        component.setPanel('saveState', 'Save States');
+        expect(component.currentPanel).toEqual('saveState');
+        expect(component.rightPanelTitle).toEqual('Save States');
+
+        component.setPanel('settings', 'Settings');
+        expect(component.currentPanel).toEqual('settings');
+        expect(component.rightPanelTitle).toEqual('Settings');
+
+    }));*/
 });
