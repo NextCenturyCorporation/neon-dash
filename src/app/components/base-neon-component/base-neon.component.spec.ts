@@ -209,7 +209,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
 describe('Component: BaseNeonOptions', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: BaseNeonComponent;
-    let options: BaseNeonOptions;
+    let options: any;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
     initializeTestBed({
@@ -247,7 +247,7 @@ describe('Component: BaseNeonOptions', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(TestBaseNeonComponent);
         component = fixture.componentInstance;
-        options = component.getOptions();
+        options = component.options2;
         fixture.detectChanges();
     });
 
@@ -259,35 +259,20 @@ describe('Component: BaseNeonOptions', () => {
         expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
         expect(options.filter).toEqual(null);
         expect(options.hideUnfiltered).toEqual(false);
-        expect(options.limit).toEqual(10);
-        expect(options.newLimit).toEqual(10);
+        expect(options.limit).toEqual(100);
+        expect(component.newLimit).toEqual(100);
         expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.title).toEqual('TestName');
+        expect(options.title).toEqual('Temp');
         expect(options.unsharedFilterField).toEqual(new FieldMetaData());
         expect(options.unsharedFilterValue).toEqual('');
     });
 
-    it('createBindings does return expected object', () => {
-        expect(options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 10,
-            table: 'testTable1',
-            title: 'TestName',
-            unsharedFilterValue: '',
-            unsharedFilterField: ''
-        });
-    });
-
     it('findField does return expected object or undefined', () => {
-        expect(options.findField('testDateField')).toEqual(DatasetServiceMock.DATE_FIELD);
-        expect(options.findField('testNameField')).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect(options.findField('testSizeField')).toEqual(DatasetServiceMock.SIZE_FIELD);
-        expect(options.findField('testFakeField')).toEqual(undefined);
+        expect(component.findField(options.fields, 'testDateField')).toEqual(DatasetServiceMock.DATE_FIELD);
+        expect(component.findField(options.fields, 'testNameField')).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(component.findField(options.fields, 'testSizeField')).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(component.findField(options.fields, 'testFakeField')).toEqual(undefined);
     });
 
     it('findField does work as expected if given an array index', () => {
@@ -300,46 +285,37 @@ describe('Component: BaseNeonOptions', () => {
         let sizeIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => {
             return fieldObject.columnName === 'testSizeField';
         });
-        expect(options.findField('' + dateIndex)).toEqual(DatasetServiceMock.DATE_FIELD);
-        expect(options.findField('' + nameIndex)).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect(options.findField('' + sizeIndex)).toEqual(DatasetServiceMock.SIZE_FIELD);
-        expect(options.findField('' + DatasetServiceMock.FIELDS.length)).toEqual(undefined);
-        expect(options.findField('-1')).toEqual(undefined);
+        expect(component.findField(options.fields, '' + dateIndex)).toEqual(DatasetServiceMock.DATE_FIELD);
+        expect(component.findField(options.fields, '' + nameIndex)).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(component.findField(options.fields, '' + sizeIndex)).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(component.findField(options.fields, '' + DatasetServiceMock.FIELDS.length)).toEqual(undefined);
+        expect(component.findField(options.fields, '-1')).toEqual(undefined);
     });
 
     it('findFieldObject does return expected object', () => {
-        expect(options.findFieldObject('testDate')).toEqual(DatasetServiceMock.DATE_FIELD);
-        expect(options.findFieldObject('testName')).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect(options.findFieldObject('testSize')).toEqual(DatasetServiceMock.SIZE_FIELD);
-        expect(options.findFieldObject('testFake')).toEqual(new FieldMetaData());
-        expect(options.findFieldObject('fakeBind')).toEqual(new FieldMetaData());
+        expect(component.findFieldObject(options.fields, 'testDate')).toEqual(DatasetServiceMock.DATE_FIELD);
+        expect(component.findFieldObject(options.fields, 'testName')).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(component.findFieldObject(options.fields, 'testSize')).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(component.findFieldObject(options.fields, 'testFake')).toEqual(new FieldMetaData());
+        expect(component.findFieldObject(options.fields, 'fakeBind')).toEqual(new FieldMetaData());
     });
 
     it('findFieldObjects does return expected array', () => {
-        expect(options.findFieldObjects('testList')).toEqual([
+        expect(component.findFieldObjects(options.fields, 'testList')).toEqual([
             DatasetServiceMock.DATE_FIELD,
-            new FieldMetaData(),
             DatasetServiceMock.NAME_FIELD,
             DatasetServiceMock.SIZE_FIELD
         ]);
-        expect(options.findFieldObjects('testName')).toEqual([]);
-        expect(options.findFieldObjects('fakeBind')).toEqual([]);
-    });
-
-    it('getAllFieldArrayProperties does return expected array', () => {
-        expect(options.getAllFieldArrayProperties()).toEqual([]);
-    });
-
-    it('getAllFieldProperties does return expected array', () => {
-        expect(options.getAllFieldProperties()).toEqual(['unsharedFilterField']);
+        expect(component.findFieldObjects(options.fields, 'testName')).toEqual([]);
+        expect(component.findFieldObjects(options.fields, 'fakeBind')).toEqual([]);
     });
 
     it('getExportFields does return expected array', () => {
-        expect(options.getExportFields()).toEqual([]);
+        expect(component.getExportFields()).toEqual([]);
     });
 
-    it('updateDatabases does update databases, tables, and fields', () => {
-        options.updateDatabases();
+    it('updateDatabaseOptions does update databases, tables, and fields', () => {
+        component.updateDatabaseOptions(options);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -347,12 +323,12 @@ describe('Component: BaseNeonOptions', () => {
         expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
     });
 
-    it('updateFields does update fields', () => {
+    it('updateFieldOptions does update fields', () => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
         options.tables = DatasetServiceMock.TABLES;
         options.table = DatasetServiceMock.TABLES[0];
-        options.updateFields();
+        component.updateFieldOptions(options);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -360,10 +336,10 @@ describe('Component: BaseNeonOptions', () => {
         expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
     });
 
-    it('updateTables does update tables and fields', () => {
+    it('updateTableOptions does update tables and fields', () => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
-        options.updateTables();
+        component.updateTableOptions(options);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -375,7 +351,7 @@ describe('Component: BaseNeonOptions', () => {
 describe('Component: BaseNeonOptions with config', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: BaseNeonComponent;
-    let options: BaseNeonOptions;
+    let options: any;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
     initializeTestBed({
@@ -420,7 +396,7 @@ describe('Component: BaseNeonOptions with config', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(TestBaseNeonComponent);
         component = fixture.componentInstance;
-        options = component.getOptions();
+        options = component.options2;
         fixture.detectChanges();
     });
 
@@ -449,7 +425,7 @@ describe('Component: BaseNeonOptions with config', () => {
         });
         expect(options.hideUnfiltered).toEqual(true);
         expect(options.limit).toEqual(1234);
-        expect(options.newLimit).toEqual(1234);
+        expect(component.newLimit).toEqual(1234);
         expect(options.table).toEqual(DatasetServiceMock.TABLES[1]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
         expect(options.title).toEqual('VisualizationTitle');
@@ -457,13 +433,8 @@ describe('Component: BaseNeonOptions with config', () => {
         expect(options.unsharedFilterValue).toEqual('testFilterValue');
     });
 
-    it('createBindings does return expected object', () => {
-        expect(options.createBindings()).toEqual({
-            configFilter: {
-                lhs: 'testConfigField',
-                operator: '!=',
-                rhs: 'testConfigValue'
-            },
+    it('getBindings does return expected object', () => {
+        expect(component.getBindings()).toEqual({
             customEventsToPublish: [{
                 id: 'testPublishId',
                 fields: [{
@@ -479,6 +450,11 @@ describe('Component: BaseNeonOptions with config', () => {
                 }]
             }],
             database: 'testDatabase2',
+            filter: {
+                lhs: 'testConfigField',
+                operator: '!=',
+                rhs: 'testConfigValue'
+            },
             hideUnfiltered: true,
             limit: 1234,
             table: 'testTable2',
@@ -488,8 +464,8 @@ describe('Component: BaseNeonOptions with config', () => {
         });
     });
 
-    it('updateDatabases does update database if given an array index', () => {
-        options.updateDatabases();
+    it('updateDatabaseOptions does update database if given an array index', () => {
+        component.updateDatabaseOptions(options);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[1]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -497,21 +473,21 @@ describe('Component: BaseNeonOptions with config', () => {
         expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
     });
 
-    it('updateFields does update unshared filter', () => {
+    it('updateFieldOptions does update unshared filter', () => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
         options.tables = DatasetServiceMock.TABLES;
         options.table = DatasetServiceMock.TABLES[0];
         options.unsharedFilterField = null;
         options.unsharedFilterValue = null;
-        options.updateFields();
+        component.updateFieldOptions(options);
         expect(options.unsharedFilterField).toEqual(DatasetServiceMock.FILTER_FIELD);
     });
 
-    it('updateTables does update tables if given an array index', () => {
+    it('updateTableOptions does update tables if given an array index', () => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
-        options.updateTables();
+        component.updateTableOptions(options);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -523,6 +499,7 @@ describe('Component: BaseNeonOptions with config', () => {
 describe('Component: base-neon', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: BaseNeonComponent;
+    let options: any;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
     initializeTestBed({
@@ -555,21 +532,22 @@ describe('Component: base-neon', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(TestBaseNeonComponent);
         component = fixture.componentInstance;
+        options = component.options2;
         fixture.detectChanges();
     });
 
     it('should return expected value from bindings', (() => {
-        component.getOptions().database = new DatabaseMetaData('testDatabase1');
-        component.getOptions().table = new TableMetaData('testTable1');
+        options.database = new DatabaseMetaData('testDatabase1');
+        options.table = new TableMetaData('testTable1');
         expect(component.getBindings()).toEqual({
-            configFilter: undefined,
             customEventsToPublish: [],
             customEventsToReceive: [],
             database: 'testDatabase1',
+            filter: null,
             hideUnfiltered: false,
-            limit: 10,
+            limit: 100,
             table: 'testTable1',
-            title: 'TestName',
+            title: 'Temp',
             unsharedFilterValue: '',
             unsharedFilterField: ''
         });
@@ -611,7 +589,6 @@ describe('Component: base-neon', () => {
     }));
 
     it('handleChangeDatabase does update options and does call logChangeAndStartQueryChain', () => {
-        let options = component.getOptions();
         let spyLog = spyOn(component, 'logChangeAndStartQueryChain');
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
@@ -630,7 +607,6 @@ describe('Component: base-neon', () => {
     });
 
     it('handleChangeTable does update options and does call logChangeAndStartQueryChain', () => {
-        let options = component.getOptions();
         let spyLog = spyOn(component, 'logChangeAndStartQueryChain');
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
@@ -655,20 +631,19 @@ describe('Component: base-neon', () => {
     });
 
     it('handleChangeLimit does update limit and does call logChangeAndStartQueryChain', () => {
-        let options = component.getOptions();
         let spy = spyOn(component, 'logChangeAndStartQueryChain');
 
-        options.newLimit = 1234;
+        component.newLimit = 1234;
 
         component.handleChangeLimit();
         expect(options.limit).toBe(1234);
         expect(spy.calls.count()).toBe(1);
 
-        options.newLimit = 0;
+        component.newLimit = 0;
 
         component.handleChangeLimit();
         expect(options.limit).toBe(1234);
-        expect(options.newLimit).toBe(1234);
+        expect(component.newLimit).toBe(1234);
         expect(spy.calls.count()).toBe(1);
     });
 
