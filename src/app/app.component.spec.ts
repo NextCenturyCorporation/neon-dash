@@ -182,7 +182,7 @@ describe('App: NeonGtd', () => {
         expect(component.rightPanelTitle).toEqual('Dashboard Layouts');
 
         expect(component.showCustomConnectionButton).toEqual(true);
-        expect(component.showFilterBuilder).toEqual(false);
+        expect(component.showFilterBuilder).toEqual(true);
         expect(component.showFilterTrayButton).toEqual(true);
         expect(component.showSimpleSearch).toEqual(false);
         expect(component.showVisShortcut).toEqual(true);
@@ -219,5 +219,11 @@ describe('App: NeonGtd', () => {
         expect(component.currentPanel).toEqual('settings');
         expect(component.rightPanelTitle).toEqual('Settings');
 
+    }));
+
+    it('toggle boolean', async(() => {
+        component.showFilterBuilder = false;
+        //expect(component.filt);
+        expect(debugElement.nativeElement.querySelectorAll('app-filter-builder').length === 0).toBeTruthy();
     }));
 });

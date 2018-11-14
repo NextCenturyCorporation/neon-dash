@@ -123,6 +123,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         @Inject('config') private neonConfig: NeonGTDConfig
     ) {
         // TODO: Default to false and set to true only after a dataset has been selected.
+        this.showFilterBuilder = true;
         this.showFilterTrayButton = true;
         this.showCustomConnectionButton = true;
         this.datasets = this.datasetService.getDatasets();
@@ -258,7 +259,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         if (!this.createFilterBuilder) {
             this.createFilterBuilder = true;
         }
-        this.showFilterBuilder = !this.showFilterBuilder;
         let filterBuilderContainer: HTMLElement = document.getElementById('filter.builder');
         if (this.showFilterBuilder && filterBuilderContainer) {
             filterBuilderContainer.setAttribute('style', 'display: show');
