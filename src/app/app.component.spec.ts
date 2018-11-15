@@ -171,6 +171,19 @@ describe('App: NeonGtd', () => {
         expect(debugElement.nativeElement.querySelectorAll('app-right-panel').length === 0).toBeTruthy();
     }));
 
+    it('should be showing the correct defaults', async(() => {
+        expect(component.currentPanel).toEqual('dashboardLayouts');
+        expect(component.rightPanelTitle).toEqual('Dashboard Layouts');
+
+        expect(component.showCustomConnectionButton).toEqual(true);
+        expect(component.showFilterBuilder).toEqual(false);
+        expect(component.showFilterTrayButton).toEqual(true);
+        expect(component.showSimpleSearch).toEqual(false);
+        expect(component.showVisShortcut).toEqual(true);
+
+        expect(component.createFilterBuilder).toEqual(false);
+    }));
+
     it('addWidget does add the given widget with specified position to the grid', async(() => {
         // TODO
     }));
