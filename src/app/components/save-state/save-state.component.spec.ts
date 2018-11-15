@@ -32,7 +32,6 @@ import { MatSnackBar } from '@angular/material';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
-import { VisualizationService } from '../../services/visualization.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: SaveStateComponent', () => {
@@ -54,7 +53,6 @@ describe('Component: SaveStateComponent', () => {
             ConnectionService,
             DatasetService,
             ErrorNotificationService,
-            VisualizationService,
             ExportService,
             MatSnackBar,
             ParameterService,

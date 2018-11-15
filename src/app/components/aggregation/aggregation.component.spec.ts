@@ -37,7 +37,6 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -71,7 +70,6 @@ describe('Component: Aggregation', () => {
             ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
             ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -4227,7 +4225,6 @@ describe('Component: Aggregation with config', () => {
             ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
             ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
@@ -4500,7 +4497,6 @@ describe('Component: Aggregation with XY config', () => {
             ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
             ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
@@ -4707,7 +4703,6 @@ describe('Component: Aggregation with date config', () => {
             ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
             ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },

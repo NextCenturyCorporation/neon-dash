@@ -46,7 +46,6 @@ import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { LegendComponent } from '../legend/legend.component';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -74,8 +73,7 @@ class TestAnnotationViewerComponent extends AnnotationViewerComponent {
         exportService: ExportService,
         injector: Injector,
         themesService: ThemesService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        ref: ChangeDetectorRef
     ) {
         super(
             colorSchemaService,
@@ -85,8 +83,7 @@ class TestAnnotationViewerComponent extends AnnotationViewerComponent {
             exportService,
             injector,
             themesService,
-            ref,
-            visualizationService
+            ref
         );
     }
 
@@ -116,7 +113,6 @@ describe('Component: AnnotationViewer', () => {
                 ExportService,
                 { provide: FilterService, useClass: FilterServiceMock },
                 ThemesService,
-                VisualizationService,
                 Injector,
                 { provide: 'config', useValue: new NeonGTDConfig() }
             ],

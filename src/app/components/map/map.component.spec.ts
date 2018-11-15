@@ -37,7 +37,6 @@ import { ColorSchemeService } from '../../services/color-scheme.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
-import { VisualizationService } from '../../services/visualization.service';
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -73,8 +72,7 @@ class TestMapComponent extends MapComponent {
         injector: Injector,
         themesService: ThemesService,
         colorSchemeSrv: ColorSchemeService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        ref: ChangeDetectorRef
     ) {
         super(
             connectionService,
@@ -84,8 +82,8 @@ class TestMapComponent extends MapComponent {
             injector,
             themesService,
             colorSchemeSrv,
-            ref,
-            visualizationService);
+            ref
+        );
     }
 
     assignTestMap() {
@@ -242,7 +240,6 @@ describe('Component: Map', () => {
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
             ErrorNotificationService,
-            VisualizationService,
             ThemesService,
             Injector,
             ColorSchemeService,
@@ -1073,7 +1070,6 @@ describe('Component: Map with config', () => {
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
             ErrorNotificationService,
-            VisualizationService,
             ThemesService,
             Injector,
             ColorSchemeService,

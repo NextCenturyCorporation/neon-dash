@@ -31,7 +31,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from '../chart/chart.component';
@@ -225,8 +224,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         injector: Injector,
         themesService: ThemesService,
         protected colorSchemeService: ColorSchemeService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        ref: ChangeDetectorRef
     ) {
 
         super(
@@ -236,8 +234,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             exportService,
             injector,
             themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         console.warn('The line-chart component is deprecated.  Please use the aggregation component with type=line.');

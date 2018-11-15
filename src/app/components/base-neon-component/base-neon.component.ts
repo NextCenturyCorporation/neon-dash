@@ -26,7 +26,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import { neonEvents } from '../../neon-namespaces';
@@ -359,17 +358,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         protected exportService: ExportService,
         protected injector: Injector,
         public themesService: ThemesService,
-        public changeDetection: ChangeDetectorRef,
-        protected visualizationService: VisualizationService
+        public changeDetection: ChangeDetectorRef
     ) {
-        // These assignments just eliminated unused warnings that occur even though the arguments are
-        // automatically assigned to instance variables.
-        this.exportService = this.exportService;
-        this.filterService = this.filterService;
-        this.connectionService = this.connectionService;
-        this.injector = this.injector;
-        this.visualizationService = this.visualizationService;
-        this.themesService = themesService;
         this.changeDetection = changeDetection;
         this.messenger = new neon.eventing.Messenger();
         this.getBindings = this.getBindings.bind(this);

@@ -32,7 +32,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from '../chart/chart.component';
@@ -279,7 +278,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         injector: Injector,
         themesService: ThemesService,
         ref: ChangeDetectorRef,
-        visualizationService: VisualizationService,
         protected colorSchemeService: ColorSchemeService
     ) {
 
@@ -290,8 +288,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             exportService,
             injector,
             themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         console.warn('The bar-chart component is deprecated.  Please use the aggregation component with type=bar-v or type=bar-h.');

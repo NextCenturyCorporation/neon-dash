@@ -24,7 +24,6 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { ExportService } from '../../services/export.service';
 import { ParameterService } from '../../services/parameter.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';

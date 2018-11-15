@@ -32,7 +32,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, MediaTypes } from '../../dataset';
@@ -186,7 +185,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         injector: Injector,
         themesService: ThemesService,
         ref: ChangeDetectorRef,
-        visualizationService: VisualizationService,
         private sanitizer: DomSanitizer
     ) {
 
@@ -197,8 +195,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             exportService,
             injector,
             themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         this.options = new MediaViewerOptions(this.injector, this.datasetService, 'Media Viewer', 10);

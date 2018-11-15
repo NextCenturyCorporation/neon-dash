@@ -30,7 +30,6 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
-import { VisualizationService } from '../../services/visualization.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { LegendComponent } from '../legend/legend.component';
 import { ChartComponent } from '@swimlane/ngx-charts';
@@ -60,7 +59,6 @@ describe('Component: NetworkGraph', () => {
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
             ErrorNotificationService,
-            VisualizationService,
             ThemesService,
             Injector,
             ColorSchemeService,

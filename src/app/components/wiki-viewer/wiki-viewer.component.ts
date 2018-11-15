@@ -33,7 +33,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
@@ -123,7 +122,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         injector: Injector,
         themesService: ThemesService,
         ref: ChangeDetectorRef,
-        visualizationService: VisualizationService,
         protected http: HttpClient,
         protected sanitizer: DomSanitizer
     ) {
@@ -135,8 +133,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             exportService,
             injector,
             themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         this.options = new WikiViewerOptions(this.injector, this.datasetService, 'Wiki Viewer', 10);

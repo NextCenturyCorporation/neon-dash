@@ -32,7 +32,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, DatabaseMetaData, TableMetaData } from '../../dataset';
@@ -227,8 +226,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         exportService: ExportService,
         injector: Injector,
         themesService: ThemesService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        ref: ChangeDetectorRef
     ) {
         super(
             connectionService,
@@ -237,8 +235,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             exportService,
             injector,
             themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         this.configFilter = this.injector.get('configFilter', null);
