@@ -15,7 +15,6 @@
  */
 import { Injectable } from '@angular/core';
 
-import { ErrorNotificationService } from './error-notification.service';
 import { DatasetService } from './dataset.service';
 
 import { neonEvents } from '../neon-namespaces';
@@ -47,10 +46,7 @@ export class FilterService {
     protected filters: ServiceFilter[] = [];
     protected messenger: neon.eventing.Messenger = new neon.eventing.Messenger();
 
-    constructor(
-        protected errorNotificationService: ErrorNotificationService,
-        protected datasetService: DatasetService
-    ) {}
+    constructor(protected datasetService: DatasetService) {}
 
     protected getDatabaseFilterState(onSuccess: (filterList: any[]) => any, onError: (response: any) => any) {
         neon.query.Filter.getFilterState('*', '*', onSuccess, onError);

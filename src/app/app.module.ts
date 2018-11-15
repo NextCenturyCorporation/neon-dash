@@ -28,7 +28,6 @@ import { NgGridModule } from 'angular2-grid';
 import { ColorSchemeService } from './services/color-scheme.service';
 import { ConnectionService } from './services/connection.service';
 import { DatasetService } from './services/dataset.service';
-import { ErrorNotificationService } from './services/error-notification.service';
 import { ExportService } from './services/export.service';
 import { FilterService } from './services/filter.service';
 import { ParameterService } from './services/parameter.service';
@@ -152,7 +151,6 @@ export function getAppConfig() {
     providers: [
         ConnectionService,
         DatasetService,
-        ErrorNotificationService,
         ExportService,
         FilterService,
         ParameterService,

@@ -32,7 +32,6 @@ import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
@@ -84,7 +83,6 @@ describe('Component: ThumbnailGrid', () => {
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,
-            ErrorNotificationService,
             { provide: FilterService, useClass: FilterServiceMock },
             ThemesService,
             Injector,
@@ -2159,7 +2157,6 @@ describe('Component: ThumbnailGrid with config', () => {
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,
-            ErrorNotificationService,
             { provide: FilterService, useClass: FilterServiceMock },
             ThemesService,
             Injector,

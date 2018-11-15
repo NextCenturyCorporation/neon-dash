@@ -176,6 +176,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messenger.subscribe(neonEvents.WIDGET_MOVE_TO_TOP, this.moveWidgetToTop.bind(this));
         this.messenger.subscribe(neonEvents.WIDGET_REGISTER, this.registerWidget.bind(this));
         this.messenger.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
+        this.messenger.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
     }
 
     /**
@@ -362,6 +363,16 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             maxRow = Math.max(maxRow, (widgetGridItem.config.row + widgetGridItem.config.sizey - 1));
         }
         return maxRow;
+    }
+
+    /**
+     * Handles the given error and message.
+     *
+     * @arg {{error:Error|ExceptionInformation,message:string}} eventMessage
+     */
+    handleDashboardError(eventMessage: { error: Error | ExceptionInformation, message: string }) {
+        // TODO THOR-916
+        console.error('An error occured: ' + eventMessage.message + '\n' + eventMessage.error);
     }
 
     /**

@@ -49,7 +49,6 @@ import { NeonGTDConfig } from './neon-gtd-config';
 
 import { DatasetService } from './services/dataset.service';
 import { ConnectionService } from './services/connection.service';
-import { ErrorNotificationService } from './services/error-notification.service';
 import { ExportService } from './services/export.service';
 import { FilterService } from './services/filter.service';
 import { ParameterService } from './services/parameter.service';
@@ -139,7 +138,6 @@ describe('App: NeonGtd', () => {
                 { provide: APP_BASE_HREF, useValue: '/' },
                 DatasetService,
                 ConnectionService,
-                ErrorNotificationService,
                 ExportService,
                 FilterService,
                 ParameterService,

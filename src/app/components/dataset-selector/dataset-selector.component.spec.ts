@@ -20,7 +20,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { ParameterService } from '../../services/parameter.service';
 import { FilterService } from '../../services/filter.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -40,7 +39,6 @@ describe('Component: DatasetSelector', () => {
             ConnectionService,
             DatasetService,
             ParameterService,
-            ErrorNotificationService,
             FilterService,
             { provide: 'config', useValue: testConfig }
         ],

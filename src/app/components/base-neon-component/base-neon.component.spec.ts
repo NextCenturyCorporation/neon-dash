@@ -30,7 +30,6 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { ThemesService } from '../../services/themes.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
@@ -226,7 +225,6 @@ describe('Component: BaseNeonOptions', () => {
             ExportService,
             Injector,
             ThemesService,
-            ErrorNotificationService,
             { provide: 'config', useValue: testConfig },
             { provide: 'testDate', useValue: 'testDateField' },
             { provide: 'testFake', useValue: 'testFakeField' },
@@ -390,7 +388,6 @@ describe('Component: BaseNeonOptions with config', () => {
             ExportService,
             Injector,
             ThemesService,
-            ErrorNotificationService,
             { provide: 'config', useValue: testConfig },
             { provide: 'database', useValue: 1 },
             { provide: 'table', useValue: 1 },
@@ -535,7 +532,6 @@ describe('Component: base-neon', () => {
             ExportService,
             Injector,
             ThemesService,
-            ErrorNotificationService,
             { provide: 'config', useValue: testConfig }
         ]
     });

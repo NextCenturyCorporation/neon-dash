@@ -32,7 +32,6 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -239,7 +238,6 @@ describe('Component: Map', () => {
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            ErrorNotificationService,
             ThemesService,
             Injector,
             ColorSchemeService,
@@ -1069,7 +1067,6 @@ describe('Component: Map with config', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            ErrorNotificationService,
             ThemesService,
             Injector,
             ColorSchemeService,
