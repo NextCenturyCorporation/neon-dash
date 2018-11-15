@@ -21,7 +21,7 @@
                     <app-add-visualization></app-add-visualization>
                 </div>
                 <div class="saved-state-container" *ngIf="checkPanel('saveState')">
-                    <app-save-state></app-save-state>
+                    <app-save-state [widgetGridItems]="widgetGridItems" [widgets]="widgets"></app-save-state>
                 </div>
                 <div class="setting-container" *ngIf="checkPanel('settings')">
                     <app-settings></app-settings>
@@ -89,9 +89,10 @@
 
     <div class="neon-dash" mat-fill layout="col">
         <div [ngGrid]="gridConfig" #grid>
-            <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridItemConfig" name="item.id" id="item.id"
-                (onResizeStart)="onResizeStart(i, $event)" (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
-                <app-visualization-container [visualization]="gridItems[i]"></app-visualization-container>
+            <div *ngFor="let widgetGridItem of widgetGridItems; let i = index;" [(ngGridItem)]="widgetGridItem.config"
+                    name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
+                    (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
+                <app-visualization-container [visualization]="widgetGridItem"></app-visualization-container>
                 <ng-content></ng-content>
             </div>
         </div>

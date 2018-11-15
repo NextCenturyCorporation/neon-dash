@@ -56,7 +56,7 @@ export class VisualizationContainerComponent implements OnInit {
         this.onResizeStart();
         this.expanded = false;
         this.messenger.publish(neonEvents.WIDGET_CONTRACT, {
-            widget: this.visualization
+            widgetGridItem: this.visualization
         });
         setTimeout(() => {
             this.onResizeStop();
@@ -67,7 +67,7 @@ export class VisualizationContainerComponent implements OnInit {
         this.onResizeStart();
         this.expanded = true;
         this.messenger.publish(neonEvents.WIDGET_EXPAND, {
-            widget: this.visualization
+            widgetGridItem: this.visualization
         });
         setTimeout(() => {
             this.onResizeStop();
@@ -77,13 +77,13 @@ export class VisualizationContainerComponent implements OnInit {
 
     moveToTop() {
         this.messenger.publish(neonEvents.WIDGET_MOVE_TO_TOP, {
-            widget: this.visualization
+            widgetGridItem: this.visualization
         });
     }
 
     moveToBottom() {
         this.messenger.publish(neonEvents.WIDGET_MOVE_TO_BOTTOM, {
-            widget: this.visualization
+            widgetGridItem: this.visualization
         });
     }
 

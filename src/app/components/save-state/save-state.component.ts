@@ -24,13 +24,18 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { ExportService } from '../../services/export.service';
 import { ParameterService } from '../../services/parameter.service';
 import { ThemesService } from '../../services/themes.service';
+import { VisualizationService } from '../../services/visualization.service';
 
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 
+import { NeonGridItem } from '../../neon-grid-item';
+import { neonEvents } from '../../neon-namespaces';
+
 import * as _ from 'lodash';
 import * as neon from 'neon-framework';
-import { VisualizationService } from '../../services/visualization.service';
 
 @Component({
   selector: 'app-save-state',
@@ -40,6 +45,9 @@ import { VisualizationService } from '../../services/visualization.service';
 export class SaveStateComponent implements OnInit {
 
     @Input() sidenav: MatSidenav;
+
+    @Input() public widgetGridItems: NeonGridItem[] = [];
+    @Input() public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent> = new Map();
 
     public formData: any = {
         exportFormat: 0,
@@ -60,8 +68,7 @@ export class SaveStateComponent implements OnInit {
     constructor(private connectionService: ConnectionService,  private datasetService: DatasetService,
         private errorNotificationService: ErrorNotificationService, public exportService: ExportService,
         private snackBar: MatSnackBar, private parameterService: ParameterService,
-        public themesService: ThemesService, private viewContainerRef: ViewContainerRef, private dialog: MatDialog,
-        private visualizationService: VisualizationService) { }
+        public themesService: ThemesService, private viewContainerRef: ViewContainerRef, private dialog: MatDialog) {}
 
     ngOnInit() {
         this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
@@ -108,7 +115,20 @@ export class SaveStateComponent implements OnInit {
         let connection: neon.query.Connection = this.connectionService.getActiveConnection();
         if (connection) {
             // Get each visualization's bindings and save them to our dashboard state parameter
-            stateParams.dashboard = this.visualizationService.getWidgets();
+            stateParams.dashboard = this.widgetGridItems.map((widgetGridItem) => {
+                let widget = this.widgets.get(widgetGridItem.id);
+
+                let widgetGridItemCopy: NeonGridItem = _.cloneDeep(widgetGridItem);
+
+                widgetGridItemCopy.col = widgetGridItemCopy.config.col;
+                widgetGridItemCopy.row = widgetGridItemCopy.config.row;
+                widgetGridItemCopy.sizex = widgetGridItemCopy.config.sizex;
+                widgetGridItemCopy.sizey = widgetGridItemCopy.config.sizey;
+
+                widgetGridItemCopy.bindings = widget.getBindings();
+
+                return widgetGridItemCopy;
+            });
 
             stateParams.dataset = this.datasetService.getDataset();
 
@@ -149,7 +169,10 @@ export class SaveStateComponent implements OnInit {
                     this.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
                     this.openNotification(name, 'loaded');
                 } else {
-                    this.errorNotificationService.showErrorMessage(null, 'State ' + name + ' not found.');
+                    this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+                        error: null,
+                        message: 'State ' + name + ' not found.'
+                    });
                 }
             }, (response) => {
                 this.handleStateFailure(response);
@@ -202,7 +225,10 @@ export class SaveStateComponent implements OnInit {
      * @private
      */
     handleStateFailure(response) {
-        this.errorNotificationService.showErrorMessage(null, response.responseJSON.error);
+        this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+            error: null,
+            message: response.responseJSON.error
+        });
     }
 
     /*
@@ -224,7 +250,10 @@ export class SaveStateComponent implements OnInit {
         }, (response) => {
             this.isLoading = false;
             this.stateNames = [];
-            this.errorNotificationService.showErrorMessage(null, response.responseJSON.error);
+            this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+                error: null,
+                message: response.responseJSON.error
+            });
         });
     }
 

@@ -20,11 +20,12 @@ import { Dataset, DatabaseMetaData, TableMetaData, FieldMetaData, Relation } fro
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ParameterService } from '../../services/parameter.service';
-import { neonEvents, neonVisualizationMinPixel } from '../../neon-namespaces';
-import * as neon from 'neon-framework';
 
+import { NeonGridItem } from '../../neon-grid-item';
+import { neonEvents, neonVisualizationMinPixel } from '../../neon-namespaces';
+
+import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-import * as uuid from 'node-uuid';
 
 export interface CustomTable {
     table: TableMetaData;
@@ -98,9 +99,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      * This is the array of custom visualization objects configured by the user through the popup.  Each custom visualization contains:
      *     {String} type The visualization type
      *     {Number} sizex The width of the visualization
-     *     {Number} minSizeX The minimum width of the visualization
      *     {Number} sizey The height of the visualization
-     *     {Number} minSizeY The minimum height of the visualization
      *     {String} database The database name to connect to it
      *     {String} table The table name to connect to it
      *     {Array} availableTables An array of table names that are available in the database selected
@@ -150,7 +149,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             });
         }
 
-        this.messenger.subscribe(ParameterService.STATE_CHANGED_CHANNEL, (message) => {
+        this.messenger.subscribe(neonEvents.DASHBOARD_STATE, (message) => {
             if (message && message.dataset) {
                 if (message.dataset) {
                     this.datasetService.setActiveDataset(message.dataset);
@@ -171,14 +170,10 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                         this.datasetService.setLayout(layoutName);
                     }
 
-                    for (let dashboard of message.dashboard) {
-                        dashboard.id = uuid.v4();
-                    }
-
                     this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});
-                    message.dashboard.forEach((widget) => {
+                    message.dashboard.forEach((widgetGridItem) => {
                         this.messenger.publish(neonEvents.WIDGET_ADD, {
-                            widget: widget
+                            widgetGridItem: widgetGridItem
                         });
                     });
                     this.activeDatasetChanged.emit(this.activeDataset);
@@ -250,169 +245,14 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
         // Recreate the layout each time to ensure all visualizations are using the new dataset.
         // Use an empty array of visualizations if the new dataset has no defined layout.
-        for (let widgetInLayout of layout) {
-            let widget = _.cloneDeep(widgetInLayout);
-            widget.gridItemConfig = {
-                row: widget.row,
-                col: widget.col,
-                sizex: widget.sizex,
-                sizey: widget.sizey,
-                dragHandle: '.drag-handle',
-                borderSize: 10
-            };
-            widget.id = uuid.v4();
+        for (let widgetGridItem of layout) {
             this.messenger.publish(neonEvents.WIDGET_ADD, {
-                widget: widget
+                widgetGridItem: _.cloneDeep(widgetGridItem)
             });
         }
 
         this.gridItemsChanged.emit(layout.length);
         this.activeDatasetChanged.emit(this.activeDataset);
         this.parameterService.addFiltersFromUrl(!loadDashboardState);
-    }
-
-    /**
-     * Updates the layout of visualizations in the dashboard for the custom visualizations set.
-     * @method updateCustomLayout
-     * @private
-     */
-    updateCustomLayout() {
-        this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});
-
-        // Clear any old filters prior to loading the new layout and dataset.
-        this.messenger.clearFilters();
-
-        _.each(this.customVisualizations, (visualization) => {
-            let id: string = uuid.v4();
-            let widget: any = {
-                id: id,
-                bindings: {},
-                bordersize: 5,
-                dragHandle: '.drag-handle',
-                gridConfig: {
-                    row: visualization.row,
-                    col: visualization.col,
-                    sizex: visualization.sizex,
-                    sizey: visualization.sizey
-                },
-                payload: id,
-                minSizeX: visualization.minSizeX,
-                minSizeY: visualization.minSizeY,
-                minPixelX: neonVisualizationMinPixel.x, // jshint ignore:line
-                minPixelY: neonVisualizationMinPixel.y, // jshint ignore:line
-                sizex: visualization.sizex,
-                sizey: visualization.sizey,
-                title: visualization.title,
-                type: visualization.type
-            };
-
-            if (visualization.database && visualization.table) {
-                widget.bindings = {
-                    'bind-database': '\'' + visualization.database + '\'',
-                    'bind-table': '\'' + visualization.table + '\''
-                };
-            }
-
-            _.each(visualization.bindings, (value, key) => {
-                widget.bindings[key] = '\'' + value + '\'';
-            });
-
-            this.messenger.publish(neonEvents.WIDGET_ADD, {
-                widget: widget
-            });
-        });
-
-        this.parameterService.removeStateParameters();
-
-        this.gridItemsChanged.emit(this.customVisualizations.length);
-        this.parameterService.addFiltersFromUrl();
-    }
-
-    /**
-     * Selection event for the custom dataset popup.
-     */
-    selectCustom() {
-        // Removed call to xdata logger library
-        // Custom connection dialog is not yet implemented.
-    }
-
-    /**
-     * Creates and returns a new custom dataset object using the user configuration saved in the global variables.
-     * @return {Object}
-     */
-    createCustomDataset(): Dataset {
-        let dataset: Dataset = new Dataset(this.datasetName, this.datastoreType, this.datastoreHost);
-
-        this.customDatabases.forEach((customDatabase: CustomDatabase) => {
-            let database: DatabaseMetaData = new DatabaseMetaData(customDatabase.database.name, customDatabase.database.prettyName);
-
-            customDatabase.customTables.forEach((customTable: CustomTable) => {
-                let tableObject: TableMetaData = new TableMetaData(customTable.table.name,
-                    customTable.table.prettyName, customTable.table.fields, customTable.table.mappings);
-                database.tables.push(tableObject);
-            });
-
-            dataset.databases.push(database);
-        });
-
-        this.customRelations.forEach((customRelation) => {
-            let relation = new Relation();
-
-            customRelation.customRelationDatabases.forEach((customRelationDatabase) => {
-                customRelationDatabase.customRelationTables.forEach((customRelationTable) => {
-                    if (relation.members.find((mem) =>
-                            mem.database === customRelationDatabase.database.name &&
-                            mem.table === customRelationTable.table.name &&
-                            mem.field === customRelationTable.field.columnName
-                        ) === undefined) {
-
-                            relation.members.push({
-                            database: customRelationDatabase.database.name,
-                            table: customRelationTable.table.name,
-                            field: customRelationTable.field.columnName
-                        });
-                    }
-                });
-            });
-            dataset.relations.push(relation);
-        });
-
-        return dataset;
-    }
-
-    /**
-     * Sets the active dataset to the databases and tables in the list of custom databases
-     * in the given config and saves it in the Dataset Service.
-     * @param {Object} config
-     * @param {Array} config.customDatabases
-     * @param {Array} config.customRelations
-     * @param {Array} config.customVisualizations
-     * @param {String} config.datastoreType
-     * @param {String} config.datastoreHost
-     * @param {String} config.datasetName
-     * @method setDataset
-     */
-    setDataset(config: any) {
-        this.customDatabases = config.customDatabases;
-        this.customRelations = config.customRelations;
-        this.customVisualizations = config.customVisualizations;
-        this.datastoreType = config.datastoreType;
-        this.datastoreHost = config.datastoreHost;
-        this.datasetName = config.datasetName;
-
-        let dataset = this.createCustomDataset();
-
-        this.activeDataset = {
-            name: dataset.name,
-            info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
-            data: true
-        };
-        this.activeDatasetChanged.emit(this.activeDataset);
-        this.datasets = this.datasetService.addDataset(dataset);
-        this.datasetService.setActiveDataset(dataset);
-        this.updateCustomLayout();
-
-        // TODO: Manage the custom connection modal.
-        // $element.find(".modal").modal("hide");
     }
 }
