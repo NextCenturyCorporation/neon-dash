@@ -65,6 +65,7 @@ export interface CustomDatabase {
 export class DatasetSelectorComponent implements OnInit, OnDestroy {
     public static HIDE_INFO_POPOVER: string = 'sr-only';
 
+    public connectOnLoad: boolean = false;
     public datasets: Dataset[] = [];
     private datasetName: string = '';
     private datastoreType: string = 'mongo';
@@ -140,6 +141,9 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         } else {
             let activeDataset: string = (this.parameterService.findActiveDatasetInUrl() || '').toLowerCase();
             this.datasets.some((dataset, index) => {
+                if (dataset.connectOnLoad) {
+                    this.connectOnLoad = true;
+                }
                 if ((activeDataset && activeDataset === dataset.name.toLowerCase()) || (!activeDataset && dataset.connectOnLoad)) {
                     this.connectToPreset(index, true);
                     this.activeDatasetChanged.emit(); // Close the sidenav opened by connectToPreset.
@@ -181,6 +185,10 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                 }
             }
         });
+
+        if (!this.connectOnLoad) {
+            this.activeDatasetChanged.emit(this.activeDataset);
+        }
     }
 
     ngOnDestroy(): void {

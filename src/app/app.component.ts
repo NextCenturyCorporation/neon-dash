@@ -69,7 +69,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     @Input() sidenav = MatSidenav;
     // Used to determine which pane is show in the right sidenav
 
-    public currentPanel: string = '';
+    public currentPanel: string = 'dashboardLayouts';
     public showCustomConnectionButton: boolean = false;
     public showFilterBuilder: boolean = false;
     public showFilterTrayButton: boolean = false;
@@ -77,7 +77,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public showSimpleSearch: boolean = false;
     public showVisShortcut: boolean = true;
 
-    public rightPanelTitle: string = '';
+    public rightPanelTitle: string = 'Dashboard Layouts';
 
     public createFilterBuilder: boolean = false; //This is used to create the Filter Builder later
 
@@ -438,9 +438,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         }
         this.showFilterBuilder = !this.showFilterBuilder;
         let filterBuilderContainer: HTMLElement = document.getElementById('filter.builder');
-        if (this.showFilterBuilder) {
+        if (this.showFilterBuilder && filterBuilderContainer) {
             filterBuilderContainer.setAttribute('style', 'display: show');
-        } else {
+        } else if (filterBuilderContainer) {
             filterBuilderContainer.setAttribute('style', 'display: none');
         }
     }
