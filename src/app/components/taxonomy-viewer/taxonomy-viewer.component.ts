@@ -318,7 +318,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         let filter = {
             id: undefined,
-            lineage: nodeData.lineage,
             field: nodeData.description,
             prettyField: 'Tree Node',
             value: ''
@@ -468,7 +467,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
                 });
 
-                this.addCountsToTaxonomy(response.data, this.taxonomyGroups);
                 this.sortTaxonomyArrays(this.taxonomyGroups);
                 this.refreshVisualization();
 
@@ -498,37 +496,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * Without it, the double click event does not work.
      *
      */
-    onEvent = ($event) => {
+    onEvent = () => {
         //Intentionally empty
-    }
-
-    addCountsToTaxonomy(data: any, groups: any[]) {
-        for (let group of groups) {
-            let count = 0;
-            group.nodeIds = [];
-            data.forEach((d) => {
-                let id = neonUtilities.deepFind(d, this.options.idField.columnName);
-                if (neonUtilities.deepFind(d, group.description).includes(group.name) && !group.nodeIds.includes(id)) {
-                    group.nodeIds.push(id);
-                    count++;
-                }
-            });
-
-            group.nodeCount = count;
-
-            if (group.hasOwnProperty('children')) {
-                this.addCountsToTaxonomy(data, group.children);
-                let childCount = 0;
-                for (let child of group.children) {
-                    childCount += child.nodeCount;
-                }
-
-                if (!group.nodeCount) {
-                    group.nodeCount = childCount;
-                }
-
-            }
-        }
     }
 
     /**
@@ -712,7 +681,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         if ($event[0].whereClause) {
             for (let filter of this.filters) {
                 if (filter.value === $event[0].whereClause.rhs) {
-                    this.removeFilter(filter)
+                    this.removeFilter(filter);
                     break;
                 }
             }
