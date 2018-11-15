@@ -41,7 +41,6 @@ import { Color } from '../../color';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { LegendComponent } from '../legend/legend.component';
@@ -109,7 +108,6 @@ describe('Component: AnnotationViewer', () => {
                 ConnectionService,
                 ColorSchemeService,
                 { provide: DatasetService, useClass: DatasetServiceMock },
-                ErrorNotificationService,
                 ExportService,
                 { provide: FilterService, useClass: FilterServiceMock },
                 ThemesService,

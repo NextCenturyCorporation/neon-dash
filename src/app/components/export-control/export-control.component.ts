@@ -19,7 +19,6 @@ import { MatDialog, MatDialogRef, MatSnackBar, MatSnackBarConfig } from '@angula
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { ExportService } from '../../services/export.service';
 import { ParameterService } from '../../services/parameter.service';
 import { ThemesService } from '../../services/themes.service';
@@ -43,12 +42,13 @@ export class ExportControlComponent implements OnInit {
 
     public buttonText: string;
 
-    constructor(private connectionService: ConnectionService,
-        private errorNotificationService: ErrorNotificationService,
+    constructor(
+        private connectionService: ConnectionService,
         public exportService: ExportService,
         private matSnackBar: MatSnackBar,
         public themesService: ThemesService,
-        private viewContainerRef: ViewContainerRef) {
+        private viewContainerRef: ViewContainerRef
+    ) {
         this.handleExportClick = this.handleExportClick.bind(this);
         this.exportFormat = 0;
     }

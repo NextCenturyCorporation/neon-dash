@@ -30,7 +30,6 @@ import { MediaViewerComponent } from './media-viewer.component';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
@@ -52,7 +51,6 @@ describe('Component: MediaViewer', () => {
             ConnectionService,
             DatasetService,
             ExportService,
-            ErrorNotificationService,
             { provide: FilterService, useClass: FilterServiceMock },
             ThemesService,
             Injector,
@@ -1687,7 +1685,6 @@ describe('Component: MediaViewer with config', () => {
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,
-            ErrorNotificationService,
             FilterService,
             ThemesService,
             Injector,

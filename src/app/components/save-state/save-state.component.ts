@@ -20,7 +20,6 @@ import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/mater
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { ExportService } from '../../services/export.service';
 import { ParameterService } from '../../services/parameter.service';
 import { ThemesService } from '../../services/themes.service';
@@ -64,10 +63,16 @@ export class SaveStateComponent implements OnInit {
     public stateNames: string[] = [];
     public exportTarget: string = 'all';
 
-    constructor(private connectionService: ConnectionService,  private datasetService: DatasetService,
-        private errorNotificationService: ErrorNotificationService, public exportService: ExportService,
-        private snackBar: MatSnackBar, private parameterService: ParameterService,
-        public themesService: ThemesService, private viewContainerRef: ViewContainerRef, private dialog: MatDialog) {}
+    constructor(
+        private connectionService: ConnectionService,
+        private datasetService: DatasetService,
+        public exportService: ExportService,
+        private snackBar: MatSnackBar,
+        private parameterService: ParameterService,
+        public themesService: ThemesService,
+        private viewContainerRef: ViewContainerRef,
+        private dialog: MatDialog
+    ) {}
 
     ngOnInit() {
         this.formData.exportFormat = this.exportService.getFileFormats()[0].value;

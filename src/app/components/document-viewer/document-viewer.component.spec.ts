@@ -29,7 +29,6 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { neonVariables } from '../../neon-namespaces';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
@@ -61,7 +60,6 @@ describe('Component: DocumentViewer', () => {
                 provide: DatasetService,
                 useClass: DatasetServiceMock
             },
-            ErrorNotificationService,
             ExportService,
             FilterService,
             ThemesService,
@@ -1080,7 +1078,6 @@ describe('Component: Document Viewer with Config', () => {
                 provide: DatasetService,
                 useClass: DatasetServiceMock
             },
-            ErrorNotificationService,
             ExportService,
             FilterService,
             ThemesService,

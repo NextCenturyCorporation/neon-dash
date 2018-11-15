@@ -29,7 +29,6 @@ import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.comp
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
@@ -138,7 +137,6 @@ describe('Component: Sample', () => {
         providers: [
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ErrorNotificationService,
             ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
             ThemesService,
@@ -1676,7 +1674,6 @@ describe('Component: Sample with config', () => {
         providers: [
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ErrorNotificationService,
             ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
             ThemesService,

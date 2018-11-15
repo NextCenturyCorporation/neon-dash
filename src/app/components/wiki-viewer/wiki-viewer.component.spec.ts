@@ -32,7 +32,6 @@ import { WikiViewerComponent } from './wiki-viewer.component';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
@@ -52,7 +51,6 @@ describe('Component: WikiViewer', () => {
             ConnectionService,
             DatasetService,
             ExportService,
-            ErrorNotificationService,
             FilterService,
             ThemesService,
             Injector,
@@ -512,7 +510,6 @@ describe('Component: WikiViewer with config', () => {
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,
-            ErrorNotificationService,
             FilterService,
             ThemesService,
             Injector,

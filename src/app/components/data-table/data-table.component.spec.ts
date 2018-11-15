@@ -30,7 +30,6 @@ import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.comp
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { FilterService } from '../../services/filter.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { ThemesService } from '../../services/themes.service';
@@ -57,7 +56,6 @@ describe('Component: DataTable', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            ErrorNotificationService,
             ThemesService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }

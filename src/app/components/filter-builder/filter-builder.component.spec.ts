@@ -27,7 +27,6 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
@@ -50,7 +49,6 @@ describe('Component: Filter Builder', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            ErrorNotificationService,
             ThemesService,
             Injector,
             { provide: 'config', useValue: testConfig }
@@ -397,7 +395,6 @@ describe('Component: Filter Builder with config', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            ErrorNotificationService,
             ThemesService,
             Injector,
             {

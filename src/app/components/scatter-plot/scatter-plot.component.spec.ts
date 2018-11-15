@@ -28,7 +28,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
@@ -54,7 +53,6 @@ describe('Component: ScatterPlot', () => {
             DatasetService,
             FilterService,
             ExportService,
-            ErrorNotificationService,
             ThemesService,
             ColorSchemeService,
             Injector,

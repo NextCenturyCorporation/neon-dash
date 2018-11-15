@@ -20,7 +20,6 @@ import * as $ from 'jquery';
 import { Dataset, DatabaseMetaData, TableMetaData } from '../dataset';
 import { ConnectionService } from './connection.service';
 import { DatasetService } from './dataset.service';
-import { ErrorNotificationService } from './error-notification.service';
 import { FilterService } from './filter.service';
 import { neonEvents, neonMappings } from '../neon-namespaces';
 import * as _ from 'lodash';
@@ -55,7 +54,6 @@ export class ParameterService {
     constructor(
         private datasetService: DatasetService,
         private connectionService: ConnectionService,
-        private errorNotificationService: ErrorNotificationService,
         private filterService: FilterService
     ) {
         this.messenger = new neon.eventing.Messenger();

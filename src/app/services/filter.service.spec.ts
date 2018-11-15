@@ -18,7 +18,6 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 import { Injectable } from '@angular/core';
 
-import { ErrorNotificationService } from './error-notification.service';
 import { DatasetService } from './dataset.service';
 import { FilterService, ServiceFilter } from './filter.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
@@ -31,12 +30,8 @@ import * as neon from 'neon-framework';
 class TestFilterService extends FilterService {
     private idCounter: number = 1;
 
-    constructor(
-        protected errorNotificationService: ErrorNotificationService,
-        protected datasetService: DatasetService,
-        protected http: HttpClient
-    ) {
-        super(errorNotificationService, datasetService);
+    constructor(protected datasetService: DatasetService, protected http: HttpClient) {
+        super(datasetService);
     }
 
     public createFilterId(database: string, table: string) {
@@ -103,12 +98,8 @@ class TestFilterServiceWithFilters extends TestFilterService {
         filterName: 'Test Database 2 - Test Table 2 - Test Filter 6'
     }, ['testFilter5']);
 
-    constructor(
-        protected errorNotificationService: ErrorNotificationService,
-        protected datasetService: DatasetService,
-        protected http: HttpClient
-    ) {
-        super(errorNotificationService, datasetService, http);
+    constructor(protected datasetService: DatasetService, protected http: HttpClient) {
+        super(datasetService, http);
         this.reset();
     }
 
@@ -129,7 +120,6 @@ describe('Service: Filter', () => {
     initializeTestBed({
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ErrorNotificationService,
             { provide: FilterService, useClass: TestFilterService },
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -599,7 +589,6 @@ describe('Service: Filter with existing filters', () => {
     initializeTestBed({
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ErrorNotificationService,
             { provide: FilterService, useClass: TestFilterServiceWithFilters },
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],

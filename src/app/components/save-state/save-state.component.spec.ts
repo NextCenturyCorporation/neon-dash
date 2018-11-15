@@ -22,7 +22,6 @@ import { SaveStateComponent } from './save-state.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { ExportService } from '../../services/export.service';
 import { ParameterService } from '../../services/parameter.service';
 import { ThemesService } from '../../services/themes.service';
@@ -52,7 +51,6 @@ describe('Component: SaveStateComponent', () => {
         providers: [
             ConnectionService,
             DatasetService,
-            ErrorNotificationService,
             ExportService,
             MatSnackBar,
             ParameterService,
