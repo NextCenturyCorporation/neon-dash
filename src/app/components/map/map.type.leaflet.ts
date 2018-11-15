@@ -93,12 +93,10 @@ export class LeafletNeonMap extends AbstractMap {
         }
 
         for (let point of points) {
-
-            let circleOptions = {};
             let mapIsSelected = this.mapOptions.id && point.idValue;          //is point selected record
             let pointIsSelected = point.idList.includes(this.mapOptions.id);  //check if point is in list
 
-            circleOptions = {
+            let circleOptions = {
                         color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
                         fillColor: point.cssColorString,
                         colorByField: point.colorByField,
