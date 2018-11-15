@@ -34,7 +34,6 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { FilterService } from '../../services/filter.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { By } from '@angular/platform-browser';
@@ -59,7 +58,6 @@ describe('Component: DataTable', () => {
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
             ErrorNotificationService,
-            VisualizationService,
             ThemesService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }

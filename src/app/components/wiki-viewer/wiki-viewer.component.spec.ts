@@ -36,7 +36,6 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -56,7 +55,6 @@ describe('Component: WikiViewer', () => {
             ErrorNotificationService,
             FilterService,
             ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -517,7 +515,6 @@ describe('Component: WikiViewer with config', () => {
             ErrorNotificationService,
             FilterService,
             ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase1' },

@@ -32,7 +32,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
@@ -301,8 +300,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         injector: Injector,
         themesService: ThemesService,
         protected colorSchemeService: ColorSchemeService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        ref: ChangeDetectorRef
     ) {
 
         super(
@@ -312,8 +310,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             exportService,
             injector,
             themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         this.options = new NetworkGraphOptions(this.injector, this.datasetService, this.graphType, 500000);

@@ -31,7 +31,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
@@ -148,7 +147,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         themesService: ThemesService,
         public viewContainerRef: ViewContainerRef,
         ref: ChangeDetectorRef,
-        visualizationService: VisualizationService,
         public dialog: MatDialog
     ) {
 
@@ -159,8 +157,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             exportService,
             injector,
             themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         this.options = new DocumentViewerOptions(this.injector, this.datasetService, 'Document Viewer', 50);

@@ -26,7 +26,6 @@ import {
 } from '@angular/core';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { VisualizationService } from '../../services/visualization.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -106,8 +105,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         exportService: ExportService,
         injector: Injector,
         themesService: ThemesService,
-        changeDetection: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        changeDetection: ChangeDetectorRef
     ) {
         super(
             connectionService,
@@ -116,8 +114,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
             exportService,
             injector,
             themesService,
-            changeDetection,
-            visualizationService
+            changeDetection
         );
         this.options = new TestOptions(this.injector, this.datasetService, 'TestName');
     }
@@ -229,7 +226,6 @@ describe('Component: BaseNeonOptions', () => {
             ExportService,
             Injector,
             ThemesService,
-            VisualizationService,
             ErrorNotificationService,
             { provide: 'config', useValue: testConfig },
             { provide: 'testDate', useValue: 'testDateField' },
@@ -394,7 +390,6 @@ describe('Component: BaseNeonOptions with config', () => {
             ExportService,
             Injector,
             ThemesService,
-            VisualizationService,
             ErrorNotificationService,
             { provide: 'config', useValue: testConfig },
             { provide: 'database', useValue: 1 },
@@ -540,7 +535,6 @@ describe('Component: base-neon', () => {
             ExportService,
             Injector,
             ThemesService,
-            VisualizationService,
             ErrorNotificationService,
             { provide: 'config', useValue: testConfig }
         ]

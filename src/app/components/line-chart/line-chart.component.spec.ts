@@ -32,7 +32,6 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
-import { VisualizationService } from '../../services/visualization.service';
 import { ChartComponent } from '../chart/chart.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -56,7 +55,6 @@ describe('Component: LineChart', () => {
             ErrorNotificationService,
             ThemesService,
             ColorSchemeService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: testConfig }
         ],

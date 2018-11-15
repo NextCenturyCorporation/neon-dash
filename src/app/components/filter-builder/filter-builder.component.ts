@@ -30,7 +30,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService, ServiceFilter } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
@@ -167,8 +166,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         exportService: ExportService,
         injector: Injector,
         themesService: ThemesService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        ref: ChangeDetectorRef
     ) {
 
         super(
@@ -178,8 +176,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             exportService,
             injector,
             themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         this.options = new FilterBuilderOptions(this.injector, this.datasetService, 'Filter Builder');

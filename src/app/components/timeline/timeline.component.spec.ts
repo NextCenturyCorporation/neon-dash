@@ -37,7 +37,6 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 let d3 = require('../../../assets/d3.min.js');
@@ -60,7 +59,6 @@ describe('Component: Timeline', () => {
             FilterService,
             ExportService,
             ErrorNotificationService,
-            VisualizationService,
             ThemesService,
             ColorSchemeService,
             Injector,

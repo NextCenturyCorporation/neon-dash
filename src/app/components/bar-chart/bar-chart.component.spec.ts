@@ -33,7 +33,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
 import { AppMaterialModule } from '../../app.material.module';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
-import { VisualizationService } from '../../services/visualization.service';
 import { Color } from '../../color';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { LegendComponent } from '../legend/legend.component';
@@ -59,7 +58,6 @@ describe('Component: BarChart', () => {
             FilterService,
             ExportService,
             ErrorNotificationService,
-            VisualizationService,
             ThemesService,
             Injector,
             ColorSchemeService,

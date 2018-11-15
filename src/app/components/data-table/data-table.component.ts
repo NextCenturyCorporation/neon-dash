@@ -31,7 +31,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
@@ -215,8 +214,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         exportService: ExportService,
         injector: Injector,
         themesService: ThemesService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        ref: ChangeDetectorRef
     ) {
 
         super(
@@ -226,8 +224,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             exportService,
             injector,
             themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         this.options = new DataTableOptions(this.injector, this.datasetService, 'Data Table', 100);

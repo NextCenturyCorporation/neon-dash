@@ -31,7 +31,6 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
-import { VisualizationService } from '../../services/visualization.service';
 import { neonVariables } from '../../neon-namespaces';
 
 import * as neon from 'neon-framework';
@@ -61,7 +60,6 @@ describe('Component: TextCloud', () => {
             },
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            VisualizationService,
             ErrorNotificationService,
             ThemesService,
             Injector,
@@ -564,7 +562,6 @@ describe('Component: Textcloud with config', () => {
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            VisualizationService,
             ErrorNotificationService,
             ThemesService,
             Injector,
@@ -631,7 +628,6 @@ describe('Component: Textcloud with config including configFilter', () => {
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            VisualizationService,
             ErrorNotificationService,
             ThemesService,
             Injector,

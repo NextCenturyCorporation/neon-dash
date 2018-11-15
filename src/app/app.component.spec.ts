@@ -54,7 +54,6 @@ import { ExportService } from './services/export.service';
 import { FilterService } from './services/filter.service';
 import { ParameterService } from './services/parameter.service';
 import { ThemesService } from './services/themes.service';
-import { VisualizationService } from './services/visualization.service';
 import { ColorSchemeService } from './services/color-scheme.service';
 
 import { NgGridModule } from 'angular2-grid';
@@ -145,7 +144,6 @@ describe('App: NeonGtd', () => {
                 FilterService,
                 ParameterService,
                 ThemesService,
-                VisualizationService,
                 ColorSchemeService
             ]
         });

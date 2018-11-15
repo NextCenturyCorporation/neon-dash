@@ -29,7 +29,6 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';

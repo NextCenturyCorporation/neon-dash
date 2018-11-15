@@ -33,7 +33,6 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -66,7 +65,6 @@ describe('Component: DocumentViewer', () => {
             ExportService,
             FilterService,
             ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -1086,7 +1084,6 @@ describe('Component: Document Viewer with Config', () => {
             ExportService,
             FilterService,
             ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'title', useValue: 'Document Viewer Title' },

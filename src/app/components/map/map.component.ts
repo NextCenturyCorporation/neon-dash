@@ -33,7 +33,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import {
     AbstractMap,
@@ -230,8 +229,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         injector: Injector,
         themesService: ThemesService,
         protected colorSchemeService: ColorSchemeService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        ref: ChangeDetectorRef
     ) {
         super(
             connectionService,
@@ -240,8 +238,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             exportService,
             injector,
             themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         (<any> window).CESIUM_BASE_URL = 'assets/Cesium';

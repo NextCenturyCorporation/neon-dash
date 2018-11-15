@@ -33,7 +33,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import {
     AbstractAggregationSubcomponent,
@@ -323,7 +322,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         injector: Injector,
         themesService: ThemesService,
         ref: ChangeDetectorRef,
-        visualizationService: VisualizationService,
         protected colorSchemeService: ColorSchemeService
     ) {
 
@@ -334,8 +332,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             exportService,
             injector,
             themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         this.options = new AggregationOptions(this.injector, this.datasetService, 'Aggregation', 10000);

@@ -34,7 +34,6 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -56,7 +55,6 @@ describe('Component: MediaViewer', () => {
             ErrorNotificationService,
             { provide: FilterService, useClass: FilterServiceMock },
             ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -1692,7 +1690,6 @@ describe('Component: MediaViewer with config', () => {
             ErrorNotificationService,
             FilterService,
             ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'title', useValue: 'Test Title' },

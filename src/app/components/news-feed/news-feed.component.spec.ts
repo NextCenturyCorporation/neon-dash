@@ -32,7 +32,6 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
@@ -57,7 +56,6 @@ describe('Component: NewsFeed', () => {
             ErrorNotificationService,
             { provide: FilterService, useClass: FilterServiceMock },
             ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],

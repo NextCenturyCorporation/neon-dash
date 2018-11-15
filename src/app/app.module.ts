@@ -34,7 +34,6 @@ import { FilterService } from './services/filter.service';
 import { ParameterService } from './services/parameter.service';
 import { PropertyService } from './services/property.service';
 import { ThemesService } from './services/themes.service';
-import { VisualizationService } from './services/visualization.service';
 
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
@@ -159,7 +158,6 @@ export function getAppConfig() {
         ParameterService,
         PropertyService,
         ThemesService,
-        VisualizationService,
         ColorSchemeService,
         {
             provide: 'config',
