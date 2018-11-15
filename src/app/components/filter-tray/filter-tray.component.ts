@@ -16,12 +16,13 @@
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { NeonGridItem } from '../../neon-grid-item';
+import { neonEvents } from '../../neon-namespaces';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
-import { ParameterService } from '../../services/parameter.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
+
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 
@@ -61,7 +62,7 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
             filtersChanged: this.onEventChanged
         });
 
-        this.messenger.subscribe(ParameterService.STATE_CHANGED_CHANNEL, this.onEventChanged);
+        this.messenger.subscribe(neonEvents.DASHBOARD_STATE, this.onEventChanged);
         this.onEventChanged();
     }
 

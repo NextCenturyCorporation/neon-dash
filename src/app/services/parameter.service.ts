@@ -22,14 +22,13 @@ import { ConnectionService } from './connection.service';
 import { DatasetService } from './dataset.service';
 import { ErrorNotificationService } from './error-notification.service';
 import { FilterService } from './filter.service';
-import { neonMappings } from '../neon-namespaces';
+import { neonEvents, neonMappings } from '../neon-namespaces';
 import * as _ from 'lodash';
 
 @Injectable()
 export class ParameterService {
 
     // The Dataset Service may ask the visualizations to update their data.
-    public static STATE_CHANGED_CHANNEL: string = 'STATE_CHANGED';
     public static FILTER_KEY_PREFIX: string = 'dashboard';
 
     static CUSTOM_NUMBER_MAPPING_PREFIX: string = 'custom_number_';
@@ -291,7 +290,10 @@ export class ParameterService {
         connection.loadState(params, (dashboardState) => {
             this.loadStateSuccess(dashboardState, dashboardStateId);
         }, (response) => {
-            this.errorNotificationService.showErrorMessage(null, response.responseJSON.error);
+            this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+                error: null,
+                message: response.responseJSON.error
+            });
         });
     }
 
@@ -324,22 +326,28 @@ export class ParameterService {
                             }
                         }
 
-                        this.messenger.publish(ParameterService.STATE_CHANGED_CHANNEL, {
+                        this.messenger.publish(neonEvents.DASHBOARD_STATE, {
                             dashboard: dashboardState.dashboard,
                             dataset: dataset,
                             dashboardStateId: dashboardStateId
                         });
                     }, (response) => {
                         if (response.responseJSON) {
-                            this.errorNotificationService.showErrorMessage(null, response.responseJSON.error);
+                            this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+                                error: null,
+                                message: response.responseJSON.error
+                            });
                         }
                     });
                 });
             } else {
-                this.messenger.publish(ParameterService.STATE_CHANGED_CHANNEL, null);
+                this.messenger.publish(neonEvents.DASHBOARD_STATE, null);
             }
         } else {
-            this.errorNotificationService.showErrorMessage(null, 'State not found for given IDs.');
+            this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+                error: null,
+                message: 'State not found for given IDs.'
+            });
         }
     }
 

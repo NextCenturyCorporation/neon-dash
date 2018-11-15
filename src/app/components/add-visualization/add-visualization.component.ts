@@ -16,9 +16,12 @@
 import { Component, ElementRef, Input, OnInit } from '@angular/core';
 import { MatDialogRef, MatSnackBar } from '@angular/material';
 
+import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents, neonVisualizations } from '../../neon-namespaces';
 import { ThemesService } from '../../services/themes.service';
+
 import * as neon from 'neon-framework';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'app-add-visualization',
@@ -56,11 +59,13 @@ export class AddVisualizationComponent implements OnInit {
         if (this.selectedIndex !== -1) {
             this.visualizations[this.selectedIndex].selected = false;
         }
+
         this.visualizations[index].selected = true;
         this.selectedIndex = index;
 
+        let widgetGridItem: NeonGridItem = _.cloneDeep(this.visualizations[index]);
         this.messenger.publish(neonEvents.WIDGET_ADD, {
-            widget: this.visualizations[index]
+            widgetGridItem: widgetGridItem
         });
 
         this.snackBar.open('Visualization Added', 'x', {

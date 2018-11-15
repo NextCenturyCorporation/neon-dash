@@ -15,10 +15,21 @@
  */
 import { Injectable } from '@angular/core';
 
+import { neonEvents } from '../neon-namespaces';
+
+import * as neon from 'neon-framework';
+
 @Injectable()
 export class ErrorNotificationService {
-    showErrorMessage(error: Error | ExceptionInformation, message: string) {
-        // TODO: Replace testing log with a call to MatSnackBar to
-        console.error('An error occured: ' + message + '\n' + error);
+    private messenger: neon.eventing.Messenger;
+
+    constructor() {
+        this.messenger = new neon.eventing.Messenger();
+        this.messenger.subscribe(neonEvents.DASHBOARD_ERROR, this.showErrorMessage.bind(this));
+    }
+
+    showErrorMessage(eventMessage: { error: Error | ExceptionInformation, message: string }) {
+        // TODO THOR-916
+        console.error('An error occured: ' + eventMessage.message + '\n' + eventMessage.error);
     }
 }

@@ -110,7 +110,7 @@ export class ExportControlComponent implements OnInit {
         }
 
         let localExportId = this.exportId;
-        let widgetObjects = this.exportService.getWidgets()
+        let widgetObjects = this.exportService.getWidgetExportCallbacks()
           .filter((widget) => {
               return exportAll || widget.id === localExportId;
           })
@@ -129,7 +129,7 @@ export class ExportControlComponent implements OnInit {
             }
         }
 
-        if (this.exportService.getWidgets().length === 0) {
+        if (this.exportService.getWidgetExportCallbacks().length === 0) {
             this.matSnackBar.open('There are no visualizations to export.', 'OK', config);
             return;
         }

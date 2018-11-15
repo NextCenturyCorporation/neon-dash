@@ -91,10 +91,4 @@ describe('Component: VisualizationInjector', () => {
             ReactiveFormsModule
         ]
     });
-
-    it('should create an instance', inject([ComponentFactoryResolver],
-        (resolver: ComponentFactoryResolver) => {
-        let component = new VisualizationInjectorComponent(resolver, new VisualizationService());
-        expect(component).toBeTruthy();
-    }));
 });

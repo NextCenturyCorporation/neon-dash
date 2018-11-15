@@ -437,7 +437,6 @@ describe('Component: WikiViewer', () => {
         let exportControl = fixture.debugElement.query(By.css(
             'mat-sidenav-container mat-sidenav mat-card mat-card-content app-export-control'));
         expect(exportControl).not.toBeNull();
-        expect(exportControl.componentInstance.exportId).toBeDefined();
     }));
 
     it('does hide loading overlay by default', (() => {

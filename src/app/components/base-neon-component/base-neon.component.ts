@@ -31,13 +31,14 @@ import { VisualizationService } from '../../services/visualization.service';
 import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import { neonEvents } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-import * as uuid from 'node-uuid';
 import * as _ from 'lodash';
+import * as uuid from 'node-uuid';
 
 /**
  * Manages configurable options for all visualizations.
  */
 export abstract class BaseNeonOptions {
+    public _id: string;
     public databases: DatabaseMetaData[] = [];
     public database: DatabaseMetaData;
     public fields: FieldMetaData[] = [];
@@ -77,6 +78,7 @@ export abstract class BaseNeonOptions {
     constructor(protected injector: Injector, protected datasetService: DatasetService, visualizationTitle: string = '',
         defaultLimit: number = 10) {
 
+        this._id = injector.get('_id', uuid.v4());
         this.customEventsToPublish = injector.get('customEventsToPublish', []);
         this.customEventsToReceive = injector.get('customEventsToReceive', []);
         this.filter = injector.get('configFilter', null);
@@ -345,8 +347,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
     private redrawAfterResize: boolean = false;
 
-    public exportId: number;
-
     public isLoading: boolean = false;
     public isExportable: boolean = true;
 
@@ -372,10 +372,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.themesService = themesService;
         this.changeDetection = changeDetection;
         this.messenger = new neon.eventing.Messenger();
-        this.doExport = this.doExport.bind(this);
         this.getBindings = this.getBindings.bind(this);
-        // Let the ID be a UUID
-        this.id = uuid.v4();
     }
 
     /**
@@ -388,11 +385,12 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     ngOnInit() {
         this.initializing = true;
+        this.id = this.getOptions()._id;
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
-        this.visualizationService.registerBindings(this.id, this);
         this.messenger.publish(neonEvents.WIDGET_REGISTER, {
             id: this.id,
+            export: this.isExportable ? this.doExport.bind(this) : null,
             widget: this
         });
 
@@ -407,7 +405,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         }
 
         this.subNgOnInit();
-        this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
         this.initializing = false;
         this.postInit();
     }
@@ -455,7 +452,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                 name: 'Query_Results_Table',
                 data: [{
                     query: query,
-                    name: exportName + '-' + this.exportId,
+                    name: exportName + '-' + this.id,
                     fields: this.getOptions().getExportFields().map((exportFieldsObject) => ({
                         query: exportFieldsObject.columnName,
                         pretty: exportFieldsObject.prettyName || exportFieldsObject.columnName
@@ -532,8 +529,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
-        this.exportService.unregister(this.exportId);
-        this.visualizationService.unregister(this.id);
         this.messenger.publish(neonEvents.WIDGET_UNREGISTER, {
             id: this.id
         });
