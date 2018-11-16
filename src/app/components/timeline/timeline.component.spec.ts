@@ -30,12 +30,10 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { TimelineComponent } from './timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 let d3 = require('../../../assets/d3.min.js');
@@ -57,8 +55,6 @@ describe('Component: Timeline', () => {
             DatasetService,
             FilterService,
             ExportService,
-            ThemesService,
-            ColorSchemeService,
             Injector,
             { provide: 'config', useValue: testConfig }
         ],

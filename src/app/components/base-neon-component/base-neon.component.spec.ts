@@ -30,10 +30,9 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
+
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
-import { ColorSchemeService } from '../../services/color-scheme.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
@@ -103,7 +102,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         filterService: FilterService,
         exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
         changeDetection: ChangeDetectorRef
     ) {
         super(
@@ -112,7 +110,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
             filterService,
             exportService,
             injector,
-            themesService,
             changeDetection
         );
         this.options = new TestOptions(this.injector, this.datasetService, 'TestName');
@@ -217,14 +214,10 @@ describe('Component: BaseNeonOptions', () => {
         ],
         providers: [
             ConnectionService,
-            {
-                provide: DatasetService,
-                useClass: DatasetServiceMock
-            },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             ExportService,
             Injector,
-            ThemesService,
             { provide: 'config', useValue: testConfig },
             { provide: 'testDate', useValue: 'testDateField' },
             { provide: 'testFake', useValue: 'testFakeField' },
@@ -380,14 +373,10 @@ describe('Component: BaseNeonOptions with config', () => {
         ],
         providers: [
             ConnectionService,
-            {
-                provide: DatasetService,
-                useClass: DatasetServiceMock
-            },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             ExportService,
             Injector,
-            ThemesService,
             { provide: 'config', useValue: testConfig },
             { provide: 'database', useValue: 1 },
             { provide: 'table', useValue: 1 },
@@ -524,14 +513,10 @@ describe('Component: base-neon', () => {
         ],
         providers: [
             ConnectionService,
-            {
-                provide: DatasetService,
-                useClass: DatasetServiceMock
-            },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             ExportService,
             Injector,
-            ThemesService,
             { provide: 'config', useValue: testConfig }
         ]
     });

@@ -29,7 +29,6 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
@@ -49,7 +48,6 @@ describe('Component: Filter Builder', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            ThemesService,
             Injector,
             { provide: 'config', useValue: testConfig }
         ],
@@ -395,7 +393,6 @@ describe('Component: Filter Builder with config', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            ThemesService,
             Injector,
             {
                 provide: 'clauseConfig',

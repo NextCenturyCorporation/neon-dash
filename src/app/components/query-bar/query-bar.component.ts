@@ -13,21 +13,24 @@
  * limitations under the License.
  *
  */
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewChild } from '@angular/core';
-import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { DatasetService } from '../../services/dataset.service';
-import { FieldMetaData, SimpleFilter } from '../../dataset';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import * as neon from 'neon-framework';
-import * as uuid from 'node-uuid';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { map, startWith } from 'rxjs/operators';
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
-import { ExportService } from '../../services/export.service';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { ExportService } from '../../services/export.service';
+import { FilterService } from '../../services/filter.service';
+
+import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { FieldMetaData, SimpleFilter } from '../../dataset';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
+
+import * as neon from 'neon-framework';
+import * as uuid from 'node-uuid';
 import WherePredicate = neon.query.WherePredicate;
 
 /**
@@ -122,7 +125,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
         filterService: FilterService,
         exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
+        protected widgetService: AbstractWidgetService,
         ref: ChangeDetectorRef
     ) {
 
@@ -132,7 +135,6 @@ export class QueryBarComponent  extends BaseNeonComponent {
             filterService,
             exportService,
             injector,
-            themesService,
             ref
         );
 

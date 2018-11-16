@@ -24,12 +24,12 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FieldMetaData } from '../../dataset';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
-import { ColorSchemeService } from '../../services/color-scheme.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { WidgetService } from '../../services/widget.service';
 import { LegendComponent } from '../legend/legend.component';
 import { ChartComponent } from '@swimlane/ngx-charts';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -57,9 +57,8 @@ describe('Component: NetworkGraph', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            ThemesService,
             Injector,
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: 'config', useValue: testConfig },
             { provide: 'limit', useValue: 'testLimit' }
         ],

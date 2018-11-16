@@ -26,12 +26,12 @@ import {
 } from '@angular/core';
 
 import { Color } from '../../color';
-import { ColorSchemeService } from '../../services/color-scheme.service';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, DatabaseMetaData, TableMetaData } from '../../dataset';
@@ -219,13 +219,12 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     public previousId: string = '';
 
     constructor(
-        private colorSchemeService: ColorSchemeService,
+        protected widgetService: AbstractWidgetService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
         exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
         ref: ChangeDetectorRef
     ) {
         super(
@@ -234,7 +233,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             filterService,
             exportService,
             injector,
-            themesService,
             ref
         );
 
@@ -501,8 +499,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     let currentPart = new Part();
                     let currentText = document.annotationTextList[index];
                     let currentType = document.annotationTypeList[index];
-                    let highlightColor = this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name,
-                        currentType, currentType).toRgba(0.4);
+                    let highlightColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, currentType,
+                        currentType).toRgba(0.4);
 
                     currentPart.highlightColor = highlightColor;
                     currentPart.text = currentText;
@@ -516,7 +514,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                         this.seenTypes.push(type);
                     }
                 }
-                this.colorKeys = this.seenTypes.map((type) => this.colorSchemeService.getColorKey(this.options.database.name,
+                this.colorKeys = this.seenTypes.map((type) => this.widgetService.getColorKey(this.options.database.name,
                     this.options.table.name, type));
             }
 
@@ -939,8 +937,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     part.highlightColor = 'rgb(255,255,255)';
                 } else {
                     if (part.highlightColor && part.highlightColor.includes('rgb(255,255,255')) {
-                        part.highlightColor = this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name,
-                            part.type, part.type).toRgba(0.4);
+                        part.highlightColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, part.type,
+                            part.type).toRgba(0.4);
                     }
                 }
 

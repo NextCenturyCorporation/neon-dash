@@ -18,8 +18,10 @@ import { Component, OnInit, AfterViewInit, OnDestroy, ViewEncapsulation, Element
 
 import { MatSnackBar, MatDialog } from '@angular/material';
 import { NeonGTDConfig } from './../../neon-gtd-config';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { PropertyService } from '../../services/property.service';
-import { ThemesService } from '../../services/themes.service';
+
 import * as JSONEditor from 'jsoneditor';
 declare var editor: any;
 import * as _ from 'lodash';
@@ -42,7 +44,7 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
     public editor: any;
 
     constructor(@Inject('config') private neonConfig: NeonGTDConfig, public snackBar: MatSnackBar,
-        private propertyService: PropertyService, private themesService: ThemesService) {
+        protected propertyService: PropertyService, protected widgetService: AbstractWidgetService) {
         this.snackBar = snackBar;
         this.currentConfig = neonConfig;
         if (this.currentConfig.errors) {
@@ -97,13 +99,13 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
         this.propertyService.setProperty(this.CONFIG_PROP_NAME, text,
         (response) => {
             this.snackBar.open('Configuration updated successfully.  Refresh to reflect changes.', 'OK', {
-                panelClass: this.themesService.getCurrentTheme(),
+                panelClass: this.widgetService.getTheme(),
                 duration: this.DEFAULT_SNACK_BAR_DURATION
             });
         },
         (response) => {
             this.snackBar.open('Error attempting to save configuration', 'OK', {
-                panelClass: this.themesService.getCurrentTheme(),
+                panelClass: this.widgetService.getTheme(),
                 duration: this.DEFAULT_SNACK_BAR_DURATION
             });
             console.warn('Error attempting to save configuration:');
@@ -117,14 +119,14 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
             this.propertyService.deleteProperty(this.CONFIG_PROP_NAME, (response) => {
                 this.snackBar.open('Configuration deleted from Property Service successfully.  ' +
                     'Configuration will be loaded from internal \'json\' or \'yaml\' files.', 'OK', {
-                        panelClass: this.themesService.getCurrentTheme(),
+                        panelClass: this.widgetService.getTheme(),
                         duration: this.DEFAULT_SNACK_BAR_DURATION
                     }
                 );
             },
             (response) => {
                 this.snackBar.open('Error attempting to delete property configuration', 'OK', {
-                    panelClass: this.themesService.getCurrentTheme(),
+                    panelClass: this.widgetService.getTheme(),
                     duration: this.DEFAULT_SNACK_BAR_DURATION
                 });
                 console.warn('Error attempting to delete property configuration:');

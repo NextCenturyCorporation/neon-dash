@@ -26,13 +26,14 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
+
 import { Color } from '../../color';
-import { ColorSchemeService } from '../../services/color-scheme.service';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
 
 import {
     AbstractMap,
@@ -227,8 +228,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         filterService: FilterService,
         exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        protected colorSchemeService: ColorSchemeService,
+        protected widgetService: AbstractWidgetService,
         ref: ChangeDetectorRef
     ) {
         super(
@@ -237,7 +237,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             filterService,
             exportService,
             injector,
-            themesService,
             ref
         );
 
@@ -664,8 +663,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         map.forEach((unique) => {
             let color = rgbColor;
             if (!this.options.singleColor) {
-                color = unique.colorValue ? this.colorSchemeService.getColorFor(databaseName, tableName, colorField,
-                    unique.colorValue).toRgb() : whiteString;
+                color = unique.colorValue ? this.widgetService.getColor(databaseName, tableName, colorField, unique.colorValue).toRgb() :
+                    whiteString;
             }
 
             mapPoints.push(
@@ -738,7 +737,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         let colorKeys: string[] = [];
         for (let layer of this.options.layers) {
             if (layer.colorField.columnName !== '') {
-                colorKeys.push(this.colorSchemeService.getColorKey(layer.database.name, layer.table.name, layer.colorField.columnName));
+                colorKeys.push(this.widgetService.getColorKey(layer.database.name, layer.table.name, layer.colorField.columnName));
             }
         }
         this.colorKeys = colorKeys;

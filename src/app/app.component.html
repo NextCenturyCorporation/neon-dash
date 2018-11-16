@@ -1,6 +1,6 @@
-<mat-sidenav-container class="neon-sidenav" [ngClass]="themesService.getCurrentTheme()">
+<mat-sidenav-container class="neon-sidenav" [ngClass]="widgetService.getTheme()">
     <mat-sidenav #sideNavRight class="neon-sidenav neon-sidenav-info" mat-fill align="end">
-        <div [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+        <div>
             <mat-toolbar class="title" color="primary">
                 <span>{{ rightPanelTitle }}</span>
             </mat-toolbar>

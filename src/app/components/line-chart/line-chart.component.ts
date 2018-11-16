@@ -25,12 +25,11 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ColorSchemeService } from '../../services/color-scheme.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from '../chart/chart.component';
@@ -222,8 +221,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         filterService: FilterService,
         exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        protected colorSchemeService: ColorSchemeService,
+        protected widgetService: AbstractWidgetService,
         ref: ChangeDetectorRef
     ) {
 
@@ -233,7 +231,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             filterService,
             exportService,
             injector,
-            themesService,
             ref
         );
 
@@ -601,7 +598,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getColorFromScheme(name): string {
-        return this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name, this.options.groupField.columnName,
+        return this.widgetService.getColor(this.options.database.name, this.options.table.name, this.options.groupField.columnName,
             name).toRgb();
     }
 
@@ -737,7 +734,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     updateLegend() {
-        this.colorKeys = [this.colorSchemeService.getColorKey(this.options.database.name, this.options.table.name,
+        this.colorKeys = [this.widgetService.getColorKey(this.options.database.name, this.options.table.name,
             this.options.groupField.columnName)];
     }
 

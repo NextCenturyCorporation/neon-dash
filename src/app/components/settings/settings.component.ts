@@ -20,9 +20,10 @@ import { URLSearchParams } from '@angular/http';
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
 
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 
@@ -62,11 +63,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     constructor(
         private changeDetection: ChangeDetectorRef,
-        public datasetService: DatasetService,
+        protected datasetService: DatasetService,
         private dialog: MatDialog,
-        public exportService: ExportService,
+        protected exportService: ExportService,
         public injector: Injector,
-        public themesService: ThemesService
+        protected widgetService: AbstractWidgetService
     ) {
         this.datasetService = datasetService;
         this.exportService = exportService;
@@ -92,7 +93,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
-        this.formData.currentTheme = this.themesService.getCurrentTheme();
+        this.formData.currentTheme = this.widgetService.getTheme();
         this.checkSimpleFilter();
         this.validateDatasetService();
         this.messenger.subscribe('showSimpleSearch', (message) => {
@@ -137,7 +138,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     setCurrentTheme(themeId: any) {
         if (themeId) {
-            this.themesService.setCurrentTheme(themeId);
+            this.widgetService.setTheme(themeId);
         }
     }
 

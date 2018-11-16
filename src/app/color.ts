@@ -145,7 +145,7 @@ export class Color {
  * A set of colors, used to keep track of which values map to which colors
  */
 export class ColorSet {
-    // TODO Move to ThemesService
+    // TODO Move to WidgetService
     private colors: Color[] = [
         // NEON TEAL COLOR THEME
         new Color(255, 135, 55),  // #FF8737 (orange)
