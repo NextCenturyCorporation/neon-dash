@@ -26,12 +26,12 @@ import {
 } from '@angular/core';
 
 import { Color } from '../../color';
-import { ColorSchemeService } from '../../services/color-scheme.service';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from '../chart/chart.component';
@@ -226,8 +226,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         filterService: FilterService,
         exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        protected colorSchemeService: ColorSchemeService,
+        protected widgetService: AbstractWidgetService,
         ref: ChangeDetectorRef
     ) {
 
@@ -237,7 +236,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
             filterService,
             exportService,
             injector,
-            themesService,
             ref
         );
 
@@ -612,7 +610,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
             if (!dataSet) {
                 let color = this.defaultActiveColor;
                 if (!!this.options.colorField.columnName) {
-                    color = this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name,
+                    color = this.widgetService.getColor(this.options.database.name, this.options.table.name,
                         this.options.colorField.columnName, dataSetKey);
                 }
                 dataSet = new ScatterDataSet(color);
@@ -686,7 +684,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
 
         this.refreshVisualization();
         // Force the legend to update
-        this.colorKeys = [this.colorSchemeService.getColorKey(this.options.database.name, this.options.table.name,
+        this.colorKeys = [this.widgetService.getColorKey(this.options.database.name, this.options.table.name,
             this.options.colorField.columnName)];
     }
 

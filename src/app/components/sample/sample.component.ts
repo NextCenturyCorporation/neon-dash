@@ -25,12 +25,10 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
 
 import { AbstractSubcomponent, SubcomponentListener } from './subcomponent.abstract';
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
@@ -159,7 +157,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         filterService: FilterService,
         exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
         ref: ChangeDetectorRef
     ) {
 
@@ -169,7 +166,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             filterService,
             exportService,
             injector,
-            themesService,
             ref
         );
 

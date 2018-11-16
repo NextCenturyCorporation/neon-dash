@@ -23,11 +23,12 @@ import {} from 'jasmine-core';
 
 import { AddVisualizationComponent } from './add-visualization.component';
 
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
+import { WidgetService } from '../../services/widget.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -49,13 +50,13 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 class TestAddVisualizationComponent extends AddVisualizationComponent {
     constructor(
-        themesService: ThemesService,
+        widgetService: AbstractWidgetService,
         snackBar: MatSnackBar
     ) {
 
         super(
             snackBar,
-            themesService
+            widgetService
         );
     }
 
@@ -72,7 +73,10 @@ describe('Component: AddVisualization', () => {
             TestAddVisualizationComponent
         ],
         providers: [
-            ThemesService
+            {
+                provide: AbstractWidgetService,
+                useClass: WidgetService
+            }
         ],
         imports: [
             AppMaterialModule,

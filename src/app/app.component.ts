@@ -31,6 +31,7 @@ import * as neon from 'neon-framework';
 import * as L from 'leaflet'; // imported for use of DomUtil.enable/disableTextSelection
 import * as uuid from 'node-uuid';
 
+import { AbstractWidgetService } from './services/abstract.widget.service';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { BaseNeonComponent } from './components/base-neon-component/base-neon.component';
 import { BaseLayeredNeonComponent } from './components/base-neon-component/base-layered-neon.component';
@@ -48,7 +49,6 @@ import { neonEvents } from './neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { SaveStateComponent } from './components/save-state/save-state.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
-import { ThemesService } from './services/themes.service';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 
 @Component({
@@ -128,7 +128,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         public filterService: FilterService,
         private matIconRegistry: MatIconRegistry,
         public snackBar: MatSnackBar,
-        public themesService: ThemesService,
+        public widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
         @Inject('config') private neonConfig: NeonGTDConfig
     ) {
@@ -141,7 +141,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         if (neonConfig.errors && neonConfig.errors.length > 0) {
             let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
-                panelClass: this.themesService.getCurrentTheme(),
+                panelClass: this.widgetService.getTheme(),
                 viewContainerRef: this.viewContainerRef
             });
             snackBarRef.instance.snackBarRef = snackBarRef;
@@ -433,7 +433,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     openCustomConnectionDialog() {
         let config = new MatDialogConfig();
-        config.panelClass = this.themesService.getCurrentTheme();
+        config.panelClass = this.widgetService.getTheme();
         config.viewContainerRef = this.viewContainerRef;
 
         this.customConnectionDialogRef = this.dialog.open(CustomConnectionComponent, config);
@@ -458,7 +458,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     openFilterTrayDialog() {
         let config = new MatDialogConfig();
-        config.panelClass = this.themesService.getCurrentTheme();
+        config.panelClass = this.widgetService.getTheme();
         config.viewContainerRef = this.viewContainerRef;
         config.data = this.widgets;
 

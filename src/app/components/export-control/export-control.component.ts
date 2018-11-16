@@ -21,7 +21,6 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { ParameterService } from '../../services/parameter.service';
-import { ThemesService } from '../../services/themes.service';
 
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 
@@ -43,10 +42,9 @@ export class ExportControlComponent implements OnInit {
     public buttonText: string;
 
     constructor(
-        private connectionService: ConnectionService,
-        public exportService: ExportService,
+        protected connectionService: ConnectionService,
+        protected exportService: ExportService,
         private matSnackBar: MatSnackBar,
-        public themesService: ThemesService,
         private viewContainerRef: ViewContainerRef
     ) {
         this.handleExportClick = this.handleExportClick.bind(this);

@@ -30,7 +30,6 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
@@ -53,7 +52,6 @@ describe('Component: NewsFeed', () => {
             DatasetService,
             ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],

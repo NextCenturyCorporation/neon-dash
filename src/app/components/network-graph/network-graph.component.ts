@@ -26,12 +26,11 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ColorSchemeService } from '../../services/color-scheme.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
@@ -298,8 +297,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         filterService: FilterService,
         exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        protected colorSchemeService: ColorSchemeService,
+        protected widgetService: AbstractWidgetService,
         ref: ChangeDetectorRef
     ) {
 
@@ -309,7 +307,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             filterService,
             exportService,
             injector,
-            themesService,
             ref
         );
 
@@ -797,7 +794,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             // if there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
             if (nodeColorField && this.prettifiedNodeLabels.length === 0) {
                 let colorMapVal = nodeColorField && nodeType;
-                nodeColor = this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name, nodeColorField,
+                nodeColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, nodeColorField,
                     colorMapVal).toRgb();
             }
 
@@ -813,8 +810,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                         for (const nodeLabel of this.prettifiedNodeLabels) {
                             if (nodeLabel === shortName) {
                                 let colorMapVal = nodeColorField && nodeLabel;
-                                nodeColor = this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name,
-                                    nodeColorField, colorMapVal).toRgb();
+                                nodeColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, nodeColorField,
+                                    colorMapVal).toRgb();
                                 break;
                             }
                         }
@@ -838,7 +835,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             // if there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
             if (nodeColorField && this.prettifiedNodeLabels.length === 0) {
                 let colorMapVal = nodeColorField && nodeType;
-                linkColor = this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name, nodeColorField,
+                linkColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, nodeColorField,
                     colorMapVal).toRgb();
             }
 
@@ -855,8 +852,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                         for (const nodeLabel of this.prettifiedNodeLabels) {
                             if (nodeLabel === shortName) {
                                 let colorMapVal = nodeColorField && nodeLabel;
-                                linkColor = this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name,
-                                    nodeColorField, colorMapVal).toRgb();
+                                linkColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, nodeColorField,
+                                    colorMapVal).toRgb();
                                 break;
                             }
                         }
@@ -874,7 +871,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 // if there is a valid edgeColorField and no modifications to the legend labels, override the default edgeColor
                 if (edgeColorField && this.prettifiedEdgeLabels.length === 0) {
                     let colorMapVal = edgeColorField && edgeType;
-                    edgeColor = this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name, edgeColorField,
+                    edgeColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, edgeColorField,
                         colorMapVal).toRgb();
                 }
 
@@ -890,8 +887,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                             if (edgeLabel === shortName) {
                                 let colorMapVal = edgeColorField && edgeLabel;
                                 edgeType = edgeLabel;
-                                edgeColor = this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name,
-                                    edgeColorField, colorMapVal).toRgb();
+                                edgeColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, edgeColorField,
+                                    colorMapVal).toRgb();
                                 edgeColorObject = { color: edgeColor, highlight: edgeColor};
                                 break;
                             }
@@ -1021,10 +1018,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     updateLegend() {
         let colorKeys: string[] = [];
         if (this.options.nodeColorField.columnName !== '') {
-            colorKeys.push(this.colorSchemeService.getColorKey(this.options.database.name, this.options.table.name,
+            colorKeys.push(this.widgetService.getColorKey(this.options.database.name, this.options.table.name,
                 this.options.nodeColorField.columnName));
         } else if (this.options.edgeColorField.columnName !== '') {
-            colorKeys.push(this.colorSchemeService.getColorKey(this.options.database.name, this.options.table.name,
+            colorKeys.push(this.widgetService.getColorKey(this.options.database.name, this.options.table.name,
                 this.options.edgeColorField.columnName));
         }
         this.colorKeys = colorKeys;

@@ -24,14 +24,13 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
-import { ColorSchemeService } from '../../services/color-scheme.service';
+
 import { ColorSet } from '../../color';
 
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
+
 /**
- * Component that will display a legend of colors.
- *
- * Provided a list of field names, the legend gets all keys/colors for that set from the
- * ColorSchemeService, and it draws it.
+ * Shows a legend of colors using the given color keys.
  */
 @Component({
     selector: 'app-legend',
@@ -76,7 +75,7 @@ export class LegendComponent implements OnInit {
     public colorSets: ColorSet[] = [];
     private _colorKeys: string[];
 
-    constructor(private colorSchemeService: ColorSchemeService) {
+    constructor(protected widgetService: AbstractWidgetService) {
         this.menuIcon = 'keyboard_arrow_down';
     }
 
@@ -90,12 +89,12 @@ export class LegendComponent implements OnInit {
     }
 
     /**
-     * Get all the color sets we need from the ColorSchemeService
+     * Loads all the color sets using the global color keys.
      */
     private loadAllColorSets() {
         this.colorSets = [];
         for (let colorKey of (this.colorKeys || [])) {
-            let colorSet = this.colorSchemeService.getColorSet(colorKey || '');
+            let colorSet = this.widgetService.getColorSet(colorKey || '');
             if (colorSet) {
                 this.colorSets.push(colorSet);
             }
