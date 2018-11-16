@@ -85,7 +85,7 @@ import * as neon from 'neon-framework';
 
 describe('App: NeonGtd', () => {
     let fixture: ComponentFixture<AppComponent>,
-    getService = (type: any) => fixture.debugElement.injector.get(type);
+        getService = (type: any) => fixture.debugElement.injector.get(type);
     let debugElement: DebugElement;
     let component: AppComponent;
 
@@ -144,7 +144,7 @@ describe('App: NeonGtd', () => {
                 { provide: 'config', useValue: new NeonGTDConfig() },
                 { provide: APP_BASE_HREF, useValue: '/' },
                 { provide: DatasetService, useClass: DatasetServiceMock },
-                { provide: FilterService, useClass: FilterServiceMock},
+                { provide: FilterService, useClass: FilterServiceMock },
                 ActiveGridService,
                 ConnectionService,
                 ErrorNotificationService,
@@ -182,7 +182,7 @@ describe('App: NeonGtd', () => {
         expect(component.rightPanelTitle).toEqual('Dashboard Layouts');
 
         expect(component.showCustomConnectionButton).toEqual(true);
-        expect(component.showFilterBuilder).toEqual(true);
+        expect(component.showFilterBuilderIcon).toEqual(true);
         expect(component.showFilterTrayButton).toEqual(true);
         expect(component.showSimpleSearch).toEqual(false);
         expect(component.showVisShortcut).toEqual(true);
@@ -221,9 +221,10 @@ describe('App: NeonGtd', () => {
 
     }));
 
-    it('toggle boolean', async(() => {
-        component.showFilterBuilder = false;
-        //expect(component.filt);
+    it('toggle filter builder', async(() => {
+        component.showFilterBuilderIcon = false;
         expect(debugElement.nativeElement.querySelectorAll('app-filter-builder').length === 0).toBeTruthy();
+        component.showFilterBuilderIcon = true;
+        component.createFilterBuilder = true;
     }));
 });
