@@ -466,6 +466,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
                 });
 
+                this.addCountsToTaxonomy(response.data, this.taxonomyGroups);
                 this.sortTaxonomyArrays(this.taxonomyGroups);
                 this.refreshVisualization();
 
@@ -497,6 +498,35 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     onEvent = () => {
         //Intentionally empty
+    }
+
+    addCountsToTaxonomy(data: any, groups: any[]) {
+        for (let group of groups) {
+            let count = 0;
+            group.nodeIds = [];
+            data.forEach((d) => {
+                let id = neonUtilities.deepFind(d, this.options.idField.columnName);
+                if (neonUtilities.deepFind(d, group.description).includes(group.name) && !group.nodeIds.includes(id)) {
+                    group.nodeIds.push(id);
+                    count++;
+                }
+            });
+
+            group.nodeCount = count;
+
+            if (group.hasOwnProperty('children')) {
+                this.addCountsToTaxonomy(data, group.children);
+                let childCount = 0;
+                for (let child of group.children) {
+                    childCount += child.nodeCount;
+                }
+
+                if (!group.nodeCount) {
+                    group.nodeCount = childCount;
+                }
+
+            }
+        }
     }
 
     /**
