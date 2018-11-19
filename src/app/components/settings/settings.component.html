@@ -1,7 +1,7 @@
 <form class="settings-container" #optionsForm="ngForm">
     <h3 class="header"> Export Format</h3>
     <app-export-control [exportTarget]="exportTarget"></app-export-control>
-    
+
     <mat-divider class="divider"></mat-divider>
     <h3 class="header">Themes</h3>
     <div class='radio-container' layout="row" mat-margin>
@@ -20,6 +20,10 @@
     <h3 class="header">Display Tools</h3>
     <div class="display-tools-container">
         <div class="checkmark-container">
+            <input type="checkbox" [checked]="showFilterBuilderIcon" (change)="publishShowFilterBuilderIcon()">
+            Show Filter Builder Icon
+        </div>
+        <div class="checkmark-container">
             <input type="checkbox" [checked]="showSimpleSearch" (change)="publishShowSimpleSearch()">
             Simple Search Bar
             <div *ngIf="showSimpleSearch">
@@ -34,7 +38,7 @@
         </div>
         <div class="checkmark-container">
             <input type="checkbox" [checked]="showVisShortcut" (change)="publishShowVisShortcut()">
-            Show visualization shortcut
+            Show Visualization Shortcut
         </div>
     </div>
 </form>

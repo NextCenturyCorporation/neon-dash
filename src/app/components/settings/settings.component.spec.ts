@@ -25,10 +25,10 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialogRef, MatSnackBar } from '@angular/material';
+import { MatDialog, MatDialogRef, MatSnackBar } from '@angular/material';
 import { } from 'jasmine-core';
 
-import { AddVisualizationComponent } from './add-visualization.component';
+import { SettingsComponent } from './settings.component';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -50,23 +50,29 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 // Must define the test component.
 @Component({
-    selector: 'app-test-add-visualization',
-    templateUrl: 'add-visualization.component.html',
-    styleUrls: ['add-visualization.component.scss'],
+    selector: 'app-settings',
+    templateUrl: 'settings.component.html',
+    styleUrls: ['settings.component.scss'],
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-class TestAddVisualizationComponent extends AddVisualizationComponent {
+class TestSettingsComponent extends SettingsComponent {
     constructor(
-        activeGridService: ActiveGridService,
-        themesService: ThemesService,
-        snackBar: MatSnackBar
+        changeDetection: ChangeDetectorRef,
+        datasetService: DatasetService,
+        dialog: MatDialog,
+        exportService: ExportService,
+        injector: Injector,
+        themesService: ThemesService
     ) {
 
         super(
-            activeGridService,
-            snackBar,
+            changeDetection,
+            datasetService,
+            dialog,
+            exportService,
+            injector,
             themesService
         );
     }
@@ -74,15 +80,15 @@ class TestAddVisualizationComponent extends AddVisualizationComponent {
     // TODO Add any needed custom functions here.
 }
 
-describe('Component: Add Visualization', () => {
-    let component: TestAddVisualizationComponent;
-    let fixture: ComponentFixture<TestAddVisualizationComponent>,
+describe('Component: Settings', () => {
+    let component: TestSettingsComponent;
+    let fixture: ComponentFixture<TestSettingsComponent>,
         getService = (type: any) => fixture.debugElement.injector.get(type);
     let debugElement: DebugElement;
 
     initializeTestBed({
         declarations: [
-            TestAddVisualizationComponent
+            TestSettingsComponent
         ],
         providers: [
             ActiveGridService,
@@ -99,7 +105,7 @@ describe('Component: Add Visualization', () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(TestAddVisualizationComponent);
+        fixture = TestBed.createComponent(TestSettingsComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
 

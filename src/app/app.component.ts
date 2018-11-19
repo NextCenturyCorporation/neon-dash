@@ -161,6 +161,18 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.filterBuilderIcon = 'filter_builder';
     }
 
+    bindShowSimpleSearch(message) {
+        this.showSimpleSearch = message.showSimpleSearch;
+    }
+
+    bindShowVisShortcut(message) {
+        this.showVisShortcut = message.showVisShortcut;
+    }
+
+    bindShowFilterBuilderIcon(message) {
+        this.showFilterBuilderIcon = message.showFilterBuilderIcon;
+    }
+
     changeFavicon() {
         let favicon = document.createElement('link'),
             faviconShortcut = document.createElement('link'),
@@ -224,12 +236,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.gridItems = this.activeGridService.getGridItems();
         this.activeGridService.setGrid(this.grid);
         this.activeGridService.setGridConfig(this.gridConfig);
-        this.messenger.subscribe('showSimpleSearch', (message) => {
-            this.showSimpleSearch = message.showSimpleSearch;
-        });
-        this.messenger.subscribe('showVisShortcut', (message) => {
-            this.showVisShortcut = message.showVisShortcut;
-        });
+        this.messenger.subscribe('showSimpleSearch', (message) => this.bindShowSimpleSearch(message));
+        this.messenger.subscribe('showVisShortcut', (message) => this.bindShowVisShortcut(message));
+        this.messenger.subscribe('showFilterBuilderIcon', (message) => this.bindShowFilterBuilderIcon(message));
     }
 
     onDragStop(i, event) {
@@ -276,6 +285,18 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.filterTrayDialogRef = this.dialog.open(FilterTrayComponent, config);
         this.filterTrayDialogRef.afterClosed().subscribe(() => {
             this.filterTrayDialogRef = null;
+        });
+    }
+
+    publishShowSimpleSearch() {
+        this.messenger.publish('showSimpleSearch', {
+            showSimpleSearch: this.showSimpleSearch
+        });
+    }
+
+    publishShowVisShortcut() {
+        this.messenger.publish('showVisShortcut', {
+            showVisShortcut: this.showVisShortcut
         });
     }
 
