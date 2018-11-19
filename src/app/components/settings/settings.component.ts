@@ -14,24 +14,23 @@
  *
  */
 
-import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit, Injector } from '@angular/core';
+import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, Injector } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { DatasetOptions, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
-
-import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 
 import * as _ from 'lodash';
 import * as neon from 'neon-framework';
-
-import { BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { DatasetOptions, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
 
 @Component({
     selector: 'app-settings',
@@ -41,16 +40,13 @@ import { DatasetOptions, FieldMetaData, SimpleFilter, TableMetaData } from '../.
 })
 export class SettingsComponent implements OnInit, OnDestroy {
 
+    @Input() public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent> = new Map();
+
     public formData: any = {
-        exportFormat: 0,
-        currentTheme: 'neon-green-theme',
-        newStateName: '',
-        stateToLoad: '',
-        stateToDelete: ''
+        currentTheme: 'neon-green-theme'
     };
 
     public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
-    public exportTarget: string = 'all';
     public options;
     public searchField: FieldMetaData;
     public showVisShortcut: boolean = true;
@@ -65,12 +61,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
         private changeDetection: ChangeDetectorRef,
         protected datasetService: DatasetService,
         private dialog: MatDialog,
-        protected exportService: ExportService,
         public injector: Injector,
         protected widgetService: AbstractWidgetService
     ) {
         this.datasetService = datasetService;
-        this.exportService = exportService;
         this.injector = injector;
         this.messenger = new neon.eventing.Messenger();
     }
@@ -92,7 +86,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
         this.formData.currentTheme = this.widgetService.getTheme();
         this.checkSimpleFilter();
         this.validateDatasetService();

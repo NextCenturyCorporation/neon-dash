@@ -32,7 +32,6 @@ import { WikiViewerComponent } from './wiki-viewer.component';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -49,7 +48,6 @@ describe('Component: WikiViewer', () => {
         providers: [
             ConnectionService,
             DatasetService,
-            ExportService,
             FilterService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
@@ -507,7 +505,6 @@ describe('Component: WikiViewer with config', () => {
         providers: [
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ExportService,
             FilterService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },

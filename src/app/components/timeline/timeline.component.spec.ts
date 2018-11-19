@@ -32,7 +32,6 @@ import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.comp
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -54,7 +53,6 @@ describe('Component: Timeline', () => {
             ConnectionService,
             DatasetService,
             FilterService,
-            ExportService,
             Injector,
             { provide: 'config', useValue: testConfig }
         ],

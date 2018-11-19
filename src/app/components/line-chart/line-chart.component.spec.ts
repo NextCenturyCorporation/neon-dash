@@ -26,7 +26,6 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
@@ -52,7 +51,6 @@ describe('Component: LineChart', () => {
             ConnectionService,
             DatasetService,
             FilterService,
-            ExportService,
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
             { provide: 'config', useValue: testConfig }

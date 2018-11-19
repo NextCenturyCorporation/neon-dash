@@ -21,7 +21,6 @@ import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/mater
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { ParameterService } from '../../services/parameter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -48,8 +47,6 @@ export class SaveStateComponent implements OnInit {
     @Input() public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent> = new Map();
 
     public formData: any = {
-        exportFormat: 0,
-        currentTheme: 'neon-teal',
         newStateName: '',
         stateToLoad: '',
         stateToDelete: ''
@@ -66,7 +63,6 @@ export class SaveStateComponent implements OnInit {
     constructor(
         protected connectionService: ConnectionService,
         protected datasetService: DatasetService,
-        protected exportService: ExportService,
         private snackBar: MatSnackBar,
         protected parameterService: ParameterService,
         protected widgetService: AbstractWidgetService,
@@ -75,16 +71,8 @@ export class SaveStateComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
-        this.formData.currentTheme = this.widgetService.getTheme();
         this.messenger = new neon.eventing.Messenger();
         this.loadStateNames();
-    }
-
-    setCurrentTheme(themeId: any) {
-        if (themeId) {
-            this.widgetService.setTheme(themeId);
-        }
     }
 
     openEditConfigDialog() {

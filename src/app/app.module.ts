@@ -28,7 +28,6 @@ import { NgGridModule } from 'angular2-grid';
 import { AbstractWidgetService } from './services/abstract.widget.service';
 import { ConnectionService } from './services/connection.service';
 import { DatasetService } from './services/dataset.service';
-import { ExportService } from './services/export.service';
 import { FilterService } from './services/filter.service';
 import { ParameterService } from './services/parameter.service';
 import { PropertyService } from './services/property.service';
@@ -151,7 +150,6 @@ export function getAppConfig() {
     providers: [
         ConnectionService,
         DatasetService,
-        ExportService,
         FilterService,
         ParameterService,
         PropertyService,

@@ -19,12 +19,10 @@ import { FormsModule } from '@angular/forms';
 import { ViewContainerRef } from '@angular/core';
 
 import { SaveStateComponent } from './save-state.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ParameterService } from '../../services/parameter.service';
 import { WidgetService } from '../../services/widget.service';
@@ -42,8 +40,7 @@ describe('Component: SaveStateComponent', () => {
 
     initializeTestBed({
         declarations: [
-            SaveStateComponent,
-            ExportControlComponent
+            SaveStateComponent
         ],
         imports: [
             FormsModule,
@@ -53,7 +50,6 @@ describe('Component: SaveStateComponent', () => {
         providers: [
             ConnectionService,
             DatasetService,
-            ExportService,
             MatSnackBar,
             ParameterService,
             { provide: AbstractWidgetService, useClass: WidgetService },

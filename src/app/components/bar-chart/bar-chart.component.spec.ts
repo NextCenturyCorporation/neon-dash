@@ -20,7 +20,6 @@ import * as neon from 'neon-framework';
 
 import { BarChartComponent, BarDataSet } from './bar-chart.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
-import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -55,7 +54,6 @@ describe('Component: BarChart', () => {
             ConnectionService,
             DatasetService,
             FilterService,
-            ExportService,
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: 'config', useValue: testConfig }
