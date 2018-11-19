@@ -17,11 +17,11 @@
 'use strict';
 
 import { ListSubcomponent } from './subcomponent.list';
-import { AggregationSubcomponentListener, AggregationSubcomponentOptions } from './subcomponent.aggregation.abstract';
+import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '../../services/color-scheme.service';
 import { ElementRef } from '@angular/core';
 
-class TestAggregationSubcomponentOptions implements AggregationSubcomponentOptions {
+class TestAggregationSubcomponentOptions {
     public granularity: string = 'year';
     public hideGridLines: boolean = false;
     public hideGridTicks: boolean = false;

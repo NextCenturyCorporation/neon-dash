@@ -23,156 +23,24 @@ import {
 import { ActiveGridService } from '../../services/active-grid.service';
 import { Color } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
+import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
+import {
+    OptionType,
+    WidgetDatabaseOption,
+    WidgetFieldOption,
+    WidgetOption,
+    WidgetOptionCollection,
+    WidgetTableOption
+} from '../../widget-option';
 
-import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
 import * as uuid from 'node-uuid';
 import * as _ from 'lodash';
-
-interface MinMax { max: number; min: number; }
-type OptionCallback = (options: any) => boolean;
-interface OptionChoice { prettyName: string; variable: any; }
-
-export enum OptionType {
-    BOOLEAN,
-    DATABASE,
-    FIELD,
-    NUMBER,
-    STRING,
-    TABLE,
-    ARRAY_BOOLEAN,
-    ARRAY_FIELD,
-    ARRAY_NUMBER,
-    ARRAY_STRING
-}
-
-export class WidgetOption {
-    public valueCurrent: any;
-
-    /**
-     * @constructor
-     * @arg {string} bindingKey
-     * @arg {string} prettyName
-     * @arg {string} isRequired
-     * @arg {OptionType} optionType
-     * @arg {any} valueDefault
-     * @arg {OptionChoice|MinMax} valueChoices
-     * @arg {boolean|OptionCallback} [showInMenu=true]
-     */
-    constructor(
-        public bindingKey: string,
-        public prettyName: string,
-        public isRequired: boolean,
-        public optionType: OptionType,
-        public valueDefault: any,
-        public valueChoices: OptionChoice[] | MinMax,
-        public showInMenu: boolean | OptionCallback = true
-    ) {}
-}
-
-export class WidgetDatabaseOption extends WidgetOption {
-    /**
-     * @constructor
-     */
-    constructor() {
-        // Value default and choices are set elsewhere.
-        super('database', 'Database', true, OptionType.DATABASE, undefined, undefined, true);
-    }
-}
-
-export class WidgetFieldOption extends WidgetOption {
-    /**
-     * @constructor
-     * @arg {string} bindingKey
-     * @arg {string} prettyName
-     * @arg {string} isRequired
-     * @arg {boolean|OptionCallback} [showInMenu=true]
-     */
-    constructor(bindingKey: string, prettyName: string, isRequired: boolean, showInMenu: boolean | OptionCallback = true) {
-        // Value default and choices are set elsewhere.
-        super(bindingKey, prettyName, isRequired, OptionType.FIELD, undefined, undefined, showInMenu);
-    }
-}
-
-export class WidgetTableOption extends WidgetOption {
-    /**
-     * @constructor
-     */
-    constructor() {
-        // Value default and choices are set elsewhere.
-        super('table', 'Table', true, OptionType.TABLE, undefined, undefined, true);
-    }
-}
-
-/**
- * Manages configurable options for all widgets.
- */
-export class WidgetOptionCollection {
-    // An object containing strings mapped to WidgetOption objects.
-    private _collection: { [bindingKey: string]: WidgetOption; } = {};
-
-    public databases: DatabaseMetaData[] = [];
-    public fields: FieldMetaData[] = [];
-    public tables: TableMetaData[] = [];
-
-    /**
-     * @constructor
-     * @arg {Injector} injector
-     */
-    constructor(protected injector: Injector) {}
-
-    /**
-     * Returns the option with the given binding key.
-     *
-     * @arg {string} bindingKey
-     * @return {WidgetOption}
-     */
-    public access(bindingKey: string): WidgetOption {
-        return this._collection[bindingKey];
-    }
-
-    /**
-     * Appends the given option with the given current value into this collection and creates accessor methods.
-     *
-     * @arg {WidgetOption} option
-     * @arg {any} valueCurrent
-     */
-    public append(option: WidgetOption, valueCurrent: any): void {
-        option.valueCurrent = valueCurrent;
-        this._collection[option.bindingKey] = option;
-        Object.defineProperty(this, option.bindingKey, {
-            get: () => this._collection[option.bindingKey].valueCurrent,
-            set: (value: any) => {
-                this._collection[option.bindingKey].valueCurrent = value;
-            }
-        });
-    }
-
-    /**
-     * Injects the given option(s) into this collection.
-     *
-     * @arg {WidgetOption|WidgetOption[]} options
-     */
-    public inject(options: WidgetOption | WidgetOption[]): void {
-        (Array.isArray(options) ? options : [options]).forEach((option) => {
-            this.append(option, this.injector.get(option.bindingKey, option.valueDefault));
-        });
-    }
-
-    /**
-     * Returns the list of options in this collection.
-     *
-     * @return {WidgetOption[]}
-     */
-    public list(): WidgetOption[] {
-        return Object.keys(this._collection).map((property) => this.access(property));
-    }
-}
 
 // TODO THOR-909 REMOVE
 /**
@@ -497,7 +365,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     // TODO THOR-909 RENAME
     public options2: any;
 
-    // TODO Move into future widget option menu component
+    // TODO THOR-349 Move into future widget option menu component
     public newLimit: number;
 
     constructor(
@@ -1398,7 +1266,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     public findFieldObjects(fields: FieldMetaData[], bindingKey: string): FieldMetaData[] {
         let bindings = this.injector.get(bindingKey, null) || [];
-        // TODO Should we remove empty field objects from the array?
         return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.findField(fields, columnName))
             .filter((fieldsObject) => !!fieldsObject);
     }
