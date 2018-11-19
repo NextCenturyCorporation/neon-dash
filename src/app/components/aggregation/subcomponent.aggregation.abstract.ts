@@ -18,27 +18,6 @@ import { ElementRef } from '@angular/core';
 import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
 
-// TODO THOR-909 REMOVE
-/* tslint:disable:no-empty-interface */
-export interface AggregationSubcomponentOptions {
-    /*
-    granularity: string;
-    hideGridLines: boolean;
-    hideGridTicks: boolean;
-    lineCurveTension: number;
-    lineFillArea: boolean;
-    logScaleX: boolean;
-    logScaleY: boolean;
-    scaleMaxX: string;
-    scaleMaxY: string;
-    scaleMinX: string;
-    scaleMinY: string;
-    showHeat: boolean;
-    yPercentage: number;
-     */
-}
-/* tslint:enable:no-empty-interface */
-
 export interface AggregationSubcomponentListener {
     /**
      * Returns the hidden canvas element reference for the subcomponent.

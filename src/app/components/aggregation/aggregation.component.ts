@@ -36,24 +36,23 @@ import { VisualizationService } from '../../services/visualization.service';
 
 import {
     AbstractAggregationSubcomponent,
-    AggregationSubcomponentListener,
-    AggregationSubcomponentOptions
+    AggregationSubcomponentListener
 } from './subcomponent.aggregation.abstract';
-import {
-    BaseNeonComponent,
-    BaseNeonOptions,
-    OptionType,
-    WidgetFieldOption,
-    WidgetOption
-} from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { ChartJsBarSubcomponent } from './subcomponent.chartjs.bar';
 import { ChartJsDoughnutSubcomponent } from './subcomponent.chartjs.doughnut';
 import { ChartJsHistogramSubcomponent } from './subcomponent.chartjs.histogram';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsPieSubcomponent } from './subcomponent.chartjs.pie';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
-import { ListSubcomponent } from './subcomponent.list';
 import { FieldMetaData } from '../../dataset';
+import { ListSubcomponent } from './subcomponent.list';
+import {
+    OptionChoices,
+    OptionType,
+    WidgetFieldOption,
+    WidgetOption
+} from '../../widget-option';
 import { neonVariables } from '../../neon-namespaces';
 
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
@@ -68,7 +67,7 @@ import * as neon from 'neon-framework';
 /**
  * Manages configurable options for the specific visualization.
  */
-export class AggregationOptions extends BaseNeonOptions implements AggregationSubcomponentOptions {
+export class AggregationOptions extends BaseNeonOptions {
     /**
      * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
      *
@@ -198,7 +197,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public subcomponentMain: AbstractAggregationSubcomponent;
     public subcomponentZoom: AbstractAggregationSubcomponent;
 
-    // TODO Remove once future widget option menu is finished
+    // TODO THOR-349 Remove once future widget option menu is finished
     public subcomponentTypes: { name: string, type: string }[] = [{
         name: 'Bar, Horizontal (Aggregations)',
         type: 'bar-h'
@@ -238,7 +237,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public xList: any[] = [];
     public yList: any[] = [];
 
-    // TODO Move into future widget option menu component
+    // TODO THOR-349 Move into future widget option menu component
     public newType: string = '';
 
     constructor(
@@ -428,22 +427,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     createNonFieldOptions(): WidgetOption[] {
         return [
-            new WidgetOption('aggregation', 'Aggregation', true, OptionType.STRING, 'count', [{
-                prettyName: 'Count',
-                variable: 'count'
-            }, {
-                prettyName: 'Average',
-                variable: 'average'
-            }, {
-                prettyName: 'Max',
-                variable: 'max'
-            }, {
-                prettyName: 'Min',
-                variable: 'min'
-            }, {
-                prettyName: 'Sum',
-                variable: 'sum'
-            }], this.isNotXYSubcomponent),
+            new WidgetOption('aggregation', 'Aggregation', true, OptionType.STRING, 'count', OptionChoices.AggregationType,
+                this.isNotXYSubcomponent),
             new WidgetOption('dualView', 'Dual View', true, OptionType.STRING, '', [{
                 prettyName: 'Always Off',
                 variable: ''
@@ -454,100 +439,29 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 prettyName: 'Only On Filter',
                 variable: 'filter'
             }], this.isDualViewCompatible),
-            new WidgetOption('granularity', 'Date Granularity', true, OptionType.STRING, 'year', [{
-                prettyName: 'Year',
-                variable: 'year'
-            }, {
-                prettyName: 'Month',
-                variable: 'month'
-            }, {
-                prettyName: 'Day',
-                variable: 'day'
-            }, {
-                prettyName: 'Hour',
-                variable: 'hour'
-            }, {
-                prettyName: 'Minute',
-                variable: 'minute'
-            }], this.isDate),
-            new WidgetOption('hideGridLines', 'Grid Lines', true, OptionType.BOOLEAN, false, [{
-                prettyName: 'Show',
-                variable: false
-            }, {
-                prettyName: 'Hide',
-                variable: true
-            }], this.isScaled),
-            new WidgetOption('hideGridTicks', 'Grid Ticks', true, OptionType.BOOLEAN, false, [{
-                prettyName: 'Show',
-                variable: false
-            }, {
-                prettyName: 'Hide',
-                variable: true
-            }], this.isScaled),
-            new WidgetOption('ignoreSelf', 'Filter Self', true, OptionType.BOOLEAN, false, [{
-                prettyName: 'Yes',
-                variable: false
-            }, {
-                prettyName: 'No',
-                variable: true
-            }]),
+            new WidgetOption('granularity', 'Date Granularity', true, OptionType.STRING, 'year', OptionChoices.DateGranularity,
+                this.isDate),
+            new WidgetOption('hideGridLines', 'Grid Lines', true, OptionType.BOOLEAN, false, OptionChoices.ShowFalseHideTrue,
+                this.isScaled),
+            new WidgetOption('hideGridTicks', 'Grid Ticks', true, OptionType.BOOLEAN, false, OptionChoices.ShowFalseHideTrue,
+                this.isScaled),
+            new WidgetOption('ignoreSelf', 'Filter Self', true, OptionType.BOOLEAN, false, OptionChoices.YesFalseNoTrue),
             new WidgetOption('lineCurveTension', 'Line Curve Tension', true, OptionType.NUMBER, 0.3, {
                 max: 100,
                 min: 0
             }, this.isLine),
-            new WidgetOption('lineFillArea', 'Line Fill Area Under Curve', true, OptionType.BOOLEAN, false, [{
-                prettyName: 'No',
-                variable: false
-            }, {
-                prettyName: 'Yes',
-                variable: true
-            }], this.isLine),
-            new WidgetOption('logScaleX', 'Log X Scale', true, OptionType.BOOLEAN, false, [{
-                prettyName: 'No',
-                variable: false
-            }, {
-                prettyName: 'Yes',
-                variable: true
-            }], this.isScaled),
-            new WidgetOption('logScaleY', 'Log Y Scale', true, OptionType.BOOLEAN, false, [{
-                prettyName: 'No',
-                variable: false
-            }, {
-                prettyName: 'Yes',
-                variable: true
-            }], this.isScaled),
-            new WidgetOption('notFilterable', 'Filterable', true, OptionType.BOOLEAN, false, [{
-                prettyName: 'Yes',
-                variable: false
-            }, {
-                prettyName: 'No',
-                variable: true
-            }]),
-            new WidgetOption('requireAll', 'Filter Operator', true, OptionType.BOOLEAN, false, [{
-                prettyName: 'OR',
-                variable: false
-            }, {
-                prettyName: 'AND',
-                variable: true
-            }]),
-            new WidgetOption('savePrevious', 'Save Previously Seen', true, OptionType.BOOLEAN, false, [{
-                prettyName: 'No',
-                variable: false
-            }, {
-                prettyName: 'Yes',
-                variable: true
-            }]),
+            new WidgetOption('lineFillArea', 'Line Fill Area Under Curve', true, OptionType.BOOLEAN, false, OptionChoices.NoFalseYesTrue,
+                this.isLine),
+            new WidgetOption('logScaleX', 'Log X Scale', true, OptionType.BOOLEAN, false, OptionChoices.NoFalseYesTrue, this.isScaled),
+            new WidgetOption('logScaleY', 'Log Y Scale', true, OptionType.BOOLEAN, false, OptionChoices.NoFalseYesTrue, this.isScaled),
+            new WidgetOption('notFilterable', 'Filterable', true, OptionType.BOOLEAN, false, OptionChoices.YesFalseNoTrue),
+            new WidgetOption('requireAll', 'Filter Operator', true, OptionType.BOOLEAN, false, OptionChoices.OrFalseAndTrue),
+            new WidgetOption('savePrevious', 'Save Previously Seen', true, OptionType.BOOLEAN, false, OptionChoices.NoFalseYesTrue),
             new WidgetOption('scaleMaxX', 'Aggregation', false, OptionType.STRING, '', [], this.isScaled),
             new WidgetOption('scaleMaxY', 'Aggregation', false, OptionType.STRING, '', [], this.isScaled),
             new WidgetOption('scaleMinX', 'Aggregation', false, OptionType.STRING, '', [], this.isScaled),
             new WidgetOption('scaleMinY', 'Aggregation', false, OptionType.STRING, '', [], this.isScaled),
-            new WidgetOption('showHeat', 'Show Heated List', true, OptionType.BOOLEAN, false, [{
-                prettyName: 'No',
-                variable: false
-            }, {
-                prettyName: 'Yes',
-                variable: true
-            }], this.isList),
+            new WidgetOption('showHeat', 'Show Heated List', true, OptionType.BOOLEAN, false, OptionChoices.NoFalseYesTrue, this.isList),
             new WidgetOption('sortByAggregation', 'Sort By', true, OptionType.BOOLEAN, false, [{
                 prettyName: 'Label',
                 variable: false
@@ -555,13 +469,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 prettyName: 'Aggregation',
                 variable: true
             }]),
-            new WidgetOption('timeFill', 'Date Fill', true, OptionType.BOOLEAN, false, [{
-                prettyName: 'No',
-                variable: false
-            }, {
-                prettyName: 'Yes',
-                variable: true
-            }], this.isDate),
+            new WidgetOption('timeFill', 'Date Fill', true, OptionType.BOOLEAN, false, OptionChoices.NoFalseYesTrue, this.isDate),
             new WidgetOption('type', 'Visualization Type', true, OptionType.STRING, 'line', [{
                 prettyName: 'Bar, Horizontal (Aggregations)',
                 variable: 'bar-h'
