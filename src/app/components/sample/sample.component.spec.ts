@@ -29,7 +29,6 @@ import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.comp
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 
 import { AppMaterialModule } from '../../app.material.module';
@@ -84,7 +83,6 @@ class TestSampleComponent extends SampleComponent {
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
         ref: ChangeDetectorRef
     ) {
@@ -93,7 +91,6 @@ class TestSampleComponent extends SampleComponent {
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
             ref
         );
@@ -134,7 +131,6 @@ describe('Component: Sample', () => {
         providers: [
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
@@ -1670,7 +1666,6 @@ describe('Component: Sample with config', () => {
         providers: [
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },

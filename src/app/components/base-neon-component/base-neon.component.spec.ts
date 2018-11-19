@@ -29,14 +29,12 @@ import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { basename } from 'path';
 import * as neon from 'neon-framework';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
@@ -100,7 +98,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
         changeDetection: ChangeDetectorRef
     ) {
@@ -108,7 +105,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
             changeDetection
         );
@@ -204,8 +200,7 @@ describe('Component: BaseNeonOptions', () => {
 
     initializeTestBed({
         declarations: [
-            TestBaseNeonComponent,
-            ExportControlComponent
+            TestBaseNeonComponent
         ],
         imports: [
             AppMaterialModule,
@@ -216,7 +211,6 @@ describe('Component: BaseNeonOptions', () => {
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
-            ExportService,
             Injector,
             { provide: 'config', useValue: testConfig },
             { provide: 'testDate', useValue: 'testDateField' },
@@ -363,8 +357,7 @@ describe('Component: BaseNeonOptions with config', () => {
 
     initializeTestBed({
         declarations: [
-            TestBaseNeonComponent,
-            ExportControlComponent
+            TestBaseNeonComponent
         ],
         imports: [
             AppMaterialModule,
@@ -375,7 +368,6 @@ describe('Component: BaseNeonOptions with config', () => {
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
-            ExportService,
             Injector,
             { provide: 'config', useValue: testConfig },
             { provide: 'database', useValue: 1 },
@@ -503,8 +495,7 @@ describe('Component: base-neon', () => {
 
     initializeTestBed({
         declarations: [
-            TestBaseNeonComponent,
-            ExportControlComponent
+            TestBaseNeonComponent
         ],
         imports: [
             AppMaterialModule,
@@ -515,7 +506,6 @@ describe('Component: base-neon', () => {
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
-            ExportService,
             Injector,
             { provide: 'config', useValue: testConfig }
         ]
@@ -542,34 +532,6 @@ describe('Component: base-neon', () => {
             unsharedFilterValue: '',
             unsharedFilterField: ''
         });
-    }));
-
-    it('Checks both export functions', (() => {
-        let query = component.createQuery();
-
-        expect(component.export()).toBeDefined();
-        expect(component.doExport()).toBeDefined();
-        /*expect(component.export()).toEqual({
-            name: 'Query_Results_Table',
-            data: [{
-                query: component.createQuery,
-                name: String,
-                fields: [{
-                    query: 'value',
-                    pretty: 'Count'
-                }],
-                ignoreFilters: query.ignoreFilters,
-                selectionOnly: query.selectionOnly,
-                ignoredFilterIds: [],
-                type: 'query'
-            }]
-        });*/
-    }));
-
-    it('Checks to see doExport calls the export function once', (() => {
-        let spy = spyOn(component, 'export');
-        component.doExport();
-        expect(spy.calls.count()).toBe(1);
     }));
 
     it('Tests ngOnDestroy function', (() => {

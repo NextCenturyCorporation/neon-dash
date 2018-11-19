@@ -31,7 +31,6 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, DatabaseMetaData, TableMetaData } from '../../dataset';
@@ -223,7 +222,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
         ref: ChangeDetectorRef
     ) {
@@ -231,7 +229,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
             ref
         );

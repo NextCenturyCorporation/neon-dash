@@ -32,7 +32,6 @@ import { Color } from '../../color';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 
 import {
@@ -226,7 +225,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
         protected widgetService: AbstractWidgetService,
         ref: ChangeDetectorRef
@@ -235,7 +233,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
             ref
         );

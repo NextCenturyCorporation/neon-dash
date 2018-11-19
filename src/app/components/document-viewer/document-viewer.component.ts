@@ -29,7 +29,6 @@ import {
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
@@ -142,7 +141,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
         protected widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
@@ -154,7 +152,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
             ref
         );

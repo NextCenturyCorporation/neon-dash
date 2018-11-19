@@ -22,7 +22,6 @@ import {
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 
 import { Color } from '../../color';
@@ -354,7 +353,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         protected connectionService: ConnectionService,
         protected datasetService: DatasetService,
         protected filterService: FilterService,
-        protected exportService: ExportService,
         protected injector: Injector,
         public changeDetection: ChangeDetectorRef
     ) {
@@ -377,7 +375,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
         this.messenger.publish(neonEvents.WIDGET_REGISTER, {
             id: this.id,
-            export: this.isExportable ? this.doExport.bind(this) : null,
             widget: this
         });
 
@@ -427,9 +424,9 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Get a query ready to give to the ExportService.
+     * Returns the export header data.
      */
-    export(): any {
+    doExport(): any {
         // TODO this function needs to be changed  to abstract once we get through all the visualizations.
 
         let query = this.createQuery();
@@ -453,10 +450,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         }
         console.error('SKIPPING EXPORT FOR ' + exportName);
         return null;
-    }
-
-    doExport() {
-        return this.export();
     }
 
     protected enableRedrawAfterResize(enable: boolean) {

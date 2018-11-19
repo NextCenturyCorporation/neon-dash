@@ -28,7 +28,6 @@ import {
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
@@ -151,7 +150,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
         ref: ChangeDetectorRef
     ) {
@@ -160,7 +158,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
             ref
         );
