@@ -127,14 +127,34 @@ export class Color {
 export class ColorSet {
     private COLORS: Color[] = [
         // NEON TEAL COLOR THEME
-        new Color(255, 135, 55),  // #FF8737 (orange)
         new Color(94, 80, 143),   // #5E508F (deep purple)
+        new Color(255, 135, 55),  // #FF8737 (orange)
+        new Color(179, 79, 146),  // #B34F92 (purple)
         new Color(177, 194, 54),  // #B1C236 (lime)
         new Color(243, 88, 112),  // #F35870 (pink)
+        new Color(0, 153, 255),   // #0099FF (blue)
         new Color(255, 214, 0),   // #FFD600 (yellow)
-        new Color(179, 79, 146),  // #B34F92 (purple)
         new Color(106, 204, 127), // #6ACC7F (sea green)
-        new Color(255, 107, 86)   // #FF6b56 (deep orange)
+
+        // NEON TEAL COLOR THEME - LIGHT
+        new Color(141, 124, 192),   // #8D7CC0 (deep purple)
+        new Color(255, 184, 102),   // #FFb866 (orange)
+        new Color(231, 127, 194),   // #E77FC2 (purple)
+        new Color(230, 245, 105),   // #E6F569 (lime)
+        new Color(255, 139, 158),   // #FF8B9E (pink)
+        new Color(105, 204, 255),   // #69CCFF (blue)
+        new Color(255, 255, 82),    // #FFFF52 (yellow)
+        new Color(157, 255, 175),   // #369A52 (sea green)
+
+        // NEON TEAL COLOR THEME - DARK
+        new Color(49, 39, 97),    // #312761 (deep purple)
+        new Color(198, 88, 0),    // #C65800 (orange)
+        new Color(129, 29, 100),  // #811D64 (purple)
+        new Color(126, 146, 0),   // #7E9200 (lime)
+        new Color(187, 30, 69),   // #BB1E45 (pink)
+        new Color(0, 108, 203),   // #006CCB (blue)
+        new Color(199, 165, 0),   // #C7A500 (yellow)
+        new Color(54, 154, 82)   // #369A52 (sea green)
     ];
     private currentIndex: number = 0;
     private colorMap: Map<string, Color> = new Map<string, Color>();
