@@ -226,5 +226,29 @@ describe('App: NeonGtd', () => {
         expect(debugElement.nativeElement.querySelectorAll('app-filter-builder').length === 0).toBeTruthy();
         component.showFilterBuilderIcon = true;
         component.createFilterBuilder = true;
+        component.openFilterBuilderDialog();
+        expect(debugElement.nativeElement.querySelectorAll('app-filter-builder')).toBeTruthy();
+    }));
+
+    it('check that the messagenger subscribes to the correct channels and that the callbacks update the correct booleans', async(() => {
+        let spyOnMessengerSubscribe = spyOn(component.messenger, 'subscribe');
+        let spyOnBindShowFilterBuilderIcon = spyOn(component, 'bindShowFilterBuilderIcon');
+        let spyOnBingShowSimpleSearch = spyOn(component, 'bindShowSimpleSearch');
+        let spyOnBingShowVisualShortcut = spyOn(component, 'bindShowVisShortcut');
+        let message = {
+            showFilterBuilderIcon: false,
+            showSimpleSearch: false,
+            showVisShortcut: false
+        };
+
+        component.ngOnInit();
+        expect(spyOnMessengerSubscribe.calls.count()).toEqual(3);
+        component.bindShowSimpleSearch(message);
+        component.bindShowVisShortcut(message);
+        component.bindShowFilterBuilderIcon(message);
+
+        expect(spyOnBindShowFilterBuilderIcon.calls.count()).toEqual(1);
+        expect(spyOnBingShowSimpleSearch.calls.count()).toEqual(1);
+        expect(spyOnBingShowVisualShortcut.calls.count()).toEqual(1);
     }));
 });
