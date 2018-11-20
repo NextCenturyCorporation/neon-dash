@@ -254,7 +254,7 @@ describe('Component: Aggregation', () => {
                 beginX: '2018-01-01T00:00:00.000Z',
                 endX: '2018-01-03T00:00:00.000Z'
             }
-        })).toEqual('prettyField1 from Mon, Jan 1, 2018, 12:00 AM to Wed, Jan 3, 2018, 12:00 AM');
+        })).toEqual('prettyField1 from Mon, Jan 1, 2018, 12:00:00 AM to Wed, Jan 3, 2018, 12:00:00 AM');
 
         expect(component.createFilterPrettyText({
             field: 'field1',
@@ -270,7 +270,7 @@ describe('Component: Aggregation', () => {
                 endX: '2018-01-03T00:00:00.000Z',
                 endY: 'endY1'
             }
-        })).toEqual('prettyX1 from Mon, Jan 1, 2018, 12:00 AM to Wed, Jan 3, 2018, 12:00 AM and prettyY1 from beginY1 to endY1');
+        })).toEqual('prettyX1 from Mon, Jan 1, 2018, 12:00:00 AM to Wed, Jan 3, 2018, 12:00:00 AM and prettyY1 from beginY1 to endY1');
     });
 
     it('createOrRemoveNeonFilter with no groupFilters, valueFilters, or filterToPassToSuperclass.id does nothing', () => {

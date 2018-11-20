@@ -399,8 +399,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (typeof filter.value === 'object' && filter.value.beginX && filter.value.endX) {
             let xText = filter.value.beginX + ' to ' + filter.value.endX;
             if (this.options.xField.type === 'date') {
-                xText = moment.utc(filter.value.beginX).format('ddd, MMM D, YYYY, h:mm A') + ' to ' +
-                    moment.utc(filter.value.endX).format('ddd, MMM D, YYYY, h:mm A');
+                xText = moment.utc(filter.value.beginX).format('ddd, MMM D, YYYY, h:mm:ss A') + ' to ' +
+                    moment.utc(filter.value.endX).format('ddd, MMM D, YYYY, h:mm:ss A');
             }
             if (filter.value.beginY && filter.value.endY && filter.prettyField.x && filter.prettyField.y) {
                 return filter.prettyField.x + ' from ' + xText + ' and ' + filter.prettyField.y + ' from ' + filter.value.beginY + ' to ' +
