@@ -37,7 +37,6 @@ import { VisualizationService } from '../../services/visualization.service';
 import { neonVariables } from '../../neon-namespaces';
 
 import * as neon from 'neon-framework';
-import { ChartComponent } from '../chart/chart.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
@@ -49,11 +48,9 @@ describe('Component: TextCloud', () => {
 
     initializeTestBed({
         declarations: [
-            ChartComponent,
             TextCloudComponent,
             ExportControlComponent,
-            UnsharedFilterComponent,
-            ChartComponent
+            UnsharedFilterComponent
         ],
         providers: [
             ActiveGridService,
@@ -558,7 +555,6 @@ describe('Component: Textcloud with config', () => {
 
     initializeTestBed({
         declarations: [
-            ChartComponent,
             TextCloudComponent,
             ExportControlComponent,
             UnsharedFilterComponent
@@ -627,7 +623,6 @@ describe('Component: Textcloud with config including configFilter', () => {
 
     initializeTestBed({
         declarations: [
-            ChartComponent,
             TextCloudComponent,
             ExportControlComponent,
             UnsharedFilterComponent
