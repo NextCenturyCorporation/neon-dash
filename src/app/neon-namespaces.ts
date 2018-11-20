@@ -230,9 +230,15 @@ export const neonVisualizations: any[] = [{
         type: 'scatter-xy'
     }
 }, {
+    name: 'Tabs',
+    type: 'tabs',
+    icon: 'tabs',
+    bindings: {}
+}, {
     name: 'Taxonomy Viewer',
     type: 'taxonomyViewer',
-    icon: 'taxonomy_viewer'
+    icon: 'taxonomy_viewer',
+    bindings: {}
 }, {
     name: 'Text Cloud',
     type: 'textCloud',

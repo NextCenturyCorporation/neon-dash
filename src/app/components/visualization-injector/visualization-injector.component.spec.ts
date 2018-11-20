@@ -31,6 +31,7 @@ import { MapComponent } from '../map/map.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
 import { SampleComponent } from '../sample/sample.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
+import { TabsComponent } from '../tabs/tabs.component';
 import { TaxonomyViewerComponent } from '../taxonomy-viewer/taxonomy-viewer.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { TimelineComponent } from '../timeline/timeline.component';
@@ -73,6 +74,7 @@ describe('Component: VisualizationInjector', () => {
             QueryBarComponent,
             SampleComponent,
             ScatterPlotComponent,
+            TabsComponent,
             TaxonomyViewerComponent,
             TextCloudComponent,
             ThumbnailDetailsContractedComponent,
