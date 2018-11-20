@@ -154,7 +154,7 @@ export class ColorSet {
         new Color(255, 139, 158),   // #FF8B9E (pink)
         new Color(105, 204, 255),   // #69CCFF (blue)
         new Color(255, 255, 82),    // #FFFF52 (yellow)
-        new Color(157, 255, 175)    // #369A52 (sea green)
+        new Color(157, 255, 175)    // #9DFFAF (sea green)
     ];
     private currentIndex: number = 0;
     private colorMap: Map<string, Color> = new Map<string, Color>();
