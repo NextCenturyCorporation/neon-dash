@@ -48,7 +48,7 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
     }
 
     setSimpleFilter() {
-        let options = this.datasetService.getActiveDatasetOptions();
+        let options = this.datasetService.getCurrentDashboardOptions();
         this.simpleFilter.next(options && options.simpleFilter);
         this.removeFilter();
     }
@@ -58,22 +58,26 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
             this.removeFilter();
             return;
         }
+
         let sf = this.simpleFilter.getValue(),
-            whereContains = neon.query.where(sf.fieldName, 'contains', term),
-            filterName = `simple filter for ${sf.fieldName} containing '${term}'`,
+            fieldName = this.datasetService.getCurrentDashboardSimpleFilterFieldName(),
+            databaseName = this.datasetService.getCurrentDashboardOptions().simpleFilter.databaseName,
+            tableName = this.datasetService.getCurrentDashboardOptions().simpleFilter.tableName,
+            whereContains = neon.query.where(fieldName, 'contains', term),
+            filterName = `simple filter for ${fieldName} containing '${term}'`,
             filterId = this.filterId.getValue(),
             noOp = () => { /*no op*/ };
         if (filterId) {
             this.filterService.replaceFilter(
                 this.messenger, filterId, this.id,
-                sf.databaseName, sf.tableName, whereContains,
+                databaseName, tableName, whereContains,
                 filterName,
                 noOp, noOp
             );
         } else {
             this.filterService.addFilter(
                 this.messenger, this.id,
-                sf.databaseName, sf.tableName, whereContains,
+                databaseName, tableName, whereContains,
                 filterName,
                 (id) => this.filterId.next(typeof id === 'string' ? id : null),
                 noOp

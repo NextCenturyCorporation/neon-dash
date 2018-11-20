@@ -31,7 +31,6 @@ import { ExportService } from '../../services/export.service';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { TranslationService } from '../../services/translation.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
@@ -244,7 +243,6 @@ describe('Component: Map', () => {
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            TranslationService,
             ErrorNotificationService,
             VisualizationService,
             ThemesService,
@@ -1129,7 +1127,6 @@ describe('Component: Map with config', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            TranslationService,
             ErrorNotificationService,
             VisualizationService,
             ThemesService,

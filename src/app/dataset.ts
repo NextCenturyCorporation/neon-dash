@@ -40,12 +40,6 @@ export class DatabaseMetaData {
     ) {}
 }
 
-export class DatasetOptions {
-    colorMaps?: Object;
-    requeryInterval?: number;
-    simpleFilter?: SimpleFilter;
-}
-
 export interface TableMappings {
     [key: string]: string;
 }
@@ -66,7 +60,9 @@ export class SimpleFilter {
         public tableName: string,
         public fieldName: string,
         public placeHolder?: string,
-        public icon?: string
+        public icon?: string,
+        public tableKey?: string,
+        public fieldKey?: string
     ) {}
 }
 
@@ -76,7 +72,7 @@ export class Dataset {
     public databases: DatabaseMetaData[] = [];
     public hasUpdatedFields: boolean = false;
     public layout: string = ''; // TODO: 825: layout will be specified in dashboards
-    public options: DatasetOptions = new DatasetOptions(); // TODO: 825: might move this -- leave this alone for now
+    //public options: DatasetOptions = new DatasetOptions(); moved to DashboardOptions
     public relations: Relation[] = []; // TODO: 825: this will move into dashboards
 
     constructor(
@@ -92,10 +88,8 @@ export class Dataset {
  * Represents a single datastore from the datastores key/value pairs in the config file.
  */
 export class Datastore {
-    public connectOnLoad: boolean = false;
     public databases: DatabaseMetaData[] = [];
     public hasUpdatedFields: boolean = false;
-    public options: DatasetOptions = new DatasetOptions(); // TODO: 825: might move this -- leave this alone for now
 
     constructor(
         public name: string = '',
@@ -118,7 +112,17 @@ export class Dashboard {
     public layout?: string = '';
     public tables?: Map<string, string> = new Map<string, string>();
     public fields?: Map<string, string> = new Map<string, string>();
-    public options?: Map<string, string> = new Map<string, string>();
+    public options?: DashboardOptions = new DashboardOptions();
+}
+
+/**
+ * Class to represent additional dashboard options specified in the last level of nesting.
+ */
+export class DashboardOptions {
+    public connectOnLoad?: boolean = false;
+    public colorMaps?: Object;
+    public requeryInterval?: number;
+    public simpleFilter?: SimpleFilter;
 }
 
 export class Relation {

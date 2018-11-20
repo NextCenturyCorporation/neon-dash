@@ -35,7 +35,6 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { FilterService } from '../../services/filter.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { ThemesService } from '../../services/themes.service';
-import { TranslationService } from '../../services/translation.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
@@ -61,7 +60,6 @@ describe('Component: DataTable', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            TranslationService,
             ErrorNotificationService,
             VisualizationService,
             ThemesService,

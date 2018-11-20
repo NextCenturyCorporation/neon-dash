@@ -36,7 +36,6 @@ import { ImportService } from './services/import.service';
 import { ParameterService } from './services/parameter.service';
 import { PropertyService } from './services/property.service';
 import { ThemesService } from './services/themes.service';
-import { TranslationService } from './services/translation.service';
 import { VisualizationService } from './services/visualization.service';
 
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
@@ -164,7 +163,6 @@ export function getAppConfig() {
         ParameterService,
         PropertyService,
         ThemesService,
-        TranslationService,
         VisualizationService,
         ColorSchemeService,
         {

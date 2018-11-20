@@ -15,7 +15,7 @@
  */
 import * as neon from 'neon-framework';
 
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../app/dataset';
+import { DatabaseMetaData, FieldMetaData, TableMetaData, DashboardOptions } from '../../app/dataset';
 import { DatasetService } from '../../app/services/dataset.service';
 import { NeonGTDConfig } from '../../app/neon-gtd-config';
 
@@ -104,7 +104,7 @@ export class DatasetServiceMock extends DatasetService {
             datastore: 'datastore1',
             tables: dashboardTableKeys,
             fields: new Map<string, string>(),
-            options: new Map<string, string>()
+            options: new DashboardOptions()
         });
         this.setCurrentDashboardName('test_discovery');
     }

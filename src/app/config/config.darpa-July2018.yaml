@@ -1,11 +1,7 @@
-translationKeys:
-    google: AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8
-
 datastores:
     es1:
         host: localhost
         type: elasticsearch
-        connectOnLoad: true # TODO: 825: does this need to be moved?
         databases:
             ldc_uyg_jul_18: # layout: uyghur-ldc-sd: "DARPA60: Uyghur LDC Situation Discovery"
                 prettyName: 'Uyghur LDC, July 2018'
@@ -169,126 +165,6 @@ datastores:
                         prettyName: Annotations
                         mappings:
                             date: createdAt
-        options:
-            checkForCoordinateValidation: 'null_values'
-            # TODO: 825: move/restructure simpleFilter or entire options out so that
-            # we can specify config for multiple databases instead of just one
-            #simpleFilter:
-            #    databaseName: ldc_uyg_jul_18 #uyg_elisa_sd #ll_nepal_07_11_3 #elisa_car_1 #ll_nepal_06_14 #ll_nepal_06_14_2
-            #    tableName: ui_out #ui_out #annotations #annotations #annotations #annotations1Author
-            #    fieldName: translatedText #JustificationEN #originalText #JustificationEN #originalText #translatedText
-            #    placeHolder: Search
-
-# TODO: 825: does this still work as expected?
-# TODO: 825: would this go under another category?
-legends:
-    ll_nepal_07_02:
-        documents:
-            - label: Text
-              customized:
-                  field: originalText
-                  operator: contains
-              items:
-                  - label: Evacuation
-                    field: originalText
-                    operator: contains
-                    value: evac
-                  - label: Food
-                    field: originalText
-                    operator: contains
-                    value: food
-                  - label: Rescue
-                    field: originalText
-                    operator: contains
-                    value: rescue
-                  - label: Water
-                    field: originalText
-                    operator: contains
-                    value: water
-            - label: Situation Frame Type
-              items:
-                  - label: Any
-                    field: topics
-                    operator: '!='
-                    value: None
-                  - label: Energy
-                    field: topics
-                    operator: contains
-                    value: Energy
-                  - label: Evacuation
-                    field: topics
-                    operator: contains
-                    value: evac
-                  - label: Food
-                    field: topics
-                    operator: contains
-                    value: food
-                  - label: Infrastructure
-                    field: topics
-                    operator: contains
-                    value: infra
-                  - label: Medical
-                    field: topics
-                    operator: contains
-                    value: med
-                  - label: Rescue
-                    field: topics
-                    operator: contains
-                    value: rescue
-                  - label: Sanitation
-                    field: topics
-                    operator: contains
-                    value: Sanitation
-                  - label: Search
-                    field: topics
-                    operator: contains
-                    value: search
-                  - label: Shelter
-                    field: topics
-                    operator: contains
-                    value: shelter
-                  - label: Utilities
-                    field: topics
-                    operator: contains
-                    value: utils
-                  - label: Water
-                    field: topics
-                    operator: contains
-                    value: water
-            - label: SEC
-              items:
-                  - label: Activation
-                    field: sentimentString
-                    value: Activation
-                  - label: N/A
-                    field: sentimentString
-                    value: N/A
-                  - label: Negative
-                    field: sentimentString
-                    value: Negative
-                  - label: Negative, Activation
-                    field: sentimentString
-                    value: Negative, Activation
-                  - label: Positive
-                    field: sentimentString
-                    value: Positive
-                  - label: Positive, Activation
-                    field: sentimentString
-                    value: Positive, Activation
-            - label: Entity Type
-              items:
-                  - label: Person
-                    field: entities.entityType
-                    value: PER
-                  - label: Organization
-                    field: entities.entityType
-                    value: ORG
-                  - label: Location
-                    field: entities.entityType
-                    value: LOC
-                  - label: Geopolitical Entity
-                    field: entities.entityType
-                    value: GPE
 
 dashboards:
     category: 'Select an option...'
@@ -310,9 +186,13 @@ dashboards:
                                 table_key_1: es1.ldc_uyg_jul_18.ui_out
                             fields:
                                 field_key_1: es1.ldc_uyg_jul_18.ui_out.originalText
+                                field_key_2: es1.ldc_uyg_jul_18.ui_out.translatedText
                             options:
-                                # TODO: 825: perhaps make options here later if needed
-                                test: someValue
+                                connectOnLoad: true
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: field_key_2
+                                    placeHolder: Search
                         # TODO: 825: The uyg_elisa_discovery dashboard probably won't work correctly until layouts are using field keys
                         uyg_elisa_discovery:
                             name: ELISA Situation Discovery
@@ -323,9 +203,13 @@ dashboards:
                                 table_key_1: es1.uyg_elisa_sd.ui_out
                             fields:
                                 field_key_1: es1.uyg_elisa_sd.ui_out.JustificationIL
+                                field_key_2: es1.uyg_elisa_sd.ui_out.JustificationEN
                             options:
-                                # TODO: 825: perhaps make options here later if needed
-                                test: someValue
+                                connectOnLoad: false
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: field_key_2
+                                    placeHolder: Search
                 nepal:
                     name: Nepal
                     choices:
@@ -339,8 +223,11 @@ dashboards:
                             fields:
                                 field_key_1: es1.ll_nepal_07_11_3.annotations.originalText
                             options:
-                                # TODO: 825: perhaps make options here later if needed
-                                test: someValue
+                                connectOnLoad: false
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: field_key_1
+                                    placeHolder: Search
                 car:
                     name: Central African Republic
                     choices:
@@ -354,8 +241,11 @@ dashboards:
                             fields:
                                 field_key_1: es1.elisa_car_1.annotations.JustificationEN
                             options:
-                                # TODO: 825: perhaps make options here later if needed
-                                test: someValue
+                                connectOnLoad: false
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: field_key_1
+                                    placeHolder: Search
         dev:
             category: 'Select an option...'
             name: 'DEV:'
@@ -373,6 +263,14 @@ dashboards:
                                 table_key_1: es1.ll_nepal_06_14.situations
                                 table_key_2: es1.ll_nepal_06_14.annotations
                                 table_key_3: es1.ll_nepal_06_14.documents
+                            fields:
+                                field_key_1: es1.ll_nepal_06_14.annotations.originalText
+                            options:
+                                connectOnLoad: false
+                                simpleFilter:
+                                    tableKey: table_key_2
+                                    fieldKey: field_key_1
+                                    placeHolder: Search
                         terrain:
                             name: Human Terrain
                             layout: human-terrain
@@ -380,6 +278,14 @@ dashboards:
                             datastore: es1
                             tables:
                                 table_key_1: es1.ll_nepal_06_14_2.annotations1Author
+                            fields:
+                                field_key_1: es1.ll_nepal_06_14_2.annotations1Author.translatedText
+                            options:
+                                connectOnLoad: false
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: field_key_1
+                                    placeHolder: Search
 
 layouts:
     uyghur-sd:
@@ -1221,9 +1127,3 @@ layouts:
             edgeColorField: sentimentString
         row: 15
         col: 1
-
-routeService:
-    url: http://localhost:8090/ghREST/
-    get: route?lat1=LAT1&lon1=LON1&lat2=LAT2&lon2=LON2
-    post: dynamicroute
-    disabled: true

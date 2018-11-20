@@ -16,8 +16,8 @@
 import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
-import { DatasetOptions, DatabaseMetaData, TableMetaData,
-    TableMappings, FieldMetaData, Datastore, Dashboard, SimpleFilter } from '../dataset';
+import { DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData,
+    Datastore, Dashboard, DashboardOptions, SimpleFilter, Dataset } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import * as _ from 'lodash';
@@ -121,7 +121,9 @@ export class DatasetService {
 
     /**
      * Validate the choices map within each level of dashboards object, and make appropriate
-     * changes when expected values are missing.
+     * changes when expected values are missing. Also used to translate tableKey/fieldKey
+     * values into databaseName, tableName, and fieldName.
+     *
      * @param {Map<string, Dashboard>} dashboardChoices
      * @param {string[]} keys for dashboardChoices map
      */
@@ -145,6 +147,33 @@ export class DatasetService {
             if (dashboardChoices[choiceKey]) {
                 if (!dashboardChoices[choiceKey].name) {
                     dashboardChoices[choiceKey].name = choiceKey;
+                }
+
+                // If simpleFilter present in config, make sure to translate keys to database, table, and
+                // field names.
+                if (dashboardChoices[choiceKey].options
+                    && dashboardChoices[choiceKey].options.simpleFilter
+                    && dashboardChoices[choiceKey].options.simpleFilter.tableKey) {
+
+                    let tableKey = dashboardChoices[choiceKey].options.simpleFilter.tableKey;
+
+                    let databaseName = dashboardChoices[choiceKey].tables[tableKey].split('.')[1];
+                    let tableName = dashboardChoices[choiceKey].tables[tableKey].split('.')[2];
+
+                    dashboardChoices[choiceKey].options.simpleFilter.databaseName = databaseName;
+                    dashboardChoices[choiceKey].options.simpleFilter.tableName = tableName;
+
+                    if (dashboardChoices[choiceKey].options.simpleFilter.fieldKey) {
+                        let fieldKey = dashboardChoices[choiceKey].options.simpleFilter.fieldKey;
+                        let fieldName = dashboardChoices[choiceKey].fields[fieldKey].split('.')[3];
+
+                        dashboardChoices[choiceKey].options.simpleFilter.fieldName = fieldName;
+                    } else {
+                        dashboardChoices[choiceKey].options.simpleFilter.fieldName = '';
+                    }
+                } else if (dashboardChoices[choiceKey].options && dashboardChoices[choiceKey].options.simpleFilter) {
+                    // delete simpleFilter from config if no tableKey present
+                    delete dashboardChoices[choiceKey].options.simpleFilter;
                 }
 
                 // Only auto fill category if this is not the last level of nesting
@@ -261,22 +290,6 @@ export class DatasetService {
         this.dataset.type = dataset.type || '';
         this.dataset.host = dataset.host || '';
         this.dataset.databases = dataset.databases || [];
-        this.dataset.options = dataset.options || {};
-
-        // Shutdown any previous update intervals.
-        if (this.updateInterval) {
-            this.updateSubscription.unsubscribe();
-            delete this.updateSubscription;
-            delete this.updateInterval;
-        }
-
-        if (this.dataset.options.requeryInterval) {
-            let delay = Math.max(0.5, this.dataset.options.requeryInterval) * 60000;
-            this.updateInterval = Observable.interval(delay);
-            this.updateSubscription = this.updateInterval.subscribe(() => {
-                this.publishUpdateData();
-            });
-        }
     }
 
     // TODO: 825: combine setCurrentDashboardName and setCurrentDashboard.
@@ -302,6 +315,21 @@ export class DatasetService {
      */
     public setCurrentDashboard(config: Dashboard) {
         this.currentDashboard = config;
+
+        // Shutdown any previous update intervals.
+        if (this.updateInterval) {
+            this.updateSubscription.unsubscribe();
+            delete this.updateSubscription;
+            delete this.updateInterval;
+        }
+
+        if (this.currentDashboard.options.requeryInterval) {
+            let delay = Math.max(0.5, this.currentDashboard.options.requeryInterval) * 60000;
+            this.updateInterval = Observable.interval(delay);
+            this.updateSubscription = this.updateInterval.subscribe(() => {
+                this.publishUpdateData();
+            });
+        }
     }
 
     /**
@@ -324,19 +352,22 @@ export class DatasetService {
      *
      * @param simpleField The new field for the simple search
      */
-    public setActiveDatasetSimpleFilterFieldName(simpleField: FieldMetaData) {
+    public setCurrentDashboardSimpleFilterFieldName(simpleField: FieldMetaData) {
         this.createSimpleFilter();
-        this.dataset.options.simpleFilter.fieldName = simpleField.columnName;
+        this.currentDashboard.options.simpleFilter.fieldName = simpleField.columnName;
     }
 
     /**
      * Creates a simpleFilter if it doesn't exist
      */
     public createSimpleFilter() {
-        if (!this.dataset.options.simpleFilter) {
-            this.dataset.options.simpleFilter = new SimpleFilter(
-                this.dataset.databases[0].name,
-                this.dataset.databases[0].tables[0].name,
+        if (!this.currentDashboard.options.simpleFilter) {
+
+            let tableKey = Object.keys(this.currentDashboard.tables)[0];
+
+            this.currentDashboard.options.simpleFilter = new SimpleFilter(
+                this.getDatabaseNameByKey(tableKey),
+                this.getTableNameByKey(tableKey),
                 ''
             );
         }
@@ -346,9 +377,9 @@ export class DatasetService {
      * returns the simple search field
      * @return {string}
      */
-    public getActiveDatasetSimpleFilterFieldName(): string {
+    public getCurrentDashboardSimpleFilterFieldName(): string {
         this.createSimpleFilter();
-        return this.dataset.options.simpleFilter.fieldName;
+        return this.currentDashboard.options.simpleFilter.fieldName;
     }
 
     /**
@@ -977,28 +1008,15 @@ export class DatasetService {
     }
 
     /**
-     * Returns the options for the active dataset.
-     * @method getActiveDatasetOptions
+     * Returns the options for the current dashboard.
+     * @method getCurrentDashboardOptions
      * @return {Object}
-     * TODO: 825: options will be moved
      *
      */
-    public getActiveDatasetOptions(): DatasetOptions {
-        return this.dataset.options;
-    }
-
-    /**
-     * Returns the color maps option for the database, table, and field in the active dataset with the given names.
-     * @param {String} databaseName
-     * @param {String} tableName
-     * @param {String} fieldName
-     * @method getActiveDatasetColorMaps
-     * @return {Object}
-     * TODO: 825: options will be moved
-     */
-    public getActiveDatasetColorMaps(databaseName: string, tableName: string, fieldName: string): Object {
-        let colorMaps = this.getActiveDatasetOptions().colorMaps || {};
-        return colorMaps[databaseName] && colorMaps[databaseName][tableName] ? colorMaps[databaseName][tableName][fieldName] || {} : {};
+    public getCurrentDashboardOptions(): DashboardOptions {
+        if (this.currentDashboard) {
+            return this.currentDashboard.options;
+        }
     }
 
     /**
@@ -1092,4 +1110,17 @@ export class DatasetService {
             return currentConfig.tables[key].split('.')[2];
         }
     }
+
+    /**
+     * Returns field name from matching field key from current dashboard.
+     * @param {String} key
+     * @return {String}
+     */
+    public getFieldNameByKey(key: string): string {
+        let currentConfig = this.getCurrentDashboard();
+        if (currentConfig) {
+            return currentConfig.fields[key].split('.')[3];
+        }
+    }
+
 }
