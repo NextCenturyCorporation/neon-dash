@@ -1,11 +1,10 @@
-translationKeys:
-    google: AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8
+projectTitle: 'Test Custom Title'
+projectIcon: 'assets/favicon.medifor.ico'
 
 datastores:
     es1:
         host: localhost
         type: elasticsearch
-        connectOnLoad: true # TODO: 825: does this need to be moved?
         databases:
             ldc_uyg_jul_18:
                 prettyName: Uyghur LDC, July 2018
@@ -32,40 +31,20 @@ datastores:
                             columnName: originalText
                             prettyName: Original Text
                         labelOptions:
-                        topic:
-                            food: Food
-                            water: Water
-                            shelter: Shelter
-                            med: Medicine
-                            search: Search and Rescue
-                            evac: Evacuation
-                            infra: Infrastructure
-                            utils: Utilities
-                            crimeviolence: Crime /  Violence
-                            terrorism: Terrorism
-                            regimechange: Regime Change
+                            topic:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime /  Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
                         mappings:
                             date: createDate
-        options:
-            # TODO: 825: do colorMaps also need to be moved, or will they work here?
-            # TODO: 825: fix color maps to work for this test dataset
-            colorMaps:
-                ldc_uyg_jul_18:
-                    ui_out:
-                        topic:
-                            # TODO: 825: Fix to match pretty names to field/config names
-                            crimeviolence: '#98DF8A'
-                            Medicine: '#FF9896'
-                            Terrorism: '#AEC7E8'
-                            regimechange: '#98DF8A'
-            checkForCoordinateValidation: null_values
-            # TODO: 825: move/restructure simpleFilter or entire options out so that
-            # we can specify config for multiple databases instead of just one
-            simpleFilter:
-                databaseName: ldc_uyg_jul_18
-                tableName: ui_out
-                fieldName: translatedText
-                placeHolder: Search
 
 dashboards:
     category: 'Select an option...'
@@ -87,9 +66,24 @@ dashboards:
                                 table_key_1: es1.ldc_uyg_jul_18.ui_out
                             fields:
                                 field_key_1: es1.ldc_uyg_jul_18.ui_out.originalText
+                                field_key_2: es1.ldc_uyg_jul_18.ui_out.translatedText
                             options:
-                                # TODO: 825: perhaps make options here later if needed
-                                test: someValue
+                                connectOnLoad: true
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: field_key_2
+                                    placeHolder: Search
+                                colorMaps:
+                                    ldc_uyg_jul_18:
+                                        ui_out:
+                                            topic:
+                                                # TODO: 825: Made ticket to resolve issue with colorMaps
+                                                # using pretty labels instead of actual values in data
+                                                # (THOR-915)
+                                                # using pretty labels here for now
+                                                "Crime /  Violence": '#98DF8A'
+                                                Medicine: '#FF9896'
+                                                "Regime Change": '#AEC7E8'
 
 layouts:
   DISCOVERY:
@@ -131,9 +125,23 @@ layouts:
         minPixely: 240
         minSizex: 7
         minSizey: 3
-
-routeService:
-    url: http://localhost:8090/ghREST/
-    get: route?lat1=LAT1&lon1=LON1&lat2=LAT2&lon2=LON2
-    post: dynamicroute
-    disabled: true
+    -
+        name: Bar Chart
+        type: aggregation
+        icon: bar_chart
+        col: 5
+        row: 1
+        sizex: 4
+        sizey: 5
+        bindings:
+            title: Need Type
+            type: bar-h
+            tableKey: table_key_1
+            xField: topic
+            limit: 11
+            groupField: topic
+            sortByAggregation: true
+        minPixelx: 320
+        minPixely: 240
+        minSizex: 4
+        minSizey: 3

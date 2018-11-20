@@ -24,12 +24,11 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { SimpleFilterComponent } from './simple-filter.component';
-import { DatasetOptions, SimpleFilter } from '../../dataset';
+import { SimpleFilter, DashboardOptions, Dashboard } from '../../dataset';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import * as neon from 'neon-framework';
-import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 const databaseName = 'database';
 const tableName = 'table';
@@ -46,14 +45,31 @@ class MockFilterService extends FilterServiceMock {
 }
 
 class MockDatasetService extends DatasetService {
-    options = new DatasetOptions();
+    options = new DashboardOptions();
     constructor() {
         super(new NeonGTDConfig());
-        this.options.simpleFilter = new SimpleFilter(databaseName, tableName, fieldName);
-    }
 
-    getActiveDatasetOptions() {
-        return this.options;
+        let dashboardTableKeys = new Map<string, string>();
+        /* tslint:disable:no-string-literal */
+        dashboardTableKeys['tableKey'] = 'datastore1.' + databaseName + '.' + tableName;
+        /* tslint:enable:no-string-literal */
+
+        let dashboardFieldKeys = new Map<string, string>();
+        /* tslint:disable:no-string-literal */
+        dashboardFieldKeys['fieldKey'] = 'datastore1.' + databaseName + '.' + tableName + '.' + fieldName;
+        /* tslint:enable:no-string-literal */
+
+        let dashboard = {
+            name: 'Test Discovery Config',
+            layout: 'DISCOVERY',
+            datastore: 'datastore1',
+            tables: dashboardTableKeys,
+            fields: dashboardFieldKeys,
+            options: new DashboardOptions()
+        };
+        dashboard.options.simpleFilter = new SimpleFilter(databaseName, tableName, fieldName, 'Search', '', 'tableKey', 'fieldKey');
+        this.setCurrentDashboard(dashboard);
+        this.setCurrentDashboardName('test_discovery');
     }
 }
 

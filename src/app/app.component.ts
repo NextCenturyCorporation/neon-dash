@@ -140,12 +140,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             snackBarRef.instance.addErrors('Configuration Errors', neonConfig.errors);
         }
 
-        // TODO: 825: incorporate commented out lines into future dashboard options.
-        /*
-        if (this.datasets && this.datasets.length > 0) {
-            this.projectTitle = this.datasets[0].title ? this.datasets[0].title : this.projectTitle;
-            this.projectIcon = this.datasets[0].icon ? this.datasets[0].icon : this.projectIcon;
-        }*/
+        if (this.neonConfig) {
+            this.projectTitle = this.neonConfig.projectTitle ? this.neonConfig.projectTitle : this.projectTitle;
+            this.projectIcon = this.neonConfig.projectIcon ? this.neonConfig.projectIcon : this.projectIcon;
+        }
 
         this.matIconRegistry.addSvgIcon(
             'filter_builder',

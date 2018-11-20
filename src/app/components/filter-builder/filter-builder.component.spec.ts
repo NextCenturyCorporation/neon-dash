@@ -32,7 +32,6 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { TranslationService } from '../../services/translation.service';
 import { VisualizationService } from '../../services/visualization.service';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
@@ -54,7 +53,6 @@ describe('Component: Filter Builder', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            TranslationService,
             ErrorNotificationService,
             VisualizationService,
             ThemesService,
@@ -404,7 +402,6 @@ describe('Component: Filter Builder with config', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            TranslationService,
             ErrorNotificationService,
             VisualizationService,
             ThemesService,

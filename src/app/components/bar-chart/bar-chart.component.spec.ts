@@ -25,7 +25,6 @@ import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { TranslationService } from '../../services/translation.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
@@ -60,7 +59,6 @@ describe('Component: BarChart', () => {
             DatasetService,
             FilterService,
             ExportService,
-            TranslationService,
             ErrorNotificationService,
             VisualizationService,
             ThemesService,

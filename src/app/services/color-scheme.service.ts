@@ -93,8 +93,8 @@ export class ColorSchemeService {
 
     public resetColorMap() {
         this.colorFieldToColorSet = new Map<string, ColorSet>();
-        let datasetOptions = this.datasetService.getActiveDatasetOptions();
-        let colorMaps = datasetOptions.colorMaps || {};
+        let dashboardOptions = this.datasetService.getCurrentDashboardOptions();
+        let colorMaps = dashboardOptions && dashboardOptions.colorMaps ? dashboardOptions.colorMaps : {};
         Object.keys(colorMaps).forEach((databaseName) => {
             Object.keys(colorMaps[databaseName]).forEach((tableName) => {
                 Object.keys(colorMaps[databaseName][tableName]).forEach((fieldName) => {

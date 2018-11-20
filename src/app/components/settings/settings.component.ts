@@ -30,7 +30,7 @@ import * as _ from 'lodash';
 import * as neon from 'neon-framework';
 
 import { BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { DatasetOptions, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
+import { FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
 
 @Component({
     selector: 'app-settings',
@@ -75,7 +75,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     changeSimpleSearchFilter() {
-        this.datasetService.setActiveDatasetSimpleFilterFieldName(this.searchField);
+        this.datasetService.setCurrentDashboardSimpleFilterFieldName(this.searchField);
     }
 
     checkSimpleFilter() {
@@ -142,16 +142,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     validateDatasetService() {
-        if (this.datasetService.getActiveDatasetOptions()) {
-            this.simpleSearch = this.datasetService.getActiveDatasetOptions();
+        if (this.datasetService.getCurrentDashboardOptions()) {
+            this.simpleSearch = this.datasetService.getCurrentDashboardOptions();
         }
         if (this.datasetService.getActiveFields()) {
             this.options = this.datasetService.getActiveFields();
         }
 
-        if (this.datasetService.getActiveDatasetSimpleFilterFieldName()) {
-            this.searchField = new FieldMetaData(this.datasetService.getActiveDatasetSimpleFilterFieldName(),
-                this.datasetService.getActiveDatasetSimpleFilterFieldName());
+        if (this.datasetService.getCurrentDashboardSimpleFilterFieldName()) {
+            this.searchField = new FieldMetaData(this.datasetService.getCurrentDashboardSimpleFilterFieldName(),
+                this.datasetService.getCurrentDashboardSimpleFilterFieldName());
         }
     }
 

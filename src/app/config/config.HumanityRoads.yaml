@@ -1,11 +1,7 @@
-translationKeys:
-    google: AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8
-
 datastores:
     es1:
         host: localhost
         type: elasticsearch
-        connectOnLoad: true
         databases:
             ll_nepal_08_14:
                 prettyName: Nepal_08_14
@@ -75,15 +71,6 @@ datastores:
                                 regimechange: Regime Change
                         mappings:
                             date: createDate
-        options:
-            checkForCoordinateValidation: null_values
-            # TODO: 825: move/restructure simpleFilter or entire options out so that
-            # we can specify config for multiple databases instead of just one
-            #simpleFilter:
-            #    databaseName: ldc_uyg_jul_18 #ll_nepal_08_14
-            #    tableName: ui_out #annotations
-            #    fieldName: translatedText #originalText
-            #    placeHolder: Search
 
 dashboards:
     category: 'Select an option...'
@@ -106,9 +93,13 @@ dashboards:
                             # TODO: 825: use field keys
                             fields:
                                 field_key_1: es1.ldc_uyg_jul_18.ui_out.originalText
+                                field_key_2: es1.ldc_uyg_jul_18.ui_out.translatedText
                             options:
-                                # TODO: 825: perhaps make options here later if needed
-                                test: someValue
+                                connectOnLoad: true
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: field_key_2
+                                    placeHolder: Search
         nepal:
             category: 'Select an option...'
             name: Nepal
@@ -124,6 +115,14 @@ dashboards:
                             datastore: es1
                             tables:
                                 table_key_1: es1.ll_nepal_08_14.annotations
+                            fields:
+                                field_key_1: es1.ll_nepal_08_14.annotations.originalText
+                            options:
+                                connectOnLoad: false
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: field_key_1
+                                    placeHolder: Search
 
 layouts:
     ELISA_DISCOVERY:
@@ -489,120 +488,3 @@ layouts:
           minPixely: 240
           minSizex: 3
           minSizey: 4
-
-# TODO: 825: does this still work as expected?
-# TODO: 825: would this go under another category?
-legends:
-    ll_nepal_07_02:
-        documents:
-            - label: Text
-              customized:
-                  field: originalText
-                  operator: contains
-              items:
-                  - label: Evacuation
-                    field: originalText
-                    operator: contains
-                    value: evac
-                  - label: Food
-                    field: originalText
-                    operator: contains
-                    value: food
-                  - label: Rescue
-                    field: originalText
-                    operator: contains
-                    value: rescue
-                  - label: Water
-                    field: originalText
-                    operator: contains
-                    value: water
-            - label: Situation Frame Type
-              items:
-                  - label: Any
-                    field: topics
-                    operator: '!='
-                    value: None
-                  - label: Energy
-                    field: topics
-                    operator: contains
-                    value: Energy
-                  - label: Evacuation
-                    field: topics
-                    operator: contains
-                    value: evac
-                  - label: Food
-                    field: topics
-                    operator: contains
-                    value: food
-                  - label: Infrastructure
-                    field: topics
-                    operator: contains
-                    value: infra
-                  - label: Medical
-                    field: topics
-                    operator: contains
-                    value: med
-                  - label: Rescue
-                    field: topics
-                    operator: contains
-                    value: rescue
-                  - label: Sanitation
-                    field: topics
-                    operator: contains
-                    value: Sanitation
-                  - label: Search
-                    field: topics
-                    operator: contains
-                    value: search
-                  - label: Shelter
-                    field: topics
-                    operator: contains
-                    value: shelter
-                  - label: Utilities
-                    field: topics
-                    operator: contains
-                    value: utils
-                  - label: Water
-                    field: topics
-                    operator: contains
-                    value: water
-            - label: SEC
-              items:
-                  - label: Activation
-                    field: sentimentString
-                    value: Activation
-                  - label: N/A
-                    field: sentimentString
-                    value: N/A
-                  - label: Negative
-                    field: sentimentString
-                    value: Negative
-                  - label: 'Negative, Activation'
-                    field: sentimentString
-                    value: 'Negative, Activation'
-                  - label: Positive
-                    field: sentimentString
-                    value: Positive
-                  - label: 'Positive, Activation'
-                    field: sentimentString
-                    value: 'Positive, Activation'
-            - label: Entity Type
-              items:
-                  - label: Person
-                    field: entities.entityType
-                    value: PER
-                  - label: Organization
-                    field: entities.entityType
-                    value: ORG
-                  - label: Location
-                    field: entities.entityType
-                    value: LOC
-                  - label: Geopolitical Entity
-                    field: entities.entityType
-                    value: GPE
-
-routeService:
-    url: http://localhost:8090/ghREST/
-    get: route?lat1=LAT1&lon1=LON1&lat2=LAT2&lon2=LON2
-    post: dynamicroute
-    disabled: true
