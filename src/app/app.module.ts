@@ -44,8 +44,6 @@ import { AddVisualizationComponent } from './components/add-visualization/add-vi
 import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AppComponent } from './app.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
-import { BarChartComponent } from './components/bar-chart/bar-chart.component';
-import { ChartComponent } from './components/chart/chart.component';
 import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
@@ -57,14 +55,11 @@ import { ExportControlComponent } from './components/export-control/export-contr
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 import { LegendComponent } from './components/legend/legend.component';
-import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components/map/map.component';
 import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
 import { SampleComponent } from './components/sample/sample.component';
-import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
-import { TimelineComponent } from './components/timeline/timeline.component';
 import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
@@ -101,8 +96,6 @@ export function getAppConfig() {
         AnnotationViewerComponent,
         AppComponent,
         AggregationComponent,
-        BarChartComponent,
-        ChartComponent,
         ConfigEditorComponent,
         ConfirmationDialogComponent,
         CustomConnectionComponent,
@@ -116,21 +109,18 @@ export function getAppConfig() {
         FilterBuilderComponent,
         FilterTrayComponent,
         LegendComponent,
-        LineChartComponent,
         MapComponent,
         MediaViewerComponent,
         NetworkGraphComponent,
         NewsFeedComponent,
         QueryBarComponent,
         SampleComponent,
-        ScatterPlotComponent,
         SimpleFilterComponent,
         SnackBarComponent,
         TextCloudComponent,
         ThumbnailDetailsContractedComponent,
         ThumbnailDetailsExpandedComponent,
         ThumbnailGridComponent,
-        TimelineComponent,
         UnsharedFilterComponent,
         VisualizationContainerComponent,
         VisualizationInjectorComponent,

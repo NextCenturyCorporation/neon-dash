@@ -35,7 +35,6 @@ import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.comp
 import { VisualizationService } from '../../services/visualization.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { LegendComponent } from '../legend/legend.component';
-import { ChartComponent } from '@swimlane/ngx-charts';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
@@ -50,7 +49,6 @@ describe('Component: NetworkGraph', () => {
 
     initializeTestBed({
         declarations: [
-            ChartComponent,
             LegendComponent,
             NetworkGraphComponent,
             ExportControlComponent,
