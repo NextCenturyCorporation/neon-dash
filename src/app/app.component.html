@@ -4,7 +4,7 @@
             <mat-toolbar class="title" color="primary">
                 <span>{{ rightPanelTitle }}</span>
             </mat-toolbar>
-        
+
             <div class="right-panel-container">
                 <div class="about-neon-container" *ngIf="checkPanel('aboutNeon')">
                     <app-about-neon></app-about-neon>
@@ -17,7 +17,7 @@
                     </app-dataset-selector>
                 </div>
                 <div class="saved-state-container" *ngIf="checkPanel('saveState')">
-                    <app-save-state></app-save-state>
+                    <app-save-state [sidenav]="sideNavRight"></app-save-state>
                 </div>
                 <div class="setting-container" *ngIf="checkPanel('settings')">
                     <app-settings></app-settings>
