@@ -119,68 +119,6 @@ describe('Component: DocumentViewer', () => {
         expect(component.subNgOnDestroy).toBeDefined();
     });
 
-    it('has options.createBindings method that works as expected', () => {
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 50,
-            table: 'testTable1',
-            title: 'Document Viewer',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            dataField: '',
-            dateField: '',
-            idField: '',
-            sortField: '',
-            hideSource: false,
-            metadataFields: [],
-            nameWidthCss: '',
-            popoutFields: [],
-            showSelect: false,
-            showText: false,
-            sortOrder: 'DESCENDING'
-        });
-
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        component.options.dateField = DatasetServiceMock.DATE_FIELD;
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.sortField = DatasetServiceMock.SORT_FIELD;
-        component.options.hideSource = true;
-        component.options.metadataFields = ['A', 'B'];
-        component.options.nameWidthCss = '50%';
-        component.options.popoutFields = ['C', 'D'];
-        component.options.showSelect = true;
-        component.options.showText = true;
-        component.options.sortOrder = 'ASCENDING';
-
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 50,
-            table: 'testTable1',
-            title: 'Document Viewer',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            dataField: 'testTextField',
-            dateField: 'testDateField',
-            idField: 'testIdField',
-            sortField: 'testSortField',
-            hideSource: true,
-            metadataFields: ['A', 'B'],
-            nameWidthCss: '50%',
-            popoutFields: ['C', 'D'],
-            showSelect: true,
-            showText: true,
-            sortOrder: 'ASCENDING'
-        });
-    });
-
     it('returns an empty string from getFilterText', () => {
         expect(component.getFilterText({})).toBe('');
         expect(component.getFilterText({
@@ -572,10 +510,6 @@ describe('Component: DocumentViewer', () => {
         expect(refs.headerText).toBeDefined();
         expect(refs.infoText).toBeDefined();
         expect(refs.visualization).toBeDefined();
-    });
-
-    it('getOptions does return options object', () => {
-        expect(component.getOptions()).toEqual(component.options);
     });
 
     it('populateActiveItem does update item data and rows as expected', () => {
@@ -1115,7 +1049,7 @@ describe('Component: Document Viewer with Config', () => {
                     field: 'secondOfMultipleItemMetadataRow'
                 }]
             ]},
-            { provide: 'popoutFields', useValue: null },
+            { provide: 'popoutFields', useValue: [] },
             { provide: 'limit', useValue: 25 }
         ],
         imports: [
@@ -1136,18 +1070,18 @@ describe('Component: Document Viewer with Config', () => {
         expect(component.options.dateField).toEqual(DatasetServiceMock.DATE_FIELD);
         expect(component.options.idField).toEqual(DatasetServiceMock.ID_FIELD);
         expect(component.options.metadataFields).toEqual([
-            {
+            [{
                 name: 'Single Item Metadata Row',
                 field: 'singleItemMetadataRow'
-            },
-            {
+            }],
+            [{
                 name: 'First of Multiple Item Metadata Row',
                 field: 'firstOfMultipleItemMetadataRow'
             },
             {
                 name: 'Second of Multiple Item Metadata Row',
                 field: 'secondOfMultipleItemMetadataRow'
-            }
+            }]
         ]);
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);

@@ -36,62 +36,17 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetOption
+} from '../../widget-option';
 import * as neon from 'neon-framework';
-
-/**
- * Manages configurable options for the specific visualization.
- */
-export class WikiViewerOptions extends BaseNeonOptions {
-    public id: string;
-    public idField: FieldMetaData;
-    public linkField: FieldMetaData;
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'idField',
-            'linkField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.id = this.injector.get('id', '');
-    }
-}
 
 /**
  * A visualization that shows the content of a wikipedia page triggered through a select_id event.
@@ -109,8 +64,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
-
-    public options: WikiViewerOptions;
 
     public isLoadingWikiPage: boolean = false;
     public wikiName: string[] = [];
@@ -142,9 +95,32 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             visualizationService
         );
 
-        this.options = new WikiViewerOptions(this.injector, this.datasetService, 'Wiki Viewer', 10);
-
         this.subscribeToSelectId(this.getSelectIdCallback());
+    }
+
+    /**
+     * Creates and returns an array of field options for the unique widget.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('idField', 'ID Field', true),
+            new WidgetFieldOption('linkField', 'Link Field', true)
+        ];
+    }
+
+    /**
+     * Creates and returns an array of non-field options for the unique widget.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetFreeTextOption('id', 'ID', '')
+        ];
     }
 
     /**
@@ -204,16 +180,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Returns the options for the specific visualization.
-     *
-     * @return {BaseNeonOptions}
-     * @override
-     */
-    getOptions(): BaseNeonOptions {
-        return this.options;
-    }
-
-    /**
      * Returns the list filters for the wiki viewer to ignore (null for no filters).
      *
      * @return {null}
@@ -259,6 +225,26 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     private getTabLabel(names, index) {
         return names && names.length > index ? names[index] : '';
+    }
+
+    /**
+     * Returns the default limit for the unique widget.
+     *
+     * @return {string}
+     * @override
+     */
+    getWidgetDefaultLimit(): number {
+        return 10;
+    }
+
+    /**
+     * Returns the name for the unique widget.
+     *
+     * @return {string}
+     * @override
+     */
+    getWidgetName(): string {
+        return 'Wiki Viewer';
     }
 
     /**

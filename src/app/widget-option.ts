@@ -15,46 +15,53 @@
  */
 import { Injector } from '@angular/core';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from './dataset';
+import { neonVariables } from './neon-namespaces';
 
-interface MinMax { max: number; min: number; }
 type OptionCallback = (options: any) => boolean;
 interface OptionChoice { prettyName: string; variable: any; }
 
 export enum OptionType {
-    BOOLEAN,
-    DATABASE,
-    FIELD,
-    NUMBER,
-    STRING,
-    TABLE,
-    ARRAY_BOOLEAN,
-    ARRAY_FIELD,
-    ARRAY_NUMBER,
-    ARRAY_STRING
+    DATABASE = 'DATABASE',
+    FIELD = 'FIELD',
+    FIELD_ARRAY = 'FIELD_ARRAY',
+    FREE_TEXT = 'FREE_TEXT',
+    MULTIPLE_SELECT = 'MULTIPLE_SELECT',
+    NON_PRIMITIVE = 'NON_PRIMITIVE',
+    SELECT = 'SELECT',
+    TABLE = 'TABLE'
 }
 
-export class WidgetOption {
+export abstract class WidgetOption {
     public valueCurrent: any;
 
     /**
      * @constructor
+     * @arg {OptionType} optionType
+     * @arg {boolean} isRequired
      * @arg {string} bindingKey
      * @arg {string} prettyName
-     * @arg {string} isRequired
-     * @arg {OptionType} optionType
      * @arg {any} valueDefault
-     * @arg {OptionChoice|MinMax} valueChoices
-     * @arg {boolean|OptionCallback} [showInMenu=true]
+     * @arg {OptionChoice[]} valueChoices
+     * @arg {boolean|OptionCallback} [enableInMenu=true]
      */
     constructor(
+        public optionType: OptionType,
+        public isRequired: boolean,
         public bindingKey: string,
         public prettyName: string,
-        public isRequired: boolean,
-        public optionType: OptionType,
         public valueDefault: any,
-        public valueChoices: OptionChoice[] | MinMax,
-        public showInMenu: boolean | OptionCallback = true
+        public valueChoices: OptionChoice[],
+        public enableInMenu: boolean | OptionCallback = true
     ) {}
+
+    /**
+     * Returns the current value to save in the bindings.
+     *
+     * @return {any}
+     */
+    public getValueToSaveInBindings(): any {
+        return this.valueCurrent;
+    }
 }
 
 export class WidgetDatabaseOption extends WidgetOption {
@@ -63,7 +70,41 @@ export class WidgetDatabaseOption extends WidgetOption {
      */
     constructor() {
         // Value default and choices are set elsewhere.
-        super('database', 'Database', true, OptionType.DATABASE, undefined, undefined, true);
+        super(OptionType.DATABASE, true, 'database', 'Database', undefined, undefined, true);
+    }
+
+    /**
+     * Returns the current value to save in the bindings.
+     *
+     * @return {any}
+     * @override
+     */
+    public getValueToSaveInBindings(): any {
+        return this.valueCurrent.name;
+    }
+}
+
+export class WidgetFieldArrayOption extends WidgetOption {
+    /**
+     * @constructor
+     * @arg {string} bindingKey
+     * @arg {string} prettyName
+     * @arg {boolean} isRequired
+     * @arg {boolean|OptionCallback} [enableInMenu=true]
+     */
+    constructor(bindingKey: string, prettyName: string, isRequired: boolean, enableInMenu: boolean | OptionCallback = true) {
+        // Value default and choices are set elsewhere.
+        super(OptionType.FIELD_ARRAY, isRequired, bindingKey, prettyName, undefined, undefined, enableInMenu);
+    }
+
+    /**
+     * Returns the current value to save in the bindings.
+     *
+     * @return {any}
+     * @override
+     */
+    public getValueToSaveInBindings(): any {
+        return this.valueCurrent.map((fieldElement) => fieldElement.columnName);
     }
 }
 
@@ -72,12 +113,98 @@ export class WidgetFieldOption extends WidgetOption {
      * @constructor
      * @arg {string} bindingKey
      * @arg {string} prettyName
-     * @arg {string} isRequired
-     * @arg {boolean|OptionCallback} [showInMenu=true]
+     * @arg {boolean} isRequired
+     * @arg {boolean|OptionCallback} [enableInMenu=true]
      */
-    constructor(bindingKey: string, prettyName: string, isRequired: boolean, showInMenu: boolean | OptionCallback = true) {
+    constructor(bindingKey: string, prettyName: string, isRequired: boolean, enableInMenu: boolean | OptionCallback = true) {
         // Value default and choices are set elsewhere.
-        super(bindingKey, prettyName, isRequired, OptionType.FIELD, undefined, undefined, showInMenu);
+        super(OptionType.FIELD, isRequired, bindingKey, prettyName, undefined, undefined, enableInMenu);
+    }
+
+    /**
+     * Returns the current value to save in the bindings.
+     *
+     * @return {any}
+     * @override
+     */
+    public getValueToSaveInBindings(): any {
+        return this.valueCurrent.columnName;
+    }
+}
+
+export class WidgetFreeTextOption extends WidgetOption {
+    /**
+     * @constructor
+     * @arg {string} bindingKey
+     * @arg {string} prettyName
+     * @arg {any} valueDefault
+     * @arg {boolean|OptionCallback} [enableInMenu=true]
+     */
+    constructor(
+        bindingKey: string,
+        prettyName: string,
+        valueDefault: any,
+        enableInMenu: boolean | OptionCallback = true
+    ) {
+        super(OptionType.FREE_TEXT, false, bindingKey, prettyName, valueDefault, undefined, enableInMenu);
+    }
+}
+
+export class WidgetMultipleSelectOption extends WidgetOption {
+    /**
+     * @constructor
+     * @arg {string} bindingKey
+     * @arg {string} prettyName
+     * @arg {any} valueDefault
+     * @arg {OptionChoice[]} valueChoices
+     * @arg {boolean|OptionCallback} [enableInMenu=true]
+     */
+    constructor(
+        public bindingKey: string,
+        public prettyName: string,
+        public valueDefault: any,
+        public valueChoices: OptionChoice[],
+        public enableInMenu: boolean | OptionCallback = true
+    ) {
+        super(OptionType.MULTIPLE_SELECT, true, bindingKey, prettyName, valueDefault, valueChoices, enableInMenu);
+    }
+}
+
+export class WidgetNonPrimitiveOption extends WidgetOption {
+    /**
+     * @constructor
+     * @arg {string} bindingKey
+     * @arg {string} prettyName
+     * @arg {any} valueDefault
+     * @arg {boolean|OptionCallback} [enableInMenu=true]
+     */
+    constructor(
+        bindingKey: string,
+        prettyName: string,
+        valueDefault: any,
+        enableInMenu: boolean | OptionCallback = true
+    ) {
+        super(OptionType.NON_PRIMITIVE, false, bindingKey, prettyName, valueDefault, undefined, enableInMenu);
+    }
+}
+
+export class WidgetSelectOption extends WidgetOption {
+    /**
+     * @constructor
+     * @arg {string} bindingKey
+     * @arg {string} prettyName
+     * @arg {any} valueDefault
+     * @arg {OptionChoice[]} valueChoices
+     * @arg {boolean|OptionCallback} [enableInMenu=true]
+     */
+    constructor(
+        public bindingKey: string,
+        public prettyName: string,
+        public valueDefault: any,
+        public valueChoices: OptionChoice[],
+        public enableInMenu: boolean | OptionCallback = true
+    ) {
+        super(OptionType.SELECT, true, bindingKey, prettyName, valueDefault, valueChoices, enableInMenu);
     }
 }
 
@@ -87,7 +214,17 @@ export class WidgetTableOption extends WidgetOption {
      */
     constructor() {
         // Value default and choices are set elsewhere.
-        super('table', 'Table', true, OptionType.TABLE, undefined, undefined, true);
+        super(OptionType.TABLE, true, 'table', 'Table', undefined, undefined, true);
+    }
+
+    /**
+     * Returns the current value to save in the bindings.
+     *
+     * @return {any}
+     * @override
+     */
+    public getValueToSaveInBindings(): any {
+        return this.valueCurrent.name;
     }
 }
 
@@ -159,19 +296,27 @@ export class WidgetOptionCollection {
 export namespace OptionChoices {
     export const AggregationType: OptionChoice[] = [{
         prettyName: 'Count',
-        variable: 'count'
+        variable: neonVariables.COUNT
     }, {
         prettyName: 'Average',
-        variable: 'average'
+        variable: neonVariables.AVG
     }, {
         prettyName: 'Max',
-        variable: 'max'
+        variable: neonVariables.MAX
     }, {
         prettyName: 'Min',
-        variable: 'min'
+        variable: neonVariables.MIN
     }, {
         prettyName: 'Sum',
-        variable: 'sum'
+        variable: neonVariables.SUM
+    }];
+
+    export const AscendingFalseDescendingTrue: OptionChoice[] = [{
+        prettyName: 'Ascending',
+        variable: false
+    }, {
+        prettyName: 'Descending',
+        variable: true
     }];
 
     export const DateGranularity: OptionChoice[] = [{
@@ -189,6 +334,14 @@ export namespace OptionChoices {
     }, {
         prettyName: 'Minute',
         variable: 'minute'
+    }];
+
+    export const HideFalseShowTrue: OptionChoice[] = [{
+        prettyName: 'Hide',
+        variable: false
+    }, {
+        prettyName: 'Show',
+        variable: true
     }];
 
     export const NoFalseYesTrue: OptionChoice[] = [{

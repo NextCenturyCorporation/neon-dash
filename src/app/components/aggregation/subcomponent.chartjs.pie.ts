@@ -15,7 +15,6 @@
  */
 import { ElementRef } from '@angular/core';
 import { AbstractChartJsDataset, AbstractChartJsSubcomponent, ChartJsData } from './subcomponent.chartjs.abstract';
-import { AggregationOptions } from './aggregation.component';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '../../services/color-scheme.service';
 
@@ -60,14 +59,12 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
 
     /**
      * @constructor
-     * @arg {AggregationOptions} options
+     * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
      * @arg {boolean} [cannotSelect=false]
      */
-    constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef,
-        cannotSelect: boolean = false) {
-
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef, cannotSelect: boolean = false) {
         super(options, listener, elementRef, cannotSelect);
     }
 

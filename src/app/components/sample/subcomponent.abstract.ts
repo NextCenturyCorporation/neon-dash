@@ -14,22 +14,21 @@
  *
  */
 import { ElementRef } from '@angular/core';
-import { SampleOptions } from './sample.component';
 
 export interface SubcomponentListener {
     filterFromSubcomponent(text: string);
 }
 
 export abstract class AbstractSubcomponent {
-    protected options: SampleOptions;
+    protected options: any;
     protected listener: SubcomponentListener;
 
     /**
      * @constructor
-     * @arg {SampleOptions} options
+     * @arg {any} options
      * @arg {SubcomponentListener} listener
      */
-    constructor(options: SampleOptions, listener: SubcomponentListener) {
+    constructor(options: any, listener: SubcomponentListener) {
         this.options = options;
         this.listener = listener;
     }
