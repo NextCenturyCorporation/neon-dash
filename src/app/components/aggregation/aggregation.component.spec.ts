@@ -20,7 +20,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Inje
 import { FormsModule } from '@angular/forms';
 import {} from 'jasmine-core';
 
-import { AggregationComponent, AggregationOptions } from './aggregation.component';
+import { AggregationComponent } from './aggregation.component';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { ChartJsData } from './subcomponent.chartjs.abstract';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
@@ -93,33 +93,33 @@ describe('Component: Aggregation', () => {
     });
 
     it('class options properties are set to expected defaults', () => {
-        expect(component.options2.aggregationField).toEqual(new FieldMetaData());
-        expect(component.options2.groupField).toEqual(new FieldMetaData());
-        expect(component.options2.xField).toEqual(new FieldMetaData());
-        expect(component.options2.yField).toEqual(new FieldMetaData());
+        expect(component.options.aggregationField).toEqual(new FieldMetaData());
+        expect(component.options.groupField).toEqual(new FieldMetaData());
+        expect(component.options.xField).toEqual(new FieldMetaData());
+        expect(component.options.yField).toEqual(new FieldMetaData());
 
-        expect(component.options2.aggregation).toEqual('count');
-        expect(component.options2.dualView).toEqual('');
-        expect(component.options2.granularity).toEqual('year');
-        expect(component.options2.hideGridLines).toEqual(false);
-        expect(component.options2.hideGridTicks).toEqual(false);
-        expect(component.options2.ignoreSelf).toEqual(false);
-        expect(component.options2.lineCurveTension).toEqual(0.3);
-        expect(component.options2.lineFillArea).toEqual(false);
-        expect(component.options2.logScaleX).toEqual(false);
-        expect(component.options2.logScaleY).toEqual(false);
-        expect(component.options2.notFilterable).toEqual(false);
-        expect(component.options2.requireAll).toEqual(false);
-        expect(component.options2.savePrevious).toEqual(false);
-        expect(component.options2.scaleMaxX).toEqual('');
-        expect(component.options2.scaleMaxY).toEqual('');
-        expect(component.options2.scaleMinX).toEqual('');
-        expect(component.options2.scaleMinY).toEqual('');
-        expect(component.options2.showHeat).toEqual(false);
-        expect(component.options2.sortByAggregation).toEqual(false);
-        expect(component.options2.timeFill).toEqual(false);
-        expect(component.options2.type).toEqual('line');
-        expect(component.options2.yPercentage).toEqual(0.3);
+        expect(component.options.aggregation).toEqual(neonVariables.COUNT);
+        expect(component.options.dualView).toEqual('');
+        expect(component.options.granularity).toEqual('year');
+        expect(component.options.hideGridLines).toEqual(false);
+        expect(component.options.hideGridTicks).toEqual(false);
+        expect(component.options.ignoreSelf).toEqual(false);
+        expect(component.options.lineCurveTension).toEqual(0.3);
+        expect(component.options.lineFillArea).toEqual(false);
+        expect(component.options.logScaleX).toEqual(false);
+        expect(component.options.logScaleY).toEqual(false);
+        expect(component.options.notFilterable).toEqual(false);
+        expect(component.options.requireAll).toEqual(false);
+        expect(component.options.savePrevious).toEqual(false);
+        expect(component.options.scaleMaxX).toEqual('');
+        expect(component.options.scaleMaxY).toEqual('');
+        expect(component.options.scaleMinX).toEqual('');
+        expect(component.options.scaleMinY).toEqual('');
+        expect(component.options.showHeat).toEqual(false);
+        expect(component.options.sortByAggregation).toEqual(false);
+        expect(component.options.timeFill).toEqual(false);
+        expect(component.options.type).toEqual('line');
+        expect(component.options.yPercentage).toEqual(0.3);
         expect(component.newType).toEqual('line');
     });
 
@@ -228,7 +228,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('createFilterPrettyText with date data does return expected string', () => {
-        component.options2.xField = DatasetServiceMock.DATE_FIELD;
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
 
         expect(component.createFilterPrettyText({
             field: 'field1',
@@ -392,7 +392,7 @@ describe('Component: Aggregation', () => {
             prettyField: 'prettyField2',
             value: 'value2'
         }];
-        component.options2.requireAll = true;
+        component.options.requireAll = true;
 
         component.createOrRemoveNeonFilter();
 
@@ -538,7 +538,7 @@ describe('Component: Aggregation', () => {
             prettyField: 'prettyField1',
             value: 'value1'
         }];
-        component.options2.ignoreSelf = true;
+        component.options.ignoreSelf = true;
 
         component.createOrRemoveNeonFilter();
 
@@ -562,7 +562,7 @@ describe('Component: Aggregation', () => {
             value: 'value1'
         }];
         component.filterToPassToSuperclass.id = 'testId';
-        component.options2.ignoreSelf = true;
+        component.options.ignoreSelf = true;
 
         component.createOrRemoveNeonFilter();
 
@@ -575,12 +575,12 @@ describe('Component: Aggregation', () => {
     });
 
     it('createQuery does return expected aggregation query', () => {
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.X_FIELD;
 
         expect(component.createQuery()).toEqual(new neon.query.Query().limit(10000)
-            .selectFrom(component.options2.database.name, component.options2.table.name)
+            .selectFrom(component.options.database.name, component.options.table.name)
             .where(neon.query.where('testXField', '!=', null))
             .groupBy(['testXField'])
             .aggregate(neonVariables.COUNT, '*', '_aggregation')
@@ -588,17 +588,17 @@ describe('Component: Aggregation', () => {
     });
 
     it('createQuery does return expected aggregation query with optional fields', () => {
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.aggregation = 'sum';
-        component.options2.aggregationField = DatasetServiceMock.SIZE_FIELD;
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.limit = 100;
-        component.options2.sortByAggregation = true;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.limit = 100;
+        component.options.sortByAggregation = true;
+        component.options.xField = DatasetServiceMock.X_FIELD;
 
         expect(component.createQuery()).toEqual(new neon.query.Query().limit(100)
-            .selectFrom(component.options2.database.name, component.options2.table.name)
+            .selectFrom(component.options.database.name, component.options.table.name)
             .where(neon.query.where('testXField', '!=', null))
             .groupBy(['testXField', 'testCategoryField'])
             .aggregate(neonVariables.SUM, 'testSizeField', '_aggregation')
@@ -606,12 +606,12 @@ describe('Component: Aggregation', () => {
     });
 
     it('createQuery does return expected XY query', () => {
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.type = 'line-xy';
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.type = 'line-xy';
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
 
         let wherePredicate = neon.query.and.apply(neon.query, [
             neon.query.where('testXField', '!=', null),
@@ -619,26 +619,26 @@ describe('Component: Aggregation', () => {
         ]);
 
         expect(component.createQuery()).toEqual(new neon.query.Query().limit(10000)
-            .selectFrom(component.options2.database.name, component.options2.table.name)
+            .selectFrom(component.options.database.name, component.options.table.name)
             .where(wherePredicate)
             .groupBy(['testXField', 'testYField', 'testCategoryField'])
             .sortBy('testXField', neonVariables.ASCENDING));
     });
 
     it('createQuery does return expected aggregation query with filters', () => {
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.aggregation = 'sum';
-        component.options2.aggregationField = DatasetServiceMock.SIZE_FIELD;
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.filter = {
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.filter = {
             lhs: 'testConfigFilterField',
             operator: '=',
             rhs: 'testConfigFilterValue'
         };
-        component.options2.unsharedFilterField = DatasetServiceMock.FILTER_FIELD;
-        component.options2.unsharedFilterValue = 'testFilterValue';
+        component.options.unsharedFilterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.unsharedFilterValue = 'testFilterValue';
 
         let wherePredicate = neon.query.and.apply(neon.query, [
             neon.query.where('testXField', '!=', null),
@@ -647,7 +647,7 @@ describe('Component: Aggregation', () => {
         ]);
 
         expect(component.createQuery()).toEqual(new neon.query.Query().limit(10000)
-            .selectFrom(component.options2.database.name, component.options2.table.name)
+            .selectFrom(component.options.database.name, component.options.table.name)
             .where(wherePredicate)
             .groupBy(['testXField', 'testCategoryField'])
             .aggregate(neonVariables.SUM, 'testSizeField', '_aggregation')
@@ -655,19 +655,19 @@ describe('Component: Aggregation', () => {
     });
 
     it('createQuery does return expected XY query with filters', () => {
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.type = 'line-xy';
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
-        component.options2.filter = {
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.type = 'line-xy';
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+        component.options.filter = {
             lhs: 'testConfigFilterField',
             operator: '=',
             rhs: 'testConfigFilterValue'
         };
-        component.options2.unsharedFilterField = DatasetServiceMock.FILTER_FIELD;
-        component.options2.unsharedFilterValue = 'testFilterValue';
+        component.options.unsharedFilterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.unsharedFilterValue = 'testFilterValue';
 
         let wherePredicate = neon.query.and.apply(neon.query, [
             neon.query.where('testXField', '!=', null),
@@ -677,19 +677,19 @@ describe('Component: Aggregation', () => {
         ]);
 
         expect(component.createQuery()).toEqual(new neon.query.Query().limit(10000)
-            .selectFrom(component.options2.database.name, component.options2.table.name)
+            .selectFrom(component.options.database.name, component.options.table.name)
             .where(wherePredicate)
             .groupBy(['testXField', 'testYField', 'testCategoryField'])
             .sortBy('testXField', neonVariables.ASCENDING));
     });
 
     it('createQuery does return expected date aggregation query', () => {
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.aggregation = 'sum';
-        component.options2.aggregationField = DatasetServiceMock.SIZE_FIELD;
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.xField = DatasetServiceMock.DATE_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
 
         let groups = [
             new neon.query.GroupByFunctionClause('year', 'testDateField', '_year'),
@@ -697,7 +697,7 @@ describe('Component: Aggregation', () => {
         ];
 
         expect(component.createQuery()).toEqual(new neon.query.Query().limit(10000)
-            .selectFrom(component.options2.database.name, component.options2.table.name)
+            .selectFrom(component.options.database.name, component.options.table.name)
             .where(neon.query.where('testDateField', '!=', null))
             .groupBy(groups)
             .aggregate(neonVariables.MIN, 'testDateField', '_date')
@@ -706,12 +706,12 @@ describe('Component: Aggregation', () => {
     });
 
     it('createQuery does return expected date XY query', () => {
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.type = 'line-xy';
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.xField = DatasetServiceMock.DATE_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.type = 'line-xy';
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
 
         let wherePredicate = neon.query.and.apply(neon.query, [
             neon.query.where('testDateField', '!=', null),
@@ -725,7 +725,7 @@ describe('Component: Aggregation', () => {
         ];
 
         expect(component.createQuery()).toEqual(new neon.query.Query().limit(10000)
-            .selectFrom(component.options2.database.name, component.options2.table.name)
+            .selectFrom(component.options.database.name, component.options.table.name)
             .where(wherePredicate)
             .groupBy(groups)
             .aggregate(neonVariables.MIN, 'testDateField', '_date')
@@ -733,13 +733,13 @@ describe('Component: Aggregation', () => {
     });
 
     it('createQuery does add multiple groups to date query if needed', () => {
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.aggregation = 'sum';
-        component.options2.aggregationField = DatasetServiceMock.SIZE_FIELD;
-        component.options2.granularity = 'minute';
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.xField = DatasetServiceMock.DATE_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
+        component.options.granularity = 'minute';
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
 
         let groups = [
             new neon.query.GroupByFunctionClause('minute', 'testDateField', '_minute'),
@@ -751,7 +751,7 @@ describe('Component: Aggregation', () => {
         ];
 
         expect(component.createQuery()).toEqual(new neon.query.Query().limit(10000)
-            .selectFrom(component.options2.database.name, component.options2.table.name)
+            .selectFrom(component.options.database.name, component.options.table.name)
             .where(neon.query.where('testDateField', '!=', null))
             .groupBy(groups)
             .aggregate(neonVariables.MIN, 'testDateField', '_date')
@@ -762,7 +762,7 @@ describe('Component: Aggregation', () => {
     it('getButtonText does return expected string', () => {
         expect(component.getButtonText()).toEqual('No Data');
 
-        component.options2.limit = 1;
+        component.options.limit = 1;
         component.activeData = [{}];
         component.responseData = [{}, {}];
         expect(component.getButtonText()).toEqual('1 of 2');
@@ -773,7 +773,7 @@ describe('Component: Aggregation', () => {
         component.responseData = [{}, {}, {}, {}];
         expect(component.getButtonText()).toEqual('1 of 4');
 
-        component.options2.limit = 2;
+        component.options.limit = 2;
         expect(component.getButtonText()).toEqual('1 - 2 of 4');
 
         component.page = 2;
@@ -798,10 +798,10 @@ describe('Component: Aggregation', () => {
     });
 
     it('getFiltersToIgnore does return null if no filters are set', () => {
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.fields = DatasetServiceMock.FIELDS;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.xField = DatasetServiceMock.X_FIELD;
 
         expect(component.getFiltersToIgnore()).toEqual(null);
     });
@@ -810,10 +810,10 @@ describe('Component: Aggregation', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testXField', '!=', null), 'testFilterName1');
 
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.fields = DatasetServiceMock.FIELDS;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.xField = DatasetServiceMock.X_FIELD;
 
         expect(component.getFiltersToIgnore()).toEqual(null);
 
@@ -826,10 +826,10 @@ describe('Component: Aggregation', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testXField', '!=', null), 'testFilterName1');
 
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.fields = DatasetServiceMock.FIELDS;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.xField = DatasetServiceMock.X_FIELD;
         component.filterToPassToSuperclass = {
             id: 'testDatabase1-testTable1-testFilterName1'
         };
@@ -845,11 +845,11 @@ describe('Component: Aggregation', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testXField', '!=', null), 'testFilterName1');
 
-        component.options2.ignoreSelf = true;
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.fields = DatasetServiceMock.FIELDS;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.ignoreSelf = true;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.xField = DatasetServiceMock.X_FIELD;
         component.filterToPassToSuperclass = {
             id: 'testDatabase1-testTable1-testFilterName1'
         };
@@ -865,10 +865,10 @@ describe('Component: Aggregation', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testCategoryField', '!=', null), 'testFilterName1');
 
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.fields = DatasetServiceMock.FIELDS;
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
 
         expect(component.getFiltersToIgnore()).toEqual(null);
 
@@ -881,10 +881,10 @@ describe('Component: Aggregation', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testCategoryField', '!=', null), 'testFilterName1');
 
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.fields = DatasetServiceMock.FIELDS;
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.filterToPassToSuperclass = {
             id: 'testDatabase1-testTable1-testFilterName1'
         };
@@ -900,11 +900,11 @@ describe('Component: Aggregation', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testCategoryField', '!=', null), 'testFilterName1');
 
-        component.options2.ignoreSelf = true;
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.fields = DatasetServiceMock.FIELDS;
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.ignoreSelf = true;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.filterToPassToSuperclass = {
             id: 'testDatabase1-testTable1-testFilterName1'
         };
@@ -921,15 +921,15 @@ describe('Component: Aggregation', () => {
             neon.query.and.apply(neon.query, [neon.query.where('testXField', '!=', null), neon.query.where('testYField', '!=', null)]),
             'testFilterName1');
 
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.fields = DatasetServiceMock.FIELDS;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.type = 'scatter-xy';
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.type = 'scatter-xy';
 
         expect(component.getFiltersToIgnore()).toEqual(null);
 
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
 
         expect(component.getFiltersToIgnore()).toEqual(null);
 
@@ -943,18 +943,18 @@ describe('Component: Aggregation', () => {
             neon.query.and.apply(neon.query, [neon.query.where('testXField', '!=', null), neon.query.where('testYField', '!=', null)]),
             'testFilterName1');
 
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.fields = DatasetServiceMock.FIELDS;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.type = 'scatter-xy';
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.type = 'scatter-xy';
         component.filterToPassToSuperclass = {
             id: 'testDatabase1-testTable1-testFilterName1'
         };
 
         expect(component.getFiltersToIgnore()).toEqual(null);
 
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
 
         expect(component.getFiltersToIgnore()).toEqual(null);
 
@@ -968,19 +968,19 @@ describe('Component: Aggregation', () => {
             neon.query.and.apply(neon.query, [neon.query.where('testXField', '!=', null), neon.query.where('testYField', '!=', null)]),
             'testFilterName1');
 
-        component.options2.ignoreSelf = true;
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.fields = DatasetServiceMock.FIELDS;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.type = 'scatter-xy';
+        component.options.ignoreSelf = true;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.type = 'scatter-xy';
         component.filterToPassToSuperclass = {
             id: 'testDatabase1-testTable1-testFilterName1'
         };
 
         expect(component.getFiltersToIgnore()).toEqual(null);
 
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
 
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
 
@@ -993,11 +993,11 @@ describe('Component: Aggregation', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testXField', '!=', null), 'testFilterName1');
 
-        component.options2.ignoreSelf = true;
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[0];
-        component.options2.fields = DatasetServiceMock.FIELDS;
-        component.options2.xField = DatasetServiceMock.Y_FIELD;
+        component.options.ignoreSelf = true;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.xField = DatasetServiceMock.Y_FIELD;
         component.filterToPassToSuperclass = {
             id: 'testDatabase1-testTable1-testFilterName1'
         };
@@ -1005,14 +1005,14 @@ describe('Component: Aggregation', () => {
         // Test matching database/table but not field.
         expect(component.getFiltersToIgnore()).toEqual(null);
 
-        component.options2.database = DatasetServiceMock.DATABASES[1];
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[1];
+        component.options.xField = DatasetServiceMock.X_FIELD;
 
         // Test matching database/field but not table.
         expect(component.getFiltersToIgnore()).toEqual(null);
 
-        component.options2.database = DatasetServiceMock.DATABASES[0];
-        component.options2.table = DatasetServiceMock.TABLES[1];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[1];
 
         // Test matching table/field but not database.
         expect(component.getFiltersToIgnore()).toEqual(null);
@@ -1202,75 +1202,75 @@ describe('Component: Aggregation', () => {
 
         component.handleChangeSubcomponentType();
 
-        expect(component.options2.sortByAggregation).toEqual(false);
-        expect(component.options2.type).toEqual('line-xy');
+        expect(component.options.sortByAggregation).toEqual(false);
+        expect(component.options.type).toEqual('line-xy');
         expect(spy.calls.count()).toEqual(1);
     });
 
     it('handleChangeSubcomponentType does not call expected functions if new type equals subcomponent type', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
         component.newType = 'line';
-        component.options2.sortByAggregation = true;
+        component.options.sortByAggregation = true;
 
         component.handleChangeSubcomponentType();
 
-        expect(component.options2.sortByAggregation).toEqual(true);
-        expect(component.options2.type).toEqual('line');
+        expect(component.options.sortByAggregation).toEqual(true);
+        expect(component.options.type).toEqual('line');
         expect(spy.calls.count()).toEqual(0);
     });
 
     it('handleChangeSubcomponentType does not update dualView if new type is allowed to have dual views', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
         component.newType = 'line-xy';
-        component.options2.dualView = 'on';
+        component.options.dualView = 'on';
 
         component.handleChangeSubcomponentType();
 
-        expect(component.options2.dualView).toEqual('on');
-        expect(component.options2.type).toEqual('line-xy');
+        expect(component.options.dualView).toEqual('on');
+        expect(component.options.type).toEqual('line-xy');
         expect(spy.calls.count()).toEqual(1);
     });
 
     it('handleChangeSubcomponentType does update dualView if new type is not allowed to have dual views', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
         component.newType = 'bar-h';
-        component.options2.dualView = 'on';
+        component.options.dualView = 'on';
 
         component.handleChangeSubcomponentType();
 
-        expect(component.options2.dualView).toEqual('');
-        expect(component.options2.type).toEqual('bar-h');
+        expect(component.options.dualView).toEqual('');
+        expect(component.options.type).toEqual('bar-h');
         expect(spy.calls.count()).toEqual(1);
     });
 
     it('handleChangeSubcomponentType does update sortByAggregation if new type is not sortable by aggregation', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
         component.newType = 'line-xy';
-        component.options2.sortByAggregation = true;
+        component.options.sortByAggregation = true;
 
         component.handleChangeSubcomponentType();
 
-        expect(component.options2.sortByAggregation).toEqual(false);
-        expect(component.options2.type).toEqual('line-xy');
+        expect(component.options.sortByAggregation).toEqual(false);
+        expect(component.options.type).toEqual('line-xy');
         expect(spy.calls.count()).toEqual(1);
     });
 
     it('handleChangeSubcomponentType does not update sortByAggregation if new type is sortable by aggregation', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
         component.newType = 'bar-h';
-        component.options2.sortByAggregation = true;
+        component.options.sortByAggregation = true;
 
         component.handleChangeSubcomponentType();
 
-        expect(component.options2.sortByAggregation).toEqual(true);
-        expect(component.options2.type).toEqual('bar-h');
+        expect(component.options.sortByAggregation).toEqual(true);
+        expect(component.options.type).toEqual('bar-h');
         expect(spy.calls.count()).toEqual(1);
     });
 
     it('handleLegendItemSelected does call toggleFilter', () => {
         let spy = spyOn(component, 'toggleFilter');
 
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
 
         component.handleLegendItemSelected({
             value: 'testValue'
@@ -1289,8 +1289,8 @@ describe('Component: Aggregation', () => {
     it('handleLegendItemSelected does not call toggleFilter if notFilterable=true', () => {
         let spy = spyOn(component, 'toggleFilter');
 
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.notFilterable = true;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.notFilterable = true;
 
         component.handleLegendItemSelected({
             value: 'testValue'
@@ -1302,7 +1302,7 @@ describe('Component: Aggregation', () => {
     it('handleLegendItemSelected with groupFields does call toggleFilter', () => {
         let spy = spyOn(component, 'toggleFilter');
 
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
 
         component.groupFilters = [{
             field: 'testCategoryField',
@@ -1409,29 +1409,29 @@ describe('Component: Aggregation', () => {
     });
 
     it('isNonCountAggregation does return expected boolean', () => {
-        expect(component.isNonCountAggregation({ aggregation: 'count', type: 'bar-h' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: 'count', type: 'bar-v' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: 'count', type: 'doughnut' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: 'count', type: 'histogram' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: 'count', type: 'pie' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: 'count', type: 'line' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: 'count', type: 'scatter' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: 'count', type: 'table' })).toEqual(false);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'bar-h' })).toEqual(false);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'bar-v' })).toEqual(false);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'doughnut' })).toEqual(false);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'histogram' })).toEqual(false);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'pie' })).toEqual(false);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'line' })).toEqual(false);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'scatter' })).toEqual(false);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'table' })).toEqual(false);
 
-        expect(component.isNonCountAggregation({ aggregation: 'count', type: 'line-xy' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: 'count', type: 'scatter-xy' })).toEqual(false);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'line-xy' })).toEqual(false);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'scatter-xy' })).toEqual(false);
 
-        expect(component.isNonCountAggregation({ aggregation: 'sum', type: 'bar-h' })).toEqual(true);
-        expect(component.isNonCountAggregation({ aggregation: 'sum', type: 'bar-v' })).toEqual(true);
-        expect(component.isNonCountAggregation({ aggregation: 'sum', type: 'doughnut' })).toEqual(true);
-        expect(component.isNonCountAggregation({ aggregation: 'sum', type: 'histogram' })).toEqual(true);
-        expect(component.isNonCountAggregation({ aggregation: 'sum', type: 'pie' })).toEqual(true);
-        expect(component.isNonCountAggregation({ aggregation: 'sum', type: 'line' })).toEqual(true);
-        expect(component.isNonCountAggregation({ aggregation: 'sum', type: 'scatter' })).toEqual(true);
-        expect(component.isNonCountAggregation({ aggregation: 'sum', type: 'table' })).toEqual(true);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'bar-h' })).toEqual(true);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'bar-v' })).toEqual(true);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'doughnut' })).toEqual(true);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'histogram' })).toEqual(true);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'pie' })).toEqual(true);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'line' })).toEqual(true);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'scatter' })).toEqual(true);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'table' })).toEqual(true);
 
-        expect(component.isNonCountAggregation({ aggregation: 'sum', type: 'line-xy' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: 'sum', type: 'scatter-xy' })).toEqual(false);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'line-xy' })).toEqual(false);
+        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'scatter-xy' })).toEqual(false);
     });
 
     it('isScaled does return expected boolean', () => {
@@ -1451,37 +1451,37 @@ describe('Component: Aggregation', () => {
     it('isValidQuery does return expected boolean', () => {
         expect(component.isValidQuery()).toEqual(false);
 
-        component.options2.database = DatasetServiceMock.DATABASES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
         expect(component.isValidQuery()).toEqual(false);
 
-        component.options2.table = DatasetServiceMock.TABLES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         expect(component.isValidQuery()).toEqual(false);
 
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
         expect(component.isValidQuery()).toEqual(true);
 
-        component.options2.aggregation = 'sum';
+        component.options.aggregation = neonVariables.SUM;
         expect(component.isValidQuery()).toEqual(false);
 
-        component.options2.aggregationField = DatasetServiceMock.SIZE_FIELD;
+        component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         expect(component.isValidQuery()).toEqual(true);
     });
 
     it('isValidQuery with XY subcomponent does return expected boolean', () => {
-        component.options2.type = 'line-xy';
+        component.options.type = 'line-xy';
 
         expect(component.isValidQuery()).toEqual(false);
 
-        component.options2.database = DatasetServiceMock.DATABASES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
         expect(component.isValidQuery()).toEqual(false);
 
-        component.options2.table = DatasetServiceMock.TABLES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         expect(component.isValidQuery()).toEqual(false);
 
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
         expect(component.isValidQuery()).toEqual(false);
 
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
         expect(component.isValidQuery()).toEqual(true);
     });
 
@@ -1514,9 +1514,9 @@ describe('Component: Aggregation', () => {
     });
 
     it('onQuerySuccess with XY data does update expected properties and call expected functions', () => {
-        component.options2.type = 'line-xy';
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.type = 'line-xy';
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
         component.page = 2;
         let spy = spyOn(component, 'updateActiveData');
 
@@ -1551,7 +1551,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('onQuerySuccess with aggregated data does update expected properties and call expected functions', () => {
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
         component.page = 2;
         let spy = spyOn(component, 'updateActiveData');
 
@@ -1586,10 +1586,10 @@ describe('Component: Aggregation', () => {
     });
 
     it('onQuerySuccess with XY data and groups does create groups', () => {
-        component.options2.type = 'line-xy';
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.type = 'line-xy';
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
         component.page = 2;
         let spy = spyOn(component, 'updateActiveData');
 
@@ -1644,8 +1644,8 @@ describe('Component: Aggregation', () => {
     });
 
     it('onQuerySuccess with aggregated data and groups does create groups', () => {
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
         component.page = 2;
         let spy = spyOn(component, 'updateActiveData');
 
@@ -1700,10 +1700,10 @@ describe('Component: Aggregation', () => {
     });
 
     it('onQuerySuccess with XY date data does work as expected', () => {
-        component.options2.type = 'line-xy';
-        component.options2.granularity = 'day';
-        component.options2.xField = DatasetServiceMock.DATE_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.type = 'line-xy';
+        component.options.granularity = 'day';
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
         component.page = 2;
         let spy = spyOn(component, 'updateActiveData');
 
@@ -1738,8 +1738,8 @@ describe('Component: Aggregation', () => {
     });
 
     it('onQuerySuccess with aggregated date data does work as expected', () => {
-        component.options2.granularity = 'day';
-        component.options2.xField = DatasetServiceMock.DATE_FIELD;
+        component.options.granularity = 'day';
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
         component.page = 2;
         let spy = spyOn(component, 'updateActiveData');
 
@@ -1774,8 +1774,8 @@ describe('Component: Aggregation', () => {
     });
 
     it('onQuerySuccess with savePrevious=true does keep previous xList string data', () => {
-        component.options2.savePrevious = true;
-        component.options2.xField = DatasetServiceMock.TEXT_FIELD;
+        component.options.savePrevious = true;
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
         component.page = 2;
         component.xList = ['z', 'a', 'b', 'c', 'd'];
         let spy = spyOn(component, 'updateActiveData');
@@ -1811,8 +1811,8 @@ describe('Component: Aggregation', () => {
     });
 
     it('onQuerySuccess with savePrevious=true does keep previous xList number data', () => {
-        component.options2.savePrevious = true;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.savePrevious = true;
+        component.options.xField = DatasetServiceMock.X_FIELD;
         component.page = 2;
         component.xList = [0, 1, 2, 3, 4];
         let spy = spyOn(component, 'updateActiveData');
@@ -1848,11 +1848,11 @@ describe('Component: Aggregation', () => {
     });
 
     it('onQuerySuccess with savePrevious=true does keep previous xList date data', () => {
-        component.options2.type = 'line-xy';
-        component.options2.granularity = 'day';
-        component.options2.savePrevious = true;
-        component.options2.xField = DatasetServiceMock.DATE_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.type = 'line-xy';
+        component.options.granularity = 'day';
+        component.options.savePrevious = true;
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
         component.xList = ['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z', '2018-01-04T00:00:00.000Z',
             '2018-01-05T00:00:00.000Z'];
         component.page = 2;
@@ -1890,11 +1890,11 @@ describe('Component: Aggregation', () => {
     });
 
     it('onQuerySuccess with timeFill=true does add empty dates if needed', () => {
-        component.options2.type = 'line-xy';
-        component.options2.granularity = 'day';
-        component.options2.timeFill = true;
-        component.options2.xField = DatasetServiceMock.DATE_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.type = 'line-xy';
+        component.options.granularity = 'day';
+        component.options.timeFill = true;
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
         component.page = 2;
         let spy = spyOn(component, 'updateActiveData');
 
@@ -1934,11 +1934,11 @@ describe('Component: Aggregation', () => {
     });
 
     it('onQuerySuccess with timeFill=true does not add empty dates if not needed', () => {
-        component.options2.type = 'line-xy';
-        component.options2.granularity = 'day';
-        component.options2.timeFill = true;
-        component.options2.xField = DatasetServiceMock.DATE_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.type = 'line-xy';
+        component.options.granularity = 'day';
+        component.options.timeFill = true;
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
         component.page = 2;
         let spy = spyOn(component, 'updateActiveData');
 
@@ -1990,12 +1990,12 @@ describe('Component: Aggregation', () => {
     });
 
     it('onQuerySuccess with timeFill=true and groups does add empty dates to separate groups if needed', () => {
-        component.options2.type = 'line-xy';
-        component.options2.granularity = 'day';
-        component.options2.timeFill = true;
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.xField = DatasetServiceMock.DATE_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.type = 'line-xy';
+        component.options.granularity = 'day';
+        component.options.timeFill = true;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
         component.page = 2;
         let spy = spyOn(component, 'updateActiveData');
 
@@ -2071,12 +2071,12 @@ describe('Component: Aggregation', () => {
     });
 
     it('onQuerySuccess with savePrevious=true and timeFill=true does work as expected', () => {
-        component.options2.type = 'line-xy';
-        component.options2.granularity = 'day';
-        component.options2.savePrevious = true;
-        component.options2.timeFill = true;
-        component.options2.xField = DatasetServiceMock.DATE_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.type = 'line-xy';
+        component.options.granularity = 'day';
+        component.options.savePrevious = true;
+        component.options.timeFill = true;
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
         component.xList = ['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z', '2018-01-04T00:00:00.000Z',
             '2018-01-05T00:00:00.000Z'];
         component.page = 2;
@@ -2129,8 +2129,8 @@ describe('Component: Aggregation', () => {
     });
 
     it('onQuerySuccess with no data does update expected properties and call expected functions', () => {
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
         component.page = 2;
         let spy = spyOn(component, 'updateActiveData');
 
@@ -2175,7 +2175,7 @@ describe('Component: Aggregation', () => {
         let spy3 = spyOn(component.subcomponentMain, 'destroy');
         let spy4 = spyOn(component.subcomponentZoom, 'destroy');
 
-        component.options2.dualView = 'on';
+        component.options.dualView = 'on';
 
         component.redrawSubcomponents();
 
@@ -2191,16 +2191,16 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does draw data', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
-        component.options2.aggregation = 'sum';
-        component.options2.aggregationField = DatasetServiceMock.SIZE_FIELD;
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 0,
             groups: [],
             sort: 'x',
@@ -2219,7 +2219,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }];
         component.legendGroups = ['a', 'b'];
-        component.options2.sortByAggregation = true;
+        component.options.sortByAggregation = true;
         component.xList = [1, 3];
         component.yList = [2, 4];
 
@@ -2233,7 +2233,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2249,10 +2249,10 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization with XY subcomponent does draw data', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
-        component.options2.type = 'line-xy';
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.type = 'line-xy';
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2306,9 +2306,9 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does work as expected with date fields', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
-        component.options2.type = 'line-xy';
-        component.options2.xField = DatasetServiceMock.DATE_FIELD;
-        component.options2.yField = DatasetServiceMock.DATE_FIELD;
+        component.options.type = 'line-xy';
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
+        component.options.yField = DatasetServiceMock.DATE_FIELD;
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2362,9 +2362,9 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does work as expected with string fields', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
-        component.options2.type = 'line-xy';
-        component.options2.xField = DatasetServiceMock.TEXT_FIELD;
-        component.options2.yField = DatasetServiceMock.TEXT_FIELD;
+        component.options.type = 'line-xy';
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
+        component.options.yField = DatasetServiceMock.TEXT_FIELD;
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2418,11 +2418,11 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does draw zoom data if dualView is truthy', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
-        component.options2.aggregation = 'sum';
-        component.options2.aggregationField = DatasetServiceMock.SIZE_FIELD;
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.dualView = 'on';
+        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.dualView = 'on';
 
         component.activeData = [{
             x: 1,
@@ -2432,7 +2432,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }];
         component.legendGroups = ['a', 'b'];
-        component.options2.sortByAggregation = true;
+        component.options.sortByAggregation = true;
         component.xList = [1, 3];
         component.yList = [2, 4];
 
@@ -2446,7 +2446,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2464,7 +2464,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2475,7 +2475,7 @@ describe('Component: Aggregation', () => {
         }]);
         expect(component.legendFields).toEqual(['testCategoryField']);
 
-        component.options2.dualView = 'filter';
+        component.options.dualView = 'filter';
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(2);
@@ -2487,7 +2487,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2505,7 +2505,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2520,11 +2520,11 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does not draw main data if filterToPassToSuperclass.id is defined unless dualView is falsey', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
-        component.options2.aggregation = 'sum';
-        component.options2.aggregationField = DatasetServiceMock.SIZE_FIELD;
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.dualView = 'on';
+        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.dualView = 'on';
         component.filterToPassToSuperclass.id = 'testId';
 
         component.activeData = [{
@@ -2535,7 +2535,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }];
         component.legendGroups = ['a', 'b'];
-        component.options2.sortByAggregation = true;
+        component.options.sortByAggregation = true;
         component.xList = [1, 3];
         component.yList = [2, 4];
 
@@ -2550,7 +2550,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2561,7 +2561,7 @@ describe('Component: Aggregation', () => {
         }]);
         expect(component.legendFields).toEqual(['testCategoryField']);
 
-        component.options2.dualView = '';
+        component.options.dualView = '';
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2573,7 +2573,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2589,11 +2589,11 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does draw main data if given true argument', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
-        component.options2.aggregation = 'sum';
-        component.options2.aggregationField = DatasetServiceMock.SIZE_FIELD;
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.dualView = 'on';
+        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.dualView = 'on';
         component.filterToPassToSuperclass.id = 'testId';
 
         component.activeData = [{
@@ -2604,7 +2604,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }];
         component.legendGroups = ['a', 'b'];
-        component.options2.sortByAggregation = true;
+        component.options.sortByAggregation = true;
         component.xList = [1, 3];
         component.yList = [2, 4];
 
@@ -2618,7 +2618,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2636,7 +2636,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2695,7 +2695,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('showHeaderContainer does return expected boolean', () => {
-        component.options2.type = 'bar-h';
+        component.options.type = 'bar-h';
 
         expect(component.showHeaderContainer()).toEqual(false);
 
@@ -2731,18 +2731,18 @@ describe('Component: Aggregation', () => {
     });
 
     it('showHeaderContainer does always return true if type is line or scatter', () => {
-        component.options2.type = 'line';
+        component.options.type = 'line';
         expect(component.showHeaderContainer()).toEqual(true);
-        component.options2.type = 'line-xy';
+        component.options.type = 'line-xy';
         expect(component.showHeaderContainer()).toEqual(true);
-        component.options2.type = 'scatter';
+        component.options.type = 'scatter';
         expect(component.showHeaderContainer()).toEqual(true);
-        component.options2.type = 'scatter-xy';
+        component.options.type = 'scatter-xy';
         expect(component.showHeaderContainer()).toEqual(true);
     });
 
     it('showLegend does return expected boolean', () => {
-        component.options2.type = 'bar-h';
+        component.options.type = 'bar-h';
 
         expect(component.showLegend()).toEqual(false);
 
@@ -2756,23 +2756,23 @@ describe('Component: Aggregation', () => {
     });
 
     it('showLegend does always return true if type is line or scatter', () => {
-        component.options2.type = 'line';
+        component.options.type = 'line';
         expect(component.showLegend()).toEqual(true);
-        component.options2.type = 'line-xy';
+        component.options.type = 'line-xy';
         expect(component.showLegend()).toEqual(true);
-        component.options2.type = 'scatter';
+        component.options.type = 'scatter';
         expect(component.showLegend()).toEqual(true);
-        component.options2.type = 'scatter-xy';
+        component.options.type = 'scatter-xy';
         expect(component.showLegend()).toEqual(true);
     });
 
     it('showBothViews does return expected boolean', () => {
         expect(component.showBothViews()).toEqual(false);
 
-        component.options2.dualView = 'on';
+        component.options.dualView = 'on';
         expect(component.showBothViews()).toEqual(true);
 
-        component.options2.dualView = 'filter';
+        component.options.dualView = 'filter';
         expect(component.showBothViews()).toEqual(false);
 
         component.filterToPassToSuperclass.id = 'testId';
@@ -2799,8 +2799,8 @@ describe('Component: Aggregation', () => {
             x: 2,
             y: 1
         };
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -2839,8 +2839,8 @@ describe('Component: Aggregation', () => {
             x: 2,
             y: 1
         };
-        component.options2.xField = DatasetServiceMock.TEXT_FIELD;
-        component.options2.yField = DatasetServiceMock.TEXT_FIELD;
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
+        component.options.yField = DatasetServiceMock.TEXT_FIELD;
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -2879,8 +2879,8 @@ describe('Component: Aggregation', () => {
             x: 2,
             y: 1
         };
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -2941,8 +2941,8 @@ describe('Component: Aggregation', () => {
             x: 2,
             y: 1
         };
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -3044,9 +3044,9 @@ describe('Component: Aggregation', () => {
             x: 2,
             y: 1
         };
-        component.options2.ignoreSelf = true;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.ignoreSelf = true;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
 
         component.subcomponentRequestsFilterOnBounds(1, 2, 3, 4);
 
@@ -3065,9 +3065,9 @@ describe('Component: Aggregation', () => {
             x: 2,
             y: 1
         };
-        component.options2.notFilterable = true;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.notFilterable = true;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -3086,7 +3086,7 @@ describe('Component: Aggregation', () => {
             x: 2,
             y: 1
         };
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -3116,7 +3116,7 @@ describe('Component: Aggregation', () => {
             x: 2,
             y: 1
         };
-        component.options2.xField = DatasetServiceMock.TEXT_FIELD;
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -3146,7 +3146,7 @@ describe('Component: Aggregation', () => {
             x: 2,
             y: 1
         };
-        component.options2.xField = DatasetServiceMock.TEXT_FIELD;
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -3189,7 +3189,7 @@ describe('Component: Aggregation', () => {
             x: 2,
             y: 1
         };
-        component.options2.xField = DatasetServiceMock.TEXT_FIELD;
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -3255,8 +3255,8 @@ describe('Component: Aggregation', () => {
             x: 2,
             y: 1
         };
-        component.options2.ignoreSelf = true;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.ignoreSelf = true;
+        component.options.xField = DatasetServiceMock.X_FIELD;
 
         component.subcomponentRequestsFilterOnDomain(1, 2);
 
@@ -3275,8 +3275,8 @@ describe('Component: Aggregation', () => {
             x: 2,
             y: 1
         };
-        component.options2.notFilterable = true;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.notFilterable = true;
+        component.options.xField = DatasetServiceMock.X_FIELD;
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -3289,7 +3289,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('subcomponentRequestsFilter with number data does update valueFilters and call createOrRemoveNeonFilter', () => {
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -3307,7 +3307,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('subcomponentRequestsFilter with string data does update valueFilters and call createOrRemoveNeonFilter', () => {
-        component.options2.xField = DatasetServiceMock.TEXT_FIELD;
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -3325,7 +3325,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('subcomponentRequestsFilter does delete previous valueFilters if doNotReplace=false', () => {
-        component.options2.xField = DatasetServiceMock.TEXT_FIELD;
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -3351,7 +3351,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('subcomponentRequestsFilter does not delete previous valueFilters and does call toggleFilter if doNotReplace=true', () => {
-        component.options2.xField = DatasetServiceMock.TEXT_FIELD;
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -3390,8 +3390,8 @@ describe('Component: Aggregation', () => {
     });
 
     it('subcomponentRequestsFilter does not update valueFilters or call createOrRemoveNeonFilter if notFilterable=true', () => {
-        component.options2.notFilterable = true;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
+        component.options.notFilterable = true;
+        component.options.xField = DatasetServiceMock.X_FIELD;
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -3443,7 +3443,7 @@ describe('Component: Aggregation', () => {
             groupField: '',
             xField: '',
             yField: '',
-            aggregation: 'count',
+            aggregation: neonVariables.COUNT,
             dualView: '',
             granularity: 'year',
             hideGridLines: false,
@@ -3467,33 +3467,33 @@ describe('Component: Aggregation', () => {
             yPercentage: 0.3
         });
 
-        component.options2.aggregationField = DatasetServiceMock.SIZE_FIELD;
-        component.options2.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options2.xField = DatasetServiceMock.X_FIELD;
-        component.options2.yField = DatasetServiceMock.Y_FIELD;
+        component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
 
-        component.options2.aggregation = 'sum';
-        component.options2.dualView = 'on';
-        component.options2.granularity = 'day';
-        component.options2.hideGridLines = true;
-        component.options2.hideGridTicks = true;
-        component.options2.ignoreSelf = true;
-        component.options2.lineCurveTension = 0;
-        component.options2.lineFillArea = true;
-        component.options2.logScaleX = true;
-        component.options2.logScaleY = true;
-        component.options2.notFilterable = true;
-        component.options2.requireAll = true;
-        component.options2.savePrevious = true;
-        component.options2.scaleMaxX = '44';
-        component.options2.scaleMaxY = '33';
-        component.options2.scaleMinX = '22';
-        component.options2.scaleMinY = '11';
-        component.options2.showHeat = true;
-        component.options2.sortByAggregation = true;
-        component.options2.timeFill = true;
-        component.options2.type = 'line-xy';
-        component.options2.yPercentage = 0.5;
+        component.options.aggregation = neonVariables.SUM;
+        component.options.dualView = 'on';
+        component.options.granularity = 'day';
+        component.options.hideGridLines = true;
+        component.options.hideGridTicks = true;
+        component.options.ignoreSelf = true;
+        component.options.lineCurveTension = 0;
+        component.options.lineFillArea = true;
+        component.options.logScaleX = true;
+        component.options.logScaleY = true;
+        component.options.notFilterable = true;
+        component.options.requireAll = true;
+        component.options.savePrevious = true;
+        component.options.scaleMaxX = '44';
+        component.options.scaleMaxY = '33';
+        component.options.scaleMinX = '22';
+        component.options.scaleMinY = '11';
+        component.options.showHeat = true;
+        component.options.sortByAggregation = true;
+        component.options.timeFill = true;
+        component.options.type = 'line-xy';
+        component.options.yPercentage = 0.5;
 
         expect(component.getBindings()).toEqual({
             customEventsToPublish: [],
@@ -3510,7 +3510,7 @@ describe('Component: Aggregation', () => {
             groupField: 'testCategoryField',
             xField: 'testXField',
             yField: 'testYField',
-            aggregation: 'sum',
+            aggregation: neonVariables.SUM,
             dualView: 'on',
             granularity: 'day',
             hideGridLines: true,
@@ -3557,7 +3557,7 @@ describe('Component: Aggregation', () => {
     it('subNgOnInit does initialize both main and zoom subcomponents if dualView is truthy', () => {
         let spy = spyOn(component, 'initializeSubcomponent');
 
-        component.options2.dualView = 'on';
+        component.options.dualView = 'on';
 
         component.subNgOnInit();
 
@@ -3697,7 +3697,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('updateActiveData does update activeData and lastPage from responseData, page, and limit and call refreshVisualization', () => {
-        component.options2.limit = 2;
+        component.options.limit = 2;
         component.page = 1;
         component.responseData = [{}, {}, {}];
         let spy = spyOn(component, 'refreshVisualization');
@@ -3709,7 +3709,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('updateActiveData does set lastPage to true if on last page', () => {
-        component.options2.limit = 2;
+        component.options.limit = 2;
         component.page = 2;
         component.responseData = [{}, {}, {}];
         let spy = spyOn(component, 'refreshVisualization');
@@ -3809,14 +3809,12 @@ describe('Component: Aggregation', () => {
     });
 
     it('does show unshared filter in sidenav options menu', () => {
-        /* TODO THOR-909
         let unsharedFilter = fixture.debugElement.query(By.css(
             'mat-sidenav-container mat-sidenav mat-card mat-card-content app-unshared-filter'));
         expect(unsharedFilter).not.toBeNull();
-        expect(unsharedFilter.componentInstance.meta).toEqual(component.options2);
+        expect(unsharedFilter.componentInstance.meta).toEqual(component.options);
         expect(unsharedFilter.componentInstance.unsharedFilterChanged).toBeDefined();
         expect(unsharedFilter.componentInstance.unsharedFilterRemoved).toBeDefined();
-         */
     });
 
     it('does show export control in sidenav options menu', () => {
@@ -3851,7 +3849,7 @@ describe('Component: Aggregation', () => {
     }));
 
     it('does show filter-container and legend if type is line', async(() => {
-        component.options2.type = 'line-xy';
+        component.options.type = 'line-xy';
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -3870,7 +3868,7 @@ describe('Component: Aggregation', () => {
     }));
 
     it('does show filter-container and legend if type is scatter', async(() => {
-        component.options2.type = 'scatter-xy';
+        component.options.type = 'scatter-xy';
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -3889,7 +3887,7 @@ describe('Component: Aggregation', () => {
     }));
 
     it('does not show filter-container with no filters or legend if type is not line or scatter', async(() => {
-        component.options2.type = 'bar-h';
+        component.options.type = 'bar-h';
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -3905,7 +3903,7 @@ describe('Component: Aggregation', () => {
     }));
 
     it('does not show filter-container if legendGroups is single-element array', async(() => {
-        component.options2.type = 'bar-h';
+        component.options.type = 'bar-h';
         component.legendGroups = ['a'];
 
         // Force the component to update all its ngFor and ngIf elements.
@@ -3922,7 +3920,7 @@ describe('Component: Aggregation', () => {
     }));
 
     it('does show filter-container and legend if legendGroups is multiple-element array', async(() => {
-        component.options2.type = 'bar-h';
+        component.options.type = 'bar-h';
         component.legendGroups = ['a', 'b'];
 
         // Force the component to update all its ngFor and ngIf elements.
@@ -3942,7 +3940,7 @@ describe('Component: Aggregation', () => {
     }));
 
     it('does show filter-container and filter-reset elements if groupFilters or valueFilters are non-empty array', async(() => {
-        component.options2.type = 'bar-h';
+        component.options.type = 'bar-h';
         component.groupFilters = [{
             field: 'field1',
             label: 'value1',
@@ -4303,8 +4301,8 @@ describe('Component: Aggregation with config', () => {
             VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'database', useValue: 'testDatabase2' },
+            { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
             { provide: 'table', useValue: 'testTable2' },
             { provide: 'title', useValue: 'Test Title' },
@@ -4312,7 +4310,7 @@ describe('Component: Aggregation with config', () => {
             { provide: 'groupField', useValue: 'testCategoryField' },
             { provide: 'xField', useValue: 'testXField' },
             { provide: 'yField', useValue: 'testYField' },
-            { provide: 'aggregation', useValue: 'sum' },
+            { provide: 'aggregation', useValue: neonVariables.SUM },
             { provide: 'granularity', useValue: 'day' },
             { provide: 'hideGridLines', useValue: true },
             { provide: 'hideGridTicks', useValue: true },
@@ -4348,11 +4346,11 @@ describe('Component: Aggregation with config', () => {
     });
 
     it('superclass properties are set to expected values from config', () => {
-        expect(component.options2.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(component.options2.table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(component.options2.limit).toEqual(1234);
-        expect(component.options2.title).toEqual('Test Title');
-        expect(component.options2.filter).toEqual({
+        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(component.options.limit).toEqual(1234);
+        expect(component.options.title).toEqual('Test Title');
+        expect(component.options.filter).toEqual({
             lhs: 'testConfigFilterField',
             operator: '=',
             rhs: 'testConfigFilterValue'
@@ -4360,33 +4358,33 @@ describe('Component: Aggregation with config', () => {
     });
 
     it('class options properties are set to expected values from config', () => {
-        expect(component.options2.aggregationField).toEqual(DatasetServiceMock.SIZE_FIELD);
-        expect(component.options2.groupField).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect(component.options2.xField).toEqual(DatasetServiceMock.X_FIELD);
-        expect(component.options2.yField).toEqual(DatasetServiceMock.Y_FIELD);
+        expect(component.options.aggregationField).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(component.options.groupField).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect(component.options.xField).toEqual(DatasetServiceMock.X_FIELD);
+        expect(component.options.yField).toEqual(DatasetServiceMock.Y_FIELD);
 
-        expect(component.options2.aggregation).toEqual('sum');
-        expect(component.options2.granularity).toEqual('day');
-        expect(component.options2.hideGridLines).toEqual(true);
-        expect(component.options2.hideGridTicks).toEqual(true);
-        expect(component.options2.ignoreSelf).toEqual(true);
-        expect(component.options2.lineCurveTension).toEqual(0);
-        expect(component.options2.lineFillArea).toEqual(true);
-        expect(component.options2.logScaleX).toEqual(true);
-        expect(component.options2.logScaleY).toEqual(true);
-        expect(component.options2.notFilterable).toEqual(true);
-        expect(component.options2.requireAll).toEqual(true);
-        expect(component.options2.savePrevious).toEqual(true);
-        expect(component.options2.scaleMaxX).toEqual('44');
-        expect(component.options2.scaleMaxY).toEqual('33');
-        expect(component.options2.scaleMinX).toEqual('22');
-        expect(component.options2.scaleMinY).toEqual('11');
-        expect(component.options2.showHeat).toEqual(true);
+        expect(component.options.aggregation).toEqual(neonVariables.SUM);
+        expect(component.options.granularity).toEqual('day');
+        expect(component.options.hideGridLines).toEqual(true);
+        expect(component.options.hideGridTicks).toEqual(true);
+        expect(component.options.ignoreSelf).toEqual(true);
+        expect(component.options.lineCurveTension).toEqual(0);
+        expect(component.options.lineFillArea).toEqual(true);
+        expect(component.options.logScaleX).toEqual(true);
+        expect(component.options.logScaleY).toEqual(true);
+        expect(component.options.notFilterable).toEqual(true);
+        expect(component.options.requireAll).toEqual(true);
+        expect(component.options.savePrevious).toEqual(true);
+        expect(component.options.scaleMaxX).toEqual('44');
+        expect(component.options.scaleMaxY).toEqual('33');
+        expect(component.options.scaleMinX).toEqual('22');
+        expect(component.options.scaleMinY).toEqual('11');
+        expect(component.options.showHeat).toEqual(true);
         expect(component.newType).toEqual('scatter');
-        expect(component.options2.sortByAggregation).toEqual(true);
-        expect(component.options2.timeFill).toEqual(true);
-        expect(component.options2.type).toEqual('scatter');
-        expect(component.options2.yPercentage).toEqual(0.5);
+        expect(component.options.sortByAggregation).toEqual(true);
+        expect(component.options.timeFill).toEqual(true);
+        expect(component.options.type).toEqual('scatter');
+        expect(component.options.yPercentage).toEqual(0.5);
         expect(component.subcomponentMain.constructor.name).toEqual(ChartJsScatterSubcomponent.name);
     });
 
@@ -4570,8 +4568,8 @@ describe('Component: Aggregation with XY config', () => {
             VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'database', useValue: 'testDatabase2' },
+            { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
             { provide: 'table', useValue: 'testTable2' },
             { provide: 'title', useValue: 'Test Title' },
@@ -4579,7 +4577,7 @@ describe('Component: Aggregation with XY config', () => {
             { provide: 'groupField', useValue: 'testCategoryField' },
             { provide: 'xField', useValue: 'testXField' },
             { provide: 'yField', useValue: 'testYField' },
-            { provide: 'aggregation', useValue: 'sum' },
+            { provide: 'aggregation', useValue: neonVariables.SUM },
             { provide: 'granularity', useValue: 'day' },
             { provide: 'hideGridLines', useValue: true },
             { provide: 'hideGridTicks', useValue: true },
@@ -4771,8 +4769,8 @@ describe('Component: Aggregation with date config', () => {
             VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'database', useValue: 'testDatabase2' },
+            { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
             { provide: 'table', useValue: 'testTable2' },
             { provide: 'title', useValue: 'Test Title' },
@@ -4780,7 +4778,7 @@ describe('Component: Aggregation with date config', () => {
             { provide: 'groupField', useValue: 'testCategoryField' },
             { provide: 'xField', useValue: 'testDateField' },
             { provide: 'yField', useValue: 'testYField' },
-            { provide: 'aggregation', useValue: 'sum' },
+            { provide: 'aggregation', useValue: neonVariables.SUM },
             { provide: 'granularity', useValue: 'day' },
             { provide: 'hideGridLines', useValue: true },
             { provide: 'hideGridTicks', useValue: true },

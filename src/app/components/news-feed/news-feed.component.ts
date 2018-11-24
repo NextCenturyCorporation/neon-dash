@@ -35,83 +35,19 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-
-/**
- * Manages configurable options for the specific visualization.
- */
-export class NewsFeedOptions extends BaseNeonOptions {
-    public showOnlyFiltered: boolean;
-    public ascending: boolean;
-    public filterField: FieldMetaData;
-    public id: string;
-    public idField: FieldMetaData;
-    public linkField: FieldMetaData;
-    public ignoreSelf: boolean;
-    public dateField: FieldMetaData;
-    public primaryTitleField: FieldMetaData;
-    public secondaryTitleField: FieldMetaData;
-    public contentField: FieldMetaData;
-    public sortField: FieldMetaData;
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        bindings.ignoreSelf = this.ignoreSelf;
-
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'contentField',
-            'dateField',
-            'filterField',
-            'idField',
-            'linkField',
-            'primaryTitleField',
-            'secondaryTitleField',
-            'sortField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.id = this.injector.get('id', '');
-        this.ascending = this.injector.get('ascending', false);
-        this.ignoreSelf = this.injector.get('ignoreSelf', false);
-        this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
-    }
-}
 
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
@@ -138,8 +74,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         value: string
     }[] = [];
 
-    public options: NewsFeedOptions;
-
     public gridArray: any[] = [];
     public queryArray: any[] = [];
     public pagingGrid: any[] = [];
@@ -155,13 +89,35 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         super(activeGridService, connectionService, datasetService,
             filterService, exportService, injector, themesService, ref, visualizationService);
 
-        this.options = new NewsFeedOptions(this.injector, this.datasetService, 'News Feed', 10);
-
         if (!this.options.sortField.columnName) {
             this.options.sortField = this.options.idField;
         }
 
-        this.showGrid = !this.options.showOnlyFiltered;
+        // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
+        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+        // Backwards compatibility (ascending deprecated and replaced by sortDescending).
+        this.options.sortDescending = !(this.injector.get('ascending', !this.options.sortDescending));
+
+        this.showGrid = !this.options.hideUnfiltered;
+    }
+
+    /**
+     * Creates and returns an array of field options for the unique widget.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('contentField', 'Content Field', false),
+            new WidgetFieldOption('dateField', 'Date Field', false),
+            new WidgetFieldOption('filterField', 'Filter Field', false),
+            new WidgetFieldOption('idField', 'ID Field', true),
+            new WidgetFieldOption('linkField', 'Link Field', false),
+            new WidgetFieldOption('primaryTitleField', 'Primary Title Field', false),
+            new WidgetFieldOption('secondaryTitleField', 'Secondary Title Field', false),
+            new WidgetFieldOption('sortField', 'Sort Field', true)
+        ];
     }
 
     /**
@@ -199,6 +155,20 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                 this.addNeonFilter(runQuery, filter, clause);
             });
         }
+    }
+
+    /**
+     * Creates and returns an array of non-field options for the unique widget.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.NoFalseYesTrue, this.isFilterable),
+            new WidgetFreeTextOption('id', 'ID', ''),
+            new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue)
+        ];
     }
 
     /**
@@ -266,7 +236,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             return 'No Data';
         }
 
-        if (this.options.showOnlyFiltered && !this.neonFilters.length) {
+        if (this.options.hideUnfiltered && !this.neonFilters.length) {
             return 'No Filter Selected';
         }
 
@@ -373,13 +343,33 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns the options for the specific visualization.
+     * Returns the default limit for the unique widget.
      *
-     * @return {BaseNeonOptions}
+     * @return {string}
      * @override
      */
-    getOptions(): BaseNeonOptions {
-        return this.options;
+    getWidgetDefaultLimit(): number {
+        return 10;
+    }
+
+    /**
+     * Returns the name for the unique widget.
+     *
+     * @return {string}
+     * @override
+     */
+    getWidgetName(): string {
+        return 'News Feed';
+    }
+
+    /**
+     * Returns whether the widget is filterable.
+     *
+     * @arg {any} options
+     * @return {boolean}
+     */
+    isFilterable(options: any): boolean {
+        return options.filterable;
     }
 
     /**
@@ -429,7 +419,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                 this.neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
                     this.options.table.name, [this.options.filterField.columnName]);
 
-                if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
+                if (this.options.hideUnfiltered && this.neonFilters.length || !this.options.hideUnfiltered) {
                     this.lastPage = (this.gridArray.length <= this.options.limit);
                     this.pagingGrid = this.gridArray.slice(0, this.options.limit);
                     this.refreshVisualization();
@@ -542,7 +532,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
 
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
+                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 let filter = {
                     id: neonFilter.id,

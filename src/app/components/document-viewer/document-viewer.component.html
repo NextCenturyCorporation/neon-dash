@@ -82,16 +82,16 @@
                     </mat-select>
                 </mat-form-field>
                 <p></p>
-                <span class="toggle-text">Sort Order:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.sortOrder" (ngModelChange)="handleChangeData()">
-                    <mat-button-toggle value="ASCENDING">ASC</mat-button-toggle>
-                    <mat-button-toggle value="DESCENDING">DESC</mat-button-toggle>
+                <span class="toggle-text">Sort:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.sortDescending" (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="false">Ascending</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Descending</mat-button-toggle>
                 </mat-button-toggle-group>
                 <p></p>
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Document Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                        <input matInput placeholder="Document Limit" [(ngModel)]="newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">

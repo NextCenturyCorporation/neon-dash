@@ -30,310 +30,22 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 import {
+    OptionChoices,
     OptionType,
     WidgetDatabaseOption,
+    WidgetFieldArrayOption,
     WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetOptionCollection,
+    WidgetSelectOption,
     WidgetTableOption
 } from '../../widget-option';
 
 import * as neon from 'neon-framework';
 import * as uuid from 'node-uuid';
 import * as _ from 'lodash';
-
-// TODO THOR-909 REMOVE
-/**
- * Manages configurable options for all visualizations.
- */
-export abstract class BaseNeonOptions {
-    public databases: DatabaseMetaData[] = [];
-    public database: DatabaseMetaData;
-    public fields: FieldMetaData[] = [];
-    public hideUnfiltered: boolean;
-    public limit: number;
-    public newLimit: number;
-    public tables: TableMetaData[] = [];
-    public table: TableMetaData;
-    public title: string;
-    public unsharedFilterField: FieldMetaData;
-    public unsharedFilterValue: string;
-
-    // The filter set in the config file.
-    public filter: {
-        lhs: string,
-        operator: string,
-        rhs: string
-    };
-
-    public customEventsToPublish: {
-        id: string,
-        fields: { columnName: string, prettyName?: string, type?: string }[]
-    }[];
-
-    public customEventsToReceive: {
-        id: string,
-        fields: { columnName: string, prettyName?: string, type?: string }[]
-    }[];
-
-    /**
-     * @constructor
-     * @arg {Injector} injector
-     * @arg {DatasetService} datasetService
-     * @arg {string} [visualizationTitle='']
-     * @arg {number} [defaultLimit=10]
-     */
-    constructor(protected injector: Injector, protected datasetService: DatasetService, visualizationTitle: string = '',
-        defaultLimit: number = 10) {
-
-        this.customEventsToPublish = injector.get('customEventsToPublish', []);
-        this.customEventsToReceive = injector.get('customEventsToReceive', []);
-        this.filter = injector.get('configFilter', null);
-        this.hideUnfiltered = injector.get('hideUnfiltered', false);
-        this.limit = injector.get('limit', defaultLimit);
-        this.newLimit = this.limit;
-        this.title = injector.get('title', visualizationTitle);
-        this.unsharedFilterValue = injector.get('unsharedFilterValue', '');
-        this.initializeNonFieldBindings();
-        this.updateDatabases();
-    }
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @abstract
-     */
-    protected abstract appendNonFieldBindings(bindings: any): any;
-
-    /**
-     * Creates and returns the bindings for the options.
-     *
-     * @return {any}
-     */
-    public createBindings(): any {
-        let bindings = {
-            configFilter: this.filter || undefined,
-            customEventsToPublish: this.customEventsToPublish,
-            customEventsToReceive: this.customEventsToReceive,
-            database: this.database.name,
-            hideUnfiltered: this.hideUnfiltered,
-            limit: this.limit,
-            table: this.table.name,
-            title: this.title,
-            unsharedFilterValue: this.unsharedFilterValue
-        };
-
-        this.getAllFieldProperties().forEach((property) => {
-            bindings[property] = this[property].columnName;
-        });
-
-        this.getAllFieldArrayProperties().forEach((property) => {
-            bindings[property] = this[property].map((fieldsObject) => fieldsObject.columnName);
-        });
-
-        return this.appendNonFieldBindings(bindings);
-    }
-
-    /**
-     * Returns the field object with the given column name.
-     *
-     * @arg {string} columnName
-     * @return {FieldMetaData}
-     */
-    public findField(columnName: string): FieldMetaData {
-        let outputFields = this.fields.filter((field: FieldMetaData) => {
-            return field.columnName === columnName;
-        });
-        if (!outputFields.length && this.fields.length) {
-            // Check if the column name is actually an array index rather than a name.
-            let fieldIndex = parseInt(columnName, 10);
-            if (!isNaN(fieldIndex) && fieldIndex < this.fields.length) {
-                outputFields = [this.fields[fieldIndex]];
-            }
-        }
-        return outputFields.length ? outputFields[0] : undefined;
-    }
-
-    /**
-     * Returns the field object for the given binding / mapping key or an empty field object.
-     *
-     * @arg {string} bindingKey
-     * @arg {string} [mappingKey]
-     * @return {FieldMetaData}
-     */
-    public findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
-        return this.findFieldObjectByName((this.injector.get(bindingKey, null) || ''), mappingKey);
-    }
-
-    /**
-     * Returns the array of field objects for the given binding / mapping key or an array of empty field objects.
-     *
-     * @arg {string} bindingKey
-     * @arg {string} [mappingKey]
-     * @return {FieldMetaData}
-     */
-    public findFieldObjects(bindingKey: string, mappingKey?: string): FieldMetaData[] {
-        let bindings = this.injector.get(bindingKey, null) || [];
-        // TODO Should we remove empty field objects from the array?
-        return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.findFieldObjectByName(columnName, mappingKey))
-            .filter((fieldsObject) => !!fieldsObject);
-    }
-
-    /**
-     * Returns the field object for the given name or the given mapping key.
-     *
-     * @arg {string} columnName
-     * @arg {string} [mappingKey]
-     * @return {FieldMetaData}
-     * @private
-     */
-    private findFieldObjectByName(columnName: string, mappingKey?: string): FieldMetaData {
-        let field = columnName ? this.findField(columnName) : undefined;
-
-        if (!field && mappingKey) {
-            field = this.findField(this.datasetService.getMapping(this.database.name, this.table.name, mappingKey));
-        }
-
-        return field || new FieldMetaData();
-    }
-
-    /**
-     * Returns the list of field array properties.
-     *
-     * @return {string[]}
-     */
-    public getAllFieldArrayProperties(): string[] {
-        return [].concat(this.getFieldArrayProperties());
-    }
-
-    /**
-     * Returns the list of field properties.
-     *
-     * @return {string[]}
-     */
-    public getAllFieldProperties(): string[] {
-        return ['unsharedFilterField'].concat(this.getFieldProperties());
-    }
-
-    /**
-     * Returns the list of fields to export.
-     *
-     * @return {{ columnName: string, prettyName: string }[]}
-     */
-    public getExportFields(): { columnName: string, prettyName: string }[] {
-        return this.getFieldProperties().map((property) => ({
-            columnName: this[property].columnName,
-            prettyName: this[property].prettyName
-        })).filter((exportFieldsObject) => !!exportFieldsObject.columnName);
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @abstract
-     */
-    protected abstract getFieldArrayProperties(): string[];
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @abstract
-     */
-    protected abstract getFieldProperties(): string[];
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @abstract
-     */
-    public abstract initializeNonFieldBindings(): void;
-
-    /**
-     * Updates all the database options, then calls updateTables().  Called on init.
-     */
-    public updateDatabases() {
-        this.databases = this.datasetService.getDatabases();
-        this.database = this.databases[0] || new DatabaseMetaData();
-
-        if (this.databases.length) {
-            let configDatabase = this.injector.get('database', null);
-            if (configDatabase) {
-                let isName = false;
-                for (let database of this.databases) {
-                    if (configDatabase === database.name) {
-                        this.database = database;
-                        isName = true;
-                        break;
-                    }
-                }
-                if (!isName) {
-                    // Check if the config database is actually an array index rather than a name.
-                    let databaseIndex = parseInt(configDatabase, 10);
-                    if (!isNaN(databaseIndex) && databaseIndex < this.databases.length) {
-                        this.database = this.databases[databaseIndex];
-                    }
-                }
-            }
-        }
-
-        this.updateTables();
-    }
-
-    /**
-     * Updates all the field options.  Called on init and whenever the table is changed.
-     */
-    public updateFields() {
-        if (this.database && this.table) {
-            // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
-            this.fields = this.datasetService.getSortedFields(this.database.name, this.table.name, true).filter((field) => {
-                return (field && field.columnName);
-            });
-        }
-
-        this.getAllFieldProperties().forEach((property) => {
-            this[property] = this.findFieldObject(property);
-        });
-
-        this.getAllFieldArrayProperties().forEach((property) => {
-            this[property] = this.findFieldObjects(property);
-        });
-    }
-
-    /**
-     * Updates all the table options, then calls updateFields().  Called on init and whenever the database is changed.
-     */
-    public updateTables() {
-        this.tables = this.database ? this.datasetService.getTables(this.database.name) : [];
-        this.table = this.tables[0] || new TableMetaData();
-
-        if (this.tables.length > 0) {
-            let configTable = this.injector.get('table', null);
-            if (configTable) {
-                let isName = false;
-                for (let table of this.tables) {
-                    if (configTable === table.name) {
-                        this.table = table;
-                        isName = true;
-                        break;
-                    }
-                }
-                if (!isName) {
-                    // Check if the config table is actually an array index rather than a name.
-                    let tableIndex = parseInt(configTable, 10);
-                    if (!isNaN(tableIndex) && tableIndex < this.tables.length) {
-                        this.table = this.tables[tableIndex];
-                    }
-                }
-            }
-        }
-
-        this.updateFields();
-    }
-}
 
 /**
  * Base component for all non-layered Neon visualizations.
@@ -362,8 +74,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
     public errorMessage: string = '';
 
-    // TODO THOR-909 RENAME
-    public options2: any;
+    public options: any;
 
     // TODO THOR-349 Move into future widget option menu component
     public newLimit: number;
@@ -383,8 +94,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.doExport = this.doExport.bind(this);
         this.getBindings = this.getBindings.bind(this);
         this.id = uuid.v4();
-        this.options2 = this.createWidgetOptions(this.injector, this.getWidgetName(), this.getWidgetDefaultLimit());
-        this.newLimit = this.options2.limit;
+        this.options = this.createWidgetOptions(this.injector, this.getWidgetName(), this.getWidgetDefaultLimit());
+        this.newLimit = this.options.limit;
     }
 
     /**
@@ -418,14 +129,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.postInit();
     }
 
-    // TODO THOR-909 REMOVE
-    /**
-     * Returns the options for the specific visualization.
-     *
-     * @return {BaseNeonOptions}
-     */
-    abstract getOptions(): BaseNeonOptions;
-
     /**
      * Method for anything that needs to be done once the visualization has been initialized
      */
@@ -446,20 +149,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @return {any}
      */
     getBindings(): any {
-        return this.options2.list().reduce((bindings, option) => {
-            bindings[option.bindingKey] = option.valueCurrent;
-            if (option.optionType === OptionType.DATABASE) {
-                bindings[option.bindingKey] = bindings[option.bindingKey].name;
-            }
-            if (option.optionType === OptionType.FIELD) {
-                bindings[option.bindingKey] = bindings[option.bindingKey].columnName;
-            }
-            if (option.optionType === OptionType.TABLE) {
-                bindings[option.bindingKey] = bindings[option.bindingKey].name;
-            }
-            if (option.optionType === OptionType.ARRAY_FIELD) {
-                bindings[option.bindingKey] = bindings[option.bindingKey].map((fieldsObject) => fieldsObject.columnName);
-            }
+        return this.options.list().reduce((bindings, option) => {
+            bindings[option.bindingKey] = option.getValueToSaveInBindings();
             return bindings;
         }, {});
     }
@@ -471,7 +162,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         // TODO this function needs to be changed  to abstract once we get through all the visualizations.
 
         let query = this.createQuery();
-        let exportName = this.options2.title.split(':').join(' ');
+        let exportName = this.options.title.split(':').join(' ');
         if (query) {
             return {
                 name: 'Query_Results_Table',
@@ -592,7 +283,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         callback?: Function) {
 
         let filterName = {
-            visName: this.options2.title,
+            visName: this.options.title,
             text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {
@@ -609,8 +300,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
         this.filterService.addFilter(this.messenger,
             this.id,
-            this.options2.database.name,
-            this.options2.table.name,
+            this.options.database.name,
+            this.options.table.name,
             wherePredicate,
             filterName,
             onSuccess.bind(this),
@@ -653,7 +344,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         callback?: Function) {
 
         let filterName = {
-            visName: this.options2.title,
+            visName: this.options.title,
             text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {
@@ -667,8 +358,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.filterService.replaceFilter(this.messenger,
             subclassFilter.id,
             this.id,
-            this.options2.database.name,
-            this.options2.table.name,
+            this.options.database.name,
+            this.options.table.name,
             wherePredicate,
             filterName,
             onSuccess.bind(this),
@@ -745,9 +436,9 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     cannotExecuteQuery(): boolean {
         let connection = this.connectionService.getActiveConnection();
-        let database = this.options2.database.name;
-        let table = this.options2.table.name;
-        return (!connection || (this.options2.hideUnfiltered && !this.filterService.getFiltersForFields(database, table).length));
+        let database = this.options.database.name;
+        let table = this.options.table.name;
+        return (!connection || (this.options.hideUnfiltered && !this.filterService.getFiltersForFields(database, table).length));
     }
 
     /**
@@ -755,8 +446,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @param query The query to execute
      */
     executeQuery(query: neon.query.Query) {
-        let database = this.options2.database.name;
-        let table = this.options2.table.name;
+        let database = this.options.database.name;
+        let table = this.options.table.name;
         let connection = this.connectionService.getActiveConnection();
 
         if (this.cannotExecuteQuery()) {
@@ -845,7 +536,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Updates tables, fields, and filters whenenver the database is changed and reruns the visualization query.
      */
     handleChangeDatabase() {
-        this.updateTableOptions(this.options2);
+        this.updateTablesInOptions(this.options);
+        this.initializeFieldsInOptions(this.options);
         this.removeAllFilters(this.getCloseableFilters(), () => {
             this.setupFilters();
             this.handleChangeData();
@@ -856,7 +548,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Updates fields and filters whenever the table is changed and reruns the visualization query.
      */
     handleChangeTable() {
-        this.updateFieldOptions(this.options2);
+        this.updateFieldsInOptions(this.options);
+        this.initializeFieldsInOptions(this.options);
         this.removeAllFilters(this.getCloseableFilters(), () => {
             this.setupFilters();
             this.handleChangeData();
@@ -894,13 +587,13 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         if (this.isNumber(this.newLimit)) {
             let newLimit = parseFloat('' + this.newLimit);
             if (newLimit > 0) {
-                this.options2.limit = newLimit;
+                this.options.limit = newLimit;
                 this.subHandleChangeLimit();
             } else {
-                this.newLimit = this.options2.limit;
+                this.newLimit = this.options.limit;
             }
         } else {
-            this.newLimit = this.options2.limit;
+            this.newLimit = this.options.limit;
         }
     }
 
@@ -924,8 +617,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @return {boolean}
      */
     hasUnsharedFilter(): boolean {
-        return !!(this.options2.unsharedFilterField && this.options2.unsharedFilterField.columnName &&
-            this.options2.unsharedFilterValue && this.options2.unsharedFilterValue.trim());
+        return !!(this.options.unsharedFilterField && this.options.unsharedFilterField.columnName &&
+            this.options.unsharedFilterValue && this.options.unsharedFilterValue.trim());
     }
 
     /**
@@ -999,7 +692,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {string} eventField
      */
     publishAnyCustomEvents(dataItem: any, eventField: string) {
-        this.options2.customEventsToPublish.forEach((config) => {
+        this.options.customEventsToPublish.forEach((config) => {
             let metadata = {};
             (config.fields || []).forEach((fieldsConfig) => {
                 metadata[fieldsConfig.columnName] = dataItem[fieldsConfig.columnName];
@@ -1021,8 +714,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     publishSelectId(id: any, metadata?: any) {
         this.messenger.publish('select_id', {
             source: this.id,
-            database: this.options2.database.name,
-            table: this.options2.table.name,
+            database: this.options.database.name,
+            table: this.options.table.name,
             id: id,
             metadata: metadata
         });
@@ -1153,8 +846,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     //Grabs labelOptions specified in the config
     private getLabelOptions() {
         let dataset = this.datasetService.getDataset();
-        let database = _.find(dataset.databases, (db) => db.name === this.options2.database.name);
-        let tableName = _.find(database.tables, (table) => table.name === this.options2.table.name);
+        let database = _.find(dataset.databases, (db) => db.name === this.options.database.name);
+        let tableName = _.find(database.tables, (table) => table.name === this.options.table.name);
         let labelOptions = tableName.labelOptions;
         return labelOptions;
     }
@@ -1163,27 +856,21 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         return new FieldMetaData();
     }
 
-    // TODO THOR-909 Make abstract
     /**
      * Creates and returns an array of field options for the specific visualization.
      *
-     * @return {WidgetFieldOption[]}
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
      * @abstract
      */
-    protected createFieldOptions(): WidgetFieldOption[] {
-        return [];
-    }
+    protected abstract createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[];
 
-    // TODO THOR-909 Make abstract
     /**
      * Creates and returns an array of non-field options for the specific visualization.
      *
      * @return {WidgetOption[]}
      * @abstract
      */
-    protected createNonFieldOptions(): WidgetOption[] {
-        return [];
-    }
+    protected abstract createNonFieldOptions(): WidgetOption[];
 
     /**
      * Creates and returns the options for the unique widget with the given title and limit.
@@ -1194,35 +881,29 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @return {any}
      */
     public createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
-        let options2: any = new WidgetOptionCollection(injector);
+        let options: any = new WidgetOptionCollection(injector);
 
-        // TODO Should we show customEventsToPublish and customEventsToReceive and filter is the widget option menu?
-        options2.inject(new WidgetOption('customEventsToPublish', 'Custom Events To Publish', false, undefined, [], [], false));
-        options2.inject(new WidgetOption('customEventsToReceive', 'Custom Events To Receive', false, undefined, [], [], false));
-        options2.inject(new WidgetOption('filter', 'Custom Widget Filter', false, undefined, null, [], false));
+        options.inject(new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', []));
+        options.inject(new WidgetNonPrimitiveOption('customEventsToReceive', 'Custom Events To Receive', []));
+        options.inject(new WidgetNonPrimitiveOption('filter', 'Custom Widget Filter', null));
 
-        options2.inject(new WidgetOption('hideUnfiltered', 'Hide Widget if Unfiltered', true, OptionType.BOOLEAN, false, [{
-            prettyName: 'No',
-            variable: false
-        }, {
-            prettyName: 'Yes',
-            variable: true
-        }]));
-        options2.inject(new WidgetOption('limit', 'Limit', true, OptionType.NUMBER, defaultLimit, {
-            max: 10000,
-            min: 0
-        }));
-        options2.inject(new WidgetOption('title', 'Title', true, OptionType.STRING, visualizationTitle, []));
-        options2.inject(new WidgetOption('unsharedFilterValue', 'Unshared Filter Value', false, OptionType.STRING, '', []));
+        options.inject(new WidgetSelectOption('hideUnfiltered', 'Hide Widget if Unfiltered', false, OptionChoices.NoFalseYesTrue));
+        options.inject(new WidgetFreeTextOption('limit', 'Limit', defaultLimit));
+        options.inject(new WidgetFreeTextOption('title', 'Title', visualizationTitle));
+        options.inject(new WidgetFreeTextOption('unsharedFilterValue', 'Unshared Filter Value', ''));
 
-        // Backwards compatibility (configFilter deprecated and renamed to filter)
-        options2.filter = options2.filter || this.injector.get('configFilter', null);
+        // Backwards compatibility (configFilter deprecated and renamed to filter).
+        options.filter = options.filter || this.injector.get('configFilter', null);
 
-        options2.inject(this.createNonFieldOptions());
+        options.inject(this.createNonFieldOptions());
 
-        this.updateDatabaseOptions(options2);
+        options.append(new WidgetDatabaseOption(), new DatabaseMetaData());
+        options.append(new WidgetTableOption(), new TableMetaData());
 
-        return options2;
+        this.updateDatabasesInOptions(options);
+        this.initializeFieldsInOptions(options);
+
+        return options;
     }
 
     /**
@@ -1276,7 +957,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @return {{ columnName: string, prettyName: string }[]}
      */
     public getExportFields(): { columnName: string, prettyName: string }[] {
-        return this.options2.list().reduce((exportFields, option) => {
+        return this.options.list().reduce((exportFields, option) => {
             if (option.optionType === OptionType.FIELD && option.valueCurrent.columnName) {
                 exportFields.push({
                     columnName: option.valueCurrent.columnName,
@@ -1287,44 +968,55 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         }, []);
     }
 
-    // TODO THOR-909 Make abstract
     /**
      * Returns the default limit for the unique widget.
      *
      * @return {string}
      * @abstract
      */
-    protected getWidgetDefaultLimit(): number {
-        return 100;
-    }
+    protected abstract getWidgetDefaultLimit(): number;
 
-    // TODO THOR-909 Make abstract
     /**
      * Returns the name for the unique widget.
      *
      * @return {string}
      * @abstract
      */
-    protected getWidgetName(): string {
-        return 'Temp';
+    protected abstract getWidgetName(): string;
+
+    /**
+     * Initializes all the fields in the given WidgetOptionCollection.
+     *
+     * @arg {any} options
+     */
+    public initializeFieldsInOptions(options: any) {
+        this.createFieldOptions().concat([new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false)]).forEach((option) => {
+            if (option.optionType === OptionType.FIELD) {
+                options.append(option, this.findFieldObject(options.fields, option.bindingKey));
+            }
+            if (option.optionType === OptionType.FIELD_ARRAY) {
+                options.append(option, this.findFieldObjects(options.fields, option.bindingKey));
+            }
+        });
     }
 
     /**
-     * Updates all the database, table, and field options.  Called on init.
+     * Updates all the databases, tables, and fields in the given options.  Called on init.
      *
-     * @arg {any} options2
+     * @arg {any} options
+     * @return {any}
      */
-    public updateDatabaseOptions(options2: any) {
-        options2.databases = this.datasetService.getDatabases();
-        options2.append(new WidgetDatabaseOption(), options2.databases[0] || new DatabaseMetaData());
+    public updateDatabasesInOptions(options: any): any {
+        options.databases = this.datasetService.getDatabases();
+        options.database = options.databases[0] || options.database;
 
-        if (options2.databases.length) {
+        if (options.databases.length) {
             let configDatabase = this.injector.get('database', null);
             if (configDatabase) {
                 let isName = false;
-                for (let database of options2.databases) {
+                for (let database of options.databases) {
                     if (configDatabase === database.name) {
-                        options2.database = database;
+                        options.database = database;
                         isName = true;
                         break;
                     }
@@ -1332,58 +1024,49 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                 if (!isName) {
                     // Check if the config database is actually an array index rather than a name.
                     let databaseIndex = parseInt(configDatabase, 10);
-                    if (!isNaN(databaseIndex) && databaseIndex < options2.databases.length) {
-                        options2.database = options2.databases[databaseIndex];
+                    if (!isNaN(databaseIndex) && databaseIndex < options.databases.length) {
+                        options.database = options.databases[databaseIndex];
                     }
                 }
             }
         }
 
-        this.updateTableOptions(options2);
+        return this.updateTablesInOptions(options);
     }
 
     /**
-     * Updates all the field options.  Called on init and whenever the table is changed.
+     * Updates all the fields in the given options.  Called on init and whenever the table is changed.
      *
-     * @arg {any} options2
+     * @arg {any} options
+     * @return {any}
      */
-    public updateFieldOptions(options2: any) {
-        if (options2.database && options2.table) {
+    public updateFieldsInOptions(options: any): any {
+        if (options.database && options.table) {
             // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
-            options2.fields = this.datasetService.getSortedFields(options2.database.name, options2.table.name, true).filter((field) => {
+            options.fields = this.datasetService.getSortedFields(options.database.name, options.table.name, true).filter((field) => {
                 return (field && field.columnName);
             });
         }
-
-        options2.append(new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false, true),
-            this.findFieldObject(options2.fields, 'unsharedFilterField'));
-
-        this.createFieldOptions().forEach((option) => {
-            if (option.optionType === OptionType.FIELD) {
-                options2.append(option, this.findFieldObject(options2.fields, option.bindingKey));
-            }
-            if (option.optionType === OptionType.ARRAY_FIELD) {
-                options2.append(option, this.findFieldObjects(options2.fields, option.bindingKey));
-            }
-        });
+        return options;
     }
 
     /**
-     * Updates all the table and field options.  Called on init and whenever the database is changed.
+     * Updates all the tables and fields in the given options.  Called on init and whenever the database is changed.
      *
-     * @arg {any} options2
+     * @arg {any} options
+     * @return {any}
      */
-    public updateTableOptions(options2: any) {
-        options2.tables = options2.database ? this.datasetService.getTables(options2.database.name) : [];
-        options2.append(new WidgetTableOption(), options2.tables[0] || new TableMetaData());
+    public updateTablesInOptions(options: any): any {
+        options.tables = options.database ? this.datasetService.getTables(options.database.name) : [];
+        options.table = options.tables[0] || options.table;
 
-        if (options2.tables.length > 0) {
+        if (options.tables.length > 0) {
             let configTable = this.injector.get('table', null);
             if (configTable) {
                 let isName = false;
-                for (let table of options2.tables) {
+                for (let table of options.tables) {
                     if (configTable === table.name) {
-                        options2.table = table;
+                        options.table = table;
                         isName = true;
                         break;
                     }
@@ -1391,13 +1074,13 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                 if (!isName) {
                     // Check if the config table is actually an array index rather than a name.
                     let tableIndex = parseInt(configTable, 10);
-                    if (!isNaN(tableIndex) && tableIndex < options2.tables.length) {
-                        options2.table = options2.tables[tableIndex];
+                    if (!isNaN(tableIndex) && tableIndex < options.tables.length) {
+                        options.table = options.tables[tableIndex];
                     }
                 }
             }
         }
 
-        this.updateFieldOptions(options2);
+        return this.updateFieldsInOptions(options);
     }
 }

@@ -15,7 +15,6 @@
  */
 import { ElementRef } from '@angular/core';
 import { AbstractChartJsDataset } from './subcomponent.chartjs.abstract';
-import { AggregationOptions } from './aggregation.component';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { ChartJsLineSubcomponent, ChartJsLineDataset } from './subcomponent.chartjs.line';
 import { Color } from '../../services/color-scheme.service';
@@ -32,14 +31,14 @@ class ChartJsScatterDataset extends ChartJsLineDataset {
 export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
     /**
      * @constructor
-     * @arg {AggregationOptions} options
+     * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
      * @arg {boolean} [cannotSelect=false]
      * @arg {boolean} [domainOnly=false]
      */
-    constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef,
-        cannotSelect: boolean = false, private domainOnly: boolean = false) {
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef, cannotSelect: boolean = false,
+        private domainOnly: boolean = false) {
 
         super(options, listener, elementRef, cannotSelect);
     }

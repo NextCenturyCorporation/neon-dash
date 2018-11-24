@@ -25,7 +25,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { VisualizationService } from '../../services/visualization.service';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -41,54 +41,17 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
+import {
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetOption
+} from '../../widget-option';
 import { basename } from 'path';
 import * as neon from 'neon-framework';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import * as _ from 'lodash';
-
-export class TestOptions extends BaseNeonOptions {
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        // Do nothing.
-    }
-}
 
 @Component({
     selector: 'app-kebah-case',
@@ -99,7 +62,6 @@ export class TestOptions extends BaseNeonOptions {
   })
 class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     public filters: any[] = [];
-    public options: TestOptions;
     constructor(
         activeGridService: ActiveGridService,
         connectionService: ConnectionService,
@@ -122,7 +84,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
             changeDetection,
             visualizationService
         );
-        this.options = new TestOptions(this.injector, this.datasetService, 'TestName');
     }
 
     postInit() {
@@ -135,6 +96,14 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
 
     subNgOnDestroy() {
         //Get an option from the visualization's config
+    }
+
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [];
+    }
+
+    createNonFieldOptions(): WidgetOption[] {
+        return [];
     }
 
     createQuery() {
@@ -163,8 +132,12 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         }
     }
 
-    getOptions() {
-        return this.options;
+    getWidgetDefaultLimit(): number {
+        return 10;
+    }
+
+    getWidgetName(): string {
+        return 'Mock Superclass';
     }
 
     isValidQuery() {
@@ -247,7 +220,7 @@ describe('Component: BaseNeonOptions', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(TestBaseNeonComponent);
         component = fixture.componentInstance;
-        options = component.options2;
+        options = component.options;
         fixture.detectChanges();
     });
 
@@ -259,11 +232,11 @@ describe('Component: BaseNeonOptions', () => {
         expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
         expect(options.filter).toEqual(null);
         expect(options.hideUnfiltered).toEqual(false);
-        expect(options.limit).toEqual(100);
-        expect(component.newLimit).toEqual(100);
+        expect(options.limit).toEqual(10);
+        expect(component.newLimit).toEqual(10);
         expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.title).toEqual('Temp');
+        expect(options.title).toEqual('Mock Superclass');
         expect(options.unsharedFilterField).toEqual(new FieldMetaData());
         expect(options.unsharedFilterValue).toEqual('');
     });
@@ -314,8 +287,8 @@ describe('Component: BaseNeonOptions', () => {
         expect(component.getExportFields()).toEqual([]);
     });
 
-    it('updateDatabaseOptions does update databases, tables, and fields', () => {
-        component.updateDatabaseOptions(options);
+    it('updateDatabasesInOptions does update databases, tables, and fields', () => {
+        component.updateDatabasesInOptions(options);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -323,12 +296,12 @@ describe('Component: BaseNeonOptions', () => {
         expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
     });
 
-    it('updateFieldOptions does update fields', () => {
+    it('updateFieldsInOptions does update fields', () => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
         options.tables = DatasetServiceMock.TABLES;
         options.table = DatasetServiceMock.TABLES[0];
-        component.updateFieldOptions(options);
+        component.updateFieldsInOptions(options);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -336,10 +309,10 @@ describe('Component: BaseNeonOptions', () => {
         expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
     });
 
-    it('updateTableOptions does update tables and fields', () => {
+    it('updateTablesInOptions does update tables and fields', () => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
-        component.updateTableOptions(options);
+        component.updateTablesInOptions(options);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -396,7 +369,7 @@ describe('Component: BaseNeonOptions with config', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(TestBaseNeonComponent);
         component = fixture.componentInstance;
-        options = component.options2;
+        options = component.options;
         fixture.detectChanges();
     });
 
@@ -464,8 +437,14 @@ describe('Component: BaseNeonOptions with config', () => {
         });
     });
 
-    it('updateDatabaseOptions does update database if given an array index', () => {
-        component.updateDatabaseOptions(options);
+    it('initializeFieldsInOptions does update unshared filter field', () => {
+        options.fields = DatasetServiceMock.FIELDS;
+        component.initializeFieldsInOptions(options);
+        expect(options.unsharedFilterField).toEqual(DatasetServiceMock.FILTER_FIELD);
+    });
+
+    it('updateDatabasesInOptions does update database if given an array index', () => {
+        component.updateDatabasesInOptions(options);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[1]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -473,21 +452,21 @@ describe('Component: BaseNeonOptions with config', () => {
         expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
     });
 
-    it('updateFieldOptions does update unshared filter', () => {
+    it('updateFieldsInOptions does update fields', () => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
         options.tables = DatasetServiceMock.TABLES;
         options.table = DatasetServiceMock.TABLES[0];
         options.unsharedFilterField = null;
         options.unsharedFilterValue = null;
-        component.updateFieldOptions(options);
-        expect(options.unsharedFilterField).toEqual(DatasetServiceMock.FILTER_FIELD);
+        component.updateFieldsInOptions(options);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
     });
 
-    it('updateTableOptions does update tables if given an array index', () => {
+    it('updateTablesInOptions does update tables if given an array index', () => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
-        component.updateTableOptions(options);
+        component.updateTablesInOptions(options);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -532,7 +511,7 @@ describe('Component: base-neon', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(TestBaseNeonComponent);
         component = fixture.componentInstance;
-        options = component.options2;
+        options = component.options;
         fixture.detectChanges();
     });
 
@@ -545,9 +524,9 @@ describe('Component: base-neon', () => {
             database: 'testDatabase1',
             filter: null,
             hideUnfiltered: false,
-            limit: 100,
+            limit: 10,
             table: 'testTable1',
-            title: 'Temp',
+            title: 'Mock Superclass',
             unsharedFilterValue: '',
             unsharedFilterField: ''
         });
