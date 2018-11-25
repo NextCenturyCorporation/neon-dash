@@ -152,6 +152,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public multiFilterOperator: string;
     public cleanLegendLabels: boolean;
     public legendFiltering: boolean;
+    public taxonomy: {};
 
     /**
      * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
@@ -162,7 +163,6 @@ export class NetworkGraphOptions extends BaseNeonOptions {
      */
     appendNonFieldBindings(bindings: any): any {
         bindings.andFilters = this.andFilters;
-
         return bindings;
     }
 
@@ -224,6 +224,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
         this.multiFilterOperator = this.injector.get('multiFilterOperator', 'or');
         this.cleanLegendLabels = this.injector.get('cleanLegendLabels', false);
         this.legendFiltering = this.injector.get('legendFiltering', true);
+        this.taxonomy = this.injector.get('taxonomy', {});
     }
 }
 
@@ -1040,6 +1041,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return (this.displayGraph && this.options.displayLegend &&
             ((nodeColorField && nodeColorField !== '') || (edgeColorField && edgeColorField !== ''))
         );
+    }
+
+    taxonomyIsNeeded() {
+        return Object.keys(this.options.taxonomy).length > 0;
     }
 
     /**

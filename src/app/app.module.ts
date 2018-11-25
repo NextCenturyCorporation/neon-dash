@@ -81,8 +81,9 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { TreeModule } from 'angular-tree-component';
 import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-grid.component';
 import {
-    ThumbnailDetailsContractedComponent,
-    ThumbnailDetailsExpandedComponent
+    TitleThumbnailSubComponent,
+    DetailsThumbnailSubComponent,
+    CardThumbnailSubComponent
 } from './components/thumbnail-grid/thumbnail-details.component';
 import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 
@@ -132,8 +133,9 @@ export function getAppConfig() {
         TabsComponent,
         TaxonomyViewerComponent,
         TextCloudComponent,
-        ThumbnailDetailsContractedComponent,
-        ThumbnailDetailsExpandedComponent,
+        CardThumbnailSubComponent,
+        TitleThumbnailSubComponent,
+        DetailsThumbnailSubComponent,
         ThumbnailGridComponent,
         TimelineComponent,
         UnsharedFilterComponent,

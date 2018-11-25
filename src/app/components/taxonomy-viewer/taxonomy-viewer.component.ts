@@ -55,6 +55,8 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
     public subTypeField: FieldMetaData;
     public filterFields: string[];
     public ignoreSelf: boolean;
+    public extendedFilter: boolean;
+    public extensionFields: any[];
 
     /**
      * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
@@ -109,6 +111,8 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
         this.id = this.injector.get('id', '');
         this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.filterFields = this.injector.get('filterFields', []);
+        this.extendedFilter = this.injector.get('extendedFilter', false);
+        this.extensionFields = this.injector.get('extensionFields', []);
     }
 }
 
@@ -303,90 +307,76 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @private
      */
     filterExists(field: string, value: string) {
-        return this.filters.some((existingFilter) => {
+        let filters = this.filters.some((existingFilter) => {
             return field === existingFilter.field && value === existingFilter.value;
         });
+
+        return filters;
     }
 
     /**
      * Creates Neon and visualization filter objects for the given text.
      *
-     * @arg {string} text
+     * @arg {any} nodeData
+     * @arg {array} relativeData
      */
     createNodeFilter(nodeData: any, relativeData?: any[]) {
         if (!this.options.filterFields) {
             return;
         }
 
-        let clause: any;
-        let runQuery = !this.options.ignoreSelf;
+        let clause: any,
+            clauses = [],
+            runQuery = !this.options.ignoreSelf;
 
-        let filter = {
+        let nodeFilter = {
             id: undefined,
             field: nodeData.description,
             prettyField: 'Tree Node',
             value: ''
         };
 
-        //console.log(nodeData);
-        //console.log(relativeData);
-
-        if (relativeData.length) {
-            let clauses = [];
-
-            for (let node of relativeData) {
-                clauses.push(neon.query.where(filter.field, '!=', node.name));
-            }
-
-            filter.value = nodeData.lineage + ' ' + nodeData.description;
-            clause = neon.query.and.apply(neon.query, clauses);
-
-        } else {
-            filter.value = nodeData.name;
-            clause = neon.query.where(filter.field, '!=', nodeData.name);
-        }
-
-        //console.log(filter);
-
-        if (!this.filterExists(filter.field, filter.value)) {
-            this.filters.push(filter);
-            this.addNeonFilter(runQuery, filter, clause);
-        }
-
-  /*      if (nodeData.sourceIds.length) {
-
-        }*/
-
-    }
-    /**
-     * Creates Neon and visualization filter objects for the given text.
-     *
-     * @arg {string} text
-     */
-    createSourceFilter(nodeData: any) {
-        let clause: any;
-        let runQuery = !this.options.ignoreSelf;
-
-        let filter = {
+        let sourceFilter = {
             id: undefined,
             field: this.options.sourceIdField.columnName,
             prettyField: 'Tree Node',
-            value: ''
+            value: nodeData.lineage + ' ' + this.options.sourceIdField.columnName
         };
 
-        let clauses = [];
+        if (relativeData.length) {
+            for (let node of relativeData) {
+                clauses.push(neon.query.where(nodeFilter.field, '!=', node.name));
+            }
 
-        for (let id of nodeData.sourceIds) {
-            clauses.push(neon.query.where(this.options.sourceIdField.columnName, '!=', id));
+            nodeFilter.value = nodeData.lineage + ' ' + nodeData.description;
+            clause = neon.query.and.apply(neon.query, clauses);
+
+        } else {
+            nodeFilter.value = nodeData.name;
+            clause = neon.query.where(nodeFilter.field, '!=', nodeData.name);
+        }
+        this.addFilter(nodeFilter, runQuery, clause);
+
+        if (nodeData.sourceIds.length > 0 && this.options.extendedFilter) {
+
+            clauses = [];
+            for (let id of nodeData.sourceIds) {
+                clauses.push(neon.query.where(this.options.sourceIdField.columnName, '!=', id));
+            }
+
+            clause = neon.query.or.apply(neon.query, clauses);
+            this.addFilter(sourceFilter, runQuery, clause);
         }
 
-        filter.value = this.options.sourceIdField.columnName;
-        clause = neon.query.and.apply(neon.query, clauses);
-
-        if (!this.filterExists(filter.field, filter.value)) {
-            this.filters.push(filter);
-            this.addNeonFilter(runQuery, filter, clause);
-        }
+    }
+    /**
+     * Add Neon and visualization filter objects
+     * @arg {any} nodeData
+     * @arg {array} relativeData
+     */
+    addFilter(filter: any, runQuery: boolean, clause: any) {
+        this.filters.push(filter);
+        this.addNeonFilter(runQuery, filter, clause);
     }
 
     /**
@@ -418,7 +408,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                 response.data.forEach((d) => {
 
                     let categories: string[],
-                        sourceIds: string[],
                         types: string[],
                         subTypes: string[];
 
@@ -440,7 +429,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                         //If the parent(category) node does not exist in the tree, add it
                         if (!foundCategory.object) {
                             let parent = {
-                                id: counter++, name: category, children: [], sourceIds: sourceIds,
+                                id: counter++, name: category, lineage: category, children: [],
                                 description: this.options.categoryField.columnName, checked: true
                             };
 
@@ -610,10 +599,13 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     checkRelatedNodes(node: TreeNode, $event: any) {
-        let relatives = [];
+        let relatives = [],
+            tempFilters = this.filters.slice(0, this.filters.length); //array clone
+
         this.updateChildNodesCheckBox(node, $event.target.checked);
         this.updateParentNodesCheckBox(node.parent);
-        for (let filter of this.filters) {
+
+        for (let filter of tempFilters) {
             //If the filter value includes this node data and if the filter has a valid filter field
             if (filter.value.includes(node.data.lineage) || filter.value.includes(node.data.name)) {
                 this.removeLocalFilterFromLocalAndNeon(filter, false, true);
