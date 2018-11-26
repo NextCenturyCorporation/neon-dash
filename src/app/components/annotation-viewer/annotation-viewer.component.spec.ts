@@ -41,7 +41,6 @@ import { Color } from '../../color';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 import { LegendComponent } from '../legend/legend.component';
@@ -69,7 +68,6 @@ class TestAnnotationViewerComponent extends AnnotationViewerComponent {
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
         ref: ChangeDetectorRef
     ) {
@@ -78,7 +76,6 @@ class TestAnnotationViewerComponent extends AnnotationViewerComponent {
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
             ref
         );
@@ -106,7 +103,6 @@ describe('Component: AnnotationViewer', () => {
                 ConnectionService,
                 { provide: AbstractWidgetService, useClass: WidgetService },
                 { provide: DatasetService, useClass: DatasetServiceMock },
-                ExportService,
                 { provide: FilterService, useClass: FilterServiceMock },
                 Injector,
                 { provide: 'config', useValue: new NeonGTDConfig() }

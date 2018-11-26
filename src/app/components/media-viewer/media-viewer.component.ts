@@ -29,7 +29,6 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
@@ -180,7 +179,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
         ref: ChangeDetectorRef,
         private sanitizer: DomSanitizer
@@ -190,7 +188,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
             ref
         );

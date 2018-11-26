@@ -19,7 +19,6 @@ import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
 import * as neon from 'neon-framework';
 import { NetworkGraphComponent } from './network-graph.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
-import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FieldMetaData } from '../../dataset';
@@ -56,7 +55,6 @@ describe('Component: NetworkGraph', () => {
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
-            ExportService,
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: 'config', useValue: testConfig },

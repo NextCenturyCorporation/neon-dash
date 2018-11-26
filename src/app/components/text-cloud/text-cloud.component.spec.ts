@@ -21,7 +21,6 @@ import { Injector } from '@angular/core';
 
 import { TextCloudComponent } from './text-cloud.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
-import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -57,7 +56,6 @@ describe('Component: TextCloud', () => {
                 useClass: DatasetServiceMock
             },
             { provide: FilterService, useClass: FilterServiceMock },
-            ExportService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -557,7 +555,6 @@ describe('Component: Textcloud with config', () => {
             ConnectionService,
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ExportService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'title', useValue: 'Textcloud with Config Title' },
@@ -621,7 +618,6 @@ describe('Component: Textcloud with config including configFilter', () => {
             ConnectionService,
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ExportService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'title', useValue: 'Textcloud with Config Title' },

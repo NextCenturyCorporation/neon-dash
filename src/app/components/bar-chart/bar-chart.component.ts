@@ -31,7 +31,6 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from '../chart/chart.component';
@@ -274,7 +273,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
         ref: ChangeDetectorRef,
         protected widgetService: AbstractWidgetService
@@ -284,7 +282,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
             ref
         );

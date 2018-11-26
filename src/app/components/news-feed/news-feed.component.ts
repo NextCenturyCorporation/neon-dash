@@ -29,7 +29,6 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
@@ -149,7 +148,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
         ref: ChangeDetectorRef,
         private sanitizer: DomSanitizer
@@ -159,7 +157,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
             ref
         );

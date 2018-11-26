@@ -20,7 +20,7 @@
                     <app-save-state [widgetGridItems]="widgetGridItems" [widgets]="widgets"></app-save-state>
                 </div>
                 <div class="setting-container" *ngIf="checkPanel('settings')">
-                    <app-settings></app-settings>
+                    <app-settings [widgets]="widgets"></app-settings>
                 </div>
             </div>
         </div>

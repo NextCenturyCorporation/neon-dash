@@ -50,7 +50,6 @@ import { NeonGTDConfig } from './neon-gtd-config';
 import { AbstractWidgetService } from './services/abstract.widget.service';
 import { ConnectionService } from './services/connection.service';
 import { DatasetService } from './services/dataset.service';
-import { ExportService } from './services/export.service';
 import { FilterService } from './services/filter.service';
 import { ParameterService } from './services/parameter.service';
 import { WidgetService } from './services/widget.service';
@@ -138,7 +137,6 @@ describe('App: NeonGtd', () => {
                 { provide: APP_BASE_HREF, useValue: '/' },
                 DatasetService,
                 ConnectionService,
-                ExportService,
                 FilterService,
                 ParameterService,
                 { provide: AbstractWidgetService, useClass: WidgetService }
