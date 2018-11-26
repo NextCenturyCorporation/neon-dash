@@ -237,13 +237,15 @@ export class WidgetOptionCollection {
 
     public databases: DatabaseMetaData[] = [];
     public fields: FieldMetaData[] = [];
+    public layers: WidgetOptionCollection[] = [];
     public tables: TableMetaData[] = [];
 
     /**
      * @constructor
-     * @arg {Injector} injector
+     * @arg {Injector} [injector] An injector with bindings; if undefined, uses config.
+     * @arg {any} [config={}] An object with bindings; used if injector is undefined.
      */
-    constructor(protected injector: Injector) {}
+    constructor(protected injector?: Injector, protected config: any = {}) {}
 
     /**
      * Returns the option with the given binding key.
@@ -279,7 +281,8 @@ export class WidgetOptionCollection {
      */
     public inject(options: WidgetOption | WidgetOption[]): void {
         (Array.isArray(options) ? options : [options]).forEach((option) => {
-            this.append(option, this.injector.get(option.bindingKey, option.valueDefault));
+            this.append(option, (this.injector ? this.injector.get(option.bindingKey, option.valueDefault) :
+                (this.config[option.bindingKey] || option.valueDefault)));
         });
     }
 

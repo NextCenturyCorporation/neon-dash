@@ -15,7 +15,6 @@
  */
 import { Color } from '../../services/color-scheme.service';
 import { ElementRef } from '@angular/core';
-import { MapLayer, MapOptions } from './map.component';
 
 export const whiteString = new Color(255, 255, 255).toRgb();
 
@@ -56,11 +55,11 @@ export interface FilterListener {
 }
 
 export abstract class AbstractMap {
-    protected mapOptions: MapOptions;
+    protected mapOptions: any;
     protected filterListener: FilterListener;
     protected isDrawnFilterExact = true;
 
-    initialize(mapContainer: ElementRef, mapOptions: MapOptions, filterListener: FilterListener) {
+    initialize(mapContainer: ElementRef, mapOptions: any, filterListener: FilterListener) {
         this.mapOptions = mapOptions;
         this.filterListener = filterListener;
         this.doCustomInitialization(mapContainer);
@@ -78,8 +77,8 @@ export abstract class AbstractMap {
     abstract removeFilterBox();
 
     // Drawing
-    abstract addPoints(points: MapPoint[], layer?: MapLayer, cluster?: boolean);
-    abstract clearLayer(layer: MapLayer);
+    abstract addPoints(points: MapPoint[], layer?: any, cluster?: boolean);
+    abstract clearLayer(layer: any);
 
     sizeChanged() {
         // Do nothing for most cases
@@ -90,20 +89,20 @@ export abstract class AbstractMap {
      * @param layer the layer of the points to hide
      * @param value the value to hide
      */
-    abstract hidePoints(layer: MapLayer, value: string);
+    abstract hidePoints(layer: any, value: string);
 
     /**
      * Unhide points from the map by layer and value
      * @param layer the layer of the points to unhide
      * @param value the value to unhide
      */
-    abstract unhidePoints(layer: MapLayer, value: string);
+    abstract unhidePoints(layer: any, value: string);
 
     /**
      * Unhide all points for a layer
      * @param layer the layer
      */
-    abstract unhideAllPoints(layer: MapLayer);
+    abstract unhideAllPoints(layer: any);
 
     abstract destroy();
 

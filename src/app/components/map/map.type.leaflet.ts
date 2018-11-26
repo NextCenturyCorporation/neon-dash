@@ -15,7 +15,6 @@
  */
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, whiteString } from './map.type.abstract';
 import { ElementRef } from '@angular/core';
-import { MapLayer } from './map.component';
 import * as L from 'leaflet';
 
 export class LeafletNeonMap extends AbstractMap {
@@ -31,7 +30,7 @@ export class LeafletNeonMap extends AbstractMap {
         touchZoom: true
     };
     private map: L.Map;
-    private layerGroups = new Map<MapLayer, L.LayerGroup>();
+    private layerGroups = new Map<any, L.LayerGroup>();
     private layerControl: L.Control.Layers;
     private box: L.Rectangle;
 
@@ -83,7 +82,7 @@ export class LeafletNeonMap extends AbstractMap {
         }
     }
 
-    addPoints(points: MapPoint[], layer?: MapLayer, cluster?: boolean) {
+    addPoints(points: MapPoint[], layer?: any, cluster?: boolean) {
         let group = this.getGroup(layer);
 
         for (let point of points) {
@@ -123,7 +122,7 @@ export class LeafletNeonMap extends AbstractMap {
         //TODO: cluster layer based on cluster boolean
     }
 
-    clearLayer(layer: MapLayer) {
+    clearLayer(layer: any) {
         this.getGroup(layer).clearLayers();
 
         // Remove any hidden points too
@@ -145,7 +144,7 @@ export class LeafletNeonMap extends AbstractMap {
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // Drawing support
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    private getGroup(layer: MapLayer) {
+    private getGroup(layer: any) {
         let group = this.layerGroups.get(layer);
 
         if (!group) {
@@ -157,7 +156,7 @@ export class LeafletNeonMap extends AbstractMap {
         return group;
     }
 
-    hidePoints(layer: MapLayer, value: string) {
+    hidePoints(layer: any, value: string) {
         let group = this.getGroup(layer);
 
         let hiddenPoints: any[] = this.hiddenPoints.get(layer);
@@ -175,7 +174,7 @@ export class LeafletNeonMap extends AbstractMap {
         this.hiddenPoints.set(layer, hiddenPoints);
     }
 
-    unhidePoints(layer: MapLayer, value: string) {
+    unhidePoints(layer: any, value: string) {
         let group = this.getGroup(layer);
 
         let hiddenPoints: any[] = this.hiddenPoints.get(layer);
@@ -194,7 +193,7 @@ export class LeafletNeonMap extends AbstractMap {
         this.hiddenPoints.set(layer, hiddenPoints);
     }
 
-    unhideAllPoints(layer: MapLayer) {
+    unhideAllPoints(layer: any) {
         let group = this.getGroup(layer);
 
         let hiddenPoints: any[] = this.hiddenPoints.get(layer);
