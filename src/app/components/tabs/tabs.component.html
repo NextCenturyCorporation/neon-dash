@@ -1,13 +1,13 @@
 
 <mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-            <mat-tab-group (selectedTabChange)="selectionChange($event)" [selectedIndex]="options.startTab">
-                <mat-tab  class="header text" *ngFor="let tabLink of options.tabLinks;
+        <mat-tab-group (selectedTabChange)="selectionChange($event)" [selectedIndex]="options.startTab">
+            <mat-tab  class="header text" *ngFor="let tabLink of options.tabLinks;
                 trackBy:trackByFunction" label="{{tabLink.label}}">
-                </mat-tab>
-            </mat-tab-group>
-            <span class="fill-remaining"></span>
-            <span #infoText class="info text">
+            </mat-tab>
+        </mat-tab-group>
+        <span class="fill-remaining"></span>
+        <span #infoText class="info text">
                 <span class="data-info" [matTooltip]="getButtonText()" tooltip-position="below">
                     {{ getButtonText() }}
                 </span>

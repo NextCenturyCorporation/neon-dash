@@ -138,6 +138,12 @@ export class MapOptions extends BaseNeonMultiLayerOptions {
     public east: number;
     public north: number;
     public south: number;
+    public point: {
+        latitude: number,
+        longitude: number,
+        zoom: number,
+        message: string
+    };
 
     public layers: MapLayer[] = [];
 
@@ -171,6 +177,7 @@ export class MapOptions extends BaseNeonMultiLayerOptions {
         this.east = this.injector.get('east', null);
         this.north = this.injector.get('north', null);
         this.south = this.injector.get('south', null);
+        this.point = this.injector.get('point', null);
     }
 }
 
@@ -690,6 +697,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     onQuerySuccess(layerIndex: number, response: any) {
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.docCount[layerIndex] = response.data[0]._docCount;
+
             return;
         }
 

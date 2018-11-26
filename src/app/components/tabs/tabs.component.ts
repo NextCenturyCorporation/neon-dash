@@ -124,6 +124,7 @@ export class TabsComponent implements OnInit, OnDestroy {
     }
 
     selectionChange(event) {
+        window.dispatchEvent(new Event('resize')); //needed for map tiles to display correctly
         this.currentTabIndex = event.index;
         this.currentTab = this.options.tabLinks[event.index];
     }
@@ -195,5 +196,13 @@ export class TabsComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
         this.changeDetection.detach();
+    }
+
+    onResizeStart() {
+        //Needed for component resizing
+    }
+
+    onResizeStop() {
+        //Needed for component resizing
     }
 }

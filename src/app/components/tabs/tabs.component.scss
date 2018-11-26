@@ -52,3 +52,15 @@
 /deep/ .mat-tab-group.mat-primary .mat-tab-label:not(.mat-tab-disabled):focus{
     background-color: #7fbdc2;
 }
+
+/deep/ .mat-drawer-content{
+    overflow: unset;
+
+    .visualization-sidenav .body-container {
+        overflow-y: hidden !important;
+
+        #mapElement{
+            position: absolute !important;
+        }
+    }
+}

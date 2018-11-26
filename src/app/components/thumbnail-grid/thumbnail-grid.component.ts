@@ -82,6 +82,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public flagSubLabel2: FieldMetaData;
     public flagSubLabel3: FieldMetaData;
     public showLabelName: boolean;
+    public canvasSize: number;
 
     /**
      * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
@@ -105,6 +106,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         bindings.showLabelName = this.showLabelName;
         bindings.textMap = this.textMap;
         bindings.typeMap = this.typeMap;
+        bindings.canvasSize = this.canvasSize;
 
         return bindings;
     }
@@ -169,6 +171,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.typeMap = this.injector.get('typeMap', {});
         this.showLabelName = this.injector.get('showLabelName', false);
         this.viewType = this.injector.get('viewType', ViewType.TITLE);
+        this.canvasSize = this.injector.get('canvasSize', 100.00);
     }
 }
 
@@ -184,7 +187,6 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
 })
 
 export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    private CANVAS_SIZE: number = 100.0;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
@@ -769,7 +771,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 thumbnail = canvases[index].getContext('2d');
 
             thumbnail.fillStyle = '#ffffff';
-            thumbnail.fillRect(0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+            thumbnail.fillRect(0, 0, this.options.canvasSize, this.options.canvasSize);
 
             switch (type) {
                 case this.mediaTypes.image : {
@@ -780,7 +782,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             case 'both' : {
                                 // Use the MIN to crop the scale
                                 let size = Math.min(image.width, image.height);
-                                let multiplier = this.CANVAS_SIZE / size;
+                                let multiplier = this.options.canvasSize / size;
                                 thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
                                 break;
                             }
@@ -791,12 +793,12 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             case 'scale' : {
                                 // Use the MAX to scale
                                 let size = Math.max(image.width, image.height);
-                                let multiplier = this.CANVAS_SIZE / size;
+                                let multiplier = this.options.canvasSize / size;
                                 thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
                                 break;
                             }
                             default : {
-                                thumbnail.drawImage(image, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+                                thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
                             }
                         }
                     };
@@ -811,7 +813,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             case 'both' : {
                                 // Use the MIN to crop the scale
                                 let size = Math.min(video.width, video.height);
-                                let multiplier = this.CANVAS_SIZE / size;
+                                let multiplier = this.options.canvasSize / size;
                                 thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
                                 break;
                             }
@@ -822,12 +824,12 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             case 'scale' : {
                                 // Use the MAX to scale
                                 let size = Math.max(video.width, video.height);
-                                let multiplier = this.CANVAS_SIZE / size;
+                                let multiplier = this.options.canvasSize / size;
                                 thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
                                 break;
                             }
                             default : {
-                                thumbnail.drawImage(video, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+                                thumbnail.drawImage(video, 0, 0, this.options.canvasSize, this.options.canvasSize);
                             }
                         }
                     };
@@ -849,7 +851,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     image.src = '/assets/images/volume_up.svg';
                     image.onclick = () => this.displayMediaTab(grid);
                     image.onload = () => {
-                        thumbnail.drawImage(image, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+                        thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
                     };
 
                     break;
