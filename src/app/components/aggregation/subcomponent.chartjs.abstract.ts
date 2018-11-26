@@ -21,6 +21,7 @@ import { Color } from '../../color';
 import * as _ from 'lodash';
 
 import * as Chart from 'chart.js';
+import * as moment from 'moment-timezone';
 
 export abstract class AbstractChartJsDataset {
     public data: any[] = [];
@@ -703,6 +704,22 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     }
 
     /**
+     * If axis is by dates and a range is selected, pad end date based on granularity since
+     * initially the chart labels are what is used to determine date values (for example, if
+     * the bar representing "August 2018" is selected, make sure range is "August 1st at 12:00 AM
+     * to August 31st at 11:59 PM" rather than "August 1st at 12:00 AM to August 1st 12:00 AM").
+     *
+     * @arg {any} endDate
+     * @protected
+     */
+    protected padEndDate(endDate: any) {
+        let newEndDate = moment.utc(endDate);
+        newEndDate.add(1, <moment.unitOfTime.DurationConstructor> this.options.granularity);
+        newEndDate.subtract(1, 'second');
+        return moment(newEndDate).toDate();
+    }
+
+    /**
      * Redraws all the subcomponent elements.
      *
      * @override
@@ -942,8 +959,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             let endLabelX = chart.scales['x-axis-0'].getLabelForIndex(Math.max(this.selectedDomain.beginIndex,
                 this.selectedDomain.endIndex), 0);
             if (this.findAxisTypeX() === 'date') {
-                beginLabelX = new Date(beginLabelX);
-                endLabelX = new Date(endLabelX);
+                beginLabelX = moment.utc(beginLabelX).toDate();
+                endLabelX = this.padEndDate(endLabelX);
             }
             if (this.findAxisTypeX() === 'number') {
                 beginLabelX = Number(('' + beginLabelX).replace(/,/g, ''));
