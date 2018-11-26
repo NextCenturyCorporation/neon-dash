@@ -157,8 +157,9 @@ describe('App: NeonGtd', () => {
         });
 
         fixture = TestBed.createComponent(AppComponent);
-        debugElement = fixture.debugElement;
         component = fixture.componentInstance;
+        fixture.detectChanges();
+        debugElement = fixture.debugElement;
     });
 
     afterEach(() => {
@@ -184,7 +185,7 @@ describe('App: NeonGtd', () => {
         expect(component.showCustomConnectionButton).toEqual(true);
         expect(component.showFilterBuilderIcon).toEqual(true);
         expect(component.showFilterTrayButton).toEqual(true);
-        expect(component.showSimpleSearch).toEqual(false);
+        expect(component.showSimpleSearch).toEqual(true);
         expect(component.showVisShortcut).toEqual(true);
 
         expect(component.createFilterBuilder).toEqual(false);

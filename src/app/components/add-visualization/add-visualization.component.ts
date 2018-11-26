@@ -45,14 +45,16 @@ export class AddVisualizationComponent implements OnInit {
         this.messenger = new neon.eventing.Messenger();
     }
 
+    bindShowVisShortcut(message) {
+        this.showVisShortcut = message.showVisShortcut;
+    }
+
     ngOnInit() {
         // Ignore the sample visualization.
         this.visualizations = neonVisualizations.filter((visualization) => {
             return visualization.type !== 'sample';
         });
-        this.messenger.subscribe('showVisShortcut', (message) => {
-            this.showVisShortcut = message.showVisShortcut;
-        });
+        this.messenger.subscribe('showVisShortcut', (message) => this.bindShowVisShortcut(message));
     }
 
     public onItemSelected(shiftKey: boolean, index: number) {

@@ -21,6 +21,7 @@ import {
     ChangeDetectorRef,
     Component,
     DebugElement,
+    NO_ERRORS_SCHEMA,
     Injector,
     ViewEncapsulation
 } from '@angular/core';
@@ -63,7 +64,6 @@ class TestAddVisualizationComponent extends AddVisualizationComponent {
         themesService: ThemesService,
         snackBar: MatSnackBar
     ) {
-
         super(
             activeGridService,
             snackBar,
@@ -79,6 +79,7 @@ describe('Component: Add Visualization', () => {
     let fixture: ComponentFixture<TestAddVisualizationComponent>,
         getService = (type: any) => fixture.debugElement.injector.get(type);
     let debugElement: DebugElement;
+    let spyOnInit;
 
     initializeTestBed({
         declarations: [
@@ -95,15 +96,46 @@ describe('Component: Add Visualization', () => {
             AppMaterialModule,
             BrowserAnimationsModule,
             FormsModule
-        ]
+        ],
+        schemas: [NO_ERRORS_SCHEMA]
     });
 
     beforeEach(() => {
         fixture = TestBed.createComponent(TestAddVisualizationComponent);
         component = fixture.componentInstance;
+        spyOnInit = spyOn(component, 'ngOnInit');
         fixture.detectChanges();
 
         debugElement = fixture.debugElement;
     });
+
+    it('exists', (() => {
+        expect(component).toBeTruthy();
+    }));
+
+    it('tests default values', (() => {
+        expect(component.showVisShortcut).toEqual(true);
+        expect(component.selectedIndex).toEqual(-1);
+        expect(component.messenger).toBeTruthy();
+    }));
+
+    it('Check that the publish function updates the correct booleans', (() => {
+        let spyOnBingShowVisualShortcut = spyOn(component, 'bindShowVisShortcut');
+        let message = {
+            showVisShortcut: false
+        };
+
+        expect(spyOnInit.calls.count()).toEqual(1);
+        component.showVisShortcut = false;
+        expect(component.showVisShortcut).toEqual(false);
+        component.ngOnInit();
+        expect(spyOnInit.calls.count()).toEqual(2);
+
+        component.ngOnInit();
+        component.bindShowVisShortcut(message);
+
+        expect(spyOnInit.calls.count()).toEqual(3);
+        expect(spyOnBingShowVisualShortcut.calls.count()).toEqual(1);
+    }));
 
 });
