@@ -18,11 +18,11 @@ import { URLSearchParams } from '@angular/http';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { ParameterService } from '../../services/parameter.service';
-import { ThemesService } from '../../services/themes.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
@@ -64,26 +64,26 @@ export class SaveStateComponent implements OnInit {
     public exportTarget: string = 'all';
 
     constructor(
-        private connectionService: ConnectionService,
-        private datasetService: DatasetService,
-        public exportService: ExportService,
+        protected connectionService: ConnectionService,
+        protected datasetService: DatasetService,
+        protected exportService: ExportService,
         private snackBar: MatSnackBar,
-        private parameterService: ParameterService,
-        public themesService: ThemesService,
+        protected parameterService: ParameterService,
+        protected widgetService: AbstractWidgetService,
         private viewContainerRef: ViewContainerRef,
         private dialog: MatDialog
     ) {}
 
     ngOnInit() {
         this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
-        this.formData.currentTheme = this.themesService.getCurrentTheme();
+        this.formData.currentTheme = this.widgetService.getTheme();
         this.messenger = new neon.eventing.Messenger();
         this.loadStateNames();
     }
 
     setCurrentTheme(themeId: any) {
         if (themeId) {
-            this.themesService.setCurrentTheme(themeId);
+            this.widgetService.setTheme(themeId);
         }
     }
 
@@ -294,7 +294,7 @@ export class SaveStateComponent implements OnInit {
         this.snackBar.open(message, 'x', {
             duration: 5000,
             verticalPosition: 'top',
-            panelClass: [this.themesService.getCurrentTheme(), 'simpleSnackBar']
+            panelClass: [this.widgetService.getTheme(), 'simpleSnackBar']
          });
     }
 }

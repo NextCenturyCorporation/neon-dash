@@ -20,13 +20,12 @@ import {
     ChangeDetectorRef
 } from '@angular/core';
 
-import { Color } from '../../color';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
 
+import { Color } from '../../color';
 import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import { neonEvents } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
@@ -357,10 +356,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         protected filterService: FilterService,
         protected exportService: ExportService,
         protected injector: Injector,
-        public themesService: ThemesService,
         public changeDetection: ChangeDetectorRef
     ) {
-        this.changeDetection = changeDetection;
         this.messenger = new neon.eventing.Messenger();
         this.getBindings = this.getBindings.bind(this);
     }

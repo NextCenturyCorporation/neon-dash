@@ -29,15 +29,15 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { LegendComponent } from '../legend/legend.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { Color } from '../../color';
-import { ColorSchemeService } from '../../services/color-scheme.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
+import { WidgetService } from '../../services/widget.service';
 
 import { AppMaterialModule } from '../../app.material.module';
+import { Color } from '../../color';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
@@ -62,12 +62,11 @@ describe('Component: Aggregation', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -4216,12 +4215,11 @@ describe('Component: Aggregation with config', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
@@ -4487,12 +4485,11 @@ describe('Component: Aggregation with XY config', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
@@ -4692,12 +4689,11 @@ describe('Component: Aggregation with date config', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },

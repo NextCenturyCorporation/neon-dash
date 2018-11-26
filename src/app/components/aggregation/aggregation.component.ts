@@ -27,12 +27,12 @@ import {
 } from '@angular/core';
 
 import { Color } from '../../color';
-import { ColorSchemeService } from '../../services/color-scheme.service';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
 
 import {
     AbstractAggregationSubcomponent,
@@ -320,9 +320,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         filterService: FilterService,
         exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
         ref: ChangeDetectorRef,
-        protected colorSchemeService: ColorSchemeService
+        protected widgetService: AbstractWidgetService
     ) {
 
         super(
@@ -331,7 +330,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             filterService,
             exportService,
             injector,
-            themesService,
             ref
         );
 
@@ -859,15 +857,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let yList = [];
         let groupsToColors = new Map<string, Color>();
         if (!this.options.groupField.columnName) {
-            groupsToColors.set(this.DEFAULT_GROUP, this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name,
-                '', this.DEFAULT_GROUP));
+            groupsToColors.set(this.DEFAULT_GROUP, this.widgetService.getColor(this.options.database.name, this.options.table.name, '',
+                this.DEFAULT_GROUP));
         }
 
         let findGroupColor = (group: string): Color => {
             let color = groupsToColors.get(group);
             if (!color) {
-                color = this.colorSchemeService.getColorFor(this.options.database.name, this.options.table.name,
-                    this.options.groupField.columnName, group);
+                color = this.widgetService.getColor(this.options.database.name, this.options.table.name, this.options.groupField.columnName,
+                    group);
                 groupsToColors.set(group, color);
             }
             return color;
@@ -1083,7 +1081,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         this.subOnResizeStop();
 
-        this.colorKeys = [this.colorSchemeService.getColorKey(this.options.database.name, this.options.table.name,
+        this.colorKeys = [this.widgetService.getColorKey(this.options.database.name, this.options.table.name,
             this.options.groupField.columnName || '')];
         this.totalY = this.activeData.reduce((a, b) => ({ y: (a.y + b.y) }), { y: 0 }).y;
     }

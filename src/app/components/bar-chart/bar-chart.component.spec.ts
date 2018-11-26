@@ -25,7 +25,6 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { neonVariables } from '../../neon-namespaces';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -33,7 +32,8 @@ import { By } from '@angular/platform-browser';
 import { AppMaterialModule } from '../../app.material.module';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { Color } from '../../color';
-import { ColorSchemeService } from '../../services/color-scheme.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { WidgetService } from '../../services/widget.service';
 import { LegendComponent } from '../legend/legend.component';
 import { ChartComponent } from '../chart/chart.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -56,9 +56,8 @@ describe('Component: BarChart', () => {
             DatasetService,
             FilterService,
             ExportService,
-            ThemesService,
             Injector,
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: 'config', useValue: testConfig }
         ],
         imports: [

@@ -38,13 +38,13 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { Color } from '../../color';
-import { ColorSchemeService } from '../../services/color-scheme.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
+import { WidgetService } from '../../services/widget.service';
 import { LegendComponent } from '../legend/legend.component';
-import { ThemesService } from '../../services/themes.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -65,23 +65,21 @@ import * as neon from 'neon-framework';
 
 class TestAnnotationViewerComponent extends AnnotationViewerComponent {
     constructor(
-        colorSchemaService: ColorSchemeService,
+        widgetService: AbstractWidgetService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
         exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
         ref: ChangeDetectorRef
     ) {
         super(
-            colorSchemaService,
+            widgetService,
             connectionService,
             datasetService,
             filterService,
             exportService,
             injector,
-            themesService,
             ref
         );
     }
@@ -106,11 +104,10 @@ describe('Component: AnnotationViewer', () => {
             ],
             providers: [
                 ConnectionService,
-                ColorSchemeService,
+                { provide: AbstractWidgetService, useClass: WidgetService },
                 { provide: DatasetService, useClass: DatasetServiceMock },
                 ExportService,
                 { provide: FilterService, useClass: FilterServiceMock },
-                ThemesService,
                 Injector,
                 { provide: 'config', useValue: new NeonGTDConfig() }
             ],

@@ -16,9 +16,10 @@
 import { Component, ElementRef, Input, OnInit } from '@angular/core';
 import { MatDialogRef, MatSnackBar } from '@angular/material';
 
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
+
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents, neonVisualizations } from '../../neon-namespaces';
-import { ThemesService } from '../../services/themes.service';
 
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
@@ -40,7 +41,7 @@ export class AddVisualizationComponent implements OnInit {
 
     constructor(
         public snackBar: MatSnackBar,
-        public themesService: ThemesService
+        protected widgetService: AbstractWidgetService
     ) {
         this.messenger = new neon.eventing.Messenger();
     }
@@ -71,7 +72,7 @@ export class AddVisualizationComponent implements OnInit {
         this.snackBar.open('Visualization Added', 'x', {
             duration: 5000,
             verticalPosition: 'top',
-            panelClass: [this.themesService.getCurrentTheme(), 'simpleSnackBar']
+            panelClass: [this.widgetService.getTheme(), 'simpleSnackBar']
          });
     }
 

@@ -31,7 +31,6 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -87,7 +86,6 @@ class TestSampleComponent extends SampleComponent {
         filterService: FilterService,
         exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
         ref: ChangeDetectorRef
     ) {
 
@@ -97,7 +95,6 @@ class TestSampleComponent extends SampleComponent {
             filterService,
             exportService,
             injector,
-            themesService,
             ref
         );
     }
@@ -139,7 +136,6 @@ describe('Component: Sample', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -1676,7 +1672,6 @@ describe('Component: Sample with config', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
