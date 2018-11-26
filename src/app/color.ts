@@ -175,7 +175,7 @@ export class ColorSet {
         new Color(187, 30, 69),   // #BB1E45 (pink)
         new Color(0, 108, 203),   // #006CCB (blue)
         new Color(199, 165, 0),   // #C7A500 (yellow)
-        new Color(54, 154, 82)   // #369A52 (sea green)
+        new Color(54, 154, 82)    // #369A52 (sea green)
     ];
     private currentIndex: number = 0;
 
