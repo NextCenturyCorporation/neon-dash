@@ -63,12 +63,11 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     public messenger: neon.eventing.Messenger;
     protected outstandingDataQuery: any;
 
-    protected initializing: boolean;
-
     private redrawAfterResize: boolean = false;
 
     public exportId: number;
 
+    public initializing: boolean = false;
     public isLoading: boolean = false;
     public isExportable: boolean = true;
 
@@ -880,7 +879,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {number} defaultLimit
      * @return {any}
      */
-    public createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
+    private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
         let options: any = new WidgetOptionCollection(injector);
 
         options.inject(new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', []));
@@ -959,10 +958,16 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     public getExportFields(): { columnName: string, prettyName: string }[] {
         return this.options.list().reduce((exportFields, option) => {
             if (option.optionType === OptionType.FIELD && option.valueCurrent.columnName) {
-                exportFields.push({
+                return exportFields.concat({
                     columnName: option.valueCurrent.columnName,
                     prettyName: option.valueCurrent.prettyName
                 });
+            }
+            if (option.optionType === OptionType.FIELD_ARRAY) {
+                return exportFields.concat(option.valueCurrent.filter((fieldsObject) => !!fieldsObject.columnName).map((fieldsObject) => ({
+                    columnName: fieldsObject.columnName,
+                    prettyName: fieldsObject.prettyName
+                })));
             }
             return exportFields;
         }, []);
@@ -974,7 +979,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @return {string}
      * @abstract
      */
-    protected abstract getWidgetDefaultLimit(): number;
+    public abstract getWidgetDefaultLimit(): number;
 
     /**
      * Returns the name for the unique widget.
@@ -982,7 +987,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @return {string}
      * @abstract
      */
-    protected abstract getWidgetName(): string;
+    public abstract getWidgetName(): string;
 
     /**
      * Initializes all the fields in the given WidgetOptionCollection.

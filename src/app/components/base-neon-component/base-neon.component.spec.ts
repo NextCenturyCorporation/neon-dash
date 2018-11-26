@@ -42,9 +42,14 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import {
+    OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
-    WidgetOption
+    WidgetFreeTextOption,
+    WidgetMultipleSelectOption,
+    WidgetNonPrimitiveOption,
+    WidgetOption,
+    WidgetSelectOption
 } from '../../widget-option';
 import { basename } from 'path';
 import * as neon from 'neon-framework';
@@ -54,12 +59,12 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import * as _ from 'lodash';
 
 @Component({
-    selector: 'app-kebah-case',
+    selector: 'app-test-base-neon',
     templateUrl: './base-neon.component.html',
     styleUrls: ['./base-neon.component.scss'],
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
-  })
+})
 class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     public filters: any[] = [];
     constructor(
@@ -133,7 +138,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     }
 
     getWidgetDefaultLimit(): number {
-        return 10;
+        return 1234;
     }
 
     getWidgetName(): string {
@@ -179,7 +184,53 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     }
 }
 
-describe('Component: BaseNeonOptions', () => {
+@Component({
+    selector: 'app-test-advanced-neon',
+    templateUrl: './base-neon.component.html',
+    styleUrls: ['./base-neon.component.scss'],
+    encapsulation: ViewEncapsulation.Emulated,
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+class TestAdvancedNeonComponent extends TestBaseNeonComponent {
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('testRequiredField', 'Test Required Field', true),
+            new WidgetFieldOption('testOptionalField', 'Test Optional Field', false),
+            new WidgetFieldArrayOption('testMultipleFields', 'Test Multiple Fields', false)
+        ];
+    }
+
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetFreeTextOption('testFreeText', 'Test Free Text', ''),
+            new WidgetMultipleSelectOption('testMultipleSelect', 'Test Multiple Select', [], [{
+                prettyName: 'A',
+                variable: 'a'
+            }, {
+                prettyName: 'B',
+                variable: 'b'
+            }, {
+                prettyName: 'C',
+                variable: 'c'
+            }]),
+            new WidgetNonPrimitiveOption('testArray', 'Test Array', []),
+            new WidgetNonPrimitiveOption('testObject', 'Test Object', {}),
+            new WidgetSelectOption('testSelect', 'Test Select', 'y', [{
+                prettyName: 'X',
+                variable: 'x'
+            }, {
+                prettyName: 'Y',
+                variable: 'y'
+            }, {
+                prettyName: 'Z',
+                variable: 'z'
+            }]),
+            new WidgetSelectOption('testToggle', 'Test Toggle', false, OptionChoices.NoFalseYesTrue)
+        ];
+    }
+}
+
+describe('BaseNeonComponent Options', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: BaseNeonComponent;
     let options: any;
@@ -232,8 +283,8 @@ describe('Component: BaseNeonOptions', () => {
         expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
         expect(options.filter).toEqual(null);
         expect(options.hideUnfiltered).toEqual(false);
-        expect(options.limit).toEqual(10);
-        expect(component.newLimit).toEqual(10);
+        expect(options.limit).toEqual(1234);
+        expect(component.newLimit).toEqual(1234);
         expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
         expect(options.title).toEqual('Mock Superclass');
@@ -283,8 +334,41 @@ describe('Component: BaseNeonOptions', () => {
         expect(component.findFieldObjects(options.fields, 'fakeBind')).toEqual([]);
     });
 
+    it('getBindings does return expected object', () => {
+        expect(component.getBindings()).toEqual({
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            filter: null,
+            hideUnfiltered: false,
+            limit: 1234,
+            table: 'testTable1',
+            title: 'Mock Superclass',
+            unsharedFilterValue: '',
+            unsharedFilterField: ''
+        });
+    });
+
     it('getExportFields does return expected array', () => {
         expect(component.getExportFields()).toEqual([]);
+    });
+
+    it('getWidgetDefaultLimit does return expected number', () => {
+        expect(component.getWidgetDefaultLimit()).toEqual(1234);
+    });
+
+    it('getWidgetName does return expected string', () => {
+        expect(component.getWidgetName()).toEqual('Mock Superclass');
+    });
+
+    it('hasUnsharedFilter does return expected boolean', () => {
+        expect(component.hasUnsharedFilter()).toEqual(false);
+    });
+
+    it('initializeFieldsInOptions does not update unshared filter field because it is not set', () => {
+        options.fields = DatasetServiceMock.FIELDS;
+        component.initializeFieldsInOptions(options);
+        expect(options.unsharedFilterField).toEqual(new FieldMetaData());
     });
 
     it('updateDatabasesInOptions does update databases, tables, and fields', () => {
@@ -321,7 +405,7 @@ describe('Component: BaseNeonOptions', () => {
     });
 });
 
-describe('Component: BaseNeonOptions with config', () => {
+describe('Advanced BaseNeonComponent Options', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: BaseNeonComponent;
     let options: any;
@@ -329,7 +413,106 @@ describe('Component: BaseNeonOptions with config', () => {
 
     initializeTestBed({
         declarations: [
-            TestBaseNeonComponent,
+            TestAdvancedNeonComponent,
+            ExportControlComponent
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            {
+                provide: DatasetService,
+                useClass: DatasetServiceMock
+            },
+            FilterService,
+            ExportService,
+            Injector,
+            ThemesService,
+            VisualizationService,
+            ErrorNotificationService,
+            { provide: 'config', useValue: testConfig }
+        ]
+    });
+
+    beforeEach(() => {
+        fixture = TestBed.createComponent(TestAdvancedNeonComponent);
+        component = fixture.componentInstance;
+        options = component.options;
+        fixture.detectChanges();
+    });
+
+    it('does have expected properties', () => {
+        expect(options.customEventsToPublish).toEqual([]);
+        expect(options.customEventsToReceive).toEqual([]);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(options.filter).toEqual(null);
+        expect(options.hideUnfiltered).toEqual(false);
+        expect(options.limit).toEqual(1234);
+        expect(component.newLimit).toEqual(1234);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.testArray).toEqual([]);
+        expect(options.testFreeText).toEqual('');
+        expect(options.testMultipleFields).toEqual([]);
+        expect(options.testMultipleSelect).toEqual([]);
+        expect(options.testObject).toEqual({});
+        expect(options.testOptionalField).toEqual(new FieldMetaData());
+        expect(options.testRequiredField).toEqual(new FieldMetaData());
+        expect(options.testSelect).toEqual('y');
+        expect(options.testToggle).toEqual(false);
+        expect(options.title).toEqual('Mock Superclass');
+        expect(options.unsharedFilterField).toEqual(new FieldMetaData());
+        expect(options.unsharedFilterValue).toEqual('');
+    });
+
+    it('getBindings does return expected object', () => {
+        expect(component.getBindings()).toEqual({
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            filter: null,
+            hideUnfiltered: false,
+            limit: 1234,
+            table: 'testTable1',
+            testArray: [],
+            testFreeText: '',
+            testMultipleFields: [],
+            testMultipleSelect: [],
+            testObject: {},
+            testOptionalField: '',
+            testRequiredField: '',
+            testSelect: 'y',
+            testToggle: false,
+            title: 'Mock Superclass',
+            unsharedFilterValue: '',
+            unsharedFilterField: ''
+        });
+    });
+
+    it('getExportFields does return expected array', () => {
+        expect(component.getExportFields()).toEqual([]);
+    });
+
+    it('hasUnsharedFilter does return expected boolean', () => {
+        expect(component.hasUnsharedFilter()).toEqual(false);
+    });
+});
+
+describe('Advanced BaseNeonComponent Options with Config', () => {
+    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let component: BaseNeonComponent;
+    let options: any;
+    let fixture: ComponentFixture<BaseNeonComponent>;
+
+    initializeTestBed({
+        declarations: [
+            TestAdvancedNeonComponent,
             ExportControlComponent
         ],
         imports: [
@@ -360,6 +543,15 @@ describe('Component: BaseNeonOptions with config', () => {
                 type: 'testReceiveType' } ] } ] },
             { provide: 'hideUnfiltered', useValue: true },
             { provide: 'limit', useValue: 1234 },
+            { provide: 'testArray', useValue: [4, 3, 2, 1] },
+            { provide: 'testFreeText', useValue: 'the quick brown fox jumps over the lazy dog' },
+            { provide: 'testMultipleFields', useValue: ['testXField', 'testYField'] },
+            { provide: 'testMultipleSelect', useValue: ['b', 'c'] },
+            { provide: 'testObject', useValue: { key: 'value' } },
+            { provide: 'testOptionalField', useValue: 'testNameField' },
+            { provide: 'testRequiredField', useValue: 'testSizeField' },
+            { provide: 'testSelect', useValue: 'z' },
+            { provide: 'testToggle', useValue: true },
             { provide: 'title', useValue: 'VisualizationTitle' },
             { provide: 'unsharedFilterField', useValue: 'testFilterField' },
             { provide: 'unsharedFilterValue', useValue: 'testFilterValue' }
@@ -367,7 +559,7 @@ describe('Component: BaseNeonOptions with config', () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(TestBaseNeonComponent);
+        fixture = TestBed.createComponent(TestAdvancedNeonComponent);
         component = fixture.componentInstance;
         options = component.options;
         fixture.detectChanges();
@@ -401,6 +593,17 @@ describe('Component: BaseNeonOptions with config', () => {
         expect(component.newLimit).toEqual(1234);
         expect(options.table).toEqual(DatasetServiceMock.TABLES[1]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.testArray).toEqual([4, 3, 2, 1]);
+        expect(options.testFreeText).toEqual('the quick brown fox jumps over the lazy dog');
+        expect(options.testMultipleFields).toEqual([DatasetServiceMock.X_FIELD, DatasetServiceMock.Y_FIELD]);
+        expect(options.testMultipleSelect).toEqual(['b', 'c']);
+        expect(options.testObject).toEqual({
+            key: 'value'
+        });
+        expect(options.testOptionalField).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(options.testRequiredField).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(options.testSelect).toEqual('z');
+        expect(options.testToggle).toEqual(true);
         expect(options.title).toEqual('VisualizationTitle');
         expect(options.unsharedFilterField).toEqual(DatasetServiceMock.FILTER_FIELD);
         expect(options.unsharedFilterValue).toEqual('testFilterValue');
@@ -431,10 +634,44 @@ describe('Component: BaseNeonOptions with config', () => {
             hideUnfiltered: true,
             limit: 1234,
             table: 'testTable2',
+            testArray: [4, 3, 2, 1],
+            testFreeText: 'the quick brown fox jumps over the lazy dog',
+            testMultipleFields: ['testXField', 'testYField'],
+            testMultipleSelect: ['b', 'c'],
+            testObject: {
+                key: 'value'
+            },
+            testOptionalField: 'testNameField',
+            testRequiredField: 'testSizeField',
+            testSelect: 'z',
+            testToggle: true,
             title: 'VisualizationTitle',
             unsharedFilterValue: 'testFilterValue',
             unsharedFilterField: 'testFilterField'
         });
+    });
+
+    it('getExportFields does return expected array', () => {
+        expect(component.getExportFields()).toEqual([{
+            columnName: 'testSizeField',
+            prettyName: 'Test Size Field'
+        }, {
+            columnName: 'testNameField',
+            prettyName: 'Test Name Field'
+        }, {
+            columnName: 'testXField',
+            prettyName: 'Test X Field'
+        }, {
+            columnName: 'testYField',
+            prettyName: 'Test Y Field'
+        }, {
+            columnName: 'testFilterField',
+            prettyName: 'Test Filter Field'
+        }]);
+    });
+
+    it('hasUnsharedFilter does return expected boolean', () => {
+        expect(component.hasUnsharedFilter()).toEqual(true);
     });
 
     it('initializeFieldsInOptions does update unshared filter field', () => {
@@ -475,7 +712,7 @@ describe('Component: BaseNeonOptions with config', () => {
     });
 });
 
-describe('Component: base-neon', () => {
+describe('BaseNeon', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: BaseNeonComponent;
     let options: any;
@@ -515,44 +752,18 @@ describe('Component: base-neon', () => {
         fixture.detectChanges();
     });
 
-    it('should return expected value from bindings', (() => {
-        options.database = new DatabaseMetaData('testDatabase1');
-        options.table = new TableMetaData('testTable1');
-        expect(component.getBindings()).toEqual({
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            filter: null,
-            hideUnfiltered: false,
-            limit: 10,
-            table: 'testTable1',
-            title: 'Mock Superclass',
-            unsharedFilterValue: '',
-            unsharedFilterField: ''
-        });
-    }));
+    it('does have expected properties', () => {
+        expect(component.id).toBeDefined();
+        expect(component.messenger).toBeDefined();
 
-    it('Checks both export functions', (() => {
-        let query = component.createQuery();
+        expect(component.initializing).toBe(false);
+        expect(component.isLoading).toBe(false);
+        expect(component.isExportable).toBe(true);
+        expect(component.errorMessage).toBe('');
 
-        expect(component.export()).toBeDefined();
-        expect(component.doExport()).toBeDefined();
-        /*expect(component.export()).toEqual({
-            name: 'Query_Results_Table',
-            data: [{
-                query: component.createQuery,
-                name: String,
-                fields: [{
-                    query: 'value',
-                    pretty: 'Count'
-                }],
-                ignoreFilters: query.ignoreFilters,
-                selectionOnly: query.selectionOnly,
-                ignoredFilterIds: [],
-                type: 'query'
-            }]
-        });*/
-    }));
+        expect(component.options).toBeDefined();
+        expect(component.newLimit).toBeDefined();
+    });
 
     it('Checks to see doExport calls the export function once', (() => {
         let spy = spyOn(component, 'export');
