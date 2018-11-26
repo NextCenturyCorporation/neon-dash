@@ -31,7 +31,6 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
@@ -69,7 +68,6 @@ class TestMapComponent extends MapComponent {
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
         widgetService: AbstractWidgetService,
         ref: ChangeDetectorRef
@@ -78,7 +76,6 @@ class TestMapComponent extends MapComponent {
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
             widgetService,
             ref
@@ -237,7 +234,6 @@ describe('Component: Map', () => {
             ConnectionService,
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ExportService,
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: 'config', useValue: new NeonGTDConfig() }
@@ -1065,7 +1061,6 @@ describe('Component: Map with config', () => {
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
-            ExportService,
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: 'config', useValue: new NeonGTDConfig() },

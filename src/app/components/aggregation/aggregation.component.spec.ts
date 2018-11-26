@@ -32,7 +32,6 @@ import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.comp
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
@@ -65,7 +64,6 @@ describe('Component: Aggregation', () => {
             { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
@@ -4218,7 +4216,6 @@ describe('Component: Aggregation with config', () => {
             { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
@@ -4488,7 +4485,6 @@ describe('Component: Aggregation with XY config', () => {
             { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
@@ -4692,7 +4688,6 @@ describe('Component: Aggregation with date config', () => {
             { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },

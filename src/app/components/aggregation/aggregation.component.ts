@@ -32,7 +32,6 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
 
 import {
     AbstractAggregationSubcomponent,
@@ -318,7 +317,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
         ref: ChangeDetectorRef,
         protected widgetService: AbstractWidgetService
@@ -328,7 +326,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
             ref
         );

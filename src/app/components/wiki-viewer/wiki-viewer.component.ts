@@ -30,7 +30,6 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
@@ -117,7 +116,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
         ref: ChangeDetectorRef,
         protected http: HttpClient,
@@ -128,7 +126,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
             ref
         );

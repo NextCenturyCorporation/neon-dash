@@ -30,7 +30,6 @@ import { neonVariables } from '../../neon-namespaces';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
@@ -61,7 +60,6 @@ describe('Component: DocumentViewer', () => {
                 provide: DatasetService,
                 useClass: DatasetServiceMock
             },
-            ExportService,
             FilterService,
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
@@ -1076,7 +1074,6 @@ describe('Component: Document Viewer with Config', () => {
         providers: [
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ExportService,
             FilterService,
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,

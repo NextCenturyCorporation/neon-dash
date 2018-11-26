@@ -30,7 +30,6 @@ import { MediaViewerComponent } from './media-viewer.component';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
@@ -49,7 +48,6 @@ describe('Component: MediaViewer', () => {
         providers: [
             ConnectionService,
             DatasetService,
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
@@ -1682,7 +1680,6 @@ describe('Component: MediaViewer with config', () => {
         providers: [
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ExportService,
             FilterService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
