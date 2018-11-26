@@ -144,17 +144,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     abstract subNgOnDestroy();
 
     /**
-     * Function to get any bindings needed to re-create the visualization
-     * @return {any}
-     */
-    getBindings(): any {
-        return this.options.list().reduce((bindings, option) => {
-            bindings[option.bindingKey] = option.getValueToSaveInBindings();
-            return bindings;
-        }, {});
-    }
-
-    /**
      * Get a query ready to give to the ExportService.
      */
     export(): any {
@@ -856,7 +845,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Creates and returns an array of field options for the specific visualization.
+     * Creates and returns an array of field options for the unique widget.
      *
      * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
      * @abstract
@@ -864,7 +853,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     protected abstract createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[];
 
     /**
-     * Creates and returns an array of non-field options for the specific visualization.
+     * Creates and returns an array of non-field options for the unique widget.
      *
      * @return {WidgetOption[]}
      * @abstract
@@ -951,12 +940,26 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Returns the bindings object with the current options for the unique widget.
+     *
+     * @arg {any} [options]
+     * @return {any}
+     */
+    public getBindings(options?: any): any {
+        return (options || this.options).list().reduce((bindings, option) => {
+            bindings[option.bindingKey] = option.getValueToSaveInBindings();
+            return bindings;
+        }, {});
+    }
+
+    /**
      * Returns the list of fields to export.
      *
+     * @arg {any} [options]
      * @return {{ columnName: string, prettyName: string }[]}
      */
-    public getExportFields(): { columnName: string, prettyName: string }[] {
-        return this.options.list().reduce((exportFields, option) => {
+    public getExportFields(options?: any): { columnName: string, prettyName: string }[] {
+        return (options || this.options).list().reduce((exportFields, option) => {
             if (option.optionType === OptionType.FIELD && option.valueCurrent.columnName) {
                 return exportFields.concat({
                     columnName: option.valueCurrent.columnName,
@@ -993,9 +996,12 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Initializes all the fields in the given WidgetOptionCollection.
      *
      * @arg {any} options
+     * @arg {(WidgetFieldOption|WidgetFieldArrayOption)[]} [fieldOptions]
      */
-    public initializeFieldsInOptions(options: any) {
-        this.createFieldOptions().concat([new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false)]).forEach((option) => {
+    public initializeFieldsInOptions(options: any, fieldOptions?: (WidgetFieldOption | WidgetFieldArrayOption)[]) {
+        (fieldOptions || this.createFieldOptions()).concat([
+            new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false)
+        ]).forEach((option) => {
             if (option.optionType === OptionType.FIELD) {
                 options.append(option, this.findFieldObject(options.fields, option.bindingKey));
             }
