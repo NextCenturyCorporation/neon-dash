@@ -364,7 +364,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                 clauses.push(neon.query.where(this.options.sourceIdField.columnName, '!=', id));
             }
 
-            clause = neon.query.or.apply(neon.query, clauses);
+            clause = neon.query.and.apply(neon.query, clauses);
             this.addFilter(sourceFilter, runQuery, clause);
         }
 

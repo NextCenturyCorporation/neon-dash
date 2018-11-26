@@ -15,15 +15,14 @@
  */
 import {
     ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector,
-    ViewChild, OnInit } from '@angular/core';
+    ViewChild, OnInit, OnDestroy
+} from '@angular/core';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { DatasetService } from '../../services/dataset.service';
 import * as neon from 'neon-framework';
 import {  BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { ExportService } from '../../services/export.service';
-import { VisualizationService } from '../../services/visualization.service';
-import { DomSanitizer } from '@angular/platform-browser';
 
 /**
  * Manages configurable options for the specific visualization.
@@ -92,13 +91,13 @@ export class TabsOptions extends BaseNeonOptions {
     styleUrls: ['./tabs.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TabsComponent implements OnInit  /*extends BaseNeonComponent*/ {
+export class TabsComponent implements OnInit, OnDestroy {
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('tabs')tabs: ElementRef;
 
     public options: TabsOptions;
-    private injector: Injector;
-    private datasetService: DatasetService;
+    readonly injector: Injector;
+    readonly datasetService: DatasetService;
     private themesService: ThemesService;
     public displayTabs: boolean;
     private currentTab: any;
@@ -110,8 +109,7 @@ export class TabsComponent implements OnInit  /*extends BaseNeonComponent*/ {
 
     constructor(datasetService: DatasetService,
                 filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-                ref: ChangeDetectorRef, visualizationService: VisualizationService,
-                private sanitizer: DomSanitizer) {
+                ref: ChangeDetectorRef) {
 
         this.injector = injector;
         this.datasetService = datasetService;
@@ -130,16 +128,8 @@ export class TabsComponent implements OnInit  /*extends BaseNeonComponent*/ {
         this.currentTab = this.options.tabLinks[event.index];
     }
 
-/*    setCurrentTab(tab) {
-        //console.log('Set current tab to', tab, this.currentTab);
-        this.currentTab = tab;
-    }*/
-
     trackByFunction(index, item) {
         return item ? item.id : undefined;
-    }
-    sanitize(url) {
-        return this.sanitizer.bypassSecurityTrustResourceUrl(url);
     }
 
     /**
@@ -185,14 +175,10 @@ export class TabsComponent implements OnInit  /*extends BaseNeonComponent*/ {
      * @override
      */
     ngOnInit() {
-        this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
+        this.messenger.events({ filtersChanged: this.handleChange.bind(this) });
     }
 
-    /**
-     * Called after the filters in the filter service have changed.
-     * Defaults to calling setupFilters() then executeQueryChain()
-     */
-    handleFiltersChangedEvent(event?: any): void {
+    handleChange() {
         //if there is a filter turn display on else off
         this.neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
             this.options.table.name, this.options.filterFields);
@@ -204,5 +190,10 @@ export class TabsComponent implements OnInit  /*extends BaseNeonComponent*/ {
         }
 
         this.changeDetection.detectChanges();
+    }
+
+    ngOnDestroy() {
+        this.messenger.unsubscribeAll();
+        this.changeDetection.detach();
     }
 }
