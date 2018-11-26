@@ -50,8 +50,8 @@ describe('Component: Aggregation', () => {
     let fixture: ComponentFixture<AggregationComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    let COLOR_1 = new Color(255, 135, 55);
-    let COLOR_2 = new Color(94, 80, 143);
+    let COLOR_1 = new Color(94, 80, 143);
+    let COLOR_2 = new Color(255, 135, 55);
 
     initializeTestBed({
         declarations: [
