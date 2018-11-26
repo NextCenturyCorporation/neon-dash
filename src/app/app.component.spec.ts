@@ -47,13 +47,13 @@ import { WikiViewerComponent } from './components/wiki-viewer/wiki-viewer.compon
 
 import { NeonGTDConfig } from './neon-gtd-config';
 
-import { DatasetService } from './services/dataset.service';
+import { AbstractWidgetService } from './services/abstract.widget.service';
 import { ConnectionService } from './services/connection.service';
+import { DatasetService } from './services/dataset.service';
 import { ExportService } from './services/export.service';
 import { FilterService } from './services/filter.service';
 import { ParameterService } from './services/parameter.service';
-import { ThemesService } from './services/themes.service';
-import { ColorSchemeService } from './services/color-scheme.service';
+import { WidgetService } from './services/widget.service';
 
 import { NgGridModule } from 'angular2-grid';
 
@@ -141,8 +141,7 @@ describe('App: NeonGtd', () => {
                 ExportService,
                 FilterService,
                 ParameterService,
-                ThemesService,
-                ColorSchemeService
+                { provide: AbstractWidgetService, useClass: WidgetService }
             ]
         });
 

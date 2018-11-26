@@ -27,13 +27,10 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { Color } from '../../color';
-import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { Bucketizer } from '../bucketizers/Bucketizer';
@@ -195,8 +192,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         filterService: FilterService,
         exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        protected colorSchemeService: ColorSchemeService,
         ref: ChangeDetectorRef
     ) {
 
@@ -206,7 +201,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             filterService,
             exportService,
             injector,
-            themesService,
             ref
         );
 

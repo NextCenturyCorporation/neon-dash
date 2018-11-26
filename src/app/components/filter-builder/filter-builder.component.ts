@@ -29,7 +29,6 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService, ServiceFilter } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
@@ -165,7 +164,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         filterService: FilterService,
         exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
         ref: ChangeDetectorRef
     ) {
 
@@ -175,7 +173,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             filterService,
             exportService,
             injector,
-            themesService,
             ref
         );
 

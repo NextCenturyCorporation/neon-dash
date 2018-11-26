@@ -22,12 +22,14 @@ import {} from 'jasmine-core';
 import { ScatterPlotComponent } from './scatter-plot.component';
 import { LegendComponent } from '../legend/legend.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
-import { ExportService } from '../../services/export.service';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
+import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
+import { WidgetService } from '../../services/widget.service';
+
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
@@ -53,8 +55,7 @@ describe('Component: ScatterPlot', () => {
             DatasetService,
             FilterService,
             ExportService,
-            ThemesService,
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
             { provide: 'config', useValue: testConfig }
         ],

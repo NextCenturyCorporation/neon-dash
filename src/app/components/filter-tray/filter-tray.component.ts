@@ -21,7 +21,6 @@ import { neonEvents } from '../../neon-namespaces';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
 
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
@@ -40,9 +39,8 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
     };
 
     constructor(@Inject(MAT_DIALOG_DATA) public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent>,
-        private filterService: FilterService, public themesService: ThemesService, public dialogRef: MatDialogRef<FilterTrayComponent>) {
+        protected filterService: FilterService, public dialogRef: MatDialogRef<FilterTrayComponent>) {
         this.messenger = new neon.eventing.Messenger();
-        this.themesService = themesService;
         this.filters = {
             raw: [],
             formatted: []

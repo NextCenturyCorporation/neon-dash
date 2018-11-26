@@ -27,11 +27,12 @@ import { DocumentViewerComponent } from './document-viewer.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 
 import { neonVariables } from '../../neon-namespaces';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
+import { WidgetService } from '../../services/widget.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -62,7 +63,7 @@ describe('Component: DocumentViewer', () => {
             },
             ExportService,
             FilterService,
-            ThemesService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -1074,13 +1075,10 @@ describe('Component: Document Viewer with Config', () => {
         ],
         providers: [
             ConnectionService,
-            {
-                provide: DatasetService,
-                useClass: DatasetServiceMock
-            },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,
             FilterService,
-            ThemesService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'title', useValue: 'Document Viewer Title' },

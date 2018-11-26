@@ -26,11 +26,11 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
@@ -144,7 +144,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         filterService: FilterService,
         exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
+        protected widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
         ref: ChangeDetectorRef,
         public dialog: MatDialog
@@ -156,7 +156,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             filterService,
             exportService,
             injector,
-            themesService,
             ref
         );
 
@@ -433,7 +432,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     private openSingleRecord(activeItemData: any) {
         let config = new MatDialogConfig();
-        config.panelClass = this.themesService.getCurrentTheme();
+        config.panelClass = this.widgetService.getTheme();
         config.data = {
             item: activeItemData,
             showText: this.options.showText,

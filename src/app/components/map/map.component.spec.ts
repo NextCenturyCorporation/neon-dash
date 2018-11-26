@@ -27,12 +27,14 @@ import {
 import { MapComponent, MapLayer } from './map.component';
 import { LegendComponent } from '../legend/legend.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
-import { ExportService } from '../../services/export.service';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
+import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
+import { WidgetService } from '../../services/widget.service';
+
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
@@ -69,8 +71,7 @@ class TestMapComponent extends MapComponent {
         filterService: FilterService,
         exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        colorSchemeSrv: ColorSchemeService,
+        widgetService: AbstractWidgetService,
         ref: ChangeDetectorRef
     ) {
         super(
@@ -79,8 +80,7 @@ class TestMapComponent extends MapComponent {
             filterService,
             exportService,
             injector,
-            themesService,
-            colorSchemeSrv,
+            widgetService,
             ref
         );
     }
@@ -238,9 +238,8 @@ describe('Component: Map', () => {
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            ThemesService,
             Injector,
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
@@ -325,7 +324,7 @@ describe('Component: Map', () => {
             cHoverMap = new Map<string, number>().set('c', 1),
             dHoverMap = new Map<string, number>().set('d', 1);
 
-        let colorService = getService(ColorSchemeService),
+        let widgetService = getService(AbstractWidgetService),
             dataset1 = {
                 data: [
                     { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'A'},
@@ -336,13 +335,13 @@ describe('Component: Map', () => {
                 ],
                 expected: [
                     new MapPoint('testId4', ['testId4', 'testId5'], '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'd').toRgb(), 'Count: 2', 'category', 'd', dHoverMap),
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'd').toRgb(), 'Count: 2', 'category', 'd', dHoverMap),
                     new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
                     new MapPoint('testId2', ['testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
                     new MapPoint('testId3', ['testId3'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'c').toRgb(), 'Count: 1', 'category', 'c', cHoverMap)
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'c').toRgb(), 'Count: 1', 'category', 'c', cHoverMap)
                 ]
             },
             dataset2 = {
@@ -354,13 +353,13 @@ describe('Component: Map', () => {
                 ],
                 expected: [
                     new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
                     new MapPoint('testId2', ['testId2'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
                     new MapPoint('testId3', ['testId3'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'c').toRgb(), 'Count: 1', 'category', 'c', cHoverMap),
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'c').toRgb(), 'Count: 1', 'category', 'c', cHoverMap),
                     new MapPoint('testId4', ['testId4'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'd').toRgb(), 'Count: 1', 'category', 'd', dHoverMap)
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'd').toRgb(), 'Count: 1', 'category', 'd', dHoverMap)
                 ]
             },
             dataset3 = {
@@ -370,9 +369,9 @@ describe('Component: Map', () => {
                 ],
                 expected: [
                     new MapPoint('testId1', ['testId1', 'testId1', 'testId1', 'testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 4', 'category', 'a', aHoverMap),
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 4', 'category', 'a', aHoverMap),
                     new MapPoint('testId2', ['testId2', 'testId2', 'testId2', 'testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 4', 'category', 'b', bHoverMap)
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 4', 'category', 'b', bHoverMap)
                 ]
             },
             dataset4 = {
@@ -382,21 +381,21 @@ describe('Component: Map', () => {
                 ],
                 expected: [
                     new MapPoint('testId1', ['testId1'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
                     new MapPoint('testId1', ['testId1'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
                     new MapPoint('testId1', ['testId1'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
                     new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
                     new MapPoint('testId2', ['testId2'], '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
                     new MapPoint('testId2', ['testId2'], '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
                     new MapPoint('testId2', ['testId2'], '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
                     new MapPoint('testId2', ['testId2'], '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
-                        colorService.getColorFor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap)
+                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap)
                 ]
             };
 
@@ -1067,9 +1066,8 @@ describe('Component: Map with config', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
-            ThemesService,
             Injector,
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase1' },
             { provide: 'table', useValue: 'testTable1' },
