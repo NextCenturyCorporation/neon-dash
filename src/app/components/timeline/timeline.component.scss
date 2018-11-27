@@ -1,0 +1,269 @@
+/*
+ * Copyright 2016 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+@import '../base-neon-component/base-neon.component.scss';
+
+.no-data {
+    color: $main-text-color;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+h3 {
+    margin-top: 0px;
+}
+
+.timeline-selector-chart {
+    margin: 0;
+    display: block;
+    min-height: 150px;
+
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    right: 0;
+    left: 15px;
+
+    svg {
+        font-size: 10px;
+        width: 100%;
+        display: block;
+
+        .invalid-record-count:hover {
+            color: goldenrod;
+            cursor: pointer;
+
+            .count {
+                color: goldenrod;
+                cursor: pointer;
+            }
+        }
+
+        .animation-controls {
+            margin: 0px 10px;
+        }
+
+        .y.axis {
+            text {
+                text-shadow: 1px 1px 0 $text-shadow-color,
+                1px 0px 0 $text-shadow-color,
+                1px -1px 0 $text-shadow-color,
+                -1px 1px 0 $text-shadow-color,
+                -1px 0px 0 $text-shadow-color,
+                -1px -1px 0 $text-shadow-color,
+                0px 2px 0 $text-shadow-color,
+                0px -2px 0 $text-shadow-color;
+                font-weight: bold;
+            }
+
+            path {
+                display: none;
+            }
+
+            .tick {
+                line{
+                    display: none;
+                }
+            }
+        }
+
+
+        .highlight {
+            background-color: $accent-bright;
+            fill: $accent-bright;
+        }
+
+        .multi-highlight {
+            fill: $accent-bright;
+            fill-opacity: 0.65;
+        }
+
+        .brush {
+            .extent {
+                fill-opacity: 0;
+                shape-rendering: crispEdges;
+            }
+
+            .mask {
+                fill: $main-background;
+                fill-opacity: 0.65;
+            }
+
+            .resize {
+                path {
+                    fill: $light-chart-axis-color;
+                    stroke: $chart-text-color;
+                    stroke-opacity: 0.5;
+                }
+            }
+
+            .resize-divider {
+                fill: $chart-text-color;
+                fill-opacity: 0.3;
+            }
+
+            rect.background {
+                cursor: pointer !important;
+            }
+        }
+
+        .area {
+            fill: mat-color($primary);
+            stroke: mat-color($primary);
+            stroke-width: 1px;
+            clip-path: url(#clip);
+        }
+
+        .axis {
+            path {
+                display: none;
+            }
+
+            line {
+                fill: none;
+                stroke: $chart-text-color;
+                shape-rendering: crispEdges;
+            }
+        }
+
+        .bar {
+            fill: mat-color($primary);
+            stroke: mat-color($primary);
+            stroke-width: 1px;
+        }
+
+        .mini-axis {
+            fill: none;
+            shape-rendering: crispEdges;
+            stroke: $shadow;
+            stroke-width: 1px;
+        }
+
+        .series-title {
+            text-shadow: 1px 1px 0 $text-shadow-color,
+            1px 0px 0 $text-shadow-color,
+            1px -1px 0 $text-shadow-color,
+            -1px 1px 0 $text-shadow-color,
+            -1px 0px 0 $text-shadow-color,
+            -1px -1px 0 $text-shadow-color,
+            0px 2px 0 $text-shadow-color,
+            0px -2px 0 $text-shadow-color;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .tick {
+            text {
+                fill: $chart-text-color;
+            }
+        }
+    }
+}
+
+.xlabel{
+    font-size: 12px;
+    text-align: center;
+    position: absolute;
+    top: 90%;
+    left: 50%;
+}
+
+.ylabel{
+    font-size: 12px;
+    position:absolute;
+    transform: rotate(-90deg);
+    text-align: left;
+    left: 0;
+    top: 60%
+}
+
+#tl-tooltip-container {
+    display: none;
+    position: absolute;
+    padding: 12px 15px;
+    color: $main-text-color;
+    font-size: 12px;
+    background-color: $tooltip-background;
+    border: 1px solid $shadow;
+    border-radius: 4px /* @border-radius */;
+    pointer-events: none;
+    z-index: 10000;
+
+    span{
+        font-weight: bold;
+        color: $timeline-accent-bright;
+        display: block;
+        text-shadow: 0 2px 0 $text-shadow-color;
+    }
+
+    .tooltip-date {
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+        font-size: 12px;
+        color: $mid-text-color;
+    }
+
+    &:before {
+        content: '';
+        display: block;
+        width: 0;
+        height: 0;
+        position: absolute;
+        border-top: 8px solid transparent;
+        border-bottom: 8px solid transparent;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    &:after {
+        content: '';
+        display: block;
+        width: 0;
+        height: 0;
+        position: absolute;
+        border-top: 7px solid transparent;
+        border-bottom: 7px solid transparent;
+        top: 49%;
+        transform: translateY(-49%);
+    }
+
+    &.east {
+
+        &:before {
+            border-right: 8px solid $shadow;
+            left:-8px;
+            opacity: .5;
+        }
+
+        &:after {
+            border-right: 7px solid $tooltip-background;
+            left: -6px;
+        }
+    }
+
+    &.west {
+
+        &:before {
+            border-left:8px solid $shadow;
+            left: 100%;
+        }
+
+        &:after {
+            border-left: 7px solid $tooltip-background;
+            left: 100%;
+        }
+    }
+}
