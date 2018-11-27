@@ -304,13 +304,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
     expandWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
-        let visibleRows = 0;
-        let gridElement = this.getGridElement();
-        if (this.grid && gridElement) {
-            visibleRows = Math.floor(gridElement.nativeElement.offsetParent.clientHeight /
-                this.grid.rowHeight);
-        }
-
+        let visibleRowCount = this.getVisibleRowCount();
         eventMessage.widgetGridItem.previousConfig = {
             col: eventMessage.widgetGridItem.config.col,
             row: eventMessage.widgetGridItem.config.row,
@@ -320,7 +314,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         eventMessage.widgetGridItem.config.sizex = (this.gridConfig) ? this.gridConfig.max_cols : this.getMaxColInUse();
         eventMessage.widgetGridItem.config.col = 1;
         // TODO:  Puzzle out why this exceeds the visible space by a couple rows.
-        eventMessage.widgetGridItem.config.sizey = (visibleRows > 0) ? visibleRows : eventMessage.widgetGridItem.config.sizex;
+        eventMessage.widgetGridItem.config.sizey = (visibleRowCount > 0) ? visibleRowCount : eventMessage.widgetGridItem.config.sizex;
     }
 
     getDatasets(): Dataset[] {
@@ -366,6 +360,19 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
+     * Returns the visible row count.
+     *
+     * @return {number}
+     */
+    getVisibleRowCount(): number {
+        let gridElement = this.getGridElement();
+        if (this.grid && gridElement) {
+            return Math.floor(gridElement.nativeElement.offsetParent.clientHeight / this.grid.rowHeight);
+        }
+        return 0;
+    }
+
+    /**
      * Handles the given error and message.
      *
      * @arg {{error:Error|ExceptionInformation,message:string}} eventMessage
@@ -390,7 +397,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
     moveWidgetToTop(eventMessage: { widgetGridItem: NeonGridItem }) {
-        eventMessage.widgetGridItem.config.row = 0;
+        eventMessage.widgetGridItem.config.row = 1;
     }
 
     ngAfterViewInit() {
