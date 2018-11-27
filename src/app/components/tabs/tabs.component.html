@@ -17,11 +17,12 @@
     <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
         <mat-spinner></mat-spinner>
     </div>
-    <div class="body-container" [hidden]="!displayTabs">
+    <div #tabView class="body-container" [hidden]="!displayTabs">
         <div class="display-container" *ngFor="let tabLink of options.tabLinks; trackBy:trackByFunction">
-            <div  class="max-height-container" [hidden]="currentTab.config !== tabLink.config">
+                <div  class="max-height-container" [hidden]="currentTab.config !== tabLink.config" >
                 <app-visualization-injector [componentData]="options[tabLink.config]"></app-visualization-injector>
-            </div>
+                </div>
+
         </div>
 
     </div>

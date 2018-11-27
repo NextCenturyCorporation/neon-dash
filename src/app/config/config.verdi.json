@@ -85,8 +85,8 @@
             ]
         },
         {
-            "name": "VERDI LDC TA2",
-            "connectOnLoad": false,
+            "name": "Seedling LDC TA2",
+            "connectOnLoad": true,
             "layout": "verdi-ta2-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -156,8 +156,8 @@
         },
         {
             "title": "VERDI",
-            "name": "VERDI LDC TA3",
-            "connectOnLoad": true,
+            "name": "Seedling LDC TA3",
+            "connectOnLoad": false,
             "layout": "verdi-ta3-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -533,6 +533,7 @@
         ],
         "verdi-ta2-layout": [
             {
+                "name": "Taxonomy Viewer",
                 "type": "taxonomyViewer",
                 "sizex": 3,
                 "sizey": 16,
@@ -567,6 +568,7 @@
                 "col": 0
             },
             {
+                "name": "Network Graph",
                 "type": "networkGraph",
                 "icon": "Graph",
                 "sizex": 7,
@@ -726,20 +728,16 @@
                     "tabLinks" : [
                         {
                             "label": "Network Graph",
-                            "config": "network",
-                            "index": 0
+                            "config": "network"
                         }, {
                             "label": "Map",
-                            "config": "map",
-                            "index": 1
+                            "config": "map"
                         }, {
                             "label": "Events",
-                            "config": "events",
-                            "index": 2
+                            "config": "events"
                         }, {
                             "label": "People",
-                            "config": "people",
-                            "index": 3
+                            "config": "people"
                         }
                     ],
                     "network" : {
@@ -805,7 +803,6 @@
                     },
                     "map" : {
                         "type": "map",
-                        "icon": "Map64",
                         "bindings": {
                             "title": "",
                             "database": "",
@@ -828,28 +825,27 @@
                         }
                     },
                     "events" : {
-                        "name": " ",
                         "type": "thumbnailGrid",
-                        "bindings":{
+                        "bindings": {
                             "id": "_id",
                             "title": "",
-                            "database": "verdi-rdf",
-                            "table": "normal",
-                            "idField": "identifier",
-                            "flagSubLabel1": "identifier",
-                            "flagSubLabel2": "date",
-                            "flagSubLabel3": "docType",
-                            "linkField": "docLocation",
-                            "dateField": "date",
+                            "database": "verdi-support",
+                            "table": "parent_children",
+                            "idField": "id",
+                            "flagSubLabel1": "parent_uid",
+                            "flagSubLabel2": "download_date",
+                            "flagSubLabel3": "url",
+                            "linkField": "url",
+                            "dateField": "download_date",
                             "objectNameField": "",
-                            "objectIdField": "identifier",
-                            "typeField": "docType",
+                            "objectIdField": "parent_uid",
+                            "typeField": "dtyp",
                             "predictedNameField": "",
                             "percentField": "",
                             "openOnMouseClick": true,
-                            "showOnlyFiltered": false,
-                            "sortField": "identifier",
-                            "filterField": "identifier",
+                            "showOnlyFiltered": true,
+                            "sortField": "dtyp",
+                            "filterField": "id",
                             "cropAndScale": "scale",
                             "canvasSize": 180.00,
                             "ascending": true,
@@ -868,7 +864,6 @@
                         }
                     },
                     "people" : {
-                        "name": " ",
                         "type": "networkGraph",
                         "bindings":{
                             "title": "",
@@ -913,8 +908,17 @@
                 "col": 4
             },
             {
+                "name": "Thumbnail Grid",
                 "type": "thumbnailGrid",
                 "icon": "ThumbnailGrid",
+                "sizex": 2,
+                "sizey": 16,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 4,
+                "$$hashKey": "object:35",
+                "selected": true,
                 "bindings": {
                     "id": "_id",
                     "title": "Documents",
