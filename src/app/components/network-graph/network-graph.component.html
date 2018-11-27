@@ -1,6 +1,10 @@
+
 <mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
+        <button *ngIf="taxonomyIsNeeded()" style="left:-19px" class="pull-left" mat-icon-button aria-label="Settings" matTooltip="Open/Close the Taxonomy Menu" tooltip-position="below" (click)="taxonomyMenu.toggle();">
+            <mat-icon>play_arrow</mat-icon>
+        </button>
         <span class="fill-remaining"></span>
         <span #infoText class="info text">
             <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
@@ -12,6 +16,10 @@
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
+
+    <mat-sidenav #taxonomyMenu align="start" class="visualization-sidenav-options" style="width:40%">
+        <app-visualization-injector [componentData]="options.taxonomy"></app-visualization-injector>
+    </mat-sidenav>
 
     <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <mat-card align="left">

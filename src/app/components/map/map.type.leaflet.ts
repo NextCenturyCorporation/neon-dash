@@ -65,11 +65,38 @@ export class LeafletNeonMap extends AbstractMap {
                 [this.mapOptions.south, this.mapOptions.east]
             ]);
         }
+
+        if (this.isPointSet()) {
+            this.setMapView();
+        }
+
         this.layerControl = L.control.layers(baseLayers, {});
         this.map.addControl(this.layerControl);
 
         this.map.on('boxzoomend', this.handleBoxZoom, this);
 
+    }
+
+    setMapView() {
+        this.map.setView([
+            this.mapOptions.point.latitude,
+            this.mapOptions.point.longitude
+        ], this.mapOptions.point.zoom);
+
+        if (this.mapOptions.point.message) {
+            let markerIcon = L.icon({
+                iconUrl: '../../../assets/images/map-marker.png',
+                iconSize:     [52, 44], // size of the icon
+                iconAnchor:   [10, 74], // point of the icon which will correspond to marker's location
+                popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+            });
+
+            let marker = L.marker(
+                [this.mapOptions.point.latitude, this.mapOptions.point.longitude],
+                {icon: markerIcon}
+            ).addTo(this.map);
+            marker.bindPopup(this.mapOptions.point.message);
+        }
     }
 
     makeSelectionInexact() {

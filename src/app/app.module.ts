@@ -63,6 +63,7 @@ import { MediaViewerComponent } from './components/media-viewer/media-viewer.com
 import { SampleComponent } from './components/sample/sample.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
+import { TabsComponent } from './components/tabs/tabs.component';
 import { TaxonomyViewerComponent } from './components/taxonomy-viewer/taxonomy-viewer.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
@@ -80,14 +81,15 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { TreeModule } from 'angular-tree-component';
 import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-grid.component';
 import {
-    ThumbnailDetailsContractedComponent,
-    ThumbnailDetailsExpandedComponent
+    TitleThumbnailSubComponent,
+    DetailsThumbnailSubComponent,
+    CardThumbnailSubComponent
 } from './components/thumbnail-grid/thumbnail-details.component';
 import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
 import { CustomConnectionSimpleSetupStepComponent } from './components/custom-connection/simple-setup.component';
-import { MatAutocompleteModule } from '@angular/material';
+import { MatAutocompleteModule, MatTabsModule } from '@angular/material';
 import { QueryBarComponent } from './components/query-bar/query-bar.component';
 
 export function getAppConfig() {
@@ -128,10 +130,12 @@ export function getAppConfig() {
         ScatterPlotComponent,
         SimpleFilterComponent,
         SnackBarComponent,
+        TabsComponent,
         TaxonomyViewerComponent,
         TextCloudComponent,
-        ThumbnailDetailsContractedComponent,
-        ThumbnailDetailsExpandedComponent,
+        CardThumbnailSubComponent,
+        TitleThumbnailSubComponent,
+        DetailsThumbnailSubComponent,
         ThumbnailGridComponent,
         TimelineComponent,
         UnsharedFilterComponent,
@@ -153,6 +157,7 @@ export function getAppConfig() {
         NgxGraphModule,
         NgxChartsModule,
         ReactiveFormsModule,
+        MatTabsModule,
         TreeModule.forRoot()
     ],
     providers: [

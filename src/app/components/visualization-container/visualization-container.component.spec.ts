@@ -29,6 +29,7 @@ import { MapComponent } from '../map/map.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
 import { SampleComponent } from '../sample/sample.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
+import { TabsComponent } from '../tabs/tabs.component';
 import { TaxonomyViewerComponent } from '../taxonomy-viewer/taxonomy-viewer.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { TimelineComponent } from '../timeline/timeline.component';
@@ -51,7 +52,10 @@ import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.compone
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from '../news-feed/news-feed.component';
 import { QueryBarComponent } from '../query-bar/query-bar.component';
-import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from '../thumbnail-grid/thumbnail-details.component';
+import { TitleThumbnailSubComponent,
+    DetailsThumbnailSubComponent,
+    CardThumbnailSubComponent
+} from '../thumbnail-grid/thumbnail-details.component';
 import { MatAutocompleteModule } from '@angular/material';
 import { TreeModule } from 'angular-tree-component';
 
@@ -79,13 +83,13 @@ describe('Component: VisualizationContainer', () => {
             QueryBarComponent,
             SampleComponent,
             ScatterPlotComponent,
+            TabsComponent,
             TaxonomyViewerComponent,
             TextCloudComponent,
-            ThumbnailDetailsContractedComponent,
-            ThumbnailDetailsExpandedComponent,
+            CardThumbnailSubComponent,
+            TitleThumbnailSubComponent,
+            DetailsThumbnailSubComponent,
             ThumbnailGridComponent,
-            ThumbnailDetailsContractedComponent,
-            ThumbnailDetailsExpandedComponent,
             TimelineComponent,
             UnsharedFilterComponent,
             VisualizationContainerComponent,

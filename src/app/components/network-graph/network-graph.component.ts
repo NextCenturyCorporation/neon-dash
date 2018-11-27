@@ -19,7 +19,7 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
+    Injector, Input,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -152,6 +152,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public multiFilterOperator: string;
     public cleanLegendLabels: boolean;
     public legendFiltering: boolean;
+    public taxonomy: {};
 
     /**
      * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
@@ -162,7 +163,6 @@ export class NetworkGraphOptions extends BaseNeonOptions {
      */
     appendNonFieldBindings(bindings: any): any {
         bindings.andFilters = this.andFilters;
-
         return bindings;
     }
 
@@ -224,6 +224,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
         this.multiFilterOperator = this.injector.get('multiFilterOperator', 'or');
         this.cleanLegendLabels = this.injector.get('cleanLegendLabels', false);
         this.legendFiltering = this.injector.get('legendFiltering', true);
+        this.taxonomy = this.injector.get('taxonomy', {});
     }
 }
 
@@ -236,6 +237,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
 })
 export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild('graphElement') graphElement: ElementRef;
+    @Input() argOptions: any;
 
     public filters: {
         id: string,
@@ -327,7 +329,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         );
 
         this.options = new NetworkGraphOptions(this.injector, this.datasetService, this.graphType, 500000);
-
         this.graphData = new GraphData();
         this.displayGraph = !this.options.showOnlyFiltered;
 
@@ -577,17 +578,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     /**
-     * Converts multi-dimensional arrays into a one-dimentional array
-     *
-     * @arg {any} array
-     * @arg {string} value
-     * @return {boolean}
-     */
-    flattenArray(array: string[], value: string) {
-        return array.concat(value);
-    }
-
-    /**
      *  Whether label is an array, a string with commas, or a string with dot notation; the first value is taken
      *
      * @arg {any} label
@@ -635,9 +625,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             });
 
             //Flattens multi-level arrays, removes duplicates, and sorts alphabetically
-            this.prettifiedNodeLabels = this.prettifiedNodeLabels.reduce(this.flattenArray, [])
+            this.prettifiedNodeLabels = neonUtilities.flatten(this.prettifiedNodeLabels)
                 .filter((value, index, array) => array.indexOf(value) === index).sort();
-            this.prettifiedEdgeLabels = this.prettifiedEdgeLabels.reduce(this.flattenArray, [])
+            this.prettifiedEdgeLabels = neonUtilities.flatten(this.prettifiedEdgeLabels)
                 .filter((value, index, array) => array.indexOf(value) === index).sort();
         }
 
@@ -1051,6 +1041,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return (this.displayGraph && this.options.displayLegend &&
             ((nodeColorField && nodeColorField !== '') || (edgeColorField && edgeColorField !== ''))
         );
+    }
+
+    taxonomyIsNeeded() {
+        return Object.keys(this.options.taxonomy).length > 0;
     }
 
     /**

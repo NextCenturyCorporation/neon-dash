@@ -18,12 +18,12 @@ import { Component, Input } from '@angular/core';
 import { ThumbnailGridOptions, ThumbnailGridComponent } from './thumbnail-grid.component';
 
 @Component({
-    selector: 'app-thumbnail-details-contracted',
-    templateUrl: './thumbnail-details-contracted.component.html',
+    selector: 'app-subcomponent-title-thumbnail',
+    templateUrl: './subcomponent.title-view.html',
     styleUrls: ['./thumbnail-grid.component.scss']
 })
 
-export class ThumbnailDetailsContractedComponent {
+export class TitleThumbnailSubComponent {
     @Input() item: any;
     @Input() options: ThumbnailGridOptions;
 
@@ -35,12 +35,30 @@ export class ThumbnailDetailsContractedComponent {
 }
 
 @Component({
-    selector: 'app-thumbnail-details-expanded',
-    templateUrl: './thumbnail-details-expanded.component.html',
+    selector: 'app-subcomponent-details-thumbnail',
+    templateUrl: './subcomponent.details-view.html',
     styleUrls: ['./thumbnail-grid.component.scss']
 })
 
-export class ThumbnailDetailsExpandedComponent {
+export class DetailsThumbnailSubComponent {
+
+    @Input() item: any;
+    @Input() options: ThumbnailGridOptions;
+
+    thumbnailGrid: ThumbnailGridComponent;
+
+    constructor(grid: ThumbnailGridComponent) {
+        this.thumbnailGrid = grid;
+    }
+}
+
+@Component({
+    selector: 'app-subcomponent-card-thumbnail',
+    templateUrl: './subcomponent.card-view.html',
+    styleUrls: ['./thumbnail-grid.component.scss']
+})
+
+export class CardThumbnailSubComponent {
 
     @Input() item: any;
     @Input() options: ThumbnailGridOptions;

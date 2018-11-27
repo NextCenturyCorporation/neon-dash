@@ -115,4 +115,10 @@ export abstract class AbstractMap {
         return this.mapOptions.west != null && this.mapOptions.east != null &&
             this.mapOptions.north != null && this.mapOptions.south != null;
     }
+
+    // utility
+    isPointSet() {
+        return this.mapOptions.point != null && this.mapOptions.point.latitude != null &&
+            this.mapOptions.point.longitude != null && this.mapOptions.point.zoom != null;
+    }
 }
