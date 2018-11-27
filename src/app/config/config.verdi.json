@@ -3,6 +3,7 @@
         {
             "name": "TA0",
             "connectOnLoad": false,
+            "icon": "assets/images/verdi-favicon.ico",
             "layout": "verdi-ta0-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -42,7 +43,6 @@
         {
             "title": "VERDI",
             "name": "VERDI LDC TA1",
-            "icon": "assets/images/verdi-favicon.ico",
             "connectOnLoad": false,
             "layout": "verdi-ta1-layout",
             "datastore": "elasticsearch",
@@ -157,7 +157,6 @@
         {
             "title": "VERDI",
             "name": "VERDI LDC TA3",
-            "icon": "assets/images/verdi-favicon.ico",
             "connectOnLoad": true,
             "layout": "verdi-ta3-layout",
             "datastore": "elasticsearch",
@@ -257,30 +256,30 @@
     "layouts": {
         "verdi-ta0-layout": [
             {
-                 "type": "dataTable",
-                 "sizex": 4,
-                 "sizey": 12,
-                 "bindings": {
-                     "title": "Document",
-                     "database": "aida-docs",
-                     "table": "parents",
-                     "idField": "id",
-                     "sortField": "id",
-                     "filterable": true,
-                     "ignoreSelf": true,
-                     "singleFilter": false,
-                     "multiFilterOperator": "or",
-                     "filterFields": [
-                         "children"
-                     ],
-                     "allColumnStatus": "hide",
-                     "exceptionsToStatus": [
-                         "id",
-                         "host"
-                     ]
-                 },
-                 "row": 1,
-                 "col": 1
+                "type": "dataTable",
+                "sizex": 4,
+                "sizey": 12,
+                "bindings": {
+                    "title": "Document",
+                    "database": "aida-docs",
+                    "table": "parents",
+                    "idField": "id",
+                    "sortField": "id",
+                    "filterable": true,
+                    "ignoreSelf": true,
+                    "singleFilter": false,
+                    "multiFilterOperator": "or",
+                    "filterFields": [
+                        "children"
+                    ],
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "id",
+                        "host"
+                    ]
+                },
+                "row": 1,
+                "col": 1
             },
             {
                 "type": "dataTable",
@@ -534,7 +533,6 @@
         ],
         "verdi-ta2-layout": [
             {
-                "name": "Taxonomy Viewer",
                 "type": "taxonomyViewer",
                 "sizex": 3,
                 "sizey": 16,
@@ -569,7 +567,6 @@
                 "col": 0
             },
             {
-                "name": "Network Graph",
                 "type": "networkGraph",
                 "icon": "Graph",
                 "sizex": 7,
@@ -916,17 +913,8 @@
                 "col": 4
             },
             {
-                "name": "Thumbnail Grid",
                 "type": "thumbnailGrid",
                 "icon": "ThumbnailGrid",
-                "sizex": 2,
-                "sizey": 16,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:35",
-                "selected": true,
                 "bindings": {
                     "id": "_id",
                     "title": "Documents",
