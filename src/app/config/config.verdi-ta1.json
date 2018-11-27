@@ -3,7 +3,7 @@
         {
             "title": "VERDI",
             "name": "VERDI JHU TA1",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "icon": "assets/images/verdi-favicon.ico",
             "layout": "verdi-jhu-ta1-layout",
             "datastore": "elasticsearch",
@@ -16,18 +16,6 @@
                         {
                             "name": "graph",
                             "prettyName": "Graph"
-                        },
-                        {
-                            "name": "subjects",
-                            "prettyName": "Subjects"
-                        },
-                        {
-                            "name": "predicates",
-                            "prettyName": "Predicates"
-                        },
-                        {
-                            "name": "objects",
-                            "prettyName": "Objects"
                         }
                     ]
                 },
@@ -37,7 +25,11 @@
                     "tables": [
                         {
                             "name": "parent_children",
-                            "prettyName": "Documents"
+                            "prettyName": "Child Documents"
+                        },
+                        {
+                            "name": "parents",
+                            "prettyName": "Root Documents"
                         }
                     ]
                 }
@@ -51,23 +43,13 @@
                             "field": "id"
                         },
                         {
+                            "database": "aida-docs",
+                            "table": "parents",
+                            "field": "children"
+                        },
+                        {
                             "database": "jhu",
                             "table": "graph",
-                            "field": "docIds"
-                        },
-                        {
-                            "database": "jhu",
-                            "table": "subjects",
-                            "field": "docIds"
-                        },
-                        {
-                            "database": "jhu",
-                            "table": "predicates",
-                            "field": "docIds"
-                        },
-                        {
-                            "database": "jhu",
-                            "table": "objects",
                             "field": "docIds"
                         }
                     ]
@@ -75,72 +57,19 @@
                 {
                     "members": [
                         {
-                            "database": "jhu",
-                            "table": "graph",
+                            "database": "aida-docs",
+                            "table": "parent_children",
+                            "field": "parent_uid"
+                        },
+                        {
+                            "database": "aida-docs",
+                            "table": "parents",
                             "field": "id"
                         },
-                        {
-                            "database": "jhu",
-                            "table": "subjects",
-                            "field": "id"
-                        },
-                        {
-                            "database": "jhu",
-                            "table": "predicates",
-                            "field": "first"
-                        },
-                        {
-                            "database": "jhu",
-                            "table": "objects",
-                            "field": "first"
-                        }
-                    ]
-                },
-                {
-                    "members": [
                         {
                             "database": "jhu",
                             "table": "graph",
-                            "field": "edgeLabel"
-                        },
-                        {
-                            "database": "jhu",
-                            "table": "predicates",
-                            "field": "id"
-                        },
-                        {
-                            "database": "jhu",
-                            "table": "subjects",
-                            "field": "first"
-                        },
-                        {
-                            "database": "jhu",
-                            "table": "objects",
-                            "field": "second"
-                        }
-                    ]
-                },
-                {
-                    "members": [
-                        {
-                            "database": "jhu",
-                            "table": "graph",
-                            "field": "edgeTarget"
-                        },
-                        {
-                            "database": "jhu",
-                            "table": "objects",
-                            "field": "id"
-                        },
-                        {
-                            "database": "jhu",
-                            "table": "subjects",
-                            "field": "second"
-                        },
-                        {
-                            "database": "jhu",
-                            "table": "predicates",
-                            "field": "second"
+                            "field": "parentIds"
                         }
                     ]
                 }
@@ -162,18 +91,6 @@
                         {
                             "name": "graph",
                             "prettyName": "Graph"
-                        },
-                        {
-                            "name": "subjects",
-                            "prettyName": "Subjects"
-                        },
-                        {
-                            "name": "predicates",
-                            "prettyName": "Predicates"
-                        },
-                        {
-                            "name": "objects",
-                            "prettyName": "Objects"
                         }
                     ]
                 },
@@ -183,7 +100,11 @@
                     "tables": [
                         {
                             "name": "parent_children",
-                            "prettyName": "Documents"
+                            "prettyName": "Child Documents"
+                        },
+                        {
+                            "name": "parents",
+                            "prettyName": "Root Documents"
                         }
                     ]
                 }
@@ -197,18 +118,13 @@
                             "field": "id"
                         },
                         {
-                            "database": "bbn",
-                            "table": "subjects",
-                            "field": "docIds"
+                            "database": "aida-docs",
+                            "table": "parents",
+                            "field": "children"
                         },
                         {
                             "database": "bbn",
-                            "table": "predicates",
-                            "field": "docIds"
-                        },
-                        {
-                            "database": "bbn",
-                            "table": "objects",
+                            "table": "graph",
                             "field": "docIds"
                         }
                     ]
@@ -216,72 +132,19 @@
                 {
                     "members": [
                         {
-                            "database": "bbn",
-                            "table": "graph",
+                            "database": "aida-docs",
+                            "table": "parent_children",
+                            "field": "parent_uid"
+                        },
+                        {
+                            "database": "aida-docs",
+                            "table": "parents",
                             "field": "id"
                         },
-                        {
-                            "database": "bbn",
-                            "table": "subjects",
-                            "field": "id"
-                        },
-                        {
-                            "database": "bbn",
-                            "table": "predicates",
-                            "field": "first"
-                        },
-                        {
-                            "database": "bbn",
-                            "table": "objects",
-                            "field": "first"
-                        }
-                    ]
-                },
-                {
-                    "members": [
                         {
                             "database": "bbn",
                             "table": "graph",
-                            "field": "edgeLabel"
-                        },
-                        {
-                            "database": "bbn",
-                            "table": "predicates",
-                            "field": "id"
-                        },
-                        {
-                            "database": "bbn",
-                            "table": "subjects",
-                            "field": "first"
-                        },
-                        {
-                            "database": "bbn",
-                            "table": "objects",
-                            "field": "second"
-                        }
-                    ]
-                },
-                {
-                    "members": [
-                        {
-                            "database": "bbn",
-                            "table": "graph",
-                            "field": "edgeTarget"
-                        },
-                        {
-                            "database": "bbn",
-                            "table": "objects",
-                            "field": "id"
-                        },
-                        {
-                            "database": "bbn",
-                            "table": "subjects",
-                            "field": "second"
-                        },
-                        {
-                            "database": "bbn",
-                            "table": "predicates",
-                            "field": "second"
+                            "field": "parentIds"
                         }
                     ]
                 }
@@ -290,7 +153,7 @@
         {
             "title": "VERDI",
             "name": "VERDI GAIA TA1",
-            "connectOnLoad": false,
+            "connectOnLoad": true,
             "icon": "assets/images/verdi-favicon.ico",
             "layout": "verdi-gaia-ta1-layout",
             "datastore": "elasticsearch",
@@ -303,18 +166,6 @@
                         {
                             "name": "graph",
                             "prettyName": "Graph"
-                        },
-                        {
-                            "name": "subjects",
-                            "prettyName": "Subjects"
-                        },
-                        {
-                            "name": "predicates",
-                            "prettyName": "Predicates"
-                        },
-                        {
-                            "name": "objects",
-                            "prettyName": "Objects"
                         }
                     ]
                 },
@@ -324,7 +175,11 @@
                     "tables": [
                         {
                             "name": "parent_children",
-                            "prettyName": "Documents"
+                            "prettyName": "Child Documents"
+                        },
+                        {
+                            "name": "parents",
+                            "prettyName": "Root Documents"
                         }
                     ]
                 }
@@ -338,23 +193,13 @@
                             "field": "id"
                         },
                         {
+                            "database": "aida-docs",
+                            "table": "parents",
+                            "field": "children"
+                        },
+                        {
                             "database": "gaia",
                             "table": "graph",
-                            "field": "docIds"
-                        },
-                        {
-                            "database": "gaia",
-                            "table": "subjects",
-                            "field": "docIds"
-                        },
-                        {
-                            "database": "gaia",
-                            "table": "predicates",
-                            "field": "docIds"
-                        },
-                        {
-                            "database": "gaia",
-                            "table": "objects",
                             "field": "docIds"
                         }
                     ]
@@ -362,72 +207,19 @@
                 {
                     "members": [
                         {
-                            "database": "gaia",
-                            "table": "graph",
+                            "database": "aida-docs",
+                            "table": "parent_children",
+                            "field": "parent_uid"
+                        },
+                        {
+                            "database": "aida-docs",
+                            "table": "parents",
                             "field": "id"
                         },
-                        {
-                            "database": "gaia",
-                            "table": "subjects",
-                            "field": "id"
-                        },
-                        {
-                            "database": "gaia",
-                            "table": "predicates",
-                            "field": "first"
-                        },
-                        {
-                            "database": "gaia",
-                            "table": "objects",
-                            "field": "first"
-                        }
-                    ]
-                },
-                {
-                    "members": [
                         {
                             "database": "gaia",
                             "table": "graph",
-                            "field": "edgeLabel"
-                        },
-                        {
-                            "database": "gaia",
-                            "table": "predicates",
-                            "field": "id"
-                        },
-                        {
-                            "database": "gaia",
-                            "table": "subjects",
-                            "field": "first"
-                        },
-                        {
-                            "database": "gaia",
-                            "table": "objects",
-                            "field": "second"
-                        }
-                    ]
-                },
-                {
-                    "members": [
-                        {
-                            "database": "gaia",
-                            "table": "graph",
-                            "field": "edgeTarget"
-                        },
-                        {
-                            "database": "gaia",
-                            "table": "objects",
-                            "field": "id"
-                        },
-                        {
-                            "database": "gaia",
-                            "table": "subjects",
-                            "field": "second"
-                        },
-                        {
-                            "database": "gaia",
-                            "table": "predicates",
-                            "field": "second"
+                            "field": "parentIds"
                         }
                     ]
                 }
@@ -449,18 +241,6 @@
                         {
                             "name": "graph",
                             "prettyName": "Graph"
-                        },
-                        {
-                            "name": "subjects",
-                            "prettyName": "Subjects"
-                        },
-                        {
-                            "name": "predicates",
-                            "prettyName": "Predicates"
-                        },
-                        {
-                            "name": "objects",
-                            "prettyName": "Objects"
                         }
                     ]
                 },
@@ -470,7 +250,11 @@
                     "tables": [
                         {
                             "name": "parent_children",
-                            "prettyName": "Documents"
+                            "prettyName": "Child Documents"
+                        },
+                        {
+                            "name": "parents",
+                            "prettyName": "Root Documents"
                         }
                     ]
                 }
@@ -484,23 +268,13 @@
                             "field": "id"
                         },
                         {
+                            "database": "aida-docs",
+                            "table": "parents",
+                            "field": "children"
+                        },
+                        {
                             "database": "michigan",
                             "table": "graph",
-                            "field": "docIds"
-                        },
-                        {
-                            "database": "michigan",
-                            "table": "subjects",
-                            "field": "docIds"
-                        },
-                        {
-                            "database": "michigan",
-                            "table": "predicates",
-                            "field": "docIds"
-                        },
-                        {
-                            "database": "michigan",
-                            "table": "objects",
                             "field": "docIds"
                         }
                     ]
@@ -508,72 +282,94 @@
                 {
                     "members": [
                         {
+                            "database": "aida-docs",
+                            "table": "parent_children",
+                            "field": "parent_uid"
+                        },
+                        {
+                            "database": "aida-docs",
+                            "table": "parents",
+                            "field": "id"
+                        },
+                        {
                             "database": "michigan",
                             "table": "graph",
+                            "field": "parentIds"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "title": "VERDI",
+            "name": "VERDI LDC TA1",
+            "connectOnLoad": false,
+            "icon": "assets/images/verdi-favicon.ico",
+            "layout": "verdi-ldc-ta1-layout",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [
+                {
+                    "name": "ldc",
+                    "prettyName": "LDC",
+                    "tables": [
+                        {
+                            "name": "graph",
+                            "prettyName": "Graph"
+                        }
+                    ]
+                },
+                {
+                    "name": "aida-docs",
+                    "prettyName": "Documents",
+                    "tables": [
+                        {
+                            "name": "parent_children",
+                            "prettyName": "Child Documents"
+                        },
+                        {
+                            "name": "parents",
+                            "prettyName": "Root Documents"
+                        }
+                    ]
+                }
+            ],
+            "relations": [
+                {
+                    "members": [
+                        {
+                            "database": "aida-docs",
+                            "table": "parent_children",
                             "field": "id"
                         },
                         {
-                            "database": "michigan",
-                            "table": "subjects",
-                            "field": "id"
+                            "database": "aida-docs",
+                            "table": "parents",
+                            "field": "children"
                         },
                         {
-                            "database": "michigan",
-                            "table": "predicates",
-                            "field": "first"
-                        },
-                        {
-                            "database": "michigan",
-                            "table": "objects",
-                            "field": "first"
+                            "database": "ldc",
+                            "table": "graph",
+                            "field": "docIds"
                         }
                     ]
                 },
                 {
                     "members": [
                         {
-                            "database": "michigan",
-                            "table": "graph",
-                            "field": "edgeLabel"
+                            "database": "aida-docs",
+                            "table": "parent_children",
+                            "field": "parent_uid"
                         },
                         {
-                            "database": "michigan",
-                            "table": "predicates",
+                            "database": "aida-docs",
+                            "table": "parents",
                             "field": "id"
                         },
                         {
-                            "database": "michigan",
-                            "table": "subjects",
-                            "field": "first"
-                        },
-                        {
-                            "database": "michigan",
-                            "table": "objects",
-                            "field": "second"
-                        }
-                    ]
-                },
-                {
-                    "members": [
-                        {
-                            "database": "michigan",
+                            "database": "ldc",
                             "table": "graph",
-                            "field": "edgeTarget"
-                        },
-                        {
-                            "database": "michigan",
-                            "table": "objects",
-                            "field": "id"
-                        },
-                        {
-                            "database": "michigan",
-                            "table": "subjects",
-                            "field": "second"
-                        },
-                        {
-                            "database": "michigan",
-                            "table": "predicates",
-                            "field": "second"
+                            "field": "parentIds"
                         }
                     ]
                 }
@@ -586,8 +382,8 @@
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
-                "sizex": 12,
-                "sizey": 4,
+                "sizex": 4,
+                "sizey": 16,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 2,
@@ -595,11 +391,11 @@
                 "$$hashKey": "object:31",
                 "selected": true,
                 "bindings": {
-                    "title": "Document",
+                    "title": "Documents",
                     "database": "aida-docs",
-                    "table": "parent_children",
+                    "table": "parents",
                     "idField": "id",
-                    "sortField": "fileName",
+                    "sortField": "id",
                     "filterable": true,
                     "ignoreSelf": true,
                     "singleFilter": true,
@@ -609,116 +405,102 @@
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
                         "id",
-                        "download_date",
-                        "url",
-                        "dtype",
-                        "parent_uid"
+                        "reconstructed"
                     ]
                 },
                 "row": 1,
                 "col": 1
             },
             {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
                 "sizex": 4,
-                "sizey": 4,
+                "sizey": 5,
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:30",
                 "selected": true,
                 "bindings": {
-                    "title": "Subject",
+                    "title": "Entities",
                     "database": "jhu",
-                    "table": "subjects",
-                    "sortField": "name",
-                    "idField": "id",
-                    "arrayFilterOperator": "or",
-                    "filterable": true,
-                    "filterFields": [
-                        "id",
-                        "docIds"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "name"
-                    ]
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "ENTITY"
                 },
-                "row": 7,
-                "col": 1
-            },
-            {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
-                "sizex": 4,
-                "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
-                "bindings": {
-                    "title": "Predicate",
-                    "database": "jhu",
-                    "table": "predicates",
-                    "sortField": "id",
-                    "idField": "id",
-                    "arrayFilterOperator": "or",
-                    "filterable": true,
-                    "filterFields": [
-                        "id",
-                        "docIds"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "id"
-                    ]
-                },
-                "row": 7,
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 1,
                 "col": 5
             },
             {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
                 "sizex": 4,
-                "sizey": 4,
+                "sizey": 5,
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:30",
                 "selected": true,
                 "bindings": {
-                    "title": "Object",
+                    "title": "Relations",
                     "database": "jhu",
-                    "table": "objects",
-                    "sortField": "name",
-                    "idField": "id",
-                    "arrayFilterOperator": "or",
-                    "filterable": true,
-                    "filterFields": [
-                        "id",
-                        "docIds"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "name"
-                    ]
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "RELATION"
                 },
-                "row": 7,
-                "col": 9
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 6,
+                "col": 5
+            },
+            {
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
+                "sizex": 4,
+                "sizey": 5,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:30",
+                "selected": true,
+                "bindings": {
+                    "title": "Events",
+                    "database": "jhu",
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "EVENT"
+                },
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 11,
+                "col": 5
             },
             {
                 "name": "Media Viewer",
                 "type": "mediaViewer",
                 "icon": "mediaViewer",
-                "sizex": 6,
-                "sizey": 8,
+                "sizex": 4,
+                "sizey": 16,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
@@ -729,69 +511,14 @@
                     "id": "_id",
                     "title": "Media Viewer",
                     "database": "aida-docs",
-                    "table": "parent_children",
+                    "table": "parents",
                     "idField": "id",
-                    "linkField": "url",
+                    "linkField": "reconstructed",
                     "typeField": "dtype",
                     "clearMedia": true
                 },
-                "row": 13,
-                "col": 1
-            },
-            {
-                "name": "Network Graph",
-                "type": "networkGraph",
-                "icon": "Graph",
-                "sizex": 6,
-                "sizey": 8,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:36",
-                "selected": true,
-                "bindings": {
-                    "title": "Network Graph",
-                    "database": "jhu",
-                    "table": "graph",
-                    "unsharedFilterField": "",
-                    "unsharedFilterValue": "",
-                    "nodeField": "id",
-                    "nodeNameField": "name",
-                    "linkField": "edgeTarget",
-                    "linkNameField": "edgeLabel",
-                    "targetNameField": "targetName",
-                    "targetColorField": "targetCategories",
-                    "typeField": "types",
-                    "nodeColorField": "categories",
-                    "showOnlyFiltered": false,
-                    "filterFields": ["docIds"],
-                    "isReified": false,
-                    "isDirected": true,
-                    "multifilter": true
-                },
-                "row": 13,
-                "col": 7
-            },
-            {
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "sizex": 12,
-                "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:37",
-                "selected": true,
-                "bindings": {
-                    "title": "Filter Builder",
-                    "database": "jhu",
-                    "table": "graph"
-                },
-                "row": 22,
-                "col": 1
+                "row": 1,
+                "col": 9
             }
         ],
         "verdi-bbn-ta1-layout": [
@@ -799,8 +526,8 @@
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
-                "sizex": 12,
-                "sizey": 4,
+                "sizex": 4,
+                "sizey": 16,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 2,
@@ -808,11 +535,11 @@
                 "$$hashKey": "object:31",
                 "selected": true,
                 "bindings": {
-                    "title": "Document",
+                    "title": "Documents",
                     "database": "aida-docs",
-                    "table": "parent_children",
+                    "table": "parents",
                     "idField": "id",
-                    "sortField": "fileName",
+                    "sortField": "id",
                     "filterable": true,
                     "ignoreSelf": true,
                     "singleFilter": true,
@@ -822,116 +549,102 @@
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
                         "id",
-                        "download_date",
-                        "url",
-                        "dtype",
-                        "parent_uid"
+                        "reconstructed"
                     ]
                 },
                 "row": 1,
                 "col": 1
             },
             {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
                 "sizex": 4,
-                "sizey": 4,
+                "sizey": 5,
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:30",
                 "selected": true,
                 "bindings": {
-                    "title": "Subject",
+                    "title": "Entities",
                     "database": "bbn",
-                    "table": "subjects",
-                    "sortField": "name",
-                    "idField": "id",
-                    "arrayFilterOperator": "or",
-                    "filterable": true,
-                    "filterFields": [
-                        "id",
-                        "docIds"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "name"
-                    ]
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "ENTITY"
                 },
-                "row": 7,
-                "col": 1
-            },
-            {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
-                "sizex": 4,
-                "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
-                "bindings": {
-                    "title": "Predicate",
-                    "database": "bbn",
-                    "table": "predicates",
-                    "sortField": "id",
-                    "idField": "id",
-                    "arrayFilterOperator": "or",
-                    "filterable": true,
-                    "filterFields": [
-                        "id",
-                        "docIds"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "id"
-                    ]
-                },
-                "row": 7,
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 1,
                 "col": 5
             },
             {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
                 "sizex": 4,
-                "sizey": 4,
+                "sizey": 5,
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:30",
                 "selected": true,
                 "bindings": {
-                    "title": "Object",
+                    "title": "Relations",
                     "database": "bbn",
-                    "table": "objects",
-                    "sortField": "name",
-                    "idField": "id",
-                    "arrayFilterOperator": "or",
-                    "filterable": true,
-                    "filterFields": [
-                        "id",
-                        "docIds"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "name"
-                    ]
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "RELATION"
                 },
-                "row": 7,
-                "col": 9
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 6,
+                "col": 5
+            },
+            {
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
+                "sizex": 4,
+                "sizey": 5,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:30",
+                "selected": true,
+                "bindings": {
+                    "title": "Events",
+                    "database": "bbn",
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "EVENT"
+                },
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 11,
+                "col": 5
             },
             {
                 "name": "Media Viewer",
                 "type": "mediaViewer",
                 "icon": "mediaViewer",
-                "sizex": 6,
-                "sizey": 8,
+                "sizex": 4,
+                "sizey": 16,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
@@ -942,69 +655,14 @@
                     "id": "_id",
                     "title": "Media Viewer",
                     "database": "aida-docs",
-                    "table": "parent_children",
+                    "table": "parents",
                     "idField": "id",
-                    "linkField": "url",
+                    "linkField": "reconstructed",
                     "typeField": "dtype",
                     "clearMedia": true
                 },
-                "row": 13,
-                "col": 1
-            },
-            {
-                "name": "Network Graph",
-                "type": "networkGraph",
-                "icon": "Graph",
-                "sizex": 6,
-                "sizey": 8,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:36",
-                "selected": true,
-                "bindings": {
-                    "title": "Network Graph",
-                    "database": "bbn",
-                    "table": "graph",
-                    "unsharedFilterField": "",
-                    "unsharedFilterValue": "",
-                    "nodeField": "id",
-                    "nodeNameField": "name",
-                    "linkField": "edgeTarget",
-                    "linkNameField": "edgeLabel",
-                    "targetNameField": "targetName",
-                    "targetColorField": "targetCategories",
-                    "typeField": "types",
-                    "nodeColorField": "categories",
-                    "showOnlyFiltered": false,
-                    "filterFields": ["docIds"],
-                    "isReified": false,
-                    "isDirected": true,
-                    "multifilter": true
-                },
-                "row": 13,
-                "col": 7
-            },
-            {
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "sizex": 12,
-                "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:37",
-                "selected": true,
-                "bindings": {
-                    "title": "Filter Builder",
-                    "database": "bbn",
-                    "table": "graph"
-                },
-                "row": 22,
-                "col": 1
+                "row": 1,
+                "col": 9
             }
         ],
         "verdi-gaia-ta1-layout": [
@@ -1012,8 +670,8 @@
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
-                "sizex": 12,
-                "sizey": 4,
+                "sizex": 4,
+                "sizey": 16,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 2,
@@ -1021,11 +679,11 @@
                 "$$hashKey": "object:31",
                 "selected": true,
                 "bindings": {
-                    "title": "Document",
+                    "title": "Documents",
                     "database": "aida-docs",
-                    "table": "parent_children",
+                    "table": "parents",
                     "idField": "id",
-                    "sortField": "fileName",
+                    "sortField": "id",
                     "filterable": true,
                     "ignoreSelf": true,
                     "singleFilter": true,
@@ -1035,116 +693,102 @@
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
                         "id",
-                        "download_date",
-                        "url",
-                        "dtype",
-                        "parent_uid"
+                        "reconstructed"
                     ]
                 },
                 "row": 1,
                 "col": 1
             },
             {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
                 "sizex": 4,
-                "sizey": 4,
+                "sizey": 5,
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:30",
                 "selected": true,
                 "bindings": {
-                    "title": "Subject",
+                    "title": "Entities",
                     "database": "gaia",
-                    "table": "subjects",
-                    "sortField": "name",
-                    "idField": "id",
-                    "arrayFilterOperator": "or",
-                    "filterable": true,
-                    "filterFields": [
-                        "id",
-                        "docIds"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "name"
-                    ]
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "ENTITY"
                 },
-                "row": 7,
-                "col": 1
-            },
-            {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
-                "sizex": 4,
-                "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
-                "bindings": {
-                    "title": "Predicate",
-                    "database": "gaia",
-                    "table": "predicates",
-                    "sortField": "id",
-                    "idField": "id",
-                    "arrayFilterOperator": "or",
-                    "filterable": true,
-                    "filterFields": [
-                        "id",
-                        "docIds"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "id"
-                    ]
-                },
-                "row": 7,
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 1,
                 "col": 5
             },
             {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
                 "sizex": 4,
-                "sizey": 4,
+                "sizey": 5,
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:30",
                 "selected": true,
                 "bindings": {
-                    "title": "Object",
+                    "title": "Relations",
                     "database": "gaia",
-                    "table": "objects",
-                    "sortField": "name",
-                    "idField": "id",
-                    "arrayFilterOperator": "or",
-                    "filterable": true,
-                    "filterFields": [
-                        "id",
-                        "docIds"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "name"
-                    ]
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "RELATION"
                 },
-                "row": 7,
-                "col": 9
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 6,
+                "col": 5
+            },
+            {
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
+                "sizex": 4,
+                "sizey": 5,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:30",
+                "selected": true,
+                "bindings": {
+                    "title": "Events",
+                    "database": "gaia",
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "EVENT"
+                },
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 11,
+                "col": 5
             },
             {
                 "name": "Media Viewer",
                 "type": "mediaViewer",
                 "icon": "mediaViewer",
-                "sizex": 6,
-                "sizey": 8,
+                "sizex": 4,
+                "sizey": 16,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
@@ -1155,69 +799,14 @@
                     "id": "_id",
                     "title": "Media Viewer",
                     "database": "aida-docs",
-                    "table": "parent_children",
+                    "table": "parents",
                     "idField": "id",
-                    "linkField": "url",
+                    "linkField": "reconstructed",
                     "typeField": "dtype",
                     "clearMedia": true
                 },
-                "row": 13,
-                "col": 1
-            },
-            {
-                "name": "Network Graph",
-                "type": "networkGraph",
-                "icon": "Graph",
-                "sizex": 6,
-                "sizey": 8,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:36",
-                "selected": true,
-                "bindings": {
-                    "title": "Network Graph",
-                    "database": "gaia",
-                    "table": "graph",
-                    "unsharedFilterField": "",
-                    "unsharedFilterValue": "",
-                    "nodeField": "id",
-                    "nodeNameField": "name",
-                    "linkField": "edgeTarget",
-                    "linkNameField": "edgeLabel",
-                    "targetNameField": "targetName",
-                    "targetColorField": "targetCategories",
-                    "typeField": "types",
-                    "nodeColorField": "categories",
-                    "showOnlyFiltered": false,
-                    "filterFields": ["docIds"],
-                    "isReified": false,
-                    "isDirected": true,
-                    "multifilter": true
-                },
-                "row": 13,
-                "col": 7
-            },
-            {
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "sizex": 12,
-                "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:37",
-                "selected": true,
-                "bindings": {
-                    "title": "Filter Builder",
-                    "database": "gaia",
-                    "table": "graph"
-                },
-                "row": 22,
-                "col": 1
+                "row": 1,
+                "col": 9
             }
         ],
         "verdi-michigan-ta1-layout": [
@@ -1225,8 +814,8 @@
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
-                "sizex": 12,
-                "sizey": 4,
+                "sizex": 4,
+                "sizey": 16,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 2,
@@ -1234,11 +823,11 @@
                 "$$hashKey": "object:31",
                 "selected": true,
                 "bindings": {
-                    "title": "Document",
+                    "title": "Documents",
                     "database": "aida-docs",
-                    "table": "parent_children",
+                    "table": "parents",
                     "idField": "id",
-                    "sortField": "fileName",
+                    "sortField": "id",
                     "filterable": true,
                     "ignoreSelf": true,
                     "singleFilter": true,
@@ -1248,116 +837,102 @@
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
                         "id",
-                        "download_date",
-                        "url",
-                        "dtype",
-                        "parent_uid"
+                        "reconstructed"
                     ]
                 },
                 "row": 1,
                 "col": 1
             },
             {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
                 "sizex": 4,
-                "sizey": 4,
+                "sizey": 5,
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:30",
                 "selected": true,
                 "bindings": {
-                    "title": "Subject",
+                    "title": "Entities",
                     "database": "michigan",
-                    "table": "subjects",
-                    "sortField": "name",
-                    "idField": "id",
-                    "arrayFilterOperator": "or",
-                    "filterable": true,
-                    "filterFields": [
-                        "id",
-                        "docIds"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "name"
-                    ]
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "ENTITY"
                 },
-                "row": 7,
-                "col": 1
-            },
-            {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
-                "sizex": 4,
-                "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
-                "bindings": {
-                    "title": "Predicate",
-                    "database": "michigan",
-                    "table": "predicates",
-                    "sortField": "id",
-                    "idField": "id",
-                    "arrayFilterOperator": "or",
-                    "filterable": true,
-                    "filterFields": [
-                        "id",
-                        "docIds"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "id"
-                    ]
-                },
-                "row": 7,
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 1,
                 "col": 5
             },
             {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
                 "sizex": 4,
-                "sizey": 4,
+                "sizey": 5,
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:30",
                 "selected": true,
                 "bindings": {
-                    "title": "Object",
+                    "title": "Relations",
                     "database": "michigan",
-                    "table": "objects",
-                    "sortField": "name",
-                    "idField": "id",
-                    "arrayFilterOperator": "or",
-                    "filterable": true,
-                    "filterFields": [
-                        "id",
-                        "docIds"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "name"
-                    ]
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "RELATION"
                 },
-                "row": 7,
-                "col": 9
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 6,
+                "col": 5
+            },
+            {
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
+                "sizex": 4,
+                "sizey": 5,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:30",
+                "selected": true,
+                "bindings": {
+                    "title": "Events",
+                    "database": "michigan",
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "EVENT"
+                },
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 11,
+                "col": 5
             },
             {
                 "name": "Media Viewer",
                 "type": "mediaViewer",
                 "icon": "mediaViewer",
-                "sizex": 6,
-                "sizey": 8,
+                "sizex": 4,
+                "sizey": 16,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
@@ -1368,69 +943,158 @@
                     "id": "_id",
                     "title": "Media Viewer",
                     "database": "aida-docs",
-                    "table": "parent_children",
+                    "table": "parents",
                     "idField": "id",
-                    "linkField": "url",
+                    "linkField": "reconstructed",
                     "typeField": "dtype",
                     "clearMedia": true
                 },
-                "row": 13,
+                "row": 1,
+                "col": 9
+            }
+        ],
+        "verdi-ldc-ta1-layout": [
+            {
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "sizex": 4,
+                "sizey": 16,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:31",
+                "selected": true,
+                "bindings": {
+                    "title": "Documents",
+                    "database": "aida-docs",
+                    "table": "parents",
+                    "idField": "id",
+                    "sortField": "id",
+                    "filterable": true,
+                    "ignoreSelf": true,
+                    "singleFilter": true,
+                    "filterFields": [
+                        "id"
+                    ],
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "id",
+                        "reconstructed"
+                    ]
+                },
+                "row": 1,
                 "col": 1
             },
             {
-                "name": "Network Graph",
-                "type": "networkGraph",
-                "icon": "Graph",
-                "sizex": 6,
-                "sizey": 8,
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
+                "sizex": 4,
+                "sizey": 5,
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:36",
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:30",
                 "selected": true,
                 "bindings": {
-                    "title": "Network Graph",
-                    "database": "michigan",
+                    "title": "Entities",
+                    "database": "ldc",
                     "table": "graph",
-                    "unsharedFilterField": "",
-                    "unsharedFilterValue": "",
-                    "nodeField": "id",
-                    "nodeNameField": "name",
-                    "linkField": "edgeTarget",
-                    "linkNameField": "edgeLabel",
-                    "targetNameField": "targetName",
-                    "targetColorField": "targetCategories",
-                    "typeField": "types",
-                    "nodeColorField": "categories",
-                    "showOnlyFiltered": false,
-                    "filterFields": ["docIds"],
-                    "isReified": false,
-                    "isDirected": true,
-                    "multifilter": true
+                    "type": "bar-h",
+                    "xField": "types",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "ENTITY"
                 },
-                "row": 13,
-                "col": 7
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 1,
+                "col": 5
             },
             {
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "sizex": 12,
-                "sizey": 4,
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
+                "sizex": 4,
+                "sizey": 5,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:30",
+                "selected": true,
+                "bindings": {
+                    "title": "Relations",
+                    "database": "ldc",
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "RELATION"
+                },
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 6,
+                "col": 5
+            },
+            {
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
+                "sizex": 4,
+                "sizey": 5,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:30",
+                "selected": true,
+                "bindings": {
+                    "title": "Events",
+                    "database": "ldc",
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "EVENT"
+                },
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 11,
+                "col": 5
+            },
+            {
+                "name": "Media Viewer",
+                "type": "mediaViewer",
+                "icon": "mediaViewer",
+                "sizex": 4,
+                "sizey": 16,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
                 "minSizey": 4,
-                "$$hashKey": "object:37",
+                "$$hashKey": "object:35",
                 "selected": true,
                 "bindings": {
-                    "title": "Filter Builder",
-                    "database": "michigan",
-                    "table": "graph"
+                    "id": "_id",
+                    "title": "Media Viewer",
+                    "database": "aida-docs",
+                    "table": "parents",
+                    "idField": "id",
+                    "linkField": "reconstructed",
+                    "typeField": "dtype",
+                    "clearMedia": true
                 },
-                "row": 22,
-                "col": 1
+                "row": 1,
+                "col": 9
             }
         ]
     }
