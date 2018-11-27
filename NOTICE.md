@@ -2,20 +2,20 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 
 | Software  | License |
 | ---  | --- |
-| @angular/animations@7.0.3 | [MIT](https://github.com/angular/angular) |
-| @angular/cdk@7.0.3 | [MIT](https://github.com/angular/material2/raw/master/LICENSE) |
-| @angular/common@7.0.3 | [MIT](https://github.com/angular/angular) |
-| @angular/compiler@7.0.3 | [MIT](https://github.com/angular/angular) |
-| @angular/core@7.0.3 | [MIT](https://github.com/angular/angular) |
-| @angular/forms@7.0.3 | [MIT](https://github.com/angular/angular) |
-| @angular/http@7.0.3 | [MIT](https://github.com/angular/angular) |
-| @angular/material@7.0.3 | [MIT](https://github.com/angular/material2/raw/master/LICENSE) |
-| @angular/platform-browser-dynamic@7.0.3 | [MIT](https://github.com/angular/angular) |
-| @angular/platform-browser@7.0.3 | [MIT](https://github.com/angular/angular) |
-| @angular/platform-server@7.0.3 | [MIT](https://github.com/angular/angular) |
-| @angular/router@7.0.3 | [MIT](https://github.com/angular/angular) |
-| @angular/upgrade@7.0.3 | [MIT](https://github.com/angular/angular) |
-| @swimlane/ngx-charts@9.1.1 | [MIT](https://github.com/swimlane/ngx-charts/raw/master/LICENSE.md) |
+| @angular/animations@7.1.0 | [MIT](https://github.com/angular/angular) |
+| @angular/cdk@7.1.0 | [MIT](https://github.com/angular/material2/raw/master/LICENSE) |
+| @angular/common@7.1.0 | [MIT](https://github.com/angular/angular) |
+| @angular/compiler@7.1.0 | [MIT](https://github.com/angular/angular) |
+| @angular/core@7.1.0 | [MIT](https://github.com/angular/angular) |
+| @angular/forms@7.1.0 | [MIT](https://github.com/angular/angular) |
+| @angular/http@7.1.0 | [MIT](https://github.com/angular/angular) |
+| @angular/material@7.1.0 | [MIT](https://github.com/angular/material2/raw/master/LICENSE) |
+| @angular/platform-browser-dynamic@7.1.0 | [MIT](https://github.com/angular/angular) |
+| @angular/platform-browser@7.1.0 | [MIT](https://github.com/angular/angular) |
+| @angular/platform-server@7.1.0 | [MIT](https://github.com/angular/angular) |
+| @angular/router@7.1.0 | [MIT](https://github.com/angular/angular) |
+| @angular/upgrade@7.1.0 | [MIT](https://github.com/angular/angular) |
+| @swimlane/ngx-charts@10.0.0 | [MIT](https://github.com/swimlane/ngx-charts/raw/master/LICENSE.md) |
 | @swimlane/ngx-datatable@14.0.0 | [MIT](https://github.com/swimlane/ngx-datatable/raw/master/LICENSE) |
 | @swimlane/ngx-graph@5.1.1 | [MIT](https://github.com/swimlane/ngx-graph/raw/master/LICENSE) |
 | ajv-keywords@1.5.1 | [MIT](https://github.com/epoberezkin/ajv-keywords/raw/master/LICENSE) |
@@ -27,7 +27,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | cesium@1.32.1 | [Apache-2.0](https://github.com/AnalyticalGraphicsInc/cesium/raw/master/LICENSE.md) |
 | chart.js@2.7.2 | [MIT](https://github.com/chartjs/Chart.js/raw/master/LICENSE.md) |
 | classlist.js@1.1.20150312 | [Dedicated to the public domain](https://github.com/eligrey/classList.js/raw/master/LICENSE.md) |
-| core-js@2.4.1 | [MIT](https://github.com/zloirock/core-js/raw/master/LICENSE) |
+| core-js@2.5.7 | [MIT](https://github.com/zloirock/core-js/raw/master/LICENSE) |
 | d3-selection@1.3.2 | [BSD-3-Clause](https://github.com/d3/d3-selection/raw/master/LICENSE) |
 | d3-shape@1.2.2 | [BSD-3-Clause](https://github.com/d3/d3-shape/raw/master/LICENSE) |
 | d3-transition@1.1.3 | [BSD-3-Clause](https://github.com/d3/d3-transition/raw/master/LICENSE) |
@@ -53,5 +53,6 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | reflect-metadata@0.1.10 | [Apache-2.0](https://github.com/rbuckton/reflect-metadata/raw/master/LICENSE) |
 | requirejs@2.3.5 | [MIT](https://github.com/jrburke/r.js) |
 | rxjs@6.3.3 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
+| tslib@1.9.3 | [Apache-2.0](https://github.com/Microsoft/tslib/raw/master/LICENSE.txt) |
 | vis@4.21.0 | [(Apache-2.0 OR MIT)](https://github.com/almende/vis/raw/master/LICENSE-APACHE-2.0) |
 | zone.js@0.8.26 | [MIT](https://github.com/angular/zone.js/raw/master/LICENSE) |
