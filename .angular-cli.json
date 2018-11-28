@@ -2,7 +2,7 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "project": {
     "name": "neon-gtd",
-    "version": "1.3.0-angular2"
+    "ejected": true
   },
   "apps": [
     {
@@ -30,8 +30,8 @@
         "../node_modules/vis/dist/vis-network.min.css"
       ],
       "scripts": [
-          "../node_modules/jsoneditor/dist/jsoneditor.js",
-          "../node_modules/jquery/dist/jquery.min.js"
+        "../node_modules/jsoneditor/dist/jsoneditor.js",
+        "../node_modules/jquery/dist/jquery.min.js"
       ],
       "environmentSource": "environments/environment.ts",
       "environments": {
@@ -63,6 +63,7 @@
   },
   "defaults": {
     "styleExt": "css",
-    "component": {}
+    "component": {
+    }
   }
 }
