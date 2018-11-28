@@ -66,7 +66,10 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
     removeFilter(filterIds: string[]) {
         let onSuccess = (removedFilter) => {
             let visualization = this.activeGridService.getVisualizationById(removedFilter.ownerId);
-            visualization.removeFilter(removedFilter);
+            if (visualization) {
+                visualization.removeFilter(removedFilter);
+            }
+
             this.onEventChanged();
         };
         this.filterService.removeFilters(this.messenger, filterIds, onSuccess.bind(this));
@@ -112,6 +115,37 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
             return resultList;
         }
         return [];
+    }
+
+    /**
+     * Removes all the given filters from this component and neon with an optional callback.
+     *
+     * @arg {array} filters
+     * @arg {function} [callback]
+     */
+    removeAllFilters(filters: any[], callback?: Function) {
+
+        let setFilters = filters ? filters : this.filterService.getFilters();
+        let filterIds = [];
+
+        if (!setFilters.length) {
+            if (callback) {
+                callback();
+            }
+            return;
+        }
+
+        for (let filter of setFilters) {
+            filterIds.push(filter.id);
+        }
+
+        this.removeFilter(filterIds);
+
+        this.filters = {
+            raw: [],
+            formatted: []
+        };
+
     }
 
     ngOnDestroy() {

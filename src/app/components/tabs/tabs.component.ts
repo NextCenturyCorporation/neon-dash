@@ -34,7 +34,7 @@ export class TabsOptions extends BaseNeonOptions {
     public events: {};
     public people: {};
     public showOnlyFiltered: boolean;
-    public startTab: any;
+    public startTab: number;
     public filterFields: string[];
 
     /**
@@ -80,7 +80,7 @@ export class TabsOptions extends BaseNeonOptions {
         this.events = this.injector.get('events', {});
         this.people = this.injector.get('people', {});
         this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
-        this.startTab = this.injector.get('startTab', {name : 'network', index : 0});
+        this.startTab = this.injector.get('startTab', 0);
         this.filterFields = this.injector.get('filterFields', []);
     }
 }

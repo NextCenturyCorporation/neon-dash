@@ -53,7 +53,8 @@
     background-color: #7fbdc2;
 }
 
-/deep/ .mat-drawer-content{
+
+#tabView /deep/ .mat-drawer-content{
     overflow: unset;
 
     .visualization-sidenav .body-container {
