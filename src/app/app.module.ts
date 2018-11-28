@@ -180,7 +180,10 @@ export function getAppConfig() {
         FilterTrayComponent,
         SnackBarComponent
     ],
-    bootstrap: [AppComponent]
+    bootstrap: [AppComponent],
+    schemas: [
+        CUSTOM_ELEMENTS_SCHEMA // Added for custom elements support
+      ]
 })
 
 /* tslint:disable:no-unnecessary-class */
