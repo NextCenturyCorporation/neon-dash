@@ -29,17 +29,14 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { LegendComponent } from '../legend/legend.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
+import { WidgetService } from '../../services/widget.service';
 
 import { AppMaterialModule } from '../../app.material.module';
+import { Color } from '../../color';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
@@ -53,8 +50,8 @@ describe('Component: Aggregation', () => {
     let fixture: ComponentFixture<AggregationComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    let COLOR_1 = new Color(255, 135, 55);
-    let COLOR_2 = new Color(94, 80, 143);
+    let COLOR_1 = new Color(94, 80, 143);
+    let COLOR_2 = new Color(255, 135, 55);
 
     initializeTestBed({
         declarations: [
@@ -64,15 +61,10 @@ describe('Component: Aggregation', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ErrorNotificationService,
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -125,11 +117,11 @@ describe('Component: Aggregation', () => {
 
     it('class properties are set to expected defaults', () => {
         expect(component.activeData).toEqual([]);
+        expect(component.colorKeys).toEqual([]);
         expect(component.filterToPassToSuperclass).toEqual({});
         expect(component.groupFilters).toEqual([]);
         expect(component.lastPage).toEqual(true);
         expect(component.legendActiveGroups).toEqual([]);
-        expect(component.legendFields).toEqual([]);
         expect(component.legendGroups).toEqual([]);
         expect(component.minimumDimensionsMain.height).toBeDefined();
         expect(component.minimumDimensionsMain.width).toBeDefined();
@@ -239,7 +231,7 @@ describe('Component: Aggregation', () => {
                 beginX: '2018-01-01T00:00:00.000Z',
                 endX: '2018-01-03T00:00:00.000Z'
             }
-        })).toEqual('prettyField1 from Mon, Jan 1, 2018, 12:00 AM to Wed, Jan 3, 2018, 12:00 AM');
+        })).toEqual('prettyField1 from Mon, Jan 1, 2018, 12:00:00 AM to Wed, Jan 3, 2018, 12:00:00 AM');
 
         expect(component.createFilterPrettyText({
             field: 'field1',
@@ -255,7 +247,7 @@ describe('Component: Aggregation', () => {
                 endX: '2018-01-03T00:00:00.000Z',
                 endY: 'endY1'
             }
-        })).toEqual('prettyX1 from Mon, Jan 1, 2018, 12:00 AM to Wed, Jan 3, 2018, 12:00 AM and prettyY1 from beginY1 to endY1');
+        })).toEqual('prettyX1 from Mon, Jan 1, 2018, 12:00:00 AM to Wed, Jan 3, 2018, 12:00:00 AM and prettyY1 from beginY1 to endY1');
     });
 
     it('createOrRemoveNeonFilter with no groupFilters, valueFilters, or filterToPassToSuperclass.id does nothing', () => {
@@ -2243,7 +2235,7 @@ describe('Component: Aggregation', () => {
             yList: [2, 4]
         }]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
     it('refreshVisualization with XY subcomponent does draw data', () => {
@@ -2300,7 +2292,7 @@ describe('Component: Aggregation', () => {
             yList: [2, 4]
         }]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
     it('refreshVisualization does work as expected with date fields', () => {
@@ -2356,7 +2348,7 @@ describe('Component: Aggregation', () => {
             yList: [2, 4]
         }]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.legendFields).toEqual(['']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_']);
     });
 
     it('refreshVisualization does work as expected with string fields', () => {
@@ -2412,7 +2404,7 @@ describe('Component: Aggregation', () => {
             yList: [2, 4]
         }]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.legendFields).toEqual(['']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_']);
     });
 
     it('refreshVisualization does draw zoom data if dualView is truthy', () => {
@@ -2473,7 +2465,7 @@ describe('Component: Aggregation', () => {
             yAxis: 'number',
             yList: [2, 4]
         }]);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
 
         component.options.dualView = 'filter';
 
@@ -2514,7 +2506,7 @@ describe('Component: Aggregation', () => {
             yAxis: 'number',
             yList: [2, 4]
         }]);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
     it('refreshVisualization does not draw main data if filterToPassToSuperclass.id is defined unless dualView is falsey', () => {
@@ -2559,7 +2551,7 @@ describe('Component: Aggregation', () => {
             yAxis: 'number',
             yList: [2, 4]
         }]);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
 
         component.options.dualView = '';
 
@@ -2583,7 +2575,7 @@ describe('Component: Aggregation', () => {
             yList: [2, 4]
         }]);
         expect(spy2.calls.count()).toEqual(1);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
     it('refreshVisualization does draw main data if given true argument', () => {
@@ -2645,7 +2637,7 @@ describe('Component: Aggregation', () => {
             yAxis: 'number',
             yList: [2, 4]
         }]);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
     it('removeFilter does delete filters and call subcomponentMain.deselect', () => {
@@ -3444,6 +3436,8 @@ describe('Component: Aggregation', () => {
             xField: '',
             yField: '',
             aggregation: neonVariables.COUNT,
+            axisLabelX: '',
+            axisLabelY: 'count',
             dualView: '',
             granularity: 'year',
             hideGridLines: false,
@@ -3511,6 +3505,8 @@ describe('Component: Aggregation', () => {
             xField: 'testXField',
             yField: 'testYField',
             aggregation: neonVariables.SUM,
+            axisLabelX: '',
+            axisLabelY: 'count',
             dualView: 'on',
             granularity: 'day',
             hideGridLines: true,
@@ -3821,7 +3817,6 @@ describe('Component: Aggregation', () => {
         let exportControl = fixture.debugElement.query(By.css(
             'mat-sidenav-container mat-sidenav mat-card mat-card-content app-export-control'));
         expect(exportControl).not.toBeNull();
-        expect(exportControl.componentInstance.exportId).toEqual(component.exportId);
     });
 
     it('does hide loading overlay by default', () => {
@@ -4127,25 +4122,32 @@ describe('Component: Aggregation', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(7);
+            expect(inputs.length).toEqual(9);
 
-            expect(inputs[0].attributes.placeholder).toBe('Title');
-            expect(inputs[0].nativeElement.value).toContain('Aggregation');
+            let n = 0;
+            expect(inputs[n].attributes.placeholder).toBe('Title');
+            expect(inputs[n++].nativeElement.value).toContain('Aggregation');
 
-            expect(inputs[1].attributes.placeholder).toBe('Limit');
-            expect(inputs[1].nativeElement.value).toContain('10');
+            expect(inputs[n].attributes.placeholder).toBe('Limit');
+            expect(inputs[n++].nativeElement.value).toContain('10');
 
-            expect(inputs[2].attributes.placeholder).toBe('X Scale Min');
-            expect(inputs[2].nativeElement.value).toEqual('');
+            expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[3].attributes.placeholder).toBe('X Scale Max');
-            expect(inputs[3].nativeElement.value).toEqual('');
+            expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[4].attributes.placeholder).toBe('Y Scale Min');
-            expect(inputs[4].nativeElement.value).toEqual('');
+            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[5].attributes.placeholder).toBe('Y Scale Max');
-            expect(inputs[5].nativeElement.value).toEqual('');
+            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Max');
+            expect(inputs[n++].nativeElement.value).toEqual('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Min');
+            expect(inputs[n++].nativeElement.value).toEqual('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Max');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
@@ -4290,15 +4292,10 @@ describe('Component: Aggregation with config', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ErrorNotificationService,
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase2' },
@@ -4402,25 +4399,32 @@ describe('Component: Aggregation with config', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(7);
+            expect(inputs.length).toEqual(9);
 
-            expect(inputs[0].attributes.placeholder).toBe('Title');
-            expect(inputs[0].nativeElement.value).toContain('Test Title');
+            let n = 0;
+            expect(inputs[n].attributes.placeholder).toBe('Title');
+            expect(inputs[n++].nativeElement.value).toContain('Test Title');
 
-            expect(inputs[1].attributes.placeholder).toBe('Limit');
-            expect(inputs[1].nativeElement.value).toContain('1234');
+            expect(inputs[n].attributes.placeholder).toBe('Limit');
+            expect(inputs[n++].nativeElement.value).toContain('1234');
 
-            expect(inputs[2].attributes.placeholder).toBe('X Scale Min');
-            expect(inputs[2].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[3].attributes.placeholder).toBe('X Scale Max');
-            expect(inputs[3].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[4].attributes.placeholder).toBe('Y Scale Min');
-            expect(inputs[4].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
-            expect(inputs[5].attributes.placeholder).toBe('Y Scale Max');
-            expect(inputs[5].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
@@ -4557,15 +4561,10 @@ describe('Component: Aggregation with XY config', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ErrorNotificationService,
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase2' },
@@ -4620,25 +4619,32 @@ describe('Component: Aggregation with XY config', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(7);
+            expect(inputs.length).toEqual(9);
 
-            expect(inputs[0].attributes.placeholder).toBe('Title');
-            expect(inputs[0].nativeElement.value).toContain('Test Title');
+            let n = 0;
+            expect(inputs[n].attributes.placeholder).toBe('Title');
+            expect(inputs[n++].nativeElement.value).toContain('Test Title');
 
-            expect(inputs[1].attributes.placeholder).toBe('Limit');
-            expect(inputs[1].nativeElement.value).toContain('1234');
+            expect(inputs[n].attributes.placeholder).toBe('Limit');
+            expect(inputs[n++].nativeElement.value).toContain('1234');
 
-            expect(inputs[2].attributes.placeholder).toBe('X Scale Min');
-            expect(inputs[2].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[3].attributes.placeholder).toBe('X Scale Max');
-            expect(inputs[3].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[4].attributes.placeholder).toBe('Y Scale Min');
-            expect(inputs[4].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
-            expect(inputs[5].attributes.placeholder).toBe('Y Scale Max');
-            expect(inputs[5].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
@@ -4758,15 +4764,10 @@ describe('Component: Aggregation with date config', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ErrorNotificationService,
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase2' },
@@ -4821,25 +4822,32 @@ describe('Component: Aggregation with date config', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(7);
+            expect(inputs.length).toEqual(9);
 
-            expect(inputs[0].attributes.placeholder).toBe('Title');
-            expect(inputs[0].nativeElement.value).toContain('Test Title');
+            let n = 0;
+            expect(inputs[n].attributes.placeholder).toBe('Title');
+            expect(inputs[n++].nativeElement.value).toContain('Test Title');
 
-            expect(inputs[1].attributes.placeholder).toBe('Limit');
-            expect(inputs[1].nativeElement.value).toContain('1234');
+            expect(inputs[n].attributes.placeholder).toBe('Limit');
+            expect(inputs[n++].nativeElement.value).toContain('1234');
 
-            expect(inputs[2].attributes.placeholder).toBe('X Scale Min');
-            expect(inputs[2].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[3].attributes.placeholder).toBe('X Scale Max');
-            expect(inputs[3].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[4].attributes.placeholder).toBe('Y Scale Min');
-            expect(inputs[4].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
-            expect(inputs[5].attributes.placeholder).toBe('Y Scale Max');
-            expect(inputs[5].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));

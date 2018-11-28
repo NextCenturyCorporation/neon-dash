@@ -13,8 +13,7 @@
  * limitations under the License.
  *
  */
-
-@import '../themes/neon-green-theme';
+@import 'neon-properties';
 
 .neon-sidenav {
     height: 100%;
@@ -25,7 +24,7 @@
 }
 
 .neon-link {
-    color: #fafafa;
+    color: var(--color-background, white);
     height: 30px;
     margin: 0 5px;
 
@@ -34,12 +33,12 @@
     }
 
     &:hover {
-        color: $accent-bright;
+        color: var(--color-accent, lightgrey);
     }
 }
 
 .neon-dash {
-    background-color: #fafafa;
+    background-color: var(--color-background, white);
     /* 60 = 50 px toolbar + 10 px padding */
     height: calc(100% - 60px);
     padding: 5px;
@@ -47,11 +46,11 @@
 }
 
 .color-primary {
-    color: mat-color($primary);
+    color: var(--color-primary, grey);
 }
 
 .color-highlight {
-    color: $accent-bright;
+    color: var(--color-accent, lightgrey);
 }
 
 .header-toggle-container {
@@ -70,4 +69,16 @@
             background-color: grey;
         }
     }
+}
+
+.right-panel-container {
+    height: 100%;
+    width: 410px;
+}
+
+.title{
+   position: -webkit-sticky; /* Safari */
+   position: sticky;
+   top: 0;
+   z-index: 9999;
 }

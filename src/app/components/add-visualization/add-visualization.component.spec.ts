@@ -13,36 +13,81 @@
  * limitations under the License.
  *
  */
-import { TestBed, inject } from '@angular/core/testing';
-import { MatDialogRef, MatGridListModule, MatSnackBar } from '@angular/material';
-import { AddVisualizationComponent } from './add-visualization.component';
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ThemesService } from '../../services/themes.service';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { By, DomSanitizer } from '@angular/platform-browser';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatDialogRef, MatSnackBar } from '@angular/material';
+import {} from 'jasmine-core';
+
+import { AddVisualizationComponent } from './add-visualization.component';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+import { WidgetService } from '../../services/widget.service';
+
 import { AppMaterialModule } from '../../app.material.module';
+import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
+import { NeonGTDConfig } from '../../neon-gtd-config';
+import { neonVariables } from '../../neon-namespaces';
+import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
+// Must define the test component.
+@Component({
+        selector: 'app-test-add-visualization',
+        templateUrl: 'add-visualization.component.html',
+        styleUrls: ['add-visualization.component.scss'],
+        encapsulation: ViewEncapsulation.Emulated,
+        changeDetection: ChangeDetectionStrategy.OnPush
+})
+
+class TestAddVisualizationComponent extends AddVisualizationComponent {
+    constructor(
+        widgetService: AbstractWidgetService,
+        snackBar: MatSnackBar
+    ) {
+
+        super(
+            snackBar,
+            widgetService
+        );
+    }
+
+    // TODO Add any needed custom functions here.
+}
+
 describe('Component: AddVisualization', () => {
+    let component: TestAddVisualizationComponent;
+    let fixture: ComponentFixture<TestAddVisualizationComponent>;
+    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed({
-        imports: [
-            BrowserAnimationsModule,
-            MatGridListModule,
-            AppMaterialModule
-        ],
         declarations: [
-            AddVisualizationComponent
+            TestAddVisualizationComponent
         ],
         providers: [
-            ActiveGridService,
-            ThemesService
+            {
+                provide: AbstractWidgetService,
+                useClass: WidgetService
+            }
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule
         ]
     });
 
-    it('should create an instance', inject([ActiveGridService, ThemesService],
-        (activeGridService: ActiveGridService, themesService: ThemesService, matDialogRef: MatDialogRef<AddVisualizationComponent>,
-         mdSnackBar: MatSnackBar) => {
-        let component = new AddVisualizationComponent(activeGridService, themesService, matDialogRef, mdSnackBar);
-        expect(component).toBeTruthy();
-    }));
+    beforeEach(() => {
+        fixture = TestBed.createComponent(TestAddVisualizationComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
+
 });

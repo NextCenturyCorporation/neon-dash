@@ -175,6 +175,16 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
     }
 
     /**
+     * Returns whether the subcomponent layout is horizontal. False for this
+     * subcomponent.
+     *
+     * @return {boolean}
+     */
+    public isHorizontal(): boolean {
+        return false;
+    }
+
+    /**
      * Handles the given click event by filtering on the clicked value.
      *
      * @arg {event} event

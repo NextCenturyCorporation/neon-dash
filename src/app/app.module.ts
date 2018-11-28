@@ -25,19 +25,13 @@ import 'hammerjs';
 
 import { NgGridModule } from 'angular2-grid';
 
-import { ActiveGridService } from './services/active-grid.service';
-import { ColorSchemeService } from './services/color-scheme.service';
+import { AbstractWidgetService } from './services/abstract.widget.service';
 import { ConnectionService } from './services/connection.service';
 import { DatasetService } from './services/dataset.service';
-import { ErrorNotificationService } from './services/error-notification.service';
-import { ExportService } from './services/export.service';
 import { FilterService } from './services/filter.service';
-import { ImportService } from './services/import.service';
 import { ParameterService } from './services/parameter.service';
 import { PropertyService } from './services/property.service';
-import { ThemesService } from './services/themes.service';
-import { TranslationService } from './services/translation.service';
-import { VisualizationService } from './services/visualization.service';
+import { WidgetService } from './services/widget.service';
 
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
@@ -46,7 +40,6 @@ import { AppComponent } from './app.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
 import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
-import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
@@ -58,8 +51,11 @@ import { LegendComponent } from './components/legend/legend.component';
 import { MapComponent } from './components/map/map.component';
 import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
 import { SampleComponent } from './components/sample/sample.component';
+import { SaveStateComponent } from './components/save-state/save-state.component';
+import { SettingsComponent } from './components/settings/settings.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
+import { TimelineComponent } from './components/timeline/timeline.component';
 import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
@@ -100,7 +96,6 @@ export function getAppConfig() {
         ConfirmationDialogComponent,
         CustomConnectionComponent,
         CustomConnectionSimpleSetupStepComponent,
-        DashboardOptionsComponent,
         DatasetSelectorComponent,
         DataTableComponent,
         DocumentViewerComponent,
@@ -115,12 +110,15 @@ export function getAppConfig() {
         NewsFeedComponent,
         QueryBarComponent,
         SampleComponent,
+        SaveStateComponent,
+        SettingsComponent,
         SimpleFilterComponent,
         SnackBarComponent,
         TextCloudComponent,
         ThumbnailDetailsContractedComponent,
         ThumbnailDetailsExpandedComponent,
         ThumbnailGridComponent,
+        TimelineComponent,
         UnsharedFilterComponent,
         VisualizationContainerComponent,
         VisualizationInjectorComponent,
@@ -142,19 +140,15 @@ export function getAppConfig() {
         ReactiveFormsModule
     ],
     providers: [
-        ActiveGridService,
         ConnectionService,
         DatasetService,
-        ErrorNotificationService,
-        ExportService,
         FilterService,
-        ImportService,
         ParameterService,
         PropertyService,
-        ThemesService,
-        TranslationService,
-        VisualizationService,
-        ColorSchemeService,
+        {
+            provide: AbstractWidgetService,
+            useClass: WidgetService
+        },
         {
             provide: 'config',
             useFactory: getAppConfig
@@ -168,6 +162,8 @@ export function getAppConfig() {
         CustomConnectionComponent,
         DocumentViewerSingleItemComponent,
         FilterTrayComponent,
+        SaveStateComponent,
+        SettingsComponent,
         SnackBarComponent
     ],
     bootstrap: [AppComponent]

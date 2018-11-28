@@ -18,24 +18,8 @@
 
 import { AbstractChartJsDataset, AbstractChartJsSubcomponent } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { Color } from '../../services/color-scheme.service';
+import { Color } from '../../color';
 import { ElementRef } from '@angular/core';
-
-class TestAggregationSubcomponentOptions {
-    public granularity: string = 'year';
-    public hideGridLines: boolean = false;
-    public hideGridTicks: boolean = false;
-    public lineCurveTension: number = 0.3;
-    public lineFillArea: boolean = false;
-    public logScaleX: boolean = false;
-    public logScaleY: boolean = false;
-    public scaleMaxX: string = '';
-    public scaleMaxY: string = '';
-    public scaleMinX: string = '';
-    public scaleMinY: string = '';
-    public showHeat: boolean = false;
-    public yPercentage: number = 0.3;
-}
 
 class TestAggregationSubcomponentListener implements AggregationSubcomponentListener {
     getHiddenCanvas(): ElementRef {
@@ -127,20 +111,18 @@ class TestChartJsSubcomponent extends AbstractChartJsSubcomponent {
         return this.selectedLabels;
     }
 
-    protected isHorizontal(): boolean {
+    public isHorizontal(): boolean {
         return this.horizontal;
     }
 }
 
 describe('ChartJsSubcomponent', () => {
     let listener;
-    let options;
     let subcomponent;
 
     beforeEach(() => {
         listener = new TestAggregationSubcomponentListener();
-        options = new TestAggregationSubcomponentOptions();
-        subcomponent = new TestChartJsSubcomponent(options, listener, null);
+        subcomponent = new TestChartJsSubcomponent({}, listener, null);
     });
 
     it('createChartDataAndOptions does return expected object', () => {
@@ -243,12 +225,12 @@ describe('ChartJsSubcomponent', () => {
     });
 
     it('createChartDataAndOptions with config does return expected object', () => {
-        options.hideGridLines = true;
-        options.hideGridTicks = true;
-        options.scaleMaxX = 4;
-        options.scaleMaxY = 3;
-        options.scaleMinX = 2;
-        options.scaleMinY = 1;
+        subcomponent.options.hideGridLines = true;
+        subcomponent.options.hideGridTicks = true;
+        subcomponent.options.scaleMaxX = 4;
+        subcomponent.options.scaleMaxY = 3;
+        subcomponent.options.scaleMinX = 2;
+        subcomponent.options.scaleMinY = 1;
         subcomponent.horizontal = true;
 
         let dataAndOptions = subcomponent.getChartDataAndOptions([{
@@ -1032,6 +1014,7 @@ describe('ChartJsSubcomponent', () => {
     });
 
     it('selectDomain with time axis does create expected filter', () => {
+        subcomponent.options.granularity = 'day';
         let spy1 = spyOn(listener, 'subcomponentRequestsSelect');
         let spy2 = spyOn(listener, 'subcomponentRequestsDeselect');
         let spy3 = spyOn(listener, 'subcomponentRequestsFilterOnDomain');
@@ -1088,7 +1071,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy1.calls.count()).toEqual(2);
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(1);
-        expect(spy3.calls.argsFor(0)).toEqual([new Date('2018-01-02T00:00:00.000Z'), new Date('2018-01-03T00:00:00.000Z')]);
+        expect(spy3.calls.argsFor(0)).toEqual([new Date('2018-01-02T00:00:00.000Z'), new Date('2018-01-03T23:59:59.000Z')]);
         expect(spy4.calls.count()).toEqual(2);
         expect(spy5.calls.count()).toEqual(2);
         expect(spy6.calls.count()).toEqual(0);

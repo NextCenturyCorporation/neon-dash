@@ -132,6 +132,14 @@ export abstract class AbstractAggregationSubcomponent {
     public abstract getMinimumDimensions(): { height: number, width: number };
 
     /**
+     * Returns whether the subcomponent is horizontal rather than vertical.
+     *
+     * @return {boolean}
+     * @abstract
+     */
+    public abstract isHorizontal(): boolean;
+
+    /**
      * Initializes all the subcomponent elements.
      *
      * @abstract

@@ -16,6 +16,7 @@
 import { Injector } from '@angular/core';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from './dataset';
 import { neonVariables } from './neon-namespaces';
+import * as uuid from 'node-uuid';
 
 type OptionCallback = (options: any) => boolean;
 interface OptionChoice { prettyName: string; variable: any; }
@@ -235,6 +236,7 @@ export class WidgetOptionCollection {
     // An object containing strings mapped to WidgetOption objects.
     private _collection: { [bindingKey: string]: WidgetOption; } = {};
 
+    public _id: string;
     public databases: DatabaseMetaData[] = [];
     public fields: FieldMetaData[] = [];
     public layers: WidgetOptionCollection[] = [];
@@ -245,7 +247,10 @@ export class WidgetOptionCollection {
      * @arg {Injector} [injector] An injector with bindings; if undefined, uses config.
      * @arg {any} [config={}] An object with bindings; used if injector is undefined.
      */
-    constructor(protected injector?: Injector, protected config: any = {}) {}
+    constructor(protected injector?: Injector, protected config: any = {}) {
+        // TODO Do not use a default _id.  Throw an error if undefined!
+        this._id = (this.injector ? this.injector.get('_id', uuid.v4()) : (this.config._id || uuid.v4()));
+    }
 
     /**
      * Returns the option with the given binding key.

@@ -65,3 +65,4 @@ src/app/shared/index\.ts
 
 # Automatically-generated Derby database for saved states and stuff.
 savedStates/*
+*~

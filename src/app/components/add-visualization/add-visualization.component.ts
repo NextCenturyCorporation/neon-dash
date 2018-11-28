@@ -13,26 +13,37 @@
  * limitations under the License.
  *
  */
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnInit } from '@angular/core';
 import { MatDialogRef, MatSnackBar } from '@angular/material';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ThemesService } from '../../services/themes.service';
-import { neonVisualizations } from '../../neon-namespaces';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
+
+import { NeonGridItem } from '../../neon-grid-item';
+import { neonEvents, neonVisualizations } from '../../neon-namespaces';
+
+import * as neon from 'neon-framework';
+import * as _ from 'lodash';
 
 @Component({
-  selector: 'app-add-visualization-dialog',
-  templateUrl: './add-visualization.component.html',
-  styleUrls: ['./add-visualization.component.scss']
+    selector: 'app-add-visualization',
+    templateUrl: 'add-visualization.component.html',
+    styleUrls: ['add-visualization.component.scss']
 })
 export class AddVisualizationComponent implements OnInit {
-
+    public chartsAndGraph: any[];
+    public GridsAndTable: any[];
+    public viewer: any[];
     public visualizations: any[];
     public selectedIndex: number = -1;
+    public showVisShortcut: boolean = true;
 
-    constructor(private activeGridService: ActiveGridService, public themesService: ThemesService,
-        public dialogRef: MatDialogRef<AddVisualizationComponent>, public snackBar: MatSnackBar) {
-        this.themesService = themesService;
+    public messenger: neon.eventing.Messenger;
+
+    constructor(
+        public snackBar: MatSnackBar,
+        protected widgetService: AbstractWidgetService
+    ) {
+        this.messenger = new neon.eventing.Messenger();
     }
 
     ngOnInit() {
@@ -40,25 +51,35 @@ export class AddVisualizationComponent implements OnInit {
         this.visualizations = neonVisualizations.filter((visualization) => {
             return visualization.type !== 'sample';
         });
+        this.messenger.subscribe('showVisShortcut', (message) => {
+            this.showVisShortcut = message.showVisShortcut;
+        });
     }
 
     public onItemSelected(shiftKey: boolean, index: number) {
         if (this.selectedIndex !== -1) {
             this.visualizations[this.selectedIndex].selected = false;
         }
+
         this.visualizations[index].selected = true;
         this.selectedIndex = index;
 
-        this.activeGridService.addItemInFirstFit(this.visualizations[index]);
+        let widgetGridItem: NeonGridItem = _.cloneDeep(this.visualizations[index]);
+        this.messenger.publish(neonEvents.WIDGET_ADD, {
+            widgetGridItem: widgetGridItem
+        });
 
-        if (!shiftKey) {
-            this.dialogRef.close();
-        }
-
-         this.snackBar.open('Visualization Added', 'x', {
+        this.snackBar.open('Visualization Added', 'x', {
             duration: 5000,
             verticalPosition: 'top',
-            panelClass: ['simpleSnackBar']
+            panelClass: [this.widgetService.getTheme(), 'simpleSnackBar']
          });
+    }
+
+    publishShowVisShortcut() {
+        this.showVisShortcut = !this.showVisShortcut;
+        this.messenger.publish('showVisShortcut', {
+            showVisShortcut: this.showVisShortcut
+        });
     }
 }

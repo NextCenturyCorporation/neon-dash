@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -228,7 +228,21 @@
                 </mat-button-toggle-group>
                 <p *ngIf="options.type == 'line' || options.type == 'line-xy'"></p>
 
-                <span class="toggle-text" *ngIf="isScaled(options)">Log X Scale</span>
+                <div mat-fill *ngIf="isScaled(options)">
+                    <mat-form-field>
+                        <input matInput placeholder="Label of X-Axis" [(ngModel)]="options.axisLabelX" required="false"
+                               (keyup.enter)="refreshVisualization()">
+                    </mat-form-field>
+                    <p></p>
+
+                    <mat-form-field>
+                        <input matInput placeholder="Label of Y-Axis" [(ngModel)]="options.axisLabelY" required="false"
+                               (keyup.enter)="refreshVisualization()">
+                    </mat-form-field>
+                    <p></p>
+                </div>
+
+                <span class="toggle-text" *ngIf="isScaled(options)">Log X-Axis Scale</span>
                 <mat-button-toggle-group *ngIf="isScaled(options)" class="neon-button-toggle-group-small"
                     [(ngModel)]="options.logScaleX" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
@@ -236,7 +250,7 @@
                 </mat-button-toggle-group>
                 <p *ngIf="isScaled(options)"></p>
 
-                <span class="toggle-text" *ngIf="isScaled(options)">Log Y Scale</span>
+                <span class="toggle-text" *ngIf="isScaled(options)">Log Y-Axis Scale</span>
                 <mat-button-toggle-group *ngIf="isScaled(options)" class="neon-button-toggle-group-small"
                     [(ngModel)]="options.logScaleY" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
@@ -255,12 +269,12 @@
                 <span class="toggle-text" *ngIf="isScaled(options)">Manual Scales</span>
                 <div mat-fill class="flex center" *ngIf="isScaled(options)">
                     <mat-form-field>
-                        <input matInput placeholder="X Scale Min" [(ngModel)]="options.scaleMinX" required="false"
+                        <input matInput placeholder="X-Axis Scale Min" [(ngModel)]="options.scaleMinX" required="false"
                             (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
 
                     <mat-form-field>
-                        <input matInput placeholder="X Scale Max" [(ngModel)]="options.scaleMaxX" required="false"
+                        <input matInput placeholder="X-Axis Scale Max" [(ngModel)]="options.scaleMaxX" required="false"
                             (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
 
@@ -271,12 +285,12 @@
                 </div>
                 <div mat-fill class="flex center" *ngIf="isScaled(options)">
                     <mat-form-field>
-                        <input matInput placeholder="Y Scale Min" [(ngModel)]="options.scaleMinY" required="false"
+                        <input matInput placeholder="Y-Axis Scale Min" [(ngModel)]="options.scaleMinY" required="false"
                             (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
 
                     <mat-form-field>
-                        <input matInput placeholder="Y Scale Max" [(ngModel)]="options.scaleMaxY" required="false"
+                        <input matInput placeholder="Y-Axis Scale Max" [(ngModel)]="options.scaleMaxY" required="false"
                             (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
 
@@ -338,7 +352,7 @@
                     (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
-                <app-export-control [exportId]="exportId"></app-export-control>
+                <app-export-control [widgets]="this"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
@@ -348,8 +362,8 @@
     </div>
 
     <div class="filter-container" *ngIf="showHeaderContainer()">
-        <app-legend *ngIf="showLegend()" [activeList]="legendActiveGroups" [fieldNames]="legendFields"
-            (itemSelected)="handleLegendItemSelected($event)"></app-legend>
+        <app-legend *ngIf="showLegend()" [activeList]="legendActiveGroups" [colorKeys]="colorKeys"
+                (itemSelected)="handleLegendItemSelected($event)"></app-legend>
 
         <div class="filter-reset" *ngFor="let filter of groupFilters">
             <span class="filter-label" [matTooltip]="createFilterPrettyText(filter)" tooltip-position="below">

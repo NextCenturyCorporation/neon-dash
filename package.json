@@ -47,8 +47,9 @@
     "e2e": "ng e2e",
     "docs": "npm run typedoc -- --options typedoc.json --exclude '**/*.spec.ts' ./src/",
     "typedoc": "typedoc",
+    "remove-postcss-custom-properties": "sed -i -E '/customProperties/s/^.*$//g' node_modules/@angular/cli/models/webpack-configs/styles.js",
     "generate-attribution": "node scripts/generate_attributions.js",
-    "postinstall": "npm run generate-attribution 1> /dev/null",
+    "postinstall": "npm run remove-postcss-custom-properties && npm run generate-attribution 1> /dev/null",
     "ensure-attribution": "./scripts/ensure_attributions_file.sh"
   },
   "pre-commit": [

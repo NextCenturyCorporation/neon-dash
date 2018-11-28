@@ -1,0 +1,40 @@
+<form class="settings-container" #optionsForm="ngForm">
+    <h3 class="header"> Export Format</h3>
+    <app-export-control [widgets]="widgets"></app-export-control>
+
+    <mat-divider class="divider"></mat-divider>
+    <h3 class="header">Themes</h3>
+    <div class='radio-container' layout="row" mat-margin>
+        <mat-radio-group [(ngModel)]="formData.currentTheme" name="currentThemeGroup" (change)="setCurrentTheme(formData.currentTheme)">
+            <mat-radio-button class="radio-btn" *ngFor="let theme of widgetService.getThemes()" [value]="theme.id">{{ theme.name }}</mat-radio-button>
+        </mat-radio-group>
+    </div>
+    <mat-divider class="divider"></mat-divider>
+    <h3 class="header">Property Service Configuration</h3>
+
+    <button mat-raised-button class="neon-button-small btn-open-config-edit" color="primary" matTooltip="Open configuration editor."
+        tooltip-position="below" (click)="openEditConfigDialog()">
+        Edit Configuration
+    </button>
+    <mat-divider class="divider"></mat-divider>
+    <h3 class="header">Display Tools</h3>
+    <div class="display-tools-container">
+        <div class="checkmark-container">
+            <input type="checkbox" [checked]="showSimpleSearch" (change)="publishShowSimpleSearch()">
+            Simple Search Bar
+            <div *ngIf="showSimpleSearch">
+                <mat-form-field class="dropdown-menu">
+                    <mat-select name="simple-search-field" placeholder="Simple Search Field" [(ngModel)]="searchField"
+                        (change)="changeSimpleSearchFilter()" required="true" [disabled]="options.length == 0">
+                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option *ngFor="let field of options" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </div>
+        <div class="checkmark-container">
+            <input type="checkbox" [checked]="showVisShortcut" (change)="publishShowVisShortcut()">
+            Show visualization shortcut
+        </div>
+    </div>
+</form>

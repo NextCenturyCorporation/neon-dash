@@ -37,16 +37,13 @@ import { AnnotationViewerComponent } from './annotation-viewer.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { Color } from '../../color';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
+import { WidgetService } from '../../services/widget.service';
 import { LegendComponent } from '../legend/legend.component';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -67,28 +64,20 @@ import * as neon from 'neon-framework';
 
 class TestAnnotationViewerComponent extends AnnotationViewerComponent {
     constructor(
-        activeGridService: ActiveGridService,
-        colorSchemaService: ColorSchemeService,
+        widgetService: AbstractWidgetService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        ref: ChangeDetectorRef
     ) {
         super(
-            activeGridService,
-            colorSchemaService,
+            widgetService,
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
-            themesService,
-            ref,
-            visualizationService
+            ref
         );
     }
 
@@ -111,15 +100,10 @@ describe('Component: AnnotationViewer', () => {
                 UnsharedFilterComponent
             ],
             providers: [
-                ActiveGridService,
                 ConnectionService,
-                ColorSchemeService,
+                { provide: AbstractWidgetService, useClass: WidgetService },
                 { provide: DatasetService, useClass: DatasetServiceMock },
-                ErrorNotificationService,
-                ExportService,
                 { provide: FilterService, useClass: FilterServiceMock },
-                ThemesService,
-                VisualizationService,
                 Injector,
                 { provide: 'config', useValue: new NeonGTDConfig() }
             ],
