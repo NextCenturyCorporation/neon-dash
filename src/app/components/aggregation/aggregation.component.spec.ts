@@ -108,6 +108,7 @@ describe('Component: Aggregation', () => {
         expect(component.options.scaleMinX).toEqual('');
         expect(component.options.scaleMinY).toEqual('');
         expect(component.options.showHeat).toEqual(false);
+        expect(component.options.showLegend).toEqual(true);
         expect(component.options.sortByAggregation).toEqual(false);
         expect(component.options.timeFill).toEqual(false);
         expect(component.options.type).toEqual('line');
@@ -3376,6 +3377,7 @@ describe('Component: Aggregation', () => {
             scaleMinX: '',
             scaleMinY: '',
             showHeat: false,
+            showLegend: true,
             sortByAggregation: false,
             timeFill: false,
             type: 'line',
@@ -3405,6 +3407,7 @@ describe('Component: Aggregation', () => {
         component.options.scaleMinX = '22';
         component.options.scaleMinY = '11';
         component.options.showHeat = true;
+        component.options.showLegend = true;
         component.options.sortByAggregation = true;
         component.options.timeFill = true;
         component.options.type = 'line-xy';
@@ -3445,6 +3448,7 @@ describe('Component: Aggregation', () => {
             scaleMinX: '22',
             scaleMinY: '11',
             showHeat: true,
+            showLegend: true,
             sortByAggregation: true,
             timeFill: true,
             type: 'line-xy',
@@ -4245,6 +4249,7 @@ describe('Component: Aggregation with config', () => {
             { provide: 'scaleMinX', useValue: '22' },
             { provide: 'scaleMinY', useValue: '11' },
             { provide: 'showHeat', useValue: true },
+            { provide: 'showLegend', useValue: true },
             { provide: 'sortByAggregation', useValue: true },
             { provide: 'timeFill', useValue: true },
             { provide: 'type', useValue: 'scatter' },
@@ -4298,6 +4303,7 @@ describe('Component: Aggregation with config', () => {
         expect(component.options.scaleMinX).toEqual('22');
         expect(component.options.scaleMinY).toEqual('11');
         expect(component.options.showHeat).toEqual(true);
+        expect(component.options.showLegend).toEqual(true);
         expect(component.options.newType).toEqual('scatter');
         expect(component.options.sortByAggregation).toEqual(true);
         expect(component.options.timeFill).toEqual(true);
@@ -4514,6 +4520,7 @@ describe('Component: Aggregation with XY config', () => {
             { provide: 'scaleMinX', useValue: '22' },
             { provide: 'scaleMinY', useValue: '11' },
             { provide: 'showHeat', useValue: true },
+            { provide: 'showLegend', useValue: true },
             { provide: 'sortByAggregation', useValue: true },
             { provide: 'timeFill', useValue: true },
             { provide: 'type', useValue: 'scatter-xy' },
@@ -4717,6 +4724,7 @@ describe('Component: Aggregation with date config', () => {
             { provide: 'scaleMinX', useValue: '22' },
             { provide: 'scaleMinY', useValue: '11' },
             { provide: 'showHeat', useValue: true },
+            { provide: 'showLegend', useValue: true },
             { provide: 'sortByAggregation', useValue: true },
             { provide: 'timeFill', useValue: true },
             { provide: 'type', useValue: 'scatter' },
