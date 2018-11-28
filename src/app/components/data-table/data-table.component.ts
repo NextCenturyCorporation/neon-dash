@@ -226,7 +226,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     getWidgetName(): string {
-        return 'Text Cloud';
+        return 'Data Table';
     }
 
     initializeHeadersFromExceptionsToStatus() {
