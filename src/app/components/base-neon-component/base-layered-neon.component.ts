@@ -130,7 +130,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     /**
      * Runs any needed behavior after a new layer was added.
      *
-     * @arg {any} options
+     * @arg {any} options A WidgetOptionCollection object.
      */
     abstract postAddLayer(options: any);
 
@@ -155,7 +155,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         layerOptions.inject(this.createLayerNonFieldOptions());
         layerOptions.append(new WidgetDatabaseOption(), new DatabaseMetaData());
         layerOptions.append(new WidgetTableOption(), new TableMetaData());
-        this.updateDatabasesInOptions(layerOptions);
+        this.updateDatabasesInOptions(layerOptions, layerBindings);
         this.initializeFieldsInOptions(layerOptions, this.createLayerFieldOptions());
         (options || this.options).layers.push(layerOptions);
         this.postAddLayer(options || this.options);
@@ -928,10 +928,11 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      *
      * @arg {FieldMetaData[]} fields
      * @arg {string} bindingKey
+     * @arg {any} [config]
      * @return {FieldMetaData}
      */
-    public findFieldObject(fields: FieldMetaData[], bindingKey: string): FieldMetaData {
-        return this.findField(fields, this.injector.get(bindingKey, '')) || new FieldMetaData();
+    public findFieldObject(fields: FieldMetaData[], bindingKey: string, config?: any): FieldMetaData {
+        return this.findField(fields, (config ? config[bindingKey] : this.injector.get(bindingKey, ''))) || new FieldMetaData();
     }
 
     /**
@@ -939,10 +940,11 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      *
      * @arg {FieldMetaData[]} fields
      * @arg {string} bindingKey
+     * @arg {any} [config]
      * @return {FieldMetaData[]}
      */
-    public findFieldObjects(fields: FieldMetaData[], bindingKey: string): FieldMetaData[] {
-        let bindings = this.injector.get(bindingKey, null) || [];
+    public findFieldObjects(fields: FieldMetaData[], bindingKey: string, config?: any): FieldMetaData[] {
+        let bindings = (config ? config[bindingKey] : this.injector.get(bindingKey, null)) || [];
         return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.findField(fields, columnName))
             .filter((fieldsObject) => !!fieldsObject);
     }
@@ -1005,7 +1007,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     /**
      * Initializes all the fields in the given WidgetOptionCollection.
      *
-     * @arg {any} options
+     * @arg {any} options A WidgetOptionCollection object.
      * @arg {(WidgetFieldOption|WidgetFieldArrayOption)[]} [fieldOptions]
      */
     public initializeFieldsInOptions(options: any, fieldOptions?: (WidgetFieldOption | WidgetFieldArrayOption)[]) {
@@ -1013,10 +1015,10 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
             new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false)
         ]).forEach((option) => {
             if (option.optionType === OptionType.FIELD) {
-                options.append(option, this.findFieldObject(options.fields, option.bindingKey));
+                options.append(option, this.findFieldObject(options.fields, option.bindingKey, options.config));
             }
             if (option.optionType === OptionType.FIELD_ARRAY) {
-                options.append(option, this.findFieldObjects(options.fields, option.bindingKey));
+                options.append(option, this.findFieldObjects(options.fields, option.bindingKey, options.config));
             }
         });
     }
@@ -1024,15 +1026,16 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     /**
      * Updates all the databases, tables, and fields in the given options.  Called on init.
      *
-     * @arg {any} options
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} [config]
      * @return {any}
      */
-    public updateDatabasesInOptions(options: any): any {
+    public updateDatabasesInOptions(options: any, config?: any): any {
         options.databases = this.datasetService.getDatabases();
         options.database = options.databases[0] || options.database;
 
         if (options.databases.length) {
-            let configDatabase = this.injector.get('database', null);
+            let configDatabase = config ? config.database : this.injector.get('database', null);
             if (configDatabase) {
                 let isName = false;
                 for (let database of options.databases) {
@@ -1052,13 +1055,13 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
             }
         }
 
-        return this.updateTablesInOptions(options);
+        return this.updateTablesInOptions(options, config);
     }
 
     /**
      * Updates all the fields in the given options.  Called on init and whenever the table is changed.
      *
-     * @arg {any} options
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {any}
      */
     public updateFieldsInOptions(options: any): any {
@@ -1074,15 +1077,16 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     /**
      * Updates all the tables and fields in the given options.  Called on init and whenever the database is changed.
      *
-     * @arg {any} options
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} [config]
      * @return {any}
      */
-    public updateTablesInOptions(options: any): any {
+    public updateTablesInOptions(options: any, config?: any): any {
         options.tables = options.database ? this.datasetService.getTables(options.database.name) : [];
         options.table = options.tables[0] || options.table;
 
         if (options.tables.length > 0) {
-            let configTable = this.injector.get('table', null);
+            let configTable = config ? config.table : this.injector.get('table', null);
             if (configTable) {
                 let isName = false;
                 for (let table of options.tables) {

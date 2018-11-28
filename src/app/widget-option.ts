@@ -245,11 +245,11 @@ export class WidgetOptionCollection {
     /**
      * @constructor
      * @arg {Injector} [injector] An injector with bindings; if undefined, uses config.
-     * @arg {any} [config={}] An object with bindings; used if injector is undefined.
+     * @arg {any} [config] An object with bindings; used if injector is undefined.
      */
-    constructor(protected injector?: Injector, protected config: any = {}) {
+    constructor(protected injector?: Injector, protected config?: any) {
         // TODO Do not use a default _id.  Throw an error if undefined!
-        this._id = (this.injector ? this.injector.get('_id', uuid.v4()) : (this.config._id || uuid.v4()));
+        this._id = (this.injector ? this.injector.get('_id', uuid.v4()) : ((this.config || {})._id || uuid.v4()));
     }
 
     /**
@@ -287,7 +287,7 @@ export class WidgetOptionCollection {
     public inject(options: WidgetOption | WidgetOption[]): void {
         (Array.isArray(options) ? options : [options]).forEach((option) => {
             this.append(option, (this.injector ? this.injector.get(option.bindingKey, option.valueDefault) :
-                (this.config[option.bindingKey] || option.valueDefault)));
+                ((this.config || {})[option.bindingKey] || option.valueDefault)));
         });
     }
 
