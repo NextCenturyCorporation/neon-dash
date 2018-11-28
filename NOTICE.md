@@ -39,9 +39,9 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | hash-set-map@1.0.2 | [MIT](https://github.com/CaselIT/hash-set-map/raw/master/LICENSE) |
 | intl@1.2.5 | [MIT](https://github.com/andyearnshaw/Intl.js/raw/master/LICENSE.txt) |
 | javascript-natural-sort@0.7.1 | [MIT](https://github.com/Bill4Time/javascript-natural-sort) |
-| jquery@2.2.4 | [MIT](https://github.com/jquery/jquery/raw/master/LICENSE.txt) |
+| jquery@3.3.1 | [MIT](https://github.com/jquery/jquery/raw/master/LICENSE.txt) |
 | js-yaml@3.9.1 | [MIT](https://github.com/nodeca/js-yaml/raw/master/LICENSE) |
-| jsoneditor@5.9.6 | [Apache-2.0](https://github.com/josdejong/jsoneditor/raw/master/LICENSE) |
+| jsoneditor@5.26.2 | [Apache-2.0](https://github.com/josdejong/jsoneditor/raw/master/LICENSE) |
 | leaflet@1.2.0 | [BSD-2-Clause](https://github.com/Leaflet/Leaflet/raw/master/LICENSE) |
 | less@2.7.2 | [Apache-2.0](https://github.com/less/less.js/raw/master/LICENSE) |
 | license-crawler@0.0.5 | [MIT](https://github.com/marcelwinh/license-crawler/raw/master/LICENSE) |
@@ -55,4 +55,5 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | requirejs@2.3.5 | [MIT](https://github.com/jrburke/r.js) |
 | rxjs@5.5.5 | [Apache-2.0](https://github.com/ReactiveX/RxJS/raw/master/LICENSE.txt) |
 | vis@4.21.0 | [(Apache-2.0 OR MIT)](https://github.com/almende/vis/raw/master/LICENSE-APACHE-2.0) |
+| vue@2.5.17 | [MIT](https://github.com/vuejs/vue/raw/master/LICENSE) |
 | zone.js@0.8.26 | [MIT](https://github.com/angular/zone.js/raw/master/LICENSE) |
