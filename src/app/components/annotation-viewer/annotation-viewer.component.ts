@@ -25,14 +25,12 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { Color } from '../../color';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, DatabaseMetaData, TableMetaData } from '../../dataset';
@@ -129,33 +127,25 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     public seenTypes: string[] = [];
     public disabledSet: [string[]] = [] as [string[]];
-    public colorByFields: string[] = [];
+    public colorKeys: string[] = [];
     public indexInclusive: boolean;
     public offset = 0;
     public previousId: string = '';
 
     constructor(
-        activeGridService: ActiveGridService,
-        private colorSchemaService: ColorSchemeService,
+        protected widgetService: AbstractWidgetService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        ref: ChangeDetectorRef
     ) {
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
-            themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         // Backwards compatibility (documentLimit deprecated due to its redundancy with limit).
@@ -459,7 +449,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             let documentText = document.documents;
             let annotationsPartList = [];
 
-            //console.log(document);
             if (!this.doesAnnotationExist(document)) {
                 let part = new Part();
                 part.text = document.documents;
@@ -471,7 +460,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     let currentPart = new Part();
                     let currentText = document.annotationTextList[index];
                     let currentType = document.annotationTypeList[index];
-                    let highlightColor = this.colorSchemaService.getColorFor(currentType, currentType).toRgba(0.4);
+                    let highlightColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, currentType,
+                        currentType).toRgba(0.4);
 
                     currentPart.highlightColor = highlightColor;
                     currentPart.text = currentText;
@@ -485,7 +475,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                         this.seenTypes.push(type);
                     }
                 }
-                this.colorByFields = this.seenTypes;
+                this.colorKeys = this.seenTypes.map((type) => this.widgetService.getColorKey(this.options.database.name,
+                    this.options.table.name, type));
             }
 
             for (let index = 0; index < annotationsPartList.length; index++) {
@@ -868,7 +859,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     updateLegend() {
-        this.seenTypes.sort();
+        this.colorKeys.sort();
     }
 
     legendItemSelected(event: any) {
@@ -903,7 +894,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     part.highlightColor = 'rgb(255,255,255)';
                 } else {
                     if (part.highlightColor && part.highlightColor.includes('rgb(255,255,255')) {
-                        part.highlightColor = this.colorSchemaService.getColorFor(part.type, part.type).toRgba(0.4);
+                        part.highlightColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, part.type,
+                            part.type).toRgba(0.4);
                     }
                 }
 
@@ -938,7 +930,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         });
 
         this.disabledSet = [] as [string[]];
-        this.colorByFields = [];
+        this.colorKeys = [];
 
         this.page = 1;
         this.updateDocuemnts(response);
@@ -954,7 +946,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     updateDocuemnts(response) {
         this.data = [];
         for (let document of response.data) {
-            //console.log(document);
             let data = {
                 annotationStartIndex: [],
                 annotationEndIndex: [],
@@ -1062,7 +1053,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     showLegendContainer(): boolean {
         let showLegend = false;
-        if (!this.options.singleColor && this.colorByFields.length > 0) {
+        if (!this.options.singleColor && this.colorKeys.length > 0) {
             showLegend = true;
         }
         return showLegend;

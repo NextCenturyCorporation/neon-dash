@@ -1,39 +1,36 @@
-<mat-sidenav-container class="neon-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-sidenav #sidenav class="neon-sidenav neon-sidenav-datasets" mat-fill align="start">
-        <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary">
-            <span>Datasets</span>
-        </mat-toolbar>
-        <app-dataset-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); sidenav.toggle()">
-        </app-dataset-selector>
-    </mat-sidenav>
+<mat-sidenav-container class="neon-sidenav" [ngClass]="widgetService.getTheme()">
+    <mat-sidenav #sideNavRight class="neon-sidenav neon-sidenav-info" mat-fill align="end">
+        <div>
+            <mat-toolbar class="title" color="primary">
+                <span>{{ rightPanelTitle }}</span>
+            </mat-toolbar>
 
-    <mat-sidenav #sidenavright class="neon-sidenav neon-sidenav-info" mat-fill align="end">
-        <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary">
-            <span>{{ (showAbout) ? 'About' : 'Options' }}</span>
-        </mat-toolbar>
-        <app-about-neon *ngIf="showAbout"></app-about-neon>
-
-        <mat-card align="left">
-            <mat-card-content>
-                <app-dashboard-options #mainDashboardOptions *ngIf="!showAbout" [sidenav]="sidenavright"></app-dashboard-options>
-
-                <div mat-fill class="flex">
-                    <span class="fill-remaining"></span>
-                    <button mat-raised-button color="primary" (click)="sidenavright.close()">Close</button>
+            <div class="right-panel-container">
+                <div class="about-neon-container" *ngIf="checkPanel('aboutNeon')">
+                    <app-about-neon></app-about-neon>
                 </div>
-            </mat-card-content>
-        </mat-card>
+                <div class="add-visualization-container" *ngIf="checkPanel('addVis')">
+                    <app-add-visualization></app-add-visualization>
+                </div>
+                <div class="dataset-selector-container" *ngIf="checkPanel('dashboardLayouts')">
+                    <app-dataset-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); sideNavRight.toggle()">
+                    </app-dataset-selector>
+                </div>
+                <div class="saved-state-container" *ngIf="checkPanel('saveState')">
+                    <app-save-state [sidenav]="sideNavRight" [widgetGridItems]="widgetGridItems" [widgets]="widgets"></app-save-state>
+                </div>
+                <div class="setting-container" *ngIf="checkPanel('settings')">
+                    <app-settings [widgets]="widgets"></app-settings>
+                </div>
+            </div>
+        </div>
     </mat-sidenav>
 
     <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary" layout-align="space-between center" flex>
-        <button mat-icon-button class="neon-icon-button-large" [attr.aria-label]="datasetService.getName() || 'Choose Data'"
-            tooltip-position="below" matTooltip="Select a Dataset" (click)="sidenav.toggle()">
-            <mat-icon class="neon-icon-large">menu</mat-icon>
-        </button>
         <span>{{ datasetService.getName() || "Choose Data..." }}</span>
         <span class="fill-remaining"></span>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
-            matTooltip="Add a New Visualization" (click)="openAddVisualizationDialog()" *ngIf="showAddVisualizationButton">
+            matTooltip="Add a New Visualization" (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()" *ngIf="showVisShortcut">
             <mat-icon class="neon-icon-large">add_circle</mat-icon>
         </button>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Connect to a Custom Data Source"
@@ -41,7 +38,9 @@
             *ngIf="showCustomConnectionButton">
             <mat-icon class="neon-icon-large">storage</mat-icon>
         </button>
-        <app-simple-filter #simpleFilter></app-simple-filter>
+        <div class="simple-search-container">
+            <app-simple-filter #simpleFilter></app-simple-filter>
+        </div>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filter Builder" tooltip-position="below"
             matTooltip="Show Filters" (click)="openFilterBuilderDialog()" *ngIf="showFilterTrayButton">
             <mat-icon class="neon-icon-large" *ngIf="changeFilterBuilderIcon()" svgIcon="{{filterBuilderIcon}}"></mat-icon>
@@ -50,34 +49,42 @@
             matTooltip="Show Filters" (click)="openFilterTrayDialog()" *ngIf="showFilterTrayButton">
             <mat-icon class="neon-icon-large">filter_list</mat-icon>
         </button>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="Settings" tooltip-position="below"
-            matTooltip="Change the Settings" (click)="toggleDashboardOptions(); sidenavright.toggle();">
-            <mat-icon class="neon-icon-large">settings</mat-icon>
+
+        <mat-menu #appMenu="matMenu" yPosition="below" [overlapTrigger]="false">
+            <button mat-menu-item (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()">
+                <mat-icon>add_circle</mat-icon>Visualizations</button>
+            <button mat-menu-item (click)="setPanel('dashboardLayouts', 'Dashboard Layouts'); sideNavRight.toggle()">
+                <mat-icon>dashboard</mat-icon>Dashboard Layouts</button>
+            <button mat-menu-item (click)="setPanel('saveState', 'Save States'); sideNavRight.toggle()">
+                <mat-icon>save</mat-icon>Saved States</button>
+            <button mat-menu-item (click)="setPanel('settings', 'Settings'); sideNavRight.toggle()">
+                <mat-icon>settings</mat-icon>Settings
+            </button>
+            <button mat-menu-item (click)="setPanel('aboutNeon', 'About Neon'); sideNavRight.toggle()">
+                <mat-icon>info</mat-icon>About
+            </button>
+        </mat-menu>
+
+        <button mat-icon-button class="neon-icon-button-large" [matMenuTriggerFor]="appMenu">
+            <mat-icon class="neon-icon-large">menu</mat-icon>
         </button>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="About..." tooltip-position="below"
-            matTooltip="Show Application Information" (click)="showAbout = true; sidenavright.toggle()">
-            <mat-icon class="neon-icon-large">info</mat-icon>
-        </button>
-        <a class="neon-link" aria-label="Help" matTooltip="Open the User Guide" tooltip-position="below" target="_blank"
-            href="https://github.com/NextCenturyCorporation/neon-dash/wiki/Neon-Dashboard-User-Guide" target="_blank">
-            <mat-icon class="neon-icon-large">help</mat-icon>
-        </a>
+
     </mat-toolbar>
 
     <div class="header-toggle-container">
-        <div class="filter-builder-container" id="filter.builder" *ngIf="createFilterBuilder" >
+        <div class="filter-builder-container" id="filter.builder" *ngIf="createFilterBuilder">
             <app-filter-builder></app-filter-builder>
-            <div class="filter-builder-footer" >
-                
+            <div class="filter-builder-footer">
             </div>
         </div>
     </div>
 
     <div class="neon-dash" mat-fill layout="col">
         <div [ngGrid]="gridConfig" #grid>
-            <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridItemConfig" name="item.id" id="item.id"
-                (onResizeStart)="onResizeStart(i, $event)" (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
-                <app-visualization-container [visualization]="gridItems[i]"></app-visualization-container>
+            <div *ngFor="let widgetGridItem of widgetGridItems; let i = index;" [(ngGridItem)]="widgetGridItem.config"
+                    name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
+                    (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
+                <app-visualization-container [visualization]="widgetGridItem"></app-visualization-container>
                 <ng-content></ng-content>
             </div>
         </div>

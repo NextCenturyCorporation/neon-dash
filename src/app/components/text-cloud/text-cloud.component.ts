@@ -25,14 +25,9 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
@@ -74,27 +69,19 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     public textColor: string = '#111';
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        ref: ChangeDetectorRef
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
-            themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         // Backwards compatibility (sizeAggregation deprecated and replaced by aggregation).
@@ -126,7 +113,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getFilterText(filter) {
-        //console.log(filter);
         return filter.prettyField + ' = ' + filter.value;
     }
 
@@ -315,10 +301,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             [this.options.dataField.columnName]);
         this.filters = [];
-        //console.log("Filters");
-        //console.log(neonFilters);
         for (let neonFilter of neonFilters) {
-            //console.log(neonFilter);
             if (!neonFilter.filter.whereClause.whereClauses) {
                 let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
@@ -353,10 +336,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         if (!this.filters.length) {
             this.filters.push(filter);
             let whereClause = neon.query.where(filter.field, '=', filter.value);
-            //console.log("Text Cloud");
-            //console.log(filter);
-            //console.log(whereClause);
-            //console.log(this.filters);
             this.addNeonFilter(true, filter, whereClause);
         } else if (this.filterIsUnique(filter)) {
             filter.id = this.filters[0].id;

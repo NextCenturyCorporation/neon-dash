@@ -26,21 +26,15 @@ import {
 } from '@angular/core';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { VisualizationService } from '../../services/visualization.service';
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ThemesService } from '../../services/themes.service';
+
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
-import { ColorSchemeService } from '../../services/color-scheme.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -68,26 +62,18 @@ import * as _ from 'lodash';
 class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     public filters: any[] = [];
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        changeDetection: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        changeDetection: ChangeDetectorRef
     ) {
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
-            themesService,
-            changeDetection,
-            visualizationService
+            changeDetection
         );
     }
 
@@ -238,8 +224,7 @@ describe('BaseNeonComponent Options', () => {
 
     initializeTestBed({
         declarations: [
-            TestBaseNeonComponent,
-            ExportControlComponent
+            TestBaseNeonComponent
         ],
         imports: [
             AppMaterialModule,
@@ -247,18 +232,10 @@ describe('BaseNeonComponent Options', () => {
             FormsModule
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
-            {
-                provide: DatasetService,
-                useClass: DatasetServiceMock
-            },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
-            ExportService,
             Injector,
-            ThemesService,
-            VisualizationService,
-            ErrorNotificationService,
             { provide: 'config', useValue: testConfig },
             { provide: 'testDate', useValue: 'testDateField' },
             { provide: 'testFake', useValue: 'testFakeField' },
@@ -413,8 +390,7 @@ describe('Advanced BaseNeonComponent Options', () => {
 
     initializeTestBed({
         declarations: [
-            TestAdvancedNeonComponent,
-            ExportControlComponent
+            TestAdvancedNeonComponent
         ],
         imports: [
             AppMaterialModule,
@@ -422,18 +398,10 @@ describe('Advanced BaseNeonComponent Options', () => {
             FormsModule
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
-            {
-                provide: DatasetService,
-                useClass: DatasetServiceMock
-            },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
-            ExportService,
             Injector,
-            ThemesService,
-            VisualizationService,
-            ErrorNotificationService,
             { provide: 'config', useValue: testConfig }
         ]
     });
@@ -512,8 +480,7 @@ describe('Advanced BaseNeonComponent Options with Config', () => {
 
     initializeTestBed({
         declarations: [
-            TestAdvancedNeonComponent,
-            ExportControlComponent
+            TestAdvancedNeonComponent
         ],
         imports: [
             AppMaterialModule,
@@ -521,18 +488,10 @@ describe('Advanced BaseNeonComponent Options with Config', () => {
             FormsModule
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
-            {
-                provide: DatasetService,
-                useClass: DatasetServiceMock
-            },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
-            ExportService,
             Injector,
-            ThemesService,
-            VisualizationService,
-            ErrorNotificationService,
             { provide: 'config', useValue: testConfig },
             { provide: 'database', useValue: 1 },
             { provide: 'table', useValue: 1 },
@@ -720,8 +679,7 @@ describe('BaseNeon', () => {
 
     initializeTestBed({
         declarations: [
-            TestBaseNeonComponent,
-            ExportControlComponent
+            TestBaseNeonComponent
         ],
         imports: [
             AppMaterialModule,
@@ -729,18 +687,10 @@ describe('BaseNeon', () => {
             FormsModule
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
-            {
-                provide: DatasetService,
-                useClass: DatasetServiceMock
-            },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
-            ExportService,
             Injector,
-            ThemesService,
-            VisualizationService,
-            ErrorNotificationService,
             { provide: 'config', useValue: testConfig }
         ]
     });
@@ -748,7 +698,6 @@ describe('BaseNeon', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(TestBaseNeonComponent);
         component = fixture.componentInstance;
-        options = component.options;
         fixture.detectChanges();
     });
 
@@ -765,12 +714,6 @@ describe('BaseNeon', () => {
         expect(component.newLimit).toBeDefined();
     });
 
-    it('Checks to see doExport calls the export function once', (() => {
-        let spy = spyOn(component, 'export');
-        component.doExport();
-        expect(spy.calls.count()).toBe(1);
-    }));
-
     it('Tests ngOnDestroy function', (() => {
         expect(component.ngOnDestroy()).toBeUndefined();
         let spy = spyOn(component, 'subNgOnDestroy');
@@ -780,38 +723,38 @@ describe('BaseNeon', () => {
 
     it('handleChangeDatabase does update options and does call logChangeAndStartQueryChain', () => {
         let spyLog = spyOn(component, 'logChangeAndStartQueryChain');
-        options.databases = DatasetServiceMock.DATABASES;
-        options.database = DatasetServiceMock.DATABASES[0];
-        options.tables = [];
-        options.table = null;
-        options.fields = [];
+        component.options.databases = DatasetServiceMock.DATABASES;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.tables = [];
+        component.options.table = null;
+        component.options.fields = [];
         component.handleChangeDatabase();
         expect(spyLog.calls.count()).toBe(1);
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
-        expect(options.unsharedFilterField).toEqual(new FieldMetaData());
-        expect(options.unsharedFilterValue).toEqual('');
+        expect(component.options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(component.options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component.options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.options.unsharedFilterField).toEqual(new FieldMetaData());
+        expect(component.options.unsharedFilterValue).toEqual('');
     });
 
     it('handleChangeTable does update options and does call logChangeAndStartQueryChain', () => {
         let spyLog = spyOn(component, 'logChangeAndStartQueryChain');
-        options.databases = DatasetServiceMock.DATABASES;
-        options.database = DatasetServiceMock.DATABASES[0];
-        options.tables = DatasetServiceMock.TABLES;
-        options.table = DatasetServiceMock.TABLES[0];
-        options.fields = [];
+        component.options.databases = DatasetServiceMock.DATABASES;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.tables = DatasetServiceMock.TABLES;
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = [];
         component.handleChangeTable();
         expect(spyLog.calls.count()).toBe(1);
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
-        expect(options.unsharedFilterField).toEqual(new FieldMetaData());
-        expect(options.unsharedFilterValue).toEqual('');
+        expect(component.options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(component.options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component.options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.options.unsharedFilterField).toEqual(new FieldMetaData());
+        expect(component.options.unsharedFilterValue).toEqual('');
     });
 
     it('handleChangeData does call logChangeAndStartQueryChain', () => {
@@ -826,13 +769,13 @@ describe('BaseNeon', () => {
         component.newLimit = 1234;
 
         component.handleChangeLimit();
-        expect(options.limit).toBe(1234);
+        expect(component.options.limit).toBe(1234);
         expect(spy.calls.count()).toBe(1);
 
         component.newLimit = 0;
 
         component.handleChangeLimit();
-        expect(options.limit).toBe(1234);
+        expect(component.options.limit).toBe(1234);
         expect(component.newLimit).toBe(1234);
         expect(spy.calls.count()).toBe(1);
     });

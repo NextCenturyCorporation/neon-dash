@@ -14,6 +14,7 @@
  *
  */
 import {
+    AfterViewInit,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
@@ -25,14 +26,12 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { Color } from '../../color';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import {
     AbstractAggregationSubcomponent,
@@ -80,7 +79,7 @@ class Filter {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AggregationComponent extends BaseNeonComponent implements OnInit, OnDestroy, AggregationSubcomponentListener {
+export class AggregationComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit, AggregationSubcomponentListener {
     @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('hiddenCanvas') hiddenCanvas: ElementRef;
@@ -181,8 +180,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         type: 'list'
     }];
 
+    public colorKeys: any[] = [];
     public legendActiveGroups: any[] = [];
-    public legendFields: any[] = [];
     public legendGroups: any[] = [];
 
     public xList: any[] = [];
@@ -192,28 +191,20 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public newType: string = '';
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
         ref: ChangeDetectorRef,
-        visualizationService: VisualizationService,
-        protected colorSchemeService: ColorSchemeService
+        protected widgetService: AbstractWidgetService
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
-            themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         this.newType = this.options.type;
@@ -222,6 +213,21 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.options.dualView = ('' + this.options.dualView) === 'true' ? 'on' : this.options.dualView;
         if (!this.isDualViewCompatible(this.options)) {
             this.options.dualView = '';
+        }
+    }
+
+    public ngAfterViewInit() {
+        if (!this.options.axisLabelX) {
+            this.options.axisLabelX =
+                (this.subcomponentMain && this.subcomponentMain.isHorizontal()) ?
+                    this.options.aggregation || this.options.yField.prettyName :
+                    this.options.xField.prettyName;
+        }
+        if (!this.options.axisLabelY) {
+            this.options.axisLabelY =
+                (this.subcomponentMain && this.subcomponentMain.isHorizontal()) ?
+                    this.options.xField.prettyName :
+                    this.options.aggregation || this.options.yField.prettyName;
         }
     }
 
@@ -235,8 +241,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (typeof filter.value === 'object' && filter.value.beginX && filter.value.endX) {
             let xText = filter.value.beginX + ' to ' + filter.value.endX;
             if (this.options.xField.type === 'date') {
-                xText = moment.utc(filter.value.beginX).format('ddd, MMM D, YYYY, h:mm A') + ' to ' +
-                    moment.utc(filter.value.endX).format('ddd, MMM D, YYYY, h:mm A');
+                xText = moment.utc(filter.value.beginX).format('ddd, MMM D, YYYY, h:mm:ss A') + ' to ' +
+                    moment.utc(filter.value.endX).format('ddd, MMM D, YYYY, h:mm:ss A');
             }
             if (filter.value.beginY && filter.value.endY && filter.prettyField.x && filter.prettyField.y) {
                 return filter.prettyField.x + ' from ' + xText + ' and ' + filter.prettyField.y + ' from ' + filter.value.beginY + ' to ' +
@@ -381,6 +387,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue),
             new WidgetSelectOption('hideGridLines', 'Grid Lines', false, OptionChoices.ShowFalseHideTrue, this.isScaled),
             new WidgetSelectOption('hideGridTicks', 'Grid Ticks', false, OptionChoices.ShowFalseHideTrue, this.isScaled),
+            new WidgetFreeTextOption('axisLabelX', 'Label of X-Axis', '', this.isScaled),
+            new WidgetFreeTextOption('axisLabelY', 'Label of Y-Axis', '', this.isScaled),
             new WidgetSelectOption('lineCurveTension', 'Line Curve Tension', 0.3, [{
                 prettyName: '0.1',
                 variable: 0.1
@@ -410,8 +418,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 variable: 0.9
             }], this.isLine),
             new WidgetSelectOption('lineFillArea', 'Line Fill Area Under Curve', false, OptionChoices.NoFalseYesTrue, this.isLine),
-            new WidgetSelectOption('logScaleX', 'Log X Scale', false, OptionChoices.NoFalseYesTrue, this.isScaled),
-            new WidgetSelectOption('logScaleY', 'Log Y Scale', false, OptionChoices.NoFalseYesTrue, this.isScaled),
+            new WidgetSelectOption('logScaleX', 'Log X-Axis Scale', false, OptionChoices.NoFalseYesTrue, this.isScaled),
+            new WidgetSelectOption('logScaleY', 'Log Y-Axis Scale', false, OptionChoices.NoFalseYesTrue, this.isScaled),
             new WidgetSelectOption('savePrevious', 'Save Previously Seen', false, OptionChoices.NoFalseYesTrue),
             new WidgetFreeTextOption('scaleMinX', 'Scale Min X', '', this.isScaled),
             new WidgetFreeTextOption('scaleMaxX', 'Scale Max X', '', this.isScaled),
@@ -640,7 +648,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     handleChangeData() {
         this.legendActiveGroups = [];
         this.legendGroups = [];
-        this.legendFields = [];
+        this.colorKeys = [];
         this.xList = [];
         this.yList = [];
         super.handleChangeData();
@@ -731,7 +739,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns whether the subcomponent type is continuous.
+     * Returns whether the given subcomponent type is continuous.
      *
      * @arg {any} options
      * @return {boolean}
@@ -898,13 +906,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let yList = [];
         let groupsToColors = new Map<string, Color>();
         if (!this.options.groupField.columnName) {
-            groupsToColors.set(this.DEFAULT_GROUP, this.colorSchemeService.getColorFor('', this.DEFAULT_GROUP));
+            groupsToColors.set(this.DEFAULT_GROUP, this.widgetService.getColor(this.options.database.name, this.options.table.name, '',
+                this.DEFAULT_GROUP));
         }
 
         let findGroupColor = (group: string): Color => {
             let color = groupsToColors.get(group);
             if (!color) {
-                color = this.colorSchemeService.getColorFor(this.options.groupField.columnName, group);
+                color = this.widgetService.getColor(this.options.database.name, this.options.table.name, this.options.groupField.columnName,
+                    group);
                 groupsToColors.set(group, color);
             }
             return color;
@@ -1119,7 +1129,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         this.subOnResizeStop();
 
-        this.legendFields = this.options.groupField.columnName ? [this.options.groupField.columnName] : [''];
+        this.colorKeys = [this.widgetService.getColorKey(this.options.database.name, this.options.table.name,
+            this.options.groupField.columnName || '')];
         this.totalY = this.activeData.reduce((a, b) => ({ y: (a.y + b.y) }), { y: 0 }).y;
     }
 
@@ -1367,7 +1378,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     subHandleChangeLimit() {
         this.legendActiveGroups = [];
         this.legendGroups = [];
-        this.legendFields = [];
+        this.colorKeys = [];
         this.xList = [];
         this.yList = [];
         super.subHandleChangeLimit();

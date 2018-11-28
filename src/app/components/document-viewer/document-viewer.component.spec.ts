@@ -27,15 +27,11 @@ import { DocumentViewerComponent } from './document-viewer.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 
 import { neonVariables } from '../../neon-namespaces';
-import { ActiveGridService } from '../../services/active-grid.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { TranslationService } from '../../services/translation.service';
-import { VisualizationService } from '../../services/visualization.service';
+import { WidgetService } from '../../services/widget.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -58,19 +54,14 @@ describe('Component: DocumentViewer', () => {
             ExportControlComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
             {
                 provide: DatasetService,
                 useClass: DatasetServiceMock
             },
-            ErrorNotificationService,
-            ExportService,
             FilterService,
-            ThemesService,
-            TranslationService,
-            VisualizationService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -1015,18 +1006,10 @@ describe('Component: Document Viewer with Config', () => {
             ExportControlComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
-            {
-                provide: DatasetService,
-                useClass: DatasetServiceMock
-            },
-            ErrorNotificationService,
-            ExportService,
+            { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
-            ThemesService,
-            TranslationService,
-            VisualizationService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'title', useValue: 'Document Viewer Title' },

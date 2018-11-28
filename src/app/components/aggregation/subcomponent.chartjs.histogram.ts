@@ -16,7 +16,7 @@
 import { ElementRef } from '@angular/core';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { ChartJsBarSubcomponent, ChartJsBarDataset } from './subcomponent.chartjs.bar';
-import { Color } from '../../services/color-scheme.service';
+import { Color } from '../../color';
 
 export class ChartJsHistogramSubcomponent extends ChartJsBarSubcomponent {
     /**

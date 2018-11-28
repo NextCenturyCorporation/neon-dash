@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Color } from '../../services/color-scheme.service';
+import { Color } from '../../color';
 import { ElementRef } from '@angular/core';
 
 export const whiteString = new Color(255, 255, 255).toRgb();

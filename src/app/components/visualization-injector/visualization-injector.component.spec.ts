@@ -26,23 +26,22 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { LegendComponent } from '../legend/legend.component';
 import { MapComponent } from '../map/map.component';
+import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
+import { NewsFeedComponent } from '../news-feed/news-feed.component';
+import { QueryBarComponent } from '../query-bar/query-bar.component';
 import { SampleComponent } from '../sample/sample.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
+import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
+import { TimelineComponent } from '../timeline/timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { VisualizationInjectorComponent } from './visualization-injector.component';
 import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { VisualizationService } from '../../services/visualization.service';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
-import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
-import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { NewsFeedComponent } from '../news-feed/news-feed.component';
-import { QueryBarComponent } from '../query-bar/query-bar.component';
-import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from '../thumbnail-grid/thumbnail-details.component';
 import { MatAutocompleteModule } from '@angular/material';
 
 describe('Component: VisualizationInjector', () => {
@@ -63,9 +62,8 @@ describe('Component: VisualizationInjector', () => {
             QueryBarComponent,
             SampleComponent,
             TextCloudComponent,
-            ThumbnailDetailsContractedComponent,
-            ThumbnailDetailsExpandedComponent,
             ThumbnailGridComponent,
+            TimelineComponent,
             UnsharedFilterComponent,
             VisualizationInjectorComponent,
             WikiViewerComponent
@@ -81,10 +79,4 @@ describe('Component: VisualizationInjector', () => {
             ReactiveFormsModule
         ]
     });
-
-    it('should create an instance', inject([ComponentFactoryResolver],
-        (resolver: ComponentFactoryResolver) => {
-        let component = new VisualizationInjectorComponent(resolver, new VisualizationService());
-        expect(component).toBeTruthy();
-    }));
 });

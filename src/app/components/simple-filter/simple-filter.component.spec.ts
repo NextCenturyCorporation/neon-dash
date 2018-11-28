@@ -17,9 +17,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
@@ -64,16 +62,14 @@ class SimpleFilterTester {
     datasetService: DatasetService;
     element: DebugElement;
 
-    constructor(mockDataset = true) {
+    constructor(mockDataset = true, showSimpleSearch = true) {
         TestBed.configureTestingModule({
             declarations: [
                 SimpleFilterComponent
             ],
             providers: [
                 { provide: FilterService, useClass: MockFilterService },
-                ThemesService,
                 { provide: DatasetService, useClass: mockDataset ? MockDatasetService : DatasetService },
-                ErrorNotificationService,
                 { provide: 'config', useValue: new NeonGTDConfig() }
             ],
             imports: [
@@ -85,6 +81,7 @@ class SimpleFilterTester {
         let fixture = TestBed.createComponent(SimpleFilterComponent);
         this.fixture = fixture;
         this.component = fixture.componentInstance;
+        this.component.showSimpleSearch = showSimpleSearch;
         this.filterService = this.getInjected(FilterService);
         this.detectChanges();
 
@@ -250,9 +247,11 @@ describe('Component: SimpleFilter unconfigured', () => {
 
     let tester: SimpleFilterTester;
 
-    beforeEach(() => tester = new SimpleFilterTester(false));
+    beforeEach(() => tester = new SimpleFilterTester(false, false));
 
     it('should create an instance', () => expect(tester.component).toBeTruthy());
 
-    it('should not show in the UI when the configuration does not include a simpleFilter option', () => expect(tester.element).toBeFalsy());
+    it('**should not show in the UI when showSimpleFilter is set to false**', () => {
+        expect(tester.element).toBeFalsy();
+    });
 });

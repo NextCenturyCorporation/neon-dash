@@ -23,16 +23,15 @@ import { FilterBuilderComponent } from '../filter-builder/filter-builder.compone
 import { MapComponent } from '../map/map.component';
 import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
+import { NewsFeedComponent } from '../news-feed/news-feed.component';
+import { QueryBarComponent } from '../query-bar/query-bar.component';
 import { SampleComponent } from '../sample/sample.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
+import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
+import { TimelineComponent } from '../timeline/timeline.component';
 import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
 
 import { NeonGridItem } from '../../neon-grid-item';
-import { VisualizationService } from '../../services/visualization.service';
-import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
-import { NewsFeedComponent } from '../news-feed/news-feed.component';
-import { QueryBarComponent } from '../query-bar/query-bar.component';
-import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from '../thumbnail-grid/thumbnail-details.component';
 
 @Component({
     selector: 'app-visualization-injector',
@@ -49,8 +48,7 @@ import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent 
         QueryBarComponent,
         SampleComponent,
         TextCloudComponent,
-        ThumbnailDetailsContractedComponent,
-        ThumbnailDetailsExpandedComponent,
+        TimelineComponent,
         ThumbnailGridComponent,
         WikiViewerComponent
     ],
@@ -76,8 +74,11 @@ export class VisualizationInjectorComponent {
         let visualizationComponent = this.findVisualizationComponent(data.type);
 
         if (visualizationComponent) {
+            data.bindings = data.bindings || {};
+            data.bindings._id = data.id;
+
             // Inputs need to be in the following format to be resolved properly
-            let inputProviders = Object.keys(data.bindings || {}).map((bindingKey) => {
+            let inputProviders = Object.keys(data.bindings).map((bindingKey) => {
                 return {
                     provide: bindingKey,
                     useValue: data.bindings[bindingKey]
@@ -96,15 +97,10 @@ export class VisualizationInjectorComponent {
 
             // We insert the component into the dom container
             this.dynamicComponentContainer.insert(this.currentComponent.hostView);
-
-            // Try and get the ID of the child component
-            if (this.currentComponent._component && this.currentComponent._component.id) {
-                this.visualizationService.registerGridData(this.currentComponent._component.id, data);
-            }
         }
     }
 
-    constructor(private resolver: ComponentFactoryResolver, private visualizationService: VisualizationService) { }
+    constructor(private resolver: ComponentFactoryResolver) {}
 
     findVisualizationComponent(type: string): any {
         switch (type) {

@@ -20,16 +20,13 @@ import {
     ChangeDetectorRef
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { Color } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
+import { Color } from '../../color';
 import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
+import { neonEvents } from '../../neon-namespaces';
 import {
     OptionChoices,
     OptionType,
@@ -45,7 +42,6 @@ import {
 } from '../../widget-option';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-import * as uuid from 'node-uuid';
 
 /**
  * Base component for all non-layered Neon visualizations.
@@ -63,8 +59,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
 
     private redrawAfterResize: boolean = false;
 
-    public exportId: number;
-
     public initializing: boolean = false;
     public isLoading: number = 0;
     public isExportable: boolean = true;
@@ -77,20 +71,13 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     public newLimit: number;
 
     constructor(
-        protected activeGridService: ActiveGridService,
         protected connectionService: ConnectionService,
         protected datasetService: DatasetService,
         protected filterService: FilterService,
-        protected exportService: ExportService,
         protected injector: Injector,
-        public themesService: ThemesService,
-        public changeDetection: ChangeDetectorRef,
-        protected visualizationService: VisualizationService
+        public changeDetection: ChangeDetectorRef
     ) {
         this.messenger = new neon.eventing.Messenger();
-        this.doExport = this.doExport.bind(this);
-        this.getBindings = this.getBindings.bind(this);
-        this.id = uuid.v4();
     }
 
     /**
@@ -104,6 +91,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.initializing = true;
         this.options = this.createWidgetOptions(this.injector, this.getWidgetName(), this.getWidgetDefaultLimit());
+        this.id = this.options._id;
         this.newLimit = this.options.limit;
 
         try {
@@ -114,11 +102,12 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
 
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
-        this.visualizationService.registerBindings(this.id, this);
-        this.activeGridService.register(this.id, this);
+        this.messenger.publish(neonEvents.WIDGET_REGISTER, {
+            id: this.id,
+            widget: this
+        });
 
         this.subNgOnInit();
-        this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
         this.initializing = false;
         this.postInit();
     }
@@ -198,7 +187,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
             name: 'Query_Results_Table',
             data: [{
                 query: query,
-                name: exportName + '-' + this.exportId,
+                name: exportName + '-' + this.id,
                 fields: this.getExportFields(this.options.layers[layerIndex]).map((exportFieldsObject) => ({
                     query: exportFieldsObject.columnName,
                     pretty: exportFieldsObject.prettyName || exportFieldsObject.columnName
@@ -212,9 +201,9 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Get a query ready to give to the ExportService.
+     * Returns the export header data.
      */
-    export() {
+    doExport() {
         // TODO this function needs to be changed  to abstract once we get through all the visualizations.
         let queries = this.createAllQueries();
         if (queries) {
@@ -223,10 +212,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         }
         console.error('SKIPPING EXPORT FOR ' + this.options.title);
         return null;
-    }
-
-    doExport() {
-        return this.export();
     }
 
     protected enableRedrawAfterResize(enable: boolean) {
@@ -278,9 +263,9 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      */
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
-        this.exportService.unregister(this.exportId);
-        this.visualizationService.unregister(this.id);
-        this.activeGridService.unregister(this.id);
+        this.messenger.publish(neonEvents.WIDGET_UNREGISTER, {
+            id: this.id
+        });
         this.subNgOnDestroy();
     }
 
