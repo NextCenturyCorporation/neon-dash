@@ -25,15 +25,9 @@ import { FieldMetaData } from '../../dataset';
 import { FilterBuilderComponent } from './filter-builder.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { TranslationService } from '../../services/translation.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
@@ -49,15 +43,9 @@ describe('Component: Filter Builder', () => {
             FilterBuilderComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
-            ExportService,
-            TranslationService,
-            ErrorNotificationService,
-            VisualizationService,
-            ThemesService,
             Injector,
             { provide: 'config', useValue: testConfig }
         ],
@@ -399,15 +387,9 @@ describe('Component: Filter Builder with config', () => {
             FilterBuilderComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
-            ExportService,
-            TranslationService,
-            ErrorNotificationService,
-            VisualizationService,
-            ThemesService,
             Injector,
             {
                 provide: 'clauseConfig',

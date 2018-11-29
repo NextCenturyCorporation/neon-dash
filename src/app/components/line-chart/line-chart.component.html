@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -107,7 +107,7 @@
                 </div>
                 <p></p>
 
-                <app-export-control [exportId]="exportId"></app-export-control>
+                <app-export-control [widgets]="this"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
@@ -117,7 +117,7 @@
     </div>
 
     <div #filterContainer class="filter-container">
-        <app-legend (itemSelected)="legendItemSelected($event)" [fieldNames]="colorByFields" [disabledList]="disabledList"></app-legend>
+        <app-legend (itemSelected)="legendItemSelected($event)" [colorKeys]="colorKeys" [disabledList]="disabledList"></app-legend>
 
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
             <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">Date Filter</span>

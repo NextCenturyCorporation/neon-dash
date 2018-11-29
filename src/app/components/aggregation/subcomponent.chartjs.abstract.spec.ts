@@ -18,10 +18,12 @@
 
 import { AbstractChartJsDataset, AbstractChartJsSubcomponent } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener, AggregationSubcomponentOptions } from './subcomponent.aggregation.abstract';
-import { Color } from '../../services/color-scheme.service';
+import { Color } from '../../color';
 import { ElementRef } from '@angular/core';
 
 class TestAggregationSubcomponentOptions implements AggregationSubcomponentOptions {
+    public axisLabelX: string = '';
+    public axisLabelY: string = '';
     public granularity: string = 'year';
     public hideGridLines: boolean = false;
     public hideGridTicks: boolean = false;
@@ -127,7 +129,7 @@ class TestChartJsSubcomponent extends AbstractChartJsSubcomponent {
         return this.selectedLabels;
     }
 
-    protected isHorizontal(): boolean {
+    public isHorizontal(): boolean {
         return this.horizontal;
     }
 }
@@ -1032,6 +1034,7 @@ describe('ChartJsSubcomponent', () => {
     });
 
     it('selectDomain with time axis does create expected filter', () => {
+        subcomponent.options.granularity = 'day';
         let spy1 = spyOn(listener, 'subcomponentRequestsSelect');
         let spy2 = spyOn(listener, 'subcomponentRequestsDeselect');
         let spy3 = spyOn(listener, 'subcomponentRequestsFilterOnDomain');
@@ -1088,7 +1091,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy1.calls.count()).toEqual(2);
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(1);
-        expect(spy3.calls.argsFor(0)).toEqual([new Date('2018-01-02T00:00:00.000Z'), new Date('2018-01-03T00:00:00.000Z')]);
+        expect(spy3.calls.argsFor(0)).toEqual([new Date('2018-01-02T00:00:00.000Z'), new Date('2018-01-03T23:59:59.000Z')]);
         expect(spy4.calls.count()).toEqual(2);
         expect(spy5.calls.count()).toEqual(2);
         expect(spy6.calls.count()).toEqual(0);

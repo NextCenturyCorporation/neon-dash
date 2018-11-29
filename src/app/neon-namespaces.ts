@@ -18,6 +18,21 @@
 
 import * as neon from 'neon-framework';
 
+export namespace neonEvents {
+    export const DASHBOARD_CLEAR = 'DASHBOARD_CLEAR';
+    export const DASHBOARD_ERROR = 'DASHBOARD_ERROR';
+    export const DASHBOARD_REFRESH = 'DASHBOARD_REFRESH';
+    export const DASHBOARD_STATE = 'DASHBOARD_STATE';
+    export const WIDGET_ADD = 'WIDGET_ADD';
+    export const WIDGET_DELETE = 'WIDGET_DELETE';
+    export const WIDGET_CONTRACT = 'WIDGET_CONTRACT';
+    export const WIDGET_EXPAND = 'WIDGET_EXPAND';
+    export const WIDGET_MOVE_TO_BOTTOM = 'WIDGET_MOVE_TO_BOTTOM';
+    export const WIDGET_MOVE_TO_TOP = 'WIDGET_MOVE_TO_TOP';
+    export const WIDGET_REGISTER = 'WIDGET_REGISTER';
+    export const WIDGET_UNREGISTER = 'WIDGET_UNREGISTER';
+}
+
 export namespace neonVariables {
     /* tslint:disable:no-string-literal */
     export const ASCENDING = neon.query['ASCENDING'];
@@ -111,7 +126,8 @@ export const neonVisualizations: any[] = [{
     name: 'Annotation Viewer',
     type: 'annotationViewer',
     icon: 'annotation_viewer',
-    bindings: {}
+    bindings: {},
+    config: {}
 }, {
     name: 'Bar Chart',
     type: 'aggregation',
@@ -119,17 +135,20 @@ export const neonVisualizations: any[] = [{
     bindings: {
         title: 'Bar Chart',
         type: 'bar-v'
-    }
+    },
+    config: {}
 }, {
     name: 'Data Table',
     type: 'dataTable',
     icon: 'view_data',
-    bindings: {}
+    bindings: {},
+    config: {}
 }, {
     name: 'Document Viewer',
     type: 'documentViewer',
     icon: 'document_viewer',
-    bindings: {}
+    bindings: {},
+    config: {}
 }, {
     name: 'Doughnut Chart',
     type: 'aggregation',
@@ -137,12 +156,14 @@ export const neonVisualizations: any[] = [{
     bindings: {
         title: 'Doughnut Chart',
         type: 'doughnut'
-    }
+    },
+    config: {}
 }, {
     name: 'Filter Builder',
     type: 'filterBuilder',
     icon: 'create_filter',
-    bindings: {}
+    bindings: {},
+    config: {}
 }, {
     name: 'Histogram',
     type: 'aggregation',
@@ -150,7 +171,8 @@ export const neonVisualizations: any[] = [{
     bindings: {
         title: 'Histogram',
         type: 'histogram'
-    }
+    },
+    config: {}
 }, {
     name: 'Line Chart',
     type: 'aggregation',
@@ -158,26 +180,32 @@ export const neonVisualizations: any[] = [{
     bindings: {
         title: 'Line Chart',
         type: 'line-xy'
-    }
+    },
+    config: {}
 }, {
     name: 'Map',
     type: 'map',
     icon: 'map',
-    bindings: {}
+    bindings: {},
+    config: {}
 }, {
     name: 'Media Viewer',
     type: 'mediaViewer',
     icon: 'media_viewer',
-    bindings: {}
+    bindings: {},
+    config: {}
 }, {
     name: 'Network Graph',
     type: 'networkGraph',
     icon: 'network_graph',
-    bindings: {}
+    bindings: {},
+    config: {}
 }, {
     name: 'News Feed',
     type: 'newsFeed',
-    icon: 'newspaper'
+    icon: 'newspaper',
+    bindings: {},
+    config: {}
 }, {
     name: 'Pie Chart',
     type: 'aggregation',
@@ -185,12 +213,14 @@ export const neonVisualizations: any[] = [{
     bindings: {
         title: 'Pie Chart',
         type: 'pie'
-    }
+    },
+    config: {}
 }, {
     name: 'Sample',
     type: 'sample',
     icon: 'neon_logo',
-    bindings: {}
+    bindings: {},
+    config: {}
 }, {
     name: 'Scatter Plot',
     type: 'aggregation',
@@ -198,20 +228,24 @@ export const neonVisualizations: any[] = [{
     bindings: {
         title: 'Scatter Plot',
         type: 'scatter-xy'
-    }
+    },
+    config: {}
 }, {
     name: 'Text Cloud',
     type: 'textCloud',
     icon: 'text_cloud',
-    bindings: {}
+    bindings: {},
+    config: {}
 }, {
     name: 'Thumbnail Grid',
     type: 'thumbnailGrid',
     icon: 'thumbnail_grid',
-    bindings: {}
+    bindings: {},
+    config: {}
 }, {
     name: 'Wiki Viewer',
     type: 'wikiViewer',
     icon: 'wiki_viewer',
-    bindings: {}
+    bindings: {},
+    config: {}
 }];

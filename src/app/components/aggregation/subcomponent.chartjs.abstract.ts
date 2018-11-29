@@ -16,12 +16,11 @@
 import { ElementRef } from '@angular/core';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { AggregationOptions } from './aggregation.component';
-import { Color } from '../../services/color-scheme.service';
+import { Color } from '../../color';
 
 import * as _ from 'lodash';
-import 'chart.js';
-
-declare let Chart;
+import * as moment from 'moment-timezone';
+import * as Chart from 'chart.js';
 
 export abstract class AbstractChartJsDataset {
     public data: any[] = [];
@@ -68,6 +67,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     private DEFAULT_CHART_ELEMENT_WIDTH = 10;
     private HORIZONTAL_MARGIN = 10;
     private X_AXIS_HEIGHT = 20;
+    private Y_AXIS_LABEL_WIDTH = 20;
 
     private canvas: any;
     private chart: any;
@@ -138,14 +138,14 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @private
      */
     private computeCurrentWidthAxisY(chartWidth: number, withMargins: boolean = false) {
-        let maxWidth = Math.floor(this.options.yPercentage * chartWidth);
+        let maxWidth = this.computeMaximumWidthAxisY(chartWidth);
         if (!this.tickLabels.y || !this.tickLabels.y.length) {
             return maxWidth;
         }
         let labelWidth = this.tickLabels.y.reduce((max, yLabel) => {
             return Math.max(max, this.computeTextWidth(yLabel));
         }, 0);
-        return Math.min(labelWidth, maxWidth) + (withMargins ? (2 * this.HORIZONTAL_MARGIN) : 0);
+        return Math.min(labelWidth, maxWidth) + (withMargins ? (2 * this.HORIZONTAL_MARGIN) : 0) + this.Y_AXIS_LABEL_WIDTH;
     }
 
     /**
@@ -191,6 +191,11 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     },
                     labels: (this.isHorizontal() ? meta.yList : meta.xList),
                     position: 'bottom',
+                    scaleLabel: {
+                        display: true,
+                        labelString: this.options.axisLabelX,
+                        padding: 0
+                    },
                     ticks: {
                         display: !this.options.hideGridTicks,
                         maxRotation: 0,
@@ -207,6 +212,11 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     },
                     labels: (this.isHorizontal() ? meta.xList : meta.yList),
                     position: 'left',
+                    scaleLabel: {
+                        display: true,
+                        labelString: this.options.axisLabelY,
+                        padding: -10 // Set a negative padding because ChartJS adds too much y-axis label padding by default.
+                    },
                     ticks: {
                         display: !this.options.hideGridTicks,
                         maxRotation: 0,
@@ -654,9 +664,9 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * Returns whether the chart is horizontal.
      *
      * @return {boolean}
-     * @protected
+     * @override
      */
-    protected isHorizontal(): boolean {
+    public isHorizontal(): boolean {
         return false;
     }
 
@@ -690,6 +700,22 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     public onHoverEvent(event, items: any[]) {
         this.elementRef.nativeElement.style.cursor = this.isSelectable(items) ? 'pointer' : 'default';
         this.handleHoverEvent(event, items, this.chart);
+    }
+
+    /**
+     * If axis is by dates and a range is selected, pad end date based on granularity since
+     * initially the chart labels are what is used to determine date values (for example, if
+     * the bar representing "August 2018" is selected, make sure range is "August 1st at 12:00 AM
+     * to August 31st at 11:59 PM" rather than "August 1st at 12:00 AM to August 1st 12:00 AM").
+     *
+     * @arg {any} endDate
+     * @protected
+     */
+    protected padEndDate(endDate: any) {
+        let newEndDate = moment.utc(endDate);
+        newEndDate.add(1, <moment.unitOfTime.DurationConstructor> this.options.granularity);
+        newEndDate.subtract(1, 'second');
+        return moment(newEndDate).toDate();
     }
 
     /**
@@ -932,8 +958,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             let endLabelX = chart.scales['x-axis-0'].getLabelForIndex(Math.max(this.selectedDomain.beginIndex,
                 this.selectedDomain.endIndex), 0);
             if (this.findAxisTypeX() === 'date') {
-                beginLabelX = new Date(beginLabelX);
-                endLabelX = new Date(endLabelX);
+                beginLabelX = moment.utc(beginLabelX).toDate();
+                endLabelX = this.padEndDate(endLabelX);
             }
             if (this.findAxisTypeX() === 'number') {
                 beginLabelX = Number(('' + beginLabelX).replace(/,/g, ''));

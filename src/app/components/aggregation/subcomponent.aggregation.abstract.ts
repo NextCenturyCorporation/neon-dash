@@ -19,6 +19,8 @@ import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
 
 export interface AggregationSubcomponentOptions {
+    axisLabelX: string;
+    axisLabelY: string;
     granularity: string;
     hideGridLines: boolean;
     hideGridTicks: boolean;
@@ -146,6 +148,14 @@ export abstract class AbstractAggregationSubcomponent {
      * @abstract
      */
     public abstract getMinimumDimensions(): { height: number, width: number };
+
+    /**
+     * Returns whether the chart is horizontal.
+     *
+     * @return {boolean}
+     * @abstract
+     */
+    public abstract isHorizontal(): boolean;
 
     /**
      * Initializes all the subcomponent elements.

@@ -30,14 +30,11 @@ import { } from 'jasmine-core';
 
 import { SettingsComponent } from './settings.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
+import { WidgetService } from '../../services/widget.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -62,18 +59,16 @@ class TestSettingsComponent extends SettingsComponent {
         changeDetection: ChangeDetectorRef,
         datasetService: DatasetService,
         dialog: MatDialog,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService
+        widgetService: AbstractWidgetService
     ) {
 
         super(
             changeDetection,
             datasetService,
             dialog,
-            exportService,
             injector,
-            themesService
+            widgetService
         );
     }
 
@@ -91,11 +86,10 @@ describe('Component: Settings', () => {
             TestSettingsComponent
         ],
         providers: [
-            ActiveGridService,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService
+            { provide: AbstractWidgetService, useClass: WidgetService }
         ],
         imports: [
             AppMaterialModule,

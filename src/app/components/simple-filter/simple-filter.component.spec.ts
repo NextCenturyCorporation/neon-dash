@@ -17,9 +17,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
@@ -37,7 +35,6 @@ import { By } from '@angular/platform-browser';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { ActiveGridService } from '../../services/active-grid.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 
 const databaseName = 'database';
@@ -75,14 +72,12 @@ class TestSimpleFilterComponent extends SimpleFilterComponent {
     constructor(
         changeDetection: ChangeDetectorRef,
         datasetService: DatasetService,
-        filterService: FilterService,
-        themesService: ThemesService
+        filterService: FilterService
     ) {
         super(
             changeDetection,
             datasetService,
-            filterService,
-            themesService
+            filterService
         );
     }
 }
@@ -102,9 +97,7 @@ class SimpleFilterTester {
             ],
             providers: [
                 { provide: FilterService, useClass: MockFilterService },
-                ThemesService,
                 { provide: DatasetService, useClass: mockDataset ? MockDatasetService : DatasetService },
-                ErrorNotificationService,
                 { provide: 'config', useValue: new NeonGTDConfig() }
             ],
             imports: [

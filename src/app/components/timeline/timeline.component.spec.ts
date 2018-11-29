@@ -30,16 +30,9 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { TimelineComponent } from './timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { TranslationService } from '../../services/translation.service';
-import { VisualizationService } from '../../services/visualization.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 let d3 = require('../../../assets/d3.min.js');
@@ -57,16 +50,9 @@ describe('Component: Timeline', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
             FilterService,
-            ExportService,
-            TranslationService,
-            ErrorNotificationService,
-            VisualizationService,
-            ThemesService,
-            ColorSchemeService,
             Injector,
             { provide: 'config', useValue: testConfig }
         ],

@@ -27,13 +27,9 @@ import {
 
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, MediaTypes } from '../../dataset';
@@ -206,12 +202,22 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     public showGrid: boolean;
     public mediaTypes: any = MediaTypes;
 
-    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
-        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-        ref: ChangeDetectorRef, visualizationService: VisualizationService, private sanitizer: DomSanitizer) {
+    constructor(
+        connectionService: ConnectionService,
+        datasetService: DatasetService,
+        filterService: FilterService,
+        injector: Injector,
+        ref: ChangeDetectorRef,
+        private sanitizer: DomSanitizer
+    ) {
 
-        super(activeGridService, connectionService, datasetService,
-            filterService, exportService, injector, themesService, ref, visualizationService);
+        super(
+            connectionService,
+            datasetService,
+            filterService,
+            injector,
+            ref
+        );
 
         this.options = new ThumbnailGridOptions(this.injector, this.datasetService, 'Thumbnail Grid', 30);
 

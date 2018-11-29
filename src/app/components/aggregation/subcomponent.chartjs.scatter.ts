@@ -18,7 +18,7 @@ import { AbstractChartJsDataset } from './subcomponent.chartjs.abstract';
 import { AggregationOptions } from './aggregation.component';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { ChartJsLineSubcomponent, ChartJsLineDataset } from './subcomponent.chartjs.line';
-import { Color } from '../../services/color-scheme.service';
+import { Color } from '../../color';
 
 // http://www.chartjs.org/docs/latest/charts/line.html#dataset-properties
 class ChartJsScatterDataset extends ChartJsLineDataset {
