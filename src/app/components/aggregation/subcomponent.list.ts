@@ -222,6 +222,16 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
     }
 
     /**
+     * Returns whether the chart is horizontal.
+     *
+     * @return {boolean}
+     * @override
+     */
+    public isHorizontal(): boolean {
+        return false;
+    }
+
+    /**
      * Redraws all the subcomponent elements.
      *
      * @override

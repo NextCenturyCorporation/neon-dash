@@ -18,19 +18,21 @@ import { URLSearchParams } from '@angular/http';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { ParameterService } from '../../services/parameter.service';
-import { ThemesService } from '../../services/themes.service';
 
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 
+import { NeonGridItem } from '../../neon-grid-item';
+import { neonEvents } from '../../neon-namespaces';
+
 import * as _ from 'lodash';
 import * as neon from 'neon-framework';
-import { VisualizationService } from '../../services/visualization.service';
 
 @Component({
   selector: 'app-save-state',
@@ -41,9 +43,10 @@ export class SaveStateComponent implements OnInit {
 
     @Input() sidenav: MatSidenav;
 
+    @Input() public widgetGridItems: NeonGridItem[] = [];
+    @Input() public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent> = new Map();
+
     public formData: any = {
-        exportFormat: 0,
-        currentTheme: 'neon-green-theme',
         newStateName: '',
         stateToLoad: '',
         stateToDelete: ''
@@ -57,23 +60,19 @@ export class SaveStateComponent implements OnInit {
     public stateNames: string[] = [];
     public exportTarget: string = 'all';
 
-    constructor(private connectionService: ConnectionService,  private datasetService: DatasetService,
-        private errorNotificationService: ErrorNotificationService, public exportService: ExportService,
-        private snackBar: MatSnackBar, private parameterService: ParameterService,
-        public themesService: ThemesService, private viewContainerRef: ViewContainerRef, private dialog: MatDialog,
-        private visualizationService: VisualizationService) { }
+    constructor(
+        protected connectionService: ConnectionService,
+        protected datasetService: DatasetService,
+        private snackBar: MatSnackBar,
+        protected parameterService: ParameterService,
+        protected widgetService: AbstractWidgetService,
+        private viewContainerRef: ViewContainerRef,
+        private dialog: MatDialog
+    ) {}
 
     ngOnInit() {
-        this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
-        this.formData.currentTheme = this.themesService.getCurrentTheme().id;
         this.messenger = new neon.eventing.Messenger();
         this.loadStateNames();
-    }
-
-    setCurrentTheme(themeId: any) {
-        if (themeId) {
-            this.themesService.setCurrentTheme(themeId);
-        }
     }
 
     openEditConfigDialog() {
@@ -108,7 +107,20 @@ export class SaveStateComponent implements OnInit {
         let connection: neon.query.Connection = this.connectionService.getActiveConnection();
         if (connection) {
             // Get each visualization's bindings and save them to our dashboard state parameter
-            stateParams.dashboard = this.visualizationService.getWidgets();
+            stateParams.dashboard = this.widgetGridItems.map((widgetGridItem) => {
+                let widget = this.widgets.get(widgetGridItem.id);
+
+                let widgetGridItemCopy: NeonGridItem = _.cloneDeep(widgetGridItem);
+
+                widgetGridItemCopy.col = widgetGridItemCopy.config.col;
+                widgetGridItemCopy.row = widgetGridItemCopy.config.row;
+                widgetGridItemCopy.sizex = widgetGridItemCopy.config.sizex;
+                widgetGridItemCopy.sizey = widgetGridItemCopy.config.sizey;
+
+                widgetGridItemCopy.bindings = widget.getBindings();
+
+                return widgetGridItemCopy;
+            });
 
             stateParams.dataset = this.datasetService.getDataset();
 
@@ -149,7 +161,10 @@ export class SaveStateComponent implements OnInit {
                     this.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
                     this.openNotification(name, 'loaded');
                 } else {
-                    this.errorNotificationService.showErrorMessage(null, 'State ' + name + ' not found.');
+                    this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+                        error: null,
+                        message: 'State ' + name + ' not found.'
+                    });
                 }
             }, (response) => {
                 this.handleStateFailure(response);
@@ -202,7 +217,10 @@ export class SaveStateComponent implements OnInit {
      * @private
      */
     handleStateFailure(response) {
-        this.errorNotificationService.showErrorMessage(null, response.responseJSON.error);
+        this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+            error: null,
+            message: response.responseJSON.error
+        });
     }
 
     /*
@@ -224,7 +242,10 @@ export class SaveStateComponent implements OnInit {
         }, (response) => {
             this.isLoading = false;
             this.stateNames = [];
-            this.errorNotificationService.showErrorMessage(null, response.responseJSON.error);
+            this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+                error: null,
+                message: response.responseJSON.error
+            });
         });
     }
 
@@ -261,7 +282,7 @@ export class SaveStateComponent implements OnInit {
         this.snackBar.open(message, 'x', {
             duration: 5000,
             verticalPosition: 'top',
-            panelClass: ['simpleSnackBar']
+            panelClass: [this.widgetService.getTheme(), 'simpleSnackBar']
          });
     }
 }

@@ -31,14 +31,11 @@ import { } from 'jasmine-core';
 
 import { AddVisualizationComponent } from './add-visualization.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
+import { WidgetService } from '../../services/widget.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -60,21 +57,19 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 class TestAddVisualizationComponent extends AddVisualizationComponent {
     constructor(
-        activeGridService: ActiveGridService,
-        themesService: ThemesService,
+        widgetService: AbstractWidgetService,
         snackBar: MatSnackBar
     ) {
         super(
-            activeGridService,
             snackBar,
-            themesService
+            widgetService
         );
     }
 
     // TODO Add any needed custom functions here.
 }
 
-describe('Component: Add Visualization', () => {
+describe('Component: AddVisualization', () => {
     let component: TestAddVisualizationComponent;
     let fixture: ComponentFixture<TestAddVisualizationComponent>,
         getService = (type: any) => fixture.debugElement.injector.get(type);
@@ -86,11 +81,13 @@ describe('Component: Add Visualization', () => {
             TestAddVisualizationComponent
         ],
         providers: [
-            ActiveGridService,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService
+            {
+                provide: AbstractWidgetService,
+                useClass: WidgetService
+            }
         ],
         imports: [
             AppMaterialModule,

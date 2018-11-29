@@ -15,13 +15,11 @@
  */
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 import { DatasetSelectorComponent } from './dataset-selector.component';
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { ParameterService } from '../../services/parameter.service';
 import { FilterService } from '../../services/filter.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -38,11 +36,9 @@ describe('Component: DatasetSelector', () => {
             DatasetSelectorComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
             ParameterService,
-            ErrorNotificationService,
             FilterService,
             { provide: 'config', useValue: testConfig }
         ],

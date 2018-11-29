@@ -16,10 +16,13 @@
 import { Component, ElementRef, Input, OnInit } from '@angular/core';
 import { MatDialogRef, MatSnackBar } from '@angular/material';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { neonVisualizations } from '../../neon-namespaces';
-import { ThemesService } from '../../services/themes.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
+
+import { NeonGridItem } from '../../neon-grid-item';
+import { neonEvents, neonVisualizations } from '../../neon-namespaces';
+
 import * as neon from 'neon-framework';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'app-add-visualization',
@@ -37,11 +40,9 @@ export class AddVisualizationComponent implements OnInit {
     public messenger: neon.eventing.Messenger;
 
     constructor(
-        private activeGridService: ActiveGridService,
         public snackBar: MatSnackBar,
-        public themesService: ThemesService
+        protected widgetService: AbstractWidgetService
     ) {
-        this.themesService = themesService;
         this.messenger = new neon.eventing.Messenger();
     }
 
@@ -61,16 +62,20 @@ export class AddVisualizationComponent implements OnInit {
         if (this.selectedIndex !== -1) {
             this.visualizations[this.selectedIndex].selected = false;
         }
+
         this.visualizations[index].selected = true;
         this.selectedIndex = index;
 
-        this.activeGridService.addItemInFirstFit(this.visualizations[index]);
+        let widgetGridItem: NeonGridItem = _.cloneDeep(this.visualizations[index]);
+        this.messenger.publish(neonEvents.WIDGET_ADD, {
+            widgetGridItem: widgetGridItem
+        });
 
         this.snackBar.open('Visualization Added', 'x', {
             duration: 5000,
             verticalPosition: 'top',
-            panelClass: ['simpleSnackBar']
-        });
+            panelClass: [this.widgetService.getTheme(), 'simpleSnackBar']
+         });
     }
 
     publishShowVisShortcut() {

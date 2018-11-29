@@ -25,14 +25,10 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from '../chart/chart.component';
@@ -208,7 +204,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         options: any
     };
 
-    public colorByFields: string[] = [];
+    public colorKeys: string[] = [];
     public dateBucketizer: any;
     public disabledDatasets: Map<string, any> = new Map<string, any>();
     public disabledList: string[] = [];
@@ -219,28 +215,20 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     };
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        protected colorSchemeService: ColorSchemeService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        protected widgetService: AbstractWidgetService,
+        ref: ChangeDetectorRef
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
-            themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         console.warn('The line-chart component is deprecated.  Please use the aggregation component with type=line.');
@@ -607,7 +595,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getColorFromScheme(name): string {
-        return this.colorSchemeService.getColorFor(this.options.groupField.columnName, name).toRgb();
+        return this.widgetService.getColor(this.options.database.name, this.options.table.name, this.options.groupField.columnName,
+            name).toRgb();
     }
 
     getFiltersToIgnore() {
@@ -742,7 +731,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     updateLegend() {
-        this.colorByFields = [this.options.groupField.columnName];
+        this.colorKeys = [this.widgetService.getColorKey(this.options.database.name, this.options.table.name,
+            this.options.groupField.columnName)];
     }
 
     dateToIsoDayHour(date: Date): string {

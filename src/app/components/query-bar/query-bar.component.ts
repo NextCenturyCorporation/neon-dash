@@ -13,23 +13,23 @@
  * limitations under the License.
  *
  */
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewChild } from '@angular/core';
-import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { DatasetService } from '../../services/dataset.service';
-import { FieldMetaData, SimpleFilter } from '../../dataset';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import * as neon from 'neon-framework';
-import * as uuid from 'node-uuid';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { map, startWith } from 'rxjs/operators';
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
-import { ExportService } from '../../services/export.service';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
-import { VisualizationService } from '../../services/visualization.service';
-import { ActiveGridService } from '../../services/active-grid.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+
+import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { FieldMetaData, SimpleFilter } from '../../dataset';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
+
+import * as neon from 'neon-framework';
+import * as uuid from 'node-uuid';
 import WherePredicate = neon.query.WherePredicate;
 
 /**
@@ -118,12 +118,22 @@ export class QueryBarComponent  extends BaseNeonComponent {
     public messenger = new neon.eventing.Messenger();
     private filterFormControl: FormControl;
 
-    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
-                filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-                ref: ChangeDetectorRef, visualizationService: VisualizationService) {
+    constructor(
+        connectionService: ConnectionService,
+        datasetService: DatasetService,
+        filterService: FilterService,
+        injector: Injector,
+        protected widgetService: AbstractWidgetService,
+        ref: ChangeDetectorRef
+    ) {
 
-        super(activeGridService, connectionService, datasetService,
-            filterService, exportService, injector, themesService, ref, visualizationService);
+        super(
+            connectionService,
+            datasetService,
+            filterService,
+            injector,
+            ref
+        );
 
         this.filterFormControl = new FormControl();
         this.options = new QueryBarOptions(this.injector, this.datasetService, 'Query Bar');

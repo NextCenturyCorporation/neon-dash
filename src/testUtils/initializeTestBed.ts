@@ -13,6 +13,7 @@
  * limitations under the License.
  *
  */
+///<reference path="../../node_modules/@types/jasmine/index.d.ts"/>
 import { async, TestBed } from '@angular/core/testing';
 
 export const initializeTestBed = (config) => {
