@@ -157,7 +157,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         return finalDashboards;
     }
 
-    getDashboardKeys(dashboards: Map<string, Dashboard>) {
+    getDashboardKeys() {
         return Object.keys(this.dashboards);
     }
 
