@@ -43,15 +43,15 @@ export class LeafletNeonMap extends AbstractMap {
                 layers: this.mapOptions.customServer.layer,
                 transparent: true,
                 minZoom: this.leafletOptions.minZoom
-            }) : new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            }) : new L.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 minZoom: this.leafletOptions.minZoom,
-                attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+                attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
             }),
-            monochrome = new L.TileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+            monochrome = new L.TileLayer('https://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
                 minZoom: this.leafletOptions.minZoom,
-                attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">' +
+                attribution: 'Imagery from <a href="https://giscience.uni-hd.de/">' +
                 'GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; ' +
-                '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                '<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }),
             baseLayers = {
                 Normal: baseTileLayer,
