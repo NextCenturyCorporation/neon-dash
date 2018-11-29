@@ -16,7 +16,7 @@
 @import '../base-neon-component/base-neon.component.scss';
 
 .messages {
-    color: mat-color($accent);
+    color: var(--color-accent, lightgrey);
     max-height: 600px;
     overflow-y: auto;
     padding-right: 10px;

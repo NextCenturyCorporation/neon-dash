@@ -13,8 +13,7 @@
  * limitations under the License.
  *
  */
-@import '~@angular/material/_theming';
-@import '../../../themes/neon-green-theme.scss';
+@import '../../neon-properties';
 
 .visualization-toolbar {
     position: absolute;
@@ -32,7 +31,7 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
-    background-color: mat-color($accent);
+    background-color: var(--color-background-contrast, lightgrey);
     flex-grow: 0;
     border-radius: 0 0 10px 10px;
 }
@@ -44,7 +43,7 @@
 
 .above-icons {
     height: 10px;
-    background-color: mat-color($accent);
+    background-color: var(--color-background-contrast, lightgrey);
     z-index: 1001;
     cursor: move;
     position: absolute;
@@ -64,7 +63,7 @@
     padding: 5px;
     height: 100%;
     box-sizing: border-box;
-    background-color: mat-color($accent);
+    background-color: var(--color-background-contrast, lightgrey);
 }
 
 .visualization-container1 {

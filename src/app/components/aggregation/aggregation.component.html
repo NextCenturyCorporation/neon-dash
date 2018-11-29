@@ -177,7 +177,7 @@
 
                 <span class="toggle-text" *ngIf="hasAxes(options.type)">Grid Lines</span>
                 <mat-button-toggle-group *ngIf="hasAxes(options.type)" class="neon-button-toggle-group-small"
-                    [(ngModel)]="options.hideGridLines" (ngModelChange)="refreshVisualization()">
+                        [(ngModel)]="options.hideGridLines" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">Show</mat-button-toggle>
                     <mat-button-toggle [value]="true">Hide</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -185,7 +185,7 @@
 
                 <span class="toggle-text" *ngIf="hasAxes(options.type)">Grid Ticks</span>
                 <mat-button-toggle-group *ngIf="hasAxes(options.type)" class="neon-button-toggle-group-small"
-                    [(ngModel)]="options.hideGridTicks" (ngModelChange)="refreshVisualization()">
+                        [(ngModel)]="options.hideGridTicks" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">Show</mat-button-toggle>
                     <mat-button-toggle [value]="true">Hide</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -254,7 +254,7 @@
 
                 <span class="toggle-text" *ngIf="hasAxes(options.type)">Log X Scale</span>
                 <mat-button-toggle-group *ngIf="hasAxes(options.type)" class="neon-button-toggle-group-small"
-                    [(ngModel)]="options.logScaleX" (ngModelChange)="refreshVisualization()">
+                        [(ngModel)]="options.logScaleX" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -262,7 +262,7 @@
 
                 <span class="toggle-text" *ngIf="hasAxes(options.type)">Log Y Scale</span>
                 <mat-button-toggle-group *ngIf="hasAxes(options.type)" class="neon-button-toggle-group-small"
-                    [(ngModel)]="options.logScaleY" (ngModelChange)="refreshVisualization()">
+                        [(ngModel)]="options.logScaleY" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -373,7 +373,7 @@
 
     <div class="filter-container" *ngIf="showHeaderContainer()">
         <app-legend *ngIf="showLegend()" [activeList]="legendActiveGroups" [colorKeys]="colorKeys"
-            (itemSelected)="handleLegendItemSelected($event)"></app-legend>
+                (itemSelected)="handleLegendItemSelected($event)"></app-legend>
 
         <div class="filter-reset" *ngFor="let filter of groupFilters">
             <span class="filter-label" [matTooltip]="createFilterPrettyText(filter)" tooltip-position="below">
