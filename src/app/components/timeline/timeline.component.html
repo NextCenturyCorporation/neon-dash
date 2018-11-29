@@ -93,7 +93,7 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="getCloseableFilters().length">
+    <div class="body-container" [class.with-filter]="getCloseableFilters().length"  [hidden]="!displayTimeline">
         <!-- Timeline chart div -->
         <div #svg class="timeline-selector-chart"></div>
         <div class ="xlabel"> {{ options.granularity }}</div>

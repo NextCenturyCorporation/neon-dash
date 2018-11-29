@@ -56,6 +56,8 @@ export class TimelineOptions extends BaseNeonOptions {
     public dateField: FieldMetaData;
     public granularity: string;
     public yLabel: string;
+    public showOnlyFiltered: boolean;
+    public filterFields: string[];
 
     /**
      * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
@@ -65,9 +67,6 @@ export class TimelineOptions extends BaseNeonOptions {
      * @override
      */
     appendNonFieldBindings(bindings: any): any {
-        bindings.granularity = this.granularity;
-        bindings.yLabel = this.yLabel;
-
         return bindings;
     }
 
@@ -147,6 +146,8 @@ export class TimelineOptions extends BaseNeonOptions {
     initializeNonFieldBindings() {
         this.granularity = this.injector.get('granularity', 'day');
         this.yLabel = this.injector.get('yLabel', 'Count');
+        this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
+        this.filterFields = this.injector.get('filterFields', []);
     }
 }
 
@@ -189,6 +190,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     public defaultActiveColor;
     public timelineChart: TimelineSelectorChart;
     public timelineData: TimelineData = new TimelineData();
+    public displayTimeline: boolean;
 
     constructor(
         activeGridService: ActiveGridService,
@@ -222,10 +224,12 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
         this.timelineData.granularity = this.options.granularity;
         this.timelineData.bucketizer = this.getBucketizer();
+        this.displayTimeline = !this.options.showOnlyFiltered;
         this.enableRedrawAfterResize(true);
     }
 
     subNgOnInit() {
+        this.messenger.events({ filtersChanged: this.handleChangedFilter.bind(this) });
         this.timelineChart = new TimelineSelectorChart(this, this.svg, this.timelineData);
     }
 
@@ -409,8 +413,13 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             return 'No Data';
         }
         if (this.docCount <= shownCount) {
-            return 'Total ' + super.prettifyInteger(shownCount);
+            if (this.displayTimeline) {
+                return 'Total ' + super.prettifyInteger(shownCount);
+            } else {
+                return 'No Filter Selected';
+            }
         }
+
         return super.prettifyInteger(shownCount) + ' of ' + super.prettifyInteger(this.docCount);
     }
 
@@ -524,6 +533,19 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             return this.timelineData.bucketizer.zeroOutDate(date);
         }
         return date;
+    }
+    handleChangedFilter() {
+        //if there is a filter turn display on else off
+        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
+            this.options.table.name, this.options.filterFields);
+
+        if (neonFilters.length > 0) {
+            this.displayTimeline = true;
+        } else {
+            this.displayTimeline = false;
+        }
+
+        this.refreshVisualization();
     }
 
     handleChangeGranularity() {

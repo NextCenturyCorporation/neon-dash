@@ -647,10 +647,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.clearGraphData();
         if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
             this.graph.setOptions({physics: {enabled: this.options.physics}});
-            this.displayGraph = true;
+
             this.graphData.nodes.update(graphProperties.nodes);
             this.graphData.edges.update(graphProperties.edges);
             this.isLoading = false;
+
+            if (!this.displayGraph) {
+                this.graph.focus(graphProperties.nodes[Math.floor((this.totalNodes - 1) / 2)].id);
+                this.displayGraph = true;
+            }
+
         } else {
             this.displayGraph = false;
         }
