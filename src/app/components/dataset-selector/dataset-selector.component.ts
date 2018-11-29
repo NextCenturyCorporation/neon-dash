@@ -190,7 +190,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                 let index = this.findMatchingIndex(configItem);
                 let dataset = this.datasets[index];
 
-                if (configItem.connectOnLoad) {
+                if (configItem.options.connectOnLoad) {
                     this.connectOnLoad = true;
                 }
 
