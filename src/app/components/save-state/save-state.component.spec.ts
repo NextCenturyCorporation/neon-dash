@@ -19,20 +19,18 @@ import { FormsModule } from '@angular/forms';
 import { ViewContainerRef } from '@angular/core';
 
 import { SaveStateComponent } from './save-state.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
-import { ParameterService } from '../../services/parameter.service';
-import { ThemesService } from '../../services/themes.service';
 import { FilterService } from '../../services/filter.service';
+import { ParameterService } from '../../services/parameter.service';
+import { WidgetService } from '../../services/widget.service';
 
 import { MatSnackBar } from '@angular/material';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
-import { VisualizationService } from '../../services/visualization.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: SaveStateComponent', () => {
@@ -42,8 +40,7 @@ describe('Component: SaveStateComponent', () => {
 
     initializeTestBed({
         declarations: [
-            SaveStateComponent,
-            ExportControlComponent
+            SaveStateComponent
         ],
         imports: [
             FormsModule,
@@ -53,12 +50,9 @@ describe('Component: SaveStateComponent', () => {
         providers: [
             ConnectionService,
             DatasetService,
-            ErrorNotificationService,
-            VisualizationService,
-            ExportService,
             MatSnackBar,
             ParameterService,
-            ThemesService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ViewContainerRef,
             FilterService,
             { provide: 'config', useValue: testConfig }

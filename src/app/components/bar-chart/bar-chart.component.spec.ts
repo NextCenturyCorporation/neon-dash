@@ -20,22 +20,19 @@ import * as neon from 'neon-framework';
 
 import { BarChartComponent, BarDataSet } from './bar-chart.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { neonVariables } from '../../neon-namespaces';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
 import { AppMaterialModule } from '../../app.material.module';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
-import { VisualizationService } from '../../services/visualization.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { Color } from '../../color';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { WidgetService } from '../../services/widget.service';
 import { LegendComponent } from '../legend/legend.component';
 import { ChartComponent } from '../chart/chart.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -54,16 +51,11 @@ describe('Component: BarChart', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
             FilterService,
-            ExportService,
-            ErrorNotificationService,
-            VisualizationService,
-            ThemesService,
             Injector,
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: 'config', useValue: testConfig }
         ],
         imports: [
@@ -552,21 +544,21 @@ describe('Component: BarChart', () => {
             }]
         });
 
-        let dataset1 = new BarDataSet(4, 'group1', new Color(255, 135, 55), new Color(255, 255, 255));
+        let dataset1 = new BarDataSet(4, 'group1', new Color(94, 80, 143), new Color(255, 255, 255));
         dataset1.data = [400, 40, 4, 0];
-        expect(dataset1.backgroundColor).toEqual(['rgb(255,135,55)', 'rgb(255,135,55)', 'rgb(255,135,55)', 'rgb(255,135,55)']);
+        expect(dataset1.backgroundColor).toEqual(['rgb(94,80,143)', 'rgb(94,80,143)', 'rgb(94,80,143)', 'rgb(94,80,143)']);
 
-        let dataset2 = new BarDataSet(4, 'group2', new Color(94, 80, 143), new Color(255, 255, 255));
+        let dataset2 = new BarDataSet(4, 'group2', new Color(255, 135, 55), new Color(255, 255, 255));
         dataset2.data = [300, 30, 3, 0];
-        expect(dataset2.backgroundColor).toEqual(['rgb(94,80,143)', 'rgb(94,80,143)', 'rgb(94,80,143)', 'rgb(94,80,143)']);
+        expect(dataset2.backgroundColor).toEqual(['rgb(255,135,55)', 'rgb(255,135,55)', 'rgb(255,135,55)', 'rgb(255,135,55)']);
 
-        let dataset3 = new BarDataSet(4, 'group3', new Color(177, 194, 54), new Color(255, 255, 255));
+        let dataset3 = new BarDataSet(4, 'group3', new Color(179, 79, 146), new Color(255, 255, 255));
         dataset3.data = [200, 20, 0, 2];
-        expect(dataset3.backgroundColor).toEqual(['rgb(177,194,54)', 'rgb(177,194,54)', 'rgb(177,194,54)', 'rgb(177,194,54)']);
+        expect(dataset3.backgroundColor).toEqual(['rgb(179,79,146)', 'rgb(179,79,146)', 'rgb(179,79,146)', 'rgb(179,79,146)']);
 
-        let dataset4 = new BarDataSet(4, 'group4', new Color(243, 88, 112), new Color(255, 255, 255));
+        let dataset4 = new BarDataSet(4, 'group4', new Color(177, 194, 54), new Color(255, 255, 255));
         dataset4.data = [100, 10, 0, 0];
-        expect(dataset4.backgroundColor).toEqual(['rgb(243,88,112)', 'rgb(243,88,112)', 'rgb(243,88,112)', 'rgb(243,88,112)']);
+        expect(dataset4.backgroundColor).toEqual(['rgb(177,194,54)', 'rgb(177,194,54)', 'rgb(177,194,54)', 'rgb(177,194,54)']);
 
         expect(component.bars).toEqual(['bar1', 'bar2', 'bar3', 'bar4']);
         expect(component.activeData).toEqual([dataset1, dataset2, dataset3, dataset4]);

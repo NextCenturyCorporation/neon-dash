@@ -1,12 +1,12 @@
 <form class="settings-container" #optionsForm="ngForm">
     <h3 class="header"> Export Format</h3>
-    <app-export-control [exportTarget]="exportTarget"></app-export-control>
-    
+    <app-export-control [widgets]="widgets"></app-export-control>
+
     <mat-divider class="divider"></mat-divider>
     <h3 class="header">Themes</h3>
     <div class='radio-container' layout="row" mat-margin>
         <mat-radio-group [(ngModel)]="formData.currentTheme" name="currentThemeGroup" (change)="setCurrentTheme(formData.currentTheme)">
-            <mat-radio-button class="radio-btn" *ngFor="let theme of themesService.getThemes()" [value]="theme.id">{{ theme.name }}</mat-radio-button>
+            <mat-radio-button class="radio-btn" *ngFor="let theme of widgetService.getThemes()" [value]="theme.id">{{ theme.name }}</mat-radio-button>
         </mat-radio-group>
     </div>
     <mat-divider class="divider"></mat-divider>

@@ -25,14 +25,12 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { Color } from '../../color';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from '../chart/chart.component';
@@ -206,7 +204,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         options: any
     };
 
-    public colorByFields: string[] = [];
+    public colorKeys: string[] = [];
     public defaultActiveColor;
     public displayGridLines: boolean;
     public displayTicks: boolean;
@@ -222,28 +220,20 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
     public yAxisIsNumeric: boolean = true;
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        protected colorSchemeService: ColorSchemeService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        protected widgetService: AbstractWidgetService,
+        ref: ChangeDetectorRef
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
-            themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         console.warn('The scatter-plot component is deprecated.  Please use the aggregation component with type=scatter-xy.');
@@ -617,7 +607,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
             if (!dataSet) {
                 let color = this.defaultActiveColor;
                 if (!!this.options.colorField.columnName) {
-                    color = this.colorSchemeService.getColorFor(this.options.colorField.columnName, dataSetKey);
+                    color = this.widgetService.getColor(this.options.database.name, this.options.table.name,
+                        this.options.colorField.columnName, dataSetKey);
                 }
                 dataSet = new ScatterDataSet(color);
                 dataSet.label = dataSetKey;
@@ -690,7 +681,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
 
         this.refreshVisualization();
         // Force the legend to update
-        this.colorByFields = [this.options.colorField.columnName];
+        this.colorKeys = [this.widgetService.getColorKey(this.options.database.name, this.options.table.name,
+            this.options.colorField.columnName)];
     }
 
     xAxisTickCallback(value): string {

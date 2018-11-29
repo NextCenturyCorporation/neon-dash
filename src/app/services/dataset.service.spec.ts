@@ -16,7 +16,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { Datastore } from '../dataset';
 import { DatasetService } from './dataset.service';
-import { ActiveGridService } from './active-grid.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
@@ -25,7 +24,6 @@ describe('Service: DatasetService', () => {
 
     initializeTestBed({
         providers: [
-            ActiveGridService,
             DatasetService,
             { provide: 'config', useValue: testConfig }
         ]

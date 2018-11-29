@@ -1,4 +1,4 @@
-<div *ngIf="showSimpleSearch" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'" class="simple-filter">
+<div *ngIf="showSimpleSearch" class="simple-filter">
     <button mat-button mat-icon-button (click)="addFilter(filter.value)">
         <mat-icon mat-button>search</mat-icon>
     </button>
