@@ -28,12 +28,12 @@
 
             &:hover {
                 text-decoration: none;
-                color: mat-contrast($primary, A100) !important;
+                color: var(--color-accent, lightgrey) !important;
             }
         }
 
         .filter {
-            color: $accent-bright;
+            color: var(--color-accent, lightgrey);
         }
 
         .paragraphs {

@@ -34,7 +34,7 @@
 }
 
 .map-selection {
-    border-color: mat-color($primary);
+    border-color: var(--color-primary, grey);
     border-width: 2px;
     border-style: solid;
     height: 10px;
