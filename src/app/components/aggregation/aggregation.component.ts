@@ -87,6 +87,7 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
     public scaleMinX: string;
     public scaleMinY: string;
     public showHeat: boolean;
+    public showLegend: boolean;
     public sortByAggregation: boolean;
     public timeFill: boolean;
     public type: string;
@@ -121,6 +122,7 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
         bindings.scaleMinX = this.scaleMinX;
         bindings.scaleMinY = this.scaleMinY;
         bindings.showHeat = this.showHeat;
+        bindings.showLegend = this.showLegend;
         bindings.sortByAggregation = this.sortByAggregation;
         bindings.timeFill = this.timeFill;
         bindings.type = this.type;
@@ -181,6 +183,7 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
         this.scaleMinX = this.injector.get('scaleMinX', '');
         this.scaleMinY = this.injector.get('scaleMinY', '');
         this.showHeat = this.injector.get('showHeat', false);
+        this.showLegend = this.injector.get('showLegend', true);
         this.sortByAggregation = this.injector.get('sortByAggregation', false);
         this.timeFill = this.injector.get('timeFill', false);
         this.type = this.injector.get('type', 'line');
@@ -1138,19 +1141,23 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Returns whether to always show a legend and not allow a user choice.
+     *
+     * @return {boolean}
+     */
+    alwaysShowLegend(): boolean {
+        // Always show the legend for a line or scatter chart in order to avoid a bug resizing the selected area within the chart.
+        return this.options.type === 'line' || this.options.type === 'line-xy' || this.options.type === 'scatter' ||
+            this.options.type === 'scatter-xy';
+    }
+
+    /**
      * Returns whether the legend is shown.
      *
      * @return {boolean}
      */
     showLegend(): boolean {
-        // Always show the legend for a line or scatter chart in order to avoid a bug resizing the selected area within the chart.
-        /* tslint:disable:prefer-switch */
-        if (this.options.type === 'line' || this.options.type === 'line-xy' || this.options.type === 'scatter' ||
-            this.options.type === 'scatter-xy') {
-            return true;
-        }
-        /* tslint:enable:prefer-switch */
-        return this.legendGroups.length > 1;
+        return this.alwaysShowLegend() || (this.options.showLegend && this.legendGroups.length > 1);
     }
 
     /**
