@@ -283,8 +283,9 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
         // Update the fields within each database and table within the selected dataset
         // to include fields that weren't listed in the configuration file.
-        this.datasetService.updateDatabases(this.datasets[index], connection, (dataset) => {
+        this.datasetService.updateDatabases(this.datasets[index], connection).then((dataset) => {
             this.datasets[index] = dataset;
+            this.dashboards = this.getFlattenedDashboards();
 
             // Wait to update the layout until after we finish the dataset updates.
             this.finishConnectToPreset(dataset, loadDashboardState, configName);
@@ -292,12 +293,15 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     }
 
     finishConnectToPreset(dataset: Datastore, loadDashboardState: boolean, configName: string) {
-        this.datasetService.setActiveDataset(dataset);
-        // TODO: 825: combine setCurrentDashboardName and setCurrentDashboard.
-        this.datasetService.setCurrentDashboardName(configName);
-        this.datasetService.setCurrentDashboard(this.dashboards[configName]);
-        this.updateLayout(loadDashboardState);
-        this.filterService.clearFilters();
+        // Make sure dashboard still exists and wasn't deleted in the updateDatabases() call
+        if (this.dashboards[configName]) {
+            this.datasetService.setActiveDataset(dataset);
+            // TODO: 825: combine setCurrentDashboardName and setCurrentDashboard.
+            this.datasetService.setCurrentDashboardName(configName);
+            this.datasetService.setCurrentDashboard(this.dashboards[configName]);
+            this.updateLayout(loadDashboardState);
+            this.filterService.clearFilters();
+        }
     }
 
     /**
