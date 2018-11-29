@@ -25,18 +25,13 @@ import 'hammerjs';
 
 import { NgGridModule } from 'angular2-grid';
 
-import { ActiveGridService } from './services/active-grid.service';
-import { ColorSchemeService } from './services/color-scheme.service';
+import { AbstractWidgetService } from './services/abstract.widget.service';
 import { ConnectionService } from './services/connection.service';
 import { DatasetService } from './services/dataset.service';
-import { ErrorNotificationService } from './services/error-notification.service';
-import { ExportService } from './services/export.service';
 import { FilterService } from './services/filter.service';
-import { ImportService } from './services/import.service';
 import { ParameterService } from './services/parameter.service';
 import { PropertyService } from './services/property.service';
-import { ThemesService } from './services/themes.service';
-import { VisualizationService } from './services/visualization.service';
+import { WidgetService } from './services/widget.service';
 
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
@@ -153,18 +148,15 @@ export function getAppConfig() {
         ReactiveFormsModule
     ],
     providers: [
-        ActiveGridService,
         ConnectionService,
         DatasetService,
-        ErrorNotificationService,
-        ExportService,
         FilterService,
-        ImportService,
         ParameterService,
         PropertyService,
-        ThemesService,
-        VisualizationService,
-        ColorSchemeService,
+        {
+            provide: AbstractWidgetService,
+            useClass: WidgetService
+        },
         {
             provide: 'config',
             useFactory: getAppConfig

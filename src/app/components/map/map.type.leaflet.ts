@@ -17,6 +17,7 @@ import { AbstractMap, BoundingBoxByDegrees, MapPoint, whiteString } from './map.
 import { ElementRef } from '@angular/core';
 import { MapLayer } from './map.component';
 import * as L from 'leaflet';
+import 'leaflet.markercluster';
 
 export class LeafletNeonMap extends AbstractMap {
     private leafletOptions: L.MapOptions = {
@@ -85,14 +86,17 @@ export class LeafletNeonMap extends AbstractMap {
 
     addPoints(points: MapPoint[], layer?: MapLayer, cluster?: boolean) {
         let group = this.getGroup(layer);
+        let clusterGroup: L.MarkerClusterGroup = null;
+
+        if (cluster) {
+            clusterGroup = L.markerClusterGroup();
+        }
 
         for (let point of points) {
-
-            let circleOptions = {};
             let mapIsSelected = this.mapOptions.id && point.idValue;          //is point selected record
             let pointIsSelected = point.idList.includes(this.mapOptions.id);  //check if point is in list
 
-            circleOptions = {
+            let circleOptions = {
                         color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
                         fillColor: point.cssColorString,
                         colorByField: point.colorByField,
@@ -118,9 +122,16 @@ export class LeafletNeonMap extends AbstractMap {
                 }
             }
 
-            group.addLayer(circle);
+            if (cluster) {
+                clusterGroup.addLayer(circle);
+            } else {
+                group.addLayer(circle);
+            }
         }
-        //TODO: cluster layer based on cluster boolean
+
+        if (cluster) {
+            this.map.addLayer(clusterGroup);
+        }
     }
 
     clearLayer(layer: MapLayer) {

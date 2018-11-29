@@ -17,10 +17,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 
-import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
+import { FilterService } from '../../services/filter.service';
+import { WidgetService } from '../../services/widget.service';
+
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
@@ -72,9 +73,8 @@ class queryBarTester {
             ],
             providers: [
                 { provide: FilterService, useClass: MockFilterService },
-                ThemesService,
+                { provide: AbstractWidgetService, useClass: WidgetService },
                 { provide: DatasetService, useClass: mockDataset ? MockDatasetService : DatasetService },
-                ErrorNotificationService,
                 { provide: 'config', useValue: new NeonGTDConfig() }
             ],
             imports: [

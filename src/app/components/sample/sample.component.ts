@@ -25,14 +25,9 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { AbstractSubcomponent, SubcomponentListener } from './subcomponent.abstract';
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
@@ -156,27 +151,19 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     public subcomponentObject: AbstractSubcomponent;
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        ref: ChangeDetectorRef
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
-            themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         // TODO Update the title and default limit for the visualization.

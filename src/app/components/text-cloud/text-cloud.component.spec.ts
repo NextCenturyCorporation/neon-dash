@@ -21,18 +21,13 @@ import { Injector } from '@angular/core';
 
 import { TextCloudComponent } from './text-cloud.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
-import { VisualizationService } from '../../services/visualization.service';
 import { neonVariables } from '../../neon-namespaces';
 
 import * as neon from 'neon-framework';
@@ -55,17 +50,12 @@ describe('Component: TextCloud', () => {
             ChartComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             {
                 provide: DatasetService,
                 useClass: DatasetServiceMock
             },
             { provide: FilterService, useClass: FilterServiceMock },
-            ExportService,
-            VisualizationService,
-            ErrorNotificationService,
-            ThemesService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -562,14 +552,9 @@ describe('Component: Textcloud with config', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ExportService,
-            VisualizationService,
-            ErrorNotificationService,
-            ThemesService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'title', useValue: 'Textcloud with Config Title' },
@@ -629,14 +614,9 @@ describe('Component: Textcloud with config including configFilter', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ExportService,
-            VisualizationService,
-            ErrorNotificationService,
-            ThemesService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'title', useValue: 'Textcloud with Config Title' },

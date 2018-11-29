@@ -26,14 +26,13 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
-import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+
+import { Color } from '../../color';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import {
     AbstractMap,
@@ -208,7 +207,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
     public docCount: number[] = [];
 
-    public colorByFields: string[] = [];
+    public colorKeys: string[] = [];
 
     public filterVisible: boolean[] = [];
 
@@ -223,27 +222,19 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     protected defaultActiveColor: Color;
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        protected colorSchemeService: ColorSchemeService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        protected widgetService: AbstractWidgetService,
+        ref: ChangeDetectorRef
     ) {
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
-            themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
@@ -619,6 +610,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     /**
      * Creates and returns the map points in the given data using the given fields.
      *
+     * @arg {string} databaseName
+     * @arg {string} tableName
+     * @arg {string} idField
      * @arg {string} lngField
      * @arg {string} latField
      * @arg {string} colorField
@@ -627,9 +621,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @return {array}
      * @protected
      */
-
-    protected getMapPoints(idField: string, lngField: string, latField: string, colorField: string,
-        hoverPopupField: string, data: any[]): any[] {
+    protected getMapPoints(databaseName: string, tableName: string, idField: string, lngField: string, latField: string, colorField: string,
+        hoverPopupField: string, data: any[]
+    ): any[] {
 
         let map = new Map<string, UniqueLocationPoint>();
 
@@ -666,7 +660,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         map.forEach((unique) => {
             let color = rgbColor;
             if (!this.options.singleColor) {
-                color = unique.colorValue ? this.colorSchemeService.getColorFor(colorField, unique.colorValue).toRgb() : whiteString;
+                color = unique.colorValue ? this.widgetService.getColor(databaseName, tableName, colorField, unique.colorValue).toRgb() :
+                    whiteString;
             }
 
             mapPoints.push(
@@ -709,6 +704,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
         let layer = this.options.layers[layerIndex],
             mapPoints = this.getMapPoints(
+                layer.database.name,
+                layer.table.name,
                 layer.idField.columnName,
                 layer.longitudeField.columnName,
                 layer.latitudeField.columnName,
@@ -734,13 +731,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * Updates the map legend using the layers.
      */
     updateLegend() {
-        let colorByFields: string[] = [];
+        let colorKeys: string[] = [];
         for (let layer of this.options.layers) {
             if (layer.colorField.columnName !== '') {
-                colorByFields.push(layer.colorField.columnName);
+                colorKeys.push(this.widgetService.getColorKey(layer.database.name, layer.table.name, layer.colorField.columnName));
             }
         }
-        this.colorByFields = colorByFields;
+        this.colorKeys = colorKeys;
     }
 
     /**
@@ -789,7 +786,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                     obj.hoverPopupMap.set(hoverPopupValue, obj.count);
             }
         }
-
     }
 
     /**

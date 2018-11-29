@@ -27,14 +27,9 @@ import { SubcomponentImpl2 } from './subcomponent.impl2';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -85,27 +80,19 @@ let validateToggle = (element: any, value: any, content: string, checked: boolea
 
 class TestSampleComponent extends SampleComponent {
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        ref: ChangeDetectorRef
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
-            themesService,
-            ref,
-            visualizationService
+            ref
         );
     }
 
@@ -142,14 +129,9 @@ describe('Component: Sample', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ErrorNotificationService,
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -1422,7 +1404,6 @@ describe('Component: Sample', () => {
         let exportControl = fixture.debugElement.query(By.css(
             'mat-sidenav-container mat-sidenav mat-card mat-card-content app-export-control'));
         expect(exportControl).not.toBeNull();
-        expect(exportControl.componentInstance.exportId).toEqual(component.exportId);
     });
 
     it('does hide loading overlay by default', () => {
@@ -1683,14 +1664,9 @@ describe('Component: Sample with config', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ErrorNotificationService,
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },

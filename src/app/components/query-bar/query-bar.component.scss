@@ -16,8 +16,8 @@
 @import '../base-neon-component/base-neon.component.scss';
 
 .query-bar {
-    background-color: $main-background;
-    color: mat-color($header-text);
+    background-color: var(--color-background, white);
+    color: var(--color-text-main, dimgrey);
     height: 100%;
     display: flex;
     max-width: 40%;
@@ -49,5 +49,5 @@ input.query-bar-input:focus {
 }
 
 .mat-option:hover:not(.mat-option-disabled), .mat-option.mat-active{
-    background-color: $accent-bright-opacity;
+    background-color: var(--color-accent, lightgrey);
 }

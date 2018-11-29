@@ -25,14 +25,12 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { Color } from '../../color';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from '../chart/chart.component';
@@ -272,28 +270,20 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     public defaultHighlightColor;
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
         ref: ChangeDetectorRef,
-        visualizationService: VisualizationService,
-        protected colorSchemeService: ColorSchemeService
+        protected widgetService: AbstractWidgetService
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
-            themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         console.warn('The bar-chart component is deprecated.  Please use the aggregation component with type=bar-v or type=bar-h.');
@@ -840,7 +830,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         let groupsToDatasets = new Map<string, BarDataSet>();
         let colorFieldExists = (this.options.colorField && this.options.colorField.columnName !== '');
-
         // Update the segments and counts from the bars and the data.
         for (let item of data) {
             let barLabel: string = item[this.options.dataField.columnName];
@@ -856,7 +845,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
             if (!barDataset) {
                 barDataset = new BarDataSet(this.bars.length, barSegment, (colorFieldExists ?
-                    this.colorSchemeService.getColorFor(this.options.colorField.columnName, barSegment) : this.defaultBarColor),
+                    this.widgetService.getColor(this.options.database.name, this.options.table.name, this.options.colorField.columnName,
+                        barSegment) : this.defaultBarColor),
                     this.defaultHighlightColor);
                 groupsToDatasets.set(barSegment, barDataset);
             }

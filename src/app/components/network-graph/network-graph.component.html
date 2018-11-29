@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -208,7 +208,7 @@
                 </mat-button-toggle-group>
                 <p></p>
 
-                <app-export-control [exportId]="exportId"></app-export-control>
+                <app-export-control [widgets]="this"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
@@ -236,9 +236,9 @@
 
     <div class=" legend-container ">
         <div *ngIf="legendIsNeeded()">
-            <app-legend *ngIf="options.legendFiltering" [fieldNames]="colorByFields" [disabledSets]="disabledSet" [filteringOn]="options.legendFiltering"
-                (itemSelected)="legendItemSelected($event)"></app-legend>
-            <app-legend *ngIf="!options.legendFiltering" [fieldNames]="colorByFields"  [filteringOn]="options.legendFiltering"></app-legend>
+            <app-legend *ngIf="options.legendFiltering" [colorKeys]="colorKeys" [disabledSets]="disabledSet"
+                    [filteringOn]="options.legendFiltering" (itemSelected)="legendItemSelected($event)"></app-legend>
+            <app-legend *ngIf="!options.legendFiltering" [colorKeys]="colorKeys"  [filteringOn]="options.legendFiltering"></app-legend>
         </div>
     </div>
 

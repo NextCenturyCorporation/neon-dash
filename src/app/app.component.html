@@ -1,18 +1,10 @@
-<mat-sidenav-container class="neon-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-sidenav #sideNavLeft class="neon-sidenav neon-sidenav-datasets" mat-fill align="start">
-        <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary">
-            <span>Datasets</span>
-        </mat-toolbar>
-        <app-dataset-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); sideNavLeft.toggle()">
-        </app-dataset-selector>
-    </mat-sidenav>
-
+<mat-sidenav-container class="neon-sidenav" [ngClass]="widgetService.getTheme()">
     <mat-sidenav #sideNavRight class="neon-sidenav neon-sidenav-info" mat-fill align="end">
-        <div [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+        <div>
             <mat-toolbar class="title" color="primary">
                 <span>{{ rightPanelTitle }}</span>
             </mat-toolbar>
-        
+
             <div class="right-panel-container">
                 <div class="about-neon-container" *ngIf="checkPanel('aboutNeon')">
                     <app-about-neon></app-about-neon>
@@ -20,21 +12,21 @@
                 <div class="add-visualization-container" *ngIf="checkPanel('addVis')">
                     <app-add-visualization></app-add-visualization>
                 </div>
+                <div class="dataset-selector-container" *ngIf="checkPanel('dashboardLayouts')">
+                    <app-dataset-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); sideNavRight.toggle()">
+                    </app-dataset-selector>
+                </div>
                 <div class="saved-state-container" *ngIf="checkPanel('saveState')">
-                    <app-save-state></app-save-state>
+                    <app-save-state [sidenav]="sideNavRight" [widgetGridItems]="widgetGridItems" [widgets]="widgets"></app-save-state>
                 </div>
                 <div class="setting-container" *ngIf="checkPanel('settings')">
-                    <app-settings></app-settings>
+                    <app-settings [widgets]="widgets"></app-settings>
                 </div>
             </div>
         </div>
     </mat-sidenav>
 
     <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary" layout-align="space-between center" flex>
-        <button mat-icon-button class="neon-icon-button-large" [attr.aria-label]="datasetService.getName() || 'Choose Data'"
-            tooltip-position="below" matTooltip="Select a Dataset" (click)="sideNavLeft.toggle()">
-            <mat-icon class="neon-icon-large">menu</mat-icon>
-        </button>
         <!-- TODO: 825: will this change? -->
         <span>{{ datasetService.getCurrentDashboardName() || "Choose Data..." }}</span>
         <span class="fill-remaining"></span>
@@ -62,7 +54,7 @@
         <mat-menu #appMenu="matMenu" yPosition="below" [overlapTrigger]="false">
             <button mat-menu-item (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()">
                 <mat-icon>add_circle</mat-icon>Visualizations</button>
-            <button mat-menu-item (click)="setPanel('dashboardLayouts', 'Dashboard Layouts'); sideNavLeft.toggle()">
+            <button mat-menu-item (click)="setPanel('dashboardLayouts', 'Dashboard Layouts'); sideNavRight.toggle()">
                 <mat-icon>dashboard</mat-icon>Dashboard Layouts</button>
             <button mat-menu-item (click)="setPanel('saveState', 'Save States'); sideNavRight.toggle()">
                 <mat-icon>save</mat-icon>Saved States</button>
@@ -74,8 +66,8 @@
             </button>
         </mat-menu>
 
-        <button mat-icon-button [matMenuTriggerFor]="appMenu">
-            <mat-icon>menu</mat-icon>
+        <button mat-icon-button class="neon-icon-button-large" [matMenuTriggerFor]="appMenu">
+            <mat-icon class="neon-icon-large">menu</mat-icon>
         </button>
 
     </mat-toolbar>
@@ -90,9 +82,10 @@
 
     <div class="neon-dash" mat-fill layout="col">
         <div [ngGrid]="gridConfig" #grid>
-            <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridItemConfig" name="item.id" id="item.id"
-                (onResizeStart)="onResizeStart(i, $event)" (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
-                <app-visualization-container [visualization]="gridItems[i]"></app-visualization-container>
+            <div *ngFor="let widgetGridItem of widgetGridItems; let i = index;" [(ngGridItem)]="widgetGridItem.config"
+                    name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
+                    (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
+                <app-visualization-container [visualization]="widgetGridItem"></app-visualization-container>
                 <ng-content></ng-content>
             </div>
         </div>

@@ -1,46 +1,126 @@
 @import '~@angular/material/_theming';
-@import './_custom-theming.scss';
-// Plus imports for other components in your app.
 
-// Include the base styles for Angular Material core. We include this here so that you only
-// have to load a single css file for Angular Material in your app.
-@include mat-core();
+// TODO THOR-852 Change to green theme (currently just a copy of teal theme).
 
-// Define the palettes for your theme using the Material Design palettes available in palette.scss
-// (imported above). For each palette, you can optionally specify a default, lighter, and darker
-// hue.
-//$primary: mat-palette($mat-green, A400, A200, A700);
-//$accent:  mat-palette($mat-deep-purple, 400, 200, 700);
+$green-theme-primary: #27607E;
+$green-theme-primary-lighter: #598DAD;
+$green-theme-primary-darker: #003652;
 
-$primary: mat-palette($mat-teal-custom, 500, 400, 900);
-$accent:  mat-palette($mat-grey4, 500, 200, 600);
-$header: mat-palette($mat-white, 500, 200, 900);
-$header-text: mat-palette($mat-grey1, 500, 200, 600);
-$fade: mat-palette($mat-grey2, 500, 400, 600);
-$white: mat-palette($mat-white, 500, 500, 500);
+$green-theme-accent: #54C8CD;
+$green-theme-accent-lighter: #8BFBFF;
+$green-theme-accent-darker: #00979C;
 
-//$background: mat-palette($mat-grey2, 500, 200, 600);
-//$foreground: mat-palette($mat-grey4, 500, 200, 600);
+$green-theme-grey: #666666;
+$green-theme-grey-lighter: #999999;
+$green-theme-grey-darker: #333333;
 
-// The warn palette is optional (defaults to red).
-$warn:    mat-palette($mat-red, A400, A200, A700);
+$green-theme-white: #F2F2F2;
+$green-theme-white-lighter: #FFFFFF;
+$green-theme-white-darker: #D7D7D7;
 
-// Create the theme object (a Sass map containing all of the palettes).
-$theme: mat-light-theme($primary, $accent, $warn);
+$green-theme-base: (
+    50: $green-theme-primary-lighter,
+    100: $green-theme-primary-lighter,
+    200: $green-theme-primary-lighter,
+    300: $green-theme-primary,
+    400: $green-theme-primary,
+    500: $green-theme-primary,
+    600: $green-theme-primary,
+    700: $green-theme-primary-darker,
+    800: $green-theme-primary-darker,
+    900: $green-theme-primary-darker,
+    A100: $green-theme-accent-lighter,
+    A200: $green-theme-accent-lighter,
+    A400: $green-theme-accent,
+    A700: $green-theme-accent-darker,
+    contrast: (
+        50: $green-theme-grey-darker,
+        100: $green-theme-grey-darker,
+        200: $green-theme-grey-darker,
+        300: $green-theme-white-lighter,
+        400: $green-theme-white-lighter,
+        500: $green-theme-white-lighter,
+        600: $green-theme-white-lighter,
+        700: $green-theme-white-lighter,
+        800: $green-theme-white-lighter,
+        900: $green-theme-white-lighter,
+        A100: $green-theme-grey-darker,
+        A200: $green-theme-grey-darker,
+        A400: $green-theme-grey-darker,
+        A700: $green-theme-grey-lighter
+    )
+);
 
-// Include theme styles for core and each component used in your app.
-// Alternatively, you can import and @include the theme mixins for each component
-// that you are using.
-@include angular-material-theme($theme);
+// https://github.com/angular/material2/blob/master/src/lib/core/theming/_palette.scss#L674
+// TODO Update default angular material design light theme background as needed.
+$green-theme-background: (
+    status-bar:               map_get($mat-grey, 300),
+    app-bar:                  map_get($mat-grey, 100),
+    background:               map_get($mat-grey, 50),
+    hover:                    rgba(black, 0.04),
+    card:                     white,
+    dialog:                   white,
+    disabled-button:          rgba(black, 0.12),
+    raised-button:            white,
+    focused-button:           $dark-focused,
+    selected-button:          map_get($mat-grey, 300),
+    selected-disabled-button: map_get($mat-grey, 400),
+    disabled-button-toggle:   map_get($mat-grey, 200),
+    unselected-chip:          map_get($mat-grey, 300),
+    disabled-list-option:     map_get($mat-grey, 200),
+);
 
-.neon-green-dark-theme {
-  $dark-primary: mat-palette($mat-blue-grey, 700, 500, 900);
-  $dark-accent:  mat-palette($mat-green, A400, A200, A700);
-  $dark-warn:    mat-palette($mat-pink);
+// https://github.com/angular/material2/blob/master/src/lib/core/theming/_palette.scss#L710
+// TODO Update default angular material design light theme foreground as needed.
+$green-theme-foreground: (
+    base:              black,
+    divider:           $dark-dividers,
+    dividers:          $dark-dividers,
+    disabled:          $dark-disabled-text,
+    disabled-button:   rgba(black, 0.26),
+    disabled-text:     $dark-disabled-text,
+    elevation:         black,
+    hint-text:         $dark-disabled-text,
+    secondary-text:    $dark-secondary-text,
+    icon:              rgba(black, 0.54),
+    icons:             rgba(black, 0.54),
+    text:              rgba(black, 0.87),
+    slider-min:        rgba(black, 0.87),
+    slider-off:        rgba(black, 0.26),
+    slider-off-active: rgba(black, 0.38),
+);
 
-  $dark-theme: mat-dark-theme($dark-primary, $dark-accent, $dark-warn);
+$green-theme-primary-palette: mat-palette($green-theme-base, 500, 100, 700);
+$green-theme-accent-palette: mat-palette($green-theme-base, A400, A200, A700);
+$green-theme-warn-palette: mat-palette($mat-red, A400, A200, A700);
 
-  @include angular-material-theme($dark-theme);
+$green-theme: (
+    primary: $green-theme-primary-palette,
+    accent: $green-theme-accent-palette,
+    warn: $green-theme-warn-palette,
+    is-dark: false,
+    foreground: $green-theme-foreground,
+    background: $green-theme-background
+);
+
+.neon-green {
+    @include angular-material-theme($green-theme);
+
+    /* DO NOT USE SASS VARIABLES ($VAR) HERE!  YOU MUST HARDCODE ALL COLORS! */
+    --color-accent: #54C8CD;
+    --color-accent-contrast: #333333;
+    --color-accent-opaque: rgb(84,200,205,0.4);
+    --color-primary: #27607E;
+    --color-primary-contrast: #F2F2F2;
+    --color-primary-opaque: rgb(39,96,126,0.4);
+    --color-background: #F2F2F2;
+    --color-background-contrast: #D7D7D7;
+    --color-text-header: #666666;
+    --color-text-main: #333333;
+
+    &.mat-autocomplete-panel {
+        background: white;
+        color: rgba(black, 0.87);
+    }
 }
 
-$vis-title-expected-height: 45px;

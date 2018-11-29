@@ -4,7 +4,7 @@
             "name": "Nepal ELISA Situation Discovery",
             "connectOnLoad": true,
             "layout": "nepal-elisa-sd",
-            "datastore": "elasticsearch",
+            "datastore": "elasticsearchrest",
             "hostname": "localhost",
             "databases": [{
                 "name": "ll_nepal_08_14",
@@ -76,7 +76,7 @@
             "name": "Uyghur LDC Situation Discovery",
             "connectOnLoad": false,
             "layout": "uyghur-ldc-sd",
-            "datastore": "elasticsearch",
+            "datastore": "elasticsearchrest",
             "hostname": "localhost",
             "databases": [{
                 "name": "ldc_uyg_jul_18",
