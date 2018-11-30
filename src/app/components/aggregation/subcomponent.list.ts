@@ -175,6 +175,17 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
     }
 
     /**
+     * Returns the label for a visualization element using the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Result' + (count === 1 ? '' : 's');
+    }
+
+    /**
      * Returns whether the subcomponent layout is horizontal. False for this
      * subcomponent.
      *

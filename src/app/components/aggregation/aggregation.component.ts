@@ -102,7 +102,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     // The data shown in the visualization (limited).
     public activeData: any[] = [];
-    protected totalY: number = 0;
 
     // The data returned by the visualization query response (not limited).
     public responseData: any[] = [];
@@ -484,27 +483,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Creates and returns the text for the settings button and menu.
-     *
-     * @return {string}
-     * @override
-     */
-    getButtonText(): string {
-        if (!this.responseData.length || !this.activeData.length) {
-            if (this.options.hideUnfiltered) {
-                return 'Please Filter';
-            }
-            return 'No Data';
-        }
-        if (this.activeData.length === this.responseData.length) {
-            return 'Total ' + super.prettifyInteger(this.totalY);
-        }
-        let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.responseData.length));
-        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.responseData.length);
-    }
-
-    /**
      * Returns the superclass filter object.
      *
      * @return {any[]}
@@ -572,6 +550,37 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     getHiddenCanvas(): ElementRef {
         return this.hiddenCanvas;
+    }
+
+    /**
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
+     *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        return this.activeData;
+    }
+
+    /**
+     * Returns the count of the given array of data items that are currently shown in the visualization.
+     *
+     * @arg {any[]} data
+     * @return {number}
+     * @override
+     */
+    public getShownDataCount(data: any[]): number {
+        return data.reduce((count, element) => count + element.y, 0);
+    }
+
+    /**
+     * Returns the count of data items that an unlimited query for the visualization would contain.
+     *
+     * @return {number}
+     * @override
+     */
+    public getTotalDataCount(): number {
+        return this.responseData.length;
     }
 
     /**
@@ -1131,7 +1140,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         this.colorKeys = [this.widgetService.getColorKey(this.options.database.name, this.options.table.name,
             this.options.groupField.columnName || '')];
-        this.totalY = this.activeData.reduce((a, b) => ({ y: (a.y + b.y) }), { y: 0 }).y;
     }
 
     /**

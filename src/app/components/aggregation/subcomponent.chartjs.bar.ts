@@ -206,6 +206,17 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
     }
 
     /**
+     * Returns the label for a visualization element using the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Bar' + (count === 1 ? '' : 's');
+    }
+
+    /**
      * Handles the given click event as needed by this subcomponent.
      *
      * @arg {event} event

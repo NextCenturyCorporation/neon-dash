@@ -131,16 +131,25 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Creates and returns the text for the settings button.
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
      *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        return this.wikiName;
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
      * @return {string}
      * @override
      */
-    getButtonText() {
-        if (!this.wikiName.length) {
-            return 'No Data';
-        }
-        return 'Total ' + super.prettifyInteger(this.wikiName.length);
+    public getVisualizationElementLabel(count: number): string {
+        return 'Page' + (count === 1 ? '' : 's');
     }
 
     /**

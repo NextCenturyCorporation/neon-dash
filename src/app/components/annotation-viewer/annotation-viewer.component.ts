@@ -110,10 +110,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         value: string
     }[] = [];
 
-    // The data pagination properties.
-    public lastPage: boolean = true;
-    public page: number = 1;
-
     public annotationVisible: boolean[] = [];
 
     // The data shown in the visualization (limited).
@@ -147,6 +143,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             injector,
             ref
         );
+
+        this.isPaginationWidget = true;
 
         // Backwards compatibility (documentLimit deprecated due to its redundancy with limit).
         this.options.limit = this.injector.get('documentLimit', this.options.limit);
@@ -695,16 +693,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         if (this.options.respondMode) {
             return '';
         }
-
-        if (!this.responseData.length || !this.activeData.length || !this.docCount) {
-            return 'No Data';
-        }
-        if (this.activeData.length === this.responseData.length) {
-            return 'Total ' + super.prettifyInteger(this.activeData.length);
-        }
-        let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.docCount));
-        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.docCount);
+        return super.getButtonText();
     }
 
     /**
@@ -715,16 +704,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      */
     getCloseableFilters(): any[] {
         return this.filters;
-    }
-
-    /**
-     * Returns the default limit for the visualization.
-     *
-     * @return {number}
-     * @override
-     */
-    getDefaultLimit(): number {
-        return 50;
     }
 
     /**
@@ -792,13 +771,23 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Returns the name for the visualization.
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
      *
-     * @return {string}
+     * @return {any[]}
      * @override
      */
-    getVisualizationName(): string {
-        return 'Annotation Viewer';
+    public getShownDataArray(): any[] {
+        return this.activeData;
+    }
+
+    /**
+     * Returns the count of data items that an unlimited query for the visualization would contain.
+     *
+     * @return {number}
+     * @override
+     */
+    public getTotalDataCount(): number {
+        return this.docCount;
     }
 
     /**

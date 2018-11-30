@@ -72,6 +72,17 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
     }
 
     /**
+     * Returns the label for a visualization element using the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Point' + (count === 1 ? '' : 's');
+    }
+
+    /**
      * Handles the given hover event as needed by this subcomponent.
      *
      * @arg {event} event

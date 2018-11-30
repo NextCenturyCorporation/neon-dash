@@ -311,22 +311,23 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Creates and returns the text for the settings button.
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
      *
-     * @return {string}
+     * @return {any[]}
+     */
+    public getShownDataArray(): any[] {
+        return this.activeData;
+    }
+
+    /**
+     * Returns the count of the given array of data items that are currently shown in the visualization.
+     *
+     * @arg {any[]} data
+     * @return {number}
      * @override
      */
-    getButtonText() {
-        let shownCount = (this.activeData || []).reduce((sum, element) => {
-            return sum + element.value;
-        }, 0);
-        if (!shownCount) {
-            return 'No Data';
-        }
-        if (this.docCount <= shownCount) {
-            return 'Total ' + super.prettifyInteger(shownCount);
-        }
-        return super.prettifyInteger(shownCount) + ' of ' + super.prettifyInteger(this.docCount);
+    public getShownDataCount(data: any[]): number {
+        return data.reduce((sum, element) => sum + element.value, 0);
     }
 
     /**
