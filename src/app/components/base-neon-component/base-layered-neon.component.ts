@@ -690,8 +690,101 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         });
     }
 
-    getButtonText() {
+    /**
+     * Creates and returns the text for the settings button using the given arguments.
+     *
+     * @arg {any[]} shownDataArray
+     * @arg {number} totalDataCount
+     * @arg {number} queryLimit
+     * @return {string}
+     */
+    public createButtonText(shownDataArray: any[], totalDataCount: number, queryLimit: number): string {
+        // If the query was not yet run, show no text unless waiting on an event.
+        if (!shownDataArray) {
+            // TODO Add support for 'Please Select'
+            return this.options.hideUnfiltered ? 'Please Filter' : '';
+        }
+
+        let shownDataCount = this.getShownDataCount(shownDataArray);
+        let elementLabel = this.getVisualizationElementLabel(shownDataCount);
+
+        // If the query was empty, show the relevant text.
+        if (!shownDataCount) {
+            return (this.options.hideUnfiltered && !this.getCloseableFilters().length) ? 'Please Filter' :
+                ('0' + (elementLabel ? (' ' + elementLabel) : ''));
+        }
+
+        // If the query was not limited, show the total count.
+        if (totalDataCount <= queryLimit) {
+            return this.prettifyInteger(shownDataCount) + (elementLabel ? (' ' + elementLabel) : '');
+        }
+
+        // Otherwise just show the shown count with a note that the query was limited.
+        return this.prettifyInteger(shownDataCount) + (elementLabel ? (' ' + elementLabel) : '') + ' (Limited)';
+    }
+
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     */
+    public getButtonText(): string {
+        if (this.options.layers.length === 1) {
+            return this.createButtonText(this.getShownDataArray(0), this.getTotalDataCount(0), this.options.limit);
+        }
+
+        if (this.options.layers.length) {
+            return this.options.layers.map((layer, index) => {
+                let text = this.createButtonText(this.getShownDataArray(index), this.getTotalDataCount(index), this.options.limit);
+                return text ? (layer.title + ' (' + text + ')') : '';
+            }).filter((text) => !!text).join(', ');
+        }
+
         return '';
+    }
+
+    // TODO THOR-971 Replace this function with a new local variable.
+    /**
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
+     *
+     * @arg {number} layerIndex
+     * @return {any[]}
+     */
+    public getShownDataArray(layerIndex: number): any[] {
+        return undefined;
+    }
+
+    /**
+     * Returns the count of the given array of data items that are currently shown in the visualization.
+     *
+     * @arg {any[]} data
+     * @return {number}
+     */
+    public getShownDataCount(data: any[]): number {
+        return data.length;
+    }
+
+    // TODO THOR-971 Replace this function with a new local variable.
+    /**
+     * Returns the count of data items that an unlimited query for the visualization would contain.
+     *
+     * @arg {number} layerIndex
+     * @return {number}
+     */
+    public getTotalDataCount(layerIndex: number): number {
+        let shownDataArray = this.getShownDataArray(layerIndex);
+        return (shownDataArray || []).length;
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Result' + (count === 1 ? '' : 's');
     }
 
     /**
@@ -733,7 +826,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * @return {string}
      */
     prettifyInteger(item: number): string {
-        return item.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return Math.round(item).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
 
     /**

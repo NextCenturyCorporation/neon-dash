@@ -116,7 +116,7 @@ describe('Component: MediaViewer', () => {
     it('getButtonText does return expected string', () => {
         expect(component.getButtonText()).toBe('Please Select');
         component.options.url = 'https://test.com';
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Files');
         component.tabsAndMedia = [{
             loaded: false,
             slider: 0,
@@ -137,7 +137,7 @@ describe('Component: MediaViewer', () => {
             }]
         }];
         component.options.url = '';
-        expect(component.getButtonText()).toBe('Total Files 1');
+        expect(component.getButtonText()).toBe('1 File');
         component.tabsAndMedia = [{
             loaded: false,
             slider: 0,
@@ -175,7 +175,7 @@ describe('Component: MediaViewer', () => {
                 type: ''
             }]
         }];
-        expect(component.getButtonText()).toBe('Total Files 4');
+        expect(component.getButtonText()).toBe('4 Files');
     });
 
     it('getElementRefs does return expected object', () => {

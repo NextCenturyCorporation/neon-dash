@@ -82,15 +82,20 @@ describe('Component: Timeline', () => {
     });
 
     it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Results');
 
         component.activeData = [{
             date: new Date(),
             value: 0
         }];
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Results');
 
-        component.docCount = 2;
+        component.activeData = [{
+            date: new Date(),
+            value: 1
+        }];
+        expect(component.getButtonText()).toBe('1 Result');
+
         component.activeData = [{
             date: new Date(),
             value: 1
@@ -98,10 +103,7 @@ describe('Component: Timeline', () => {
             date: new Date(),
             value: 1
         }];
-        expect(component.getButtonText()).toBe('Total 2');
-
-        component.docCount = 6;
-        expect(component.getButtonText()).toBe('2 of 6');
+        expect(component.getButtonText()).toBe('2 Results');
 
         component.activeData = [{
             date: new Date(),
@@ -116,7 +118,10 @@ describe('Component: Timeline', () => {
             date: new Date(),
             value: 0
         }];
-        expect(component.getButtonText()).toBe('Total 6');
+        expect(component.getButtonText()).toBe('6 Results');
+
+        component.options.limit = 2;
+        expect(component.getButtonText()).toBe('6 Results (Limited)');
     });
 
     it('getElementRefs does return expected object', () => {

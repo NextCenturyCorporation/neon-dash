@@ -104,13 +104,13 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Pages');
         component.wikiName = ['a'];
-        expect(component.getButtonText()).toBe('Total 1');
+        expect(component.getButtonText()).toBe('1 Page');
         component.wikiName = ['a', 'b', 'c', 'd'];
-        expect(component.getButtonText()).toBe('Total 4');
+        expect(component.getButtonText()).toBe('4 Pages');
         component.wikiName = ['a', 'b'];
-        expect(component.getButtonText()).toBe('Total 2');
+        expect(component.getButtonText()).toBe('2 Pages');
     });
 
     it('getElementRefs does return expected object', () => {
