@@ -426,6 +426,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             new WidgetFreeTextOption('scaleMinY', 'Scale Min Y', '', this.isScaled),
             new WidgetFreeTextOption('scaleMaxY', 'Scale Max Y', '', this.isScaled),
             new WidgetSelectOption('showHeat', 'Show Heated List', false, OptionChoices.NoFalseYesTrue, this.isList),
+            new WidgetSelectOption('showLegend', 'Show Legend', true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('sortByAggregation', 'Sort By', false, [{
                 prettyName: 'Label',
                 variable: false
@@ -1192,14 +1193,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @return {boolean}
      */
     showLegend(): boolean {
-        // Always show the legend for a line or scatter chart in order to avoid a bug resizing the selected area within the chart.
-        /* tslint:disable:prefer-switch */
-        if (this.options.type === 'line' || this.options.type === 'line-xy' || this.options.type === 'scatter' ||
-            this.options.type === 'scatter-xy') {
-            return true;
-        }
-        /* tslint:enable:prefer-switch */
-        return this.legendGroups.length > 1;
+        // TODO THOR-973
+        // Always show the legend for histogram, line, or scatter in order to avoid a bug resizing the selected area within the chart.
+        return this.isContinuous(this.options) || (this.options.showLegend && this.legendGroups.length > 1);
     }
 
     /**
