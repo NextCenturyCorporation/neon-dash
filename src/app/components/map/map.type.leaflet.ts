@@ -85,7 +85,7 @@ export class LeafletNeonMap extends AbstractMap {
 
         if (this.mapOptions.point.message) {
             let markerIcon = L.icon({
-                iconUrl: '../../../assets/images/map-marker.png',
+                iconUrl: './assets/images/map-marker.png',
                 iconSize:     [52, 44], // size of the icon
                 iconAnchor:   [10, 74], // point of the icon which will correspond to marker's location
                 popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
