@@ -111,6 +111,16 @@
                 </mat-form-field>
                 <p *ngIf="!isXYSubcomponent(options)"></p>
 
+                <div *ngIf="!isContinuous(options)">
+                    <span class="toggle-text">Show Legend</span>
+                    <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showLegend"
+                                             (ngModelChange)="handleChangeData()">
+                        <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                        <mat-button-toggle [value]="false">No</mat-button-toggle>
+                    </mat-button-toggle-group>
+                    <p></p>
+                </div>
+
                 <span class="toggle-text" *ngIf="options.xField.type == 'date'">Date Fill</span>
                 <mat-button-toggle-group *ngIf="options.xField.type == 'date'" class="neon-button-toggle-group-small"
                     [(ngModel)]="options.timeFill" (ngModelChange)="handleChangeData()">
