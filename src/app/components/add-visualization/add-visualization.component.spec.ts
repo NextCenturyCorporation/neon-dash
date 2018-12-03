@@ -71,8 +71,8 @@ class TestAddVisualizationComponent extends AddVisualizationComponent {
 
 describe('Component: AddVisualization', () => {
     let component: TestAddVisualizationComponent;
-    let fixture: ComponentFixture<TestAddVisualizationComponent>,
-        getService = (type: any) => fixture.debugElement.injector.get(type);
+    let fixture: ComponentFixture<TestAddVisualizationComponent>;
+    let getService = (type: any) => fixture.debugElement.injector.get(type);
     let debugElement: DebugElement;
     let spyOnInit;
 
@@ -117,7 +117,7 @@ describe('Component: AddVisualization', () => {
     }));
 
     it('Check that the publish function updates the correct booleans', (() => {
-        let spyOnBingShowVisualShortcut = spyOn(component, 'bindShowVisShortcut');
+        let spyOnBingShowVisualShortcut = spyOn(component, 'getShowVisShortcut');
         let message = {
             showVisShortcut: false
         };
@@ -129,7 +129,7 @@ describe('Component: AddVisualization', () => {
         expect(spyOnInit.calls.count()).toEqual(2);
 
         component.ngOnInit();
-        component.bindShowVisShortcut(message);
+        component.getShowVisShortcut(message);
 
         expect(spyOnInit.calls.count()).toEqual(3);
         expect(spyOnBingShowVisualShortcut.calls.count()).toEqual(1);

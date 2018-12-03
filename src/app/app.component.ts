@@ -75,7 +75,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public showFilterBuilderIcon: boolean = false;
     public showFilterTrayButton: boolean = false;
     //Toolbar
-    public showSimpleSearch: boolean = false;
     public showVisShortcut: boolean = true;
 
     public rightPanelTitle: string = 'Dashboard Layouts';
@@ -235,18 +234,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.widgetGridItems.push(widgetGridItem);
     }
 
-    bindShowSimpleSearch(message) {
-        this.showSimpleSearch = message.showSimpleSearch;
-    }
-
-    bindShowVisShortcut(message) {
-        this.showVisShortcut = message.showVisShortcut;
-    }
-
-    bindShowFilterBuilderIcon(message) {
-        this.showFilterBuilderIcon = message.showFilterBuilderIcon;
-    }
-
     changeFavicon() {
         let favicon = document.createElement('link'),
             faviconShortcut = document.createElement('link'),
@@ -376,6 +363,22 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
+     * Gets the showVisShortcut boolean value from the messenger channel
+     * @param message
+     */
+    getShowVisShortcut(message) {
+        this.showVisShortcut = message.showVisShortcut;
+    }
+
+    /**
+     * Gets the showFilterBuilderIcon boolean value from the messenger channel
+     * @param message
+     */
+    getShowFilterBuilderIcon(message) {
+        this.showFilterBuilderIcon = message.showFilterBuilderIcon;
+    }
+
+    /**
      * Returns the visible row count.
      *
      * @return {number}
@@ -433,9 +436,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.messenger.subscribe('showSimpleSearch', (message) => this.bindShowSimpleSearch(message));
-        this.messenger.subscribe('showVisShortcut', (message) => this.bindShowVisShortcut(message));
-        this.messenger.subscribe('showFilterBuilderIcon', (message) => this.bindShowFilterBuilderIcon(message));
+        this.messenger.subscribe('showVisShortcut', (message) => this.getShowVisShortcut(message));
+        this.messenger.subscribe('showFilterBuilderIcon', (message) => this.getShowFilterBuilderIcon(message));
     }
 
     onDragStop(i, event) {
@@ -485,18 +487,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.filterTrayDialogRef = this.dialog.open(FilterTrayComponent, config);
         this.filterTrayDialogRef.afterClosed().subscribe(() => {
             this.filterTrayDialogRef = null;
-        });
-    }
-
-    publishShowSimpleSearch() {
-        this.messenger.publish('showSimpleSearch', {
-            showSimpleSearch: this.showSimpleSearch
-        });
-    }
-
-    publishShowVisShortcut() {
-        this.messenger.publish('showVisShortcut', {
-            showVisShortcut: this.showVisShortcut
         });
     }
 
