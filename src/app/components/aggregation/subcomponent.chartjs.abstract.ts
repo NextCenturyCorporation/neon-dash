@@ -15,7 +15,6 @@
  */
 import { ElementRef } from '@angular/core';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { AggregationOptions } from './aggregation.component';
 import { Color } from '../../color';
 
 import * as _ from 'lodash';
@@ -103,12 +102,12 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * @constructor
-     * @arg {AggregationOptions} options
+     * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
      * @arg {boolean} [cannotSelect=false]
      */
-    constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef,
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
         protected cannotSelect: boolean = false) {
 
         super(options, listener, elementRef);

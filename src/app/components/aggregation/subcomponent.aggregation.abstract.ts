@@ -18,24 +18,6 @@ import { ElementRef } from '@angular/core';
 import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
 
-export interface AggregationSubcomponentOptions {
-    axisLabelX: string;
-    axisLabelY: string;
-    granularity: string;
-    hideGridLines: boolean;
-    hideGridTicks: boolean;
-    lineCurveTension: number;
-    lineFillArea: boolean;
-    logScaleX: boolean;
-    logScaleY: boolean;
-    scaleMaxX: string;
-    scaleMaxY: string;
-    scaleMinX: string;
-    scaleMinY: string;
-    showHeat: boolean;
-    yPercentage: number;
-}
-
 export interface AggregationSubcomponentListener {
     /**
      * Returns the hidden canvas element reference for the subcomponent.
@@ -107,12 +89,12 @@ export interface AggregationSubcomponentListener {
 export abstract class AbstractAggregationSubcomponent {
     /**
      * @constructor
-     * @arg {AggregationSubcomponentOptions} options
+     * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
      */
     constructor(
-        protected options: AggregationSubcomponentOptions,
+        protected options: any,
         protected listener: AggregationSubcomponentListener,
         protected elementRef: ElementRef
     ) {}

@@ -32,9 +32,17 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, DatabaseMetaData, TableMetaData } from '../../dataset';
 import { neonMappings, neonUtilities, neonVariables } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import * as neon from 'neon-framework';
 import { ANNOTATIONS } from '@angular/core/src/util/decorators';
 import * as _ from 'lodash';
@@ -52,94 +60,6 @@ export class AnnotationFields {
     endCharacterField: FieldMetaData;
     textField: FieldMetaData;
     typeField: FieldMetaData;
-}
-
-export class AnnotationViewerOptions extends BaseNeonOptions {
-    annotations: Annotation[];
-    annotationsInAnotherTable: boolean;
-    annotationDatabase: FieldMetaData;
-    annotationTable: FieldMetaData;
-    idField: FieldMetaData;
-    linkField: FieldMetaData;
-    startCharacterField: FieldMetaData;
-    endCharacterField: FieldMetaData;
-    textField: FieldMetaData;
-    typeField: FieldMetaData;
-
-    docCount: number;
-    documentIdFieldInAnnotationTable: {};
-    documentIdFieldInDocumentTable: {};
-    documentLimit: number;
-    documentTextField: any;
-    data: Data[] = [];
-    details: FieldMetaData;
-
-    errorMessage: string;
-
-    id: string;
-    ignoreSelf: boolean;
-
-    singleColor: boolean;
-
-    respondMode: boolean;
-    highlightInRespondMode: boolean; // True if text should be highlighted on hover while responseMode is true, false otherwise.
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        bindings.documentLimit = this.documentLimit;
-        bindings.highlightInRespondMode = this.highlightInRespondMode;
-        bindings.respondMode = this.respondMode;
-        bindings.singleColor = this.singleColor;
-
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'documentTextField',
-            'endCharacterField',
-            'idField',
-            'linkField',
-            'startCharacterField',
-            'textField',
-            'typeField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.documentLimit = this.injector.get('documentLimit', 50);
-        this.highlightInRespondMode = this.injector.get('highlightInRespondMode', false);
-        this.id = this.injector.get('id', '');
-        this.respondMode = this.injector.get('respondMode', false);
-        this.singleColor = this.injector.get('singleColor', false);
-    }
 }
 
 export class Data {
@@ -178,14 +98,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
-    public options: AnnotationViewerOptions;
-
-    // The filter set in the config file.
-    public configFilter: {
-        lhs: string,
-        operator: string,
-        rhs: string
-    };
+    public annotations: Annotation[];
+    public docCount: number;
+    public data: Data[] = [];
 
     // The visualization filters.
     public filters: {
@@ -233,15 +148,64 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             ref
         );
 
-        this.configFilter = this.injector.get('configFilter', null);
-
-        this.options = new AnnotationViewerOptions(this.injector, this.datasetService, 'Annotation Viewer', 50);
+        // Backwards compatibility (documentLimit deprecated due to its redundancy with limit).
+        this.options.limit = this.injector.get('documentLimit', this.options.limit);
 
         this.subscribeToSelectId(this.getSelectIdCallback());
     }
 
-    getOptions(): BaseNeonOptions {
-        return this.options;
+    /**
+     * Creates and returns an array of field options for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('documentTextField', 'Document Text Field', false),
+            new WidgetFieldOption('endCharacterField', 'End Character Field', false),
+            new WidgetFieldOption('idField', 'ID Field', false),
+            new WidgetFieldOption('linkField', 'Link Field', false),
+            new WidgetFieldOption('startCharacterField', 'Start Character Field', false),
+            new WidgetFieldOption('textField', 'Text Field', false),
+            new WidgetFieldOption('typeField', 'Type Field', false)
+        ];
+    }
+
+    /**
+     * Creates and returns an array of non-field options for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            // True if text should be highlighted on hover while responseMode is true, false otherwise.
+            new WidgetSelectOption('highlightInRespondMode', 'Highlight in Respond Mode', false, OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('id', 'ID', ''),
+            new WidgetSelectOption('respondMode', 'Respond Mode', false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('singleColor', 'Single Color', false, OptionChoices.NoFalseYesTrue)
+        ];
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultLimit(): number {
+        return 50;
+    }
+
+    /**
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'Annotation Viewer';
     }
 
     onClick(item) {
@@ -276,8 +240,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     createEmptyAnnotation() {
-        this.options.annotations = [];
-        this.options.annotations = [{
+        this.annotations = [];
+        this.annotations = [{
             annotationLabel: '',
             startField: 0,
             endField: 0,
@@ -354,7 +318,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     getValidDetails() {
-        return this.options.data.filter(function(detail) {
+        return this.data.filter(function(detail) {
             return this.isFieldValid(detail.details);
         });
     }
@@ -412,7 +376,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     addAnnotation(annotation) {
-        //this.options.annotations
+        //this.annotations
     }
 
     /**
@@ -457,7 +421,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     addEmptyAnnotation() {
         let annotation = new Annotation();
 
-        this.options.annotations.push(annotation);
+        this.annotations.push(annotation);
     }
 
     /**
@@ -619,7 +583,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         let clause = neon.query.where(this.displayField, '!=', null);
         let databaseName = this.options.database.name;
         let tableName = this.options.table.name;
-        let limit = this.options.documentLimit;
+        let limit = this.options.limit;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         this.displayField = this.options.respondMode ? this.options.linkField.columnName : this.options.documentTextField.columnName;
 
@@ -674,8 +638,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             clauses.push(neon.query.where(this.options.annotationViewerOptionalField.columnName, '!=', null));
         }*/
 
-        if (this.configFilter) {
-            clauses.push(neon.query.where(this.configFilter.lhs, this.configFilter.operator, this.configFilter.rhs));
+        if (this.options.filter) {
+            clauses.push(neon.query.where(this.options.filter.lhs, this.options.filter.operator, this.options.filter.rhs));
         }
 
         if (this.hasUnsharedFilter()) {
@@ -732,15 +696,15 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             return '';
         }
 
-        if (!this.responseData.length || !this.activeData.length || !this.options.docCount) {
+        if (!this.responseData.length || !this.activeData.length || !this.docCount) {
             return 'No Data';
         }
         if (this.activeData.length === this.responseData.length) {
             return 'Total ' + super.prettifyInteger(this.activeData.length);
         }
-        let begin = super.prettifyInteger((this.page - 1) * this.options.documentLimit + 1);
-        let end = super.prettifyInteger(Math.min(this.page * this.options.documentLimit, this.options.docCount));
-        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.options.docCount);
+        let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1);
+        let end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.docCount));
+        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.docCount);
     }
 
     /**
@@ -784,10 +748,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @override
      */
     getFiltersToIgnore(): string[] {
-        if (!this.options.ignoreSelf) {
-            return null;
-        }
-
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             [this.displayField]);
 
@@ -832,7 +792,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Returns the name for the visualization.
+     * Returns the default title for the visualization.
      *
      * @return {string}
      * @override
@@ -952,7 +912,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     onQuerySuccess(response: any) {
         // Check for undefined because the count may be zero.
         if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
-            this.options.docCount = response.data[0]._docCount;
+            this.docCount = response.data[0]._docCount;
             return;
         }
         this.displayField = this.options.respondMode ? this.options.linkField.columnName : this.options.documentTextField.columnName;
@@ -979,12 +939,12 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         if (this.responseData.length) {
             this.runDocCountQuery();
         } else {
-            this.options.docCount = 0;
+            this.docCount = 0;
         }
     }
 
     updateDocuemnts(response) {
-        this.options.data = [];
+        this.data = [];
         for (let document of response.data) {
             let data = {
                 annotationStartIndex: [],
@@ -1003,7 +963,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
             data.documents = document[this.displayField];
             if (data.documents) {
-                this.options.data.push(data);
+                this.data.push(data);
             }
         }
     }
@@ -1071,7 +1031,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
             // This will ignore a filter with multiple clauses.
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
+                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 if (this.isVisualizationFilterUnique(field.columnName, value)) {
                     this.addVisualizationFilter(this.createVisualizationFilter(neonFilter.id, field.columnName, field.prettyName, value));
@@ -1131,9 +1091,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      */
     updateActiveData() {
         this.activeData = [];
-        let offset = (this.page - 1) * this.options.documentLimit;
-        this.activeData = this.options.data.slice(offset, (offset + this.options.documentLimit));
-        this.lastPage = (this.options.data.length <= (offset + this.options.documentLimit));
+        let offset = (this.page - 1) * this.options.limit;
+        this.activeData = this.data.slice(offset, (offset + this.options.limit));
+        this.lastPage = (this.data.length <= (offset + this.options.limit));
         this.createDisplayObjects(this.activeData);
         this.updateLegend();
     }
@@ -1142,6 +1102,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * Checks the footer for a single annotation in the viewer and the conditions for the pagination(Prev/Next) bar
      */
     checkFooter() {
-        return (this.options.docCount > this.options.documentLimit) && (this.showFooterContainer());
+        return (this.docCount > this.options.limit) && (this.showFooterContainer());
     }
 }

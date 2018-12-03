@@ -703,11 +703,6 @@ describe('Component: NewsFeed', () => {
         })).toEqual('prettyField1 = value1');
     });
 
-    //for getOptions method
-    it('getOptions does return options', () => {
-        expect(component.getOptions()).toEqual(component.options);
-    });
-
     //for isValidQuery method
     it('isValidQuery does return expected boolean', () => {
         expect(component.isValidQuery()).toEqual(false);
@@ -1188,64 +1183,6 @@ describe('Component: NewsFeed', () => {
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
         }));
-    });
-
-    it('options.createBindings does set expected properties in bindings', () => {
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: '',
-            hideUnfiltered: false,
-            limit: 10,
-            table: '',
-            title: 'News Feed',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            idField: '',
-            ignoreSelf: false,
-            linkField: '',
-            dateField: '',
-            primaryTitleField: '',
-            secondaryTitleField: '',
-            contentField: '',
-            filterField: '',
-            sortField: ''
-        });
-
-        //add more component options (deleted some specific to thumbnailgrid)
-
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
-        component.options.ignoreSelf = false;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
-        component.options.primaryTitleField = new FieldMetaData('testPrimaryTitleField', 'Test Primary Title Field');
-        component.options.secondaryTitleField = new FieldMetaData('testSecondaryTitleField', 'Test Secondary Title Field');
-        component.options.contentField = new FieldMetaData('testContentField', 'Test Content Field');
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
-
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: '',
-            hideUnfiltered: false,
-            limit: 10,
-            table: '',
-            title: 'News Feed',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            idField: 'testIdField',
-            ignoreSelf: false,
-            linkField: 'testLinkField',
-            dateField: 'testDateField',
-            primaryTitleField: 'testPrimaryTitleField',
-            secondaryTitleField: 'testSecondaryTitleField',
-            contentField: 'testContentField',
-            filterField: 'testFilterField',
-            sortField: 'testSortField'
-        });
     });
 
     //for subNgOnDestroy and subNgOnInit methods

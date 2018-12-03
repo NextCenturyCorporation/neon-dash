@@ -77,7 +77,7 @@
                 <!-- TODO Do you need a limit? -->
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Sample Limit" [(ngModel)]="options.newLimit" required="true"
+                        <input matInput placeholder="Sample Limit" [(ngModel)]="newLimit" required="true"
                             (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
@@ -92,7 +92,7 @@
                 <mat-form-field>
                     <mat-select placeholder="Subcomponent Type" [(ngModel)]="options.subcomponentType" required="true"
                         (ngModelChange)="handleChangeSubcomponentType($event)">
-                        <mat-option *ngFor="let type of options.subcomponentTypes" [value]="type">{{ type }}</mat-option>
+                        <mat-option *ngFor="let type of subcomponentTypes" [value]="type">{{ type }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>

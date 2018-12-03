@@ -30,7 +30,6 @@ import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.comp
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { WidgetService } from '../../services/widget.service';
 import { LegendComponent } from '../legend/legend.component';
-import { ChartComponent } from '@swimlane/ngx-charts';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
@@ -45,7 +44,6 @@ describe('Component: NetworkGraph', () => {
 
     initializeTestBed({
         declarations: [
-            ChartComponent,
             LegendComponent,
             NetworkGraphComponent,
             ExportControlComponent,
@@ -87,9 +85,8 @@ describe('Component: NetworkGraph', () => {
         expect(component.options.linkColor).toEqual('#96c1fc');
         expect(component.options.edgeColor).toEqual('#2b7ce9');
         expect(component.options.fontColor).toEqual('#343434');
-        expect(component.options.edgeWidth).toEqual(1);
+        expect(component.options.edgeWidth).toEqual('1');
         expect(component.options.limit).toEqual('testLimit');
-        expect(component.options.showOnlyFiltered).toEqual(false);
         expect(component.options.filterFields).toEqual([]);
         expect(component.options.physics).toEqual(true);
         expect(component.options.filterable).toEqual(false);
