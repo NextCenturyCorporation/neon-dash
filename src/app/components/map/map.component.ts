@@ -108,7 +108,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     protected filterBoundingBox: BoundingBoxByDegrees;
 
     public disabledSet: [string[]] = [] as [string[]];
-    protected defaultActiveColor: Color;
 
     constructor(
         connectionService: ConnectionService,
@@ -166,8 +165,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     postInit() {
         // Backwards compatibility (mapType deprecated and replaced by type).
         this.options.type = this.injector.get('mapType', this.options.type);
-
-        this.defaultActiveColor = this.getPrimaryThemeColor();
     }
 
     /**
@@ -539,12 +536,12 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         }
 
         let mapPoints: MapPoint[] = [];
-        let rgbColor = this.defaultActiveColor.toRgb();
+        let rgbColor = this.widgetService.getThemeAccentColorHex();
         map.forEach((unique) => {
             let color = rgbColor;
             if (!this.options.singleColor) {
-                color = unique.colorValue ? this.widgetService.getColor(databaseName, tableName, colorField, unique.colorValue).toRgb() :
-                    whiteString;
+                color = !unique.colorValue ? whiteString : this.widgetService.getColor(databaseName, tableName, colorField,
+                    unique.colorValue).getComputedCss(this.visualization);
             }
 
             mapPoints.push(

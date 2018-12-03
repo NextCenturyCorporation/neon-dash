@@ -26,7 +26,7 @@ export abstract class AbstractChartJsDataset {
     public data: any[] = [];
     public xToY: Map<any, any> = new Map<any, any[]>();
 
-    constructor(public color: Color, public label: string, xList: string[]) {
+    constructor(protected elementRef: ElementRef, public color: Color, public label: string, xList: string[]) {
         xList.forEach((x) => {
             this.xToY.set(x, []);
         });
@@ -40,15 +40,15 @@ export abstract class AbstractChartJsDataset {
     public abstract finalizeData();
 
     public getColorBackground(): string {
-        return this.color.toRgba(0.33);
+        return this.color.getComputedCssOpacity33(this.elementRef);
     }
 
     public getColorDeselected(): string {
-        return this.color.toRgba(0.66);
+        return this.color.getComputedCssOpacity66(this.elementRef);
     }
 
     public getColorSelected(): string {
-        return this.color.toRgb();
+        return this.color.getComputedCss(this.elementRef);
     }
 
     public getLabels(): any[] {

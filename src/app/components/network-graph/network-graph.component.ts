@@ -125,6 +125,9 @@ class Edge {
 })
 export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild('graphElement') graphElement: ElementRef;
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
 
     public filters: {
         id: string,
@@ -800,7 +803,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             if (nodeColorField && this.prettifiedNodeLabels.length === 0) {
                 let colorMapVal = nodeColorField && nodeType;
                 nodeColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, nodeColorField,
-                    colorMapVal).toRgb();
+                    colorMapVal).getComputedCss(this.visualization);
             }
 
             // create a new node for each unique nodeId
@@ -816,7 +819,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                             if (nodeLabel === shortName) {
                                 let colorMapVal = nodeColorField && nodeLabel;
                                 nodeColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, nodeColorField,
-                                    colorMapVal).toRgb();
+                                    colorMapVal).getComputedCss(this.visualization);
                                 break;
                             }
                         }
@@ -841,7 +844,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             if (nodeColorField && this.prettifiedNodeLabels.length === 0) {
                 let colorMapVal = nodeColorField && nodeType;
                 linkColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, nodeColorField,
-                    colorMapVal).toRgb();
+                    colorMapVal).getComputedCss(this.visualization);
             }
 
             // create a node if linkfield doesn't point to a node that already exists
@@ -858,7 +861,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                             if (nodeLabel === shortName) {
                                 let colorMapVal = nodeColorField && nodeLabel;
                                 linkColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, nodeColorField,
-                                    colorMapVal).toRgb();
+                                    colorMapVal).getComputedCss(this.visualization);
                                 break;
                             }
                         }
@@ -877,7 +880,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 if (edgeColorField && this.prettifiedEdgeLabels.length === 0) {
                     let colorMapVal = edgeColorField && edgeType;
                     edgeColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, edgeColorField,
-                        colorMapVal).toRgb();
+                        colorMapVal).getComputedCss(this.visualization);
                 }
 
                 let edgeColorObject = { color: edgeColor, highlight: edgeColor};
@@ -893,7 +896,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                                 let colorMapVal = edgeColorField && edgeLabel;
                                 edgeType = edgeLabel;
                                 edgeColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, edgeColorField,
-                                    colorMapVal).toRgb();
+                                    colorMapVal).getComputedCss(this.visualization);
                                 edgeColorObject = { color: edgeColor, highlight: edgeColor};
                                 break;
                             }
@@ -993,9 +996,17 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.resetGraphData();
     }
 
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
     getElementRefs() {
         return {
-            //
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
         };
     }
 

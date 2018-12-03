@@ -705,18 +705,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.messenger.subscribe('select_id', callback);
     }
 
-    getHighlightThemeColor() {
-        let elements = document.getElementsByClassName('color-highlight');
-        let color = elements.length ? window.getComputedStyle(elements[0], null).getPropertyValue('color') : '';
-        return Color.fromRgbString(color || 'rgb(255, 255, 255)');
-    }
-
-    getPrimaryThemeColor() {
-        let elements = document.getElementsByClassName('color-primary');
-        let color = elements.length ? window.getComputedStyle(elements[0], null).getPropertyValue('color') : '';
-        return Color.fromRgbString(color || 'rgb(255, 255, 255)');
-    }
-
     getComputedStyle(nativeElement: any) {
         return window.getComputedStyle(nativeElement, null);
     }
