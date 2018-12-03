@@ -116,6 +116,87 @@ $teal-theme: (
     --color-text-header: #666666;
     --color-text-main: #333333;
 
+    --color-set-1: rgb(94,80,143); // #5E508F deep purple
+    --color-set-2: rgb(255,135,55); // #FF8737 orange
+    --color-set-3: rgb(179,79,146); // #B34F92 purple
+    --color-set-4: rgb(177,194,54); // #B1C236 lime
+    --color-set-5: rgb(243,88,112); // #F35870 pink
+    --color-set-6: rgb(0,153,255); // #0099FF blue
+    --color-set-7: rgb(255,214,0); // #FFD600 yellow
+    --color-set-8: rgb(106,204,127); // #6ACC7F sea green
+
+    --color-set-light-1: rgb(141,124,192); // #8D7CC0 deep purple
+    --color-set-light-2: rgb(255,184,102); // #FFB866 orange
+    --color-set-light-3: rgb(231,127,194); // #E77FC2 purple
+    --color-set-light-4: rgb(230,245,105); // #E6F569 lime
+    --color-set-light-5: rgb(255,139,158); // #FF8B9E pink
+    --color-set-light-6: rgb(105,204,255); // #69CCFF blue
+    --color-set-light-7: rgb(255,255,82); // #FFFF52 yellow
+    --color-set-light-8: rgb(54,154,82); // #369A52 sea green
+
+    --color-set-dark-1: rgb(49,39,97); // #312761 deep purple
+    --color-set-dark-2: rgb(198,88,0); // #C65800 orange
+    --color-set-dark-3: rgb(129,29,100); // #811D64 purple
+    --color-set-dark-4: rgb(126,146,0); // #7E9200 lime
+    --color-set-dark-5: rgb(187,30,69); // #BB1E45 pink
+    --color-set-dark-6: rgb(0,108,203); // #006CCB blue
+    --color-set-dark-7: rgb(199,165,0); // #C7A500 yellow
+    --color-set-dark-8: rgb(54,154,82); // #369A52 sea green
+
+    --color-set-1-opacity-66: rgba(94,80,143,0.66);
+    --color-set-2-opacity-66: rgba(255,135,55,0.66);
+    --color-set-3-opacity-66: rgba(179,79,146,0.66);
+    --color-set-4-opacity-66: rgba(177,194,54,0.66);
+    --color-set-5-opacity-66: rgba(243,88,112,0.66);
+    --color-set-6-opacity-66: rgba(0,153,255,0.66);
+    --color-set-7-opacity-66: rgba(255,214,0,0.66);
+    --color-set-8-opacity-66: rgba(106,204,127,0.66);
+
+    --color-set-light-1-opacity-66: rgba(141,124,192,0.66);
+    --color-set-light-2-opacity-66: rgba(255,184,102,0.66);
+    --color-set-light-3-opacity-66: rgba(231,127,194,0.66);
+    --color-set-light-4-opacity-66: rgba(230,245,105,0.66);
+    --color-set-light-5-opacity-66: rgba(255,139,158,0.66);
+    --color-set-light-6-opacity-66: rgba(105,204,255,0.66);
+    --color-set-light-7-opacity-66: rgba(255,255,82,0.66);
+    --color-set-light-8-opacity-66: rgba(54,154,82,0.66);
+
+    --color-set-dark-1-opacity-66: rgba(49,39,97,0.66);
+    --color-set-dark-2-opacity-66: rgba(198,88,0,0.66);
+    --color-set-dark-3-opacity-66: rgba(129,29,100,0.66);
+    --color-set-dark-4-opacity-66: rgba(126,146,0,0.66);
+    --color-set-dark-5-opacity-66: rgba(187,30,69,0.66);
+    --color-set-dark-6-opacity-66: rgba(0,108,203,0.66);
+    --color-set-dark-7-opacity-66: rgba(199,165,0,0.66);
+    --color-set-dark-8-opacity-66: rgba(54,154,82,0.66);
+
+    --color-set-1-opacity-33: rgba(94,80,143,0.33);
+    --color-set-2-opacity-33: rgba(255,135,55,0.33);
+    --color-set-3-opacity-33: rgba(179,79,146,0.33);
+    --color-set-4-opacity-33: rgba(177,194,54,0.33);
+    --color-set-5-opacity-33: rgba(243,88,112,0.33);
+    --color-set-6-opacity-33: rgba(0,153,255,0.33);
+    --color-set-7-opacity-33: rgba(255,214,0,0.33);
+    --color-set-8-opacity-33: rgba(106,204,127,0.33);
+
+    --color-set-light-1-opacity-33: rgba(141,124,192,0.33);
+    --color-set-light-2-opacity-33: rgba(255,184,102,0.33);
+    --color-set-light-3-opacity-33: rgba(231,127,194,0.33);
+    --color-set-light-4-opacity-33: rgba(230,245,105,0.33);
+    --color-set-light-5-opacity-33: rgba(255,139,158,0.33);
+    --color-set-light-6-opacity-33: rgba(105,204,255,0.33);
+    --color-set-light-7-opacity-33: rgba(255,255,82,0.33);
+    --color-set-light-8-opacity-33: rgba(54,154,82,0.33);
+
+    --color-set-dark-1-opacity-33: rgba(49,39,97,0.33);
+    --color-set-dark-2-opacity-33: rgba(198,88,0,0.33);
+    --color-set-dark-3-opacity-33: rgba(129,29,100,0.33);
+    --color-set-dark-4-opacity-33: rgba(126,146,0,0.33);
+    --color-set-dark-5-opacity-33: rgba(187,30,69,0.33);
+    --color-set-dark-6-opacity-33: rgba(0,108,203,0.33);
+    --color-set-dark-7-opacity-33: rgba(199,165,0,0.33);
+    --color-set-dark-8-opacity-33: rgba(54,154,82,0.33);
+
     &.mat-autocomplete-panel {
         background: white;
         color: rgba(black, 0.87);

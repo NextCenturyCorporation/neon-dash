@@ -30,8 +30,8 @@ export class ChartJsPieDataset extends AbstractChartJsDataset {
     public hoverBorderWidth: number = 3;
     public slices: any[] = [];
 
-    constructor(color: Color, label: string, xList: any[], public xSelected: any[]) {
-        super(color, label, xList);
+    constructor(elementRef: ElementRef, color: Color, label: string, xList: any[], public xSelected: any[]) {
+        super(elementRef, color, label, xList);
         this.borderColor = this.getColorSelected();
         this.hoverBackgroundColor = this.getColorSelected();
         this.hoverBorderColor = this.getColorSelected();
@@ -78,7 +78,7 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
      * @override
      */
     protected createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset {
-        return new ChartJsPieDataset(color, label, xList, this.selectedLabels);
+        return new ChartJsPieDataset(this.elementRef, color, label, xList, this.selectedLabels);
     }
 
     /**
