@@ -213,7 +213,6 @@ describe('App', () => {
     }));
 
     it('check that the messagenger subscribes to the correct channels and that the callbacks update the correct booleans', async(() => {
-        let spyOnMessengerSubscribe = spyOn(component.messenger, 'subscribe');
         let spyOnShowFilterBuilderIcon = spyOn(component, 'getShowFilterBuilderIcon');
         let spyOnShowVisualShortcut = spyOn(component, 'getShowVisShortcut');
         let message = {
@@ -221,12 +220,9 @@ describe('App', () => {
             showVisShortcut: false
         };
 
-        expect(spyOnMessengerSubscribe.calls.count()).toEqual(0);
         expect(spyOnInit.calls.count()).toEqual(1);
         component.ngOnInit();
         expect(spyOnInit.calls.count()).toEqual(2);
-        //This fails because the subscribe call count is zero and I'm not sure why it's not three.
-        //expect(spyOnMessengerSubscribe.calls.count()).toEqual(3);
         component.getShowVisShortcut(message);
         component.getShowFilterBuilderIcon(message);
 
