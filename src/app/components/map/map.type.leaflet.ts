@@ -118,16 +118,16 @@ export class LeafletNeonMap extends AbstractMap {
 
             let circle = new L.CircleMarker([point.lat, point.lng], circleOptions)/*.setRadius(6)*/;
             circle = this.addClickEventListener(circle);
-            if (this.mapOptions.hoverPopupEnabled) {
 
-                //check if popup value has been set in the map layer config, if no use default
-                if (point.hoverPopupMap.size > 0) {
+            let tooltip = this.mapOptions.showPointDataOnHover ? `<span>${point.name}</span><br/><span>${point.description}</span>` : '';
 
-                    //build hover value and add to tooltip
-                    circle.bindTooltip(`<span>${this.createHoverPopupString(point.hoverPopupMap)}</span>`);
-                } else {
-                    circle.bindTooltip(`<span>${point.name}</span><br/><span>${point.description}</span>`);
-                }
+            if (point.hoverPopupMap.size > 0) {
+                //build hover value and add to tooltip
+                tooltip += (tooltip ? '<br/>' : '') + `<span>${this.createHoverPopupString(point.hoverPopupMap)}</span>`;
+            }
+
+            if (tooltip) {
+                circle.bindTooltip(tooltip);
             }
 
             if (cluster) {
