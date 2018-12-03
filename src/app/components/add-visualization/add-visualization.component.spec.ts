@@ -117,7 +117,7 @@ describe('Component: AddVisualization', () => {
     }));
 
     it('Check that the publish function updates the correct booleans', (() => {
-        let spyOnBingShowVisualShortcut = spyOn(component, 'getShowVisShortcut');
+        let spyOnBingShowVisualShortcut = spyOn(component, 'updateShowVisShortcut');
         let message = {
             showVisShortcut: false
         };
@@ -129,7 +129,7 @@ describe('Component: AddVisualization', () => {
         expect(spyOnInit.calls.count()).toEqual(2);
 
         component.ngOnInit();
-        component.getShowVisShortcut(message);
+        component.updateShowVisShortcut(message);
 
         expect(spyOnInit.calls.count()).toEqual(3);
         expect(spyOnBingShowVisualShortcut.calls.count()).toEqual(1);
