@@ -29,7 +29,7 @@
     <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary" layout-align="space-between center" flex>
         <span>{{ datasetService.getName() || "Choose Data..." }}</span>
         <span class="fill-remaining"></span>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below" id="showVisShortcutButton"
             matTooltip="Add a New Visualization" (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()" *ngIf="showVisShortcut">
             <mat-icon class="neon-icon-large">add_circle</mat-icon>
         </button>
@@ -41,7 +41,7 @@
         <div class="simple-search-container">
             <app-simple-filter #simpleFilter></app-simple-filter>
         </div>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filter Builder" tooltip-position="below"
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filter Builder" tooltip-position="below" id="showFilterBuilderIcon"
             matTooltip="Show Filter Builder" (click)="openFilterBuilderDialog()" *ngIf="showFilterBuilderIcon">
             <mat-icon class="neon-icon-large" *ngIf="changeFilterBuilderIcon()" svgIcon="{{filterBuilderIcon}}"></mat-icon>
         </button>
