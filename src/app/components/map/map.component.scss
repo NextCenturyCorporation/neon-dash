@@ -68,3 +68,12 @@
     color: black;
     z-index: 1;
 }
+
+/deep/ .neon-cluster {
+    background-color: var(--color-accent);
+    color: var(--color-text-main);
+}
+
+/deep/ .neon-cluster span {
+    font-weight: bold;
+}
