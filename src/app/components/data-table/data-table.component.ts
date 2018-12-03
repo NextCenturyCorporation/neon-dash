@@ -130,7 +130,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Creates and returns an array of field options for the unique widget.
+     * Creates and returns an array of field options for the visualization.
      *
      * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
      * @override
@@ -146,7 +146,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Creates and returns an array of non-field options for the unique widget.
+     * Creates and returns an array of non-field options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
@@ -154,7 +154,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     createNonFieldOptions(): WidgetOption[] {
         return [
             new WidgetSelectOption('filterable', 'Filterable', false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('singleFilter', 'Filter Multiple', false, OptionChoices.YesFalseNoTrue, this.isFilterable),
+            new WidgetSelectOption('singleFilter', 'Filter Multiple', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable),
             // TODO THOR-949 Rename option and change to boolean.
             new WidgetSelectOption('arrayFilterOperator', 'Filter Operator', true, [{
                 prettyName: 'OR',
@@ -162,9 +162,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }, {
                 prettyName: 'AND',
                 variable: 'and'
-            }], this.isFilterable),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.NoFalseYesTrue, this.isFilterable),
-            new WidgetFreeTextOption('heatmapDivisor', 'Heatmap Divisor', '0', this.isHeatmapTable),
+            }], this.optionsFilterable),
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.NoFalseYesTrue, this.optionsFilterable),
+            new WidgetFreeTextOption('heatmapDivisor', 'Heatmap Divisor', '0', this.optionsHeatmapTable),
             new WidgetSelectOption('reorderable', 'Make Columns Reorderable', true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('showColumnSelector', 'Show Column Selector', false, [{
                 prettyName: 'Yes',
@@ -210,22 +210,22 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Returns the default limit for the unique widget.
+     * Returns the default limit for the visualization.
      *
      * @return {string}
      * @override
      */
-    getWidgetDefaultLimit(): number {
+    getVisualizationDefaultLimit(): number {
         return 40;
     }
 
     /**
-     * Returns the name for the unique widget.
+     * Returns the default title for the visualization.
      *
      * @return {string}
      * @override
      */
-    getWidgetName(): string {
+    getVisualizationDefaultTitle(): string {
         return 'Data Table';
     }
 
@@ -294,26 +294,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Returns whether the widget is filterable.
-     *
-     * @arg {any} options
-     * @return {boolean}
-     */
-    isFilterable(options: any): boolean {
-        return options.filterable;
-    }
-
-    /**
-     * Returns whether the widget is a heatmap table.
-     *
-     * @arg {any} options
-     * @return {boolean}
-     */
-    isHeatmapTable(options: any): boolean {
-        return options.heatmapField.columnName;
-    }
-
-    /**
      * Returns the custom width for a column (or default if not specified in the config)
      * @returns width for a specific column
      */
@@ -324,6 +304,26 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }
         }
         return this.DEFAULT_COLUMN_WIDTH;
+    }
+
+    /**
+     * Returns whether the widget is filterable.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsFilterable(options: any): boolean {
+        return options.filterable;
+    }
+
+    /**
+     * Returns whether the widget is a heatmap table.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsHeatmapTable(options: any): boolean {
+        return options.heatmapField.columnName;
     }
 
     subNgOnInit() {

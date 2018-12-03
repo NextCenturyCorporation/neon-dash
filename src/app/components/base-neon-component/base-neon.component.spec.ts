@@ -123,11 +123,11 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         }
     }
 
-    getWidgetDefaultLimit(): number {
+    getVisualizationDefaultLimit(): number {
         return 1234;
     }
 
-    getWidgetName(): string {
+    getVisualizationDefaultTitle(): string {
         return 'Mock Superclass';
     }
 
@@ -330,12 +330,12 @@ describe('BaseNeonComponent Options', () => {
         expect(component.getExportFields()).toEqual([]);
     });
 
-    it('getWidgetDefaultLimit does return expected number', () => {
-        expect(component.getWidgetDefaultLimit()).toEqual(1234);
+    it('getVisualizationDefaultLimit does return expected number', () => {
+        expect(component.getVisualizationDefaultLimit()).toEqual(1234);
     });
 
-    it('getWidgetName does return expected string', () => {
-        expect(component.getWidgetName()).toEqual('Mock Superclass');
+    it('getVisualizationDefaultTitle does return expected string', () => {
+        expect(component.getVisualizationDefaultTitle()).toEqual('Mock Superclass');
     });
 
     it('hasUnsharedFilter does return expected boolean', () => {

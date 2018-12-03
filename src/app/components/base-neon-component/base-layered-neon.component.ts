@@ -90,7 +90,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      */
     ngOnInit() {
         this.initializing = true;
-        this.options = this.createWidgetOptions(this.injector, this.getWidgetName(), this.getWidgetDefaultLimit());
+        this.options = this.createWidgetOptions(this.injector, this.getVisualizationDefaultTitle(), this.getVisualizationDefaultLimit());
         this.id = this.options._id;
         this.newLimit = this.options.limit;
 
@@ -828,7 +828,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Creates and returns an array of field options for the unique widget.
+     * Creates and returns an array of field options for the visualization.
      *
      * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
      * @abstract
@@ -836,7 +836,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     protected abstract createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[];
 
     /**
-     * Creates and returns an array of field options for a layer for the unique widget.
+     * Creates and returns an array of field options for a layer for the visualization.
      *
      * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
      * @abstract
@@ -844,7 +844,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     protected abstract createLayerFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[];
 
     /**
-     * Creates and returns an array of non-field options for a layer for the unique widget.
+     * Creates and returns an array of non-field options for a layer for the visualization.
      *
      * @return {WidgetOption[]}
      * @abstract
@@ -852,7 +852,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     protected abstract createLayerNonFieldOptions(): WidgetOption[];
 
     /**
-     * Creates and returns an array of non-field options for the unique widget.
+     * Creates and returns an array of non-field options for the visualization.
      *
      * @return {WidgetOption[]}
      * @abstract
@@ -860,7 +860,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     protected abstract createNonFieldOptions(): WidgetOption[];
 
     /**
-     * Creates and returns the options for the unique widget with the given title and limit.
+     * Creates and returns the options for the visualization with the given title and limit.
      *
      * @arg {Injector} injector
      * @arg {string} visualizationTitle
@@ -950,7 +950,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Returns the bindings object with the current options for the unique widget.
+     * Returns the bindings object with the current options for the visualization.
      *
      * @arg {any} [options]
      * @return {any}
@@ -989,20 +989,20 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Returns the default limit for the unique widget.
+     * Returns the default limit for the visualization.
      *
      * @return {string}
      * @abstract
      */
-    public abstract getWidgetDefaultLimit(): number;
+    public abstract getVisualizationDefaultLimit(): number;
 
     /**
-     * Returns the name for the unique widget.
+     * Returns the default title for the visualization.
      *
      * @return {string}
      * @abstract
      */
-    public abstract getWidgetName(): string;
+    public abstract getVisualizationDefaultTitle(): string;
 
     /**
      * Initializes all the fields in the given WidgetOptionCollection.
