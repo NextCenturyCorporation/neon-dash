@@ -18,14 +18,14 @@ $teal-theme-white-darker: #D7D7D7;
 
 $teal-theme-base: (
     50: $teal-theme-primary-lighter,
-    100: $teal-theme-primary-lighter,
-    200: $teal-theme-primary-lighter,
-    300: $teal-theme-primary,
-    400: $teal-theme-primary,
+    100: #96C1CC,
+    200: #7EAEBB,
+    300: #669BAA,
+    400: #4E8899,
     500: $teal-theme-primary,
-    600: $teal-theme-primary,
-    700: $teal-theme-primary-darker,
-    800: $teal-theme-primary-darker,
+    600: #31697B,
+    700: #2D5E6E,
+    800: #295361,
     900: $teal-theme-primary-darker,
     A100: $teal-theme-accent-lighter,
     A200: $teal-theme-accent-lighter,
@@ -45,7 +45,7 @@ $teal-theme-base: (
         A100: $teal-theme-grey-darker,
         A200: $teal-theme-grey-darker,
         A400: $teal-theme-grey-darker,
-        A700: $teal-theme-grey-lighter
+        A700: $teal-theme-white-lighter
     )
 );
 
@@ -88,8 +88,8 @@ $teal-theme-foreground: (
     slider-off-active: rgba(black, 0.38),
 );
 
-$teal-theme-primary-palette: mat-palette($teal-theme-base, 500, 100, 700);
-$teal-theme-accent-palette: mat-palette($teal-theme-base, A400, A200, A700);
+$teal-theme-primary-palette: mat-palette($teal-theme-base, 500, 50, 900);
+$teal-theme-accent-palette: mat-palette($teal-theme-base, A400, A100, A700);
 $teal-theme-warn-palette: mat-palette($mat-red, A400, A200, A700);
 
 $teal-theme: (
@@ -107,10 +107,10 @@ $teal-theme: (
     /* DO NOT USE SASS VARIABLES ($VAR) HERE!  YOU MUST HARDCODE ALL COLORS! */
     --color-accent: #54C8CD;
     --color-accent-contrast: #333333;
-    --color-accent-opaque: rgb(84,200,205,0.4);
+    --color-accent-transparent: rgba(84,200,205,0.33);
     --color-primary: #367588;
     --color-primary-contrast: #F2F2F2;
-    --color-primary-opaque: rgb(54, 117, 136, 0.4);
+    --color-primary-transparent: rgba(54, 117, 136, 0.33);
     --color-background: #F2F2F2;
     --color-background-contrast: #D7D7D7;
     --color-text-header: #666666;
