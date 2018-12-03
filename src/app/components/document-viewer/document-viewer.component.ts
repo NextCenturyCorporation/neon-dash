@@ -31,91 +31,24 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetNonPrimitiveOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
 
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
-
-/**
- * Manages configurable options for the specific visualization.
- */
-export class DocumentViewerOptions extends BaseNeonOptions {
-    public dataField: FieldMetaData;
-    public dateField: FieldMetaData;
-    public hideSource: boolean;
-    public idField: FieldMetaData;
-    public metadataFields: any[];
-    public nameWidthCss: string;
-    public popoutFields: any[];
-    public showSelect: boolean;
-    public showText: boolean;
-    public sortField: FieldMetaData;
-    public sortOrder: string;
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        bindings.hideSource = this.hideSource;
-        bindings.metadataFields = this.metadataFields;
-        bindings.nameWidthCss = this.nameWidthCss;
-        bindings.popoutFields = this.popoutFields;
-        bindings.showSelect = this.showSelect;
-        bindings.showText = this.showText;
-        bindings.sortOrder = this.sortOrder;
-
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'dataField',
-            'dateField',
-            'idField',
-            'sortField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.hideSource = this.injector.get('hideSource', false);
-        this.metadataFields = neonUtilities.flatten(this.injector.get('metadataFields', []));
-        this.nameWidthCss = this.injector.get('nameWidthCss', '');
-        this.popoutFields = neonUtilities.flatten(this.injector.get('popoutFields', []));
-        this.showSelect = this.injector.get('showSelect', false);
-        this.showText = this.injector.get('showText', false);
-        this.sortOrder = this.injector.get('sortOrder', 'DESCENDING');
-    }
-}
 
 @Component({
     selector: 'app-document-viewer',
@@ -130,8 +63,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     @ViewChild('infoText') infoText: ElementRef;
 
     private singleItemRef: MatDialogRef<DocumentViewerSingleItemComponent>;
-
-    public options: DocumentViewerOptions;
 
     public activeData: any[] = [];
     public docCount: number = 0;
@@ -156,7 +87,9 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             ref
         );
 
-        this.options = new DocumentViewerOptions(this.injector, this.datasetService, 'Document Viewer', 50);
+        // Backwards compatibility (sortOrder deprecated and replaced by sortDescending).
+        let sortOrder = this.injector.get('sortOrder', null);
+        this.options.sortDescending = sortOrder ? (sortOrder === 'DESCENDING') : this.options.sortDescending;
     }
 
     subNgOnInit() {
@@ -204,25 +137,79 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         return clause;
     }
 
+    /**
+     * Creates and returns an array of field options for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('dataField', 'Text Field', true),
+            new WidgetFieldOption('dateField', 'Date Field', false),
+            new WidgetFieldOption('idField', 'ID Field', false),
+            new WidgetFieldOption('sortField', 'Sort Field', false)
+        ];
+    }
+
+    /**
+     * Creates and returns an array of non-field options for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetSelectOption('showText', 'Main Document Text', false, OptionChoices.HideFalseShowTrue),
+            new WidgetFreeTextOption('nameWidthCss', 'Name (Left Column) Width CSS', ''),
+            new WidgetSelectOption('showSelect', 'Select Button', false, OptionChoices.HideFalseShowTrue),
+            new WidgetSelectOption('sortDescending', 'Sort', true, OptionChoices.AscendingFalseDescendingTrue),
+            new WidgetSelectOption('hideSource', 'Source Button', false, OptionChoices.ShowFalseHideTrue),
+            // TODO THOR-950 Rename metadataFields and popoutFields because they are not arrays of FieldMetaData objects!
+            new WidgetNonPrimitiveOption('metadataFields', 'Metadata Fields', []),
+            new WidgetNonPrimitiveOption('popoutFields', 'Popout Fields', [])
+        ];
+    }
+
     createQuery() {
         let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
         let whereClause = this.createClause();
-        let fields = [this.options.dataField.columnName].concat(this.options.metadataFields.map((item) => {
+        let fields = [this.options.dataField.columnName].concat(neonUtilities.flatten(this.options.metadataFields).map((item) => {
             return item.field;
-        })).concat(this.options.popoutFields.map((item) => {
+        })).concat(neonUtilities.flatten(this.options.popoutFields).map((item) => {
             return item.field;
         }));
         if (this.options.dateField.columnName) {
             fields = fields.concat(this.options.dateField.columnName);
         }
         if (this.options.sortField.columnName) {
-            query = query.sortBy(this.options.sortField.columnName,
-                (this.options.sortOrder === 'DESCENDING') ? neonVariables.DESCENDING : neonVariables.ASCENDING);
+            query = query.sortBy(this.options.sortField.columnName, this.options.sortDescending ? neonVariables.DESCENDING :
+                neonVariables.ASCENDING);
         }
         if (this.options.idField.columnName) {
             fields = fields.concat(this.options.idField.columnName);
         }
         return query.where(whereClause).withFields(fields).limit(this.options.limit).offset((this.page - 1) * this.options.limit);
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultLimit(): number {
+        return 50;
+    }
+
+    /**
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'Document Viewer';
     }
 
     onQuerySuccess(response) {
@@ -231,8 +218,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             return;
         }
 
-        let configFields: { name?: string, field: string, arrayFilter?: any }[] = this.options.metadataFields.concat(
-            this.options.popoutFields);
+        let configFields: { name?: string, field: string, arrayFilter?: any }[] = neonUtilities.flatten(this.options.metadataFields).concat(
+            neonUtilities.flatten(this.options.popoutFields));
 
         if (!configFields.some((configField) => {
             return configField.field === this.options.dataField.columnName;
@@ -299,7 +286,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let activeItemText = this.createTableRowText(activeItemData, arrayFilter);
         if (activeItemText) {
             activeItem.rows.push({
-                name: name || (this.options.findField(field) || this.createEmptyField()).prettyName || field,
+                name: name || (this.findField(this.options.fields, field) || this.createEmptyField()).prettyName || field,
                 text: activeItemText
             });
         }
@@ -434,7 +421,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             item: activeItemData,
             showText: this.options.showText,
             textField: this.options.dataField.columnName,
-            metadataFields: this.options.metadataFields.concat(this.options.popoutFields)
+            metadataFields: neonUtilities.flatten(this.options.metadataFields).concat(neonUtilities.flatten(this.options.popoutFields))
         };
 
         this.singleItemRef = this.dialog.open(DocumentViewerSingleItemComponent, config);
@@ -488,16 +475,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             headerText: this.headerText,
             infoText: this.infoText
         };
-    }
-
-    /**
-     * Returns the options for the specific visualization.
-     *
-     * @return {BaseNeonOptions}
-     * @override
-     */
-    getOptions(): BaseNeonOptions {
-        return this.options;
     }
 
     /**

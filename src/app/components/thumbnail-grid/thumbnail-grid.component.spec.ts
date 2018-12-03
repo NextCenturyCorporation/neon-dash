@@ -100,7 +100,6 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('does have expected class options properties', () => {
-        expect(component.options.ascending).toEqual(false);
         expect(component.options.border).toEqual('');
         expect(component.options.borderCompareValue).toEqual('');
         expect(component.options.borderPercentThreshold).toEqual(0.5);
@@ -111,6 +110,7 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.options.ignoreSelf).toEqual(false);
         expect(component.options.linkPrefix).toEqual('');
         expect(component.options.openOnMouseClick).toEqual(true);
+        expect(component.options.sortDescending).toEqual(false);
         expect(component.options.textMap).toEqual({});
         expect(component.options.typeMap).toEqual({});
 
@@ -320,8 +320,8 @@ describe('Component: ThumbnailGrid', () => {
             validateToggle(toggles[5], false, 'No', true);
             validateToggle(toggles[6], true, 'Yes', true);
             validateToggle(toggles[7], false, 'No', false);
-            validateToggle(toggles[8], true, 'Ascending', false);
-            validateToggle(toggles[9], false, 'Descending', true);
+            validateToggle(toggles[8], false, 'Ascending', true);
+            validateToggle(toggles[9], true, 'Descending', false);
         });
     }));
 
@@ -854,7 +854,7 @@ describe('Component: ThumbnailGrid', () => {
             .selectFrom(component.options.database.name, component.options.table.name)
             .withFields(fields)
             .where(wherePredicate)
-            .sortBy('testSortField', neonVariables.DESCENDING));
+            .sortBy('testSortField', neonVariables.ASCENDING));
 
         component.options.categoryField = new FieldMetaData('testCategoryField', 'Test Category Field');
         component.options.compareField = new FieldMetaData('testCompareField', 'Test Compare Field');
@@ -866,7 +866,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.percentField = new FieldMetaData('testPercentField', 'Test Percent Field');
         component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
         component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
-        component.options.ascending = true;
+        component.options.sortDescending = true;
 
         fields = ['testLinkField', 'testSortField', 'testCategoryField', 'testCompareField', 'testFilterField', 'testIdField',
             'testNameField', 'testObjectIdField', 'testObjectNameField', 'testPercentField', 'testPredictedNameField', 'testTypeField'];
@@ -875,7 +875,7 @@ describe('Component: ThumbnailGrid', () => {
             .selectFrom(component.options.database.name, component.options.table.name)
             .withFields(fields)
             .where(wherePredicate)
-            .sortBy('testSortField', neonVariables.ASCENDING));
+            .sortBy('testSortField', neonVariables.DESCENDING));
     });
 
     it('filterExists does return expected boolean', () => {
@@ -1128,10 +1128,6 @@ describe('Component: ThumbnailGrid', () => {
             prettyField: 'prettyField1',
             value: 'value1'
         })).toEqual('prettyField1 = value1');
-    });
-
-    it('getOptions does return options', () => {
-        expect(component.getOptions()).toEqual(component.options);
     });
 
     it('getThumbnailLabel does return expected string', () => {
@@ -1963,142 +1959,6 @@ describe('Component: ThumbnailGrid', () => {
         }));
     });
 
-    it('options.createBindings does set expected properties in bindings', () => {
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 30,
-            table: 'testTable1',
-            title: 'Thumbnail Grid',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            categoryField: '',
-            compareField: '',
-            dateField: '',
-            filterField: '',
-            flagLabel: '',
-            flagSubLabel1: '',
-            flagSubLabel2: '',
-            flagSubLabel3: '',
-            idField: '',
-            linkField: '',
-            nameField: '',
-            objectIdField: '',
-            objectNameField: '',
-            percentField: '',
-            predictedNameField: '',
-            sortField: '',
-            typeField: '',
-            ascending: false,
-            border: '',
-            borderCompareValue: '',
-            borderPercentThreshold: 0.5,
-            cropAndScale: '',
-            defaultLabel: '',
-            defaultPercent: '',
-            detailedThumbnails: false,
-            ignoreSelf: false,
-            linkPrefix: '',
-            openOnMouseClick: true,
-            showLabelName: false,
-            textMap: {},
-            typeMap: {}
-        });
-
-        component.options.categoryField = new FieldMetaData('testCategoryField', 'Test Category Field');
-        component.options.compareField = new FieldMetaData('testCompareField', 'Test Compare Field');
-        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.flagLabel = new FieldMetaData('testFlagLabelField', 'Test Flag Label Field');
-        component.options.flagSubLabel1 = new FieldMetaData('testFlagSubLabel1Field', 'Test Flag Sub Label 1 Field');
-        component.options.flagSubLabel2 = new FieldMetaData('testFlagSubLabel2Field', 'Test Flag Sub Label 2 Field');
-        component.options.flagSubLabel3 = new FieldMetaData('testFlagSubLabel3Field', 'Test Flag Sub Label 3 Field');
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
-        component.options.objectIdField = new FieldMetaData('testObjectIdField', 'Test Object ID Field');
-        component.options.objectNameField = new FieldMetaData('testObjectNameField', 'Test Object Name Field');
-        component.options.percentField = new FieldMetaData('testPercentField', 'Test Percent Field');
-        component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
-        component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
-        component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
-
-        component.options.ascending = true;
-        component.options.border = 'grey';
-        component.options.borderCompareValue = 'Test Compare Value';
-        component.options.borderPercentThreshold = 0.25;
-        component.options.cropAndScale = 'both';
-        component.options.defaultLabel = 'testDefaultLabel';
-        component.options.defaultPercent = 'testDefaultPercent';
-        component.options.detailedThumbnails = true;
-        component.options.ignoreSelf = true;
-        component.options.linkPrefix = 'prefix/';
-        component.options.openOnMouseClick = false;
-        component.options.showLabelName = true;
-        component.options.textMap = {
-            actual: 'Truth',
-            percentage: 'Score'
-        };
-        component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
-        component.options.typeMap = {
-            jpg: 'img',
-            mov: 'vid'
-        };
-
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 30,
-            table: 'testTable1',
-            title: 'Thumbnail Grid',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            categoryField: 'testCategoryField',
-            compareField: 'testCompareField',
-            dateField: 'testDateField',
-            filterField: 'testFilterField',
-            flagLabel: 'testFlagLabelField',
-            flagSubLabel1: 'testFlagSubLabel1Field',
-            flagSubLabel2: 'testFlagSubLabel2Field',
-            flagSubLabel3: 'testFlagSubLabel3Field',
-            idField: 'testIdField',
-            linkField: 'testLinkField',
-            nameField: 'testNameField',
-            objectIdField: 'testObjectIdField',
-            objectNameField: 'testObjectNameField',
-            percentField: 'testPercentField',
-            predictedNameField: 'testPredictedNameField',
-            sortField: 'testSortField',
-            typeField: 'testTypeField',
-            ascending: true,
-            border: 'grey',
-            borderCompareValue: 'Test Compare Value',
-            borderPercentThreshold: 0.25,
-            cropAndScale: 'both',
-            defaultLabel: 'testDefaultLabel',
-            defaultPercent: 'testDefaultPercent',
-            detailedThumbnails: true,
-            ignoreSelf: true,
-            linkPrefix: 'prefix/',
-            openOnMouseClick: false,
-            showLabelName: true,
-            textMap: {
-                actual: 'Truth',
-                percentage: 'Score'
-            },
-            typeMap: {
-                jpg: 'img',
-                mov: 'vid'
-            }
-        });
-    });
-
     it('subNgOnDestroy does exist', () => {
         expect(component.subNgOnDestroy).toBeDefined();
     });
@@ -2157,9 +2017,8 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase2' },
             { provide: 'table', useValue: 'testTable2' },
-            { provide: 'configFilter', useValue: {lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
+            { provide: 'filter', useValue: {lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 10 },
-            { provide: 'ascending', useValue: true },
             { provide: 'border', useValue: 'percentCompare' },
             { provide: 'borderCompareValue', useValue: 'Test Compare Value' },
             { provide: 'borderPercentThreshold', useValue: 0.25 },
@@ -2182,6 +2041,7 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'openOnMouseClick', useValue: false },
             { provide: 'percentField', useValue: 'testSizeField' },
             { provide: 'predictedNameField', useValue: 'testNameField' },
+            { provide: 'sortDescending', useValue: false },
             { provide: 'sortField', useValue: 'testSortField' },
             { provide: 'textMap', useValue: { actual: 'Truth', percentage: 'Score' } },
             { provide: 'typeField', useValue: 'testTypeField' },
@@ -2217,7 +2077,6 @@ describe('Component: ThumbnailGrid with config', () => {
     });
 
     it('does have expected class options properties', () => {
-        expect(component.options.ascending).toEqual(true);
         expect(component.options.border).toEqual('percentCompare');
         expect(component.options.borderCompareValue).toEqual('Test Compare Value');
         expect(component.options.borderPercentThreshold).toEqual(0.25);
@@ -2229,6 +2088,7 @@ describe('Component: ThumbnailGrid with config', () => {
         expect(component.options.ignoreSelf).toEqual(true);
         expect(component.options.linkPrefix).toEqual('prefix/');
         expect(component.options.openOnMouseClick).toEqual(false);
+        expect(component.options.sortDescending).toEqual(false);
 
         expect(component.options.textMap).toEqual({
             actual: 'Truth',
@@ -2350,8 +2210,8 @@ describe('Component: ThumbnailGrid with config', () => {
             validateToggle(toggles[5], false, 'No', false);
             validateToggle(toggles[6], true, 'Yes', false);
             validateToggle(toggles[7], false, 'No', true);
-            validateToggle(toggles[8], true, 'Ascending', true);
-            validateToggle(toggles[9], false, 'Descending', false);
+            validateToggle(toggles[8], false, 'Ascending', true);
+            validateToggle(toggles[9], true, 'Descending', false);
         });
     }));
 });

@@ -124,8 +124,7 @@ describe('Component: AnnotationViewer', () => {
 
     it('properties are set to expected defaults', () => {
         expect(component.activeData).toEqual([]);
-        expect(component.configFilter).toEqual(null);
-        expect(component.options.docCount).toBeUndefined();
+        expect(component.docCount).toBeUndefined();
         expect(component.filters).toEqual([]);
         expect(component.lastPage).toEqual(true);
         expect(component.page).toEqual(1);
@@ -141,23 +140,15 @@ describe('Component: AnnotationViewer', () => {
     });
 
     it('Checks if option object has expected defaults', () => {
-        expect(component.options.annotations).toBeUndefined();
-        expect(component.options.annotationsInAnotherTable).toBeUndefined();
-        expect(component.options.annotationDatabase).toBeUndefined();
-        expect(component.options.annotationTable).toBeUndefined();
+        expect(component.annotations).toBeUndefined();
         expect(component.options.startCharacterField).toEqual(new FieldMetaData());
         expect(component.options.endCharacterField).toEqual(new FieldMetaData());
         expect(component.options.textField).toEqual(new FieldMetaData());
         expect(component.options.typeField).toEqual(new FieldMetaData());
 
-        expect(component.options.docCount).toBeUndefined();
-        expect(component.options.documentIdFieldInAnnotationTable).toBeUndefined();
-        expect(component.options.documentIdFieldInDocumentTable).toBeUndefined();
+        expect(component.docCount).toBeUndefined();
         expect(component.options.documentTextField).toEqual(new FieldMetaData());
-        expect(component.options.data).toEqual([]);
-        expect(component.options.details).toBeUndefined();
-        expect(component.options.errorMessage).toBeUndefined();
-        expect(component.options.ignoreSelf).toBeUndefined();
+        expect(component.data).toEqual([]);
         expect(component.options.singleColor).toEqual(false);
     });
 

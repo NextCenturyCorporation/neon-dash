@@ -17,27 +17,9 @@
 'use strict';
 
 import { AbstractChartJsDataset, AbstractChartJsSubcomponent } from './subcomponent.chartjs.abstract';
-import { AggregationSubcomponentListener, AggregationSubcomponentOptions } from './subcomponent.aggregation.abstract';
+import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '../../color';
 import { ElementRef } from '@angular/core';
-
-class TestAggregationSubcomponentOptions implements AggregationSubcomponentOptions {
-    public axisLabelX: string = '';
-    public axisLabelY: string = '';
-    public granularity: string = 'year';
-    public hideGridLines: boolean = false;
-    public hideGridTicks: boolean = false;
-    public lineCurveTension: number = 0.3;
-    public lineFillArea: boolean = false;
-    public logScaleX: boolean = false;
-    public logScaleY: boolean = false;
-    public scaleMaxX: string = '';
-    public scaleMaxY: string = '';
-    public scaleMinX: string = '';
-    public scaleMinY: string = '';
-    public showHeat: boolean = false;
-    public yPercentage: number = 0.3;
-}
 
 class TestAggregationSubcomponentListener implements AggregationSubcomponentListener {
     getHiddenCanvas(): ElementRef {
@@ -136,13 +118,11 @@ class TestChartJsSubcomponent extends AbstractChartJsSubcomponent {
 
 describe('ChartJsSubcomponent', () => {
     let listener;
-    let options;
     let subcomponent;
 
     beforeEach(() => {
         listener = new TestAggregationSubcomponentListener();
-        options = new TestAggregationSubcomponentOptions();
-        subcomponent = new TestChartJsSubcomponent(options, listener, null);
+        subcomponent = new TestChartJsSubcomponent({}, listener, null);
     });
 
     it('createChartDataAndOptions does return expected object', () => {
@@ -245,12 +225,12 @@ describe('ChartJsSubcomponent', () => {
     });
 
     it('createChartDataAndOptions with config does return expected object', () => {
-        options.hideGridLines = true;
-        options.hideGridTicks = true;
-        options.scaleMaxX = 4;
-        options.scaleMaxY = 3;
-        options.scaleMinX = 2;
-        options.scaleMinY = 1;
+        subcomponent.options.hideGridLines = true;
+        subcomponent.options.hideGridTicks = true;
+        subcomponent.options.scaleMaxX = 4;
+        subcomponent.options.scaleMaxY = 3;
+        subcomponent.options.scaleMinX = 2;
+        subcomponent.options.scaleMinY = 1;
         subcomponent.horizontal = true;
 
         let dataAndOptions = subcomponent.getChartDataAndOptions([{

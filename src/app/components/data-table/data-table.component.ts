@@ -30,122 +30,19 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetNonPrimitiveOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import * as neon from 'neon-framework';
-
-/**
- * Manages configurable options for the specific visualization.
- */
-export class DataTableOptions extends BaseNeonOptions {
-    public allColumnStatus: string;
-    public arrayFilterOperator: string;
-    public colorField: FieldMetaData;
-    public exceptionsToStatus: string[];
-    public customColumnWidths: [[string, number]];
-    public fieldsConfig: any[];
-    public filterable: boolean;
-    public filterFields: FieldMetaData[];
-    public headers: { prop: string, name: string, active: boolean, style: Object, cellClass: any, width: number }[] = [];
-    public heatmapDivisor: number;
-    public heatmapField: FieldMetaData;
-    public idField: FieldMetaData;
-    public ignoreSelf: boolean;
-    public reorderable: boolean;
-    public singleFilter: boolean;
-    public skinny: boolean;
-    public sortField: FieldMetaData;
-    public sortDescending: boolean;
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        bindings.arrayFilterOperator = this.arrayFilterOperator;
-        bindings.exceptionsToStatus = this.exceptionsToStatus;
-        bindings.filterable = this.filterable;
-        bindings.heatmapDivisor = this.heatmapDivisor;
-        bindings.ignoreSelf = this.ignoreSelf;
-        bindings.reorderable = this.reorderable;
-        bindings.singleFilter = this.singleFilter;
-        bindings.skinny = this.skinny;
-        bindings.sortDescending = this.sortDescending;
-
-        bindings.fieldsConfig = this.headers.map((header) => {
-            return {
-                name: header.name,
-                hide: !header.active
-            };
-        });
-
-        return bindings;
-    }
-
-    /**
-     * Returns the list of fields to export.
-     *
-     * @return {{ columnName: string, prettyName: string }[]}
-     * @override
-     */
-    getExportFields() {
-        return this.headers.filter((header) => header.active).map((header) => {
-            return {
-                columnName: header.prop,
-                prettyName: header.name
-            };
-        });
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'colorField',
-            'heatmapField',
-            'idField',
-            'sortField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return ['filterFields'];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.allColumnStatus = this.injector.get('allColumnStatus', 'show');
-        this.arrayFilterOperator = this.injector.get('arrayFilterOperator', 'and');
-        this.exceptionsToStatus = this.injector.get('exceptionsToStatus', []);
-        this.customColumnWidths = this.injector.get('customColumnWidths', {});
-        this.fieldsConfig = this.injector.get('fieldsConfig', []);
-        this.filterable = this.injector.get('filterable', false);
-        this.heatmapDivisor = this.injector.get('heatmapDivisor', 0);
-        this.ignoreSelf = this.injector.get('ignoreSelf', false);
-        this.reorderable = this.injector.get('reorderable', true);
-        this.singleFilter = this.injector.get('singleFilter', false);
-        this.skinny = this.injector.get('skinny', false);
-        this.sortDescending = this.injector.get('sortDescending', true);
-    }
-}
 
 @Component({
     selector: 'app-data-table',
@@ -171,8 +68,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         value: string,
         prettyField: string
     }[] = [];
-
-    public options: DataTableOptions;
 
     public activeData: any[] = [];
     public docCount: number = 0;
@@ -221,7 +116,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             ref
         );
 
-        this.options = new DataTableOptions(this.injector, this.datasetService, 'Data Table', 100);
         this.enableRedrawAfterResize(true);
 
         let style = document.createElement('style');
@@ -233,6 +127,106 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     @HostListener('window:resize')
     onResize() {
         this.refreshVisualization();
+    }
+
+    /**
+     * Creates and returns an array of field options for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('colorField', 'Color Field', false),
+            new WidgetFieldOption('heatmapField', 'Heatmap Field', false),
+            new WidgetFieldOption('idField', 'ID Field', false),
+            new WidgetFieldOption('sortField', 'Sort Field', false),
+            new WidgetFieldArrayOption('filterFields', 'Filter Field(s)', false)
+        ];
+    }
+
+    /**
+     * Creates and returns an array of non-field options for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetSelectOption('filterable', 'Filterable', false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('singleFilter', 'Filter Multiple', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable),
+            // TODO THOR-949 Rename option and change to boolean.
+            new WidgetSelectOption('arrayFilterOperator', 'Filter Operator', true, [{
+                prettyName: 'OR',
+                variable: 'or'
+            }, {
+                prettyName: 'AND',
+                variable: 'and'
+            }], this.optionsFilterable),
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.NoFalseYesTrue, this.optionsFilterable),
+            new WidgetFreeTextOption('heatmapDivisor', 'Heatmap Divisor', '0', this.optionsHeatmapTable),
+            new WidgetSelectOption('reorderable', 'Make Columns Reorderable', true, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('showColumnSelector', 'Show Column Selector', false, [{
+                prettyName: 'Yes',
+                variable: 'show'
+            }, {
+                prettyName: 'No',
+                variable: 'hide'
+            }]),
+            new WidgetSelectOption('allColumnStatus', 'Show Columns on Reload', 'show', [{
+                prettyName: 'Show All',
+                variable: 'show'
+            }, {
+                prettyName: 'Hide all',
+                variable: 'hide'
+            }]),
+            new WidgetSelectOption('sortDescending', 'Sort', true, OptionChoices.AscendingFalseDescendingTrue),
+            new WidgetSelectOption('skinny', 'Table Style', false, [{
+                prettyName: 'Normal',
+                variable: false
+            }, {
+                prettyName: 'Skinny',
+                variable: true
+            }]),
+            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', []),
+            new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', []),
+            new WidgetNonPrimitiveOption('fieldsConfig', 'Fields Config', {})
+        ];
+    }
+
+    /**
+     * Returns the list of fields to export.
+     *
+     * @return {{ columnName: string, prettyName: string }[]}
+     * @override
+     */
+    getExportFields(): { columnName: string, prettyName: string }[] {
+        return this.options.headers.filter((header) => header.active).map((header) => {
+            return {
+                columnName: header.prop,
+                prettyName: header.name
+            };
+        });
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultLimit(): number {
+        return 40;
+    }
+
+    /**
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'Data Table';
     }
 
     initializeHeadersFromExceptionsToStatus() {
@@ -272,7 +266,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     initializeHeadersFromFieldsConfig() {
         let existingFields = [];
         for (let fieldConfig of this.options.fieldsConfig) {
-            let fieldObject = this.options.findField(fieldConfig.name);
+            let fieldObject = this.findField(this.options.fields, fieldConfig.name);
             if (fieldObject && fieldObject.columnName) {
                 existingFields.push(fieldObject.columnName);
                 this.options.headers.push({
@@ -310,6 +304,26 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }
         }
         return this.DEFAULT_COLUMN_WIDTH;
+    }
+
+    /**
+     * Returns whether the widget is filterable.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsFilterable(options: any): boolean {
+        return options.filterable;
+    }
+
+    /**
+     * Returns whether the widget is a heatmap table.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsHeatmapTable(options: any): boolean {
+        return options.heatmapField.columnName;
     }
 
     subNgOnInit() {
@@ -599,7 +613,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.filters = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
+                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 this.addLocalFilter({
                     id: neonFilter.id,
@@ -762,7 +776,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 obj[this.options.idField.columnName] === selected[0][this.options.idField.columnName])[0];
 
             this.options.filterFields.forEach((filterField: any) => {
-                let filterFieldObject = this.options.findField(filterField.columnName);
+                let filterFieldObject = this.findField(this.options.fields, filterField.columnName);
                 let value = (this.options.idField.columnName.length === 0) ? selected[0][filterFieldObject.columnName] :
                     dataObject[filterFieldObject.columnName];
                 let filter = this.createFilterObject(filterFieldObject.columnName, value, filterFieldObject.prettyName);
@@ -889,16 +903,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Returns the options for the specific visualization.
-     *
-     * @return {BaseNeonOptions}
-     * @override
-     */
-    getOptions(): BaseNeonOptions {
-        return this.options;
-    }
-
-    /**
      * Returns a function for the rowClass property of the ngx-datatable that, given a row, returns an object with the style classes for
      * the row as keys and booleans as values.
      *
@@ -917,7 +921,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
             if (self.options.heatmapField.columnName && self.options.heatmapDivisor) {
                 let heatmapClass = 'heat-0';
-                let heatmapDivisor = self.options.heatmapDivisor;
+                let heatmapDivisor = Number.parseFloat(self.options.heatmapDivisor);
                 let heatmapValue = row[self.options.heatmapField.columnName];
 
                 // Ignore undefined, nulls, strings, or NaNs.

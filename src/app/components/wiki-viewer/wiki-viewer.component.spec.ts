@@ -302,26 +302,6 @@ describe('Component: WikiViewer', () => {
         expect(component.setupFilters).toBeDefined();
     }));
 
-    it('options.createBindings does set expected bindings', (() => {
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.linkField = new FieldMetaData('testLinkField');
-
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: '',
-            hideUnfiltered: false,
-            limit: 10,
-            table: '',
-            title: 'Wiki Viewer',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            idField: 'testIdField',
-            linkField: 'testLinkField'
-        });
-    }));
-
     it('subNgOnDestroy function does exist', (() => {
         expect(component.subNgOnDestroy).toBeDefined();
     }));

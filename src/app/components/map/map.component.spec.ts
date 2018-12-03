@@ -24,7 +24,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { MapComponent, MapLayer } from './map.component';
+import { MapComponent } from './map.component';
 import { LegendComponent } from '../legend/legend.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 
@@ -40,7 +40,10 @@ import { AppMaterialModule } from '../../app.material.module';
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { WidgetOptionCollection } from '../../widget-option';
+
 import * as neon from 'neon-framework';
+
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -121,10 +124,10 @@ class TestMapComponent extends MapComponent {
 
 /* tslint:disable:component-class-suffix */
 class TestMap extends AbstractMap {
-    addPoints(points: MapPoint[], layer?: MapLayer, cluster?: boolean) {
+    addPoints(points: MapPoint[], layer?: any, cluster?: boolean) {
         /* NO-OP */
     }
-    clearLayer(layer: MapLayer) {
+    clearLayer(layer: any) {
         /* NO-OP */
     }
     destroy() {
@@ -133,7 +136,7 @@ class TestMap extends AbstractMap {
     doCustomInitialization(mapContainer: ElementRef) {
         /* NO-OP */
     }
-    hidePoints(layer: MapLayer, value: string) {
+    hidePoints(layer: any, value: string) {
         /* NO-OP */
     }
     makeSelectionInexact() {
@@ -142,10 +145,10 @@ class TestMap extends AbstractMap {
     removeFilterBox() {
         /* NO-OP */
     }
-    unhidePoints(layer: MapLayer, value: string) {
+    unhidePoints(layer: any, value: string) {
         /* NO-OP */
     }
-    unhideAllPoints(layer: MapLayer) {
+    unhideAllPoints(layer: any) {
         /* NO-OP */
     }
     zoomIn() {
@@ -160,7 +163,7 @@ class TestMap extends AbstractMap {
 function updateMapLayer1(component: TestMapComponent) {
     component.docCount[0] = 1234;
 
-    component.options.layers[0] = new MapLayer({}, component.getInjector(), component.getDatasetService());
+    component.options.layers[0] = new WidgetOptionCollection(undefined, {});
     component.options.layers[0].databases = [];
     component.options.layers[0].database = new DatabaseMetaData('testDatabase1');
     component.options.layers[0].fields = [];
@@ -182,7 +185,7 @@ function updateMapLayer1(component: TestMapComponent) {
 function updateMapLayer2(component: TestMapComponent) {
     component.docCount[1] = 5678;
 
-    component.options.layers[1] = new MapLayer({}, component.getInjector(), component.getDatasetService());
+    component.options.layers[1] = new WidgetOptionCollection(undefined, {});
     component.options.layers[1].databases = [];
     component.options.layers[1].database = new DatabaseMetaData('testDatabase2');
     component.options.layers[1].fields = [];
@@ -287,7 +290,7 @@ describe('Component: Map', () => {
         expect(component.options.layers[0].tables).toEqual([]);
         expect(component.options.layers[0].table).toEqual(new TableMetaData());
         expect(component.options.layers[0].fields).toEqual([]);
-        expect(component.options.layers[0].title).toEqual('New Layer');
+        expect(component.options.layers[0].title).toEqual('Layer 1');
         expect(component.options.layers[0].idField).toEqual(new FieldMetaData());
         expect(component.options.layers[0].colorField).toEqual(new FieldMetaData());
         expect(component.options.layers[0].hoverPopupField).toEqual(new FieldMetaData());
@@ -478,64 +481,6 @@ describe('Component: Map', () => {
         expect(spy.calls.count()).toBe(2);
     });
 
-    it('options.createBindings does set expected bindings', () => {
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            title: 'Map',
-            limit: 1000,
-            layers: [{
-                idField: '',
-                database: '',
-                table: '',
-                title: 'New Layer',
-                unsharedFilterValue: '',
-                unsharedFilterField: '',
-                latitudeField: '',
-                longitudeField: '',
-                sizeField: '',
-                colorField: '',
-                dateField: '',
-                hoverPopupField: ''
-            }]
-        });
-
-        updateMapLayer1(component);
-        updateMapLayer2(component);
-
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            title: 'Map',
-            limit: 1000,
-            layers: [{
-                idField: 'testId1',
-                database: 'testDatabase1',
-                table: 'testTable1',
-                title: 'Layer A',
-                unsharedFilterValue: '',
-                unsharedFilterField: '',
-                latitudeField: 'testLatitude1',
-                longitudeField: 'testLongitude1',
-                sizeField: 'testSize1',
-                colorField: 'testColor1',
-                dateField: 'testDate1',
-                hoverPopupField: 'testHover1'
-            }, {
-                idField: 'testId2',
-                database: 'testDatabase2',
-                table: 'testTable2',
-                title: 'Layer B',
-                unsharedFilterValue: '',
-                unsharedFilterField: '',
-                latitudeField: 'testLatitude2',
-                longitudeField: 'testLongitude2',
-                sizeField: 'testSize2',
-                colorField: 'testColor2',
-                dateField: 'testDate2',
-                hoverPopupField: 'testHover2'
-            }]
-        });
-    });
-
     it('ngAfterViewInit does call mapObject.initialize and handleChangeData', () => {
         component.assignTestMap();
         let spy = spyOn(component, 'handleChangeData');
@@ -552,17 +497,10 @@ describe('Component: Map', () => {
         expect(mapSpy.calls.count()).toBe(1);
     });
 
-    it('subAddLayer creates new layer and updates docCount and filterVisible', () => {
-        let layer = component.subAddLayer({});
-
-        expect(component.options.layers[1].title).toEqual('New Layer');
-        expect(component.options.layers[1].idField).toEqual(new FieldMetaData());
-        expect(component.options.layers[1].colorField).toEqual(new FieldMetaData());
-        expect(component.options.layers[1].hoverPopupField).toEqual(new FieldMetaData());
-        expect(component.options.layers[1].dateField).toEqual(new FieldMetaData());
-        expect(component.options.layers[1].latitudeField).toEqual(new FieldMetaData());
-        expect(component.options.layers[1].longitudeField).toEqual(new FieldMetaData());
-        expect(component.options.layers[1].sizeField).toEqual(new FieldMetaData());
+    it('postAddLayer updates docCount and filterVisible', () => {
+        component.postAddLayer({
+            layers: [{}, {}]
+        });
 
         expect(component.docCount).toEqual([0, 0]);
         expect(component.filterVisible).toEqual([true, true]);

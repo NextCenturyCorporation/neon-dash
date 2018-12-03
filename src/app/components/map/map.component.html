@@ -156,7 +156,7 @@
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Point Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                        <input matInput placeholder="Point Limit" [(ngModel)]="newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">

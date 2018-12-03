@@ -27,300 +27,21 @@ import { FilterService } from '../../services/filter.service';
 import { Color } from '../../color';
 import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import { neonEvents } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    OptionType,
+    WidgetDatabaseOption,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetNonPrimitiveOption,
+    WidgetOption,
+    WidgetOptionCollection,
+    WidgetSelectOption,
+    WidgetTableOption
+} from '../../widget-option';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-import * as uuid from 'node-uuid';
-
-/**
- * Manages configurable options for one layer.
- */
-export abstract class BaseNeonLayer {
-    public database: DatabaseMetaData;
-    public databases: DatabaseMetaData[] = [];
-    public fields: FieldMetaData[] = [];
-    public table: TableMetaData;
-    public tables: TableMetaData[] = [];
-    public title: string;
-    public unsharedFilterField: FieldMetaData;
-    public unsharedFilterValue: string;
-
-    /**
-     * @constructor
-     * @arg {any} config
-     * @arg {DatasetService} datasetService
-     */
-    constructor(protected config: any, protected injector: Injector, protected datasetService: DatasetService) {
-        this.title = config.title || 'New Layer';
-        this.unsharedFilterValue = injector.get('unsharedFilterValue', '');
-        this.initializeNonFieldBindings();
-        this.updateDatabases();
-    }
-
-    /**
-     * Appends all the non-field bindings for the specific layer to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @abstract
-     */
-    protected abstract appendNonFieldBindings(bindings: any): any;
-
-    /**
-     * Creates and returns the bindings for the layer.
-     *
-     * @return {any}
-     */
-    public createBindings(): any {
-        let bindings = {
-            database: this.database.name,
-            table: this.table.name,
-            title: this.title,
-            unsharedFilterValue: this.unsharedFilterValue
-        };
-
-        this.getAllFieldProperties().forEach((property) => {
-            bindings[property] = this[property].columnName;
-        });
-
-        this.getAllFieldArrayProperties().forEach((property) => {
-            bindings[property] = this[property].map((fieldsObject) => fieldsObject.columnName);
-        });
-
-        return this.appendNonFieldBindings(bindings);
-    }
-
-    /**
-     * Returns the field object with the given column name.
-     *
-     * @arg {string} columnName
-     * @return {FieldMetaData}
-     */
-    public findField(columnName: string): FieldMetaData {
-        let outputFields = this.fields.filter((field: FieldMetaData) => {
-            return field.columnName === columnName;
-        });
-        return outputFields.length ? outputFields[0] : undefined;
-    }
-
-    /**
-     * Returns the field object for the given binding / mapping key or an empty field object.
-     *
-     * @arg {string} bindingKey
-     * @arg {string} [mappingKey]
-     * @return {FieldMetaData}
-     */
-    public findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
-        return this.findFieldObjectByName((this.config[bindingKey] || ''), mappingKey);
-    }
-
-    /**
-     * Returns the array of field objects for the given binding / mapping key or an array of empty field objects.
-     *
-     * @arg {string} bindingKey
-     * @arg {string} [mappingKey]
-     * @return {FieldMetaData}
-     */
-    public findFieldObjects(bindingKey: string, mappingKey?: string): FieldMetaData[] {
-        let bindings = this.config[bindingKey] || [];
-        return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.findFieldObjectByName(columnName, mappingKey));
-    }
-
-    /**
-     * Returns the field object for the given name or the given mapping key.
-     *
-     * @arg {string} columnName
-     * @arg {string} [mappingKey]
-     * @return {FieldMetaData}
-     * @private
-     */
-    private findFieldObjectByName(columnName: string, mappingKey?: string): FieldMetaData {
-        let field = columnName ? this.findField(columnName) : undefined;
-
-        if (!field && mappingKey) {
-            field = this.findField(this.datasetService.getMapping(this.database.name, this.table.name, mappingKey));
-        }
-
-        return field || new FieldMetaData();
-    }
-
-    /**
-     * Returns the list of field array properties.
-     *
-     * @return {string[]}
-     */
-    public getAllFieldArrayProperties(): string[] {
-        return [].concat(this.getFieldArrayProperties());
-    }
-
-    /**
-     * Returns the list of field properties.
-     *
-     * @return {string[]}
-     */
-    public getAllFieldProperties(): string[] {
-        return ['unsharedFilterField'].concat(this.getFieldProperties());
-    }
-
-    /**
-     * Returns the list of fields to export.
-     *
-     * @return {{ columnName: string, prettyName: string }[]}
-     */
-    public getExportFields(): { columnName: string, prettyName: string }[] {
-        return this.getFieldProperties().map((property) => ({
-            columnName: this[property].columnName,
-            prettyName: this[property].prettyName
-        })).filter((exportFieldsObject) => !!exportFieldsObject.columnName);
-    }
-
-    /**
-     * Returns the list of field array properties for the specific layer.
-     *
-     * @return {string[]}
-     * @abstract
-     */
-    protected abstract getFieldArrayProperties(): string[];
-
-    /**
-     * Returns the list of field properties for the specific layer.
-     *
-     * @return {string[]}
-     * @abstract
-     */
-    protected abstract getFieldProperties(): string[];
-
-    /**
-     * Initializes all the non-field bindings for the specific layer.
-     *
-     * @abstract
-     */
-    public abstract initializeNonFieldBindings(): void;
-
-    /**
-     * Updates all the database options, then calls updateTables().  Called on init.
-     */
-    public updateDatabases() {
-        this.databases = this.datasetService.getDatabases();
-        this.database = this.databases[0] || new DatabaseMetaData();
-
-        if (this.databases.length > 0) {
-            let configDatabase = this.config ? this.config.database : undefined;
-            if (configDatabase) {
-                for (let database of this.databases) {
-                    if (configDatabase === database.name) {
-                        this.database = database;
-                        break;
-                    }
-                }
-            }
-        }
-
-        this.updateTables();
-    }
-
-    /**
-     * Updates all the field options.  Called on init and whenever the table is changed.
-     */
-    public updateFields() {
-        if (this.database && this.table) {
-            // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
-            this.fields = this.datasetService.getSortedFields(this.database.name, this.table.name, true).filter((field) => {
-                return (field && field.columnName);
-            });
-        }
-
-        this.getAllFieldProperties().forEach((property) => {
-            this[property] = this.findFieldObject(property);
-        });
-
-        this.getAllFieldArrayProperties().forEach((property) => {
-            this[property] = this.findFieldObjects(property);
-        });
-    }
-
-    /**
-     * Updates all the table options, then calls updateFields().  Called on init and whenever the database is changed.
-     */
-    public updateTables() {
-        this.tables = this.database ? this.datasetService.getTables(this.database.name) : [];
-        this.table = this.tables[0] || new TableMetaData();
-
-        if (this.tables.length > 0) {
-            let configTable = this.config ? this.config.table : undefined;
-            if (configTable) {
-                for (let table of this.tables) {
-                    if (configTable === table.name) {
-                        this.table = table;
-                        break;
-                    }
-                }
-            }
-        }
-
-        this.updateFields();
-    }
-}
-
-/**
- * Manages configurable options for all visualizations.
- */
-export abstract class BaseNeonMultiLayerOptions {
-    public _id: string;
-    public limit: number;
-    public newLimit: number;
-    public title: string;
-
-    // The filter set in the config file.
-    public filter: {
-        lhs: string,
-        operator: string,
-        rhs: string
-    };
-
-    /**
-     * @constructor
-     * @arg {Injector} injector
-     * @arg {string} [visualizationTitle='']
-     * @arg {number} [defaultLimit=10]
-     */
-    constructor(protected injector: Injector, visualizationTitle: string = '', defaultLimit: number = 10) {
-        this._id = injector.get('_id', uuid.v4());
-        this.filter = injector.get('configFilter', null);
-        this.limit = injector.get('limit', defaultLimit);
-        this.newLimit = this.limit;
-        this.title = injector.get('title', visualizationTitle);
-        this.initializeNonFieldBindings();
-    }
-
-    /**
-     * Creates and returns the bindings for the options.
-     *
-     * @return {any}
-     */
-    public createBindings(): any {
-        return {
-            configFilter: this.filter || undefined,
-            title: this.title,
-            limit: this.limit,
-            layers: this.getLayers().map((layer) => layer.createBindings())
-        };
-    }
-
-    /**
-     * Returns the layers for the options.
-     *
-     * @abstract
-     * @return {BaseNeonLayer[]}
-     */
-    public abstract getLayers(): BaseNeonLayer[];
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @abstract
-     */
-    public abstract initializeNonFieldBindings(): void;
-}
 
 /**
  * Base component for all non-layered Neon visualizations.
@@ -334,16 +55,20 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
 
     public id: string;
     protected messenger: neon.eventing.Messenger;
-    protected outstandingDataQueriesByLayer: any[];
-
-    protected initializing: boolean = false;
+    protected outstandingDataQueriesByLayer: any[] = [];
 
     private redrawAfterResize: boolean = false;
 
+    public initializing: boolean = false;
     public isLoading: number = 0;
     public isExportable: boolean = true;
 
     public errorMessage: string = '';
+
+    public options: any;
+
+    // TODO THOR-349 Move into future widget option menu component
+    public newLimit: number;
 
     constructor(
         protected connectionService: ConnectionService,
@@ -353,7 +78,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         public changeDetection: ChangeDetectorRef
     ) {
         this.messenger = new neon.eventing.Messenger();
-        this.getBindings = this.getBindings.bind(this);
     }
 
     /**
@@ -366,9 +90,10 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      */
     ngOnInit() {
         this.initializing = true;
-        this.id = this.getOptions()._id;
-        this.outstandingDataQueriesByLayer = [];
-        this.initData();
+        this.options = this.createWidgetOptions(this.injector, this.getVisualizationDefaultTitle(), this.getVisualizationDefaultLimit());
+        this.id = this.options._id;
+        this.newLimit = this.options.limit;
+
         try {
             this.setupFilters();
         } catch (e) {
@@ -388,13 +113,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Returns the options for the specific visualization.
-     *
-     * @return {BaseNeonMultiLayerOptions}
-     */
-    abstract getOptions(): BaseNeonMultiLayerOptions;
-
-    /**
      * Method for anything that needs to be done once the visualization has been initialized
      */
     abstract postInit();
@@ -410,11 +128,11 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     abstract subNgOnDestroy();
 
     /**
-     * Adds a new layer for the specific visualization using the given config.
+     * Runs any needed behavior after a new layer was added.
      *
-     * @arg {any} config
+     * @arg {any} options A WidgetOptionCollection object.
      */
-    abstract subAddLayer(config: any);
+    abstract postAddLayer(options: any);
 
     /**
      * Do any visualization-specific logic before removing a layer
@@ -423,21 +141,24 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     abstract subRemoveLayer(layerIndex: number);
 
     /**
-     * Function to get any bindings needed to re-create the visualization
-     * @return {any}
-     */
-    getBindings(): any {
-        return this.getOptions().createBindings();
-    }
-
-    /**
-     * Adds a new layer for the visualization using the given config.
+     * Adds a new layer for the visualization using the given bindings.
      *
-     * @arg {any} [config={}]
+     * @arg {any} [options]
+     * @arg {any} [layerBindings]
+     * @arg {number} layerIndex
      */
-    public addLayer(config: any = {}) {
+    public addLayer(options?: any, layerBindings?: any, layerIndex?: number) {
         this.outstandingDataQueriesByLayer.push({});
-        this.subAddLayer(config);
+        let layerOptions = new WidgetOptionCollection(undefined, layerBindings || {});
+        layerOptions.inject(new WidgetFreeTextOption('title', 'Title', 'Layer ' +
+            ((layerIndex || (options || this.options).layers.length) + 1)));
+        layerOptions.inject(this.createLayerNonFieldOptions());
+        layerOptions.append(new WidgetDatabaseOption(), new DatabaseMetaData());
+        layerOptions.append(new WidgetTableOption(), new TableMetaData());
+        this.updateDatabasesInOptions(layerOptions, layerBindings);
+        this.initializeFieldsInOptions(layerOptions, this.createLayerFieldOptions());
+        (options || this.options).layers.push(layerOptions);
+        this.postAddLayer(options || this.options);
     }
 
     /**
@@ -461,13 +182,13 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * @return {}
      */
     exportOneLayer(query: neon.query.Query, layerIndex: number) {
-        let exportName = this.getOptions().title.split(':').join(' ');
+        let exportName = this.options.title.split(':').join(' ');
         return {
             name: 'Query_Results_Table',
             data: [{
                 query: query,
                 name: exportName + '-' + this.id,
-                fields: this.getOptions().getLayers()[layerIndex].getExportFields().map((exportFieldsObject) => ({
+                fields: this.getExportFields(this.options.layers[layerIndex]).map((exportFieldsObject) => ({
                     query: exportFieldsObject.columnName,
                     pretty: exportFieldsObject.prettyName || exportFieldsObject.columnName
                 })),
@@ -489,7 +210,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
             return queries.map((layerQuery, layerIndex) => this.exportOneLayer(layerQuery, layerIndex))
                 .filter((exportLayersObject) => !!exportLayersObject);
         }
-        console.error('SKIPPING EXPORT FOR ' + this.getOptions().title);
+        console.error('SKIPPING EXPORT FOR ' + this.options.title);
         return null;
     }
 
@@ -548,12 +269,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         this.subNgOnDestroy();
     }
 
-    initData() {
-        if (!this.injector.get('layers', []).length) {
-            this.addLayer();
-        }
-    }
-
     stopEventPropagation(event) {
         if (event.stopPropagation) {
             event.stopPropagation();
@@ -584,7 +299,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      */
     addNeonFilter(layerIndex: number, executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate) {
         let filterName = {
-            visName: this.getOptions().title,
+            visName: this.options.title,
             text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {
@@ -597,8 +312,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         };
         this.filterService.addFilter(this.messenger,
             this.id,
-            this.getOptions().getLayers()[layerIndex].database.name,
-            this.getOptions().getLayers()[layerIndex].table.name,
+            this.options.layers[layerIndex].database.name,
+            this.options.layers[layerIndex].table.name,
             wherePredicate,
             filterName,
             onSuccess.bind(this),
@@ -620,7 +335,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         wherePredicate: neon.query.WherePredicate) {
 
         let filterName = {
-            visName: this.getOptions().title,
+            visName: this.options.title,
             text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {
@@ -632,8 +347,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
             this.messenger,
             subclassFilter.id,
             this.id,
-            this.getOptions().getLayers()[layerIndex].database.name,
-            this.getOptions().getLayers()[layerIndex].table.name,
+            this.options.layers[layerIndex].database.name,
+            this.options.layers[layerIndex].table.name,
             wherePredicate,
             filterName,
             onSuccess.bind(this),
@@ -649,7 +364,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * from another visualization
      */
     executeAllQueryChain() {
-        for (let i = 0; i < this.getOptions().getLayers().length; i++) {
+        for (let i = 0; i < this.options.layers.length; i++) {
             this.executeQueryChain(i);
         }
     }
@@ -684,7 +399,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      */
     createAllQueries(): neon.query.Query[] {
         let queries = [];
-        for (let i = 0; i < this.getOptions().getLayers().length; i++) {
+        for (let i = 0; i < this.options.layers.length; i++) {
             queries.push(this.createQuery(i));
         }
         return queries;
@@ -734,8 +449,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * @param query The query to execute
      */
     executeQuery(layerIndex, query: neon.query.Query) {
-        let database = this.getOptions().getLayers()[layerIndex].database.name;
-        let table = this.getOptions().getLayers()[layerIndex].table.name;
+        let database = this.options.layers[layerIndex].database.name;
+        let table = this.options.layers[layerIndex].table.name;
         let connection = this.connectionService.getActiveConnection();
 
         if (!connection) {
@@ -824,7 +539,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * @arg {number} layerIndex
      */
     handleChangeDatabase(layerIndex: number) {
-        this.getOptions().getLayers()[layerIndex].updateTables();
+        this.updateTablesInOptions(this.options.layers[layerIndex]);
+        this.initializeFieldsInOptions(this.options.layers[layerIndex], this.createLayerFieldOptions());
         this.removeAllFilters(layerIndex, this.getCloseableFilters(), () => {
             this.setupFilters();
             this.handleChangeDataAtLayerIndex(layerIndex);
@@ -837,7 +553,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * @arg {number} layerIndex
      */
     handleChangeTable(layerIndex: number) {
-        this.getOptions().getLayers()[layerIndex].updateFields();
+        this.updateFieldsInOptions(this.options.layers[layerIndex]);
+        this.initializeFieldsInOptions(this.options.layers[layerIndex], this.createLayerFieldOptions());
         this.removeAllFilters(layerIndex, this.getCloseableFilters(), () => {
             this.setupFilters();
             this.handleChangeDataAtLayerIndex(layerIndex);
@@ -883,16 +600,16 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * Updates the limit and the visualization.
      */
     handleChangeLimit() {
-        if (this.isNumber(this.getOptions().newLimit)) {
-            let newLimit = parseFloat('' + this.getOptions().newLimit);
+        if (this.isNumber(this.newLimit)) {
+            let newLimit = parseFloat('' + this.newLimit);
             if (newLimit > 0) {
-                this.getOptions().limit = newLimit;
+                this.options.limit = newLimit;
                 this.subHandleChangeLimit();
             } else {
-                this.getOptions().newLimit = this.getOptions().limit;
+                this.newLimit = this.options.limit;
             }
         } else {
-            this.getOptions().newLimit = this.getOptions().limit;
+            this.newLimit = this.options.limit;
         }
     }
 
@@ -931,8 +648,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      */
     removeLocalFilterFromLocalAndNeon(layerIndex: number, filter: any, requery: boolean, refresh: boolean, callback?: Function) {
         // If we are removing a filter, assume its both local and neon so it should be removed in both
-        let database = this.getOptions().getLayers()[layerIndex].database.name;
-        let table = this.getOptions().getLayers()[layerIndex].table.name;
+        let database = this.options.layers[layerIndex].database.name;
+        let table = this.options.layers[layerIndex].table.name;
         this.filterService.removeFilters(
             this.messenger,
             [filter.id],
@@ -1098,8 +815,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     //Grabs labelOptions specified in the config
     private getLabelOptions(layerIndex) {
         let dataset = this.datasetService.getDataset();
-        let databaseName = this.getOptions().getLayers()[layerIndex].database.name;
-        let tableName = this.getOptions().getLayers()[layerIndex].table.name;
+        let databaseName = this.options.layers[layerIndex].database.name;
+        let tableName = this.options.layers[layerIndex].table.name;
         let database = _.find(dataset.databases, (db) => db.name === databaseName);
         let table = _.find(database.tables, (t) => t.name === tableName);
         let labelOptions = table.labelOptions;
@@ -1108,5 +825,287 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
 
     protected createEmptyField(): FieldMetaData {
         return new FieldMetaData();
+    }
+
+    /**
+     * Creates and returns an array of field options for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @abstract
+     */
+    protected abstract createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[];
+
+    /**
+     * Creates and returns an array of field options for a layer for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @abstract
+     */
+    protected abstract createLayerFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[];
+
+    /**
+     * Creates and returns an array of non-field options for a layer for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @abstract
+     */
+    protected abstract createLayerNonFieldOptions(): WidgetOption[];
+
+    /**
+     * Creates and returns an array of non-field options for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @abstract
+     */
+    protected abstract createNonFieldOptions(): WidgetOption[];
+
+    /**
+     * Creates and returns the options for the visualization with the given title and limit.
+     *
+     * @arg {Injector} injector
+     * @arg {string} visualizationTitle
+     * @arg {number} defaultLimit
+     * @return {any}
+     */
+    private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
+        let options: any = new WidgetOptionCollection(injector);
+
+        options.inject(new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', []));
+        options.inject(new WidgetNonPrimitiveOption('customEventsToReceive', 'Custom Events To Receive', []));
+        options.inject(new WidgetNonPrimitiveOption('filter', 'Custom Widget Filter', null));
+
+        options.inject(new WidgetSelectOption('hideUnfiltered', 'Hide Widget if Unfiltered', false, OptionChoices.NoFalseYesTrue));
+        options.inject(new WidgetFreeTextOption('limit', 'Limit', defaultLimit));
+        options.inject(new WidgetFreeTextOption('title', 'Title', visualizationTitle));
+        options.inject(new WidgetFreeTextOption('unsharedFilterValue', 'Unshared Filter Value', ''));
+
+        // Backwards compatibility (configFilter deprecated and renamed to filter).
+        options.filter = options.filter || this.injector.get('configFilter', null);
+
+        options.inject(this.createNonFieldOptions());
+
+        options.append(new WidgetDatabaseOption(), new DatabaseMetaData());
+        options.append(new WidgetTableOption(), new TableMetaData());
+
+        this.updateDatabasesInOptions(options);
+        this.initializeFieldsInOptions(options);
+
+        this.injector.get('layers', []).forEach((layerBindings, layerIndex) => {
+            this.addLayer(options, layerBindings, layerIndex);
+        });
+
+        // Add a new empty layer if needed.
+        if (!options.layers.length) {
+            this.addLayer(options);
+        }
+
+        return options;
+    }
+
+    /**
+     * Returns the field object with the given column name or undefinied if the field does not exist.
+     *
+     * @arg {FieldMetaData[]} fields
+     * @arg {string} columnName
+     * @return {FieldMetaData}
+     */
+    public findField(fields: FieldMetaData[], columnName: string): FieldMetaData {
+        let outputFields = !columnName ? [] : fields.filter((field: FieldMetaData) => {
+            return field.columnName === columnName;
+        });
+        if (!outputFields.length && fields.length) {
+            // Check if the column name is actually an array index rather than a name.
+            let fieldIndex = parseInt(columnName, 10);
+            if (!isNaN(fieldIndex) && fieldIndex < fields.length) {
+                outputFields = [fields[fieldIndex]];
+            }
+        }
+        return outputFields.length ? outputFields[0] : undefined;
+    }
+
+    /**
+     * Returns the field object for the given binding key or an empty field object.
+     *
+     * @arg {FieldMetaData[]} fields
+     * @arg {string} bindingKey
+     * @arg {any} [config]
+     * @return {FieldMetaData}
+     */
+    public findFieldObject(fields: FieldMetaData[], bindingKey: string, config?: any): FieldMetaData {
+        return this.findField(fields, (config ? config[bindingKey] : this.injector.get(bindingKey, ''))) || new FieldMetaData();
+    }
+
+    /**
+     * Returns the array of field objects for the given binding key or an array of empty field objects.
+     *
+     * @arg {FieldMetaData[]} fields
+     * @arg {string} bindingKey
+     * @arg {any} [config]
+     * @return {FieldMetaData[]}
+     */
+    public findFieldObjects(fields: FieldMetaData[], bindingKey: string, config?: any): FieldMetaData[] {
+        let bindings = (config ? config[bindingKey] : this.injector.get(bindingKey, null)) || [];
+        return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.findField(fields, columnName))
+            .filter((fieldsObject) => !!fieldsObject);
+    }
+
+    /**
+     * Returns the bindings object with the current options for the visualization.
+     *
+     * @arg {any} [options]
+     * @return {any}
+     */
+    public getBindings(options?: any): any {
+        return (options || this.options).list().reduce((bindings, option) => {
+            bindings[option.bindingKey] = option.getValueToSaveInBindings();
+            return bindings;
+        }, {
+            layers: (options || this.options).layers.map((layer) => this.getBindings(layer))
+        });
+    }
+
+    /**
+     * Returns the list of fields to export.
+     *
+     * @arg {any} [options]
+     * @return {{ columnName: string, prettyName: string }[]}
+     */
+    public getExportFields(options?: any): { columnName: string, prettyName: string }[] {
+        return (options || this.options).list().reduce((exportFields, option) => {
+            if (option.optionType === OptionType.FIELD && option.valueCurrent.columnName) {
+                return exportFields.concat({
+                    columnName: option.valueCurrent.columnName,
+                    prettyName: option.valueCurrent.prettyName
+                });
+            }
+            if (option.optionType === OptionType.FIELD_ARRAY) {
+                return exportFields.concat(option.valueCurrent.filter((fieldsObject) => !!fieldsObject.columnName).map((fieldsObject) => ({
+                    columnName: fieldsObject.columnName,
+                    prettyName: fieldsObject.prettyName
+                })));
+            }
+            return exportFields;
+        }, []);
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {string}
+     * @abstract
+     */
+    public abstract getVisualizationDefaultLimit(): number;
+
+    /**
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @abstract
+     */
+    public abstract getVisualizationDefaultTitle(): string;
+
+    /**
+     * Initializes all the fields in the given WidgetOptionCollection.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {(WidgetFieldOption|WidgetFieldArrayOption)[]} [fieldOptions]
+     */
+    public initializeFieldsInOptions(options: any, fieldOptions?: (WidgetFieldOption | WidgetFieldArrayOption)[]) {
+        (fieldOptions || this.createFieldOptions()).concat([
+            new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false)
+        ]).forEach((option) => {
+            if (option.optionType === OptionType.FIELD) {
+                options.append(option, this.findFieldObject(options.fields, option.bindingKey, options.config));
+            }
+            if (option.optionType === OptionType.FIELD_ARRAY) {
+                options.append(option, this.findFieldObjects(options.fields, option.bindingKey, options.config));
+            }
+        });
+    }
+
+    /**
+     * Updates all the databases, tables, and fields in the given options.  Called on init.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} [config]
+     * @return {any}
+     */
+    public updateDatabasesInOptions(options: any, config?: any): any {
+        options.databases = this.datasetService.getDatabases();
+        options.database = options.databases[0] || options.database;
+
+        if (options.databases.length) {
+            let configDatabase = config ? config.database : this.injector.get('database', null);
+            if (configDatabase) {
+                let isName = false;
+                for (let database of options.databases) {
+                    if (configDatabase === database.name) {
+                        options.database = database;
+                        isName = true;
+                        break;
+                    }
+                }
+                if (!isName) {
+                    // Check if the config database is actually an array index rather than a name.
+                    let databaseIndex = parseInt(configDatabase, 10);
+                    if (!isNaN(databaseIndex) && databaseIndex < options.databases.length) {
+                        options.database = options.databases[databaseIndex];
+                    }
+                }
+            }
+        }
+
+        return this.updateTablesInOptions(options, config);
+    }
+
+    /**
+     * Updates all the fields in the given options.  Called on init and whenever the table is changed.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {any}
+     */
+    public updateFieldsInOptions(options: any): any {
+        if (options.database && options.table) {
+            // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
+            options.fields = this.datasetService.getSortedFields(options.database.name, options.table.name, true).filter((field) => {
+                return (field && field.columnName);
+            });
+        }
+        return options;
+    }
+
+    /**
+     * Updates all the tables and fields in the given options.  Called on init and whenever the database is changed.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} [config]
+     * @return {any}
+     */
+    public updateTablesInOptions(options: any, config?: any): any {
+        options.tables = options.database ? this.datasetService.getTables(options.database.name) : [];
+        options.table = options.tables[0] || options.table;
+
+        if (options.tables.length > 0) {
+            let configTable = config ? config.table : this.injector.get('table', null);
+            if (configTable) {
+                let isName = false;
+                for (let table of options.tables) {
+                    if (configTable === table.name) {
+                        options.table = table;
+                        isName = true;
+                        break;
+                    }
+                }
+                if (!isName) {
+                    // Check if the config table is actually an array index rather than a name.
+                    let tableIndex = parseInt(configTable, 10);
+                    if (!isNaN(tableIndex) && tableIndex < options.tables.length) {
+                        options.table = options.tables[tableIndex];
+                    }
+                }
+            }
+        }
+
+        return this.updateFieldsInOptions(options);
     }
 }

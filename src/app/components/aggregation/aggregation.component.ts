@@ -35,18 +35,25 @@ import { FilterService } from '../../services/filter.service';
 
 import {
     AbstractAggregationSubcomponent,
-    AggregationSubcomponentListener,
-    AggregationSubcomponentOptions
+    AggregationSubcomponentListener
 } from './subcomponent.aggregation.abstract';
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { ChartJsBarSubcomponent } from './subcomponent.chartjs.bar';
 import { ChartJsDoughnutSubcomponent } from './subcomponent.chartjs.doughnut';
 import { ChartJsHistogramSubcomponent } from './subcomponent.chartjs.histogram';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsPieSubcomponent } from './subcomponent.chartjs.pie';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
-import { ListSubcomponent } from './subcomponent.list';
 import { FieldMetaData } from '../../dataset';
+import { ListSubcomponent } from './subcomponent.list';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import { neonVariables } from '../../neon-namespaces';
 
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
@@ -56,141 +63,6 @@ import { YearBucketizer } from '../bucketizers/YearBucketizer';
 import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
 import * as neon from 'neon-framework';
-
-/**
- * Manages configurable options for the specific visualization.
- */
-export class AggregationOptions extends BaseNeonOptions implements AggregationSubcomponentOptions {
-    public aggregationField: FieldMetaData;
-    public groupField: FieldMetaData;
-    public xField: FieldMetaData;
-    public yField: FieldMetaData;
-
-    public aggregation: string;
-    public axisLabelX: string;
-    public axisLabelY: string;
-    public dualView: string;
-    public granularity: string;
-    public hideGridLines: boolean;
-    public hideGridTicks: boolean;
-    public ignoreSelf: boolean;
-    public lineCurveTension: number;
-    public lineFillArea: boolean;
-    public logScaleX: boolean;
-    public logScaleY: boolean;
-    public newType: string;
-    public notFilterable: boolean;
-    public requireAll: boolean;
-    public savePrevious: boolean;
-    public scaleMaxX: string;
-    public scaleMaxY: string;
-    public scaleMinX: string;
-    public scaleMinY: string;
-    public showHeat: boolean;
-    public showLegend: boolean;
-    public sortByAggregation: boolean;
-    public timeFill: boolean;
-    public type: string;
-    public yPercentage: number;
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the
-     * given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        bindings.aggregation = this.aggregation;
-        bindings.axisLabelX = this.axisLabelX;
-        bindings.axisLabelY = this.axisLabelY;
-        bindings.dualView = this.dualView;
-        bindings.granularity = this.granularity;
-        bindings.hideGridLines = this.hideGridLines;
-        bindings.hideGridTicks = this.hideGridTicks;
-        bindings.ignoreSelf = this.ignoreSelf;
-        bindings.lineCurveTension = this.lineCurveTension;
-        bindings.lineFillArea = this.lineFillArea;
-        bindings.logScaleX = this.logScaleX;
-        bindings.logScaleY = this.logScaleY;
-        bindings.notFilterable = this.notFilterable;
-        bindings.requireAll = this.requireAll;
-        bindings.savePrevious = this.savePrevious;
-        bindings.scaleMaxX = this.scaleMaxX;
-        bindings.scaleMaxY = this.scaleMaxY;
-        bindings.scaleMinX = this.scaleMinX;
-        bindings.scaleMinY = this.scaleMinY;
-        bindings.showHeat = this.showHeat;
-        bindings.showLegend = this.showLegend;
-        bindings.sortByAggregation = this.sortByAggregation;
-        bindings.timeFill = this.timeFill;
-        bindings.type = this.type;
-        bindings.yPercentage = this.yPercentage;
-
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'aggregationField',
-            'groupField',
-            'xField',
-            'yField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific
-     * visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.axisLabelX = this.injector.get('axisLabelX', null);
-        this.axisLabelY = this.injector.get('axisLabelY', null);
-        this.aggregation = this.injector.get('aggregation', 'count');
-        this.dualView = this.injector.get('dualView', '');
-        this.granularity = this.injector.get('granularity', 'year');
-        this.hideGridLines = this.injector.get('hideGridLines', false);
-        this.hideGridTicks = this.injector.get('hideGridTicks', false);
-        this.ignoreSelf = this.injector.get('ignoreSelf', false);
-        this.lineCurveTension = this.injector.get('lineCurveTension', 0.3);
-        this.lineFillArea = this.injector.get('lineFillArea', false);
-        this.logScaleX = this.injector.get('logScaleX', false);
-        this.logScaleY = this.injector.get('logScaleY', false);
-        this.notFilterable = this.injector.get('notFilterable', false);
-        this.requireAll = this.injector.get('requireAll', false);
-        this.savePrevious = this.injector.get('savePrevious', false);
-        this.scaleMaxX = this.injector.get('scaleMaxX', '');
-        this.scaleMaxY = this.injector.get('scaleMaxY', '');
-        this.scaleMinX = this.injector.get('scaleMinX', '');
-        this.scaleMinY = this.injector.get('scaleMinY', '');
-        this.showHeat = this.injector.get('showHeat', false);
-        this.showLegend = this.injector.get('showLegend', true);
-        this.sortByAggregation = this.injector.get('sortByAggregation', false);
-        this.timeFill = this.injector.get('timeFill', false);
-        this.type = this.injector.get('type', 'line');
-        this.yPercentage = this.injector.get('yPercentage', 0.3);
-        this.newType = this.type;
-    }
-}
 
 class Filter {
     public field: string | { x: string, y: string };
@@ -223,8 +95,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     public groupFilters: Filter[] = [];
     public valueFilters: Filter[] = [];
-
-    public options: AggregationOptions;
 
     // The data pagination properties.
     public lastPage: boolean = true;
@@ -277,6 +147,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public subcomponentMain: AbstractAggregationSubcomponent;
     public subcomponentZoom: AbstractAggregationSubcomponent;
 
+    // TODO THOR-349 Remove once future widget option menu is finished
     public subcomponentTypes: { name: string, type: string }[] = [{
         name: 'Bar, Horizontal (Aggregations)',
         type: 'bar-h'
@@ -316,6 +187,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public xList: any[] = [];
     public yList: any[] = [];
 
+    // TODO THOR-349 Move into future widget option menu component
+    public newType: string = '';
+
     constructor(
         connectionService: ConnectionService,
         datasetService: DatasetService,
@@ -333,51 +207,27 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             ref
         );
 
-        this.options = new AggregationOptions(this.injector, this.datasetService, 'Aggregation', 10000);
+        this.newType = this.options.type;
 
         // Check for the boolean value true (not just any truthy value) and fix it.
         this.options.dualView = ('' + this.options.dualView) === 'true' ? 'on' : this.options.dualView;
-        if (!this.allowDualView(this.options.type)) {
+        if (!this.optionsTypeIsDualViewCompatible(this.options)) {
             this.options.dualView = '';
         }
     }
 
     public ngAfterViewInit() {
-        if (this.options.axisLabelX == null) {
+        if (!this.options.axisLabelX) {
             this.options.axisLabelX =
                 (this.subcomponentMain && this.subcomponentMain.isHorizontal()) ?
                     this.options.aggregation || this.options.yField.prettyName :
                     this.options.xField.prettyName;
         }
-        if (this.options.axisLabelY == null) {
+        if (!this.options.axisLabelY) {
             this.options.axisLabelY =
                 (this.subcomponentMain && this.subcomponentMain.isHorizontal()) ?
                     this.options.xField.prettyName :
                     this.options.aggregation || this.options.yField.prettyName;
-        }
-    }
-
-    /**
-     * Returns whether the given subcomponent type allows dual view.
-     *
-     * @arg {string} type
-     * @return {boolean}
-     */
-    allowDualView(type: string): boolean {
-        switch (type) {
-            case 'histogram':
-            case 'line':
-            case 'line-xy':
-                return true;
-            case 'bar-h':
-            case 'bar-v':
-            case 'doughnut':
-            case 'list':
-            case 'pie':
-            case 'scatter':
-            case 'scatter-xy':
-            default:
-                return false;
         }
     }
 
@@ -405,8 +255,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Creates (and replaces) or removes the neon filter using the
-     * visualization filters.
+     * Creates (and replaces) or removes the neon filter using the visualization filters.
      */
     createOrRemoveNeonFilter() {
         // Always AND all group filters.
@@ -472,27 +321,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             query.sortBy('_aggregation', neonVariables.DESCENDING);
         }
 
-        if (this.isXYSubcomponent(this.options.type)) {
+        if (this.optionsTypeIsXY(this.options)) {
             groups.push(this.options.yField.columnName);
             wheres.push(neon.query.where(this.options.yField.columnName, '!=', null));
         } else {
-            switch (this.options.aggregation) {
-                case 'average':
-                    query.aggregate(neonVariables.AVG, this.options.aggregationField.columnName, '_aggregation');
-                    break;
-                case 'min':
-                    query.aggregate(neonVariables.MIN, this.options.aggregationField.columnName, '_aggregation');
-                    break;
-                case 'max':
-                    query.aggregate(neonVariables.MAX, this.options.aggregationField.columnName, '_aggregation');
-                    break;
-                case 'sum':
-                    query.aggregate(neonVariables.SUM, this.options.aggregationField.columnName, '_aggregation');
-                    break;
-                case 'count':
-                default:
-                    query.aggregate(neonVariables.COUNT, '*', '_aggregation');
-            }
+            query.aggregate(this.options.aggregation, (this.options.aggregation === neonVariables.COUNT ? '*' :
+                this.options.aggregationField.columnName), '_aggregation');
         }
 
         if (this.options.groupField.columnName) {
@@ -509,6 +343,146 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         return query.groupBy(groups).where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
             .limit(this.options.limit);
+    }
+
+    /**
+     * Creates and returns an array of field options for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('aggregationField', 'Aggregation Field', true, this.optionsAggregationIsNotCount),
+            new WidgetFieldOption('groupField', 'Group Field', false),
+            new WidgetFieldOption('xField', 'X Field', true),
+            new WidgetFieldOption('yField', 'Y Field', true, this.optionsTypeIsXY)
+        ];
+    }
+
+    /**
+     * Creates and returns an array of non-field options for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetSelectOption('aggregation', 'Aggregation', neonVariables.COUNT, OptionChoices.AggregationType,
+                this.optionsTypeIsNotXY),
+            new WidgetSelectOption('timeFill', 'Date Fill', false, OptionChoices.NoFalseYesTrue, this.optionsXFieldIsDate),
+            new WidgetSelectOption('granularity', 'Date Granularity', 'year', OptionChoices.DateGranularity, this.optionsXFieldIsDate),
+            new WidgetSelectOption('dualView', 'Dual View', '', [{
+                prettyName: 'Always Off',
+                variable: ''
+            }, {
+                prettyName: 'Always On',
+                variable: 'on'
+            }, {
+                prettyName: 'Only On Filter',
+                variable: 'filter'
+            }], this.optionsTypeIsDualViewCompatible),
+            new WidgetSelectOption('notFilterable', 'Filterable', false, OptionChoices.YesFalseNoTrue),
+            new WidgetSelectOption('requireAll', 'Filter Operator', false, OptionChoices.OrFalseAndTrue),
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue),
+            new WidgetSelectOption('hideGridLines', 'Grid Lines', false, OptionChoices.ShowFalseHideTrue, this.optionsTypeUsesGrid),
+            new WidgetSelectOption('hideGridTicks', 'Grid Ticks', false, OptionChoices.ShowFalseHideTrue, this.optionsTypeUsesGrid),
+            new WidgetFreeTextOption('axisLabelX', 'Label of X-Axis', '', this.optionsTypeUsesGrid),
+            new WidgetFreeTextOption('axisLabelY', 'Label of Y-Axis', '', this.optionsTypeUsesGrid),
+            new WidgetSelectOption('lineCurveTension', 'Line Curve Tension', 0.3, [{
+                prettyName: '0.1',
+                variable: 0.1
+            }, {
+                prettyName: '0.2',
+                variable: 0.2
+            }, {
+                prettyName: '0.3',
+                variable: 0.3
+            }, {
+                prettyName: '0.4',
+                variable: 0.4
+            }, {
+                prettyName: '0.5',
+                variable: 0.5
+            }, {
+                prettyName: '0.6',
+                variable: 0.6
+            }, {
+                prettyName: '0.7',
+                variable: 0.7
+            }, {
+                prettyName: '0.8',
+                variable: 0.8
+            }, {
+                prettyName: '0.9',
+                variable: 0.9
+            }], this.optionsTypeIsLine),
+            new WidgetSelectOption('lineFillArea', 'Line Fill Area Under Curve', false, OptionChoices.NoFalseYesTrue,
+                this.optionsTypeIsLine),
+            new WidgetSelectOption('logScaleX', 'Log X-Axis Scale', false, OptionChoices.NoFalseYesTrue, this.optionsTypeUsesGrid),
+            new WidgetSelectOption('logScaleY', 'Log Y-Axis Scale', false, OptionChoices.NoFalseYesTrue, this.optionsTypeUsesGrid),
+            new WidgetSelectOption('savePrevious', 'Save Previously Seen', false, OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('scaleMinX', 'Scale Min X', '', this.optionsTypeUsesGrid),
+            new WidgetFreeTextOption('scaleMaxX', 'Scale Max X', '', this.optionsTypeUsesGrid),
+            new WidgetFreeTextOption('scaleMinY', 'Scale Min Y', '', this.optionsTypeUsesGrid),
+            new WidgetFreeTextOption('scaleMaxY', 'Scale Max Y', '', this.optionsTypeUsesGrid),
+            new WidgetSelectOption('showHeat', 'Show Heated List', false, OptionChoices.NoFalseYesTrue, this.optionsTypeIsList),
+            new WidgetSelectOption('showLegend', 'Show Legend', true, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('sortByAggregation', 'Sort By', false, [{
+                prettyName: 'Label',
+                variable: false
+            }, {
+                prettyName: 'Aggregation',
+                variable: true
+            }]),
+            new WidgetSelectOption('type', 'Visualization Type', 'line', [{
+                prettyName: 'Bar, Horizontal (Aggregations)',
+                variable: 'bar-h'
+            }, {
+                prettyName: 'Bar, Vertical (Aggregations)',
+                variable: 'bar-v'
+            }, {
+                prettyName: 'Doughnut (Aggregations)',
+                variable: 'doughnut'
+            }, {
+                prettyName: 'Histogram (Aggregations)',
+                variable: 'histogram'
+            }, {
+                prettyName: 'Line (Aggregations)',
+                variable: 'line'
+            }, {
+                prettyName: 'Line (Points)',
+                variable: 'line-xy'
+            }, {
+                prettyName: 'Pie (Aggregations)',
+                variable: 'pie'
+            }, {
+                prettyName: 'Scatter (Aggregations)',
+                variable: 'scatter'
+            }, {
+                prettyName: 'Scatter (Points)',
+                variable: 'scatter-xy'
+            }, {
+                prettyName: 'Text List (Aggregations)',
+                variable: 'list'
+            }]),
+            new WidgetSelectOption('yPercentage', 'Y-Axis Max Width', 0.3, [{
+                prettyName: '0.1',
+                variable: 0.1
+            }, {
+                prettyName: '0.2',
+                variable: 0.2
+            }, {
+                prettyName: '0.3',
+                variable: 0.3
+            }, {
+                prettyName: '0.4',
+                variable: 0.4
+            }, {
+                prettyName: '0.5',
+                variable: 0.5
+            }], this.optionsTypeUsesGrid)
+        ];
     }
 
     /**
@@ -543,11 +517,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns an object containing the ElementRef objects for the
-     * visualization needed for the resizing behavior.
+     * Returns an object containing the ElementRef objects for the visualization needed for the resizing behavior.
      *
-     * @return {object} Object containing:  {ElementRef} headerText,
-     *     {ElementRef} infoText, {ElementRef} visualization
+     * @return {object} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
      * @override
      */
     getElementRefs(): any {
@@ -596,8 +568,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the hidden canvas element reference for the SubcomponentListener
-     * interface.
+     * Returns the hidden canvas element reference for the SubcomponentListener interface.
      *
      * @return {ElementRef}
      */
@@ -606,18 +577,27 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the options for the specific visualization.
+     * Returns the default limit for the visualization.
      *
-     * @return {BaseNeonOptions}
+     * @return {string}
      * @override
      */
-    getOptions(): BaseNeonOptions {
-        return this.options;
+    getVisualizationDefaultLimit(): number {
+        return 10000;
     }
 
     /**
-     * Returns the label for the X Field in the gear option menu using the
-     * given subcomponent type.
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'Aggregation';
+    }
+
+    /**
+     * Returns the label for the X Field in the gear option menu using the given subcomponent type.
      *
      * @arg {string} type
      * @return {string}
@@ -663,8 +643,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Updates properties and/or sub-components whenever a config option is
-     * changed and reruns the visualization query.
+     * Updates properties and/or sub-components whenever a config option is changed and reruns the visualization query.
      *
      * @override
      */
@@ -681,12 +660,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * Updates the sub-component and reruns the visualization query.
      */
     handleChangeSubcomponentType() {
-        if (this.options.type !== this.options.newType) {
-            this.options.type = this.options.newType;
-            if (!this.allowDualView(this.options.type)) {
+        if (this.options.type !== this.newType) {
+            this.options.type = this.newType;
+            if (!this.optionsTypeIsDualViewCompatible(this.options)) {
                 this.options.dualView = '';
             }
-            if (this.isContinuous(this.options.type)) {
+            if (this.optionsTypeIsContinuous(this.options)) {
                 this.options.sortByAggregation = false;
             }
             this.redrawSubcomponents();
@@ -762,55 +741,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns whether the given subcomponent type is continuous.
-     *
-     * @arg {string} type
-     * @return {boolean}
-     */
-    isContinuous(type: string): boolean {
-        switch (type) {
-            case 'histogram':
-            case 'line':
-            case 'line-xy':
-            case 'scatter':
-            case 'scatter-xy':
-                return true;
-            case 'bar-h':
-            case 'bar-v':
-            case 'doughnut':
-            case 'list':
-            case 'pie':
-            default:
-                return false;
-        }
-    }
-
-    /**
-     * Returns whether the given subcomponent type has axes (e.g., line does,
-     * pie does not).
-     *
-     * @arg {string} type
-     * @return {boolean}
-     */
-    hasAxes(type: string): boolean {
-        switch (type) {
-            case 'bar-h':
-            case 'bar-v':
-            case 'histogram':
-            case 'line':
-            case 'line-xy':
-            case 'scatter':
-            case 'scatter-xy':
-                return true;
-            case 'doughnut':
-            case 'list':
-            case 'pie':
-            default:
-                return false;
-        }
-    }
-
-    /**
      * Returns whether the data and fields for the visualization are valid.
      *
      * @return {boolean}
@@ -818,24 +748,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     isValidQuery(): boolean {
         let validFields = this.options.xField.columnName &&
-            (this.isXYSubcomponent(this.options.type) ? this.options.yField.columnName : true) &&
-            (this.options.aggregation !== 'count' ? this.options.aggregationField.columnName : true);
+            (this.optionsTypeIsXY(this.options) ? this.options.yField.columnName : true) &&
+            (this.options.aggregation !== neonVariables.COUNT ? this.options.aggregationField.columnName : true);
         return !!(this.options.database.name && this.options.table.name && validFields);
     }
 
     /**
-     * Returns whether the given subcomponent type requires both X and Y fields.
-     *
-     * @arg {string} type
-     * @return {boolean}
-     */
-    isXYSubcomponent(type): boolean {
-        return type === 'line-xy' || type === 'scatter-xy';
-    }
-
-    /**
-     * Handles the query results for the visualization; updates and/or redraws
-     * any properties and/or sub-components as needed.
+     * Handles the query results for the visualization; updates and/or redraws any properties and/or sub-components as needed.
      *
      * @arg {object} response
      * @override
@@ -852,7 +771,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         this.errorMessage = '';
 
-        let isXY = this.isXYSubcomponent(this.options.type);
+        let isXY = this.optionsTypeIsXY(this.options);
         let xList = [];
         let yList = [];
         let groupsToColors = new Map<string, Color>();
@@ -1010,8 +929,139 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Handles any post-initialization behavior needed with properties or
-     * sub-components for the visualization.
+     * Returns whether the subcomponent type shows aggregations and the aggregation type is not count.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsAggregationIsNotCount(options: any): boolean {
+        return this.optionsTypeIsNotXY(options) && options.aggregation !== neonVariables.COUNT;
+    }
+
+    /**
+     * Returns whether the subcomponent type is continuous.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsTypeIsContinuous(options: any): boolean {
+        switch (options.type) {
+            case 'histogram':
+            case 'line':
+            case 'line-xy':
+            case 'scatter':
+            case 'scatter-xy':
+                return true;
+            case 'bar-h':
+            case 'bar-v':
+            case 'doughnut':
+            case 'list':
+            case 'pie':
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Returns whether the subcomponent type is compatible with dual view.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsTypeIsDualViewCompatible(options: any): boolean {
+        switch (options.type) {
+            case 'histogram':
+            case 'line':
+            case 'line-xy':
+                return true;
+            case 'bar-h':
+            case 'bar-v':
+            case 'doughnut':
+            case 'list':
+            case 'pie':
+            case 'scatter':
+            case 'scatter-xy':
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Returns whether the subcomponent type is line.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsTypeIsLine(options: any): boolean {
+        return options.type === 'line' || options.type === 'line-xy';
+    }
+
+    /**
+     * Returns whether the subcomponent type is list.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsTypeIsList(options: any): boolean {
+        return options.type === 'list';
+    }
+
+    /**
+     * Returns whether the subcomponent type does not require both X and Y fields.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsTypeIsNotXY(options: any): boolean {
+        return !this.optionsTypeIsXY(options);
+    }
+
+    /**
+     * Returns whether the subcomponent type uses the grid and axes.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsTypeUsesGrid(options: any): boolean {
+        switch (options.type) {
+            case 'bar-h':
+            case 'bar-v':
+            case 'histogram':
+            case 'line':
+            case 'line-xy':
+            case 'scatter':
+            case 'scatter-xy':
+                return true;
+            case 'doughnut':
+            case 'list':
+            case 'pie':
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Returns whether the subcomponent type requires both X and Y fields.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsTypeIsXY(options: any): boolean {
+        return options.type === 'line-xy' || options.type === 'scatter-xy';
+    }
+
+    /**
+     * Returns whether the X field data type is date.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsXFieldIsDate(options: any): boolean {
+        return options.xField.type === 'date';
+    }
+
+    /**
+     * Handles any post-initialization behavior needed with properties or sub-components for the visualization.
      *
      * @override
      */
@@ -1056,7 +1106,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return type === 'date' ? 'date' : 'string';
         };
 
-        let isXY = this.isXYSubcomponent(this.options.type);
+        let isXY = this.optionsTypeIsXY(this.options);
         let meta = {
             aggregationField: isXY ? undefined : this.options.aggregationField.prettyName,
             aggregationLabel: isXY ? undefined : this.options.aggregation,
@@ -1087,8 +1137,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Deselects the selected area and removes the superclass filter object and
-     * all visualization filters.
+     * Deselects the selected area and removes the superclass filter object and all visualization filters.
      *
      * @arg {any} filter
      * @override
@@ -1104,8 +1153,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Updates the filters for the visualization on initialization or whenever
-     * filters are changed externally.
+     * Updates the filters for the visualization on initialization or whenever filters are changed externally.
      *
      * @override
      */
@@ -1141,23 +1189,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns whether to always show a legend and not allow a user choice.
-     *
-     * @return {boolean}
-     */
-    alwaysShowLegend(): boolean {
-        // Always show the legend for a line or scatter chart in order to avoid a bug resizing the selected area within the chart.
-        return this.options.type === 'line' || this.options.type === 'line-xy' || this.options.type === 'scatter' ||
-            this.options.type === 'scatter-xy';
-    }
-
-    /**
      * Returns whether the legend is shown.
      *
      * @return {boolean}
      */
     showLegend(): boolean {
-        return this.alwaysShowLegend() || (this.options.showLegend && this.legendGroups.length > 1);
+        // TODO THOR-973
+        // Always show the legend for histogram, line, or scatter in order to avoid a bug resizing the selected area within the chart.
+        return this.optionsTypeIsContinuous(this.options) || (this.options.showLegend && this.legendGroups.length > 1);
     }
 
     /**
@@ -1329,8 +1368,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Updates properties and/or sub-components whenever the limit is changed
-     * and reruns the visualization query.
+     * Updates properties and/or sub-components whenever the limit is changed and reruns the visualization query.
      *
      * @override
      */
@@ -1358,8 +1396,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Initializes any properties and/or sub-components needed once databases,
-     * tables, fields, and other options properties are set.
+     * Initializes any properties and/or sub-components needed once databases, tables, fields, and other options properties are set.
      *
      * @override
      */
@@ -1407,8 +1444,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Toggles the given filter in the given filter list and recreates or
-     * removes the neon filter.
+     * Toggles the given filter in the given filter list and recreates or removes the neon filter.
      *
      * @arg {Filter} filter
      */

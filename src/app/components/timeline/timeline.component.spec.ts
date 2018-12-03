@@ -25,7 +25,6 @@ import { FieldMetaData } from '../../dataset';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { AppMaterialModule } from '../../app.material.module';
-import { ChartComponent } from '../chart/chart.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { TimelineComponent } from './timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
@@ -44,7 +43,6 @@ describe('Component: Timeline', () => {
 
     initializeTestBed({
         declarations: [
-            ChartComponent,
             TimelineComponent,
             ExportControlComponent,
             UnsharedFilterComponent
