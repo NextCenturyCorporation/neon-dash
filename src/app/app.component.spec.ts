@@ -213,8 +213,8 @@ describe('App', () => {
     }));
 
     it('check that the messagenger subscribes to the correct channels and that the callbacks update the correct booleans', async(() => {
-        let spyOnShowFilterBuilderIcon = spyOn(component, 'getShowFilterBuilderIcon');
-        let spyOnShowVisualShortcut = spyOn(component, 'getShowVisShortcut');
+        let spyOnShowFilterBuilderIcon = spyOn(component, 'updateShowFilterBuilderIcon');
+        let spyOnShowVisualShortcut = spyOn(component, 'updateShowVisShortcut');
         let message = {
             showFilterBuilderIcon: false,
             showVisShortcut: false
@@ -223,8 +223,8 @@ describe('App', () => {
         expect(spyOnInit.calls.count()).toEqual(1);
         component.ngOnInit();
         expect(spyOnInit.calls.count()).toEqual(2);
-        component.getShowVisShortcut(message);
-        component.getShowFilterBuilderIcon(message);
+        component.updateShowVisShortcut(message);
+        component.updateShowFilterBuilderIcon(message);
 
         expect(spyOnShowFilterBuilderIcon.calls.argsFor(0)).toEqual([{
             showFilterBuilderIcon: false,
@@ -241,13 +241,13 @@ describe('App', () => {
     }));
 
     it('getShowVisShortcut does update showVisShortcut', async(() => {
-        component.getShowVisShortcut({
+        component.updateShowVisShortcut({
             showVisShortcut: false
         });
         fixture.detectChanges();
         expect(component.showVisShortcut).toEqual(false);
         expect(debugElement.query(By.css('#showVisShortcutButton'))).toBeNull();
-        component.getShowVisShortcut({
+        component.updateShowVisShortcut({
             showVisShortcut: true
         });
         fixture.detectChanges();
@@ -259,13 +259,13 @@ describe('App', () => {
     }));
 
     it('getShowFilterBuilderIcon does update showFilterBuilder', async(() => {
-        component.getShowFilterBuilderIcon({
+        component.updateShowFilterBuilderIcon({
             showFilterBuilderIcon: false
         });
         fixture.detectChanges();
         expect(component.showFilterBuilderIcon).toEqual(false);
         expect(debugElement.query(By.css('#showFilterBuilderIcon'))).toBeNull();
-        component.getShowFilterBuilderIcon({
+        component.updateShowFilterBuilderIcon({
             showFilterBuilderIcon: true
         });
         fixture.detectChanges();

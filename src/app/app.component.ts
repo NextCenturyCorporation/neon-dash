@@ -363,22 +363,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
-     * Gets the showVisShortcut boolean value from the messenger channel
-     * @param message
-     */
-    getShowVisShortcut(message) {
-        this.showVisShortcut = message.showVisShortcut;
-    }
-
-    /**
-     * Gets the showFilterBuilderIcon boolean value from the messenger channel
-     * @param message
-     */
-    getShowFilterBuilderIcon(message) {
-        this.showFilterBuilderIcon = message.showFilterBuilderIcon;
-    }
-
-    /**
      * Returns the visible row count.
      *
      * @return {number}
@@ -436,8 +420,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.messenger.subscribe('showVisShortcut', (message) => this.getShowVisShortcut(message));
-        this.messenger.subscribe('showFilterBuilderIcon', (message) => this.getShowFilterBuilderIcon(message));
+        this.messenger.subscribe('showVisShortcut', (message) => this.updateShowVisShortcut(message));
+        this.messenger.subscribe('showFilterBuilderIcon', (message) => this.updateShowFilterBuilderIcon(message));
     }
 
     onDragStop(i, event) {
@@ -532,6 +516,22 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     unregisterWidget(eventMessage: { id: string }) {
         this.widgets.delete(eventMessage.id);
+    }
+
+    /**
+     * Updates the showVisShortcut boolean value from the messenger channel
+     * @param message
+     */
+    updateShowVisShortcut(message) {
+        this.showVisShortcut = message.showVisShortcut;
+    }
+
+    /**
+     * Updates the showFilterBuilderIcon boolean value from the messenger channel
+     * @param message
+     */
+    updateShowFilterBuilderIcon(message) {
+        this.showFilterBuilderIcon = message.showFilterBuilderIcon;
     }
 
     /**
