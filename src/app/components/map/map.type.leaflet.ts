@@ -88,7 +88,16 @@ export class LeafletNeonMap extends AbstractMap {
         let clusterGroup: L.MarkerClusterGroup = null;
 
         if (cluster) {
-            clusterGroup = L.markerClusterGroup();
+            clusterGroup = L.markerClusterGroup({
+                // Override default function to add neon-cluster class to cluster icons.
+                iconCreateFunction: (clusterPoint) => {
+                    return new L.DivIcon({
+                        html: '<div><span>' + clusterPoint.getChildCount() + '</span></div>',
+                        className: 'marker-cluster neon-cluster',
+                        iconSize: new L.Point(40, 40)
+                    });
+                }
+            });
         }
 
         for (let point of points) {
