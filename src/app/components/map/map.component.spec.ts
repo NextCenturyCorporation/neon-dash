@@ -259,7 +259,6 @@ describe('Component: Map', () => {
     });
 
     it('does have expected options', () => {
-        expect(component.options.clustering).toEqual('points');
         expect(component.options.clusterPixelRange).toEqual(15);
         expect(component.options.customServer).toEqual(null);
         expect(component.options.disableCtrlZoom).toEqual(false);
@@ -1016,7 +1015,6 @@ describe('Component: Map with config', () => {
                 }]
             },
             { provide: 'limit', useValue: 9999 },
-            { provide: 'clustering', useValue: 'clusters' },
             { provide: 'clusterPixelRange', useValue: 20 },
             { provide: 'customServer', useValue: { mapUrl: 'testUrl', layer: 'testLayer' } },
             { provide: 'disableCtrlZoom', useValue: true },
@@ -1044,7 +1042,6 @@ describe('Component: Map with config', () => {
     });
 
     it('does have expected options', () => {
-        expect(component.options.clustering).toEqual('clusters');
         expect(component.options.clusterPixelRange).toEqual(20);
         expect(component.options.customServer).toEqual({
             mapUrl: 'testUrl',

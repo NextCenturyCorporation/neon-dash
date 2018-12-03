@@ -603,7 +603,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         }
 
         this.mapObject.clearLayer(layer);
-        this.mapObject.addPoints(mapPoints, layer, this.options.clustering === 'clusters');
+        this.mapObject.addPoints(mapPoints, layer, true);
 
         this.filterMapForLegend();
         this.updateLegend();
@@ -1036,13 +1036,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      */
     createNonFieldOptions(): WidgetOption[] {
         return [
-            new WidgetSelectOption('clustering', 'Map Type', 'points', [{
-                prettyName: 'Points',
-                variable: 'points'
-            }, {
-                prettyName: 'Clusters',
-                variable: 'clusters'
-            }]),
             new WidgetFreeTextOption('clusterPixelRange', 'Cluster Pixel Range', 15),
             // Properties of customServer:  useCustomServer: boolean, mapUrl: string, layer: string
             new WidgetNonPrimitiveOption('customServer', 'Custom Server', null),
