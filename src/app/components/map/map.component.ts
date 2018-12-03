@@ -656,7 +656,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
             let hoverPopupMap = new Map<string, number>();
 
-            if (hoverPopupValue) { hoverPopupMap.set(hoverPopupValue, 1); } //add to map if hover value exists
+            //add to map if hover value exists
+            if (hoverPopupValue) {
+                hoverPopupMap.set(hoverPopupValue, 1);
+            }
 
             obj = new UniqueLocationPoint(idValue, idList, lat, lng, 1, colorField, colorValue, hoverPopupMap);
             map.set(hashCode, obj);
@@ -666,7 +669,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
             //check if popup value already exists increase count in map
             if (hoverPopupValue && (obj.hoverPopupMap.has(hoverPopupValue)))  {
-                    obj.hoverPopupMap.set(hoverPopupValue, obj.count);
+                obj.hoverPopupMap.set(hoverPopupValue, obj.hoverPopupMap.get(hoverPopupValue));
+            } else {
+                obj.hoverPopupMap.set(hoverPopupValue, 1);
             }
         }
     }
