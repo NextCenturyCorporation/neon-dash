@@ -106,18 +106,14 @@ describe('Component: AddVisualization', () => {
         debugElement = fixture.debugElement;
     });
 
-    it('exists', (() => {
-        expect(component).toBeTruthy();
-    }));
-
     it('tests default values', (() => {
         expect(component.showVisShortcut).toEqual(true);
         expect(component.selectedIndex).toEqual(-1);
         expect(component.messenger).toBeTruthy();
     }));
 
-    it('Check that the publish function updates the correct booleans', (() => {
-        let spyOnBingShowVisualShortcut = spyOn(component, 'updateShowVisShortcut');
+    it('Check that updateShowVisShortcut changes the correct booleans', (() => {
+        let spyOnUpdateShowVisShortcut = spyOn(component, 'updateShowVisShortcut');
         let message = {
             showVisShortcut: false
         };
@@ -132,7 +128,7 @@ describe('Component: AddVisualization', () => {
         component.updateShowVisShortcut(message);
 
         expect(spyOnInit.calls.count()).toEqual(3);
-        expect(spyOnBingShowVisualShortcut.calls.count()).toEqual(1);
+        expect(spyOnUpdateShowVisShortcut.calls.count()).toEqual(1);
     }));
 
 });
