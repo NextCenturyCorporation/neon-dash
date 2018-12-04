@@ -984,7 +984,7 @@ export class DatasetService {
      */
     // TODO: 825: When dashboard config options layout is changed, do we want to change how/when this
     // validation occurs? (THOR-826)
-    public updateDatabases(dataset: Datastore, connection: neon.query.Connection, callback?: Function, index?: number): any {
+    public updateDatabases(dataset: Datastore, connection: neon.query.Connection): any {
         let promiseArray = [];
 
         for (let database of dataset.databases) {
