@@ -206,14 +206,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             injector,
             ref
         );
-
-        this.newType = this.options.type;
-
-        // Check for the boolean value true (not just any truthy value) and fix it.
-        this.options.dualView = ('' + this.options.dualView) === 'true' ? 'on' : this.options.dualView;
-        if (!this.optionsTypeIsDualViewCompatible(this.options)) {
-            this.options.dualView = '';
-        }
     }
 
     public ngAfterViewInit() {
@@ -274,75 +266,76 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (neonFilter) {
             let runQuery = !this.options.ignoreSelf || !!this.options.dualView;
             if (this.filterToPassToSuperclass.id) {
-                this.replaceNeonFilter(runQuery, this.filterToPassToSuperclass, neonFilter);
+                this.replaceNeonFilter(this.options, runQuery, this.filterToPassToSuperclass, neonFilter);
             } else {
-                this.addNeonFilter(runQuery, this.filterToPassToSuperclass, neonFilter);
+                this.addNeonFilter(this.options, runQuery, this.filterToPassToSuperclass, neonFilter);
             }
         } else if (this.filterToPassToSuperclass.id) {
-            this.removeLocalFilterFromLocalAndNeon(this.filterToPassToSuperclass, true, true);
+            this.removeLocalFilterFromLocalAndNeon(this.options, this.filterToPassToSuperclass, true, true);
         }
     }
 
     /**
-     * Creates and returns the query for the visualization.
+     * Creates and returns the visualization data query using the given options.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {neon.query.Query}
      * @override
      */
-    createQuery(): neon.query.Query {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
+    createQuery(options: any): neon.query.Query {
+        let query = new neon.query.Query().selectFrom(options.database.name, options.table.name);
         let groups: any[] = [];
-        let wheres: neon.query.WherePredicate[] = [neon.query.where(this.options.xField.columnName, '!=', null)];
+        let wheres: neon.query.WherePredicate[] = [neon.query.where(options.xField.columnName, '!=', null)];
 
-        if (this.options.xField.type === 'date') {
-            switch (this.options.granularity) {
+        if (options.xField.type === 'date') {
+            switch (options.granularity) {
                 case 'minute':
-                    groups.push(new neon.query.GroupByFunctionClause('minute', this.options.xField.columnName, '_minute'));
+                    groups.push(new neon.query.GroupByFunctionClause('minute', options.xField.columnName, '_minute'));
                 /* falls through */
                 case 'hour':
-                    groups.push(new neon.query.GroupByFunctionClause('hour', this.options.xField.columnName, '_hour'));
+                    groups.push(new neon.query.GroupByFunctionClause('hour', options.xField.columnName, '_hour'));
                     /* falls through */
                 case 'day':
-                    groups.push(new neon.query.GroupByFunctionClause('dayOfMonth', this.options.xField.columnName, '_day'));
+                    groups.push(new neon.query.GroupByFunctionClause('dayOfMonth', options.xField.columnName, '_day'));
                     /* falls through */
                 case 'month':
-                    groups.push(new neon.query.GroupByFunctionClause('month', this.options.xField.columnName, '_month'));
+                    groups.push(new neon.query.GroupByFunctionClause('month', options.xField.columnName, '_month'));
                     /* falls through */
                 case 'year':
-                    groups.push(new neon.query.GroupByFunctionClause('year', this.options.xField.columnName, '_year'));
+                    groups.push(new neon.query.GroupByFunctionClause('year', options.xField.columnName, '_year'));
                     /* falls through */
             }
-            query.aggregate(neonVariables.MIN, this.options.xField.columnName, '_date').sortBy('_date', neonVariables.ASCENDING);
-        } else if (!this.options.sortByAggregation) {
-            groups.push(this.options.xField.columnName);
-            query.sortBy(this.options.xField.columnName, neonVariables.ASCENDING);
+            query.aggregate(neonVariables.MIN, options.xField.columnName, '_date').sortBy('_date', neonVariables.ASCENDING);
+        } else if (!options.sortByAggregation) {
+            groups.push(options.xField.columnName);
+            query.sortBy(options.xField.columnName, neonVariables.ASCENDING);
         } else {
-            groups.push(this.options.xField.columnName);
+            groups.push(options.xField.columnName);
             query.sortBy('_aggregation', neonVariables.DESCENDING);
         }
 
-        if (this.optionsTypeIsXY(this.options)) {
-            groups.push(this.options.yField.columnName);
-            wheres.push(neon.query.where(this.options.yField.columnName, '!=', null));
+        if (this.optionsTypeIsXY(options)) {
+            groups.push(options.yField.columnName);
+            wheres.push(neon.query.where(options.yField.columnName, '!=', null));
         } else {
-            query.aggregate(this.options.aggregation, (this.options.aggregation === neonVariables.COUNT ? '*' :
-                this.options.aggregationField.columnName), '_aggregation');
+            query.aggregate(options.aggregation, (options.aggregation === neonVariables.COUNT ? '*' :
+                options.aggregationField.columnName), '_aggregation');
         }
 
-        if (this.options.groupField.columnName) {
-            groups.push(this.options.groupField.columnName);
+        if (options.groupField.columnName) {
+            groups.push(options.groupField.columnName);
         }
 
-        if (this.options.filter) {
-            wheres.push(neon.query.where(this.options.filter.lhs, this.options.filter.operator, this.options.filter.rhs));
+        if (options.filter) {
+            wheres.push(neon.query.where(options.filter.lhs, options.filter.operator, options.filter.rhs));
         }
 
         if (this.hasUnsharedFilter()) {
-            wheres.push(neon.query.where(this.options.unsharedFilterField.columnName, '=', this.options.unsharedFilterValue));
+            wheres.push(neon.query.where(options.unsharedFilterField.columnName, '=', options.unsharedFilterValue));
         }
 
         return query.groupBy(groups).where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
-            .limit(this.options.limit);
+            .limit(options.limit);
     }
 
     /**
@@ -741,25 +734,26 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns whether the data and fields for the visualization are valid.
+     * Returns whether the visualization data query created using the given options is valid.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(): boolean {
-        let validFields = this.options.xField.columnName &&
-            (this.optionsTypeIsXY(this.options) ? this.options.yField.columnName : true) &&
-            (this.options.aggregation !== neonVariables.COUNT ? this.options.aggregationField.columnName : true);
-        return !!(this.options.database.name && this.options.table.name && validFields);
+    isValidQuery(options: any): boolean {
+        let validFields = options.xField.columnName && (this.optionsTypeIsXY(options) ? options.yField.columnName : true) &&
+            (options.aggregation !== neonVariables.COUNT ? options.aggregationField.columnName : true);
+        return !!(options.database.name && options.table.name && validFields);
     }
 
     /**
-     * Handles the query results for the visualization; updates and/or redraws any properties and/or sub-components as needed.
+     * Handles the given response data for a successful visualization data query created using the given options.
      *
-     * @arg {object} response
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} response
      * @override
      */
-    onQuerySuccess(response: any) {
+    onQuerySuccess(options: any, response: any) {
         this.page = 1;
 
         if (!response || !response.data || !response.data.length) {
@@ -771,32 +765,31 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         this.errorMessage = '';
 
-        let isXY = this.optionsTypeIsXY(this.options);
+        let isXY = this.optionsTypeIsXY(options);
         let xList = [];
         let yList = [];
         let groupsToColors = new Map<string, Color>();
-        if (!this.options.groupField.columnName) {
-            groupsToColors.set(this.DEFAULT_GROUP, this.widgetService.getColor(this.options.database.name, this.options.table.name, '',
+        if (!options.groupField.columnName) {
+            groupsToColors.set(this.DEFAULT_GROUP, this.widgetService.getColor(options.database.name, options.table.name, '',
                 this.DEFAULT_GROUP));
         }
 
         let findGroupColor = (group: string): Color => {
             let color = groupsToColors.get(group);
             if (!color) {
-                color = this.widgetService.getColor(this.options.database.name, this.options.table.name, this.options.groupField.columnName,
-                    group);
+                color = this.widgetService.getColor(options.database.name, options.table.name, options.groupField.columnName, group);
                 groupsToColors.set(group, color);
             }
             return color;
         };
 
         let createTransformationFromItem = (item: any) => {
-            let group = this.options.groupField.columnName ? item[this.options.groupField.columnName] : this.DEFAULT_GROUP;
+            let group = options.groupField.columnName ? item[options.groupField.columnName] : this.DEFAULT_GROUP;
             return {
                 color: findGroupColor(group),
                 group: group,
-                x: item[this.options.xField.columnName],
-                y: isXY ? item[this.options.yField.columnName] : item._aggregation
+                x: item[options.xField.columnName],
+                y: isXY ? item[options.yField.columnName] : item._aggregation
             };
         };
 
@@ -806,9 +799,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             });
         }
 
-        if (this.options.xField.type === 'date') {
+        if (options.xField.type === 'date') {
             // Transform date data.
-            switch (this.options.granularity) {
+            switch (options.granularity) {
                 case 'minute':
                 case 'hour':
                     this.dateBucketizer = new DateBucketizer();
@@ -825,8 +818,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     break;
             }
 
-            let beginDate = this.options.savePrevious && this.xList.length ? this.xList[0] : response.data[0]._date;
-            let endDate = this.options.savePrevious && this.xList.length ? this.xList[this.xList.length - 1] :
+            let beginDate = options.savePrevious && this.xList.length ? this.xList[0] : response.data[0]._date;
+            let endDate = options.savePrevious && this.xList.length ? this.xList[this.xList.length - 1] :
                 response.data[response.data.length - 1]._date;
             this.dateBucketizer.setStartDate(new Date(beginDate));
             this.dateBucketizer.setEndDate(new Date(endDate));
@@ -834,8 +827,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             let groupToTransformations = new Map<string, any[]>();
 
             // Add 1 to the domain length for months or years because the month and year bucketizers are not inclusive.
-            let xDomainLength = this.dateBucketizer.getNumBuckets() + (this.options.granularity === 'month' ||
-                this.options.granularity === 'year' ? 1 : 0);
+            let xDomainLength = this.dateBucketizer.getNumBuckets() + (options.granularity === 'month' ||
+                options.granularity === 'year' ? 1 : 0);
 
             // Create the X list now so it is properly sorted.  Items will be removed as needed.
             xList = _.range(xDomainLength).map((index) => {
@@ -863,7 +856,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
             this.responseData = Array.from(groupToTransformations.keys()).reduce((transformations, group) => {
                 let nextTransformations = groupToTransformations.get(group);
-                if (this.options.timeFill) {
+                if (options.timeFill) {
                     nextTransformations = nextTransformations.map((transformationArray, index) => {
                         // If timeFill is true and the date bucket is an empty array, replace it with a single item with a Y of zero.
                         return transformationArray.length ? transformationArray : [{
@@ -888,7 +881,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             }, []);
 
             // Remove each X from the list that does not exist in the data unless the subcomponent is a histogram.
-            if (this.options.type !== 'histogram') {
+            if (options.type !== 'histogram') {
                 xList = xList.filter((x) => {
                     return xExists.get(x);
                 });
@@ -923,7 +916,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return groups.indexOf(group) >= 0;
         });
 
-        this.xList = this.options.savePrevious && this.xList.length ? this.xList : xList;
+        this.xList = options.savePrevious && this.xList.length ? this.xList : xList;
         this.yList = yList;
         this.updateActiveData();
     }
@@ -1066,6 +1059,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     postInit() {
+        this.newType = this.options.type;
+
+        // Check for the boolean value true (not just any truthy value) and fix it.
+        this.options.dualView = ('' + this.options.dualView) === 'true' ? 'on' : this.options.dualView;
+        if (!this.optionsTypeIsDualViewCompatible(this.options)) {
+            this.options.dualView = '';
+        }
+
         this.executeQueryChain();
     }
 

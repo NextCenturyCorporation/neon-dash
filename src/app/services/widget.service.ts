@@ -16,7 +16,6 @@
 import { Injectable } from '@angular/core';
 import { AbstractWidgetService } from './abstract.widget.service';
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
-import { BaseLayeredNeonComponent } from '../components/base-neon-component/base-layered-neon.component';
 import { Color, ColorSet } from '../color';
 import { DatasetService } from './dataset.service';
 import * as neon from 'neon-framework';

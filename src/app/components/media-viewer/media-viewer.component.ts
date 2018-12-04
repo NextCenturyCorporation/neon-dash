@@ -109,19 +109,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             injector,
             ref
         );
-
-        // Backwards compatibility (linkField deprecated and replaced by linkFields).
-        if (this.options.linkField.columnName && !this.options.linkFields.length) {
-            this.options.linkFields.push(this.options.linkField);
-        }
-
-        this.subscribeToSelectId(this.getSelectIdCallback());
-
-        this.options.customEventsToReceive.forEach((config) => {
-            this.messenger.subscribe(config.id, (eventMessage) => {
-                this.waitForQuery(config.fields || [], eventMessage.metadata, eventMessage.item);
-            });
-        });
     }
 
     /**
@@ -269,32 +256,33 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Creates and returns the query for the media viewer.
+     * Creates and returns the visualization data query using the given options.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {neon.query.Query}
      * @override
      */
-    createQuery(): neon.query.Query {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
+    createQuery(options: any): neon.query.Query {
+        let query = new neon.query.Query().selectFrom(options.database.name, options.table.name);
 
-        let fields = [this.options.idField.columnName].concat(this.options.linkFields.map((linkField) => {
+        let fields = [options.idField.columnName].concat(options.linkFields.map((linkField) => {
             return linkField.columnName;
         }));
 
-        if (this.options.nameField.columnName) {
-            fields.push(this.options.nameField.columnName);
+        if (options.nameField.columnName) {
+            fields.push(options.nameField.columnName);
         }
 
-        if (this.options.typeField.columnName) {
-            fields.push(this.options.typeField.columnName);
+        if (options.typeField.columnName) {
+            fields.push(options.typeField.columnName);
         }
 
-        if (this.options.maskField.columnName) {
-            fields.push(this.options.maskField.columnName);
+        if (options.maskField.columnName) {
+            fields.push(options.maskField.columnName);
         }
 
-        let idFilter = neon.query.where(this.options.idField.columnName, '=', this.options.id);
-        let wherePredicates = [idFilter].concat(this.options.linkFields.map((linkField) => {
+        let idFilter = neon.query.where(options.idField.columnName, '=', options.id);
+        let wherePredicates = [idFilter].concat(options.linkFields.map((linkField) => {
             return neon.query.where(linkField.columnName, '!=', null);
         }));
 
@@ -516,39 +504,40 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns whether the media viewer query using the options data config is valid.
+     * Returns whether the visualization data query created using the given options is valid.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(): boolean {
-        let validLinkFields = this.options.linkFields.length ? this.options.linkFields.every((linkField) => {
+    isValidQuery(options: any): boolean {
+        let validLinkFields = options.linkFields.length ? options.linkFields.every((linkField) => {
             return !!linkField.columnName;
         }) : false;
-        return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name && this.options.id &&
-            this.options.idField && this.options.idField.columnName && validLinkFields);
+        return !!(options.database.name && options.table.name && options.id && options.idField.columnName && validLinkFields);
     }
 
     /**
-     * Handles the media viewer query results and show/hide event for selecting/filtering and unfiltering documents.
+     * Handles the given response data for a successful visualization data query created using the given options.
      *
-     * @arg {object} response
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} response
      * @override
      */
-    onQuerySuccess(response: any) {
-        this.noDataId = this.options.id;
-        this.options.id = undefined;
+    onQuerySuccess(options: any, response: any) {
+        this.noDataId = options.id;
+        options.id = undefined;
         this.tabsAndMedia = [];
         this.selectedTabIndex = 0;
         this.queryItems = [];
 
-        if (this.options.clearMedia) {
-            let neonFilters = this.options.idField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
-                this.options.table.name, [this.options.idField.columnName]) : [];
+        if (options.clearMedia) {
+            let neonFilters = options.idField.columnName ? this.filterService.getFiltersForFields(options.database.name,
+                options.table.name, [options.idField.columnName]) : [];
 
             if (!neonFilters[0] || (neonFilters[0] && !neonFilters[0].filter.whereClause.rhs)) {
                 this.errorMessage = 'No Data';
-                this.options.id = '_id';
+                options.id = '_id';
                 return;
             }
         }
@@ -563,24 +552,24 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                     let names = [];
                     let types = [];
 
-                    if (this.options.maskField.columnName) {
-                        masks = neonUtilities.deepFind(responseItem, this.options.maskField.columnName) || '';
-                        masks = this.transformToStringArray(masks, this.options.delimiter);
+                    if (options.maskField.columnName) {
+                        masks = neonUtilities.deepFind(responseItem, options.maskField.columnName) || '';
+                        masks = this.transformToStringArray(masks, options.delimiter);
                     }
 
-                    if (this.options.nameField.columnName) {
-                        names = neonUtilities.deepFind(responseItem, this.options.nameField.columnName) || '';
-                        names = this.transformToStringArray(names, this.options.delimiter);
+                    if (options.nameField.columnName) {
+                        names = neonUtilities.deepFind(responseItem, options.nameField.columnName) || '';
+                        names = this.transformToStringArray(names, options.delimiter);
                     }
 
-                    if (this.options.typeField.columnName) {
-                        types = neonUtilities.deepFind(responseItem, this.options.typeField.columnName) || '';
-                        types = this.transformToStringArray(types, this.options.delimiter);
+                    if (options.typeField.columnName) {
+                        types = neonUtilities.deepFind(responseItem, options.typeField.columnName) || '';
+                        types = this.transformToStringArray(types, options.delimiter);
                     }
 
-                    this.options.linkFields.forEach((linkField) => {
+                    options.linkFields.forEach((linkField) => {
                         let links = neonUtilities.deepFind(responseItem, linkField.columnName) || '';
-                        links = this.transformToStringArray(links, this.options.delimiter);
+                        links = this.transformToStringArray(links, options.delimiter);
                         let tabs = this.createTabs(links, masks, names, types, this.noDataId);
                         tabs.forEach((tab) => {
                             if (tab.list.length) {
@@ -624,6 +613,19 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     postInit() {
+        // Backwards compatibility (linkField deprecated and replaced by linkFields).
+        if (this.options.linkField.columnName && !this.options.linkFields.length) {
+            this.options.linkFields.push(this.options.linkField);
+        }
+
+        this.subscribeToSelectId(this.getSelectIdCallback());
+
+        this.options.customEventsToReceive.forEach((config) => {
+            this.messenger.subscribe(config.id, (eventMessage) => {
+                this.waitForQuery(config.fields || [], eventMessage.metadata, eventMessage.item);
+            });
+        });
+
         this.executeQueryChain();
     }
 
