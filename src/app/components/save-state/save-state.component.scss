@@ -15,38 +15,68 @@
  */
 @import '../base-neon-component/base-neon.component.scss';
 
-.fake-dropdown-arrow {
-    right: 25px;
-    position: relative;
-}
-
-.fake-dropdown-menu {
-    width: 200px;
-}
-
-.add-margin-right {
-    margin-right: 25px;
-}
-
-.btn-open-config-edit {
-    margin: 10px;
-}
-
-.radio-container > * > * {
-    margin: 0 5px;
-}
-
-.option-row {
-    display: flex;
-    align-items: center;
-}
-
-input {
-    width: 200px;
-}
-
 .save-state-container {
     width: 410px;
     padding-left: 15px;
     padding-right: 15px;
+
+    .option-row {
+        align-items: center;
+        width: 100%;
+        height: 50px;
+
+        .flex{
+            display: flex;
+        }
+
+        .mat-input-container{
+            width: 100%;
+        }
+
+        .save-button{
+        }
+    
+        .text-input-container {
+            margin-right: 25px;
+            width: 100%;
+        
+            input{
+                width: 100%;
+            }
+        }
+    
+        .state-name{
+            padding: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        
+            &:hover {
+                text-decoration: none;
+                color: var(--color-primary, lightgrey) !important;
+            }
+        }
+    
+        .delete-button{
+            position: absolute;
+            left: 406px;
+            vertical-align: sub;
+
+            mat-icon{
+                color: #666666;
+
+                &:hover{
+                    color: #666666;
+                }
+            }
+        }
+
+        .date{
+            color: #666666;
+            font-size: 12px;
+            display: block !important;
+            margin-top: 0px;
+            margin-left: 5px;
+        }
+    }
+    
 }
