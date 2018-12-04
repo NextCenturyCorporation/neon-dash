@@ -94,17 +94,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             injector,
             ref
         );
-
-        if (!this.options.sortField.columnName) {
-            this.options.sortField = this.options.idField;
-        }
-
-        // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
-        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
-        // Backwards compatibility (ascending deprecated and replaced by sortDescending).
-        this.options.sortDescending = !(this.injector.get('ascending', !this.options.sortDescending));
-
-        this.showGrid = !this.options.hideUnfiltered;
     }
 
     /**
@@ -148,17 +137,17 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
 
         if (!this.filters.length) {
             this.filters = [filter];
-            this.addNeonFilter(runQuery, filter, clause);
+            this.addNeonFilter(this.options, runQuery, filter, clause);
         } else if (this.filters.length === 1) {
             if (!this.filterExists(filter.field, filter.value)) {
                 filter.id = this.filters[0].id;
                 this.filters = [filter];
-                this.replaceNeonFilter(runQuery, filter, clause);
+                this.replaceNeonFilter(this.options, runQuery, filter, clause);
             }
         } else {
-            this.removeAllFilters([].concat(this.filters), () => {
+            this.removeAllFilters(this.options, [].concat(this.filters), () => {
                 this.filters = [filter];
-                this.addNeonFilter(runQuery, filter, clause);
+                this.addNeonFilter(this.options, runQuery, filter, clause);
             });
         }
     }
@@ -178,43 +167,44 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Creates and returns the query for the thumbnail grid.
+     * Creates and returns the visualization data query using the given options.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {neon.query.Query}
      * @override
      */
-    createQuery(): neon.query.Query {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
+    createQuery(options: any): neon.query.Query {
+        let query = new neon.query.Query().selectFrom(options.database.name, options.table.name);
 
-        let fields = [this.options.idField.columnName, this.options.sortField.columnName];
+        let fields = [options.idField.columnName, options.sortField.columnName];
 
-        if (this.options.primaryTitleField.columnName) {
-            fields.push(this.options.primaryTitleField.columnName);
+        if (options.primaryTitleField.columnName) {
+            fields.push(options.primaryTitleField.columnName);
         }
 
-        if (this.options.secondaryTitleField.columnName) {
-            fields.push(this.options.secondaryTitleField.columnName);
+        if (options.secondaryTitleField.columnName) {
+            fields.push(options.secondaryTitleField.columnName);
         }
 
-        if (this.options.filterField.columnName) {
-            fields.push(this.options.filterField.columnName);
+        if (options.filterField.columnName) {
+            fields.push(options.filterField.columnName);
         }
 
-        if (this.options.contentField.columnName) {
-            fields.push(this.options.contentField.columnName);
+        if (options.contentField.columnName) {
+            fields.push(options.contentField.columnName);
         }
 
-        if (this.options.dateField.columnName) {
-            fields.push(this.options.dateField.columnName);
+        if (options.dateField.columnName) {
+            fields.push(options.dateField.columnName);
         }
 
         let whereClauses = [
-            neon.query.where(this.options.idField.columnName, '!=', null),
-            neon.query.where(this.options.idField.columnName, '!=', '')
+            neon.query.where(options.idField.columnName, '!=', null),
+            neon.query.where(options.idField.columnName, '!=', '')
         ];
 
         return query.withFields(fields).where(neon.query.and.apply(query, whereClauses))
-            .sortBy(this.options.sortField.columnName, this.options.ascending ? neonVariables.ASCENDING : neonVariables.DESCENDING);
+            .sortBy(options.sortField.columnName, options.ascending ? neonVariables.ASCENDING : neonVariables.DESCENDING);
     }
 
     /**
@@ -369,23 +359,24 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns whether the thumbnail grid query using the active data config is valid.
+     * Returns whether the visualization data query created using the given options is valid.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(): boolean {
-        return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name &&
-            this.options.idField && this.options.idField.columnName && this.options.sortField && this.options.sortField.columnName);
+    isValidQuery(options: any): boolean {
+        return !!(options.database.name && options.table.name && options.idField.columnName && options.sortField.columnName);
     }
 
     /**
-     * Handles the thumbnail grid query results and show/hide event for selecting/filtering and unfiltering documents.
+     * Handles the given response data for a successful visualization data query created using the given options.
      *
-     * @arg {object} response
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} response
      * @override
      */
-    onQuerySuccess(response) {
+    onQuerySuccess(options: any, response: any) {
         this.gridArray = [];
         this.queryArray = [];
         this.errorMessage = '';
@@ -394,12 +385,12 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
-                this.isLoading = true;
+                this.isLoading++;
                 response.data.forEach((d) => {
                     let item = {};
-                    for (let field of this.options.fields) {
-                        if (field.columnName === this.options.filterField.columnName) {
-                            this.queryArray.push(neonUtilities.deepFind(d, this.options.filterField.columnName));
+                    for (let field of options.fields) {
+                        if (field.columnName === options.filterField.columnName) {
+                            this.queryArray.push(neonUtilities.deepFind(d, options.filterField.columnName));
                         }
                         if (field.type || field.columnName === '_id') {
                             let value = neonUtilities.deepFind(d, field.columnName);
@@ -412,14 +403,14 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                     this.queryArray = this.queryArray.filter((value, index, array) => array.indexOf(value) === index);
                 });
 
-                this.neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
-                    this.options.table.name, [this.options.filterField.columnName]);
+                this.neonFilters = this.filterService.getFiltersForFields(options.database.name,
+                    options.table.name, [options.filterField.columnName]);
 
-                if (this.options.hideUnfiltered && this.neonFilters.length || !this.options.hideUnfiltered) {
-                    this.lastPage = (this.gridArray.length <= this.options.limit);
-                    this.pagingGrid = this.gridArray.slice(0, this.options.limit);
+                if (options.hideUnfiltered && this.neonFilters.length || !options.hideUnfiltered) {
+                    this.lastPage = (this.gridArray.length <= options.limit);
+                    this.pagingGrid = this.gridArray.slice(0, options.limit);
                     this.refreshVisualization();
-                    this.isLoading = false;
+                    this.isLoading--;
                     this.showGrid = true;
                 } else {
                     this.pagingGrid = [];
@@ -431,7 +422,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                 this.refreshVisualization();
             }
         } catch (e) {
-            console.error(this.options.title + ' Error: ' + e);
+            console.error(options.title + ' Error: ' + e);
             this.errorMessage = 'Error';
             this.refreshVisualization();
         }
@@ -473,6 +464,17 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     postInit() {
+        if (!this.options.sortField.columnName) {
+            this.options.sortField = this.options.idField;
+        }
+
+        // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
+        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+        // Backwards compatibility (ascending deprecated and replaced by sortDescending).
+        this.options.sortDescending = !(this.injector.get('ascending', !this.options.sortDescending));
+
+        this.showGrid = !this.options.hideUnfiltered;
+
         this.executeQueryChain();
     }
 

@@ -34,7 +34,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -721,8 +720,8 @@ describe('BaseNeon', () => {
         expect(spy.calls.count()).toBe(1);
     }));
 
-    it('handleChangeDatabase does update options and does call logChangeAndStartQueryChain', () => {
-        let spyLog = spyOn(component, 'logChangeAndStartQueryChain');
+    it('handleChangeDatabase does update options and does call logChangeAndStartAllQueryChain', () => {
+        let spyLog = spyOn(component, 'logChangeAndStartAllQueryChain');
         component.options.databases = DatasetServiceMock.DATABASES;
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.tables = [];
@@ -739,8 +738,8 @@ describe('BaseNeon', () => {
         expect(component.options.unsharedFilterValue).toEqual('');
     });
 
-    it('handleChangeTable does update options and does call logChangeAndStartQueryChain', () => {
-        let spyLog = spyOn(component, 'logChangeAndStartQueryChain');
+    it('handleChangeTable does update options and does call logChangeAndStartAllQueryChain', () => {
+        let spyLog = spyOn(component, 'logChangeAndStartAllQueryChain');
         component.options.databases = DatasetServiceMock.DATABASES;
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.tables = DatasetServiceMock.TABLES;
@@ -757,14 +756,14 @@ describe('BaseNeon', () => {
         expect(component.options.unsharedFilterValue).toEqual('');
     });
 
-    it('handleChangeData does call logChangeAndStartQueryChain', () => {
-        let spy = spyOn(component, 'logChangeAndStartQueryChain');
+    it('handleChangeData does call logChangeAndStartAllQueryChain', () => {
+        let spy = spyOn(component, 'logChangeAndStartAllQueryChain');
         component.handleChangeData();
         expect(spy.calls.count()).toBe(1);
     });
 
-    it('handleChangeLimit does update limit and does call logChangeAndStartQueryChain', () => {
-        let spy = spyOn(component, 'logChangeAndStartQueryChain');
+    it('handleChangeLimit does update limit and does call logChangeAndStartAllQueryChain', () => {
+        let spy = spyOn(component, 'logChangeAndStartAllQueryChain');
 
         component.newLimit = 1234;
 
