@@ -684,36 +684,78 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         //console.log('toggle expand', node);
     }
 
-    formatingCallback(value): string {
-        if (!isNaN(parseFloat(value)) && !isNaN(value - 0)) {
-            //round to at most 3 decimal places, so as to not display tiny floating-point errors
-            return String(Math.round((parseFloat(value) + 0.00001) * 1000) / 1000);
-        }
-        // can't be converted to a number, so just use it as-is.
-        return value;
-    }
-
-    getButtonText() {
-        let data = this.graphData,
-            visibleNodeCount = data.nodes.length;
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     * @override
+     */
+    public getButtonText(): string {
+        let totalDataCount = this.getTotalDataCount();
+        let elementLabel = this.getVisualizationElementLabel(totalDataCount);
 
         if (this.options.isReified) {
-            let prefix = '';
-            if (this.displayGraph) {
-                prefix = 'Total Nodes: ';
-            } else {
-                prefix = 'Total Hidden Nodes: ';
-            }
-            return prefix + this.formatingCallback(this.totalNodes);
-        } else {
-            if (!data || !visibleNodeCount) {
-                return 'No Data';
-            } else if (visibleNodeCount === this.totalNodes) {
-                return 'Total Nodes: ' + super.prettifyInteger(this.totalNodes);
-            } else {
-                return '1 - ' + super.prettifyInteger(visibleNodeCount) + ' of ' + super.prettifyInteger(this.totalNodes);
-            }
+            return super.prettifyInteger(totalDataCount) + (this.displayGraph ? '' : ' Hidden') +
+                (elementLabel ? (' ' + elementLabel) : '');
         }
+
+        // TODO Return super.getButtonText() here once clustering works.
+
+        let shownDataArray = this.getShownDataArray();
+
+        // If the query was not yet run, show no text unless waiting on an event.
+        if (!shownDataArray) {
+            return this.options.hideUnfiltered ? 'Please Filter' : '';
+        }
+
+        let shownDataCount = this.getShownDataCount(shownDataArray);
+
+        // If the query was empty, show the relevant text.
+        if (!shownDataCount) {
+            return (this.options.hideUnfiltered && !this.getCloseableFilters().length) ? 'Please Filter' : '0 Nodes';
+        }
+
+        // If the query was not limited, show the total count.
+        if (shownDataCount === totalDataCount) {
+            elementLabel = this.getVisualizationElementLabel(shownDataCount);
+            return super.prettifyInteger(shownDataCount) + (elementLabel ? (' ' + elementLabel) : '');
+        }
+
+        return super.prettifyInteger(shownDataCount) + ' of ' + super.prettifyInteger(totalDataCount) +
+            (elementLabel ? (' ' + elementLabel) : '');
+    }
+
+    /**
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
+     *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        // TODO THOR-971 Return the nodes themselves rather than the IDs.
+        return this.graphData.nodes.getIds();
+    }
+
+    /**
+     * Returns the count of data items that an unlimited query for the visualization would contain.
+     *
+     * @return {number}
+     * @override
+     */
+    public getTotalDataCount(): number {
+        return this.totalNodes;
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Node' + (count === 1 ? '' : 's');
     }
 
     resetData() {
