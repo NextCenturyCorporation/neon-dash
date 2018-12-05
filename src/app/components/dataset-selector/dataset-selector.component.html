@@ -1,5 +1,5 @@
 <mat-nav-list class="dataset-selector-container" mat-layout="column" mat-fill>
-    <mat-list-item  mat-2-line *ngFor="let dashboardKey of getDashboardKeys(dashboards);"
+    <mat-list-item  mat-2-line *ngFor="let dashboardKey of getDashboardKeys();"
         (click)="connectToPreset(findMatchingIndex(dashboards[dashboardKey]), false, dashboardKey)">
         <!-- TODO: 825: add back in: [class.accent]="(activeDataset.name === dataset.name)">-->
         <h3 matLine>{{ dashboardKey }}</h3>

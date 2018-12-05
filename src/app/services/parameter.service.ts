@@ -318,7 +318,7 @@ export class ParameterService {
                 );
 
                 // Update dataset fields, then set as active and update the dashboard
-                this.datasetService.updateDatabases(matchingDataset, connection, (dataset: Datastore) => {
+                this.datasetService.updateDatabases(matchingDataset, connection).then((dataset) => {
                     this.filterService.getFilterState(() => {
                         for (let i = 0; i < dataset.databases.length; i++) {
                             for (let j = 0; j < dataset.databases[i].tables.length; j++) {

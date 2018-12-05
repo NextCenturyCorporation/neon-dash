@@ -157,15 +157,15 @@ export class DatasetService {
 
                     let tableKey = dashboardChoices[choiceKey].options.simpleFilter.tableKey;
 
-                    let databaseName = dashboardChoices[choiceKey].tables[tableKey].split('.')[1];
-                    let tableName = dashboardChoices[choiceKey].tables[tableKey].split('.')[2];
+                    let databaseName = this.getDatabaseNameByKey(dashboardChoices[choiceKey], tableKey);
+                    let tableName = this.getTableNameByKey(dashboardChoices[choiceKey], tableKey);
 
                     dashboardChoices[choiceKey].options.simpleFilter.databaseName = databaseName;
                     dashboardChoices[choiceKey].options.simpleFilter.tableName = tableName;
 
                     if (dashboardChoices[choiceKey].options.simpleFilter.fieldKey) {
                         let fieldKey = dashboardChoices[choiceKey].options.simpleFilter.fieldKey;
-                        let fieldName = dashboardChoices[choiceKey].fields[fieldKey].split('.')[3];
+                        let fieldName = this.getFieldNameByKey(dashboardChoices[choiceKey], fieldKey);
 
                         dashboardChoices[choiceKey].options.simpleFilter.fieldName = fieldName;
                     } else {
@@ -184,6 +184,36 @@ export class DatasetService {
                 this.validateDashboardChoices(dashboardChoices[choiceKey].choices, nestedChoiceKeys);
             }
         });
+    }
+
+    /**
+     * Returns database name from matching table key within the dashboard passed in.
+     * @param {Dashboard} dashboard
+     * @param {String} key
+     * @return {String}
+     */
+    static getDatabaseNameByKey(dashboard: Dashboard, key: string) {
+        return dashboard.tables[key].split('.')[1];
+    }
+
+    /**
+     * Returns table name from matching table key within the dashboard passed in.
+     * @param {Dashboard} dashboard
+     * @param {String} key
+     * @return {String}
+     */
+    static getTableNameByKey(dashboard: Dashboard, key: string) {
+        return dashboard.tables[key].split('.')[2];
+    }
+
+    /**
+     * Returns field name from matching field key within the dashboard passed in.
+     * @param {Dashboard} dashboard
+     * @param {String} key
+     * @return {String}
+     */
+    static getFieldNameByKey(dashboard: Dashboard, key: string) {
+        return dashboard.fields[key].split('.')[3];
     }
 
     constructor(@Inject('config') private config: NeonGTDConfig) {
@@ -366,8 +396,8 @@ export class DatasetService {
             let tableKey = Object.keys(this.currentDashboard.tables)[0];
 
             this.currentDashboard.options.simpleFilter = new SimpleFilter(
-                this.getDatabaseNameByKey(tableKey),
-                this.getTableNameByKey(tableKey),
+                this.getDatabaseNameFromCurrentDashboardByKey(tableKey),
+                this.getTableNameFromCurrentDashboardByKey(tableKey),
                 ''
             );
         }
@@ -951,60 +981,126 @@ export class DatasetService {
      * @param {Object} connection
      * @param {Function} callback (optional)
      * @param {Number} index (optional)
+     */
+    // TODO: 825: When dashboard config options layout is changed, do we want to change how/when this
+    // validation occurs? (THOR-826)
+    public updateDatabases(dataset: Datastore, connection: neon.query.Connection): any {
+        let promiseArray = [];
+
+        for (let database of dataset.databases) {
+            promiseArray.push(this.getTableNamesAndFieldNames(connection, database));
+        }
+
+        return new Promise<any>((resolve) => {
+            Promise.all(promiseArray).then((response) => {
+                dataset.hasUpdatedFields = true;
+                resolve(dataset);
+            });
+        });
+    }
+
+    /**
+     * Wraps connection.getTableNamesAndFieldNames() in a promise object. If a database not found error occurs,
+     * associated dashboards are deleted. Any other error will return a rejected promise.
+     * @param {neon.query.Connection} connection
+     * @param {DatabaseMetaData} database
+     * @return {Promise}
      * @private
      */
-    // TODO: 825: If a database specified in the config doesn't exist, the app now fails even if you select a
-    // different database/dashboard in the dataset-selector, or if the config has connectOnLoad set to true.
-    // It looks like this happens because now the dataset includes all possible databases and tables specified
-    // in the config per datastore (instead of just a single database) and checks every database in a
-    // datastore regardless of which dashboard is selected. Fix so that this only happens when a particular
-    // dashboard/database is selected.
-    public updateDatabases(dataset: Datastore, connection: neon.query.Connection, callback?: Function, index?: number): void {
-        let databaseIndex = index ? index : 0;
-        let database = dataset.databases[databaseIndex];
-        let pendingTypesRequests = 0;
-        // TODO: 825: here is where the error referenced above occurs since its looking for tables in
-        // a database that doesn't exist.
-        connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
-            Object.keys(tableNamesAndFieldNames).forEach((tableName: string) => {
-                let table = _.find(database.tables, (item: TableMetaData) => {
-                    return item.name === tableName;
+    private getTableNamesAndFieldNames(connection: neon.query.Connection, database: DatabaseMetaData): Promise<any> {
+        let promiseFields = [];
+        return new Promise<any>((resolve, reject) => {
+            connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
+                Object.keys(tableNamesAndFieldNames).forEach((tableName: string) => {
+                    let table = _.find(database.tables, (item: TableMetaData) => {
+                        return item.name === tableName;
+                    });
+
+                    if (table) {
+                        let hasField = {};
+                        table.fields.forEach((field: FieldMetaData) => {
+                            hasField[field.columnName] = true;
+                        });
+                        tableNamesAndFieldNames[tableName].forEach((fieldName: string) => {
+                            if (!hasField[fieldName]) {
+                                let newField: FieldMetaData = new FieldMetaData(fieldName, fieldName, false);
+                                table.fields.push(newField);
+                            }
+                        });
+
+                        promiseFields.push(this.getFieldTypes(connection, database, table));
+                    }
                 });
 
-                if (table) {
-                    let hasField = {};
-                    table.fields.forEach((field: FieldMetaData) => {
-                        hasField[field.columnName] = true;
+                Promise.all(promiseFields).then((response) => {
+                    resolve(response);
+                });
+            }).fail((error) => {
+                if (error.status === 404) {
+                    console.warn('Database ' + database.name + ' does not exist; deleting associated dashboards.');
+                    let keys = this.dashboards && this.dashboards.choices ? Object.keys(this.dashboards.choices) : [];
+
+                    Promise.all(this.deleteInvalidDashboards(this.dashboards.choices, keys, database.name)).then((response) => {
+                        resolve(response);
                     });
-                    tableNamesAndFieldNames[tableName].forEach((fieldName: string) => {
-                        if (!hasField[fieldName]) {
-                            let newField: FieldMetaData = new FieldMetaData(fieldName, fieldName, false);
-                            table.fields.push(newField);
-                        }
-                    });
-                    pendingTypesRequests++;
-                    connection.getFieldTypes(database.name, table.name, (types) => {
-                        for (let f of table.fields) {
-                            if (types && types[f.columnName]) {
-                                f.type = types[f.columnName];
-                            }
-                        }
-                        pendingTypesRequests--;
-                        if (dataset.hasUpdatedFields && pendingTypesRequests === 0) {
-                            callback(dataset);
-                        }
-                    });
+                } else {
+                    reject(error);
                 }
             });
-            if (++databaseIndex < dataset.databases.length) {
-                this.updateDatabases(dataset, connection, callback, databaseIndex);
-            } else if (callback) {
-                dataset.hasUpdatedFields = true;
-                if (pendingTypesRequests === 0) {
-                    callback(dataset);
+        });
+    }
+
+    /**
+     * Wraps connection.getFieldTypes() in a promise object.
+     * @param {neon.query.Connection} connection
+     * @param {DatabaseMetaData} database
+     * @param {TableMetaData} table
+     * @return {Promise<FieldMetaData[]>}
+     * @private
+     */
+    private getFieldTypes(connection: neon.query.Connection, database: DatabaseMetaData,
+        table: TableMetaData): Promise<FieldMetaData[]> {
+        return new Promise<FieldMetaData[]>((resolve) => connection.getFieldTypes(database.name, table.name, (types) => {
+            for (let f of table.fields) {
+                if (types && types[f.columnName]) {
+                    f.type = types[f.columnName];
                 }
             }
-        });
+            resolve(table.fields);
+        }));
+    }
+
+    /**
+     * If a database is not found in updateDatabases(), delete dashboards associated with that database so that
+     * the user cannot select them.
+     * @param {Map<String, Dashboard>} dashboardChoices
+     * @param {String[]} keys
+     * @param {String} invalidDatabaseName
+     * @return {Promise}
+     * @private
+     */
+    private deleteInvalidDashboards(dashboardChoices: Map<string, Dashboard>, keys: string[],
+        invalidDatabaseName: string): any {
+        if (!keys.length) {
+            return Promise.resolve();
+        }
+
+        return Promise.resolve(keys.forEach((choiceKey) => {
+            if (dashboardChoices[choiceKey].tables) {
+                let tableKeys = Object.keys(dashboardChoices[choiceKey].tables);
+
+                tableKeys.forEach((tableKey) => {
+                    let databaseName = DatasetService.getDatabaseNameByKey(dashboardChoices[choiceKey], tableKey);
+
+                    if (databaseName === invalidDatabaseName) {
+                        delete dashboardChoices[choiceKey];
+                    }
+                });
+            } else {
+                let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
+                this.deleteInvalidDashboards(dashboardChoices[choiceKey].choices, nestedChoiceKeys, invalidDatabaseName);
+            }
+        }));
     }
 
     /**
@@ -1065,7 +1161,7 @@ export class DatasetService {
      * @param {String} key
      * @return {String}
      */
-    public getTableByKey(key: string): string {
+    public getTableFromCurrentDashboardByKey(key: string): string {
         let currentConfig = this.getCurrentDashboard();
         if (currentConfig) {
             return currentConfig.tables[key];
@@ -1077,7 +1173,7 @@ export class DatasetService {
      * @param {String} key
      * @return {String}
      */
-    public getFieldByKey(key: string): string {
+    public getFieldFromCurrentDashboardByKey(key: string): string {
         let currentConfig = this.getCurrentDashboard();
         if (currentConfig) {
             return currentConfig.fields[key];
@@ -1092,10 +1188,10 @@ export class DatasetService {
      * @param {String} key
      * @return {String}
      */
-    public getDatabaseNameByKey(key: string): string {
+    public getDatabaseNameFromCurrentDashboardByKey(key: string): string {
         let currentConfig = this.getCurrentDashboard();
         if (currentConfig) {
-            return currentConfig.tables[key].split('.')[1];
+            return DatasetService.getDatabaseNameByKey(currentConfig, key);
         }
     }
 
@@ -1104,10 +1200,10 @@ export class DatasetService {
      * @param {String} key
      * @return {String}
      */
-    public getTableNameByKey(key: string): string {
+    public getTableNameFromCurrentDashboardByKey(key: string): string {
         let currentConfig = this.getCurrentDashboard();
         if (currentConfig) {
-            return currentConfig.tables[key].split('.')[2];
+            return DatasetService.getTableNameByKey(currentConfig, key);
         }
     }
 
@@ -1116,11 +1212,10 @@ export class DatasetService {
      * @param {String} key
      * @return {String}
      */
-    public getFieldNameByKey(key: string): string {
+    public getFieldNameFromCurrentDashboardByKey(key: string): string {
         let currentConfig = this.getCurrentDashboard();
         if (currentConfig) {
-            return currentConfig.fields[key].split('.')[3];
+            return DatasetService.getFieldNameByKey(currentConfig, key);
         }
     }
-
 }
