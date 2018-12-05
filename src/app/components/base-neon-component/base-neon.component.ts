@@ -252,7 +252,7 @@ export abstract class BaseNeonOptions {
             let key = this.injector.get('tableKey', null);
 
             if (key) {
-                let configDatabase = this.datasetService.getDatabaseNameByKey(key);
+                let configDatabase = this.datasetService.getDatabaseNameFromCurrentDashboardByKey(key);
                 if (configDatabase) {
                     for (let database of this.databases) {
                         if (configDatabase === database.name) {
@@ -298,7 +298,7 @@ export abstract class BaseNeonOptions {
             let key = this.injector.get('tableKey', null);
 
             if (key) {
-                let configTable = this.datasetService.getTableNameByKey(key);
+                let configTable = this.datasetService.getTableNameFromCurrentDashboardByKey(key);
                 if (configTable) {
                     for (let table of this.tables) {
                         if (configTable === table.name) {
