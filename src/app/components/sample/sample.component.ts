@@ -71,10 +71,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         value: string
     }[] = [];
 
-    // The data pagination properties.
-    public lastPage: boolean = true;
-    public page: number = 1;
-
     // The data shown in the visualization (limited).
     public activeData: any[] = [];
 
@@ -97,7 +93,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         injector: Injector,
         ref: ChangeDetectorRef
     ) {
-
         super(
             connectionService,
             datasetService,
@@ -105,6 +100,8 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             injector,
             ref
         );
+
+        this.isPaginationWidget = true;
     }
 
     // TODO Change arguments as needed.
@@ -271,24 +268,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Creates and returns the text for the settings button and menu.
-     *
-     * @return {string}
-     * @override
-     */
-    getButtonText(): string {
-        if (!this.responseData.length || !this.activeData.length) {
-            return 'No Data';
-        }
-        if (this.activeData.length === this.responseData.length) {
-            return 'Total ' + super.prettifyInteger(this.activeData.length);
-        }
-        let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.responseData.length));
-        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.responseData.length);
-    }
-
-    /**
      * Returns the filter list for the visualization.
      *
      * @return {array}
@@ -346,6 +325,26 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     getFilterText(filter: any): string {
         // TODO Update as needed.  Do you want to use an equals sign?
         return filter.prettyField + ' = ' + filter.value;
+    }
+
+    /**
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
+     *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        return this.activeData;
+    }
+
+    /**
+     * Returns the count of data items that an unlimited query for the visualization would contain.
+     *
+     * @return {number}
+     * @override
+     */
+    public getTotalDataCount(): number {
+        return this.docCount;
     }
 
     /**

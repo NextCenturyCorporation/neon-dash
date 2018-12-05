@@ -168,7 +168,7 @@ describe('Component: ThumbnailGrid', () => {
     it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', () => {
         let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
         expect(dataInfoTextInToolbar).not.toBeNull();
-        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('No Data');
+        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('0 Files');
 
         let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
         expect(dataInfoIconInSidenav).not.toBeNull();
@@ -176,7 +176,7 @@ describe('Component: ThumbnailGrid', () => {
 
         let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
         expect(dataInfoTextInSidenav).not.toBeNull();
-        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('No Data');
+        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Files');
 
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
@@ -205,7 +205,7 @@ describe('Component: ThumbnailGrid', () => {
 
             let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
             expect(dataInfoTextInSidenav).not.toBeNull();
-            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('No Data');
+            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Files');
 
             let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
             expect(errorMessageInToolbar).not.toBeNull();
@@ -941,23 +941,23 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toEqual('No Data');
+        expect(component.getButtonText()).toEqual('0 Files');
 
         component.options.limit = 1;
         component.gridArray = [{}];
-        expect(component.getButtonText()).toEqual('Total 1');
+        expect(component.getButtonText()).toEqual('1 File');
 
         component.gridArray = [{}, {}, {}, {}];
-        expect(component.getButtonText()).toEqual('1 of 4');
+        expect(component.getButtonText()).toEqual('1 of 4 Files');
 
         component.options.limit = 2;
-        expect(component.getButtonText()).toEqual('1 - 2 of 4');
+        expect(component.getButtonText()).toEqual('1 - 2 of 4 Files');
 
         component.page = 2;
-        expect(component.getButtonText()).toEqual('3 - 4 of 4');
+        expect(component.getButtonText()).toEqual('3 - 4 of 4 Files');
 
         component.options.limit = 4;
-        expect(component.getButtonText()).toEqual('Total 4');
+        expect(component.getButtonText()).toEqual('4 Files');
     });
 
     it('getCloseableFilters does return expected array of filters', () => {

@@ -75,7 +75,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         injector: Injector,
         ref: ChangeDetectorRef
     ) {
-
         super(
             connectionService,
             datasetService,
@@ -83,6 +82,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             injector,
             ref
         );
+
+        this.isPaginationWidget = true;
     }
 
     subNgOnInit() {
@@ -384,25 +385,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Creates and returns the text for the settings button.
-     *
-     * @return {string}
-     * @override
-     */
-    getButtonText() {
-        if (!this.filters.length && !this.termsCount) {
-            if (this.options.hideUnfiltered) {
-                return 'Please Filter';
-            }
-            return 'No Data';
-        }
-        if (this.termsCount <= this.activeData.length) {
-            return 'Total ' + super.prettifyInteger(this.termsCount);
-        }
-        return super.prettifyInteger(this.activeData.length) + ' of ' + super.prettifyInteger(this.termsCount);
-    }
-
-    /**
      * Returns the list of filter objects.
      *
      * @return {array}
@@ -410,6 +392,38 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getCloseableFilters() {
         return this.filters;
+    }
+
+    /**
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
+     *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        return this.activeData;
+    }
+
+    /**
+     * Returns the count of data items that an unlimited query for the visualization would contain.
+     *
+     * @return {number}
+     * @override
+     */
+    public getTotalDataCount(): number {
+        return this.termsCount;
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Term' + (count === 1 ? '' : 's');
     }
 
     // filter is a filter from the filter service that the filter to remove corresponds to.

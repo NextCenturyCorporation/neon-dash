@@ -75,7 +75,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     public activeHeaders: { prop: string, name: string, active: boolean, style: Object, cellClass: any }[] = [];
     public headerWidths: Map<string, number> = new Map<string, number>();
-    public page: number = 1;
     public selected: any[] = [];
     public showColumnSelector: string = 'hide';
     public styleRules: string[] = [];
@@ -107,7 +106,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         injector: Injector,
         ref: ChangeDetectorRef
     ) {
-
         super(
             connectionService,
             datasetService,
@@ -115,6 +113,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             injector,
             ref
         );
+
+        this.isPaginationWidget = true;
 
         this.enableRedrawAfterResize(true);
 
@@ -753,24 +753,35 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Creates and returns the text for the settings button.
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
      *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        return this.activeData;
+    }
+
+    /**
+     * Returns the count of data items that an unlimited query for the visualization would contain.
+     *
+     * @return {number}
+     * @override
+     */
+    public getTotalDataCount(): number {
+        return this.docCount;
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
      * @return {string}
      * @override
      */
-    getButtonText() {
-        if (!this.docCount) {
-            if (this.options.hideUnfiltered) {
-                return 'Please Filter';
-            }
-            return 'No Data';
-        }
-        if (this.docCount <= this.options.limit) {
-            return 'Total ' + super.prettifyInteger(this.docCount);
-        }
-        let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.docCount));
-        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.docCount);
+    public getVisualizationElementLabel(count: number): string {
+        return 'Row' + (count === 1 ? '' : 's');
     }
 
     /**

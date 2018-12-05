@@ -443,14 +443,14 @@ describe('Component: NewsFeed', () => {
 
     //for get button text method
     it('getButton does return the expected string', () => {
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Results');
         component.gridArray = [{
             border: '',
             link: '1',
             name: '1',
             type: ''
         }];
-        expect(component.getButtonText()).toBe('Total Items 1');
+        expect(component.getButtonText()).toBe('1 Result');
         for (let i = 2; i <= 11; i++) {
             component.gridArray.push({
                 border: '',
@@ -459,7 +459,7 @@ describe('Component: NewsFeed', () => {
                 type: ''
             });
         }
-        expect(component.getButtonText()).toBe('1 - 10 of 11');
+        expect(component.getButtonText()).toBe('1 - 10 of 11 Results');
     });
 
     //for go to next page method
