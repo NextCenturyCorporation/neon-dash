@@ -76,6 +76,7 @@ import {
     ThumbnailDetailsContractedComponent,
     ThumbnailDetailsExpandedComponent
 } from './components/thumbnail-grid/thumbnail-details.component';
+import { DashboardDropdownComponent } from './components/dashboard-dropdown/dashboard-dropdown.component';
 
 describe('App', () => {
     let fixture: ComponentFixture<AppComponent>;
@@ -93,6 +94,7 @@ describe('App', () => {
                 AnnotationViewerComponent,
                 BarChartComponent,
                 ChartComponent,
+                DashboardDropdownComponent,
                 DatasetSelectorComponent,
                 DataTableComponent,
                 DocumentViewerComponent,

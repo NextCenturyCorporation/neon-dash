@@ -106,6 +106,5 @@ export class DatasetServiceMock extends DatasetService {
             fields: new Map<string, string>(),
             options: new DashboardOptions()
         });
-        this.setCurrentDashboardName('test_discovery');
     }
 }

@@ -116,7 +116,7 @@ export class DatasetService {
             dashboards.category = this.DASHBOARD_CATEGORY_DEFAULT;
         }
 
-        this.validateDashboardChoices(dashboards.choices, dashboardKeys);
+        this.validateDashboardChoices(dashboards.choices, dashboardKeys , 'choices.');
     }
 
     /**
@@ -126,13 +126,19 @@ export class DatasetService {
      *
      * @param {Map<string, Dashboard>} dashboardChoices
      * @param {string[]} keys for dashboardChoices map
+     * @param {string} pathFromTop path to append to current dashboard object
+     * @param {string} title title to append to current dashboard object
      */
-    static validateDashboardChoices(dashboardChoices: Map<string, Dashboard>, keys: string[]): void {
+    static validateDashboardChoices(dashboardChoices: Map<string, Dashboard>, keys: string[], pathFromTop?: string, title?: string): void {
         if (!keys.length) {
             return;
         }
 
         keys.forEach((choiceKey) => {
+            let fullTitle = title ? title + ' ' + dashboardChoices[choiceKey].name : dashboardChoices[choiceKey].name;
+            dashboardChoices[choiceKey].pathFromTop = pathFromTop + choiceKey;
+            dashboardChoices[choiceKey].fullTitle = fullTitle;
+
             let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
 
             if (!nestedChoiceKeys.length) {
@@ -181,7 +187,8 @@ export class DatasetService {
                     dashboardChoices[choiceKey].category = this.DASHBOARD_CATEGORY_DEFAULT;
                 }
 
-                this.validateDashboardChoices(dashboardChoices[choiceKey].choices, nestedChoiceKeys);
+                this.validateDashboardChoices(dashboardChoices[choiceKey].choices, nestedChoiceKeys,
+                    pathFromTop + choiceKey + '.choices.', dashboardChoices[choiceKey].fullTitle);
             }
         });
     }
@@ -322,21 +329,14 @@ export class DatasetService {
         this.dataset.databases = dataset.databases || [];
     }
 
-    // TODO: 825: combine setCurrentDashboardName and setCurrentDashboard.
     /**
-     * Sets the current dashboard config name.
-     * @param {string} name
-     */
-    public setCurrentDashboardName(name: string) {
-        this.currentDashboardName = name;
-    }
-
-    /**
-     * Returns the current dashboard config name.
+     * Returns the current dashboard config title.
      * @return {string}
      */
-    public getCurrentDashboardName(): string {
-        return this.currentDashboardName;
+    public getCurrentDashboardTitle(): string {
+        if (this.currentDashboard) {
+            return this.currentDashboard.fullTitle;
+        }
     }
 
     /**

@@ -1,15 +1,12 @@
-<mat-nav-list class="dataset-selector-container" mat-layout="column" mat-fill>
-    <mat-list-item  mat-2-line *ngFor="let dashboardKey of getDashboardKeys();"
-        (click)="connectToPreset(findMatchingIndex(dashboards[dashboardKey]), false, dashboardKey)">
-        <!-- TODO: 825: add back in: [class.accent]="(activeDataset.name === dataset.name)">-->
-        <h3 matLine>{{ dashboardKey }}</h3>
-        <!-- TODO: 825: This will likely change-->
-        <p matLine>1 Database</p>
-        <!--<p matLine>
-            {{ dataset.databases.length }} {{ dataset.databases.length === 1 ? 'Database' : 'Databases' }}
-        </p>-->
-    </mat-list-item>
-</mat-nav-list>
-
-
-
+<mat-sidenav-container #visualization class="visualization-sidenav">
+    <div class="dataset-selector-container">
+        <div class="neon-form-field">
+            <app-dashboard-dropdown #dashboardDropdown [dashboards]="dashboards"
+                (selectionChange)="setDashboardChoice($event)">
+            </app-dashboard-dropdown>
+        </div>
+        <div class="neon-form-field button-row">
+            <button mat-raised-button color="primary" [disabled]="!dashboardChoice" (click)="callConnectToPreset()"> Apply </button>
+        </div>
+    </div>
+</mat-sidenav-container>

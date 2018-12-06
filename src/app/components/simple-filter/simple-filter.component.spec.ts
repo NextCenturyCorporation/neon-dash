@@ -67,7 +67,6 @@ class MockDatasetService extends DatasetService {
         };
         dashboard.options.simpleFilter = new SimpleFilter(databaseName, tableName, fieldName, 'Search', '', 'tableKey', 'fieldKey');
         this.setCurrentDashboard(dashboard);
-        this.setCurrentDashboardName('test_discovery');
     }
 }
 

@@ -12,10 +12,6 @@
                 <div class="add-visualization-container" *ngIf="checkPanel('addVis')">
                     <app-add-visualization></app-add-visualization>
                 </div>
-                <div class="dataset-selector-container" *ngIf="checkPanel('dashboardLayouts')">
-                    <app-dataset-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); sideNavRight.toggle()">
-                    </app-dataset-selector>
-                </div>
                 <div class="saved-state-container" *ngIf="checkPanel('saveState')">
                     <app-save-state [sidenav]="sideNavRight" [widgetGridItems]="widgetGridItems" [widgets]="widgets"></app-save-state>
                 </div>
@@ -27,8 +23,7 @@
     </mat-sidenav>
 
     <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary" layout-align="space-between center" flex>
-        <!-- TODO: 825: will this change? -->
-        <span>{{ datasetService.getCurrentDashboardName() || "Choose Data..." }}</span>
+        <span>{{ datasetService.getCurrentDashboardTitle() || "Choose Data..." }}</span>
         <span class="fill-remaining"></span>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
             matTooltip="Add a New Visualization" (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()" *ngIf="showVisShortcut">
@@ -42,6 +37,10 @@
         <div class="simple-search-container">
             <app-simple-filter #simpleFilter></app-simple-filter>
         </div>
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Show Dashboard Selector" tooltip-position="below"
+            matTooltip="Show Dashboard Selector" (click)="toggleDashboardSelectorDialog(!showDashboardSelector)">
+            <mat-icon class="neon-icon-large" svgIcon="dashboard_selector"></mat-icon>
+        </button>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filter Builder" tooltip-position="below"
             matTooltip="Show Filters" (click)="openFilterBuilderDialog()" *ngIf="showFilterTrayButton">
             <mat-icon class="neon-icon-large" *ngIf="changeFilterBuilderIcon()" svgIcon="{{filterBuilderIcon}}"></mat-icon>
@@ -54,8 +53,6 @@
         <mat-menu #appMenu="matMenu" yPosition="below" [overlapTrigger]="false">
             <button mat-menu-item (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()">
                 <mat-icon>add_circle</mat-icon>Visualizations</button>
-            <button mat-menu-item (click)="setPanel('dashboardLayouts', 'Dashboard Layouts'); sideNavRight.toggle()">
-                <mat-icon>dashboard</mat-icon>Dashboard Layouts</button>
             <button mat-menu-item (click)="setPanel('saveState', 'Save States'); sideNavRight.toggle()">
                 <mat-icon>save</mat-icon>Saved States</button>
             <button mat-menu-item (click)="setPanel('settings', 'Settings'); sideNavRight.toggle()">
@@ -75,8 +72,16 @@
     <div class="header-toggle-container">
         <div class="filter-builder-container" id="filter.builder" *ngIf="createFilterBuilder">
             <app-filter-builder></app-filter-builder>
-            <div class="filter-builder-footer">
+            <div class="header-toggle-footer">
             </div>
+        </div>
+    </div>
+
+    <div class="header-toggle-container">
+        <div class="dashboard-selector-container" id="dashboard.selector">
+            <app-dataset-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); toggleDashboardSelectorDialog(false)">
+            </app-dataset-selector>
+            <div class="header-toggle-footer"></div>
         </div>
     </div>
 

@@ -113,6 +113,8 @@ export class Dashboard {
     public tables?: Map<string, string> = new Map<string, string>();
     public fields?: Map<string, string> = new Map<string, string>();
     public options?: DashboardOptions = new DashboardOptions();
+    public fullTitle?: string; // added to dashboard in validateDashboards()
+    public pathFromTop?: string; // added to dashboard in validateDashboards()
 }
 
 /**

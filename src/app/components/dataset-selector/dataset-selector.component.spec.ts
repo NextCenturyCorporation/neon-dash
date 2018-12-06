@@ -25,6 +25,7 @@ import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { DashboardDropdownComponent } from '../dashboard-dropdown/dashboard-dropdown.component';
 
 describe('Component: DatasetSelector', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -33,6 +34,7 @@ describe('Component: DatasetSelector', () => {
 
     initializeTestBed({
         declarations: [
+            DashboardDropdownComponent,
             DatasetSelectorComponent
         ],
         providers: [
