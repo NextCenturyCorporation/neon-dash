@@ -61,7 +61,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
-    public isLoadingWikiPage: boolean = false;
     public wikiName: string[] = [];
     public wikiText: SafeHtml[] = [];
 
@@ -270,7 +269,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.errorMessage = '';
-                this.isLoadingWikiPage = true;
+                this.isLoading++;
                 let links = neonUtilities.deepFind(response.data[0], options.linkField.columnName);
                 this.retrieveWikiPage(Array.isArray(links) ? links : [links]);
             } else {
@@ -278,7 +277,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
                 this.refreshVisualization();
             }
         } catch (e) {
-            this.isLoadingWikiPage = false;
+            this.isLoading--;
             this.errorMessage = 'Error';
             console.error('Error in ' + options.title, e);
             this.refreshVisualization();
@@ -321,7 +320,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     private retrieveWikiPage(links) {
         if (!links.length) {
-            this.isLoadingWikiPage = false;
+            this.isLoading--;
             this.refreshVisualization();
             return;
         }
