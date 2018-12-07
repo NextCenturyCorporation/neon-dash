@@ -96,13 +96,11 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
     protected filterHistory = new Array();
 
-    public docCount: Map<string, number> = new Map<string, number>();
-
     public colorKeys: string[] = [];
 
+    public docCount: Map<string, number> = new Map<string, number>();
     public filterVisible: Map<string, boolean> = new Map<string, boolean>();
-
-    public mapPoints: any[] = [];
+    public mapPoints: Map<string, any[]> = new Map<string, any[]>();
 
     public mapTypes = MapTypePairs;
 
@@ -197,7 +195,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         this.mapObject.initialize(this.mapElement, this.options, this);
 
         // Draw everything
-        this.handleChangeData();
+        this.executeAllQueryChain();
     }
 
     /**
@@ -218,7 +216,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     postAddLayer(options: any) {
         this.docCount.set(options._id, 0);
         this.filterVisible.set(options._id, true);
-        this.mapPoints[options.layers.length - 1] = [];
+        this.mapPoints.set(options._id, []);
     }
 
     /**
@@ -261,9 +259,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             if (neonFilters && neonFilters.length) {
                 this.filterHistory.push(neonFilters[0]);
                 localFilters.id = neonFilters[0].id;
-                this.replaceNeonFilter(i, true, localFilters, neonFilter);
+                this.replaceNeonFilter(this.options.layers[i], true, localFilters, neonFilter);
             } else {
-                this.addNeonFilter(i, true, localFilters, neonFilter);
+                this.addNeonFilter(this.options.layers[i], true, localFilters, neonFilter);
             }
         }
     }
@@ -288,9 +286,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             if (neonFilters && neonFilters.length) {
                 this.filterHistory.push(neonFilters[0]);
                 localFilters.id = neonFilters[0].id;
-                this.replaceNeonFilter(i, true, localFilters, neonFilter);
+                this.replaceNeonFilter(this.options.layers[i], true, localFilters, neonFilter);
             } else {
-                this.addNeonFilter(i, true, localFilters, neonFilter);
+                this.addNeonFilter(this.options.layers[i], true, localFilters, neonFilter);
             }
         }
     }
@@ -466,7 +464,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         } else {
             for (let layer of this.options.layers) {
                 if (layer.colorField.columnName === fieldName) {
-                    this.mapObject.unhidePoints(layer, value);
+                    this.mapObject.unhidePoints(layer._id, value);
                 }
             }
 
@@ -583,11 +581,12 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             options.hoverPopupField,
             response.data
         );
+        this.mapPoints.set(options._id, mapPoints);
 
-        this.mapObject.unhideAllPoints(options);
+        this.mapObject.unhideAllPoints(options._id);
 
-        this.mapObject.clearLayer(options);
-        this.mapObject.addPoints(mapPoints, options, true);
+        this.mapObject.clearLayer(options._id);
+        this.mapObject.addPoints(mapPoints, options._id, true);
 
         this.filterMapForLegend();
         this.updateLegend();
@@ -616,7 +615,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             let value = disabledField[1];
             for (let layer of this.options.layers) {
                 if (layer.colorField.columnName === fieldName) {
-                    this.mapObject.hidePoints(layer, value);
+                    this.mapObject.hidePoints(layer._id, value);
                 }
             }
         }
@@ -738,13 +737,13 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         let allLayersHaveFilters = true;
         let oneOrMoreLayersHaveFilters = false;
         let oneOrMoreFiltersHaveChanged = false;
-        for (let i = 0; i < this.options.layers.length; i++) {
-            let layerHasFilter: boolean = this.doesLayerStillHaveFilter(i);
+        this.options.layers.forEach((layer) => {
+            let layerHasFilter: boolean = this.doesLayerStillHaveFilter(layer);
             oneOrMoreLayersHaveFilters = oneOrMoreLayersHaveFilters || layerHasFilter;
             allLayersHaveFilters = allLayersHaveFilters && layerHasFilter;
-            let filterHasChanged = this.hasLayerFilterChanged(i);
+            let filterHasChanged = this.hasLayerFilterChanged(layer);
             oneOrMoreFiltersHaveChanged = oneOrMoreFiltersHaveChanged || filterHasChanged;
-        }
+        });
         if (!oneOrMoreLayersHaveFilters) {
             // aka no layers have filters
             this.filters = [];
@@ -793,9 +792,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     handleRemoveFilter(filter: any): void {
         let neonFilters = this.filterService.getFiltersByOwner(this.id);
         this.filterHistory.push(neonFilters[0]);
-        for (let i = 0; i < this.options.layers.length; i++) {
-            this.removeLocalFilterFromLocalAndNeon(i, filter, true, false);
-        }
+        this.options.layers.forEach((layer) => {
+            this.removeLocalFilterFromLocalAndNeon(layer, filter, true, false);
+        });
         this.removeFilter();
     }
 
@@ -852,22 +851,22 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     /**
      * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
      *
-     * @arg {number} layerIndex
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {any[]}
      * @override
      */
-    public getShownDataArray(layerIndex: number): any[] {
-        return this.mapPoints[layerIndex];
+    public getShownDataArray(options: any): any[] {
+        return this.mapPoints.get(options._id);
     }
 
     /**
      * Returns the count of data items that an unlimited query for the visualization would contain.
      *
-     * @arg {number} layerIndex
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {number}
      */
-    public getTotalDataCount(layerIndex: number): number {
-        return this.docCount[layerIndex];
+    public getTotalDataCount(options: any): number {
+        return this.docCount.get(options._id);
     }
 
     /**
@@ -922,14 +921,14 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             let previousId = '';
 
             //loop through all of the layers
-            this.options.layers.forEach((layer, layerIndex) => {
+            this.options.layers.forEach((layer) => {
 
                 //check if database and table exists in the current layer
                 if ((eventMessage.database === layer.database.name) && (eventMessage.table === layer.table.name)) {
 
                     if (eventMessageId !== previousId) {
                         previousId = eventMessageId;
-                        this.executeQueryChain(layerIndex);
+                        this.executeQueryChain(layer);
                     }
                 }
 

@@ -160,6 +160,10 @@
         </mat-card>
     </mat-sidenav>
 
+    <div [class.loading-overlay]="isLoading > 0" [class.not-loading-overlay]="isLoading == 0">
+        <mat-spinner></mat-spinner>
+    </div>
+
     <div class="body-container" (click)="stopEventPropagation($event)">
         <div class="map-container" (click)="stopEventPropagation($event)" mouseWheel (mouseWheelUp)="mouseWheelUp($event)" (mouseWheelDown)="mouseWheelDown($event)">
             <div #mapOverlay class="overlay"> {{ getOverlayText() }} </div>

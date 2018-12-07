@@ -87,7 +87,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         }[]
     }[] = [];
 
-    public isLoadingMedia: boolean = false;
     public noDataId: string = undefined;
     public previousId: string = '';
     public queryItems: any[] = [];
@@ -570,7 +569,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.errorMessage = '';
-                this.isLoadingMedia = true;
+                this.isLoading++;
 
                 response.data.forEach((responseItem) => {
                     let masks = [];
@@ -607,7 +606,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                     });
                 });
 
-                this.isLoadingMedia = false;
+                this.isLoading--;
             } else {
                 this.errorMessage = 'No Data';
             }
@@ -615,7 +614,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             this.refreshVisualization();
         } catch (e) {
             console.error(e);
-            this.isLoadingMedia = false;
+            this.isLoading--;
             this.errorMessage = 'Error';
             this.refreshVisualization();
         }

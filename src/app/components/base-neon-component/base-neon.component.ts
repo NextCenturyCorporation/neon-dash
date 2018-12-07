@@ -66,6 +66,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     public initializing: boolean = false;
     public isLoading: number = 0;
     public isExportable: boolean = true;
+    public isMultiLayerWidget: boolean = false;
     public isPaginationWidget: boolean = false;
 
     public errorMessage: string = '';
@@ -162,7 +163,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.updateDatabasesInOptions(layerOptions, layerBindings);
         this.initializeFieldsInOptions(layerOptions, this.createLayerFieldOptions());
         (options || this.options).layers.push(layerOptions);
-        this.postAddLayer(options || this.options);
+        this.postAddLayer(layerOptions);
     }
 
     /**
@@ -429,7 +430,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     executeQueryChain(options?: any) {
         if (!this.initializing && this.isValidQuery(options || this.options)) {
-            this.isLoading++;
             this.changeDetection.detectChanges();
             let query = this.createQuery(options || this.options);
 
@@ -495,6 +495,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {neon.query.Query} query
      */
     executeQuery(options: any, query: neon.query.Query) {
+        this.isLoading++;
+
         if (this.cannotExecuteQuery(options)) {
             this.baseOnQuerySuccess(options, {
                 data: []
@@ -527,8 +529,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.outstandingDataQueriesByLayer.get(options._id).get(databaseTableKey).done(this.baseOnQuerySuccess.bind(this, options));
 
         this.outstandingDataQueriesByLayer.get(options._id).get(databaseTableKey).fail((response) => {
+            this.isLoading--;
             if (response.statusText !== 'abort') {
-                this.isLoading--;
                 this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
                     error: response,
                     message: options.title + ' visualization data query failed on ' + databaseTableKey
@@ -631,10 +633,14 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     /**
      * Updates properties and/or sub-components whenever the limit is changed and reruns the visualization query.
      *
-     * @arg {any} [options=this.options] A WidgetOptionCollection object.
+     * @arg {any} [options] A WidgetOptionCollection object.
      */
     subHandleChangeLimit(options?: any) {
-        this.executeQueryChain(options || this.options);
+        if (!options) {
+            this.executeAllQueryChain();
+        } else {
+            this.executeQueryChain(options);
+        }
     }
 
     /**
@@ -647,7 +653,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             let newLimit = parseFloat('' + this.newLimit);
             if (newLimit > 0) {
                 (options || this.options).limit = newLimit;
-                this.subHandleChangeLimit();
+                this.subHandleChangeLimit(options);
             } else {
                 this.newLimit = (options || this.options).limit;
             }
@@ -739,12 +745,14 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Creates and returns the text for the settings button.
+     * Creates and returns the text for the settings button using the given options.
      *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {number} queryLimit
      * @return {string}
      */
-    public getButtonText(): string {
-        let shownDataArray = this.getShownDataArray();
+    public createButtonText(options: any, queryLimit: number): string {
+        let shownDataArray = this.getShownDataArray(options);
 
         // If the query was not yet run, show no text unless waiting on an event.
         if (!shownDataArray) {
@@ -761,18 +769,18 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                 ('0' + (elementLabel ? (' ' + elementLabel) : ''));
         }
 
-        let totalDataCount = this.getTotalDataCount();
+        let totalDataCount = this.getTotalDataCount(options);
 
         // If the query was not limited, show the total count.
-        if (totalDataCount <= this.options.limit) {
+        if (totalDataCount <= queryLimit) {
             return this.prettifyInteger(shownDataCount) + (elementLabel ? (' ' + elementLabel) : '');
         }
 
         // If the query was limited and the widget uses pagination, show the pagination text.
         if (this.isPaginationWidget) {
             elementLabel = this.getVisualizationElementLabel(totalDataCount);
-            let begin = this.prettifyInteger((this.page - 1) * this.options.limit + 1);
-            let end = this.prettifyInteger(Math.min(this.page * this.options.limit, totalDataCount));
+            let begin = this.prettifyInteger((this.page - 1) * queryLimit + 1);
+            let end = this.prettifyInteger(Math.min(this.page * queryLimit, totalDataCount));
             return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + this.prettifyInteger(totalDataCount) +
                 (elementLabel ? (' ' + elementLabel) : '');
         }
@@ -781,13 +789,38 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         return this.prettifyInteger(shownDataCount) + (elementLabel ? (' ' + elementLabel) : '') + ' (Limited)';
     }
 
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     */
+    public getButtonText(): string {
+        if (!this.isMultiLayerWidget) {
+            return this.createButtonText(this.options, this.options.limit);
+        }
+
+        if (this.options.layers.length === 1) {
+            return this.createButtonText(this.options.layers[0], this.options.limit);
+        }
+
+        if (this.options.layers.length) {
+            return this.options.layers.map((layer) => {
+                let text = this.createButtonText(layer, this.options.limit);
+                return text ? (layer.title + ' (' + text + ')') : '';
+            }).filter((text) => !!text).join(', ');
+        }
+
+        return '';
+    }
+
     // TODO THOR-971 Replace this function with a new local variable.
     /**
      * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {any[]}
      */
-    public getShownDataArray(): any[] {
+    public getShownDataArray(options: any): any[] {
         return undefined;
     }
 
@@ -805,10 +838,11 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     /**
      * Returns the count of data items that an unlimited query for the visualization would contain.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {number}
      */
-    public getTotalDataCount(): number {
-        let shownDataArray = this.getShownDataArray();
+    public getTotalDataCount(options: any): number {
+        let shownDataArray = this.getShownDataArray(options);
         return (shownDataArray || []).length;
     }
 
@@ -1144,7 +1178,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             bindings[option.bindingKey] = option.getValueToSaveInBindings();
             return bindings;
         }, {
-            layers: (options || this.options).layers.map((layer) => this.getBindings(layer))
+            layers: this.isMultiLayerWidget ? (options || this.options).layers.map((layer) => this.getBindings(layer)) : undefined
         });
     }
 
