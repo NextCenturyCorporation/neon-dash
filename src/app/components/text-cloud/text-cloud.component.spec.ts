@@ -163,13 +163,13 @@ describe('Component: TextCloud', () => {
     });
 
     it('has an isValidQuery method that properly checks whether or not a valid query can be made', () => {
-        expect(component.isValidQuery()).toBeFalsy();
+        expect(component.isValidQuery(component.options)).toBeFalsy();
         component.options.database = new DatabaseMetaData('testDatabase1');
-        expect(component.isValidQuery()).toBeFalsy();
+        expect(component.isValidQuery(component.options)).toBeFalsy();
         component.options.table = new TableMetaData('testTable1');
-        expect(component.isValidQuery()).toBeFalsy();
+        expect(component.isValidQuery(component.options)).toBeFalsy();
         component.options.dataField = new FieldMetaData('testTextField');
-        expect(component.isValidQuery()).toBeTruthy();
+        expect(component.isValidQuery(component.options)).toBeTruthy();
     });
 
     it('returns expected query from createQuery', () => {
@@ -185,7 +185,7 @@ describe('Component: TextCloud', () => {
             .sortBy('value', neonVariables.DESCENDING)
             .limit(40);
 
-        expect(component.createQuery()).toEqual(query);
+        expect(component.createQuery(component.options)).toEqual(query);
 
         component.options.aggregation = neonVariables.AVG;
         component.options.sizeField = new FieldMetaData('testSizeField');
@@ -199,7 +199,7 @@ describe('Component: TextCloud', () => {
             .sortBy('testSizeField', neonVariables.DESCENDING)
             .limit(25);
 
-        expect(component.createQuery()).toEqual(query);
+        expect(component.createQuery(component.options)).toEqual(query);
     });
 
     it('returns null from getFiltersToIgnore', () => {
@@ -225,7 +225,7 @@ describe('Component: TextCloud', () => {
         let calledExecuteQuery = false;
         component.executeQuery = () => {
             calledExecuteQuery = true;
-            component.onQuerySuccess(termsCountResponse);
+            component.onQuerySuccess(component.options, termsCountResponse);
         };
 
         component.getTermsCount();
@@ -248,7 +248,7 @@ describe('Component: TextCloud', () => {
 
         component.executeQueryChain = () => undefined; // postInit calls executeQueryChain, but we don't care.
         component.postInit(); // To initialize the text cloud so it can update.
-        component.onQuerySuccess(response);
+        component.onQuerySuccess(component.options, response);
 
         expect(component.activeData).toEqual([]);
         expect(component.termsCount).toBe(0);
@@ -256,7 +256,7 @@ describe('Component: TextCloud', () => {
 
         component.options.sizeField = new FieldMetaData('testSizeField', 'Test Size Field');
 
-        component.onQuerySuccess(response);
+        component.onQuerySuccess(component.options, response);
 
         expect(component.activeData).toEqual([]);
         expect(component.termsCount).toBe(0);
@@ -301,7 +301,7 @@ describe('Component: TextCloud', () => {
         let calledExecuteQuery = false;
         component.executeQuery = () => {
             calledExecuteQuery = true;
-            component.onQuerySuccess(termsCountResponse);
+            component.onQuerySuccess(component.options, termsCountResponse);
         };
         // Mock createTextCloud to skip over its editing of activeData. That will be tested elsewhere.
         let calledCreateTextCloud = false;
@@ -310,7 +310,7 @@ describe('Component: TextCloud', () => {
         };
 
         component.subNgOnInit();
-        component.onQuerySuccess(response);
+        component.onQuerySuccess(component.options, response);
 
         expect(component.activeData).toEqual([{
             value: 8,
@@ -341,7 +341,7 @@ describe('Component: TextCloud', () => {
         calledCreateTextCloud = false;
         calledExecuteQuery = false;
 
-        component.onQuerySuccess(response);
+        component.onQuerySuccess(component.options, response);
 
         expect(component.activeData).toEqual([{
             value: 100,
@@ -594,7 +594,7 @@ describe('Component: Textcloud with config', () => {
             .sortBy('value', neonVariables.DESCENDING)
             .limit(25);
 
-        expect(component.createQuery()).toEqual(query);
+        expect(component.createQuery(component.options)).toEqual(query);
     });
 });
 
@@ -660,7 +660,7 @@ describe('Component: Textcloud with config including filter', () => {
             .sortBy('value', neonVariables.DESCENDING)
             .limit(25);
 
-        expect(component.createQuery()).toEqual(query);
+        expect(component.createQuery(component.options)).toEqual(query);
     });
 
     it('createClause does return expected object', () => {
