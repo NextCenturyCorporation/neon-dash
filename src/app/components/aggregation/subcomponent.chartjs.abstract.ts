@@ -40,11 +40,11 @@ export abstract class AbstractChartJsDataset {
     public abstract finalizeData();
 
     public getColorBackground(): string {
-        return this.color.getComputedCssOpacity33(this.elementRef);
+        return this.color.getComputedCssTransparencyHigh(this.elementRef);
     }
 
     public getColorDeselected(): string {
-        return this.color.getComputedCssOpacity66(this.elementRef);
+        return this.color.getComputedCssTransparencyMedium(this.elementRef);
     }
 
     public getColorSelected(): string {

@@ -21,11 +21,14 @@ import { ElementRef } from '@angular/core';
  */
 export class Color {
     /**
-     * Creates and returns a Color object using the given Hex string like #123 or #112233.
+     * Creates and returns a Color object using the given Hex string like "#123" or "#112233" or "112233".
      * @arg {string} inputHex
      * @return {Color}
      */
     static fromHexString(inputHex: string): Color {
+        if (!inputHex) {
+            return null;
+        }
         // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
         let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
         let hex = inputHex.replace(shorthandRegex, function(m, r, g, b) {
@@ -34,7 +37,8 @@ export class Color {
         let hexArray = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         if (hexArray) {
             let rgb = parseInt(hexArray[1], 16) + ',' + parseInt(hexArray[2], 16) + ',' + parseInt(hexArray[3], 16);
-            return new Color(inputHex, 'rgba(' + rgb + ',0.66)', 'rgba(' + rgb + ',0.33)');
+            return new Color((inputHex.indexOf('#') === 0 ? inputHex : ('#' + inputHex)), 'rgba(' + rgb + ',0.66)',
+                'rgba(' + rgb + ',0.33)');
         }
         return null;
     }
@@ -67,7 +71,7 @@ export class Color {
     }
 
     /**
-     * Creates and returns a Color object using the given RGB string like rgb(12, 34, 56).
+     * Creates and returns a Color object using the given RGB string like "12,34,56".
      * @arg {string} inputRGB
      * @return {Color}
      */
@@ -76,16 +80,16 @@ export class Color {
             return null;
         }
         let arrayRGB = inputRGB.replace(/[^\d,]/g, '').split(',');
-        return Color.fromRgb(Number(arrayRGB[0]), Number(arrayRGB[1]), Number(arrayRGB[2]));
+        return arrayRGB.length === 3 ? Color.fromRgb(Number(arrayRGB[0]), Number(arrayRGB[1]), Number(arrayRGB[2])) : null;
     }
 
     /**
      * @constructor
      * @arg {string} css
-     * @arg {string} opacity66
-     * @arg {string} opacity33
+     * @arg {string} transparencyMedium
+     * @arg {string} transparencyHigh
      */
-    constructor(private css: string, private opacity66: string, private opacity33: string) {
+    constructor(private css: string, private transparencyMedium: string, private transparencyHigh: string) {
         // Do nothing.
     }
 
@@ -99,21 +103,21 @@ export class Color {
     }
 
     /**
-     * Returns the CSS for the color with opacity 66 using the given ElementRef object to find custom CSS properties like "--variable".
+     * Returns the CSS for the medium transparency color using the given ElementRef object to find custom CSS properties like "--variable".
      * @arg {ElementRef} elementRef
      * @return {string}
      */
-    public getComputedCssOpacity66(elementRef: ElementRef): string {
-        return this.computeColor(this.opacity66, elementRef);
+    public getComputedCssTransparencyMedium(elementRef: ElementRef): string {
+        return this.computeColor(this.transparencyMedium, elementRef);
     }
 
     /**
-     * Returns the CSS for the color with opacity 33 using the given ElementRef object to find custom CSS properties like "--variable".
+     * Returns the CSS for the high transparency color using the given ElementRef object to find custom CSS properties like "--variable".
      * @arg {ElementRef} elementRef
      * @return {string}
      */
-    public getComputedCssOpacity33(elementRef: ElementRef): string {
-        return this.computeColor(this.opacity33, elementRef);
+    public getComputedCssTransparencyHigh(elementRef: ElementRef): string {
+        return this.computeColor(this.transparencyHigh, elementRef);
     }
 
     /**
@@ -125,19 +129,19 @@ export class Color {
     }
 
     /**
-     * Returns the CSS for the color with opacity 66.
+     * Returns the CSS for the color with medium transparency.
      * @return {string}
      */
-    public getCssOpacity66(): string {
-        return this.opacity66;
+    public getCssTransparencyMedium(): string {
+        return this.transparencyMedium;
     }
 
     /**
-     * Returns the CSS for the color with opacity 33.
+     * Returns the CSS for the color with high transparency.
      * @return {string}
      */
-    public getCssOpacity33(): string {
-        return this.opacity33;
+    public getCssTransparencyHigh(): string {
+        return this.transparencyHigh;
     }
 
     /**
@@ -164,30 +168,30 @@ export class Color {
  */
 export class ColorSet {
     private colors: Color[] = [
-        new Color('var(--color-set-1)', 'var(--color-set-1-opacity-66)', 'var(--color-set-1-opacity-33)'),
-        new Color('var(--color-set-2)', 'var(--color-set-2-opacity-66)', 'var(--color-set-2-opacity-33)'),
-        new Color('var(--color-set-3)', 'var(--color-set-3-opacity-66)', 'var(--color-set-3-opacity-33)'),
-        new Color('var(--color-set-4)', 'var(--color-set-4-opacity-66)', 'var(--color-set-4-opacity-33)'),
-        new Color('var(--color-set-5)', 'var(--color-set-5-opacity-66)', 'var(--color-set-5-opacity-33)'),
-        new Color('var(--color-set-6)', 'var(--color-set-6-opacity-66)', 'var(--color-set-6-opacity-33)'),
-        new Color('var(--color-set-7)', 'var(--color-set-7-opacity-66)', 'var(--color-set-7-opacity-33)'),
-        new Color('var(--color-set-8)', 'var(--color-set-8-opacity-66)', 'var(--color-set-8-opacity-33)'),
-        new Color('var(--color-set-light-1)', 'var(--color-set-light-1-opacity-66)', 'var(--color-set-light-1-opacity-33)'),
-        new Color('var(--color-set-light-2)', 'var(--color-set-light-2-opacity-66)', 'var(--color-set-light-2-opacity-33)'),
-        new Color('var(--color-set-light-3)', 'var(--color-set-light-3-opacity-66)', 'var(--color-set-light-3-opacity-33)'),
-        new Color('var(--color-set-light-4)', 'var(--color-set-light-4-opacity-66)', 'var(--color-set-light-4-opacity-33)'),
-        new Color('var(--color-set-light-5)', 'var(--color-set-light-5-opacity-66)', 'var(--color-set-light-5-opacity-33)'),
-        new Color('var(--color-set-light-6)', 'var(--color-set-light-6-opacity-66)', 'var(--color-set-light-6-opacity-33)'),
-        new Color('var(--color-set-light-7)', 'var(--color-set-light-7-opacity-66)', 'var(--color-set-light-7-opacity-33)'),
-        new Color('var(--color-set-light-8)', 'var(--color-set-light-8-opacity-66)', 'var(--color-set-light-8-opacity-33)'),
-        new Color('var(--color-set-dark-1)', 'var(--color-set-dark-1-opacity-66)', 'var(--color-set-dark-1-opacity-33)'),
-        new Color('var(--color-set-dark-2)', 'var(--color-set-dark-2-opacity-66)', 'var(--color-set-dark-2-opacity-33)'),
-        new Color('var(--color-set-dark-3)', 'var(--color-set-dark-3-opacity-66)', 'var(--color-set-dark-3-opacity-33)'),
-        new Color('var(--color-set-dark-4)', 'var(--color-set-dark-4-opacity-66)', 'var(--color-set-dark-4-opacity-33)'),
-        new Color('var(--color-set-dark-5)', 'var(--color-set-dark-5-opacity-66)', 'var(--color-set-dark-5-opacity-33)'),
-        new Color('var(--color-set-dark-6)', 'var(--color-set-dark-6-opacity-66)', 'var(--color-set-dark-6-opacity-33)'),
-        new Color('var(--color-set-dark-7)', 'var(--color-set-dark-7-opacity-66)', 'var(--color-set-dark-7-opacity-33)'),
-        new Color('var(--color-set-dark-8)', 'var(--color-set-dark-8-opacity-66)', 'var(--color-set-dark-8-opacity-33)')
+        new Color('var(--color-set-1)', 'var(--color-set-1-transparency-medium)', 'var(--color-set-1-transparency-high)'),
+        new Color('var(--color-set-2)', 'var(--color-set-2-transparency-medium)', 'var(--color-set-2-transparency-high)'),
+        new Color('var(--color-set-3)', 'var(--color-set-3-transparency-medium)', 'var(--color-set-3-transparency-high)'),
+        new Color('var(--color-set-4)', 'var(--color-set-4-transparency-medium)', 'var(--color-set-4-transparency-high)'),
+        new Color('var(--color-set-5)', 'var(--color-set-5-transparency-medium)', 'var(--color-set-5-transparency-high)'),
+        new Color('var(--color-set-6)', 'var(--color-set-6-transparency-medium)', 'var(--color-set-6-transparency-high)'),
+        new Color('var(--color-set-7)', 'var(--color-set-7-transparency-medium)', 'var(--color-set-7-transparency-high)'),
+        new Color('var(--color-set-8)', 'var(--color-set-8-transparency-medium)', 'var(--color-set-8-transparency-high)'),
+        new Color('var(--color-set-light-1)', 'var(--color-set-light-1-transparency-medium)', 'var(--color-set-light-1-transparency-high)'),
+        new Color('var(--color-set-light-2)', 'var(--color-set-light-2-transparency-medium)', 'var(--color-set-light-2-transparency-high)'),
+        new Color('var(--color-set-light-3)', 'var(--color-set-light-3-transparency-medium)', 'var(--color-set-light-3-transparency-high)'),
+        new Color('var(--color-set-light-4)', 'var(--color-set-light-4-transparency-medium)', 'var(--color-set-light-4-transparency-high)'),
+        new Color('var(--color-set-light-5)', 'var(--color-set-light-5-transparency-medium)', 'var(--color-set-light-5-transparency-high)'),
+        new Color('var(--color-set-light-6)', 'var(--color-set-light-6-transparency-medium)', 'var(--color-set-light-6-transparency-high)'),
+        new Color('var(--color-set-light-7)', 'var(--color-set-light-7-transparency-medium)', 'var(--color-set-light-7-transparency-high)'),
+        new Color('var(--color-set-light-8)', 'var(--color-set-light-8-transparency-medium)', 'var(--color-set-light-8-transparency-high)'),
+        new Color('var(--color-set-dark-1)', 'var(--color-set-dark-1-transparency-medium)', 'var(--color-set-dark-1-transparency-high)'),
+        new Color('var(--color-set-dark-2)', 'var(--color-set-dark-2-transparency-medium)', 'var(--color-set-dark-2-transparency-high)'),
+        new Color('var(--color-set-dark-3)', 'var(--color-set-dark-3-transparency-medium)', 'var(--color-set-dark-3-transparency-high)'),
+        new Color('var(--color-set-dark-4)', 'var(--color-set-dark-4-transparency-medium)', 'var(--color-set-dark-4-transparency-high)'),
+        new Color('var(--color-set-dark-5)', 'var(--color-set-dark-5-transparency-medium)', 'var(--color-set-dark-5-transparency-high)'),
+        new Color('var(--color-set-dark-6)', 'var(--color-set-dark-6-transparency-medium)', 'var(--color-set-dark-6-transparency-high)'),
+        new Color('var(--color-set-dark-7)', 'var(--color-set-dark-7-transparency-medium)', 'var(--color-set-dark-7-transparency-high)'),
+        new Color('var(--color-set-dark-8)', 'var(--color-set-dark-8-transparency-medium)', 'var(--color-set-dark-8-transparency-high)')
     ];
     private currentIndex: number = 0;
 
