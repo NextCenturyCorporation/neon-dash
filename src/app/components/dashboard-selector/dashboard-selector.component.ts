@@ -52,7 +52,7 @@ export interface CustomDatabase {
 }
 
 /**
- * The dataset selector allows a user to select one of the pre-configured datasets stored in the application
+ * The dashboard selector allows a user to select one of the pre-configured datasets stored in the application
  * config file/service.
  * TODO: Refactoring the updateLayout methods that clone layout components to use the active layout
  * service instead.  This may be accomplished by adding a vis factory method to the service that takes
