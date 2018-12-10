@@ -79,8 +79,8 @@
 
     <div class="header-toggle-container">
         <div class="dashboard-selector-container" id="dashboard.selector">
-            <app-dataset-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); toggleDashboardSelectorDialog(false)">
-            </app-dataset-selector>
+            <app-dashboard-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); toggleDashboardSelectorDialog(false)">
+            </app-dashboard-selector>
             <div class="header-toggle-footer"></div>
         </div>
     </div>

@@ -59,16 +59,15 @@ export interface CustomDatabase {
  * the generic JSON in the config file and returns a valid NeonGridItem
  */
 @Component({
-    selector: 'app-dataset-selector',
-    templateUrl: 'dataset-selector.component.html',
-    styleUrls: ['dataset-selector.component.scss']
+    selector: 'app-dashboard-selector',
+    templateUrl: 'dashboard-selector.component.html',
+    styleUrls: ['dashboard-selector.component.scss']
 })
-export class DatasetSelectorComponent implements OnInit, OnDestroy {
+export class DashboardSelectorComponent implements OnInit, OnDestroy {
     public static HIDE_INFO_POPOVER: string = 'sr-only';
 
     public connectOnLoad: boolean = false;
     public datasets: Datastore[] = [];
-    private datasetName: string = '';
     private datastoreType: string = 'mongo';
     private datastoreHost: string = 'localhost';
     private layouts: Map<string, any> = new Map<string, any>();
@@ -220,7 +219,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
                     this.activeDataset = {
                         name: message.dataset.name,
-                        info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
+                        info: DashboardSelectorComponent.HIDE_INFO_POPOVER,
                         data: true
                     };
                     this.activeDatasetChanged.emit(this.activeDataset);
@@ -271,7 +270,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     connectToPreset(index: number, loadDashboardState: boolean, dashboard: Dashboard) {
         this.activeDataset = {
             name: this.datasets[index].name,
-            info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
+            info: DashboardSelectorComponent.HIDE_INFO_POPOVER,
             data: true
         };
         this.datastoreType = this.datasets[index].type;

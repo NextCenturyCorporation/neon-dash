@@ -43,7 +43,7 @@ import { ChartComponent } from './components/chart/chart.component';
 import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { DashboardDropdownComponent } from './components/dashboard-dropdown/dashboard-dropdown.component';
-import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
+import { DashboardSelectorComponent } from './components/dashboard-selector/dashboard-selector.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
 import { DocumentViewerSingleItemComponent } from './components/document-viewer-single-item/document-viewer-single-item.component';
@@ -104,7 +104,7 @@ export function getAppConfig() {
         CustomConnectionComponent,
         CustomConnectionSimpleSetupStepComponent,
         DashboardDropdownComponent,
-        DatasetSelectorComponent,
+        DashboardSelectorComponent,
         DataTableComponent,
         DocumentViewerComponent,
         DocumentViewerSingleItemComponent,

@@ -14,7 +14,7 @@
  *
  */
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
-import { DatasetSelectorComponent } from './dataset-selector.component';
+import { DashboardSelectorComponent } from './dashboard-selector.component';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
@@ -27,15 +27,15 @@ import { AppMaterialModule } from '../../app.material.module';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardDropdownComponent } from '../dashboard-dropdown/dashboard-dropdown.component';
 
-describe('Component: DatasetSelector', () => {
+describe('Component: DashboardSelector', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
-    let fixture: ComponentFixture<DatasetSelectorComponent>;
-    let component: DatasetSelectorComponent;
+    let fixture: ComponentFixture<DashboardSelectorComponent>;
+    let component: DashboardSelectorComponent;
 
     initializeTestBed({
         declarations: [
             DashboardDropdownComponent,
-            DatasetSelectorComponent
+            DashboardSelectorComponent
         ],
         providers: [
             ConnectionService,
@@ -52,7 +52,7 @@ describe('Component: DatasetSelector', () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(DatasetSelectorComponent);
+        fixture = TestBed.createComponent(DashboardSelectorComponent);
         component = fixture.componentInstance;
     });
 
