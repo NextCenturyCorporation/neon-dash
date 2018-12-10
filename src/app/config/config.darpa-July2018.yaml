@@ -180,8 +180,6 @@ dashboards:
                         uyg_ldc_discovery:
                             name: LDC Situation Discovery
                             layout: uyghur-sd
-                            # TODO: 825: temporary reference to datastore
-                            datastore: es1
                             tables:
                                 table_key_1: es1.ldc_uyg_jul_18.ui_out
                             fields:
@@ -197,8 +195,6 @@ dashboards:
                         uyg_elisa_discovery:
                             name: ELISA Situation Discovery
                             layout: uyghur-sd
-                            # TODO: 825: temporary reference to datastore
-                            datastore: es1
                             tables:
                                 table_key_1: es1.uyg_elisa_sd.ui_out
                             fields:
@@ -216,8 +212,6 @@ dashboards:
                         nepal_elisa_discovery:
                             name: ELISA Situation Discovery
                             layout: nepal-elisa-sd
-                            # TODO: 825: temporary reference to datastore
-                            datastore: es1
                             tables:
                                 table_key_1: es1.ll_nepal_07_11_3.annotations
                             fields:
@@ -234,8 +228,6 @@ dashboards:
                         car_elisa_discovery:
                             name: ELISA Situation Discovery
                             layout: car-elisa-sd
-                            # TODO: 825: temporary reference to datastore
-                            datastore: es1
                             tables:
                                 table_key_1: es1.elisa_car_1.annotations
                             fields:
@@ -257,8 +249,6 @@ dashboards:
                         awareness:
                             name: Situation Awareness
                             layout: nepal-elisa-sa
-                            # TODO: 825: temporary reference to datastore
-                            datastore: es1
                             tables:
                                 table_key_1: es1.ll_nepal_06_14.situations
                                 table_key_2: es1.ll_nepal_06_14.annotations
@@ -274,8 +264,6 @@ dashboards:
                         terrain:
                             name: Human Terrain
                             layout: human-terrain
-                            # TODO: 825: temporary reference to datastore
-                            datastore: es1
                             tables:
                                 table_key_1: es1.ll_nepal_06_14_2.annotations1Author
                             fields:

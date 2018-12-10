@@ -139,10 +139,12 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         return Object.keys(this.dashboards);
     }
 
-    // TODO: 825: using this to match dashboards to datastores for now
-    findMatchingIndex(choice: Dashboard) {
+    // TODO: 825: later will need to account for multiple datastores
+    findMatchingDatastore(choice: Dashboard) {
         for (let index = 0; index < this.datasets.length; index ++) {
-            if (this.datasets[index].name === choice.datastore) {
+            let datastoreName = choice.tables ? choice.tables[Object.keys(choice.tables)[0]].split('.')[0] : '';
+
+            if (datastoreName && this.datasets[index].name === datastoreName) {
                 return index;
             }
         }
@@ -194,10 +196,10 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                 // the dropdowns are populated
                 this.dashboardDropdown.selectDashboardChoice(this.dashboards, paths, 0, this.dashboardDropdown);
 
-                // TODO: 825: Won't need to use findMatchingIndex later to match dashboards to datastores.
-                // Likely we would match via table keys. If error reporting is needed (dashboard/datastore
+                // TODO: 825: Will need to account for multiple datastores later.
+                // If error reporting is needed (dashboard/datastore
                 // mismatch), we might be able to use ErrorNotificationService.
-                let index = this.findMatchingIndex(this.connectOnLoadDashboard);
+                let index = this.findMatchingDatastore(this.connectOnLoadDashboard);
                 let dataset = this.datasets[index];
 
                 if ((activeDataset && activeDataset === dataset.name.toLowerCase())
@@ -322,7 +324,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
      */
     callConnectToPreset() {
         if (this.dashboardChoice) {
-            let index = this.findMatchingIndex(this.dashboardChoice);
+            let index = this.findMatchingDatastore(this.dashboardChoice);
             this.connectToPreset(index, false, this.dashboardChoice);
         }
     }

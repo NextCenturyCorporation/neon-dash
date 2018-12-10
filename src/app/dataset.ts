@@ -108,7 +108,6 @@ export class Dashboard {
     public choices?: Map<string, Dashboard> = new Map<string, Dashboard>();
     // Exist in Dashboards that are terminal nodes.
     // TODO: 825: temporary link for dashboards and datastores until UI is updated
-    public datastore?: string = ''; // TODO: 825: temporary until table/field keys are used and multiple connections are supported
     public layout?: string = '';
     public tables?: Map<string, string> = new Map<string, string>();
     public fields?: Map<string, string> = new Map<string, string>();

@@ -44,7 +44,6 @@ describe('Component: DashboardDropdown with input', () => {
         pathFromTop: 'choices.dash1',
         name: 'Test Discovery Config',
         layout: 'DISCOVERY',
-        datastore: 'datastore1',
         tables: dashboardTableKeys1,
         fields: dashboardFieldKeys1,
         options: new DashboardOptions()
@@ -58,7 +57,6 @@ describe('Component: DashboardDropdown with input', () => {
                 pathFromTop: 'choices.dash2.choices.nextChoice',
                 name: 'Last Config',
                 layout: 'layout3',
-                datastore: 'datastore2',
                 tables: dashboardTableKeys2,
                 fields: dashboardFieldKeys2,
                 options: new DashboardOptions()
@@ -201,7 +199,6 @@ describe('Component: DashboardDropdown with no inputs', () => {
         pathFromTop: 'choices.dash1',
         name: 'Test Discovery Config',
         layout: 'DISCOVERY',
-        datastore: 'datastore1',
         tables: dashboardTableKeys1,
         fields: dashboardFieldKeys1,
         options: new DashboardOptions()
@@ -215,7 +212,6 @@ describe('Component: DashboardDropdown with no inputs', () => {
                 pathFromTop: 'choices.dash2.choices.nextChoice',
                 name: 'Last Config',
                 layout: 'layout3',
-                datastore: 'datastore2',
                 tables: dashboardTableKeys2,
                 fields: dashboardFieldKeys2,
                 options: new DashboardOptions()

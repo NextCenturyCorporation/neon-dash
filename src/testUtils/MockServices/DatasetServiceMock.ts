@@ -101,7 +101,6 @@ export class DatasetServiceMock extends DatasetService {
         this.setCurrentDashboard({
             name: 'Test Discovery Config',
             layout: 'DISCOVERY',
-            datastore: 'datastore1',
             tables: dashboardTableKeys,
             fields: new Map<string, string>(),
             options: new DashboardOptions()

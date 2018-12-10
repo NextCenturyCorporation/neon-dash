@@ -60,7 +60,6 @@ class MockDatasetService extends DatasetService {
         let dashboard = {
             name: 'Test Discovery Config',
             layout: 'DISCOVERY',
-            datastore: 'datastore1',
             tables: dashboardTableKeys,
             fields: dashboardFieldKeys,
             options: new DashboardOptions()
