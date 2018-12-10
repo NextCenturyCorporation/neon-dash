@@ -140,7 +140,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
     }
 
     // TODO: 825: later will need to account for multiple datastores
-    findMatchingDatastore(choice: Dashboard) {
+    findMatchingDatastoreIndex(choice: Dashboard) {
         for (let index = 0; index < this.datasets.length; index ++) {
             let datastoreName = choice.tables ? choice.tables[Object.keys(choice.tables)[0]].split('.')[0] : '';
 
@@ -199,7 +199,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                 // TODO: 825: Will need to account for multiple datastores later.
                 // If error reporting is needed (dashboard/datastore
                 // mismatch), we might be able to use ErrorNotificationService.
-                let index = this.findMatchingDatastore(this.connectOnLoadDashboard);
+                let index = this.findMatchingDatastoreIndex(this.connectOnLoadDashboard);
                 let dataset = this.datasets[index];
 
                 if ((activeDataset && activeDataset === dataset.name.toLowerCase())
@@ -324,7 +324,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
      */
     callConnectToPreset() {
         if (this.dashboardChoice) {
-            let index = this.findMatchingDatastore(this.dashboardChoice);
+            let index = this.findMatchingDatastoreIndex(this.dashboardChoice);
             this.connectToPreset(index, false, this.dashboardChoice);
         }
     }
