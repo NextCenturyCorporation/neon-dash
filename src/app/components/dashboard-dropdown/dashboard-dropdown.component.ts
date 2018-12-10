@@ -28,7 +28,6 @@ import * as _ from 'lodash';
 @Component({
     selector: 'app-dashboard-dropdown',
     templateUrl: 'dashboard-dropdown.component.html',
-    styleUrls: ['dashboard-dropdown.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardDropdownComponent {
