@@ -139,10 +139,20 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         return Object.keys(this.dashboards);
     }
 
+    /**
+     * Grab the datastore name from first table key in dashboard.tables
+     * @param {Dashboard} dashboard
+     * @return {String}
+     */
+    getDatastoreNameFromTableKey(dashboard: Dashboard) {
+        let key = Object.keys(dashboard.tables)[0];
+        return dashboard.tables[key].split('.')[0];
+    }
+
     // TODO: 825: later will need to account for multiple datastores
     findMatchingDatastoreIndex(choice: Dashboard) {
         for (let index = 0; index < this.datasets.length; index ++) {
-            let datastoreName = choice.tables ? choice.tables[Object.keys(choice.tables)[0]].split('.')[0] : '';
+            let datastoreName = this.getDatastoreNameFromTableKey(choice);
 
             if (datastoreName && this.datasets[index].name === datastoreName) {
                 return index;
@@ -197,16 +207,21 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                 this.dashboardDropdown.selectDashboardChoice(this.dashboards, paths, 0, this.dashboardDropdown);
 
                 // TODO: 825: Will need to account for multiple datastores later.
-                // If error reporting is needed (dashboard/datastore
-                // mismatch), we might be able to use ErrorNotificationService.
                 let index = this.findMatchingDatastoreIndex(this.connectOnLoadDashboard);
-                let dataset = this.datasets[index];
+                if (index !== undefined) {
+                    let dataset = this.datasets[index];
 
-                if ((activeDataset && activeDataset === dataset.name.toLowerCase())
-                    || (!activeDataset && this.connectOnLoadDashboard.options.connectOnLoad)) {
-                    this.connectToPreset(index, true, this.connectOnLoadDashboard);
-                    this.activeDatasetChanged.emit(); // Close the sidenav opened by connectToPreset.
+                    if ((activeDataset && activeDataset === dataset.name.toLowerCase())
+                        || (!activeDataset && this.connectOnLoadDashboard.options.connectOnLoad)) {
+                        this.connectToPreset(index, true, this.connectOnLoadDashboard);
+                        this.activeDatasetChanged.emit(); // Close the sidenav opened by connectToPreset.
+                    }
+                } else {
+                    console.error('Datastore ' +
+                        this.getDatastoreNameFromTableKey(this.connectOnLoadDashboard) +
+                        ' not found for dashboard ' + this.connectOnLoadDashboard.name + '.');
                 }
+
             }
 
         }
@@ -325,7 +340,14 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
     callConnectToPreset() {
         if (this.dashboardChoice) {
             let index = this.findMatchingDatastoreIndex(this.dashboardChoice);
-            this.connectToPreset(index, false, this.dashboardChoice);
+
+            if (index !== undefined) {
+                this.connectToPreset(index, false, this.dashboardChoice);
+            } else {
+                console.error('Datastore ' +
+                this.getDatastoreNameFromTableKey(this.dashboardChoice) +
+                ' not found for dashboard ' + this.dashboardChoice.name + '.');
+            }
         }
     }
 
