@@ -16,6 +16,9 @@
                     <app-dataset-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); sideNavRight.toggle()">
                     </app-dataset-selector>
                 </div>
+                <div class="gear-container" *ngIf="checkPanel('gear')">
+                    <app-gear></app-gear>
+                </div>
                 <div class="saved-state-container" *ngIf="checkPanel('saveState')">
                     <app-save-state [sidenav]="sideNavRight" [widgetGridItems]="widgetGridItems" [widgets]="widgets"></app-save-state>
                 </div>

@@ -76,8 +76,9 @@ import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
 import { CustomConnectionSimpleSetupStepComponent } from './components/custom-connection/simple-setup.component';
-import { MatAutocompleteModule } from '@angular/material';
+import { MatAutocompleteModule, MatFormFieldModule, MatInputModule } from '@angular/material';
 import { QueryBarComponent } from './components/query-bar/query-bar.component';
+import { GearComponent } from './components/gear/gear.component';
 
 export function getAppConfig() {
     /* tslint:disable:no-string-literal */
@@ -103,6 +104,7 @@ export function getAppConfig() {
         ExportControlComponent,
         FilterBuilderComponent,
         FilterTrayComponent,
+        GearComponent,
         LegendComponent,
         MapComponent,
         MediaViewerComponent,
@@ -137,7 +139,9 @@ export function getAppConfig() {
         MatAutocompleteModule,
         NgxGraphModule,
         NgxChartsModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule
     ],
     providers: [
         ConnectionService,
@@ -162,6 +166,7 @@ export function getAppConfig() {
         CustomConnectionComponent,
         DocumentViewerSingleItemComponent,
         FilterTrayComponent,
+        GearComponent,
         SaveStateComponent,
         SettingsComponent,
         SnackBarComponent

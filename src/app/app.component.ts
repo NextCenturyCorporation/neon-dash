@@ -65,8 +65,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     @ViewChild(NgGrid) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
-
-    @Input() sidenav = MatSidenav;
+    @ViewChild('sideNavRight') sideNavRight: MatSidenav;
+    //@Input() sidenav = MatSidenav;
     // Used to determine which pane is show in the right sidenav
 
     public currentPanel: string = 'dashboardLayouts';
@@ -76,6 +76,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public showFilterTrayButton: boolean = false;
     //Toolbar
     public showVisShortcut: boolean = true;
+    public toggleGear: boolean = true;
 
     public rightPanelTitle: string = 'Dashboard Layouts';
 
@@ -406,6 +407,17 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     ngAfterViewInit() {
         // child is set
         /* NOTE:
+         * The gear component is created when the app component is created because if it is created when
+         * a component sends its option object in the messenger channel, it is too late.
+         * The gear component is created too late to receive the option object in the meseenger channel,
+         * as a result you will have to intially click the gear option in the component twice to see any
+         * object values.
+         * Another workaround might be sending the option object in the messenger channel after a feedback
+         * from the app component after the toggleGear is received.
+         */
+        this.setPanel('gear', 'Component Settings');
+        this.sideNavRight.toggle();
+        /* NOTE:
          * There was an issue with Angular Material beta 12 and angular2-grid,
          * where the grid would initially be multiple times larger than the rest of the page
          * until the window has been resized.
@@ -422,6 +434,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     ngOnInit(): void {
         this.messenger.subscribe('showVisShortcut', (message) => this.updateShowVisShortcut(message));
         this.messenger.subscribe('showFilterBuilderIcon', (message) => this.updateShowFilterBuilderIcon(message));
+        this.messenger.subscribe('toggleGear', (message) => this.updateToggleGear(message));
     }
 
     onDragStop(i, event) {
@@ -532,6 +545,14 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     updateShowFilterBuilderIcon(message) {
         this.showFilterBuilderIcon = message.showFilterBuilderIcon;
+    }
+
+    updateToggleGear(message) {
+        this.toggleGear = message.toggleGear;
+        if (this.toggleGear) {
+            this.setPanel('gear', 'Component Settings');
+            this.sideNavRight.toggle();
+        }
     }
 
     /**
