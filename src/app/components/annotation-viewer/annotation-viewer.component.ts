@@ -817,15 +817,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Updates properties and/or sub-components whenever a config option is changed and reruns the visualization query.
-     *
-     * @override
-     */
-    handleChangeData() {
-        super.handleChangeData();
-    }
-
-    /**
      * Returns whether the visualization data query created using the given options is valid.
      *
      * @arg {any} options A WidgetOptionCollection object.
@@ -962,16 +953,13 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Handles any post-initialization behavior needed with properties or sub-components for the visualization.
+     * Initializes any visualization properties when the widget is created.
      *
      * @override
      */
-    postInit() {
+    initializeProperties() {
         // Backwards compatibility (documentLimit deprecated due to its redundancy with limit).
         this.options.limit = this.injector.get('documentLimit', this.options.limit);
-
-        // Run the query to load the data.
-        this.executeQueryChain();
     }
 
     /**
@@ -1034,8 +1022,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                 }
             }
         }
-
-        this.executeQueryChain();
     }
 
     /**
@@ -1062,24 +1048,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      */
     showFooterContainer(): boolean {
         return (this.activeData.length < this.responseData.length) && (this.activeData.length > 1);
-    }
-
-    /**
-     * Deletes any properties and/or sub-components needed.
-     *
-     * @override
-     */
-    subNgOnDestroy() {
-        //
-    }
-
-    /**
-     * Initializes any properties and/or sub-components needed once databases, tables, fields, and other meta properties are set.
-     *
-     * @override
-     */
-    subNgOnInit() {
-        // Do nothing.
     }
 
     /**

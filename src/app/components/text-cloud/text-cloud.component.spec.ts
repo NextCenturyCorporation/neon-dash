@@ -86,24 +86,6 @@ describe('Component: TextCloud', () => {
         expect(component.textColor).toBe('#ffffff');
     });
 
-    it('has a subNgOnInit method', () => {
-        expect(component.subNgOnInit).toBeDefined();
-    });
-
-    it('has a postInit method, which calls executeQueryChain', () => {
-        expect(component.postInit).toBeDefined();
-        let executeQueryChainHasBeenCalled = false;
-        component.executeQueryChain = () => {
-            executeQueryChainHasBeenCalled = true;
-        };
-        component.postInit();
-        expect(executeQueryChainHasBeenCalled).toBeTruthy();
-    });
-
-    it('has subNgOnDestroy function that does nothing', () => {
-        expect(component.subNgOnDestroy).toBeDefined();
-    });
-
     it('returns the correct value from getExportFields', () => {
         component.options.dataField = new FieldMetaData('testTextField', 'Test Text Field');
         component.options.sizeField = new FieldMetaData('testSizeField');
@@ -246,8 +228,7 @@ describe('Component: TextCloud', () => {
             calledExecuteQuery = true;
         };
 
-        component.executeQueryChain = () => undefined; // postInit calls executeQueryChain, but we don't care.
-        component.postInit(); // To initialize the text cloud so it can update.
+        component.constructVisualization();
         component.onQuerySuccess(component.options, response);
 
         expect(component.activeData).toEqual([]);
@@ -309,7 +290,7 @@ describe('Component: TextCloud', () => {
             calledCreateTextCloud = true;
         };
 
-        component.subNgOnInit();
+        component.initializeProperties();
         component.onQuerySuccess(component.options, response);
 
         expect(component.activeData).toEqual([{
@@ -429,9 +410,8 @@ describe('Component: TextCloud', () => {
             testTextField: 'Value 3',
             value: 30
         }];
-        component.executeQueryChain = () => undefined; // postInit calls executeQueryChain, but we don't care.
         component.activeData = data;
-        component.postInit();
+        component.constructVisualization();
         component.createTextCloud();
         expect(component.activeData[0].fontSize).toBeDefined();
         expect(component.activeData[0].color).toBeDefined();

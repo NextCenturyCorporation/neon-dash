@@ -208,19 +208,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.setInterpolationType('Bundle');
     }
 
-    subNgOnInit() {
+    /**
+     * Initilizes any visualization properties and elements when the widget is created.
+     *
+     * @override
+     */
+    initializeProperties() {
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
         this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
 
         this.displayGraph = !this.options.hideUnfiltered;
-
-        this.updateData();
-        //setInterval(this.updateData.bind(this), 2000);
-        if (!this.fitContainer) {
-            this.applyDimensions();
-        }
-        this.removeAllFilters(this.options, this.filterService.getFilters());
-
     }
 
     /**
@@ -352,15 +349,12 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         }
     }
 
-    postInit() {
-        this.executeQueryChain();
-    }
-
-    subNgOnDestroy() {
-        // Do nothing.
-    }
-
-    ngAfterViewInit() {
+    /**
+     * Creates any visualization elements when the widget is drawn.
+     *
+     * @override
+     */
+    constructVisualization() {
         // note: options is REQUIRED. Fails to initialize physics properly without at least empty object
         let options: vis.Options = {
             layout: {
@@ -640,7 +634,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             .filter((value, index, array) => array.indexOf(value) === index).sort();
 
         this.existingNodeNames = [];
-        this.isLoading++;
+        this.loadingCount++;
         this.resetGraphData();
         this.updateLegend();
     }
@@ -657,7 +651,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             this.displayGraph = true;
             this.graphData.nodes.update(graphProperties.nodes);
             this.graphData.edges.update(graphProperties.edges);
-            this.isLoading--;
+            this.loadingCount--;
         } else {
             this.displayGraph = false;
         }

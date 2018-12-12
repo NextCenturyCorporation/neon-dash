@@ -469,19 +469,17 @@ describe('Component: Map', () => {
         expect(component.options.layers.length).toBe(2);
     });
 
-    it('ngAfterViewInit does call mapObject.initialize and handleChangeData', () => {
+    it('constructVisualization does call mapObject.initialize', () => {
         component.assignTestMap();
-        let spy = spyOn(component, 'executeAllQueryChain');
         let mapSpy = component.spyOnTestMap('initialize');
-        component.ngAfterViewInit();
-        expect(spy.calls.count()).toBe(1);
+        component.constructVisualization();
         expect(mapSpy.calls.count()).toBe(1);
     });
 
-    it('subNgOnDestroy does call mapObject.destroy', () => {
+    it('destroyVisualization does call mapObject.destroy', () => {
         component.assignTestMap();
         let mapSpy = component.spyOnTestMap('destroy');
-        component.subNgOnDestroy();
+        component.destroyVisualization();
         expect(mapSpy.calls.count()).toBe(1);
     });
 

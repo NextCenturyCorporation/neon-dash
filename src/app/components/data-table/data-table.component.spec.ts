@@ -183,7 +183,7 @@ describe('Component: DataTable', () => {
         expect(component.getColumnWidth(new FieldMetaData('anotherColumn', 'Another Column'))).toEqual(150);
     });
 
-    it('subNgOnInit does call expected methods if options.fieldsConfig exists', () => {
+    it('initializeProperties does call expected methods if options.fieldsConfig exists', () => {
         component.options.fieldsConfig = [
             { name: 'testField' }
         ];
@@ -191,32 +191,22 @@ describe('Component: DataTable', () => {
         let initHeadersFromExceptionsSpy = spyOn(component, 'initializeHeadersFromExceptionsToStatus');
         let recalcActiveHeadersSpy = spyOn(component, 'recalculateActiveHeaders');
 
-        component.subNgOnInit();
+        component.initializeProperties();
         expect(initHeadersFromFieldsConfigSpy).toHaveBeenCalled();
         expect(initHeadersFromExceptionsSpy).toHaveBeenCalledTimes(0);
         expect(recalcActiveHeadersSpy).toHaveBeenCalled();
     });
 
-    it('subNgOnInit does call expected methods if options.fieldsConfig does not exist', () => {
+    it('initializeProperties does call expected methods if options.fieldsConfig does not exist', () => {
         let initHeadersFromFieldsConfigSpy = spyOn(component, 'initializeHeadersFromFieldsConfig');
         let initHeadersFromExceptionsSpy = spyOn(component, 'initializeHeadersFromExceptionsToStatus');
         let recalcActiveHeadersSpy = spyOn(component, 'recalculateActiveHeaders');
 
-        component.subNgOnInit();
+        component.initializeProperties();
         expect(initHeadersFromFieldsConfigSpy).toHaveBeenCalledTimes(0);
         expect(initHeadersFromExceptionsSpy).toHaveBeenCalled();
         expect(recalcActiveHeadersSpy).toHaveBeenCalled();
     });
-
-    it('postInit does call executeQueryChain', () => {
-        let spy = spyOn(component, 'executeQueryChain');
-        component.postInit();
-        expect(spy).toHaveBeenCalled();
-    });
-
-    it('subNgOnDestroy function does exist', (() => {
-        expect(component.subNgOnDestroy).toBeDefined();
-    }));
 
     it('recalculateActiveHeaders does update activeHeaders and call detectChanges', () => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
@@ -898,15 +888,6 @@ describe('Component: DataTable', () => {
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
         }));
-    });
-
-    it('handleFiltersChangedEvent does set page and call expected function', () => {
-        let spy = spyOn(component, 'executeQueryChain');
-        component.page = 5;
-        component.handleFiltersChangedEvent();
-
-        expect(component.page).toEqual(1);
-        expect(spy).toHaveBeenCalled();
     });
 
     it('isDragging does return expected boolean', () => {

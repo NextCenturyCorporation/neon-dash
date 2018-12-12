@@ -207,7 +207,17 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         );
     }
 
-    public ngAfterViewInit() {
+    /**
+     * Creates any visualization elements when the widget is drawn.
+     *
+     * @override
+     */
+    constructVisualization() {
+        this.subcomponentMain = this.initializeSubcomponent(this.subcomponentMainElementRef);
+        if (this.options.dualView) {
+            this.subcomponentZoom = this.initializeSubcomponent(this.subcomponentZoomElementRef, true);
+        }
+
         if (!this.options.axisLabelX) {
             this.options.axisLabelX =
                 (this.subcomponentMain && this.subcomponentMain.isHorizontal()) ?
@@ -478,6 +488,20 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Removes any visualization elements when the widget is deleted.
+     *
+     * @override
+     */
+    destroyVisualization() {
+        if (this.subcomponentMain) {
+            this.subcomponentMain.destroy();
+        }
+        if (this.subcomponentZoom) {
+            this.subcomponentZoom.destroy();
+        }
+    }
+
+    /**
      * Returns the superclass filter object.
      *
      * @return {any[]}
@@ -645,20 +669,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Updates properties and/or sub-components whenever a config option is changed and reruns the visualization query.
-     *
-     * @override
-     */
-    handleChangeData() {
-        this.legendActiveGroups = [];
-        this.legendGroups = [];
-        this.colorKeys = [];
-        this.xList = [];
-        this.yList = [];
-        super.handleChangeData();
-    }
-
-    /**
      * Updates the sub-component and reruns the visualization query.
      */
     handleChangeSubcomponentType() {
@@ -690,6 +700,21 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 value: event.value
             };
             this.toggleFilter(this.groupFilters, filter);
+        }
+    }
+
+    /**
+     * Initilizes any visualization properties when the widget is created.
+     *
+     * @override
+     */
+    initializeProperties() {
+        this.newType = this.options.type;
+
+        // Check for the boolean value true (not just any truthy value) and fix it.
+        this.options.dualView = ('' + this.options.dualView) === 'true' ? 'on' : this.options.dualView;
+        if (!this.optionsTypeIsDualViewCompatible(this.options)) {
+            this.options.dualView = '';
         }
     }
 
@@ -753,6 +778,19 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let validFields = options.xField.columnName && (this.optionsTypeIsXY(options) ? options.yField.columnName : true) &&
             (options.aggregation !== neonVariables.COUNT ? options.aggregationField.columnName : true);
         return !!(options.database.name && options.table.name && validFields);
+    }
+
+    /**
+     * Updates elements and properties whenever the widget config is changed.
+     *
+     * @override
+     */
+    onChangeData() {
+        this.legendActiveGroups = [];
+        this.legendGroups = [];
+        this.colorKeys = [];
+        this.xList = [];
+        this.yList = [];
     }
 
     /**
@@ -1063,23 +1101,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Handles any post-initialization behavior needed with properties or sub-components for the visualization.
-     *
-     * @override
-     */
-    postInit() {
-        this.newType = this.options.type;
-
-        // Check for the boolean value true (not just any truthy value) and fix it.
-        this.options.dualView = ('' + this.options.dualView) === 'true' ? 'on' : this.options.dualView;
-        if (!this.optionsTypeIsDualViewCompatible(this.options)) {
-            this.options.dualView = '';
-        }
-
-        this.executeQueryChain();
-    }
-
-    /**
      * Redraws the subcomponents.
      */
     redrawSubcomponents() {
@@ -1139,7 +1160,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             this.subcomponentZoom.draw(this.activeData, meta);
         }
 
-        this.subOnResizeStop();
+        this.updateOnResize();
 
         this.colorKeys = [this.widgetService.getColorKey(this.options.database.name, this.options.table.name,
             this.options.groupField.columnName || '')];
@@ -1377,82 +1398,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Updates properties and/or sub-components whenever the limit is changed and reruns the visualization query.
-     *
-     * @override
-     */
-    subHandleChangeLimit() {
-        this.legendActiveGroups = [];
-        this.legendGroups = [];
-        this.colorKeys = [];
-        this.xList = [];
-        this.yList = [];
-        super.subHandleChangeLimit();
-    }
-
-    /**
-     * Deletes any properties and/or sub-components needed.
-     *
-     * @override
-     */
-    subNgOnDestroy() {
-        if (this.subcomponentMain) {
-            this.subcomponentMain.destroy();
-        }
-        if (this.subcomponentZoom) {
-            this.subcomponentZoom.destroy();
-        }
-    }
-
-    /**
-     * Initializes any properties and/or sub-components needed once databases, tables, fields, and other options properties are set.
-     *
-     * @override
-     */
-    subNgOnInit() {
-        this.subcomponentMain = this.initializeSubcomponent(this.subcomponentMainElementRef);
-        if (this.options.dualView) {
-            this.subcomponentZoom = this.initializeSubcomponent(this.subcomponentZoomElementRef, true);
-        }
-    }
-
-    /**
-     * Resizes the sub-components.
-     *
-     * @override
-     */
-    subOnResizeStop() {
-        if (this.subcomponentMain) {
-            this.minimumDimensionsMain = this.subcomponentMain.getMinimumDimensions();
-            this.subcomponentMain.redraw();
-        }
-
-        if (this.subcomponentZoom) {
-            this.minimumDimensionsZoom = this.subcomponentZoom.getMinimumDimensions();
-            this.subcomponentZoom.redraw();
-        }
-
-        // Update the selected area and offset AFTER redrawing the subcomponents.
-        this.selectedAreaOffset = {
-            x: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetLeft || '0'),
-            y: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetTop || '0')
-        };
-
-        // Change the height of the selected area if the dual view was changed (and the height of the main subcomponent was changed).
-        if (this.selectedArea) {
-            // Subtract 30 pixels for the height of the X axis.
-            let subcomponentHeight = this.subcomponentMainElementRef.nativeElement.clientHeight - (this.options.hideGridTicks ? 10 : 30);
-            if (this.options.dualView) {
-                this.selectedArea.height = Math.min(this.selectedArea.height, subcomponentHeight);
-            } else {
-                this.selectedArea.height = Math.max(this.selectedArea.height, subcomponentHeight);
-            }
-        }
-
-        // TODO Update the selectedArea if the visualization was resized.
-    }
-
-    /**
      * Toggles the given filter in the given filter list and recreates or removes the neon filter.
      *
      * @arg {Filter} filter
@@ -1486,5 +1431,41 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.activeData = this.responseData.slice(offset, (offset + this.options.limit));
         this.lastPage = (this.responseData.length <= (offset + this.options.limit));
         this.refreshVisualization();
+    }
+
+    /**
+     * Updates the visualization as needed whenever it is resized.
+     *
+     * @override
+     */
+    updateOnResize() {
+        if (this.subcomponentMain) {
+            this.minimumDimensionsMain = this.subcomponentMain.getMinimumDimensions();
+            this.subcomponentMain.redraw();
+        }
+
+        if (this.subcomponentZoom) {
+            this.minimumDimensionsZoom = this.subcomponentZoom.getMinimumDimensions();
+            this.subcomponentZoom.redraw();
+        }
+
+        // Update the selected area and offset AFTER redrawing the subcomponents.
+        this.selectedAreaOffset = {
+            x: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetLeft || '0'),
+            y: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetTop || '0')
+        };
+
+        // Change the height of the selected area if the dual view was changed (and the height of the main subcomponent was changed).
+        if (this.selectedArea) {
+            // Subtract 30 pixels for the height of the X axis.
+            let subcomponentHeight = this.subcomponentMainElementRef.nativeElement.clientHeight - (this.options.hideGridTicks ? 10 : 30);
+            if (this.options.dualView) {
+                this.selectedArea.height = Math.min(this.selectedArea.height, subcomponentHeight);
+            } else {
+                this.selectedArea.height = Math.max(this.selectedArea.height, subcomponentHeight);
+            }
+        }
+
+        // TODO Update the selectedArea if the visualization was resized.
     }
 }

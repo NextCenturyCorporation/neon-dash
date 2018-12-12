@@ -115,8 +115,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         );
 
         this.isPaginationWidget = true;
-
-        this.enableRedrawAfterResize(true);
+        this.redrawOnResize = true;
 
         let style = document.createElement('style');
         style.appendChild(document.createTextNode(''));
@@ -326,7 +325,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return options.heatmapField.columnName;
     }
 
-    subNgOnInit() {
+    /**
+     * Initilizes any visualization properties when the widget is created.
+     *
+     * @override
+     */
+    initializeProperties() {
         if (this.options.fieldsConfig.length) {
             this.initializeHeadersFromFieldsConfig();
         } else {
@@ -334,14 +338,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
 
         this.recalculateActiveHeaders();
-    }
-
-    postInit() {
-        this.executeQueryChain();
-    }
-
-    subNgOnDestroy() {
-        // Do nothing
     }
 
     headerIsInExceptions(header) {
@@ -599,6 +595,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 }
                 return row;
             });
+            this.page = 1;
             this.activeData = data;
             // The query response is being stringified and stored in activeData
             // Store the response in responseData to preserve the data in its raw form for querying and filtering purposes
@@ -640,11 +637,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 });
             }
         }
-    }
-
-    handleFiltersChangedEvent() {
-        this.page = 1;
-        this.executeQueryChain();
     }
 
     isDragging(): boolean {

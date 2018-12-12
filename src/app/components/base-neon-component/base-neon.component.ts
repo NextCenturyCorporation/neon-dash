@@ -14,6 +14,7 @@
  *
  */
 import {
+    AfterViewInit,
     OnInit,
     OnDestroy,
     Injector,
@@ -45,33 +46,32 @@ import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 
 /**
- * Base component for all non-layered Neon visualizations.
- * This manages some of the lifecycle and query logic.
+ * @class BaseNeonComponent
+ *
+ * Superclass widget for all Neon visualizations with common behavior for the Neon Dashboard and Neon Services.
  */
-export abstract class BaseNeonComponent implements OnInit, OnDestroy {
+export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDestroy {
     private SETTINGS_BUTTON_WIDTH: number = 30;
     private TEXT_MARGIN_WIDTH: number = 10;
     private TOOLBAR_PADDING_WIDTH: number = 20;
     private TOOLBAR_EXTRA_WIDTH: number = this.SETTINGS_BUTTON_WIDTH + this.TEXT_MARGIN_WIDTH + this.TOOLBAR_PADDING_WIDTH;
     protected TOOLBAR_HEIGHT: number = 40;
-    protected VISUALIZATION_PADDING: number = 10;
+
+    private nextLayerIndex = 1;
+
+    // Maps the options/layer ID to the database + table key to the query object.
+    protected outstandingDataQueriesByLayer: Map<string, Map<string, any>> = new Map<string, Map<string, any>>();
 
     public id: string;
     public messenger: neon.eventing.Messenger;
-    protected outstandingDataQueriesByLayer: Map<string, Map<string, any>> = new Map<string, Map<string, any>>();
-
-    private redrawAfterResize: boolean = false;
-    private nextLayerIndex = 1;
-
-    public initializing: boolean = false;
-    public isLoading: number = 0;
-    public isExportable: boolean = true;
-    public isMultiLayerWidget: boolean = false;
-    public isPaginationWidget: boolean = false;
+    public options: any;
 
     public errorMessage: string = '';
-
-    public options: any;
+    public initializing: boolean = false;
+    public isMultiLayerWidget: boolean = false;
+    public isPaginationWidget: boolean = false;
+    public loadingCount: number = 0;
+    public redrawOnResize: boolean = false;
 
     // TODO THOR-349 Move into future widget option menu component
     public newLimit: number;
@@ -80,6 +80,14 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     public lastPage: boolean = true;
     public page: number = 1;
 
+    /**
+     * @constructor
+     * @arg {ConnectionService} connectionService
+     * @arg {DatasetService} datasetService
+     * @arg {FilterService} filterService
+     * @arg {Injector} injector
+     * @arg {ChangeDetectorRef} changeDetection
+     */
     constructor(
         protected connectionService: ConnectionService,
         protected datasetService: DatasetService,
@@ -91,22 +99,30 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Initializes the visualization.
-     * Basic initialization flow:
-     *  * initDatabase()
-     *  * setupFilters()
-     *  * subNgOnInit()
-     *  * postInit()
+     * Angular lifecycle hook:  Creates the visualization and runs the query.
      */
-    ngOnInit() {
+    public ngAfterViewInit(): void {
+        this.constructVisualization();
+        if (this.isMultiLayerWidget) {
+            this.executeAllQueryChain();
+        } else {
+            this.executeQueryChain();
+        }
+    }
+
+    /**
+     * Angular lifecycle hook:  Initializes widget properties and registers with listeners as needed.
+     */
+    public ngOnInit(): void {
         this.initializing = true;
 
         this.options = this.createWidgetOptions(this.injector, this.getVisualizationDefaultTitle(), this.getVisualizationDefaultLimit());
         this.newLimit = this.options.limit;
         this.id = this.options._id;
 
-        this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
-        this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
+        this.messenger.events({
+            filtersChanged: this.handleFiltersChangedEvent.bind(this)
+        });
         this.messenger.publish(neonEvents.WIDGET_REGISTER, {
             id: this.id,
             widget: this
@@ -118,9 +134,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             // Fails in unit tests - ignore.
         }
 
-        this.subNgOnInit();
+        this.initializeProperties();
         this.initializing = false;
-        this.postInit();
     }
 
     /**
@@ -128,32 +143,38 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      *
      * @arg {any} options A WidgetOptionCollection object.
      */
-    public postAddLayer(options: any) {
-        // Do nothing.
+    public postAddLayer(options: any): void {
+        // Override as needed.
     }
 
     /**
-     * Method for anything that needs to be done once the visualization has been initialized
+     * Creates any visualization elements when the widget is drawn.
      */
-    abstract postInit();
+    public constructVisualization(): void {
+        // Override as needed.
+    }
 
     /**
-     * Method to do any visualization-specific initialization.
+     * Removes any visualization elements when the widget is deleted.
      */
-    abstract subNgOnInit();
+    public destroyVisualization(): void {
+        // Override as needed.
+    }
 
     /**
-     * Method to do any visualization-specific logic before it is destroyed
+     * Initializes any visualization properties when the widget is created.
      */
-    abstract subNgOnDestroy();
+    public initializeProperties(): void {
+        // Override as needed.
+    }
 
     /**
      * Adds a new layer for the visualization using the given bindings.
      *
-     * @arg {any} [options]
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      * @arg {any} [layerBindings]
      */
-    public addLayer(options?: any, layerBindings?: any) {
+    public addLayer(options?: any, layerBindings?: any): void {
         let layerOptions = new WidgetOptionCollection(undefined, layerBindings || {});
         this.outstandingDataQueriesByLayer.set(layerOptions._id, new Map<string, any>());
         layerOptions.inject(new WidgetFreeTextOption('title', 'Title', 'Layer ' + this.nextLayerIndex++));
@@ -171,7 +192,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      *
      * @arg {any} options A WidgetOptionCollection object.
      */
-    public removeLayer(options: any) {
+    public removeLayer(options: any): void {
         this.outstandingDataQueriesByLayer.delete(options._id);
         this.handleChangeData();
     }
@@ -181,13 +202,13 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {neon.query.Query} query
-     * @return {{name:string,data:any[]}}
+     * @return {{name:string,data:any}}
      */
-    createExportOptions(options: any, query: neon.query.Query) {
+    private createExportOptions(options: any, query: neon.query.Query): { name: string, data: any } {
         let exportName = this.options.title.split(':').join(' ');
         return {
             name: 'Query_Results_Table',
-            data: [{
+            data: {
                 query: query,
                 name: exportName + '-' + this.id,
                 fields: this.getExportFields(options).map((exportFieldsObject) => ({
@@ -198,24 +219,20 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                 selectionOnly: query.selectionOnly,
                 ignoredFilterIds: [],
                 type: 'query'
-            }]
+            }
         };
     }
 
     /**
      * Returns the export header data.
      *
-     * @return {{name:string,data:any[]}[]}
+     * @return {{name:string,data:any}[]}
      */
-    doExport(): any {
+    public createExportData(): { name: string, data: any }[] {
         return (this.isMultiLayerWidget ? this.options.layers : [this.options]).map((options) => {
             let query = this.createQuery(options);
             return this.createExportOptions(options, query);
         }).filter((exportObject) => !!exportObject);
-    }
-
-    protected enableRedrawAfterResize(enable: boolean) {
-        this.redrawAfterResize = enable;
     }
 
     /**
@@ -223,19 +240,19 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      *
      * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
      */
-    abstract getElementRefs(): any;
+    public abstract getElementRefs(): any;
 
     /**
-     * Initializes sub-component styles as needed.
+     * Handles any needed behavior before the widget is resized.
      */
     public onResizeStart() {
-        // Do nothing.
+        // Override as needed.
     }
 
     /**
-     * Updates the header text styling.
+     * Updates the header text styles.
      */
-    public updateHeaderTextStyling() {
+    public updateHeaderTextStyles() {
         let refs = this.getElementRefs();
         if (refs.headerText && refs.infoText && refs.visualization) {
             refs.headerText.nativeElement.style.maxWidth = Math.floor(refs.visualization.nativeElement.clientWidth -
@@ -244,21 +261,21 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Resizes visualization-specific sub-components as needed.  Override as needed.
+     * Updates the visualization as needed whenever it is resized.
      */
-    public subOnResizeStop() {
-        // Do nothing.
+    public updateOnResize() {
+        // Override as needed.
     }
 
     /**
-     * Resizes sub-components as needed.
+     * Handles any needed behavior once the widget is resized.
      */
     public onResizeStop() {
-        this.updateHeaderTextStyling();
+        this.updateHeaderTextStyles();
 
-        this.subOnResizeStop();
+        this.updateOnResize();
 
-        if (this.redrawAfterResize) {
+        if (this.redrawOnResize) {
             // This event fires as soon as the user releases the mouse, but NgGrid animates the resize,
             // so the current width and height are not the new width and height.  NgGrid uses a 0.25
             // second transition so wait until that has finished before redrawing.
@@ -267,17 +284,22 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Clean up everything
+     * Angular lifecycle hook:  Removes the visualization from the page and unregisters from listeners as needed.
      */
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.messenger.unsubscribeAll();
         this.messenger.publish(neonEvents.WIDGET_UNREGISTER, {
             id: this.id
         });
-        this.subNgOnDestroy();
+        this.destroyVisualization();
     }
 
-    stopEventPropagation(event) {
+    /**
+     * Stops propagation of the given event.
+     *
+     * @arg {event} event
+     */
+    public stopEventPropagation(event) {
         if (event.stopPropagation) {
             event.stopPropagation();
         } else {
@@ -306,8 +328,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {neon.query.WherePredicate} wherePredicate
      * @arg {function} [callback]
      */
-    addNeonFilter(options: any, executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate,
-        callback?: Function) {
+    public addNeonFilter(options: any, executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate,
+        callback?: Function): void {
 
         let filterName = {
             visName: options.title,
@@ -351,7 +373,9 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {{singleFilter:any,clause:neon.query.WherePredicate}[]} filters
      * @arg {function} [callback]
      */
-    addMultipleFilters(options: any, filters: { singleFilter: any, clause: neon.query.WherePredicate }[], callback?: Function) {
+    public addMultipleFilters(options: any, filters: { singleFilter: any, clause: neon.query.WherePredicate }[],
+        callback?: Function): void {
+
         if (!filters.length) {
             if (callback) {
                 callback();
@@ -374,8 +398,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {neon.query.WherePredicate} wherePredicate
      * @arg {function} [callback]
      */
-    replaceNeonFilter(options: any, executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate,
-        callback?: Function) {
+    public replaceNeonFilter(options: any, executeQueryChainOnSuccess: boolean, subclassFilter: any,
+        wherePredicate: neon.query.WherePredicate, callback?: Function): void {
 
         let filterName = {
             visName: options.title,
@@ -415,7 +439,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Runs all the data queries for the visualization.  Called on initialization, if a user changes the visualization config or sets a
      * filter, or whenever else the data queries need to be run.
      */
-    executeAllQueryChain() {
+    public executeAllQueryChain(): void {
         if (!this.initializing) {
             (this.isMultiLayerWidget ? this.options.layers : [this.options]).forEach((options) => {
                 this.executeQueryChain(options);
@@ -428,7 +452,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
-    executeQueryChain(options?: any) {
+    public executeQueryChain(options?: any): void {
         if (!this.initializing && this.isValidQuery(options || this.options)) {
             this.changeDetection.detectChanges();
             let query = this.createQuery(options || this.options);
@@ -449,7 +473,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @return {boolean}
      * @abstract
      */
-    abstract isValidQuery(options: any): boolean;
+    public abstract isValidQuery(options: any): boolean;
 
     /**
      * Creates and returns the visualization data query using the given options.
@@ -458,7 +482,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @return {neon.query.Query}
      * @abstract
      */
-    abstract createQuery(options: any): neon.query.Query;
+    public abstract createQuery(options: any): neon.query.Query;
 
     /**
      * Handles the given response data for a successful visualization data query created using the given options.
@@ -467,12 +491,12 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {any} response
      * @abstract
      */
-    abstract onQuerySuccess(options: any, response: any): void;
+    public abstract onQuerySuccess(options: any, response: any): void;
 
     /**
      * Refreshes the visualization.
      */
-    abstract refreshVisualization(): void;
+    public abstract refreshVisualization(): void;
 
     /**
      * Handles the given response data for a successful visualization data query created using the given options and updates Angular.
@@ -483,9 +507,9 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     baseOnQuerySuccess(options: any, response: any) {
         //Converts the response to have the pretty names from the labelOptions in config to display
         this.onQuerySuccess(options, this.prettifyLabels(options, response));
-        this.isLoading--;
+        this.loadingCount--;
         this.changeDetection.detectChanges();
-        this.updateHeaderTextStyling();
+        this.updateHeaderTextStyles();
     }
 
     /**
@@ -495,7 +519,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {neon.query.Query} query
      */
     executeQuery(options: any, query: neon.query.Query) {
-        this.isLoading++;
+        this.loadingCount++;
 
         if (this.cannotExecuteQuery(options)) {
             this.baseOnQuerySuccess(options, {
@@ -529,7 +553,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.outstandingDataQueriesByLayer.get(options._id).get(databaseTableKey).done(this.baseOnQuerySuccess.bind(this, options));
 
         this.outstandingDataQueriesByLayer.get(options._id).get(databaseTableKey).fail((response) => {
-            this.isLoading--;
+            this.loadingCount--;
             if (response.statusText !== 'abort') {
                 this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
                     error: response,
@@ -546,15 +570,15 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    cannotExecuteQuery(options: any): boolean {
+    public cannotExecuteQuery(options: any): boolean {
         return (!this.connectionService.getActiveConnection() || (options.hideUnfiltered &&
             !this.filterService.getFiltersForFields(options.database.name, options.table.name).length));
     }
 
     /**
-     * Runs a visualization data query and handles any other behavior needed whenever the filters are changed.
+     * Handles any needed behavior on a filtersChanged event and then runs the visualization data query.
      */
-    handleFiltersChangedEvent(): void {
+    private handleFiltersChangedEvent(): void {
         this.setupFilters();
         this.executeAllQueryChain();
     }
@@ -574,19 +598,11 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     abstract getCloseableFilters(): any[];
 
     /**
-     * Handles updates that come through the data channel
-     * @param event
-     */
-    onUpdateDataChannelEvent(event) {
-        // TODO
-    }
-
-    /**
-     * Updates tables, fields, and filters whenenver the database is changed and reruns the visualization query.
+     * Updates tables, fields, and filters whenenver the database is changed and then runs the visualization data query.
      *
      * @arg {any} options A WidgetOptionCollection object.
      */
-    handleChangeDatabase(options: any) {
+    public handleChangeDatabase(options: any): void {
         this.updateTablesInOptions(options);
         this.initializeFieldsInOptions(options, this.createLayerFieldOptions());
         this.removeAllFilters(options, this.getCloseableFilters(), () => {
@@ -596,11 +612,11 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Updates fields and filters whenever the table is changed and reruns the visualization query.
+     * Updates fields and filters whenever the table is changed and then runs the visualization data query.
      *
      * @arg {any} options A WidgetOptionCollection object.
      */
-    handleChangeTable(options: any) {
+    public handleChangeTable(options: any): void {
         this.updateFieldsInOptions(options);
         this.initializeFieldsInOptions(options, this.createLayerFieldOptions());
         this.removeAllFilters(options, this.getCloseableFilters(), () => {
@@ -610,11 +626,11 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Updates filters whenever a filter field is changed and reruns the visualization query.
+     * Updates filters whenever a filter field is changed and then runs the visualization data query.
      *
      * @arg {any} options A WidgetOptionCollection object.
      */
-    handleChangeFilterField(options: any) {
+    public handleChangeFilterField(options: any): void {
         this.removeAllFilters(options, this.getCloseableFilters(), () => {
             this.setupFilters();
             this.handleChangeData(options);
@@ -622,20 +638,19 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Runs the visualization data query.  Override to update properties and/or sub-components.
-     *
-     * @arg {any} [options=this.options] A WidgetOptionCollection object.
+     * Updates elements and properties whenever the widget config is changed.
      */
-    handleChangeData(options?: any) {
-        this.executeQueryChain(options || this.options);
+    public onChangeData() {
+        // Override as needed.
     }
 
     /**
-     * Updates properties and/or sub-components whenever the limit is changed and reruns the visualization query.
+     * Handles any behavior needed whenever the widget config is changed and then runs the visualization data query.
      *
-     * @arg {any} [options] A WidgetOptionCollection object.
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
-    subHandleChangeLimit(options?: any) {
+    public handleChangeData(options?: any): void {
+        this.onChangeData();
         if (!options) {
             this.executeAllQueryChain();
         } else {
@@ -644,16 +659,21 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Updates the limit and the visualization.
+     * Handles any behavior needed whenever the query limit is changed and then runs the visualization data query.
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
-    handleChangeLimit(options?: any) {
+    public handleChangeLimit(options?: any): void {
         if (this.isNumber(this.newLimit)) {
             let newLimit = parseFloat('' + this.newLimit);
             if (newLimit > 0) {
                 (options || this.options).limit = newLimit;
-                this.subHandleChangeLimit(options);
+                this.onChangeData();
+                if (!options) {
+                    this.executeAllQueryChain();
+                } else {
+                    this.executeQueryChain(options);
+                }
             } else {
                 this.newLimit = (options || this.options).limit;
             }
@@ -669,12 +689,12 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     abstract removeFilter(filter: any): void;
 
     /**
-     * Check that the local filter column name and value are not null/empty
+     * Returns whether the local unshared filter field and value are set.
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
      * @return {boolean}
      */
-    hasUnsharedFilter(options?: any): boolean {
+    public hasUnsharedFilter(options?: any): boolean {
         return !!((options || this.options).unsharedFilterField && (options || this.options).unsharedFilterField.columnName &&
             (options || this.options).unsharedFilterValue && (options || this.options).unsharedFilterValue.trim());
     }
@@ -863,7 +883,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {any} dataItem
      * @arg {string} eventField
      */
-    publishAnyCustomEvents(dataItem: any, eventField: string) {
+    public publishAnyCustomEvents(dataItem: any, eventField: string) {
         this.options.customEventsToPublish.forEach((config) => {
             let metadata = {};
             (config.fields || []).forEach((fieldsConfig) => {
@@ -877,13 +897,13 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Publishes the given ID to the select_id event.
+     * Publishes the given ID and metadata to the select_id event channel.
      *
      * @arg {any} id
      * @arg {any} [metadata]
      * @fires select_id
      */
-    publishSelectId(id: any, metadata?: any) {
+    public publishSelectId(id: any, metadata?: any) {
         this.messenger.publish('select_id', {
             source: this.id,
             database: this.options.database.name,
@@ -894,12 +914,12 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Subscribes the given callback function to the select_id event.
+     * Subscribes the given callback function to the select_id event channel.
      *
      * @arg {function} callback
      * @listens select_id
      */
-    subscribeToSelectId(callback) {
+    public subscribeToSelectId(callback) {
         this.messenger.subscribe('select_id', callback);
     }
 
@@ -925,7 +945,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {any} item
      * @return {boolean}
      */
-    isNumber(item: any): boolean {
+    public isNumber(item: any): boolean {
         return !isNaN(parseFloat(item)) && isFinite(item);
     }
 
@@ -935,7 +955,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {number} item
      * @return {string}
      */
-    prettifyInteger(item: number): string {
+    public prettifyInteger(item: number): string {
         return Math.round(item).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
 
@@ -1038,6 +1058,11 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         return matchingTable.labelOptions;
     }
 
+    /**
+     * Creates and returns a new empty field object.
+     *
+     * @return {FieldMetaData}
+     */
     protected createEmptyField(): FieldMetaData {
         return new FieldMetaData();
     }

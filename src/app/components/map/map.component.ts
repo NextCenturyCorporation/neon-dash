@@ -152,20 +152,11 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     /**
-     * Initializes any map sub-components needed.
+     * Initializes any visualization properties when the widget is created.
      *
      * @override
      */
-    subNgOnInit() {
-        // Do nothing.
-    }
-
-    /**
-     * Handles any map component post-initialization behavior needed.
-     *
-     * @override
-     */
-    postInit() {
+    initializeProperties() {
         // Backwards compatibility (mapType deprecated and replaced by type).
         this.options.type = this.injector.get('mapType', this.options.type);
 
@@ -173,9 +164,11 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     /**
-     * Initializes and draws the map.
+     * Creates any visualization elements when the widget is drawn.
+     *
+     * @override
      */
-    ngAfterViewInit() {
+    constructVisualization() {
         if (!super.isNumber(this.options.type)) {
             this.options.type = MapType[this.options.type] || MapType.Leaflet;
         }
@@ -193,17 +186,14 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         }
 
         this.mapObject.initialize(this.mapElement, this.options, this);
-
-        // Draw everything
-        this.executeAllQueryChain();
     }
 
     /**
-     * Deletes any map sub-components needed.
+     * Removes any visualization elements when the widget is deleted.
      *
      * @override
      */
-    subNgOnDestroy() {
+    destroyVisualization() {
         return this.mapObject && this.mapObject.destroy();
     }
 

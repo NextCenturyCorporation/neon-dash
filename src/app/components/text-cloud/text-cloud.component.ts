@@ -86,26 +86,25 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.isPaginationWidget = true;
     }
 
-    subNgOnInit() {
-        // Do nothing
-    }
-
-    postInit() {
+    /**
+     * Initializes any visualization properties when the widget is created.
+     *
+     * @override
+     */
+    initializeProperties() {
         // Backwards compatibility (sizeAggregation deprecated and replaced by aggregation).
         this.options.aggregation = (this.options.aggregation || this.injector.get('sizeAggregation', neonVariables.COUNT)).toLowerCase();
 
         // This should happen before execute query as #refreshVisualization() depends on this.textCloud
         this.textColor = this.getPrimaryThemeColor().toHexString();
-        this.updateTextCloudSettings();
-
-        this.executeQueryChain();
     }
 
-    subNgOnDestroy() {
-        // Do nothing
-    }
-
-    private updateTextCloudSettings() {
+    /**
+     * Creates any visualization elements when the widget is drawn.
+     *
+     * @override
+     */
+    constructVisualization() {
         this.textCloud = new TextCloud(new SizeOptions(80, 140, '%'), new ColorOptions('#aaaaaa', this.textColor));
     }
 
