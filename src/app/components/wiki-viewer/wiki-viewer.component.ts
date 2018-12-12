@@ -269,7 +269,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.errorMessage = '';
-                this.isLoading++;
+                this.loadingCount++;
                 let links = neonUtilities.deepFind(response.data[0], options.linkField.columnName);
                 this.retrieveWikiPage(Array.isArray(links) ? links : [links]);
             } else {
@@ -277,20 +277,11 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
                 this.refreshVisualization();
             }
         } catch (e) {
-            this.isLoading--;
+            this.loadingCount--;
             this.errorMessage = 'Error';
             console.error('Error in ' + options.title, e);
             this.refreshVisualization();
         }
-    }
-
-    /**
-     * Initializes the wiki viewer by running its query.
-     *
-     * @override
-     */
-    postInit() {
-        this.executeQueryChain();
     }
 
     /**
@@ -320,7 +311,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     private retrieveWikiPage(links) {
         if (!links.length) {
-            this.isLoading--;
+            this.loadingCount--;
             this.refreshVisualization();
             return;
         }
@@ -358,24 +349,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      * @override
      */
     setupFilters() {
-        // Do nothing.
-    }
-
-    /**
-     * Destroys any wiki viewer sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnDestroy() {
-        // Do nothing.
-    }
-
-    /**
-     * Initializes any wiki viewer sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnInit() {
         // Do nothing.
     }
 

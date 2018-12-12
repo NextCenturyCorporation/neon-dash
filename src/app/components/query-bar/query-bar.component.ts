@@ -451,8 +451,6 @@ export class QueryBarComponent  extends BaseNeonComponent {
             this.filterIds = [];
             this.currentFilter = '';
         }
-
-        this.executeQueryChain();
     }
 
     /**
@@ -463,31 +461,4 @@ export class QueryBarComponent  extends BaseNeonComponent {
     setupFilters() {
         //
     }
-
-    /**
-     * Initializes the Query Bar.
-     *
-     * @override
-     */
-    postInit() {
-        this.removeFilter();
-    }
-
-    /**
-     * Initializes any Query Bar sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnInit() {
-        //
-    }
-    /**
-     * Destroys any Query Bar sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnDestroy() {
-        // Do nothing.
-    }
-
 }

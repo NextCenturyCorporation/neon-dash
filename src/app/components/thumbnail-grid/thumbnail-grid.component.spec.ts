@@ -136,7 +136,7 @@ describe('Component: ThumbnailGrid', () => {
     it('does have expected class properties', () => {
         expect(component.gridArray).toEqual([]);
         expect(component.filters).toEqual([]);
-        expect(component.isLoading).toEqual(0);
+        expect(component.loadingCount).toEqual(0);
         expect(component.lastPage).toEqual(true);
         expect(component.mediaTypes).toEqual({
             image: 'img',
@@ -348,8 +348,8 @@ describe('Component: ThumbnailGrid', () => {
         expect(hiddenSpinner).not.toBeNull();
     });
 
-    it('does show loading overlay if isLoading is true', async(() => {
-        component.isLoading = 1;
+    it('does show loading overlay if loadingCount is positive', async(() => {
+        component.loadingCount = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -1723,12 +1723,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy2.calls.count()).toEqual(1);
     });
 
-    it('postInit does work as expected', () => {
-        let spy = spyOn(component, 'executeQueryChain');
-        component.postInit();
-        expect(spy.calls.count()).toEqual(1);
-    });
-
     it('refreshVisualization does call changeDetection.detectChanges', () => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
 
@@ -1959,14 +1953,6 @@ describe('Component: ThumbnailGrid', () => {
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
         }));
-    });
-
-    it('subNgOnDestroy does exist', () => {
-        expect(component.subNgOnDestroy).toBeDefined();
-    });
-
-    it('subNgOnInit does exist', () => {
-        expect(component.subNgOnInit).toBeDefined();
     });
 
     it('updatePageData does update pagingGrid and lastPage from gridArray, page, and limit and call expected functions', () => {

@@ -98,18 +98,6 @@ describe('Component: DocumentViewer', () => {
         expect(component.page).toBe(1);
     });
 
-    it('has a subNgOnInit method that does nothing', () => {
-        expect(component.subNgOnInit).toBeDefined();
-    });
-
-    it('has a postInit method that does nothing', () => {
-        expect(component.postInit).toBeDefined();
-    });
-
-    it('has a subNgOnDestroy method that does nothing', () => {
-        expect(component.subNgOnDestroy).toBeDefined();
-    });
-
     it('returns an empty string from getFilterText', () => {
         expect(component.getFilterText({})).toBe('');
         expect(component.getFilterText({

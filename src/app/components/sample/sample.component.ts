@@ -117,6 +117,16 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
+     * Creates any visualization elements when the widget is drawn.
+     *
+     * @override
+     */
+    constructVisualization() {
+        // TODO Do you need to create any sub-components?
+        this.initializeSubcomponent();
+    }
+
+    /**
      * Creates and returns an array of field options for the visualization.
      *
      * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
@@ -211,6 +221,18 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         }
 
         return clauses.length > 1 ? neon.query.and.apply(neon.query, clauses) : clauses[0];
+    }
+
+    /**
+     * Removes any visualization elements when the widget is deleted.
+     *
+     * @override
+     */
+    destroyVisualization() {
+        // TODO Do you need to remove any sub-components?
+        if (this.subcomponentObject) {
+            this.subcomponentObject.destroyElements();
+        }
     }
 
     // TODO Remove this sample function.
@@ -389,16 +411,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         }
     }
 
-    // TODO If you don't need to do anything here (like update properties), just remove this function and use the superclass one!
-    /**
-     * Updates properties and/or sub-components whenever a config option is changed and reruns the visualization query.
-     *
-     * @override
-     */
-    handleChangeData() {
-        super.handleChangeData();
-    }
-
     // TODO Remove this function if you don't have a sub-component with multiple configurable types.
     /**
      * Updates the sub-component and reruns the visualization query.
@@ -414,6 +426,15 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             this.initializeSubcomponent();
             this.handleChangeData();
         }
+    }
+
+    /**
+     * Initilizes any visualization properties when the widget is created.
+     *
+     * @override
+     */
+    initializeProperties() {
+        // TODO Do you need to initialize any properties?
     }
 
     // TODO Remove this function or change as needed.
@@ -502,16 +523,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         } else {
             this.docCount = 0;
         }
-    }
-
-    /**
-     * Handles any post-initialization behavior needed with properties or sub-components for the visualization.
-     *
-     * @override
-     */
-    postInit() {
-        // Run the query to load the data.
-        this.executeQueryChain();
     }
 
     /**
@@ -604,48 +615,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         return this.activeData.length < this.responseData.length;
     }
 
-    // TODO If you don't need to do anything here (like update properties), just remove this function and use the superclass one!
-    /**
-     * Updates properties and/or sub-components whenever the limit is changed and reruns the visualization query.
-     *
-     * @override
-     */
-    subHandleChangeLimit() {
-        super.subHandleChangeLimit();
-    }
-
-    /**
-     * Deletes any properties and/or sub-components needed.
-     *
-     * @override
-     */
-    subNgOnDestroy() {
-        // TODO Do you need to remove any sub-components?
-        if (this.subcomponentObject) {
-            this.subcomponentObject.destroyElements();
-        }
-    }
-
-    /**
-     * Initializes any properties and/or sub-components needed once databases, tables, fields, and other options properties are set.
-     *
-     * @override
-     */
-    subNgOnInit() {
-        // TODO Do you need to create any sub-components?
-        this.initializeSubcomponent();
-    }
-
-    // TODO Remove this function if you don't need to update and/or redraw any sub-components on resize.
-    /**
-     * Resizes the sub-components.
-     *
-     * @override
-     */
-    subOnResizeStop() {
-        this.subcomponentObject.redraw();
-    }
-
     /**
      * Updates the pagination properties and the active data.
      */
@@ -654,5 +623,15 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         this.activeData = this.responseData.slice(offset, (offset + this.options.limit));
         this.lastPage = (this.responseData.length <= (offset + this.options.limit));
         this.refreshVisualization();
+    }
+
+    // TODO Remove this function if you don't need to update and/or redraw any sub-components on resize.
+    /**
+     * Updates the visualization as needed whenever it is resized.
+     *
+     * @override
+     */
+    updateOnResize() {
+        this.subcomponentObject.redraw();
     }
 }

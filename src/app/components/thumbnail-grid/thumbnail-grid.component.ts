@@ -509,7 +509,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
-                this.isLoading++;
+                this.loadingCount++;
                 response.data.forEach((d) => {
                     let item = {},
                          links = [];
@@ -590,7 +590,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     this.createMediaThumbnail();
                 }
 
-                this.isLoading--;
+                this.loadingCount--;
 
             } else {
                 this.pagingGrid = [];
@@ -645,11 +645,11 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Initializes the thumbnail grid by running its query.
+     * Initializes any visualization properties when the widget is created.
      *
      * @override
      */
-    postInit() {
+    initializeProperties() {
         if (!this.options.sortField.columnName) {
             this.options.sortField = this.options.percentField;
         }
@@ -664,8 +664,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.options.sortDescending = !(this.injector.get('ascending', !this.options.sortDescending));
 
         this.showGrid = !this.options.hideUnfiltered;
-
-        this.executeQueryChain();
     }
 
     /**
@@ -960,24 +958,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 }
             }
         }
-    }
-
-    /**
-     * Destroys any thumbnail grid sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnDestroy() {
-        // Do nothing.
-    }
-
-    /**
-     * Initializes any thumbnail grid sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnInit() {
-        // Do nothing.
     }
 
     sanitize(url) {

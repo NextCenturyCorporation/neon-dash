@@ -282,12 +282,6 @@ describe('Component: WikiViewer', () => {
             'SafeValue must use [property]=binding: <p>Test Content 2</p> (see http://g.co/ng/security#xss)');
     })));
 
-    it('postInit does call executeQueryChain', (() => {
-        let spy = spyOn(component, 'executeQueryChain');
-        component.postInit();
-        expect(spy.calls.count()).toBe(1);
-    }));
-
     it('refreshVisualization does call changeDetection.detectChanges', (() => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
         component.refreshVisualization();
@@ -300,14 +294,6 @@ describe('Component: WikiViewer', () => {
 
     it('setupFilters function does exist', (() => {
         expect(component.setupFilters).toBeDefined();
-    }));
-
-    it('subNgOnDestroy function does exist', (() => {
-        expect(component.subNgOnDestroy).toBeDefined();
-    }));
-
-    it('subNgOnInit function does exist', (() => {
-        expect(component.subNgOnInit).toBeDefined();
     }));
 
     it('does show toolbar and sidenav', (() => {
@@ -421,8 +407,8 @@ describe('Component: WikiViewer', () => {
         expect(hiddenSpinner).not.toBeNull();
     }));
 
-    it('does show loading overlay if isLoading is true', async(() => {
-        component.isLoading = 1;
+    it('does show loading overlay if loadingCount is positive', async(() => {
+        component.loadingCount = 1;
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {

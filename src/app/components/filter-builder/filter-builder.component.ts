@@ -82,8 +82,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             injector,
             ref
         );
-
-        this.isExportable = false;
     }
 
     /**
@@ -399,15 +397,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Handles behavior following a change in the filter state.
-     *
-     * @override
-     */
-    handleFiltersChangedEvent() {
-        // Do nothing.  No query.
-    }
-
-    /**
      * Returns whether the visualization data query created using the given options is valid.
      *
      * @arg {any} options A WidgetOptionCollection object.
@@ -431,11 +420,11 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Handles any post-initialization behavior needed.
+     * Initializes any visualization properties when the widget is created.
      *
      * @override
      */
-    postInit() {
+    initializeProperties() {
         // Backwards compatibility (initialFilters deprecated due to its redundancy with clauseConfig).
         this.options.clauseConfig = this.options.clauseConfig || this.injector.get('initialFilters', []);
 
@@ -580,24 +569,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     setupFilters() {
-        // Do nothing.
-    }
-
-    /**
-     * Deletes any properties and/or sub-components as needed.
-     *
-     * @override
-     */
-    subNgOnDestroy() {
-        // Do nothing.
-    }
-
-    /**
-     * Initializes any properties and/or sub-components needed once databases, tables, fields, and other options properties are set.
-     *
-     * @override
-     */
-    subNgOnInit() {
         // Do nothing.
     }
 

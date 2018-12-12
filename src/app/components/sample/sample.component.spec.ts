@@ -231,6 +231,13 @@ describe('Component: Sample', () => {
         }]);
     });
 
+    it('constructVisualization does work as expected', () => {
+        let spy = spyOn(component, 'initializeSubcomponent');
+
+        component.constructVisualization();
+        expect(spy.calls.count()).toEqual(1);
+    });
+
     it('createQuery does return expected query', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
@@ -291,6 +298,13 @@ describe('Component: Sample', () => {
             neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue'),
             neon.query.where('testUnsharedFilterField', '=', 'testUnsharedFilterValue')
         ]));
+    });
+
+    it('destroyVisualization does work as expected', () => {
+        let spy = spyOn(component.subcomponentObject, 'destroyElements');
+
+        component.destroyVisualization();
+        expect(spy.calls.count()).toEqual(1);
     });
 
     it('filterFromSubcomponent does call filterOnItem', () => {
@@ -658,10 +672,6 @@ describe('Component: Sample', () => {
         expect(spy.calls.count()).toEqual(2);
     });
 
-    it('handleChangeData does work as expected', () => {
-        // TODO Update if you override handleChangeData with custom behavior for the visualization.  Otherwise delete this test.
-    });
-
     it('handleChangeSubcomponentType does update subcomponentType and call expected functions', () => {
         let spy1 = spyOn(component, 'initializeSubcomponent');
         let spy2 = spyOn(component, 'handleChangeData');
@@ -819,12 +829,6 @@ describe('Component: Sample', () => {
         expect(component.responseData).toEqual([]);
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(0);
-    });
-
-    it('postInit does work as expected', () => {
-        let spy = spyOn(component, 'executeQueryChain');
-        component.postInit();
-        expect(spy.calls.count()).toEqual(1);
     });
 
     it('refreshVisualization does call subcomponentObject.updateData', () => {
@@ -1080,31 +1084,6 @@ describe('Component: Sample', () => {
         expect(component.showFooterContainer()).toEqual(true);
     });
 
-    it('subHandleChangeLimit does work as expected', () => {
-        // TODO Update if you override subHandleChangeLimit with custom behavior for the visualization.  Otherwise delete this test.
-    });
-
-    it('subNgOnDestroy does work as expected', () => {
-        let spy = spyOn(component.subcomponentObject, 'destroyElements');
-
-        component.subNgOnDestroy();
-        expect(spy.calls.count()).toEqual(1);
-    });
-
-    it('subNgOnInit does work as expected', () => {
-        let spy = spyOn(component, 'initializeSubcomponent');
-
-        component.subNgOnInit();
-        expect(spy.calls.count()).toEqual(1);
-    });
-
-    it('subOnResizeStop does work as expected', () => {
-        let spy = spyOn(component.subcomponentObject, 'redraw');
-
-        component.subOnResizeStop();
-        expect(spy.calls.count()).toEqual(1);
-    });
-
     it('updateActiveData does update activeData and lastPage from responseData, page, and limit and call refreshVisualization', () => {
         component.options.limit = 2;
         component.page = 1;
@@ -1126,6 +1105,13 @@ describe('Component: Sample', () => {
         component.updateActiveData();
         expect(component.activeData).toEqual([{}]);
         expect(component.lastPage).toEqual(true);
+        expect(spy.calls.count()).toEqual(1);
+    });
+
+    it('updateOnResize does work as expected', () => {
+        let spy = spyOn(component.subcomponentObject, 'redraw');
+
+        component.updateOnResize();
         expect(spy.calls.count()).toEqual(1);
     });
 
@@ -1304,8 +1290,8 @@ describe('Component: Sample', () => {
         expect(hiddenSpinner).not.toBeNull();
     });
 
-    it('does show loading overlay if isLoading is true', async(() => {
-        component.isLoading = 1;
+    it('does show loading overlay if loadingCount is positive', async(() => {
+        component.loadingCount = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();

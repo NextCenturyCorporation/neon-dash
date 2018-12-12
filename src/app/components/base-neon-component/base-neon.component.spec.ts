@@ -76,18 +76,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         );
     }
 
-    postInit() {
-        //Method for anything that needs to be done once the visualization has been initialized
-    }
-
-    subNgOnInit() {
-        //Method to do any visualization-specific initialization.
-    }
-
-    subNgOnDestroy() {
-        //Get an option from the visualization's config
-    }
-
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [];
     }
@@ -701,8 +689,7 @@ describe('BaseNeon', () => {
         expect(component.messenger).toBeDefined();
 
         expect(component.initializing).toBe(false);
-        expect(component.isLoading).toBe(0);
-        expect(component.isExportable).toBe(true);
+        expect(component.loadingCount).toBe(0);
         expect(component.errorMessage).toBe('');
 
         expect(component.options).toBeDefined();
@@ -711,7 +698,7 @@ describe('BaseNeon', () => {
 
     it('Tests ngOnDestroy function', (() => {
         expect(component.ngOnDestroy()).toBeUndefined();
-        let spy = spyOn(component, 'subNgOnDestroy');
+        let spy = spyOn(component, 'destroyVisualization');
         component.ngOnDestroy();
         expect(spy.calls.count()).toBe(1);
     }));
@@ -775,14 +762,6 @@ describe('BaseNeon', () => {
         expect(spy.calls.count()).toBe(1);
     });
 
-    it('Handle Filters Changed Event method calls the correct functions', (() => {
-        let spySetupFilters = spyOn(component, 'setupFilters');
-        let spyExecuteQueryChain = spyOn(component, 'executeQueryChain');
-        component.handleFiltersChangedEvent();
-        expect(spySetupFilters.calls.count()).toBe(1);
-        expect(spyExecuteQueryChain.calls.count()).toBe(1);
-    }));
-
     it('Tests expected return', (() => {
         expect(component.getButtonText()).toBe('');
     }));
@@ -793,7 +772,7 @@ describe('BaseNeon', () => {
             data: []
          });
         expect(spyOnQuerySuccess.calls.count()).toBe(1);
-        expect(component.isLoading).toEqual(-1);
+        expect(component.loadingCount).toEqual(-1);
     }));
 
     it('isNumber does return expected boolean', () => {

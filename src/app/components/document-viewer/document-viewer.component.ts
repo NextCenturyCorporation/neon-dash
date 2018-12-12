@@ -88,20 +88,15 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         this.isPaginationWidget = true;
     }
 
-    subNgOnInit() {
-        // Do nothing.
-    }
-
-    postInit() {
+    /**
+     * Initializes any visualization properties when the widget is created.
+     *
+     * @override
+     */
+    initializeProperties() {
         // Backwards compatibility (sortOrder deprecated and replaced by sortDescending).
         let sortOrder = this.injector.get('sortOrder', null);
         this.options.sortDescending = sortOrder ? (sortOrder === 'DESCENDING') : this.options.sortDescending;
-
-        this.executeQueryChain();
-    }
-
-    subNgOnDestroy() {
-        // Do nothing.
     }
 
     getFilterText(filter) {
@@ -264,6 +259,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             });
         }
 
+        this.page = 1;
         this.activeData = response.data.map((responseItem) => {
             let activeItem = {
                 data: {},
@@ -370,8 +366,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     setupFilters() {
-        this.page = 1;
-        this.executeQueryChain();
+        // Do nothing.
     }
 
     removeFilter() {

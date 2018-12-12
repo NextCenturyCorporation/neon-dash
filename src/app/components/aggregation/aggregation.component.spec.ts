@@ -175,6 +175,27 @@ describe('Component: Aggregation', () => {
         expect(component.visualization).toBeDefined();
     });
 
+    it('constructVisualization does initialize main subcomponent', () => {
+        let spy = spyOn(component, 'initializeSubcomponent');
+
+        component.constructVisualization();
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([component.subcomponentMainElementRef]);
+    });
+
+    it('constructVisualization does initialize both main and zoom subcomponents if dualView is truthy', () => {
+        let spy = spyOn(component, 'initializeSubcomponent');
+
+        component.options.dualView = 'on';
+
+        component.constructVisualization();
+
+        expect(spy.calls.count()).toEqual(2);
+        expect(spy.calls.argsFor(0)).toEqual([component.subcomponentMainElementRef]);
+        expect(spy.calls.argsFor(1)).toEqual([component.subcomponentZoomElementRef, true]);
+    });
+
     it('createFilterPrettyText does return expected string', () => {
         expect(component.createFilterPrettyText({
             field: 'field1',
@@ -750,6 +771,16 @@ describe('Component: Aggregation', () => {
             .aggregate(neonVariables.MIN, 'testDateField', '_date')
             .aggregate(neonVariables.SUM, 'testSizeField', '_aggregation')
             .sortBy('_date', neonVariables.ASCENDING));
+    });
+
+    it('destroyVisualization does work as expected', () => {
+        let spy1 = spyOn(component.subcomponentMain, 'destroy');
+        let spy2 = spyOn(component.subcomponentZoom, 'destroy');
+
+        component.destroyVisualization();
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy2.calls.count()).toEqual(1);
     });
 
     it('getButtonText does return expected string', () => {
@@ -2164,12 +2195,6 @@ describe('Component: Aggregation', () => {
         expect(component.optionsXFieldIsDate({ xField: { type: 'text' } })).toEqual(false);
     });
 
-    it('postInit does work as expected', () => {
-        let spy = spyOn(component, 'executeQueryChain');
-        component.postInit();
-        expect(spy.calls.count()).toEqual(1);
-    });
-
     it('redrawSubcomponents does recreate main subcomponent and call expected functions', () => {
         let spy1 = spyOn(component, 'initializeSubcomponent');
         let spy2 = spyOn(component, 'refreshVisualization');
@@ -3561,57 +3586,6 @@ describe('Component: Aggregation', () => {
         });
     });
 
-    it('subNgOnDestroy does work as expected', () => {
-        let spy1 = spyOn(component.subcomponentMain, 'destroy');
-        let spy2 = spyOn(component.subcomponentZoom, 'destroy');
-
-        component.subNgOnDestroy();
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
-    });
-
-    it('subNgOnInit does initialize main subcomponent', () => {
-        let spy = spyOn(component, 'initializeSubcomponent');
-
-        component.subNgOnInit();
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([component.subcomponentMainElementRef]);
-    });
-
-    it('subNgOnInit does initialize both main and zoom subcomponents if dualView is truthy', () => {
-        let spy = spyOn(component, 'initializeSubcomponent');
-
-        component.options.dualView = 'on';
-
-        component.subNgOnInit();
-
-        expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(0)).toEqual([component.subcomponentMainElementRef]);
-        expect(spy.calls.argsFor(1)).toEqual([component.subcomponentZoomElementRef, true]);
-    });
-
-    it('subOnResizeStop does work as expected', () => {
-        component.minimumDimensionsMain = null;
-        component.minimumDimensionsZoom = null;
-        component.selectedAreaOffset = null;
-
-        let spy1 = spyOn(component.subcomponentMain, 'redraw');
-        let spy2 = spyOn(component.subcomponentZoom, 'redraw');
-
-        component.subOnResizeStop();
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(component.minimumDimensionsMain.height).toBeDefined();
-        expect(component.minimumDimensionsMain.width).toBeDefined();
-        expect(component.minimumDimensionsZoom.height).toBeDefined();
-        expect(component.minimumDimensionsZoom.width).toBeDefined();
-        expect(component.selectedAreaOffset.x).toBeDefined();
-        expect(component.selectedAreaOffset.y).toBeDefined();
-    });
-
     it('toggleFilter does add given filter to given empty array and call createOrRemoveNeonFilter', () => {
         let spy = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -3746,6 +3720,26 @@ describe('Component: Aggregation', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
+    it('updateOnResize does work as expected', () => {
+        component.minimumDimensionsMain = null;
+        component.minimumDimensionsZoom = null;
+        component.selectedAreaOffset = null;
+
+        let spy1 = spyOn(component.subcomponentMain, 'redraw');
+        let spy2 = spyOn(component.subcomponentZoom, 'redraw');
+
+        component.updateOnResize();
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(component.minimumDimensionsMain.height).toBeDefined();
+        expect(component.minimumDimensionsMain.width).toBeDefined();
+        expect(component.minimumDimensionsZoom.height).toBeDefined();
+        expect(component.minimumDimensionsZoom.width).toBeDefined();
+        expect(component.selectedAreaOffset.x).toBeDefined();
+        expect(component.selectedAreaOffset.y).toBeDefined();
+    });
+
     it('does show toolbar and sidenav and body-container', () => {
         let container = fixture.debugElement.query(By.css('mat-sidenav-container'));
         expect(container).not.toBeNull();
@@ -3857,8 +3851,8 @@ describe('Component: Aggregation', () => {
         expect(hiddenSpinner).not.toBeNull();
     });
 
-    it('does show loading overlay if isLoading is positive', async(() => {
-        component.isLoading = 1;
+    it('does show loading overlay if loadingCount is positive', async(() => {
+        component.loadingCount = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -4441,10 +4435,10 @@ describe('Component: Aggregation with config', () => {
             expect(inputs[n++].nativeElement.value).toContain('1234');
 
             expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('');
+            expect(inputs[n++].nativeElement.value).toEqual('Test X Field');
 
             expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('');
+            expect(inputs[n++].nativeElement.value).toEqual('sum');
 
             expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
             expect(inputs[n++].nativeElement.value).toContain('');
@@ -4662,10 +4656,10 @@ describe('Component: Aggregation with XY config', () => {
             expect(inputs[n++].nativeElement.value).toContain('1234');
 
             expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('');
+            expect(inputs[n++].nativeElement.value).toEqual('Test X Field');
 
             expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('');
+            expect(inputs[n++].nativeElement.value).toEqual('sum');
 
             expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
             expect(inputs[n++].nativeElement.value).toContain('');
@@ -4866,10 +4860,10 @@ describe('Component: Aggregation with date config', () => {
             expect(inputs[n++].nativeElement.value).toContain('1234');
 
             expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('');
+            expect(inputs[n++].nativeElement.value).toEqual('Test Date Field');
 
             expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('');
+            expect(inputs[n++].nativeElement.value).toEqual('sum');
 
             expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
             expect(inputs[n++].nativeElement.value).toContain('');

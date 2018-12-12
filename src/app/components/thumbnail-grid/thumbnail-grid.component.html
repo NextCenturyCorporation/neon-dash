@@ -230,7 +230,7 @@
                 <p></p>
 
                 <span class="toggle-text">Ignore Own Filters:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.ignoreSelf" (ngModelChange)="handleFiltersChangedEvent()">
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.ignoreSelf" (ngModelChange)="handleChangeData()">
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -258,7 +258,7 @@
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+    <div [class.loading-overlay]="loadingCount" [class.not-loading-overlay]="!loadingCount">
         <mat-spinner></mat-spinner>
     </div>
 

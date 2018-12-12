@@ -369,7 +369,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
-                this.isLoading++;
+                this.loadingCount++;
                 response.data.forEach((d) => {
                     let item = {};
                     for (let field of options.fields) {
@@ -394,7 +394,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                     this.lastPage = (this.gridArray.length <= options.limit);
                     this.pagingGrid = this.gridArray.slice(0, options.limit);
                     this.refreshVisualization();
-                    this.isLoading--;
+                    this.loadingCount--;
                     this.showGrid = true;
                 } else {
                     this.pagingGrid = [];
@@ -443,11 +443,11 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Initializes the thumbnail grid by running its query.
+     * Initializes any visualization properties when the widget is created.
      *
      * @override
      */
-    postInit() {
+    initializeProperties() {
         if (!this.options.sortField.columnName) {
             this.options.sortField = this.options.idField;
         }
@@ -458,8 +458,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         this.options.sortDescending = !(this.injector.get('ascending', !this.options.sortDescending));
 
         this.showGrid = !this.options.hideUnfiltered;
-
-        this.executeQueryChain();
     }
 
     /**
@@ -537,23 +535,5 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                 }
             }
         }
-    }
-
-    /**
-     * Destroys any thumbnail grid sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnDestroy() {
-        // Do nothing.
-    }
-
-    /**
-     * Initializes any thumbnail grid sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnInit() {
-        // Do nothing.
     }
 }

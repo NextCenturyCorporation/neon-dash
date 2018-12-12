@@ -954,13 +954,6 @@ describe('Component: NewsFeed', () => {
         })).toEqual(false);
     });
 
-    //for postInit method
-    it('postInit does work as expected', () => {
-        let spy = spyOn(component, 'executeQueryChain');
-        component.postInit();
-        expect(spy.calls.count()).toEqual(1);
-    });
-
     //for refreshVisualization method
     it('refreshVisualization does call changeDetection.detectChanges', () => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
@@ -1185,15 +1178,5 @@ describe('Component: NewsFeed', () => {
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
         }));
-    });
-
-    //for subNgOnDestroy and subNgOnInit methods
-
-    it('subNgOnDestroy does exist', () => {
-        expect(component.subNgOnDestroy).toBeDefined();
-    });
-
-    it('subNgOnInit does exist', () => {
-        expect(component.subNgOnInit).toBeDefined();
     });
 });

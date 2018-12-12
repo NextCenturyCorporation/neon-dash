@@ -569,7 +569,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.errorMessage = '';
-                this.isLoading++;
+                this.loadingCount++;
 
                 response.data.forEach((responseItem) => {
                     let masks = [];
@@ -606,7 +606,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                     });
                 });
 
-                this.isLoading--;
+                this.loadingCount--;
             } else {
                 this.errorMessage = 'No Data';
             }
@@ -614,7 +614,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             this.refreshVisualization();
         } catch (e) {
             console.error(e);
-            this.isLoading--;
+            this.loadingCount--;
             this.errorMessage = 'Error';
             this.refreshVisualization();
         }
@@ -632,11 +632,11 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Initializes the media viewer by running its query.
+     * Initializes any visualization properties when the widget is created.
      *
      * @override
      */
-    postInit() {
+    initializeProperties() {
         // Backwards compatibility (linkField deprecated and replaced by linkFields).
         if (this.options.linkField.columnName && !this.options.linkFields.length) {
             this.options.linkFields.push(this.options.linkField);
@@ -649,8 +649,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 this.waitForQuery(config.fields || [], eventMessage.metadata, eventMessage.item);
             });
         });
-
-        this.executeQueryChain();
     }
 
     /**
@@ -664,7 +662,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             this.changeDetection.detectChanges();
         }
         /* tslint:enable:no-string-literal */
-        this.subOnResizeStop();
+        this.updateOnResize();
     }
 
     /**
@@ -700,24 +698,32 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Destroys any media viewer sub-components if needed.
+     * Transforms the given string or string array into a string array and returns the array.
      *
-     * @override
+     * @arg {string|string[]} input
+     * @return {string[]}
      */
-    subNgOnDestroy() {
-        // Do nothing.
+    transformToStringArray(input, delimiter: string) {
+        if (Array.isArray(input)) {
+            return input;
+        }
+        if (input !== '' && input !== null && typeof input !== 'undefined') {
+            let inputValue = input.toString();
+            if (inputValue.indexOf('[') === 0 && inputValue.lastIndexOf(']') === (inputValue.length - 1) &&
+                typeof inputValue !== 'undefined') {
+                inputValue = inputValue.substring(1, inputValue.length - 1);
+            }
+            return inputValue.indexOf(delimiter) > -1 ? inputValue.split(delimiter) : [inputValue];
+        }
+        return [];
     }
 
     /**
-     * Initializes any media viewer sub-components if needed.
+     * Updates the visualization as needed whenever it is resized.
      *
      * @override
      */
-    subNgOnInit() {
-        // Do nothing.
-    }
-
-    subOnResizeStop(event?: any) {
+    updateOnResize(event?: any) {
         if (!this.visualization) {
             return;
         }
@@ -780,27 +786,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Transforms the given string or string array into a string array and returns the array.
-     *
-     * @arg {string|string[]} input
-     * @return {string[]}
-     */
-    transformToStringArray(input, delimiter: string) {
-        if (Array.isArray(input)) {
-            return input;
-        }
-        if (input !== '' && input !== null && typeof input !== 'undefined') {
-            let inputValue = input.toString();
-            if (inputValue.indexOf('[') === 0 && inputValue.lastIndexOf(']') === (inputValue.length - 1) &&
-                typeof inputValue !== 'undefined') {
-                inputValue = inputValue.substring(1, inputValue.length - 1);
-            }
-            return inputValue.indexOf(delimiter) > -1 ? inputValue.split(delimiter) : [inputValue];
-        }
-        return [];
-    }
-
-    /**
      * Waits for the current query to end, if it is running, then calls addEventLinks with the given data.
      *
      * @arg {any[]} fields
@@ -808,7 +793,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @arg {string} name
      */
     waitForQuery(fields: any[], metadata: any, name: string) {
-        if (this.isLoading) {
+        if (this.loadingCount > 0) {
             setTimeout(() => {
                 this.waitForQuery(fields, metadata, name);
             }, 500);

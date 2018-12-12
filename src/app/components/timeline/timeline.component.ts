@@ -108,7 +108,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         );
 
         console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');
-        this.enableRedrawAfterResize(true);
+        this.redrawOnResize = true;
     }
 
     /**
@@ -136,22 +136,19 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         ];
     }
 
-    subNgOnInit() {
+    /**
+     * Creates any visualization elements when the widget is drawn.
+     *
+     * @override
+     */
+    constructVisualization() {
         this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
         this.timelineData.granularity = this.options.granularity;
         this.timelineData.bucketizer = this.getBucketizer();
 
         this.timelineChart = new TimelineSelectorChart(this, this.svg, this.timelineData);
-    }
-
-    postInit() {
-        this.executeQueryChain();
 
         this.defaultActiveColor = this.getPrimaryThemeColor();
-    }
-
-    subNgOnDestroy() {
-        // Do nothing.
     }
 
     addLocalFilter(id: string, field: string, prettyField: string, startDate: Date, endDate: Date, local?: boolean) {

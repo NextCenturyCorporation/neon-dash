@@ -243,7 +243,7 @@ describe('Component: Filter Builder', () => {
         // TODO
     });
 
-    it('postInit does initialize clauses from clauseConfig', () => {
+    it('initializeProperties does initialize clauses from clauseConfig', () => {
         component.clauses = [];
         component.options.clauseConfig = [{
             database: 'testDatabase2',
@@ -254,7 +254,7 @@ describe('Component: Filter Builder', () => {
             id: 'testFilterId'
         }];
 
-        component.postInit();
+        component.initializeProperties();
 
         expect(component.clauses.length).toEqual(1);
         expect(component.clauses[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
@@ -291,10 +291,6 @@ describe('Component: Filter Builder', () => {
     });
 
     it('setupFilters does nothing', () => {
-        // TODO
-    });
-
-    it('subNgOnInit does nothing', () => {
         // TODO
     });
 
