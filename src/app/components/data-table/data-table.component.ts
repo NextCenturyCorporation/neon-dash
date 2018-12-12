@@ -40,6 +40,7 @@ import {
     WidgetFreeTextOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
+    WidgetOptionCollection,
     WidgetSelectOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
@@ -166,7 +167,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.NoFalseYesTrue, this.optionsFilterable),
             new WidgetFreeTextOption('heatmapDivisor', 'Heatmap Divisor', '0', this.optionsHeatmapTable),
             new WidgetSelectOption('reorderable', 'Make Columns Reorderable', true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('showColumnSelector', 'Show Column Selector', false, [{
+            new WidgetSelectOption('showColumnSelector', 'Show Column Selector', 'hide', [{
                 prettyName: 'Yes',
                 variable: 'show'
             }, {
@@ -188,8 +189,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 prettyName: 'Skinny',
                 variable: true
             }]),
-            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', []),
-            new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', []),
+            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', [], false),
+            new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', [], false),
             new WidgetNonPrimitiveOption('fieldsConfig', 'Fields Config', {})
         ];
     }
@@ -332,7 +333,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         } else {
             this.initializeHeadersFromExceptionsToStatus();
         }
-
+        //console.log(this.options);
         this.recalculateActiveHeaders();
     }
 
@@ -589,6 +590,24 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.getDocCount();
             this.refreshVisualization();
         }
+    }
+
+    publishOptions() {
+        this.messenger.publish('options', {
+            options: this.options
+        });
+        //console.log('publishOptions');
+    }
+
+    publishToggleGear() {
+        this.messenger.publish('toggleGear', {
+            toggleGear: true
+        });
+    }
+
+    toggleGear() {
+        this.publishOptions();
+        this.publishToggleGear();
     }
 
     getDocCount() {

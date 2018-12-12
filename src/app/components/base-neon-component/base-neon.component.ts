@@ -857,9 +857,9 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
         let options: any = new WidgetOptionCollection(injector);
 
-        options.inject(new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', []));
-        options.inject(new WidgetNonPrimitiveOption('customEventsToReceive', 'Custom Events To Receive', []));
-        options.inject(new WidgetNonPrimitiveOption('filter', 'Custom Widget Filter', null));
+        options.inject(new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', [], false));
+        options.inject(new WidgetNonPrimitiveOption('customEventsToReceive', 'Custom Events To Receive', [], false));
+        options.inject(new WidgetNonPrimitiveOption('filter', 'Custom Widget Filter', null, false));
 
         options.inject(new WidgetSelectOption('hideUnfiltered', 'Hide Widget if Unfiltered', false, OptionChoices.NoFalseYesTrue));
         options.inject(new WidgetFreeTextOption('limit', 'Limit', defaultLimit));
