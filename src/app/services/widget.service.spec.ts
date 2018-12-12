@@ -59,6 +59,14 @@ describe('Service: Widget', () => {
         // TODO THOR-936
     }));
 
+    it('getThemeAccentColorHex does return expected theme color', inject([WidgetService], (service: WidgetService) => {
+        // TODO THOR-936
+    }));
+
+    it('getThemeMainColorHex does return expected theme color', inject([WidgetService], (service: WidgetService) => {
+        // TODO THOR-936
+    }));
+
     it('setTheme does update theme ID', inject([WidgetService], (service: WidgetService) => {
         // TODO THOR-936
     }));

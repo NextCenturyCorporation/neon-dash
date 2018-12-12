@@ -25,6 +25,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -73,7 +74,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         datasetService: DatasetService,
         filterService: FilterService,
         injector: Injector,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        protected widgetService: AbstractWidgetService
     ) {
 
         super(
@@ -94,7 +96,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     postInit() {
         // This should happen before execute query as #refreshVisualization() depends on this.textCloud
-        this.textColor = this.getPrimaryThemeColor().toHexString();
+        this.textColor = this.widgetService.getThemeAccentColorHex();
         this.updateTextCloudSettings();
 
         this.executeQueryChain();
