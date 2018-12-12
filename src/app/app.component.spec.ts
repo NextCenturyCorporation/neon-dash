@@ -15,6 +15,7 @@
  */
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 import { DebugElement, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { APP_BASE_HREF, CommonModule } from '@angular/common';
 
@@ -72,11 +73,16 @@ import {
     ThumbnailDetailsContractedComponent,
     ThumbnailDetailsExpandedComponent
 } from './components/thumbnail-grid/thumbnail-details.component';
+import { DatasetServiceMock } from '../testUtils/MockServices/DatasetServiceMock';
+import { FilterServiceMock } from '../testUtils/MockServices/FilterServiceMock';
+import * as neon from 'neon-framework';
 
 describe('App', () => {
     let fixture: ComponentFixture<AppComponent>;
+    let getService = (type: any) => fixture.debugElement.injector.get(type);
     let debugElement: DebugElement;
     let component: AppComponent;
+    let spyOnInit;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -127,17 +133,19 @@ describe('App', () => {
             providers: [
                 { provide: 'config', useValue: new NeonGTDConfig() },
                 { provide: APP_BASE_HREF, useValue: '/' },
-                DatasetService,
                 ConnectionService,
-                FilterService,
+                { provide: DatasetService, useClass: DatasetServiceMock },
+                { provide: FilterService, useClass: FilterServiceMock },
                 ParameterService,
                 { provide: AbstractWidgetService, useClass: WidgetService }
             ]
         });
 
         fixture = TestBed.createComponent(AppComponent);
-        debugElement = fixture.debugElement;
         component = fixture.componentInstance;
+        spyOnInit = spyOn(component, 'ngOnInit');
+        fixture.detectChanges();
+        debugElement = fixture.debugElement;
     });
 
     afterEach(() => {
@@ -149,7 +157,7 @@ describe('App', () => {
         expect(debugElement.nativeElement.querySelectorAll('app-dataset-selector')).toBeTruthy();
         // Since the about pane and options pane are rendered only after a user opens their sidenav area,
         // these should not exist upon initial render.
-        expect(debugElement.nativeElement.querySelectorAll('app-right-panel').length === 0).toBeTruthy();
+        expect(debugElement.nativeElement.querySelectorAll('app-right-panel')).toBeTruthy();
     }));
 
     it('should be showing the correct defaults', async(() => {
@@ -157,12 +165,115 @@ describe('App', () => {
         expect(component.rightPanelTitle).toEqual('Dashboard Layouts');
 
         expect(component.showCustomConnectionButton).toEqual(true);
-        expect(component.showFilterBuilder).toEqual(false);
+        expect(component.showFilterBuilderIcon).toEqual(true);
         expect(component.showFilterTrayButton).toEqual(true);
-        expect(component.showSimpleSearch).toEqual(false);
         expect(component.showVisShortcut).toEqual(true);
 
         expect(component.createFilterBuilder).toEqual(false);
+    }));
+
+    it('should be showing correct filter builder icons', async(() => {
+        expect(component.filterBuilderIcon).toEqual('filter_builder');
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testFilterField', '=', 'value1'), 'testFilterField');
+        fixture.detectChanges();
+        expect(component.filterBuilderIcon).toEqual('filter_builder_active');
+    }));
+
+    it('should correctly toggle the panels', async(() => {
+        component.setPanel('aboutNeon', 'About Neon');
+        expect(component.currentPanel).toEqual('aboutNeon');
+        expect(component.rightPanelTitle).toEqual('About Neon');
+
+        component.setPanel('addVis', 'Visualization');
+        expect(component.currentPanel).toEqual('addVis');
+        expect(component.rightPanelTitle).toEqual('Visualization');
+
+        component.setPanel('dashboardLayouts', 'Dashboard Layouts');
+        expect(component.currentPanel).toEqual('dashboardLayouts');
+        expect(component.rightPanelTitle).toEqual('Dashboard Layouts');
+
+        component.setPanel('saveState', 'Save States');
+        expect(component.currentPanel).toEqual('saveState');
+        expect(component.rightPanelTitle).toEqual('Save States');
+
+        component.setPanel('settings', 'Settings');
+        expect(component.currentPanel).toEqual('settings');
+        expect(component.rightPanelTitle).toEqual('Settings');
+
+    }));
+
+    it('toggle filter builder', async(() => {
+        component.showFilterBuilderIcon = false;
+        expect(debugElement.nativeElement.querySelectorAll('app-filter-builder').length === 0).toBeTruthy();
+        component.showFilterBuilderIcon = true;
+        component.createFilterBuilder = true;
+        component.openFilterBuilderDialog();
+        expect(debugElement.nativeElement.querySelectorAll('app-filter-builder')).toBeTruthy();
+    }));
+
+    it('check that the messagenger subscribes to the correct channels and that the callbacks update the correct booleans', async(() => {
+        let spyOnShowFilterBuilderIcon = spyOn(component, 'updateShowFilterBuilderIcon');
+        let spyOnShowVisualShortcut = spyOn(component, 'updateShowVisShortcut');
+        let message = {
+            showFilterBuilderIcon: false,
+            showVisShortcut: false
+        };
+
+        expect(spyOnInit.calls.count()).toEqual(1);
+        component.ngOnInit();
+        expect(spyOnInit.calls.count()).toEqual(2);
+        component.updateShowVisShortcut(message);
+        component.updateShowFilterBuilderIcon(message);
+
+        expect(spyOnShowFilterBuilderIcon.calls.argsFor(0)).toEqual([{
+            showFilterBuilderIcon: false,
+            showVisShortcut: false
+        }]);
+
+        expect(spyOnShowVisualShortcut.calls.argsFor(0)).toEqual([{
+            showFilterBuilderIcon: false,
+            showVisShortcut: false
+        }]);
+
+        expect(spyOnShowFilterBuilderIcon.calls.count()).toEqual(1);
+        expect(spyOnShowVisualShortcut.calls.count()).toEqual(1);
+    }));
+
+    it('getShowVisShortcut does update showVisShortcut', async(() => {
+        component.updateShowVisShortcut({
+            showVisShortcut: false
+        });
+        fixture.detectChanges();
+        expect(component.showVisShortcut).toEqual(false);
+        expect(debugElement.query(By.css('#showVisShortcutButton'))).toBeNull();
+        component.updateShowVisShortcut({
+            showVisShortcut: true
+        });
+        fixture.detectChanges();
+        expect(component.showVisShortcut).toEqual(true);
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            expect(debugElement.query(By.css('#showVisShortcutButton'))).not.toBeNull();
+        });
+    }));
+
+    it('getShowFilterBuilderIcon does update showFilterBuilder', async(() => {
+        component.updateShowFilterBuilderIcon({
+            showFilterBuilderIcon: false
+        });
+        fixture.detectChanges();
+        expect(component.showFilterBuilderIcon).toEqual(false);
+        expect(debugElement.query(By.css('#showFilterBuilderIcon'))).toBeNull();
+        component.updateShowFilterBuilderIcon({
+            showFilterBuilderIcon: true
+        });
+        fixture.detectChanges();
+        expect(component.showFilterBuilderIcon).toEqual(true);
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            expect(debugElement.query(By.css('#showFilterBuilderIcon'))).not.toBeNull();
+        });
     }));
 
     it('addWidget does add the given widget with specified position to the grid', async(() => {

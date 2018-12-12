@@ -49,8 +49,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
     public options;
     public searchField: FieldMetaData;
-    public showVisShortcut: boolean = true;
+    public showFilterBuilderIcon: boolean = true;
     public showSimpleSearch: boolean;
+    public showVisShortcut: boolean = true;
     public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
     public simpleSearch = {};
     public simpleSearchField = {};
@@ -89,9 +90,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.formData.currentTheme = this.widgetService.getTheme();
         this.checkSimpleFilter();
         this.validateDatasetService();
+
+        this.messenger.subscribe('showFilterBuilderIcon', (message) => {
+            this.showFilterBuilderIcon = message.showFilterBuilderIcon;
+        });
         this.messenger.subscribe('showSimpleSearch', (message) => {
             this.showSimpleSearch = message.showSimpleSearch;
-            this.changeDetection.detectChanges();
         });
 
         this.messenger.subscribe('showVisShortcut', (message) => {
@@ -113,6 +117,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
             disableClose: true
         };
         let dialogRef = this.dialog.open(ConfigEditorComponent, dConfig);
+    }
+
+    publishShowFilterBuilderIcon() {
+        this.showFilterBuilderIcon = !this.showFilterBuilderIcon;
+        this.messenger.publish('showFilterBuilderIcon', {
+            showFilterBuilderIcon: this.showFilterBuilderIcon
+        });
     }
 
     publishShowSimpleSearch() {

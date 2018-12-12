@@ -132,19 +132,19 @@ export abstract class AbstractAggregationSubcomponent {
     public abstract getMinimumDimensions(): { height: number, width: number };
 
     /**
-     * Returns whether the subcomponent is horizontal rather than vertical.
-     *
-     * @return {boolean}
-     * @abstract
-     */
-    public abstract isHorizontal(): boolean;
-
-    /**
      * Initializes all the subcomponent elements.
      *
      * @abstract
      */
     public abstract initialize();
+
+    /**
+     * Returns whether the chart is horizontal.
+     *
+     * @return {boolean}
+     * @abstract
+     */
+    public abstract isHorizontal(): boolean;
 
     /**
      * Returns whether the given text is a date string.

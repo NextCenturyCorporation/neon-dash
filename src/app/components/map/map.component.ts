@@ -496,13 +496,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @arg {string} lngField
      * @arg {string} latField
      * @arg {string} colorField
-     * @arg {string} hoverPopupField
+     * @arg {FieldMetaData} hoverPopupField
      * @arg {array} data
      * @return {array}
      * @protected
      */
     protected getMapPoints(databaseName: string, tableName: string, idField: string, lngField: string, latField: string, colorField: string,
-        hoverPopupField: string, data: any[]
+        hoverPopupField: FieldMetaData, data: any[]
     ): any[] {
 
         let map = new Map<string, UniqueLocationPoint>();
@@ -512,7 +512,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 latCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, latField)),
                 colorValue = neonUtilities.deepFind(point, colorField),
                 idValue = neonUtilities.deepFind(point, idField),
-                hoverPopupValue = hoverPopupField ? neonUtilities.deepFind(point, hoverPopupField) : '';
+                hoverPopupValue = hoverPopupField.columnName ? neonUtilities.deepFind(point, hoverPopupField.columnName) : '';
 
             //use first value if deepFind returns an array
             colorValue = colorValue instanceof Array ? (colorValue.length ? colorValue[0] : '') : colorValue;
@@ -524,10 +524,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                     //check if hover popup value is nested within coordinate array
                     if (hoverPopupValue instanceof Array) {
                         this.addOrUpdateUniquePoint(map, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue,
-                            hoverPopupValue[pos]);
+                            (hoverPopupField.prettyName ? hoverPopupField.prettyName + ':  ' : '') + hoverPopupValue[pos]);
                     } else {
                         this.addOrUpdateUniquePoint(map, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue,
-                            hoverPopupValue);
+                            (hoverPopupField.prettyName ? hoverPopupField.prettyName + ':  ' : '') + hoverPopupValue);
                     }
                 }
             } else {
@@ -590,7 +590,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 layer.longitudeField.columnName,
                 layer.latitudeField.columnName,
                 layer.colorField.columnName,
-                layer.hoverPopupField.columnName,
+                layer.hoverPopupField,
                 response.data
             );
 
@@ -600,7 +600,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         }
 
         this.mapObject.clearLayer(layer);
-        this.mapObject.addPoints(mapPoints, layer, this.options.clustering === 'clusters');
+        this.mapObject.addPoints(mapPoints, layer, true);
 
         this.filterMapForLegend();
         this.updateLegend();
@@ -653,7 +653,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
             let hoverPopupMap = new Map<string, number>();
 
-            if (hoverPopupValue) { hoverPopupMap.set(hoverPopupValue, 1); } //add to map if hover value exists
+            //add to map if hover value exists
+            if (hoverPopupValue) {
+                hoverPopupMap.set(hoverPopupValue, 1);
+            }
 
             obj = new UniqueLocationPoint(idValue, idList, lat, lng, 1, colorField, colorValue, hoverPopupMap);
             map.set(hashCode, obj);
@@ -663,7 +666,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
             //check if popup value already exists increase count in map
             if (hoverPopupValue && (obj.hoverPopupMap.has(hoverPopupValue)))  {
-                    obj.hoverPopupMap.set(hoverPopupValue, obj.count);
+                obj.hoverPopupMap.set(hoverPopupValue, obj.hoverPopupMap.get(hoverPopupValue));
+            } else {
+                obj.hoverPopupMap.set(hoverPopupValue, 1);
             }
         }
     }
@@ -1028,19 +1033,12 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      */
     createNonFieldOptions(): WidgetOption[] {
         return [
-            new WidgetSelectOption('clustering', 'Map Type', 'points', [{
-                prettyName: 'Points',
-                variable: 'points'
-            }, {
-                prettyName: 'Clusters',
-                variable: 'clusters'
-            }]),
             new WidgetFreeTextOption('clusterPixelRange', 'Cluster Pixel Range', 15),
+            new WidgetSelectOption('showPointDataOnHover', 'Coordinates on Point Hover', false, OptionChoices.HideFalseShowTrue),
             // Properties of customServer:  useCustomServer: boolean, mapUrl: string, layer: string
             new WidgetNonPrimitiveOption('customServer', 'Custom Server', null),
             new WidgetSelectOption('disableCtrlZoom', 'Disable Control Zoom', false, OptionChoices.NoFalseYesTrue),
             new WidgetFreeTextOption('east', 'East', null),
-            new WidgetSelectOption('hoverPopupEnabled', 'Hover Popup Enabled', false, OptionChoices.NoFalseYesTrue),
             // Properties of hoverSelect:  hoverTime: number
             new WidgetNonPrimitiveOption('hoverSelect', 'Hover Select', null),
             new WidgetFreeTextOption('minClusterSize', 'Minimum Cluster Size', 5),

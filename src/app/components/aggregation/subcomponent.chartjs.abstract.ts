@@ -18,9 +18,8 @@ import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from
 import { Color } from '../../color';
 
 import * as _ from 'lodash';
-
-import * as Chart from 'chart.js';
 import * as moment from 'moment-timezone';
+import * as Chart from 'chart.js';
 
 export abstract class AbstractChartJsDataset {
     public data: any[] = [];
@@ -664,7 +663,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * Returns whether the chart is horizontal.
      *
      * @return {boolean}
-     * @protected
+     * @override
      */
     public isHorizontal(): boolean {
         return false;
