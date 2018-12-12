@@ -141,19 +141,20 @@ export abstract class AbstractAggregationSubcomponent {
     public abstract getVisualizationElementLabel(count: number): string;
 
     /**
-     * Returns whether the subcomponent is horizontal rather than vertical.
+     * Initializes all the subcomponent elements.
+     *
+     * @return {boolean}
+     * @abstract
+     */
+    public abstract initialize();
+
+    /**
+     * Returns whether the chart is horizontal.
      *
      * @return {boolean}
      * @abstract
      */
     public abstract isHorizontal(): boolean;
-
-    /**
-     * Initializes all the subcomponent elements.
-     *
-     * @abstract
-     */
-    public abstract initialize();
 
     /**
      * Returns whether the given text is a date string.
