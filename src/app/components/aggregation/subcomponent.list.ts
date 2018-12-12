@@ -97,7 +97,7 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
             if (groups.length > 1) {
                 let groupElement = document.createElement('td');
                 groupElement.setAttribute('class', 'list-text');
-                groupElement.setAttribute('style', 'color: ' + item.color.toRgb());
+                groupElement.setAttribute('style', 'color: ' + item.color.getComputedCss(this.elementRef));
                 groupElement.innerHTML = item.group;
                 rowTitle = item.group + ' - ' + rowTitle;
                 rowElement.appendChild(groupElement);
