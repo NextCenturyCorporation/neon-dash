@@ -72,9 +72,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public currentPanel: string = 'dashboardLayouts';
     public showCustomConnectionButton: boolean = false;
     public showFilterBuilder: boolean = false;
+    public showFilterBuilderIcon: boolean = false;
     public showFilterTrayButton: boolean = false;
     //Toolbar
-    public showSimpleSearch: boolean = false;
     public showVisShortcut: boolean = true;
 
     public rightPanelTitle: string = 'Dashboard Layouts';
@@ -119,7 +119,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public filterBuilderIcon;
 
-    private messenger: neon.eventing.Messenger;
+    public messenger: neon.eventing.Messenger;
 
     constructor(
         public datasetService: DatasetService,
@@ -135,9 +135,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messenger = new neon.eventing.Messenger();
 
         // TODO: Default to false and set to true only after a dataset has been selected.
+        this.showFilterBuilderIcon = true;
         this.showFilterTrayButton = true;
         this.showCustomConnectionButton = true;
         this.datasets = this.datasetService.getDatasets();
+        this.neonConfig = neonConfig;
+        this.snackBar = snackBar;
 
         if (neonConfig.errors && neonConfig.errors.length > 0) {
             let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
@@ -155,12 +158,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.matIconRegistry.addSvgIcon(
             'filter_builder',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/filter_builder.svg')
+            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filter_builder.svg')
         );
 
         this.matIconRegistry.addSvgIcon(
             'filter_builder_active',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/filter_builder_active.svg')
+            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filter_builder_active.svg')
         );
 
         this.changeFavicon();
@@ -417,12 +420,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.messenger.subscribe('showSimpleSearch', (message) => {
-            this.showSimpleSearch = message.showSimpleSearch;
-        });
-        this.messenger.subscribe('showVisShortcut', (message) => {
-            this.showVisShortcut = message.showVisShortcut;
-        });
+        this.messenger.subscribe('showVisShortcut', (message) => this.updateShowVisShortcut(message));
+        this.messenger.subscribe('showFilterBuilderIcon', (message) => this.updateShowFilterBuilderIcon(message));
     }
 
     onDragStop(i, event) {
@@ -517,6 +516,22 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     unregisterWidget(eventMessage: { id: string }) {
         this.widgets.delete(eventMessage.id);
+    }
+
+    /**
+     * Updates the showVisShortcut boolean value from the messenger channel
+     * @param message
+     */
+    updateShowVisShortcut(message) {
+        this.showVisShortcut = message.showVisShortcut;
+    }
+
+    /**
+     * Updates the showFilterBuilderIcon boolean value from the messenger channel
+     * @param message
+     */
+    updateShowFilterBuilderIcon(message) {
+        this.showFilterBuilderIcon = message.showFilterBuilderIcon;
     }
 
     /**
