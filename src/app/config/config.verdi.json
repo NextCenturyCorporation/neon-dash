@@ -1,45 +1,6 @@
 {
     "datasets": [
         {
-            "name": "TA0",
-            "connectOnLoad": true,
-            "layout": "verdi-ta0-layout",
-            "datastore": "elasticsearch",
-            "hostname": "localhost",
-            "databases" :[
-                {
-                    "name": "aida-docs",
-                    "prettyName": "VERDI",
-                    "tables": [
-                        {
-                            "name": "parents",
-                            "prettyName": "Parent Documents"
-                        },
-                        {
-                            "name": "parent_children",
-                            "prettyName": "Child Documents"
-                        }
-                    ]
-                }
-            ],
-            "relations": [
-                {
-                    "members": [
-                        {
-                            "database": "aida-docs",
-                            "table": "parent_children",
-                            "field": "parent_uid"
-                        },
-                        {
-                            "database": "aida-docs",
-                            "table": "parents",
-                            "field": "id"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
             "title": "VERDI",
             "name": "VERDI LDC TA1",
             "icon": "assets/images/verdi-favicon.ico",
@@ -141,7 +102,7 @@
             "title": "VERDI",
             "name": "VERDI LDC TA3",
             "icon": "assets/images/verdi-favicon.ico",
-            "connectOnLoad": false,
+            "connectOnLoad": true,
             "layout": "verdi-ta3-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -335,129 +296,9 @@
         }
     ],
     "layouts": {
-        "verdi-ta0-layout": [
-            {
-                 "type": "dataTable",
-                 "sizex": 4,
-                 "sizey": 12,
-                 "bindings": {
-                     "title": "Document",
-                     "database": "aida-docs",
-                     "table": "parents",
-                     "idField": "id",
-                     "sortField": "id",
-                     "filterable": true,
-                     "ignoreSelf": true,
-                     "singleFilter": true,
-                     "filterFields": [
-                         "id"
-                     ],
-                     "allColumnStatus": "hide",
-                     "exceptionsToStatus": [
-                         "id",
-                         "url"
-                     ]
-                 },
-                 "row": 1,
-                 "col": 1
-            },
-            {
-                "type": "dataTable",
-                "sizex": 4,
-                "sizey": 6,
-                "bindings": {
-                    "title": "Document Elements",
-                    "database": "aida-docs",
-                    "table": "parent_children",
-                    "idField": "id",
-                    "sortField": "id",
-                    "filterable": false,
-                    "ignoreSelf": true,
-                    "singleFilter": true,
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "id",
-                        "dtype"
-                    ]
-                },
-                "row": 13,
-                "col": 1
-            },
-            {
-                "type": "aggregation",
-                "sizex": 3,
-                "sizey": 6,
-                "bindings": {
-                    "title": "Document Element Type",
-                    "database": "aida-docs",
-                    "table": "parent_children",
-                    "type": "bar-h",
-                    "xField": "dtype",
-                    "aggregation": "count",
-                    "logScaleX": true
-                },
-                "row": 1,
-                "col": 5
-                
-            },
-            {
-                "type": "aggregation",
-                "sizex": 3,
-                "sizey": 6,
-                "bindings": {
-                    "title": "Source",
-                    "database": "aida-docs",
-                    "table": "parents",
-                    "type": "list",
-                    "xField": "host",
-                    "aggregation": "count",
-                    "logScaleX": true,
-                    "sortByAggregation": true
-                },
-                "row": 7,
-                "col": 5
-                
-            },
-            {
-                "type": "aggregation",
-                "sizex": 3,
-                "sizey": 6,
-                "bindings": {
-                    "title": "Document Element Download Date",
-                    "database": "aida-docs",
-                    "table": "parent_children",
-                    "type": "histogram",
-                    "xField": "download_date",
-                    "aggregation": "count",
-                    "granularity": "month"
-                },
-                "row": 8,
-                "col": 5
-            },
-            {
-                "type": "mediaViewer",
-                "sizex": 5,
-                "sizey": 18,
-                "bindings": {
-                    "id": "_id",
-                    "title": "Media Viewer",
-                    "database": "aida-docs",
-                    "table": "parents",
-                    "idField": "id",
-                    "linkField": "reconstructed",
-                    "typeField": "dtype",
-                    "clearMedia": true
-                },
-                "row": 1,
-                "col": 8
-            }
-           
-        ],
         "verdi-ta1-layout": [
             {
-                "name": "Data Table",
                 "type": "dataTable",
-                "icon": "ViewData64",
                 "sizex": 12,
                 "sizey": 4,
                 "bindings": {
@@ -484,9 +325,7 @@
                 "col": 1
             },
             {
-                "name": "Data Table",
                 "type": "dataTable",
-                "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 4,
                 "bindings": {
@@ -510,9 +349,7 @@
                 "col": 1
             },
             {
-                "name": "Data Table",
                 "type": "dataTable",
-                "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 4,
                 "bindings": {
@@ -536,9 +373,7 @@
                 "col": 5
             },
             {
-                "name": "Data Table",
                 "type": "dataTable",
-                "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 4,
                 "bindings": {
@@ -562,9 +397,7 @@
                 "col": 9
             },
             {
-                "name": "Media Viewer",
                 "type": "mediaViewer",
-                "icon": "mediaViewer",
                 "sizex": 6,
                 "sizey": 8,
                 "bindings": {
@@ -581,9 +414,7 @@
                 "col": 1
             },
             {
-                "name": "Network Graph",
                 "type": "networkGraph",
-                "icon": "Graph",
                 "sizex": 6,
                 "sizey": 8,
                 "bindings": {
@@ -608,9 +439,7 @@
                 "col": 7
             },
             {
-                "name": "Filter Builder",
                 "type": "filterBuilder",
-                "icon": "CreateFilter64",
                 "sizex": 12,
                 "sizey": 4,
                 "bindings": {
@@ -624,9 +453,7 @@
         ],
         "verdi-ta2-layout": [
             {
-                "name": "Data Table",
                 "type": "dataTable",
-                "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 5,
                 "bindings": {
@@ -654,9 +481,7 @@
                 "col": 1
             },
             {
-                "name": "Data Table",
                 "type": "dataTable",
-                "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 5,
                 "bindings": {
@@ -681,9 +506,7 @@
                 "col": 5
             },
             {
-                "name": "Data Table",
                 "type": "dataTable",
-                "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 5,
                 "bindings": {
@@ -708,9 +531,7 @@
                 "col": 9
             },
             {
-                "name": "Network Graph",
                 "type": "networkGraph",
-                "icon": "Graph",
                 "sizex": 10,
                 "sizey": 12,
                 "bindings": {
@@ -745,9 +566,7 @@
                 "col": 1
             },
             {
-                "name": "Thumbnail Grid",
                 "type": "thumbnailGrid",
-                "icon": "ThumbnailGrid",
                 "sizex": 2,
                 "sizey": 12,
                 "bindings": {
@@ -785,9 +604,7 @@
                 "col": 11
             },
             {
-                "name": "Filter Builder",
                 "type": "filterBuilder",
-                "icon": "CreateFilter64",
                 "sizex": 12,
                 "sizey": 4,
                 "bindings": {
@@ -801,9 +618,7 @@
         ],
         "verdi-ta3-layout": [
             {
-                "name": "Query Bar",
                 "type": "queryBar",
-                "icon": "QueryBar",
                 "sizex": 12,
                 "sizey": 1,
                 "bindings": {
@@ -832,9 +647,7 @@
                 "col": 1
             },
             {
-                "name": "News Feed",
                 "type": "newsFeed",
-                "icon": "NewsFeed",
                 "sizex": 3,
                 "sizey": 14.5,
                 "bindings": {
@@ -857,9 +670,7 @@
                 "col": 1
             },
             {
-                "name": "Network Graph",
                 "type": "networkGraph",
-                "icon": "Graph",
                 "sizex": 7,
                 "sizey": 14.5,
                 "bindings": {
@@ -901,9 +712,7 @@
                 "col": 4
             },
             {
-                "name": "Thumbnail Grid",
                 "type": "thumbnailGrid",
-                "icon": "ThumbnailGrid",
                 "sizex": 2,
                 "sizey": 14.5,
                 "bindings": {
@@ -946,7 +755,6 @@
         ],
         "verdi-taxonomy": [
             {
-                "name": "Taxonomy Viewer",
                 "type": "taxonomyViewer",
                 "sizex": 4,
                 "sizey": 16,
@@ -971,9 +779,7 @@
                 "col": 0
             },
             {
-                "name": "Network Graph",
                 "type": "networkGraph",
-                "icon": "Graph",
                 "sizex": 8,
                 "sizey": 16,
                 "bindings": {

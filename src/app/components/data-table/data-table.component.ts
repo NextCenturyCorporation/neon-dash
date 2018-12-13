@@ -803,7 +803,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             id: undefined, // This will be set in the success callback of addNeonFilter.
             field: field,
             value: value,
-            prettyName: prettyField
+            prettyField: prettyField
         };
         return filter;
     }
