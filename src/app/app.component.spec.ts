@@ -76,8 +76,9 @@ import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 import { MatAutocompleteModule } from '@angular/material';
 import { QueryBarComponent } from './components/query-bar/query-bar.component';
 import {
-    ThumbnailDetailsContractedComponent,
-    ThumbnailDetailsExpandedComponent
+    TitleThumbnailSubComponent,
+    DetailsThumbnailSubComponent,
+    CardThumbnailSubComponent
 } from './components/thumbnail-grid/thumbnail-details.component';
 import { TreeModule } from 'angular-tree-component';
 
@@ -95,10 +96,12 @@ describe('App: NeonGtd', () => {
                 AggregationComponent,
                 AnnotationViewerComponent,
                 BarChartComponent,
+                CardThumbnailSubComponent,
                 ChartComponent,
                 DashboardOptionsComponent,
                 DatasetSelectorComponent,
                 DataTableComponent,
+                DetailsThumbnailSubComponent,
                 DocumentViewerComponent,
                 ExportControlComponent,
                 FilterBuilderComponent,
@@ -114,10 +117,9 @@ describe('App: NeonGtd', () => {
                 SimpleFilterComponent,
                 TaxonomyViewerComponent,
                 TextCloudComponent,
-                ThumbnailDetailsContractedComponent,
-                ThumbnailDetailsExpandedComponent,
                 ThumbnailGridComponent,
                 TimelineComponent,
+                TitleThumbnailSubComponent,
                 UnsharedFilterComponent,
                 VisualizationContainerComponent,
                 VisualizationInjectorComponent,

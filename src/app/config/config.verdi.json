@@ -1,6 +1,45 @@
 {
     "datasets": [
         {
+            "name": "TA0",
+            "connectOnLoad": true,
+            "layout": "verdi-ta0-layout",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases" :[
+                {
+                    "name": "aida-docs",
+                    "prettyName": "VERDI",
+                    "tables": [
+                        {
+                            "name": "parents",
+                            "prettyName": "Parent Documents"
+                        },
+                        {
+                            "name": "parent_children",
+                            "prettyName": "Child Documents"
+                        }
+                    ]
+                }
+            ],
+            "relations": [
+                {
+                    "members": [
+                        {
+                            "database": "aida-docs",
+                            "table": "parent_children",
+                            "field": "parent_uid"
+                        },
+                        {
+                            "database": "aida-docs",
+                            "table": "parents",
+                            "field": "id"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "title": "VERDI",
             "name": "VERDI LDC TA1",
             "icon": "assets/images/verdi-favicon.ico",
@@ -102,7 +141,7 @@
             "title": "VERDI",
             "name": "VERDI LDC TA3",
             "icon": "assets/images/verdi-favicon.ico",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "layout": "verdi-ta3-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -296,6 +335,124 @@
         }
     ],
     "layouts": {
+        "verdi-ta0-layout": [
+            {
+                 "type": "dataTable",
+                 "sizex": 4,
+                 "sizey": 12,
+                 "bindings": {
+                     "title": "Document",
+                     "database": "aida-docs",
+                     "table": "parents",
+                     "idField": "id",
+                     "sortField": "id",
+                     "filterable": true,
+                     "ignoreSelf": true,
+                     "singleFilter": true,
+                     "filterFields": [
+                         "id"
+                     ],
+                     "allColumnStatus": "hide",
+                     "exceptionsToStatus": [
+                         "id",
+                         "url"
+                     ]
+                 },
+                 "row": 1,
+                 "col": 1
+            },
+            {
+                "type": "dataTable",
+                "sizex": 4,
+                "sizey": 6,
+                "bindings": {
+                    "title": "Document Elements",
+                    "database": "aida-docs",
+                    "table": "parent_children",
+                    "idField": "id",
+                    "sortField": "id",
+                    "filterable": false,
+                    "ignoreSelf": true,
+                    "singleFilter": true,
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "id",
+                        "dtype"
+                    ]
+                },
+                "row": 13,
+                "col": 1
+            },
+            {
+                "type": "aggregation",
+                "sizex": 3,
+                "sizey": 6,
+                "bindings": {
+                    "title": "Document Element Type",
+                    "database": "aida-docs",
+                    "table": "parent_children",
+                    "type": "bar-h",
+                    "xField": "dtype",
+                    "aggregation": "count",
+                    "logScaleX": true
+                },
+                "row": 1,
+                "col": 5
+                
+            },
+            {
+                "type": "aggregation",
+                "sizex": 3,
+                "sizey": 6,
+                "bindings": {
+                    "title": "Source",
+                    "database": "aida-docs",
+                    "table": "parents",
+                    "type": "list",
+                    "xField": "host",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true
+                },
+                "row": 7,
+                "col": 5
+                
+            },
+            {
+                "type": "aggregation",
+                "sizex": 3,
+                "sizey": 6,
+                "bindings": {
+                    "title": "Document Element Download Date",
+                    "database": "aida-docs",
+                    "table": "parent_children",
+                    "type": "histogram",
+                    "xField": "download_date",
+                    "aggregation": "count",
+                    "granularity": "month"
+                },
+                "row": 8,
+                "col": 5
+            },
+            {
+                "type": "mediaViewer",
+                "sizex": 5,
+                "sizey": 18,
+                "bindings": {
+                    "id": "_id",
+                    "title": "Media Viewer",
+                    "database": "aida-docs",
+                    "table": "parents",
+                    "idField": "id",
+                    "linkField": "reconstructed",
+                    "typeField": "dtype",
+                    "clearMedia": true
+                },
+                "row": 1,
+                "col": 8
+            }
+           
+        ],
         "verdi-ta1-layout": [
             {
                 "name": "Data Table",
@@ -303,12 +460,6 @@
                 "icon": "ViewData64",
                 "sizex": 12,
                 "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:31",
-                "selected": true,
                 "bindings": {
                     "title": "Document",
                     "database": "verdi-rdf",
@@ -338,12 +489,6 @@
                 "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
-                "selected": true,
                 "bindings": {
                     "title": "Subject",
                     "database": "verdi-rdf",
@@ -370,11 +515,6 @@
                 "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
                 "bindings": {
                     "title": "Predicate",
                     "database": "verdi-rdf",
@@ -401,12 +541,6 @@
                 "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
-                "selected": true,
                 "bindings": {
                     "title": "Object",
                     "database": "verdi-rdf",
@@ -433,12 +567,6 @@
                 "icon": "mediaViewer",
                 "sizex": 6,
                 "sizey": 8,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:35",
-                "selected": true,
                 "bindings": {
                     "id": "_id",
                     "title": "Media Viewer",
@@ -458,12 +586,6 @@
                 "icon": "Graph",
                 "sizex": 6,
                 "sizey": 8,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:36",
-                "selected": true,
                 "bindings": {
                     "title": "Network Graph",
                     "database": "verdi-rdf",
@@ -491,12 +613,6 @@
                 "icon": "CreateFilter64",
                 "sizex": 12,
                 "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:37",
-                "selected": true,
                 "bindings": {
                     "title": "Filter Builder",
                     "database": "verdi-rdf",
@@ -513,12 +629,6 @@
                 "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
-                "selected": true,
                 "bindings": {
                     "title": "Subject",
                     "database": "verdi-rdf",
@@ -549,11 +659,6 @@
                 "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
                 "bindings": {
                     "title": "Predicate",
                     "database": "verdi-rdf",
@@ -581,12 +686,6 @@
                 "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
-                "selected": true,
                 "bindings": {
                     "title": "Object",
                     "database": "verdi-rdf",
@@ -614,12 +713,6 @@
                 "icon": "Graph",
                 "sizex": 10,
                 "sizey": 12,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:36",
-                "selected": true,
                 "bindings": {
                     "title": "Network Graph",
                     "database": "verdi-rdf",
@@ -657,12 +750,6 @@
                 "icon": "ThumbnailGrid",
                 "sizex": 2,
                 "sizey": 12,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:35",
-                "selected": true,
                 "bindings": {
                     "id": "_id",
                     "title": "Documents",
@@ -681,7 +768,7 @@
                     "sortField": "dtyp",
                     "filterField": "id",
                     "ascending": true,
-                    "detailedThumbnails": true,
+                    "viewType": "details",
                     "limit": 8,
                     "typeMap": {
                         "jpg": "img",
@@ -703,12 +790,6 @@
                 "icon": "CreateFilter64",
                 "sizex": 12,
                 "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:37",
-                "selected": true,
                 "bindings": {
                     "title": "Filter Builder",
                     "database": "verdi-rdf",
@@ -725,12 +806,6 @@
                 "icon": "QueryBar",
                 "sizex": 12,
                 "sizey": 1,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 6,
-                "minSizey": 5,
-                "$$hashKey": "object:72",
-                "selected": true,
                 "bindings": {
                     "database": "verdi-support",
                     "table": "hypothesis_info",
@@ -762,12 +837,6 @@
                 "icon": "NewsFeed",
                 "sizex": 3,
                 "sizey": 14.5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 6,
-                "minSizey": 5,
-                "$$hashKey": "object:72",
-                "selected": true,
                 "bindings": {
                     "title": "Hypotheses",
                     "database": "verdi-support",
@@ -793,12 +862,6 @@
                 "icon": "Graph",
                 "sizex": 7,
                 "sizey": 14.5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:36",
-                "selected": true,
                 "bindings": {
                     "title": "Network Graph",
                     "database": "verdi-rdf",
@@ -843,12 +906,6 @@
                 "icon": "ThumbnailGrid",
                 "sizex": 2,
                 "sizey": 14.5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:35",
-                "selected": true,
                 "bindings": {
                     "id": "_id",
                     "title": "Documents",
@@ -870,7 +927,7 @@
                     "sortField": "dtyp",
                     "filterField": "id",
                     "ascending": true,
-                    "detailedThumbnails": true,
+                    "viewType": "details",
                     "limit": 8,
                     "typeMap": {
                         "jpg": "img",
@@ -893,12 +950,6 @@
                 "type": "taxonomyViewer",
                 "sizex": 4,
                 "sizey": 16,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:35",
-                "selected": true,
                 "bindings": {
                     "id": "_id",
                     "title": "Taxonomy",
@@ -925,12 +976,6 @@
                 "icon": "Graph",
                 "sizex": 8,
                 "sizey": 16,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:36",
-                "selected": true,
                 "bindings": {
                     "title": "Network Graph",
                     "database": "verdi-rdf",

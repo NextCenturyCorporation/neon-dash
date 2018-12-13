@@ -35,7 +35,7 @@ import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
-import { KEYS, TREE_ACTIONS } from 'angular-tree-component';
+import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
@@ -135,6 +135,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
     public options: TaxonomyViewerOptions;
     public taxonomyGroups: any[] = [];
+    public deletedFilter: any;
 
     public testOptions = {
         actionMapping: {
@@ -317,6 +318,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         let filter = {
             id: undefined,
+            lineage: nodeData.lineage,
             field: nodeData.description,
             prettyField: 'Tree Node',
             value: ''
@@ -466,6 +468,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
                 });
 
+                this.addCountsToTaxonomy(response.data, this.taxonomyGroups);
                 this.sortTaxonomyArrays(this.taxonomyGroups);
                 this.refreshVisualization();
 
@@ -495,8 +498,37 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * Without it, the double click event does not work.
      *
      */
-    onEvent = () => {
+    onEvent = ($event) => {
         //Intentionally empty
+    }
+
+    addCountsToTaxonomy(data: any, groups: any[]) {
+        for (let group of groups) {
+            let count = 0;
+            group.nodeIds = [];
+            data.forEach((d) => {
+                let id = neonUtilities.deepFind(d, this.options.idField.columnName);
+                if (neonUtilities.deepFind(d, group.description).includes(group.name) && !group.nodeIds.includes(id)) {
+                    group.nodeIds.push(id);
+                    count++;
+                }
+            });
+
+            group.nodeCount = count;
+
+            if (group.hasOwnProperty('children')) {
+                this.addCountsToTaxonomy(data, group.children);
+                let childCount = 0;
+                for (let child of group.children) {
+                    childCount += child.nodeCount;
+                }
+
+                if (!group.nodeCount) {
+                    group.nodeCount = childCount;
+                }
+
+            }
+        }
     }
 
     /**
@@ -527,7 +559,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         };
     }
 
-    checkRelatedNodes(node, $event) {
+    checkRelatedNodes(node: TreeNode, $event: any) {
         let relatives = [];
         this.updateChildNodesCheckBox(node, $event.target.checked);
         this.updateParentNodesCheckBox(node.parent);
@@ -558,38 +590,45 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
     }
 
-    updateChildNodesCheckBox(node, checked) {
-        node.data.checked = checked;
-        if (node.children) {
-            node.children.forEach((child) => this.updateChildNodesCheckBox(child, checked));
+    updateChildNodesCheckBox(node: TreeNode, checked: boolean) {
+        let setNode = node.data || node;
+        setNode.checked = checked;
+
+        if (setNode.children) {
+            setNode.children.forEach((child) => this.updateChildNodesCheckBox(child, checked));
         }
     }
 
-    updateParentNodesCheckBox(node) {
+    updateParentNodesCheckBox(node: TreeNode) {
         if (node && node.level > 0 && node.children) {
-            let allChildChecked = true,
+            let setNode = node.data || node,
+                allChildChecked = true,
                 noChildChecked = true;
 
             for (let child of node.children) {
-                if (!child.data.checked) {
+                let setChild = child.data || child;
+                if (!setChild.checked) {
                     allChildChecked = false;
-                } else if (child.data.checked) {
+                } else if (setChild.checked) {
                     noChildChecked = false;
                 }
             }
 
 //todo: toggling children causes indeterminate to turn into checked AIDA-403
             if (allChildChecked) {
-                node.data.checked = true;
-                node.data.indeterminate = false;
+                setNode.checked = true;
+                setNode.indeterminate = false;
             } else if (noChildChecked) {
-                node.data.checked = false;
-                node.data.indeterminate = false;
+                setNode.checked = false;
+                setNode.indeterminate = false;
             } else {
-                node.data.checked = true;
-                node.data.indeterminate = true;
+                setNode.checked = true;
+                setNode.indeterminate = true;
             }
-            this.updateParentNodesCheckBox(node.parent);
+
+            if (setNode.parent) {
+                this.updateParentNodesCheckBox(setNode.parent);
+            }
         }
     }
 
@@ -619,7 +658,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     refreshVisualization() {
-        //
+        this.getElementRefs().treeRoot.treeModel.update();
     }
 
     /**
@@ -629,12 +668,13 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     removeFilter(filter: any) {
-        //TODO:Update Taxonomy when filter from filter tray is deleted AIDA-390
-
-        this.filters = this.filters.filter((existingFilter) => {
-            return existingFilter.id !== filter.id;
-        });
-
+        for (let i = 0; i < this.filters.length; i++) {
+            if (this.filters[i].id === filter.id) {
+                this.deletedFilter = this.filters[i];
+                this.filters.splice(i, 1);
+                break;
+            }
+        }
     }
 
     /**
@@ -668,10 +708,26 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * Called after the filters in the filter service have changed.
      * Defaults to calling setupFilters() then executeQueryChain()
      */
-    handleFiltersChangedEvent(): void {
-        //TODO:Update Taxonomy when filter from filter tray is deleted AIDA-390
-        /*        console.log(this.getElementRefs().treeRoot.treeModel.nodes);
-                console.log(this.treeRoot.treeModel.nodes);*/
+    handleFiltersChangedEvent($event): void {
+        if ($event[0].whereClause) {
+            for (let filter of this.filters) {
+                if (filter.value === $event[0].whereClause.rhs) {
+                    this.removeFilter(filter);
+                    break;
+                }
+            }
+        }
+
+        for (let node of this.getElementRefs().treeRoot.treeModel.nodes) {
+            if (this.deletedFilter && (this.deletedFilter.lineage === node.name ||
+                this.deletedFilter.value === node.name)) {
+                node.checked = true;
+                this.updateChildNodesCheckBox(node, true);
+                this.updateParentNodesCheckBox(node.parent);
+            }
+        }
+
+        this.refreshVisualization();
     }
 
     /**
