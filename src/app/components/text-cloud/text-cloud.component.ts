@@ -25,6 +25,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -73,7 +74,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         datasetService: DatasetService,
         filterService: FilterService,
         injector: Injector,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        protected widgetService: AbstractWidgetService
     ) {
         super(
             connectionService,
@@ -95,7 +97,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     postInit() {
         // This should happen before execute query as #refreshVisualization() depends on this.textCloud
-        this.textColor = this.getPrimaryThemeColor().toHexString();
+        this.textColor = this.widgetService.getThemeAccentColorHex();
         this.updateTextCloudSettings();
 
         this.executeQueryChain();
@@ -146,7 +148,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Creates and returns an array of field options for the unique widget.
+     * Creates and returns an array of field options for the visualization.
      *
      * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
      * @override
@@ -154,12 +156,12 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [
             new WidgetFieldOption('dataField', 'Term Field', true),
-            new WidgetFieldOption('sizeField', 'Size Field', false, this.isNonCountAggregation)
+            new WidgetFieldOption('sizeField', 'Size Field', false, this.optionsAggregationIsNotCount)
         ];
     }
 
     /**
-     * Creates and returns an array of non-field options for the unique widget.
+     * Creates and returns an array of non-field options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
@@ -239,33 +241,23 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Returns the default limit for the unique widget.
+     * Returns the default limit for the visualization.
      *
      * @return {string}
      * @override
      */
-    getWidgetDefaultLimit(): number {
+    getVisualizationDefaultLimit(): number {
         return 40;
     }
 
     /**
-     * Returns the name for the unique widget.
+     * Returns the default title for the visualization.
      *
      * @return {string}
      * @override
      */
-    getWidgetName(): string {
+    getVisualizationDefaultTitle(): string {
         return 'Text Cloud';
-    }
-
-    /**
-     * Returns whether the aggregation type is not count.
-     *
-     * @arg {any} options
-     * @return {boolean}
-     */
-    isNonCountAggregation(options: any): boolean {
-        return options.aggregation !== neonVariables.COUNT;
     }
 
     onQuerySuccess(response): void {
@@ -294,6 +286,16 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         } catch (e) {
             console.error((<Error> e).message);
         }
+    }
+
+    /**
+     * Returns whether the aggregation type is not count.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsAggregationIsNotCount(options: any): boolean {
+        return options.aggregation !== neonVariables.COUNT;
     }
 
     setupFilters() {

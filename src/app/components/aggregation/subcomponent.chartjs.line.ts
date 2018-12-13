@@ -13,6 +13,7 @@
  * limitations under the License.
  *
  */
+import { ElementRef } from '@angular/core';
 import { AbstractChartJsDataset, AbstractChartJsSubcomponent, ChartJsData } from './subcomponent.chartjs.abstract';
 import { Color } from '../../color';
 
@@ -35,8 +36,8 @@ export class ChartJsLineDataset extends AbstractChartJsDataset {
     public pointStyle: string = 'circle';
     public showLine: boolean = true;
 
-    constructor(color: Color, label: string, xList: any[]) {
-        super(color, label, xList);
+    constructor(elementRef: ElementRef, color: Color, label: string, xList: any[]) {
+        super(elementRef, color, label, xList);
         this.backgroundColor = this.getColorBackground();
         this.borderColor = this.getColorSelected();
         this.pointBackgroundColor = this.getColorSelected();
@@ -69,7 +70,7 @@ export class ChartJsLineSubcomponent extends AbstractChartJsSubcomponent {
      * @override
      */
     protected createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset {
-        let dataset = new ChartJsLineDataset(color, label, xList);
+        let dataset = new ChartJsLineDataset(this.elementRef, color, label, xList);
         dataset.fill = this.options.lineFillArea || dataset.fill;
         dataset.lineTension = this.options.lineCurveTension === 0 ? 0 : (this.options.lineCurveTension || dataset.lineTension);
         return dataset;

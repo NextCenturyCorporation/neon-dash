@@ -23,11 +23,19 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { SimpleFilterComponent } from './simple-filter.component';
 import { DatasetOptions, SimpleFilter } from '../../dataset';
-import { DebugElement } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    ChangeDetectionStrategy,
+    Component,
+    DebugElement,
+    NO_ERRORS_SCHEMA,
+    OnDestroy, OnInit
+} from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 
 const databaseName = 'database';
 const tableName = 'table';
@@ -36,8 +44,8 @@ const fieldName = 'field';
 // TODO Is this really needed?
 class MockFilterService extends FilterServiceMock {
     addFilter(messenger: neon.eventing.Messenger, ownerId: string, database: string, table: string,
-              whereClause: any, filterName: string | { visName: string; text: string },
-              onSuccess: (resp: any) => any, onError: (resp: any) => any): void {
+        whereClause: any, filterName: string | { visName: string; text: string },
+        onSuccess: (resp: any) => any, onError: (resp: any) => any): void {
         super.addFilter(messenger, ownerId, database, table, whereClause, filterName, onSuccess, onError);
         onSuccess(super.getLatestFilterId());
     }
@@ -54,6 +62,25 @@ class MockDatasetService extends DatasetService {
         return this.options;
     }
 }
+@Component({
+    selector: 'app-simple-filter',
+    templateUrl: './simple-filter.component.html',
+    styleUrls: ['./simple-filter.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+class TestSimpleFilterComponent extends SimpleFilterComponent {
+    constructor(
+        changeDetection: ChangeDetectorRef,
+        datasetService: DatasetService,
+        filterService: FilterService
+    ) {
+        super(
+            changeDetection,
+            datasetService,
+            filterService
+        );
+    }
+}
 
 class SimpleFilterTester {
     fixture: ComponentFixture<SimpleFilterComponent>;
@@ -61,6 +88,7 @@ class SimpleFilterTester {
     filterService: FilterService;
     datasetService: DatasetService;
     element: DebugElement;
+    spyOnInit;
 
     constructor(mockDataset = true, showSimpleSearch = true) {
         TestBed.configureTestingModule({
@@ -82,6 +110,7 @@ class SimpleFilterTester {
         this.fixture = fixture;
         this.component = fixture.componentInstance;
         this.component.showSimpleSearch = showSimpleSearch;
+        this.spyOnInit = spyOn(this.component, 'ngOnInit');
         this.filterService = this.getInjected(FilterService);
         this.detectChanges();
 
@@ -254,4 +283,31 @@ describe('Component: SimpleFilter unconfigured', () => {
     it('**should not show in the UI when showSimpleFilter is set to false**', () => {
         expect(tester.element).toBeFalsy();
     });
+
+    it('Checks Default values', () => {
+        expect(tester.component.showSimpleSearch).toEqual(false);
+    });
+
+    it('Check that the publish function updates the correct booleans', (() => {
+        let spyOnBingShowSimpleSearch = spyOn(tester.component, 'bindShowSimpleSearch');
+        let spyOnPublishShowSimpleSearch = spyOn(tester.component, 'publishShowSimpleSearch');
+        let message = {
+            showSimpleSearch: false
+        };
+
+        expect(tester.spyOnInit.calls.count()).toEqual(1);
+
+        tester.component.showSimpleSearch = false;
+        expect(tester.component.showSimpleSearch).toEqual(false);
+        tester.component.ngOnInit();
+
+        tester.component.bindShowSimpleSearch(message);
+        tester.component.ngOnInit();
+        tester.component.publishShowSimpleSearch();
+
+        expect(tester.spyOnInit.calls.count()).toEqual(3);
+        expect(spyOnBingShowSimpleSearch.calls.count()).toEqual(1);
+        expect(spyOnPublishShowSimpleSearch.calls.count()).toEqual(1);
+    }));
+
 });

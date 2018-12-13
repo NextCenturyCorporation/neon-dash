@@ -115,7 +115,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Creates and returns an array of field options for the unique widget.
+     * Creates and returns an array of field options for the visualization.
      *
      * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
      * @override
@@ -180,7 +180,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Creates and returns an array of non-field options for the unique widget.
+     * Creates and returns an array of non-field options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
@@ -189,8 +189,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         return [
             new WidgetSelectOption('autoplay', 'Autoplay', false, OptionChoices.NoFalseYesTrue),
             new WidgetFreeTextOption('border', 'Border', ''),
-            new WidgetFreeTextOption('borderCompareValue', 'Border Comparison Field Equals', '', this.isPercentCompareOrValueCompare),
-            new WidgetFreeTextOption('borderPercentThreshold', 'Border Probability Greater Than', 0.5, this.isPercentCompareOrPercentField),
+            new WidgetFreeTextOption('borderCompareValue', 'Border Comparison Field Equals', '',
+                this.optionsBorderIsPercentCompareOrValueCompare),
+            new WidgetFreeTextOption('borderPercentThreshold', 'Border Probability Greater Than', 0.5,
+                this.optionsBorderIsPercentCompareOrPercentField),
             new WidgetSelectOption('cropAndScale', 'Crop or Scale', '', [{
                 prettyName: 'None',
                 variable: ''
@@ -349,22 +351,22 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Returns the default limit for the unique widget.
+     * Returns the default limit for the visualization.
      *
      * @return {string}
      * @override
      */
-    getWidgetDefaultLimit(): number {
+    getVisualizationDefaultLimit(): number {
         return 30;
     }
 
     /**
-     * Returns the name for the unique widget.
+     * Returns the default title for the visualization.
      *
      * @return {string}
      * @override
      */
-    getWidgetName(): string {
+    getVisualizationDefaultTitle(): string {
         return 'Thumbnail Grid';
     }
 
@@ -498,26 +500,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Returns whether the border property in the given options is percentCompare or percentField.
-     *
-     * @arg {any} options
-     * @return {boolean}
-     */
-    isPercentCompareOrPercentField(options: any): boolean {
-        return options.border === 'percentCompare' || options.border === 'percentField';
-    }
-
-    /**
-     * Returns whether the border property in the given options is percentCompare or valueCompare.
-     *
-     * @arg {any} options
-     * @return {boolean}
-     */
-    isPercentCompareOrValueCompare(options: any): boolean {
-        return options.border === 'percentCompare' || options.border === 'valueCompare';
-    }
-
-    /**
      * Returns whether the thumbnail grid query using the active data config is valid.
      *
      * @return {boolean}
@@ -635,6 +617,26 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             this.errorMessage = 'Error';
             this.refreshVisualization();
         }
+    }
+
+    /**
+     * Returns whether the border property in the given options is percentCompare or percentField.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsBorderIsPercentCompareOrPercentField(options: any): boolean {
+        return options.border === 'percentCompare' || options.border === 'percentField';
+    }
+
+    /**
+     * Returns whether the border property in the given options is percentCompare or valueCompare.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsBorderIsPercentCompareOrValueCompare(options: any): boolean {
+        return options.border === 'percentCompare' || options.border === 'valueCompare';
     }
 
     /**

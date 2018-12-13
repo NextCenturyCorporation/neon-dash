@@ -153,7 +153,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Creates and returns an array of field options for the unique widget.
+     * Creates and returns an array of field options for the visualization.
      *
      * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
      * @override
@@ -171,7 +171,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Creates and returns an array of non-field options for the unique widget.
+     * Creates and returns an array of non-field options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
@@ -187,22 +187,22 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Returns the default limit for the unique widget.
+     * Returns the default limit for the visualization.
      *
      * @return {string}
      * @override
      */
-    getWidgetDefaultLimit(): number {
+    getVisualizationDefaultLimit(): number {
         return 50;
     }
 
     /**
-     * Returns the name for the unique widget.
+     * Returns the default title for the visualization.
      *
      * @return {string}
      * @override
      */
-    getWidgetName(): string {
+    getVisualizationDefaultTitle(): string {
         return 'Annotation Viewer';
     }
 
@@ -459,7 +459,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     let currentText = document.annotationTextList[index];
                     let currentType = document.annotationTypeList[index];
                     let highlightColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, currentType,
-                        currentType).toRgba(0.4);
+                        currentType).getComputedCssTransparencyHigh(this.visualization);
 
                     currentPart.highlightColor = highlightColor;
                     currentPart.text = currentText;
@@ -884,7 +884,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                 } else {
                     if (part.highlightColor && part.highlightColor.includes('rgb(255,255,255')) {
                         part.highlightColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, part.type,
-                            part.type).toRgba(0.4);
+                            part.type).getComputedCssTransparencyHigh(this.visualization);
                     }
                 }
 

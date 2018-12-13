@@ -14,12 +14,26 @@
  *
  */
 import { Injectable } from '@angular/core';
-import { AbstractWidgetService } from './abstract.widget.service';
+import { AbstractWidgetService, Theme } from './abstract.widget.service';
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
 import { BaseLayeredNeonComponent } from '../components/base-neon-component/base-layered-neon.component';
 import { Color, ColorSet } from '../color';
 import { DatasetService } from './dataset.service';
 import * as neon from 'neon-framework';
+
+/**
+ * @class NeonTheme
+ */
+export class NeonTheme implements Theme {
+    /**
+     * @constructor
+     * @arg {string} accent The accent color.
+     * @arg {string} id The theme ID.
+     * @arg {string} main The main color.
+     * @arg {string} name The theme name.
+     */
+    constructor(public accent: string, public id: string, public main: string, public name: string) {}
+}
 
 /**
  * A service for everything a Neon Dashboard widget needs.
@@ -28,20 +42,9 @@ import * as neon from 'neon-framework';
  */
 @Injectable()
 export class WidgetService extends AbstractWidgetService {
-    public static THEME_DARK: { id: string, name: string } = {
-        id: 'neon-dark',
-        name: 'Dark'
-    };
-
-    public static THEME_GREEN: { id: string, name: string } = {
-        id: 'neon-green',
-        name: 'Green'
-    };
-
-    public static THEME_TEAL: { id: string, name: string } = {
-        id: 'neon-teal',
-        name: 'Teal'
-    };
+    public static THEME_DARK: Theme = new NeonTheme('#01B7C1', 'neon-dark', '#515861', 'Dark');
+    public static THEME_GREEN: Theme = new NeonTheme('#FFA600', 'neon-green', '#39B54A', 'Green');
+        public static THEME_TEAL: Theme = new NeonTheme('#54C8CD', 'neon-teal', '#367588', 'Teal');
 
     // TODO Let different databases and tables in the same dataset have different color maps.
     private colorKeyToColorSet: Map<string, ColorSet> = new Map<string, ColorSet>();
@@ -114,10 +117,10 @@ export class WidgetService extends AbstractWidgetService {
     /**
      * Returns the list of available application themes.
      *
-     * @return {{id:string,name:string}[]}
+     * @return {Theme[]}
      * @override
      */
-    public getThemes(): { id: string, name: string }[] {
+    public getThemes(): Theme[] {
         return [
             // TODO THOR-853 Add dark theme
             // WidgetService.THEME_DARK,
@@ -125,6 +128,26 @@ export class WidgetService extends AbstractWidgetService {
             // WidgetService.THEME_GREEN,
             WidgetService.THEME_TEAL
         ];
+    }
+
+    /**
+     * Returns the hex for the accent color for the current application theme.
+     *
+     * @return {string}
+     * @override
+     */
+    public getThemeAccentColorHex(): string {
+        return (this.getThemes().filter((theme) => theme.id === this.currentThemeId)[0] as NeonTheme).accent;
+    }
+
+    /**
+     * Returns the hex for the main color for the current application theme.
+     *
+     * @return {string}
+     * @override
+     */
+    public getThemeMainColorHex(): string {
+        return (this.getThemes().filter((theme) => theme.id === this.currentThemeId)[0] as NeonTheme).main;
     }
 
     /**
