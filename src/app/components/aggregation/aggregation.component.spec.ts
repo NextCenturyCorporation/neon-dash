@@ -753,24 +753,48 @@ describe('Component: Aggregation', () => {
     });
 
     it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toEqual('No Data');
+        component.activeData = null;
+        expect(component.getButtonText()).toEqual('');
 
         component.options.limit = 1;
-        component.activeData = [{}];
-        component.responseData = [{}, {}];
-        expect(component.getButtonText()).toEqual('1 of 2');
+        component.activeData = [{
+            y: 0
+        }];
+        component.responseData = [{
+            y: 0
+        }];
+        expect(component.getButtonText()).toEqual('0 Results');
 
-        component.activeData = [{}, {}];
-        expect(component.getButtonText()).toEqual('Total 0');
-
-        component.responseData = [{}, {}, {}, {}];
-        expect(component.getButtonText()).toEqual('1 of 4');
+        component.activeData = [{
+            y: 1
+        }];
+        component.responseData = [{
+            y: 1
+        }, {
+            y: 10
+        }];
+        expect(component.getButtonText()).toEqual('1 Result (Limited)');
 
         component.options.limit = 2;
-        expect(component.getButtonText()).toEqual('1 - 2 of 4');
+        component.activeData = [{
+            y: 1
+        }, {
+            y: 10
+        }];
+        expect(component.getButtonText()).toEqual('11 Results');
 
-        component.page = 2;
-        expect(component.getButtonText()).toEqual('3 - 4 of 4');
+        component.options.limit = 1;
+        component.responseData = [{
+            y: 1
+        }, {
+            y: 10
+        }, {
+            y: 100
+        }];
+        expect(component.getButtonText()).toEqual('11 Results (Limited)');
+
+        component.options.limit = 2;
+        expect(component.getButtonText()).toEqual('11 Results (Limited)');
     });
 
     it('getCloseableFilters does return expected object', () => {
@@ -3740,7 +3764,7 @@ describe('Component: Aggregation', () => {
     it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', () => {
         let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
         expect(dataInfoTextInToolbar).not.toBeNull();
-        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('No Data');
+        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('0 Results');
 
         let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
         expect(dataInfoIconInSidenav).not.toBeNull();
@@ -3748,7 +3772,7 @@ describe('Component: Aggregation', () => {
 
         let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
         expect(dataInfoTextInSidenav).not.toBeNull();
-        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('No Data');
+        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Results');
 
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
@@ -3777,7 +3801,7 @@ describe('Component: Aggregation', () => {
 
             let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
             expect(dataInfoTextInSidenav).not.toBeNull();
-            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('No Data');
+            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Results');
 
             let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
             expect(errorMessageInToolbar).not.toBeNull();

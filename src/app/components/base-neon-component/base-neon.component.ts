@@ -65,6 +65,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     public initializing: boolean = false;
     public isLoading: boolean = false;
     public isExportable: boolean = true;
+    public isPaginationWidget: boolean = false;
 
     public errorMessage: string = '';
 
@@ -72,6 +73,10 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
     // TODO THOR-349 Move into future widget option menu component
     public newLimit: number;
+
+    // The data pagination properties.
+    public lastPage: boolean = true;
+    public page: number = 1;
 
     constructor(
         protected connectionService: ConnectionService,
@@ -655,8 +660,89 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         });
     }
 
-    getButtonText() {
-        return '';
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     */
+    public getButtonText(): string {
+        let shownDataArray = this.getShownDataArray();
+
+        // If the query was not yet run, show no text unless waiting on an event.
+        if (!shownDataArray) {
+            // TODO Add support for 'Please Select'
+            return this.options.hideUnfiltered ? 'Please Filter' : '';
+        }
+
+        let shownDataCount = this.getShownDataCount(shownDataArray);
+        let elementLabel = this.getVisualizationElementLabel(shownDataCount);
+
+        // If the query was empty, show the relevant text.
+        if (!shownDataCount) {
+            return (this.options.hideUnfiltered && !this.getCloseableFilters().length) ? 'Please Filter' :
+                ('0' + (elementLabel ? (' ' + elementLabel) : ''));
+        }
+
+        let totalDataCount = this.getTotalDataCount();
+
+        // If the query was not limited, show the total count.
+        if (totalDataCount <= this.options.limit) {
+            return this.prettifyInteger(shownDataCount) + (elementLabel ? (' ' + elementLabel) : '');
+        }
+
+        // If the query was limited and the widget uses pagination, show the pagination text.
+        if (this.isPaginationWidget) {
+            elementLabel = this.getVisualizationElementLabel(totalDataCount);
+            let begin = this.prettifyInteger((this.page - 1) * this.options.limit + 1);
+            let end = this.prettifyInteger(Math.min(this.page * this.options.limit, totalDataCount));
+            return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + this.prettifyInteger(totalDataCount) +
+                (elementLabel ? (' ' + elementLabel) : '');
+        }
+
+        // Otherwise just show the shown count with a note that the query was limited.
+        return this.prettifyInteger(shownDataCount) + (elementLabel ? (' ' + elementLabel) : '') + ' (Limited)';
+    }
+
+    // TODO THOR-971 Replace this function with a new local variable.
+    /**
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
+     *
+     * @return {any[]}
+     */
+    public getShownDataArray(): any[] {
+        return undefined;
+    }
+
+    /**
+     * Returns the count of the given array of data items that are currently shown in the visualization.
+     *
+     * @arg {any[]} data
+     * @return {number}
+     */
+    public getShownDataCount(data: any[]): number {
+        return data.length;
+    }
+
+    // TODO THOR-971 Replace this function with a new local variable.
+    /**
+     * Returns the count of data items that an unlimited query for the visualization would contain.
+     *
+     * @return {number}
+     */
+    public getTotalDataCount(): number {
+        let shownDataArray = this.getShownDataArray();
+        return (shownDataArray || []).length;
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Result' + (count === 1 ? '' : 's');
     }
 
     /**
@@ -726,7 +812,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @return {string}
      */
     prettifyInteger(item: number): string {
-        return item.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return Math.round(item).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
 
     /**

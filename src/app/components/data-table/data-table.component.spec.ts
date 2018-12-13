@@ -1259,20 +1259,24 @@ describe('Component: DataTable', () => {
     });
 
     it('getButtonText does return expected string', () => {
-        component.options.limit = 10;
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Rows');
+
         component.options.hideUnfiltered = true;
         expect(component.getButtonText()).toBe('Please Filter');
-        component.docCount = 10;
-        expect(component.getButtonText()).toBe('Total 10');
+        component.options.hideUnfiltered = false;
+
+        component.activeData = [{}];
+        expect(component.getButtonText()).toBe('1 Row');
+
+        component.activeData = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}];
+        expect(component.getButtonText()).toBe('10 Rows');
+
         component.docCount = 20;
-        expect(component.getButtonText()).toBe('1 - 10 of 20');
+        component.options.limit = 10;
+        expect(component.getButtonText()).toBe('1 - 10 of 20 Rows');
+
         component.page = 2;
-        expect(component.getButtonText()).toBe('11 - 20 of 20');
-        component.options.limit = 5;
-        expect(component.getButtonText()).toBe('6 - 10 of 20');
-        component.docCount = 5;
-        expect(component.getButtonText()).toBe('Total 5');
+        expect(component.getButtonText()).toBe('11 - 20 of 20 Rows');
     });
 
     it('onSelect does update selected array and calls publishAnyCustomEvents, but not publishSelectId', () => {

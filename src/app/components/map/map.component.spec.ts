@@ -161,7 +161,8 @@ class TestMap extends AbstractMap {
 /* tslint:enable:component-class-suffix */
 
 function updateMapLayer1(component: TestMapComponent) {
-    component.docCount[0] = 1234;
+    component.docCount[0] = 1;
+    component.mapPoints[0] = [{}];
 
     component.options.layers[0] = new WidgetOptionCollection(undefined, {});
     component.options.layers[0].databases = [];
@@ -183,7 +184,8 @@ function updateMapLayer1(component: TestMapComponent) {
 }
 
 function updateMapLayer2(component: TestMapComponent) {
-    component.docCount[1] = 5678;
+    component.docCount[1] = 10;
+    component.mapPoints[1] = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}];
 
     component.options.layers[1] = new WidgetOptionCollection(undefined, {});
     component.options.layers[1].databases = [];
@@ -952,17 +954,21 @@ describe('Component: Map', () => {
     });
 
     it('getButtonText does return expected string', () => {
+        component.options.limit = 1;
+
+        expect(component.getButtonText()).toEqual('0 Points');
+
         updateMapLayer1(component);
 
-        expect(component.getButtonText()).toEqual('1,000 of 1,234');
-
-        component.options.limit = 2000;
-
-        expect(component.getButtonText()).toEqual('Total 1,234');
+        expect(component.getButtonText()).toEqual('1 Point');
 
         updateMapLayer2(component);
 
-        expect(component.getButtonText()).toEqual('Layer A (Total 1,234), Layer B (2,000 of 5,678)');
+        expect(component.getButtonText()).toEqual('Layer A (1 Point), Layer B (10 Points (Limited))');
+
+        component.options.limit = 10;
+
+        expect(component.getButtonText()).toEqual('Layer A (1 Point), Layer B (10 Points)');
     });
 
     it('runDocumentCountQuery does call executeQuery', () => {

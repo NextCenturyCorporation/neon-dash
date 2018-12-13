@@ -384,19 +384,11 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @return {string}
      * @override
      */
-    getButtonText() {
-        if (!this.tabsAndMedia.length && !this.options.url) {
+    public getButtonText(): string {
+        if (!this.getShownDataCount(this.getShownDataArray()) && !this.options.url) {
             return 'Please Select';
         }
-        if (!this.tabsAndMedia.length && this.options.url) {
-            if (this.options.hideUnfiltered) {
-                return 'Please Filter';
-            }
-            return 'No Data';
-        }
-        return 'Total Files ' + super.prettifyInteger(this.tabsAndMedia.reduce((sum, tab) => {
-            return sum + tab.list.length;
-        }, 0));
+        return super.getButtonText();
     }
 
     /**
@@ -407,6 +399,39 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     getCloseableFilters(): any[] {
         return [];
+    }
+
+    /**
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
+     *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        return this.tabsAndMedia;
+    }
+
+    /**
+     * Returns the count of the given array of data items that are currently shown in the visualization.
+     *
+     * @arg {any[]} data
+     * @return {number}
+     * @override
+     */
+    public getShownDataCount(data: any[]): number {
+        return data.reduce((sum, tab) => sum + tab.list.length, 0);
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'File' + (count === 1 ? '' : 's');
     }
 
     /**
