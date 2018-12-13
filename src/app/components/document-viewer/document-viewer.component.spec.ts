@@ -328,20 +328,20 @@ describe('Component: DocumentViewer', () => {
     it('returns the expected value from getButtonText', () => {
         // When activeData.length == 0
         component.activeData = [];
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Documents');
 
         // When activeData.langth < docCount
         component.activeData = ['value1', 'value2'];
-        component.docCount = 50;
-        expect(component.getButtonText()).toBe('1 - 50 of 50');
+        component.docCount = 100;
+        expect(component.getButtonText()).toBe('1 - 50 of 100 Documents');
 
         // When limit changes
         component.options.limit = 10;
-        expect(component.getButtonText()).toBe('1 - 10 of 50');
+        expect(component.getButtonText()).toBe('1 - 10 of 100 Documents');
 
         // When activeData.length >= docCount
         component.docCount = 2;
-        expect(component.getButtonText()).toBe('Total 2');
+        expect(component.getButtonText()).toBe('2 Documents');
     });
 
     it('has setupFilters method that does nothing of substance', () => {

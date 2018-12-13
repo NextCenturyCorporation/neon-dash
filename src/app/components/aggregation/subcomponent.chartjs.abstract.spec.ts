@@ -107,6 +107,10 @@ class TestChartJsSubcomponent extends AbstractChartJsSubcomponent {
         return this.createChartDataAndOptions(data, meta);
     }
 
+    public getVisualizationElementLabel(count: number): string {
+        return 'Foobar' + (count === 1 ? '' : 's');
+    }
+
     public getSelectedLabels() {
         return this.selectedLabels;
     }

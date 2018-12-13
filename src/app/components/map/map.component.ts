@@ -96,11 +96,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
     protected filterHistory = new Array();
 
-    public docCount: number[] = [];
-
     public colorKeys: string[] = [];
-
+    public docCount: number[] = [];
     public filterVisible: boolean[] = [];
+    public mapPoints: any[] = [];
 
     public mapTypes = MapTypePairs;
 
@@ -224,6 +223,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     postAddLayer(options: any) {
         this.docCount[options.layers.length - 1] = 0;
         this.filterVisible[options.layers.length - 1] = true;
+        this.mapPoints[options.layers.length - 1] = [];
     }
 
     /**
@@ -582,17 +582,17 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             this.options.singleColor = false;
         }
 
-        let layer = this.options.layers[layerIndex],
-            mapPoints = this.getMapPoints(
-                layer.database.name,
-                layer.table.name,
-                layer.idField.columnName,
-                layer.longitudeField.columnName,
-                layer.latitudeField.columnName,
-                layer.colorField.columnName,
-                layer.hoverPopupField,
-                response.data
-            );
+        let layer = this.options.layers[layerIndex];
+        this.mapPoints[layerIndex] = this.getMapPoints(
+            layer.database.name,
+            layer.table.name,
+            layer.idField.columnName,
+            layer.longitudeField.columnName,
+            layer.latitudeField.columnName,
+            layer.colorField.columnName,
+            layer.hoverPopupField.columnName,
+            response.data
+        );
 
         // Unhide all points
         for (let currentLayer of this.options.layers) {
@@ -600,7 +600,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         }
 
         this.mapObject.clearLayer(layer);
-        this.mapObject.addPoints(mapPoints, layer, true);
+        this.mapObject.addPoints(this.mapPoints[layerIndex], layer, true);
 
         this.filterMapForLegend();
         this.updateLegend();
@@ -867,31 +867,36 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     /**
-     * Creates and returns the text for the settings button.
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
      *
+     * @arg {number} layerIndex
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(layerIndex: number): any[] {
+        return this.mapPoints[layerIndex];
+    }
+
+    /**
+     * Returns the count of data items that an unlimited query for the visualization would contain.
+     *
+     * @arg {number} layerIndex
+     * @return {number}
+     */
+    public getTotalDataCount(layerIndex: number): number {
+        return this.docCount[layerIndex];
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
      * @return {string}
      * @override
      */
-    getButtonText(): string {
-        let prettifyInteger = super.prettifyInteger;
-        let createButtonText = (count, limit) => {
-            if (!count) {
-                return 'No Data';
-            }
-            return (limit < count ? prettifyInteger(limit) + ' of ' : 'Total ') + prettifyInteger(count);
-        };
-
-        if (this.options.layers.length === 1) {
-            return createButtonText(this.docCount[0], this.options.limit);
-        }
-        if (this.options.layers.length) {
-            return this.options.layers.map((layer, index) => {
-                return layer.title + ' (' + createButtonText(this.docCount[index], this.options.limit) + ')';
-            }).filter((text) => {
-                return !!text;
-            }).join(', ');
-        }
-        return '';
+    public getVisualizationElementLabel(count: number): string {
+        return 'Point' + (count === 1 ? '' : 's');
     }
 
     /**

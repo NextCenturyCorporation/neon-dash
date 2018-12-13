@@ -445,15 +445,23 @@ describe('Component: TextCloud', () => {
     });
 
     it('returns the proper value from getButtonText', () => {
-        expect(component.getButtonText()).toEqual('No Data');
+        expect(component.getButtonText()).toEqual('0 Terms');
         component.activeData = [{
             testTextField: 'Value',
             value: 10
         }];
-        component.termsCount = 1;
-        expect(component.getButtonText()).toEqual('Total 1');
+        expect(component.getButtonText()).toEqual('1 Term');
+        component.activeData = [{
+            testTextField: 'Value',
+            value: 10
+        }, {
+            testTextField: 'Value',
+            value: 100
+        }];
+        expect(component.getButtonText()).toEqual('2 Terms');
         component.termsCount = 5;
-        expect(component.getButtonText()).toEqual('1 of 5');
+        component.options.limit = 2;
+        expect(component.getButtonText()).toEqual('1 - 2 of 5 Terms');
     });
 
     it('properly returns the list of filters from getCloseableFilters', () => {

@@ -132,8 +132,18 @@ export abstract class AbstractAggregationSubcomponent {
     public abstract getMinimumDimensions(): { height: number, width: number };
 
     /**
+     * Returns the label for a visualization element using the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @abstract
+     */
+    public abstract getVisualizationElementLabel(count: number): string;
+
+    /**
      * Initializes all the subcomponent elements.
      *
+     * @return {boolean}
      * @abstract
      */
     public abstract initialize();

@@ -75,8 +75,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     public gridArray: any[] = [];
     public pagingGrid: any[] = [];
 
-    public lastPage: boolean = true;
-    public page: number = 1;
     public neonFilters: any[] = [];
     public isLoading: boolean = false;
     public showGrid: boolean;
@@ -90,7 +88,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         ref: ChangeDetectorRef,
         private sanitizer: DomSanitizer
     ) {
-
         super(
             connectionService,
             datasetService,
@@ -98,6 +95,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             injector,
             ref
         );
+
+        this.isPaginationWidget = true;
 
         if (!this.options.sortField.columnName) {
             this.options.sortField = this.options.percentField;
@@ -330,31 +329,25 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Creates and returns the text for the settings button.
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
      *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        return this.gridArray;
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
      * @return {string}
      * @override
      */
-    getButtonText() {
-        if (!this.gridArray.length) {
-            if (this.options.hideUnfiltered) {
-                return 'Please Filter';
-            }
-            return 'No Data';
-        }
-
-        if (this.options.hideUnfiltered && !this.neonFilters.length) {
-            return 'No Filter Selected';
-        }
-
-        if (this.gridArray.length <= this.options.limit) {
-            return 'Total ' + super.prettifyInteger(this.gridArray.length);
-        }
-
-        let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1),
-            end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.gridArray.length));
-
-        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.gridArray.length);
+    public getVisualizationElementLabel(count: number): string {
+        return 'File' + (count === 1 ? '' : 's');
     }
 
     /**
