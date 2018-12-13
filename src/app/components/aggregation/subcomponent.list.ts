@@ -97,7 +97,7 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
             if (groups.length > 1) {
                 let groupElement = document.createElement('td');
                 groupElement.setAttribute('class', 'list-text');
-                groupElement.setAttribute('style', 'color: ' + item.color.toRgb());
+                groupElement.setAttribute('style', 'color: ' + item.color.getComputedCss(this.elementRef));
                 groupElement.innerHTML = item.group;
                 rowTitle = item.group + ' - ' + rowTitle;
                 rowElement.appendChild(groupElement);
@@ -186,16 +186,6 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
     }
 
     /**
-     * Returns whether the subcomponent layout is horizontal. False for this
-     * subcomponent.
-     *
-     * @return {boolean}
-     */
-    public isHorizontal(): boolean {
-        return false;
-    }
-
-    /**
      * Handles the given click event by filtering on the clicked value.
      *
      * @arg {event} event
@@ -237,6 +227,16 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
         this.elementContainer = document.createElement('table');
         this.elementContainer.setAttribute('class', 'list-subcomponent');
         this.elementRef.nativeElement.appendChild(this.elementContainer);
+    }
+
+    /**
+     * Returns whether the chart is horizontal.
+     *
+     * @return {boolean}
+     * @override
+     */
+    public isHorizontal(): boolean {
+        return false;
     }
 
     /**

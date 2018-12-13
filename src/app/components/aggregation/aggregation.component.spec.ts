@@ -50,8 +50,8 @@ describe('Component: Aggregation', () => {
     let fixture: ComponentFixture<AggregationComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    let COLOR_1 = new Color(94, 80, 143);
-    let COLOR_2 = new Color(255, 135, 55);
+    let COLOR_1 = new Color('var(--color-set-1)', 'var(--color-set-1-transparency-medium)', 'var(--color-set-1-transparency-high)');
+    let COLOR_2 = new Color('var(--color-set-2)', 'var(--color-set-2-transparency-medium)', 'var(--color-set-2-transparency-high)');
 
     initializeTestBed({
         declarations: [
@@ -108,6 +108,7 @@ describe('Component: Aggregation', () => {
         expect(component.options.scaleMinX).toEqual('');
         expect(component.options.scaleMinY).toEqual('');
         expect(component.options.showHeat).toEqual(false);
+        expect(component.options.showLegend).toEqual(true);
         expect(component.options.sortByAggregation).toEqual(false);
         expect(component.options.timeFill).toEqual(false);
         expect(component.options.type).toEqual('line');
@@ -1353,117 +1354,6 @@ describe('Component: Aggregation', () => {
         expect(subcomponentObject.constructor.name).toEqual(ChartJsLineSubcomponent.name);
     });
 
-    it('isContinuous does return expected boolean', () => {
-        expect(component.isContinuous({ type: 'histogram' })).toEqual(true);
-        expect(component.isContinuous({ type: 'line' })).toEqual(true);
-        expect(component.isContinuous({ type: 'line-xy' })).toEqual(true);
-        expect(component.isContinuous({ type: 'scatter' })).toEqual(true);
-        expect(component.isContinuous({ type: 'scatter-xy' })).toEqual(true);
-
-        expect(component.isContinuous({ type: 'bar-h' })).toEqual(false);
-        expect(component.isContinuous({ type: 'bar-v' })).toEqual(false);
-        expect(component.isContinuous({ type: 'doughnut' })).toEqual(false);
-        expect(component.isContinuous({ type: 'pie' })).toEqual(false);
-        expect(component.isContinuous({ type: 'table' })).toEqual(false);
-    });
-
-    it('isDate does return expected boolean', () => {
-        expect(component.isDate({ xField: { type: 'date' } })).toEqual(true);
-
-        expect(component.isDate({ xField: { type: 'boolean' } })).toEqual(false);
-        expect(component.isDate({ xField: { type: 'float' } })).toEqual(false);
-        expect(component.isDate({ xField: { type: 'keyword' } })).toEqual(false);
-        expect(component.isDate({ xField: { type: 'int' } })).toEqual(false);
-        expect(component.isDate({ xField: { type: 'long' } })).toEqual(false);
-        expect(component.isDate({ xField: { type: 'number' } })).toEqual(false);
-        expect(component.isDate({ xField: { type: 'object' } })).toEqual(false);
-        expect(component.isDate({ xField: { type: 'string' } })).toEqual(false);
-        expect(component.isDate({ xField: { type: 'text' } })).toEqual(false);
-    });
-
-    it('isDualViewCompatible does return expected boolean', () => {
-        expect(component.isDualViewCompatible({ type: 'histogram' })).toEqual(true);
-        expect(component.isDualViewCompatible({ type: 'line' })).toEqual(true);
-        expect(component.isDualViewCompatible({ type: 'line-xy' })).toEqual(true);
-
-        expect(component.isDualViewCompatible({ type: 'bar-h' })).toEqual(false);
-        expect(component.isDualViewCompatible({ type: 'bar-v' })).toEqual(false);
-        expect(component.isDualViewCompatible({ type: 'doughnut' })).toEqual(false);
-        expect(component.isDualViewCompatible({ type: 'pie' })).toEqual(false);
-        expect(component.isDualViewCompatible({ type: 'scatter' })).toEqual(false);
-        expect(component.isDualViewCompatible({ type: 'scatter-xy' })).toEqual(false);
-        expect(component.isDualViewCompatible({ type: 'table' })).toEqual(false);
-    });
-
-    it('isLine does return expected boolean', () => {
-        expect(component.isLine({ type: 'line' })).toEqual(true);
-        expect(component.isLine({ type: 'line-xy' })).toEqual(true);
-
-        expect(component.isLine({ type: 'bar-h' })).toEqual(false);
-        expect(component.isLine({ type: 'bar-v' })).toEqual(false);
-        expect(component.isLine({ type: 'doughnut' })).toEqual(false);
-        expect(component.isLine({ type: 'histogram' })).toEqual(false);
-        expect(component.isLine({ type: 'pie' })).toEqual(false);
-        expect(component.isLine({ type: 'scatter' })).toEqual(false);
-        expect(component.isLine({ type: 'scatter-xy' })).toEqual(false);
-        expect(component.isLine({ type: 'table' })).toEqual(false);
-    });
-
-    it('isList does return expected boolean', () => {
-        expect(component.isList({ type: 'list' })).toEqual(true);
-
-        expect(component.isList({ type: 'bar-h' })).toEqual(false);
-        expect(component.isList({ type: 'bar-v' })).toEqual(false);
-        expect(component.isList({ type: 'doughnut' })).toEqual(false);
-        expect(component.isList({ type: 'histogram' })).toEqual(false);
-        expect(component.isList({ type: 'line' })).toEqual(false);
-        expect(component.isList({ type: 'line-xy' })).toEqual(false);
-        expect(component.isList({ type: 'pie' })).toEqual(false);
-        expect(component.isList({ type: 'scatter' })).toEqual(false);
-        expect(component.isList({ type: 'scatter-xy' })).toEqual(false);
-        expect(component.isList({ type: 'table' })).toEqual(false);
-    });
-
-    it('isNonCountAggregation does return expected boolean', () => {
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'bar-h' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'bar-v' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'doughnut' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'histogram' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'pie' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'line' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'scatter' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'table' })).toEqual(false);
-
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'line-xy' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.COUNT, type: 'scatter-xy' })).toEqual(false);
-
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'bar-h' })).toEqual(true);
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'bar-v' })).toEqual(true);
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'doughnut' })).toEqual(true);
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'histogram' })).toEqual(true);
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'pie' })).toEqual(true);
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'line' })).toEqual(true);
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'scatter' })).toEqual(true);
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'table' })).toEqual(true);
-
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'line-xy' })).toEqual(false);
-        expect(component.isNonCountAggregation({ aggregation: neonVariables.SUM, type: 'scatter-xy' })).toEqual(false);
-    });
-
-    it('isScaled does return expected boolean', () => {
-        expect(component.isScaled({ type: 'bar-h' })).toEqual(true);
-        expect(component.isScaled({ type: 'bar-v' })).toEqual(true);
-        expect(component.isScaled({ type: 'histogram' })).toEqual(true);
-        expect(component.isScaled({ type: 'line' })).toEqual(true);
-        expect(component.isScaled({ type: 'line-xy' })).toEqual(true);
-        expect(component.isScaled({ type: 'scatter' })).toEqual(true);
-        expect(component.isScaled({ type: 'scatter-xy' })).toEqual(true);
-
-        expect(component.isScaled({ type: 'doughnut' })).toEqual(false);
-        expect(component.isScaled({ type: 'pie' })).toEqual(false);
-        expect(component.isScaled({ type: 'table' })).toEqual(false);
-    });
-
     it('isValidQuery does return expected boolean', () => {
         expect(component.isValidQuery()).toEqual(false);
 
@@ -1499,34 +1389,6 @@ describe('Component: Aggregation', () => {
 
         component.options.yField = DatasetServiceMock.Y_FIELD;
         expect(component.isValidQuery()).toEqual(true);
-    });
-
-    it('isNotXYSubcomponent does return expected boolean', () => {
-        expect(component.isNotXYSubcomponent({ type: 'bar-h' })).toEqual(true);
-        expect(component.isNotXYSubcomponent({ type: 'bar-v' })).toEqual(true);
-        expect(component.isNotXYSubcomponent({ type: 'doughnut' })).toEqual(true);
-        expect(component.isNotXYSubcomponent({ type: 'histogram' })).toEqual(true);
-        expect(component.isNotXYSubcomponent({ type: 'pie' })).toEqual(true);
-        expect(component.isNotXYSubcomponent({ type: 'line' })).toEqual(true);
-        expect(component.isNotXYSubcomponent({ type: 'scatter' })).toEqual(true);
-        expect(component.isNotXYSubcomponent({ type: 'table' })).toEqual(true);
-
-        expect(component.isNotXYSubcomponent({ type: 'line-xy' })).toEqual(false);
-        expect(component.isNotXYSubcomponent({ type: 'scatter-xy' })).toEqual(false);
-    });
-
-    it('isXYSubcomponent does return expected boolean', () => {
-        expect(component.isXYSubcomponent({ type: 'bar-h' })).toEqual(false);
-        expect(component.isXYSubcomponent({ type: 'bar-v' })).toEqual(false);
-        expect(component.isXYSubcomponent({ type: 'doughnut' })).toEqual(false);
-        expect(component.isXYSubcomponent({ type: 'histogram' })).toEqual(false);
-        expect(component.isXYSubcomponent({ type: 'pie' })).toEqual(false);
-        expect(component.isXYSubcomponent({ type: 'line' })).toEqual(false);
-        expect(component.isXYSubcomponent({ type: 'scatter' })).toEqual(false);
-        expect(component.isXYSubcomponent({ type: 'table' })).toEqual(false);
-
-        expect(component.isXYSubcomponent({ type: 'line-xy' })).toEqual(true);
-        expect(component.isXYSubcomponent({ type: 'scatter-xy' })).toEqual(true);
     });
 
     it('onQuerySuccess with XY data does update expected properties and call expected functions', () => {
@@ -2161,6 +2023,145 @@ describe('Component: Aggregation', () => {
         expect(component.xList).toEqual([]);
         expect(component.yList).toEqual([]);
         expect(spy.calls.count()).toEqual(1);
+    });
+
+    it('optionsAggregationIsNotCount does return expected boolean', () => {
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'bar-h' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'bar-v' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'doughnut' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'histogram' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'pie' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'line' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'scatter' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'table' })).toEqual(false);
+
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'line-xy' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'scatter-xy' })).toEqual(false);
+
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'bar-h' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'bar-v' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'doughnut' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'histogram' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'pie' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'line' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'scatter' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'table' })).toEqual(true);
+
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'line-xy' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'scatter-xy' })).toEqual(false);
+    });
+
+    it('optionsTypeIsContinuous does return expected boolean', () => {
+        expect(component.optionsTypeIsContinuous({ type: 'histogram' })).toEqual(true);
+        expect(component.optionsTypeIsContinuous({ type: 'line' })).toEqual(true);
+        expect(component.optionsTypeIsContinuous({ type: 'line-xy' })).toEqual(true);
+        expect(component.optionsTypeIsContinuous({ type: 'scatter' })).toEqual(true);
+        expect(component.optionsTypeIsContinuous({ type: 'scatter-xy' })).toEqual(true);
+
+        expect(component.optionsTypeIsContinuous({ type: 'bar-h' })).toEqual(false);
+        expect(component.optionsTypeIsContinuous({ type: 'bar-v' })).toEqual(false);
+        expect(component.optionsTypeIsContinuous({ type: 'doughnut' })).toEqual(false);
+        expect(component.optionsTypeIsContinuous({ type: 'pie' })).toEqual(false);
+        expect(component.optionsTypeIsContinuous({ type: 'table' })).toEqual(false);
+    });
+
+    it('optionsTypeIsDualViewCompatible does return expected boolean', () => {
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'histogram' })).toEqual(true);
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'line' })).toEqual(true);
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'line-xy' })).toEqual(true);
+
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'bar-h' })).toEqual(false);
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'bar-v' })).toEqual(false);
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'doughnut' })).toEqual(false);
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'pie' })).toEqual(false);
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'scatter' })).toEqual(false);
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'scatter-xy' })).toEqual(false);
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'table' })).toEqual(false);
+    });
+
+    it('optionsTypeIsLine does return expected boolean', () => {
+        expect(component.optionsTypeIsLine({ type: 'line' })).toEqual(true);
+        expect(component.optionsTypeIsLine({ type: 'line-xy' })).toEqual(true);
+
+        expect(component.optionsTypeIsLine({ type: 'bar-h' })).toEqual(false);
+        expect(component.optionsTypeIsLine({ type: 'bar-v' })).toEqual(false);
+        expect(component.optionsTypeIsLine({ type: 'doughnut' })).toEqual(false);
+        expect(component.optionsTypeIsLine({ type: 'histogram' })).toEqual(false);
+        expect(component.optionsTypeIsLine({ type: 'pie' })).toEqual(false);
+        expect(component.optionsTypeIsLine({ type: 'scatter' })).toEqual(false);
+        expect(component.optionsTypeIsLine({ type: 'scatter-xy' })).toEqual(false);
+        expect(component.optionsTypeIsLine({ type: 'table' })).toEqual(false);
+    });
+
+    it('optionsTypeIsList does return expected boolean', () => {
+        expect(component.optionsTypeIsList({ type: 'list' })).toEqual(true);
+
+        expect(component.optionsTypeIsList({ type: 'bar-h' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'bar-v' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'doughnut' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'histogram' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'line' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'line-xy' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'pie' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'scatter' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'scatter-xy' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'table' })).toEqual(false);
+    });
+
+    it('optionsTypeIsNotXY does return expected boolean', () => {
+        expect(component.optionsTypeIsNotXY({ type: 'bar-h' })).toEqual(true);
+        expect(component.optionsTypeIsNotXY({ type: 'bar-v' })).toEqual(true);
+        expect(component.optionsTypeIsNotXY({ type: 'doughnut' })).toEqual(true);
+        expect(component.optionsTypeIsNotXY({ type: 'histogram' })).toEqual(true);
+        expect(component.optionsTypeIsNotXY({ type: 'pie' })).toEqual(true);
+        expect(component.optionsTypeIsNotXY({ type: 'line' })).toEqual(true);
+        expect(component.optionsTypeIsNotXY({ type: 'scatter' })).toEqual(true);
+        expect(component.optionsTypeIsNotXY({ type: 'table' })).toEqual(true);
+
+        expect(component.optionsTypeIsNotXY({ type: 'line-xy' })).toEqual(false);
+        expect(component.optionsTypeIsNotXY({ type: 'scatter-xy' })).toEqual(false);
+    });
+
+    it('optionsTypeUsesGrid does return expected boolean', () => {
+        expect(component.optionsTypeUsesGrid({ type: 'bar-h' })).toEqual(true);
+        expect(component.optionsTypeUsesGrid({ type: 'bar-v' })).toEqual(true);
+        expect(component.optionsTypeUsesGrid({ type: 'histogram' })).toEqual(true);
+        expect(component.optionsTypeUsesGrid({ type: 'line' })).toEqual(true);
+        expect(component.optionsTypeUsesGrid({ type: 'line-xy' })).toEqual(true);
+        expect(component.optionsTypeUsesGrid({ type: 'scatter' })).toEqual(true);
+        expect(component.optionsTypeUsesGrid({ type: 'scatter-xy' })).toEqual(true);
+
+        expect(component.optionsTypeUsesGrid({ type: 'doughnut' })).toEqual(false);
+        expect(component.optionsTypeUsesGrid({ type: 'pie' })).toEqual(false);
+        expect(component.optionsTypeUsesGrid({ type: 'table' })).toEqual(false);
+    });
+
+    it('optionsTypeIsXY does return expected boolean', () => {
+        expect(component.optionsTypeIsXY({ type: 'bar-h' })).toEqual(false);
+        expect(component.optionsTypeIsXY({ type: 'bar-v' })).toEqual(false);
+        expect(component.optionsTypeIsXY({ type: 'doughnut' })).toEqual(false);
+        expect(component.optionsTypeIsXY({ type: 'histogram' })).toEqual(false);
+        expect(component.optionsTypeIsXY({ type: 'pie' })).toEqual(false);
+        expect(component.optionsTypeIsXY({ type: 'line' })).toEqual(false);
+        expect(component.optionsTypeIsXY({ type: 'scatter' })).toEqual(false);
+        expect(component.optionsTypeIsXY({ type: 'table' })).toEqual(false);
+
+        expect(component.optionsTypeIsXY({ type: 'line-xy' })).toEqual(true);
+        expect(component.optionsTypeIsXY({ type: 'scatter-xy' })).toEqual(true);
+    });
+
+    it('optionsXFieldIsDate does return expected boolean', () => {
+        expect(component.optionsXFieldIsDate({ xField: { type: 'date' } })).toEqual(true);
+
+        expect(component.optionsXFieldIsDate({ xField: { type: 'boolean' } })).toEqual(false);
+        expect(component.optionsXFieldIsDate({ xField: { type: 'float' } })).toEqual(false);
+        expect(component.optionsXFieldIsDate({ xField: { type: 'keyword' } })).toEqual(false);
+        expect(component.optionsXFieldIsDate({ xField: { type: 'int' } })).toEqual(false);
+        expect(component.optionsXFieldIsDate({ xField: { type: 'long' } })).toEqual(false);
+        expect(component.optionsXFieldIsDate({ xField: { type: 'number' } })).toEqual(false);
+        expect(component.optionsXFieldIsDate({ xField: { type: 'object' } })).toEqual(false);
+        expect(component.optionsXFieldIsDate({ xField: { type: 'string' } })).toEqual(false);
+        expect(component.optionsXFieldIsDate({ xField: { type: 'text' } })).toEqual(false);
     });
 
     it('postInit does work as expected', () => {
@@ -3479,6 +3480,7 @@ describe('Component: Aggregation', () => {
             scaleMinX: '',
             scaleMinY: '',
             showHeat: false,
+            showLegend: true,
             sortByAggregation: false,
             timeFill: false,
             type: 'line',
@@ -3508,6 +3510,7 @@ describe('Component: Aggregation', () => {
         component.options.scaleMinX = '22';
         component.options.scaleMinY = '11';
         component.options.showHeat = true;
+        component.options.showLegend = true;
         component.options.sortByAggregation = true;
         component.options.timeFill = true;
         component.options.type = 'line-xy';
@@ -3548,6 +3551,7 @@ describe('Component: Aggregation', () => {
             scaleMinX: '22',
             scaleMinY: '11',
             showHeat: true,
+            showLegend: true,
             sortByAggregation: true,
             timeFill: true,
             type: 'line-xy',
@@ -4348,6 +4352,7 @@ describe('Component: Aggregation with config', () => {
             { provide: 'scaleMinX', useValue: '22' },
             { provide: 'scaleMinY', useValue: '11' },
             { provide: 'showHeat', useValue: true },
+            { provide: 'showLegend', useValue: true },
             { provide: 'sortByAggregation', useValue: true },
             { provide: 'timeFill', useValue: true },
             { provide: 'type', useValue: 'scatter' },
@@ -4401,6 +4406,7 @@ describe('Component: Aggregation with config', () => {
         expect(component.options.scaleMinX).toEqual('22');
         expect(component.options.scaleMinY).toEqual('11');
         expect(component.options.showHeat).toEqual(true);
+        expect(component.options.showLegend).toEqual(true);
         expect(component.newType).toEqual('scatter');
         expect(component.options.sortByAggregation).toEqual(true);
         expect(component.options.timeFill).toEqual(true);
@@ -4617,6 +4623,7 @@ describe('Component: Aggregation with XY config', () => {
             { provide: 'scaleMinX', useValue: '22' },
             { provide: 'scaleMinY', useValue: '11' },
             { provide: 'showHeat', useValue: true },
+            { provide: 'showLegend', useValue: true },
             { provide: 'sortByAggregation', useValue: true },
             { provide: 'timeFill', useValue: true },
             { provide: 'type', useValue: 'scatter-xy' },
@@ -4820,6 +4827,7 @@ describe('Component: Aggregation with date config', () => {
             { provide: 'scaleMinX', useValue: '22' },
             { provide: 'scaleMinY', useValue: '11' },
             { provide: 'showHeat', useValue: true },
+            { provide: 'showLegend', useValue: true },
             { provide: 'sortByAggregation', useValue: true },
             { provide: 'timeFill', useValue: true },
             { provide: 'type', useValue: 'scatter' },

@@ -117,7 +117,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Creates and returns an array of field options for the unique widget.
+     * Creates and returns an array of field options for the visualization.
      *
      * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
      * @override
@@ -130,7 +130,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Creates and returns an array of non-field options for the unique widget.
+     * Creates and returns an array of non-field options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
@@ -347,22 +347,22 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Returns the default limit for the unique widget.
+     * Returns the default limit for the visualization.
      *
      * @return {string}
      * @override
      */
-    getWidgetDefaultLimit(): number {
+    getVisualizationDefaultLimit(): number {
         return 10;
     }
 
     /**
-     * Returns the name for the unique widget.
+     * Returns the default title for the visualization.
      *
      * @return {string}
      * @override
      */
-    getWidgetName(): string {
+    getVisualizationDefaultTitle(): string {
         return 'Sample';
     }
 

@@ -27,6 +27,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -87,7 +88,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         inactiveColor: string
     };
 
-    public defaultActiveColor;
     public timelineChart: TimelineSelectorChart;
     public timelineData: TimelineData = new TimelineData();
 
@@ -96,7 +96,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         datasetService: DatasetService,
         filterService: FilterService,
         injector: Injector,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        protected widgetService: AbstractWidgetService
     ) {
 
         super(
@@ -116,7 +117,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Creates and returns an array of field options for the unique widget.
+     * Creates and returns an array of field options for the visualization.
      *
      * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
      * @override
@@ -128,7 +129,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Creates and returns an array of non-field options for the unique widget.
+     * Creates and returns an array of non-field options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
@@ -146,8 +147,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     postInit() {
         this.executeQueryChain();
-
-        this.defaultActiveColor = this.getPrimaryThemeColor();
     }
 
     subNgOnDestroy() {
@@ -335,7 +334,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     filterAndRefreshData() {
         let series: TimelineSeries = {
-            color: this.defaultActiveColor,
+            color: this.widgetService.getThemeMainColorHex(),
             name: 'Total',
             type: 'bar',
             options: {},
@@ -567,22 +566,22 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns the default limit for the unique widget.
+     * Returns the default limit for the visualization.
      *
      * @return {string}
      * @override
      */
-    getWidgetDefaultLimit(): number {
+    getVisualizationDefaultLimit(): number {
         return 10;
     }
 
     /**
-     * Returns the name for the unique widget.
+     * Returns the default title for the visualization.
      *
      * @return {string}
      * @override
      */
-    getWidgetName(): string {
+    getVisualizationDefaultTitle(): string {
         return 'Timeline';
     }
 }

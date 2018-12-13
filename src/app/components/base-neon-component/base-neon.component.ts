@@ -86,7 +86,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         public changeDetection: ChangeDetectorRef
     ) {
         this.messenger = new neon.eventing.Messenger();
-        this.options = this.createWidgetOptions(this.injector, this.getWidgetName(), this.getWidgetDefaultLimit());
+        this.options = this.createWidgetOptions(this.injector, this.getVisualizationDefaultTitle(), this.getVisualizationDefaultLimit());
         this.newLimit = this.options.limit;
     }
 
@@ -791,18 +791,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.messenger.subscribe('select_id', callback);
     }
 
-    getHighlightThemeColor() {
-        let elements = document.getElementsByClassName('color-highlight');
-        let color = elements.length ? window.getComputedStyle(elements[0], null).getPropertyValue('color') : '';
-        return Color.fromRgbString(color || 'rgb(255, 255, 255)');
-    }
-
-    getPrimaryThemeColor() {
-        let elements = document.getElementsByClassName('color-primary');
-        let color = elements.length ? window.getComputedStyle(elements[0], null).getPropertyValue('color') : '';
-        return Color.fromRgbString(color || 'rgb(255, 255, 255)');
-    }
-
     getComputedStyle(nativeElement: any) {
         return window.getComputedStyle(nativeElement, null);
     }
@@ -917,7 +905,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Creates and returns an array of field options for the unique widget.
+     * Creates and returns an array of field options for the visualization.
      *
      * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
      * @abstract
@@ -925,7 +913,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     protected abstract createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[];
 
     /**
-     * Creates and returns an array of non-field options for the unique widget.
+     * Creates and returns an array of non-field options for the visualization.
      *
      * @return {WidgetOption[]}
      * @abstract
@@ -933,7 +921,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     protected abstract createNonFieldOptions(): WidgetOption[];
 
     /**
-     * Creates and returns the options for the unique widget with the given title and limit.
+     * Creates and returns the options for the visualization with the given title and limit.
      *
      * @arg {Injector} injector
      * @arg {string} visualizationTitle
@@ -992,10 +980,11 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      *
      * @arg {FieldMetaData[]} fields
      * @arg {string} bindingKey
+     * @arg {any} [config]
      * @return {FieldMetaData}
      */
-    public findFieldObject(fields: FieldMetaData[], bindingKey: string): FieldMetaData {
-        return this.findField(fields, this.injector.get(bindingKey, '')) || new FieldMetaData();
+    public findFieldObject(fields: FieldMetaData[], bindingKey: string, config?: any): FieldMetaData {
+        return this.findField(fields, (config ? config[bindingKey] : this.injector.get(bindingKey, ''))) || new FieldMetaData();
     }
 
     /**
@@ -1003,16 +992,17 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      *
      * @arg {FieldMetaData[]} fields
      * @arg {string} bindingKey
+     * @arg {any} [config]
      * @return {FieldMetaData[]}
      */
-    public findFieldObjects(fields: FieldMetaData[], bindingKey: string): FieldMetaData[] {
-        let bindings = this.injector.get(bindingKey, null) || [];
+    public findFieldObjects(fields: FieldMetaData[], bindingKey: string, config?: any): FieldMetaData[] {
+        let bindings = (config ? config[bindingKey] : this.injector.get(bindingKey, null)) || [];
         return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.findField(fields, columnName))
             .filter((fieldsObject) => !!fieldsObject);
     }
 
     /**
-     * Returns the bindings object with the current options for the unique widget.
+     * Returns the bindings object with the current options for the visualization.
      *
      * @arg {any} [options]
      * @return {any}
@@ -1049,25 +1039,25 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Returns the default limit for the unique widget.
+     * Returns the default limit for the visualization.
      *
      * @return {string}
      * @abstract
      */
-    public abstract getWidgetDefaultLimit(): number;
+    public abstract getVisualizationDefaultLimit(): number;
 
     /**
-     * Returns the name for the unique widget.
+     * Returns the default title for the visualization.
      *
      * @return {string}
      * @abstract
      */
-    public abstract getWidgetName(): string;
+    public abstract getVisualizationDefaultTitle(): string;
 
     /**
      * Initializes all the fields in the given WidgetOptionCollection.
      *
-     * @arg {any} options
+     * @arg {any} options A WidgetOptionCollection object.
      * @arg {(WidgetFieldOption|WidgetFieldArrayOption)[]} [fieldOptions]
      */
     public initializeFieldsInOptions(options: any, fieldOptions?: (WidgetFieldOption | WidgetFieldArrayOption)[]) {
@@ -1075,10 +1065,10 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false)
         ]).forEach((option) => {
             if (option.optionType === OptionType.FIELD) {
-                options.append(option, this.findFieldObject(options.fields, option.bindingKey));
+                options.append(option, this.findFieldObject(options.fields, option.bindingKey, options.config));
             }
             if (option.optionType === OptionType.FIELD_ARRAY) {
-                options.append(option, this.findFieldObjects(options.fields, option.bindingKey));
+                options.append(option, this.findFieldObjects(options.fields, option.bindingKey, options.config));
             }
         });
     }
@@ -1086,15 +1076,16 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     /**
      * Updates all the databases, tables, and fields in the given options.  Called on init.
      *
-     * @arg {any} options
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} [config]
      * @return {any}
      */
-    public updateDatabasesInOptions(options: any): any {
+    public updateDatabasesInOptions(options: any, config?: any): any {
         options.databases = this.datasetService.getDatabases();
         options.database = options.databases[0] || options.database;
 
         if (options.databases.length) {
-            let configDatabase = this.injector.get('database', null);
+            let configDatabase = config ? config.database : this.injector.get('database', null);
             if (configDatabase) {
                 let isName = false;
                 for (let database of options.databases) {
@@ -1114,13 +1105,13 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             }
         }
 
-        return this.updateTablesInOptions(options);
+        return this.updateTablesInOptions(options, config);
     }
 
     /**
      * Updates all the fields in the given options.  Called on init and whenever the table is changed.
      *
-     * @arg {any} options
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {any}
      */
     public updateFieldsInOptions(options: any): any {
@@ -1136,15 +1127,16 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     /**
      * Updates all the tables and fields in the given options.  Called on init and whenever the database is changed.
      *
-     * @arg {any} options
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} [config]
      * @return {any}
      */
-    public updateTablesInOptions(options: any): any {
+    public updateTablesInOptions(options: any, config?: any): any {
         options.tables = options.database ? this.datasetService.getTables(options.database.name) : [];
         options.table = options.tables[0] || options.table;
 
         if (options.tables.length > 0) {
-            let configTable = this.injector.get('table', null);
+            let configTable = config ? config.table : this.injector.get('table', null);
             if (configTable) {
                 let isName = false;
                 for (let table of options.tables) {
