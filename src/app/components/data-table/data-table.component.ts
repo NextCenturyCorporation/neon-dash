@@ -141,7 +141,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new WidgetFieldOption('colorField', 'Color Field', false),
             new WidgetFieldOption('heatmapField', 'Heatmap Field', false),
             new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', false),
+            new WidgetFieldOption('sortField', 'Sort Field', true),
             new WidgetFieldArrayOption('filterFields', 'Filter Field(s)', false)
         ];
     }

@@ -30,7 +30,8 @@ import { DatasetService } from '../../services/dataset.service';
 
 import * as _ from 'lodash';
 import * as neon from 'neon-framework';
-import { WidgetOption, WidgetOptionCollection } from '../../widget-option';
+import { WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../widget-option';
+import { isNgTemplate } from '@angular/compiler';
 
 @Component({
     selector: 'app-gear',
@@ -42,9 +43,9 @@ export class GearComponent implements OnInit, OnDestroy {
 
     public options: any = new WidgetOptionCollection();
     public messenger: neon.eventing.Messenger;
-    public optionsList: any[];
-    public requiredList: any[];
-    public optionalList: any[];
+    public optionsList: WidgetOption[];
+    public requiredList: WidgetOption[];
+    public optionalList: WidgetOption[];
     //public toggleGear: boolean;
 
     constructor(
@@ -53,6 +54,9 @@ export class GearComponent implements OnInit, OnDestroy {
         protected widgetService: AbstractWidgetService
     ) {
         this.injector = injector;
+
+        this.requiredList = [];
+        this.optionalList = [];
         this.messenger = new neon.eventing.Messenger();
         //this.messenger.subscribe('options', (message) => this.updateOptions(message));
     }
@@ -73,21 +77,18 @@ export class GearComponent implements OnInit, OnDestroy {
         this.optionsList = list;
     }
 
-    getRequiredOptions() {
+    constructOptionsLists() {
         let list = this.optionsList;
-        list = list.filter(function(field) {
-            return field.isRequired;
+        let requiredList = [];
+        list.forEach(function(element) {
+            if (element.isRequired && element instanceof WidgetFieldOption) {
+                requiredList.push(element);
+                list.splice(list.indexOf(element), 1);
+            }
         });
-        this.requiredList = list;
-        //console.log(this.requiredList);
-    }
-
-    getOptionalOptions() {
-        let list = this.optionsList;
-        list = list.filter(function(field) {
-            return !field.isRequired;
-        });
+        this.requiredList = requiredList;
         this.optionalList = list;
+        //console.log(this.requiredList);
         //console.log(this.optionalList);
     }
 
@@ -137,8 +138,7 @@ export class GearComponent implements OnInit, OnDestroy {
         this.options = message.options;
         this.optionsList = this.options.list();
         this.cleanShowOptions();
-        this.getRequiredOptions();
-        this.getOptionalOptions();
+        this.constructOptionsLists();
         //console.log(this.options);
     }
 
