@@ -45,10 +45,6 @@
             matTooltip="Show Filter Builder" (click)="openFilterBuilderDialog()" *ngIf="showFilterBuilderIcon">
             <mat-icon class="neon-icon-large" *ngIf="changeFilterBuilderIcon()" svgIcon="{{filterBuilderIcon}}"></mat-icon>
         </button>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" tooltip-position="below"
-            matTooltip="Show Filters" (click)="openFilterTrayDialog()" *ngIf="showFilterTrayButton">
-            <mat-icon class="neon-icon-large">filter_list</mat-icon>
-        </button>
 
         <mat-menu #appMenu="matMenu" yPosition="below" [overlapTrigger]="false">
             <button mat-menu-item (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()">
@@ -72,8 +68,9 @@
     </mat-toolbar>
 
     <div class="header-toggle-container">
+        <!-- TODO: 943: update names -->
         <div class="filter-builder-container" id="filter.builder" *ngIf="createFilterBuilder">
-            <app-filter-builder></app-filter-builder>
+            <app-filters [widgets]="widgets"></app-filters>
             <div class="filter-builder-footer">
             </div>
         </div>

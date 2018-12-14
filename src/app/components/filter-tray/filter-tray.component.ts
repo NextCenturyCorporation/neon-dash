@@ -13,9 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { NeonGridItem } from '../../neon-grid-item';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { neonEvents } from '../../neon-namespaces';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -32,14 +30,15 @@ import * as _ from 'lodash';
 })
 export class FilterTrayComponent implements OnInit, OnDestroy {
 
+    @Input() widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent>;
+
     private messenger: neon.eventing.Messenger;
     public filters: {
         raw: any[],
         formatted: any[]
     };
 
-    constructor(@Inject(MAT_DIALOG_DATA) public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent>,
-        protected filterService: FilterService, public dialogRef: MatDialogRef<FilterTrayComponent>) {
+    constructor(protected filterService: FilterService) {
         this.messenger = new neon.eventing.Messenger();
         this.filters = {
             raw: [],

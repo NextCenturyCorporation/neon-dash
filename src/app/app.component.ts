@@ -40,7 +40,6 @@ import { Dataset } from './dataset';
 import { DatasetService } from './services/dataset.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../app/services/filter.service';
-import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatSidenav, MatMenuTrigger } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from './neon-grid-item';
@@ -111,9 +110,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     /* A reference to the dialog for adding visualizations. */
     private addVisDialogRef: MatDialogRef<AddVisualizationComponent>;
 
-    /* A reference to the dialog for the filter tray. */
-    private filterTrayDialogRef: MatDialogRef<FilterTrayComponent>;
-
     /* A reference to the dialog for the custom connection dialog. */
     private customConnectionDialogRef: MatDialogRef<CustomConnectionComponent>;
 
@@ -136,7 +132,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         // TODO: Default to false and set to true only after a dataset has been selected.
         this.showFilterBuilderIcon = true;
-        this.showFilterTrayButton = true;
         this.showCustomConnectionButton = true;
         this.datasets = this.datasetService.getDatasets();
         this.neonConfig = neonConfig;
@@ -444,10 +439,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.customConnectionDialogRef = this.dialog.open(CustomConnectionComponent, config);
         this.customConnectionDialogRef.afterClosed().subscribe(() => {
-            this.filterTrayDialogRef = null;
+            this.customConnectionDialogRef = null;
         });
     }
 
+    // TODO: 943: rename? (filters component, not filter builder technically)
     openFilterBuilderDialog() {
         //Added this to create the filter builder at first click so it's after dataset initialization
         if (!this.createFilterBuilder) {
@@ -460,18 +456,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         } else if (filterBuilderContainer) {
             filterBuilderContainer.setAttribute('style', 'display: none');
         }
-    }
-
-    openFilterTrayDialog() {
-        let config = new MatDialogConfig();
-        config.panelClass = this.widgetService.getTheme();
-        config.viewContainerRef = this.viewContainerRef;
-        config.data = this.widgets;
-
-        this.filterTrayDialogRef = this.dialog.open(FilterTrayComponent, config);
-        this.filterTrayDialogRef.afterClosed().subscribe(() => {
-            this.filterTrayDialogRef = null;
-        });
     }
 
     /**

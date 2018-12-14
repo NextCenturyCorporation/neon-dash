@@ -1,0 +1,19 @@
+<mat-sidenav-container #visualization class="visualization-sidenav">
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+        <div #headerText class="header text pull-left" [matTooltip]="getVisualizationDefaultTitle()" tooltip-position="below">{{ getVisualizationDefaultTitle() }}</div>
+
+        <mat-button-toggle-group class="neon-button-toggle-group-small view-toggle" [(ngModel)]="showFilterBuilderView">
+            <mat-button-toggle [value]="true">Filter Builder</mat-button-toggle>
+            <mat-button-toggle [value]="false">Active Filter</mat-button-toggle>
+        </mat-button-toggle-group>
+
+        <span class="fill-remaining"></span>
+
+        <!-- TODO: 943: close button? -->
+    </mat-toolbar>
+
+    <div class="body-container">
+        <app-filter-builder [hidden]="!showFilterBuilderView"></app-filter-builder>
+        <app-filter-tray [hidden]="showFilterBuilderView" [widgets]="widgets"></app-filter-tray>
+    </div>
+</mat-sidenav-container>

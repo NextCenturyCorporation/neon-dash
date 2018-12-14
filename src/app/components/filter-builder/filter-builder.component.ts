@@ -22,7 +22,8 @@ import {
     OnDestroy,
     OnInit,
     ViewChild,
-    ViewEncapsulation
+    ViewEncapsulation,
+    Input
 } from '@angular/core';
 
 import { ConnectionService } from '../../services/connection.service';
@@ -40,6 +41,7 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
+import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 
 @Component({
     selector: 'app-filter-builder',
