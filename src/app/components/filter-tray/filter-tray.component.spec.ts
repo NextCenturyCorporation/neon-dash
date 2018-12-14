@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { TestBed, inject } from '@angular/core/testing';
+import { ComponentFixture, TestBed, inject } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
@@ -28,7 +28,9 @@ import { AppMaterialModule } from '../../app.material.module';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: FilterTray', () => {
+    let fixture: ComponentFixture<FilterTrayComponent>;
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let component: FilterTrayComponent;
 
     initializeTestBed({
         declarations: [
@@ -46,10 +48,9 @@ describe('Component: FilterTray', () => {
         ]
     });
 
-    it('should create an instance', inject([FilterService], (filterService: FilterService, matDialogRef: MatDialogRef<FilterTrayComponent>
-    ) => {
-        let component = new FilterTrayComponent(new Map<string, BaseNeonComponent | BaseLayeredNeonComponent>(), filterService,
-            matDialogRef);
+    it('should create an instance', (() => {
+        fixture = TestBed.createComponent(FilterTrayComponent);
+        component = fixture.componentInstance;
         expect(component).toBeTruthy();
     }));
 });

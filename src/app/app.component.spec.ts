@@ -31,6 +31,8 @@ import { DataTableComponent } from './components/data-table/data-table.component
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
 import { ExportControlComponent } from './components/export-control/export-control.component';
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
+import { FiltersComponent } from './components/filters/filters.component';
+import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 import { LegendComponent } from './components/legend/legend.component';
 import { MapComponent } from './components//map/map.component';
 import { SampleComponent } from './components/sample/sample.component';
@@ -97,6 +99,8 @@ describe('App', () => {
                 DocumentViewerComponent,
                 ExportControlComponent,
                 FilterBuilderComponent,
+                FiltersComponent,
+                FilterTrayComponent,
                 LegendComponent,
                 MapComponent,
                 MediaViewerComponent,
@@ -166,7 +170,6 @@ describe('App', () => {
 
         expect(component.showCustomConnectionButton).toEqual(true);
         expect(component.showFilterBuilderIcon).toEqual(true);
-        expect(component.showFilterTrayButton).toEqual(true);
         expect(component.showVisShortcut).toEqual(true);
 
         expect(component.createFilterBuilder).toEqual(false);
