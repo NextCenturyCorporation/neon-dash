@@ -105,12 +105,11 @@ export class Dashboard {
     public name?: string = '';
     // Exist in Dashboards that are not terminal nodes.
     public category?: string = '';
-    public choices?: Map<string, Dashboard> = new Map<string, Dashboard>();
+    public choices?: {[key: string]: Dashboard} = {};
     // Exist in Dashboards that are terminal nodes.
-    // TODO: 825: temporary link for dashboards and datastores until UI is updated
     public layout?: string = '';
-    public tables?: Map<string, string> = new Map<string, string>();
-    public fields?: Map<string, string> = new Map<string, string>();
+    public tables?: {[key: string]: string} = {};
+    public fields?: {[key: string]: string} = {};
     public options?: DashboardOptions = new DashboardOptions();
     public fullTitle?: string; // added to dashboard in validateDashboards()
     public pathFromTop?: string; // added to dashboard in validateDashboards()

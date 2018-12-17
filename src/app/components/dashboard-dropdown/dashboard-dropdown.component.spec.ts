@@ -26,21 +26,20 @@ describe('Component: DashboardDropdown with input', () => {
     let fixture: ComponentFixture<DashboardDropdownComponent>;
     let component: DashboardDropdownComponent;
 
-    /* tslint:disable:no-string-literal */
-    let dashboardTableKeys1 = new Map<string, string>();
-    dashboardTableKeys1['tableKey'] = 'datastore1.database1.table1';
+    let dashboardTableKeys1: {[key: string]: string} = {};
+    dashboardTableKeys1.tableKey = 'datastore1.database1.table1';
 
-    let dashboardFieldKeys1 = new Map<string, string>();
-    dashboardFieldKeys1['fieldKey'] = 'datastore1.database1.table1.field1';
+    let dashboardFieldKeys1: {[key: string]: string} = {};
+    dashboardFieldKeys1.fieldKey = 'datastore1.database1.table1.field1';
 
-    let dashboardTableKeys2 = new Map<string, string>();
-    dashboardTableKeys2['tableKey'] = 'datastore2.database2.table1';
+    let dashboardTableKeys2: {[key: string]: string} = {};
+    dashboardTableKeys2.tableKey = 'datastore2.database2.table1';
 
-    let dashboardFieldKeys2 = new Map<string, string>();
-    dashboardFieldKeys2['fieldKey'] = 'datastore2.database2.table1.field1';
+    let dashboardFieldKeys2: {[key: string]: string} = {};
+    dashboardFieldKeys2.fieldKey = 'datastore2.database2.table1.field1';
 
-    let choices = new Map<string, Dashboard>();
-    choices['dash1'] = {
+    let choices: {[key: string]: Dashboard} = {};
+    choices.dash1 = {
         pathFromTop: 'choices.dash1',
         name: 'Test Discovery Config',
         layout: 'DISCOVERY',
@@ -48,7 +47,7 @@ describe('Component: DashboardDropdown with input', () => {
         fields: dashboardFieldKeys1,
         options: new DashboardOptions()
     };
-    choices['dash2'] = {
+    choices.dash2 = {
         name: 'Other Config',
         pathFromTop: 'choices.dash2',
         category: 'Select an option...',
@@ -68,7 +67,6 @@ describe('Component: DashboardDropdown with input', () => {
         category: 'Choose an option',
         choices: choices
     };
-    /* tslint:enable:no-string-literal */
 
     initializeTestBed({
         declarations: [
@@ -110,9 +108,7 @@ describe('Component: DashboardDropdown with input', () => {
     it('emitSelectedDashboard() should emit selectedDashboard if no more choices exists', (() => {
         let spy = spyOn(component.selectionChange, 'emit');
 
-        /* tslint:disable:no-string-literal */
-        component.selectedDashboard = component.dashboards.choices['dash1'];
-        /* tslint:enable:no-string-literal */
+        component.selectedDashboard = component.dashboards.choices.dash1;
 
         component.emitSelectedDashboard();
         expect(spy.calls.count()).toEqual(1);
@@ -123,9 +119,7 @@ describe('Component: DashboardDropdown with input', () => {
     it('emitSelectedDashboard() should emit nothing if selectedDashboard is populated but more choices exist', (() => {
         let spy = spyOn(component.selectionChange, 'emit');
 
-        /* tslint:disable:no-string-literal */
-        component.selectedDashboard = component.dashboards.choices['dash2'];
-        /* tslint:enable:no-string-literal */
+        component.selectedDashboard = component.dashboards.choices.dash2;
 
         component.emitSelectedDashboard();
         expect(spy.calls.count()).toEqual(1);
@@ -134,17 +128,13 @@ describe('Component: DashboardDropdown with input', () => {
     }));
 
     it('hasMoreChoices() should return false if no more nested choices exist within the selectedDashboard', (() => {
-        /* tslint:disable:no-string-literal */
-        component.selectedDashboard = component.dashboards.choices['dash1'];
-        /* tslint:enable:no-string-literal */
+        component.selectedDashboard = component.dashboards.choices.dash1;
 
         expect(component.hasMoreChoices()).toBeFalsy();
     }));
 
     it('hasMoreChoices() should return true if more nested choices exist within the selectedDashboard', (() => {
-        /* tslint:disable:no-string-literal */
-        component.selectedDashboard = component.dashboards.choices['dash2'];
-        /* tslint:enable:no-string-literal */
+        component.selectedDashboard = component.dashboards.choices.dash2;
 
         expect(component.hasMoreChoices()).toBeTruthy();
     }));
@@ -162,18 +152,14 @@ describe('Component: DashboardDropdown with input', () => {
     it('selectDashboardChoice() should call emitSelectedDashboard()', (() => {
         let spy = spyOn(component, 'emitSelectedDashboard');
 
-        /* tslint:disable:no-string-literal */
         component.selectDashboardChoice(component.dashboards, ['dash1'], 0, component);
         expect(spy.calls.count()).toEqual(1);
-        /* tslint:enable:no-string-literal */
     }));
 
     it('selectDashboardChoice() should select correct dashboard choice', (() => {
-        /* tslint:disable:no-string-literal */
         component.selectDashboardChoice(component.dashboards, ['dash1'], 0, component);
 
-        expect(component.selectedDashboard).toEqual(component.dashboards.choices['dash1']);
-        /* tslint:enable:no-string-literal */
+        expect(component.selectedDashboard).toEqual(component.dashboards.choices.dash1);
     }));
 });
 
@@ -181,21 +167,20 @@ describe('Component: DashboardDropdown with no inputs', () => {
     let fixture: ComponentFixture<DashboardDropdownComponent>;
     let component: DashboardDropdownComponent;
 
-    /* tslint:disable:no-string-literal */
-    let dashboardTableKeys1 = new Map<string, string>();
-    dashboardTableKeys1['tableKey'] = 'datastore1.database1.table1';
+    let dashboardTableKeys1: {[key: string]: string} = {};
+    dashboardTableKeys1.tableKey = 'datastore1.database1.table1';
 
-    let dashboardFieldKeys1 = new Map<string, string>();
-    dashboardFieldKeys1['fieldKey'] = 'datastore1.database1.table1.field1';
+    let dashboardFieldKeys1: {[key: string]: string} = {};
+    dashboardFieldKeys1.fieldKey = 'datastore1.database1.table1.field1';
 
-    let dashboardTableKeys2 = new Map<string, string>();
-    dashboardTableKeys2['tableKey'] = 'datastore2.database2.table1';
+    let dashboardTableKeys2: {[key: string]: string} = {};
+    dashboardTableKeys2.tableKey = 'datastore2.database2.table1';
 
-    let dashboardFieldKeys2 = new Map<string, string>();
-    dashboardFieldKeys2['fieldKey'] = 'datastore2.database2.table1.field1';
+    let dashboardFieldKeys2: {[key: string]: string} = {};
+    dashboardFieldKeys2.fieldKey = 'datastore2.database2.table1.field1';
 
-    let choices = new Map<string, Dashboard>();
-    choices['dash1'] = {
+    let choices: {[key: string]: Dashboard} = {};
+    choices.dash1 = {
         pathFromTop: 'choices.dash1',
         name: 'Test Discovery Config',
         layout: 'DISCOVERY',
@@ -203,7 +188,7 @@ describe('Component: DashboardDropdown with no inputs', () => {
         fields: dashboardFieldKeys1,
         options: new DashboardOptions()
     };
-    choices['dash2'] = {
+    choices.dash2 = {
         name: 'Other Config',
         pathFromTop: 'choices.dash2',
         category: 'Select an option...',
@@ -223,7 +208,6 @@ describe('Component: DashboardDropdown with no inputs', () => {
         category: 'Choose an option',
         choices: choices
     };
-    /* tslint:enable:no-string-literal */
 
     initializeTestBed({
         declarations: [
@@ -248,30 +232,24 @@ describe('Component: DashboardDropdown with no inputs', () => {
     it('selectDashboardChoice() should populate dashboards and call emitSelectedDashboard()', (() => {
         let spy = spyOn(component, 'emitSelectedDashboard');
 
-        /* tslint:disable:no-string-literal */
         component.selectDashboardChoice(dashboards, ['dash1'], 0, component);
         expect(component.dashboards).toEqual(dashboards);
         expect(spy.calls.count()).toEqual(1);
-        /* tslint:enable:no-string-literal */
     }));
 
     it('selectDashboardChoice() should populate dashboards and select correct dashboard choice', (() => {
-        /* tslint:disable:no-string-literal */
         component.selectDashboardChoice(dashboards, ['dash1'], 0, component);
 
         expect(component.dashboards).toEqual(dashboards);
-        expect(component.selectedDashboard).toEqual(component.dashboards.choices['dash1']);
-        /* tslint:enable:no-string-literal */
+        expect(component.selectedDashboard).toEqual(component.dashboards.choices.dash1);
     }));
 
     it('selectDashboardChoice() should select correct dashboard choice and select the appropriate choice within the next dropdown', (() => {
-        /* tslint:disable:no-string-literal */
         component.selectDashboardChoice(dashboards, ['dash2', 'nextChoice'], 0, component);
 
         expect(component.dashboards).toEqual(dashboards);
-        expect(component.selectedDashboard).toEqual(component.dashboards.choices['dash2']);
-        expect(component.nextDropdown.dashboards).toEqual(component.dashboards.choices['dash2']);
-        expect(component.nextDropdown.selectedDashboard).toEqual(component.dashboards.choices['dash2'].choices['nextChoice']);
-        /* tslint:enable:no-string-literal */
+        expect(component.selectedDashboard).toEqual(component.dashboards.choices.dash2);
+        expect(component.nextDropdown.dashboards).toEqual(component.dashboards.choices.dash2);
+        expect(component.nextDropdown.selectedDashboard).toEqual(component.dashboards.choices.dash2.choices.nextChoice);
     }));
 });

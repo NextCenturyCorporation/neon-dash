@@ -70,7 +70,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
     public datasets: Datastore[] = [];
     private datastoreType: string = 'mongo';
     private datastoreHost: string = 'localhost';
-    private layouts: Map<string, any> = new Map<string, any>();
+    private layouts: {[key: string]: any} = {};
     public dashboards: Dashboard;
     public dashboardChoice: Dashboard;
     public connectOnLoadDashboard: Dashboard;
@@ -163,11 +163,11 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
     /**
      * Returns boolean based on whether or not a dashboard exists that has connectOnLoad set to true.
      * Will also set connectOnLoadDashboard to the value of that dashboard if match is found.
-     * @param {Map<string, Dashboard>} dashboardChoices
+     * @param {[key: string]: Dashboard} dashboardChoices
      * @param {string[]} keys
      * @return {Boolean}
      */
-    hasConnectOnLoadDashboard(dashboardChoices: Map<string, Dashboard>, keys: string[]): boolean {
+    hasConnectOnLoadDashboard(dashboardChoices: {[key: string]: Dashboard}, keys: string[]): boolean {
         return keys.some((choiceKey) => {
             let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
 
@@ -175,7 +175,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                 if (dashboardChoices[choiceKey].options && dashboardChoices[choiceKey].options.connectOnLoad === true) {
                     this.connectOnLoadDashboard = dashboardChoices[choiceKey];
 
-                    return dashboardChoices[choiceKey];
+                    return true;
                 }
             } else {
                 return this.hasConnectOnLoadDashboard(dashboardChoices[choiceKey].choices, nestedChoiceKeys);
