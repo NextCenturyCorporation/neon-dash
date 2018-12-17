@@ -73,7 +73,6 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
     private layouts: {[key: string]: any} = {};
     public dashboards: Dashboard;
     public dashboardChoice: Dashboard;
-    public connectOnLoadDashboard: Dashboard;
 
     @ViewChild('dashboardDropdown') dashboardDropdown: DashboardDropdownComponent;
 
@@ -161,26 +160,26 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Returns boolean based on whether or not a dashboard exists that has connectOnLoad set to true.
-     * Will also set connectOnLoadDashboard to the value of that dashboard if match is found.
+     * Returns Dashboard or null based on whether or not a dashboard exists that has connectOnLoad set to true.
      * @param {[key: string]: Dashboard} dashboardChoices
      * @param {string[]} keys
-     * @return {Boolean}
+     * @return {Dashboard}
      */
-    hasConnectOnLoadDashboard(dashboardChoices: {[key: string]: Dashboard}, keys: string[]): boolean {
-        return keys.some((choiceKey) => {
+    hasConnectOnLoadDashboard(dashboardChoices: {[key: string]: Dashboard}, keys: string[]): Dashboard {
+        for (let choiceKey of keys) {
             let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
-
             if (!nestedChoiceKeys.length) {
                 if (dashboardChoices[choiceKey].options && dashboardChoices[choiceKey].options.connectOnLoad === true) {
-                    this.connectOnLoadDashboard = dashboardChoices[choiceKey];
-
-                    return true;
+                    return dashboardChoices[choiceKey];
                 }
             } else {
-                return this.hasConnectOnLoadDashboard(dashboardChoices[choiceKey].choices, nestedChoiceKeys);
+                let nestedDashboard = this.hasConnectOnLoadDashboard(dashboardChoices[choiceKey].choices, nestedChoiceKeys);
+                if (nestedDashboard) {
+                    return nestedDashboard;
+                }
             }
-        });
+        }
+        return null;
     }
 
     ngOnInit(): void {
@@ -197,9 +196,11 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
 
             let dashboardKeys = this.dashboards.choices ? Object.keys(this.dashboards.choices) : [];
 
-            if (this.hasConnectOnLoadDashboard(this.dashboards.choices, dashboardKeys)) {
+            let connectOnLoadDashboard = this.hasConnectOnLoadDashboard(this.dashboards.choices, dashboardKeys);
+
+            if (connectOnLoadDashboard !== null) {
                 this.connectOnLoad = true;
-                let paths = this.connectOnLoadDashboard.pathFromTop.replace(/choices./, '').split(/(?:.choices.)/);
+                let paths = connectOnLoadDashboard.pathFromTop.replace(/choices./, '').split(/(?:.choices.)/);
 
                 // If there is a dashboard choice with connectOnLoad set to true,
                 // update the dashboard dropdowns one at a time until all
@@ -207,19 +208,19 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                 this.dashboardDropdown.selectDashboardChoice(this.dashboards, paths, 0, this.dashboardDropdown);
 
                 // TODO: 825: Will need to account for multiple datastores later.
-                let index = this.findMatchingDatastoreIndex(this.connectOnLoadDashboard);
+                let index = this.findMatchingDatastoreIndex(connectOnLoadDashboard);
                 if (index !== undefined) {
                     let dataset = this.datasets[index];
 
                     if ((activeDataset && activeDataset === dataset.name.toLowerCase())
-                        || (!activeDataset && this.connectOnLoadDashboard.options.connectOnLoad)) {
-                        this.connectToPreset(index, true, this.connectOnLoadDashboard);
+                        || (!activeDataset && connectOnLoadDashboard.options.connectOnLoad)) {
+                        this.connectToPreset(index, true, connectOnLoadDashboard);
                         this.activeDatasetChanged.emit(); // Close the sidenav opened by connectToPreset.
                     }
                 } else {
                     console.error('Datastore ' +
-                        this.getDatastoreNameFromTableKey(this.connectOnLoadDashboard) +
-                        ' not found for dashboard ' + this.connectOnLoadDashboard.name + '.');
+                        this.getDatastoreNameFromTableKey(connectOnLoadDashboard) +
+                        ' not found for dashboard ' + connectOnLoadDashboard.name + '.');
                 }
 
             }
