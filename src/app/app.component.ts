@@ -80,7 +80,13 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public rightPanelTitle: string = 'Dashboard Layouts';
 
+    public createAboutNeon: boolean = true;
+    public createAddVis: boolean = false;
+    public createDashboardLayouts: boolean = true;
     public createFilterBuilder: boolean = false; //This is used to create the Filter Builder later
+    public createGear: boolean = true;
+    public createSavedState: boolean = false;
+    public createSettings: boolean = false;
 
     public widgetGridItems: NeonGridItem[] = [];
     public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent> = new Map();
@@ -266,10 +272,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         return true;
     }
 
-    checkPanel(panel: string) {
-        return this.currentPanel === panel;
-    }
-
     /**
      * Clears the grid.
      */
@@ -415,8 +417,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
          * Another workaround might be sending the option object in the messenger channel after a feedback
          * from the app component after the toggleGear is received.
          */
-        this.setPanel('gear', 'Component Settings');
-        this.sideNavRight.toggle();
+        //this.setPanel('gear', 'Component Settings');
+        //this.sideNavRight.toggle();
         /* NOTE:
          * There was an issue with Angular Material beta 12 and angular2-grid,
          * where the grid would initially be multiple times larger than the rest of the page
@@ -505,7 +507,45 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         }
     }
 
+    resetAllPanel() {
+        let aboutNeonContainer: HTMLElement = document.getElementById('about.neon');
+        let addVisContainer: HTMLElement = document.getElementById('add.vis');
+        let dashboardLayoutsContainer: HTMLElement = document.getElementById('dashboard.layouts');
+        let gearContainer: HTMLElement = document.getElementById('gear');
+        let savedStateContainer: HTMLElement = document.getElementById('saved.state');
+        let settingsContainer: HTMLElement = document.getElementById('settings');
+
+        let containerList = [
+            aboutNeonContainer,
+            addVisContainer,
+            dashboardLayoutsContainer,
+            gearContainer,
+            savedStateContainer,
+            settingsContainer
+        ];
+
+        containerList.forEach((element) => {
+            if (element) {
+                element.setAttribute('style', 'display: none');
+            }
+        });
+    }
+
     setPanel(newPanel: string, newTitle: string) {
+        this.resetAllPanel();
+        let rightPanelContainer: HTMLElement = document.getElementById(newPanel);
+
+        if (newPanel === 'add.vis' && !this.createAddVis) {
+            this.createAddVis = true;
+        } else if (newPanel === 'saved.state' && !this.createSavedState) {
+            this.createSavedState = true;
+        } else if (newPanel === 'settings' && !this.createSettings) {
+            this.createSettings = true;
+        }
+
+        if (rightPanelContainer) {
+            rightPanelContainer.setAttribute('style', 'display: show');
+        }
         this.currentPanel = newPanel;
         this.rightPanelTitle = newTitle;
     }

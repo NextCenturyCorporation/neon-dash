@@ -596,7 +596,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.messenger.publish('options', {
             options: this.options
         });
-        //console.log('publishOptions');
     }
 
     publishToggleGear() {

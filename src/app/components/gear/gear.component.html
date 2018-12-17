@@ -21,49 +21,73 @@
 
     <h4>Required Fields</h4>
 
-    <div class="requiredOption-container" *ngFor="let requiredOption of requiredList">
-        <span requiredOption.prettyName class="toggle-text">{{ requiredOption.prettyName }}</span>
-        <mat-button-toggle-group class="neon-button-toggle-group-small" *ngIf="checkOptionType(requiredOption.optionType, 'SELECT')">
-            <mat-button-toggle class="radio-btn-container" *ngFor="let choice of requiredOption.valueChoices" [checked]="requiredOption.valueCurrent"
-                (change)="handleBtnChange(requiredOption, $event )" name="radio-button" [value]="choice.variable">{{ choice.prettyName }}</mat-button-toggle>
-        </mat-button-toggle-group>
-
+    <div class="option-container" *ngFor="let requiredOption of requiredList">
+        <!-- Select Option Type-->
+        <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(requiredOption.optionType, 'SELECT')">
+            <mat-select requiredOption.prettyName placeholder={{requiredOption.prettyName}}>
+                <mat-option *ngFor="let choice of requiredOption.valueChoices" [value]="choice.variable">
+                    {{ choice.prettyName }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <!-- Field Option Type-->
         <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(requiredOption.optionType, 'FIELD')">
             <mat-select requiredOption.prettyName placeholder={{requiredOption.prettyName}}>
                 <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
             </mat-select>
         </mat-form-field>
-
+        <!-- Free Text Option Type-->
         <div mat-fill class="flex center" *ngIf="checkOptionType(requiredOption.optionType, 'FREE_TEXT')">
             <mat-form-field class='widgetOption-container' requiredOption.prettyName>
-                <input matInput placeholder={{optionalOption.prettyName}} [(ngModel)]="newLimit" required="false" (keyup.enter)="handleChangeLimit()">
+                <input matInput placeholder={{optionalOption.prettyName}} [(ngModel)]="newLimit" required="false"
+                    (keyup.enter)="handleChangeLimit()">
             </mat-form-field>
         </div>
+        <!-- Field Array Option Type
+        <div mat-fill class="widgetOption-container" *ngIf="checkOptionType(requiredOption.optionType, 'FIELD_ARRAY')">
+            <mat-form-field class='widgetOption-container' requiredOption.prettyName>
+                
+            </mat-form-field>
+        </div> -->
+
     </div>
 
     <h4>Optional Fields</h4>
 
-    <div class="requiredOption-container" *ngFor="let optionalOption of optionalList">
-        <mat-button-toggle-group class="neon-button-toggle-group-small" *ngIf="checkOptionType(optionalOption.optionType, 'SELECT')">
-            <div class="radio-btn-container" *ngFor="let choice of optionalOption.valueChoices" [(ngModel)]="choice.valueCurrent"
-                (ngModelChange)="handleBtnChange(choice.valueCurrent)" [ngModelOptions]="{standalone: true}">
-                <mat-button-toggle [value]="choice.variable">{{ choice.prettyName }}</mat-button-toggle>
-            </div>
-        </mat-button-toggle-group>
+    <div class="option-container" *ngFor="let optionalOption of optionalList">
+
+        <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(optionalOption.optionType, 'SELECT')">
+            <mat-select optionalOption.prettyName placeholder={{optionalOption.prettyName}}>
+                <mat-option *ngFor="let choice of optionalOption.valueChoices" [value]="choice.variable">
+                    {{ choice.prettyName }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
         <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(optionalOption.optionType, 'FIELD')">
-            <mat-select  placeholder={{optionalOption.prettyName}}>
+            <mat-select placeholder={{optionalOption.prettyName}}>
                 <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
             </mat-select>
         </mat-form-field>
         <div mat-fill class="flex center" *ngIf="checkOptionType(optionalOption.optionType, 'FREE_TEXT')">
-            <mat-form-field class='widgetOption-container' >
-                <input matInput placeholder={{optionalOption.prettyName}} [(ngModel)]="newLimit" required="false" (keyup.enter)="handleChangeLimit()">
+            <mat-form-field class='widgetOption-container'>
+                <input matInput placeholder={{optionalOption.prettyName}} [(ngModel)]="newLimit" required="false"
+                    (keyup.enter)="handleChangeLimit()">
             </mat-form-field>
         </div>
     </div>
 
     <!--<p></p>
     <mat-form-field ngFor="let widget of _collection"> </ngFor>-->
+    <!--    
+    <h4>Local Filter</h4>
+    <div class="option-container">
+        <mat-form-field class="widgetOption-container">
+            <mat-select [(ngModel)]="modelName" placeholder="">
+                <mat-option [value]=""></mat-option>
+            </mat-select>
+            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettName }}</mat-option>
+        </mat-form-field>
 
+    </div> -->
     <app-export-control [widgets]="this"></app-export-control>
 </form>
