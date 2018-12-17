@@ -501,7 +501,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
                 this.addCountsToTaxonomy(response.data, this.taxonomyGroups);
                 this.sortTaxonomyArrays(this.taxonomyGroups);
-                //console.log(this.taxonomyGroups);
                 this.refreshVisualization();
 
             } else {
