@@ -139,11 +139,11 @@ describe('Component: DashboardDropdown with input', () => {
         expect(component.hasMoreChoices()).toBeTruthy();
     }));
 
-    it('onSelectionChange() should emit event argument', (() => {
+    it('onChildSelectionChange() should emit event argument', (() => {
         let spy = spyOn(component.selectionChange, 'emit');
         let mockEvent = {event: 'test'};
 
-        component.onSelectionChange(mockEvent);
+        component.onChildSelectionChange(mockEvent);
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.allArgs().length).toEqual(1);
         expect(spy.calls.allArgs()[0][0]).toEqual(mockEvent);

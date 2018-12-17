@@ -8,5 +8,5 @@
 
 <app-dashboard-dropdown *ngIf="hasMoreChoices()" #nextDropdown
     [dashboards]="selectedDashboard"
-    (selectionChange)="onSelectionChange($event)">
+    (selectionChange)="onChildSelectionChange($event)">
 </app-dashboard-dropdown>

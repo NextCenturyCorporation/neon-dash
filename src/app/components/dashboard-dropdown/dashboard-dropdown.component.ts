@@ -93,7 +93,7 @@ export class DashboardDropdownComponent {
      *
      * @arg {any} $event
      */
-    onSelectionChange($event) {
+    onChildSelectionChange($event) {
         this.selectionChange.emit($event);
     }
 
