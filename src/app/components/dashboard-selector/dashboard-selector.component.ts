@@ -200,7 +200,8 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
 
             if (connectOnLoadDashboard !== null) {
                 this.connectOnLoad = true;
-                let paths = connectOnLoadDashboard.pathFromTop.replace(/choices./, '').split(/(?:.choices.)/);
+
+                let paths = connectOnLoadDashboard.pathFromTop;
 
                 // If there is a dashboard choice with connectOnLoad set to true,
                 // update the dashboard dropdowns one at a time until all
@@ -222,9 +223,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                         this.getDatastoreNameFromTableKey(connectOnLoadDashboard) +
                         ' not found for dashboard ' + connectOnLoadDashboard.name + '.');
                 }
-
             }
-
         }
 
         // TODO: 825: fix later
@@ -317,7 +316,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
     }
 
     finishConnectToPreset(dataset: Datastore, loadDashboardState: boolean, dashboard: Dashboard) {
-        if (_.get(this.dashboards, dashboard.pathFromTop)) {
+        if (_.get(this.dashboards, 'choices.' + dashboard.pathFromTop.join('.choices.'))) {
             this.datasetService.setActiveDataset(dataset);
             this.datasetService.setCurrentDashboard(dashboard);
             this.updateLayout(loadDashboardState);

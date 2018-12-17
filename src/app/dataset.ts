@@ -112,7 +112,8 @@ export class Dashboard {
     public fields?: {[key: string]: string} = {};
     public options?: DashboardOptions = new DashboardOptions();
     public fullTitle?: string; // added to dashboard in validateDashboards()
-    public pathFromTop?: string; // added to dashboard in validateDashboards()
+    public pathFromTop?: string[]; // added to dashboard in validateDashboards() - contains keys
+    // (sans choices object references) needed to traverse back up Dashboard object
 }
 
 /**

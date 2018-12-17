@@ -115,7 +115,7 @@ export class DatasetService {
             dashboards.category = this.DASHBOARD_CATEGORY_DEFAULT;
         }
 
-        this.validateDashboardChoices(dashboards.choices, dashboardKeys , 'choices.');
+        this.validateDashboardChoices(dashboards.choices, dashboardKeys);
     }
 
     /**
@@ -129,15 +129,17 @@ export class DatasetService {
      * @param {string} title title to append to current dashboard object
      */
     static validateDashboardChoices(dashboardChoices: {[key: string]: Dashboard}, keys: string[],
-        pathFromTop?: string, title?: string): void {
+        pathFromTop?: string[], title?: string): void {
         if (!keys.length) {
             return;
         }
 
         keys.forEach((choiceKey) => {
             let fullTitle = title ? title + ' ' + dashboardChoices[choiceKey].name : dashboardChoices[choiceKey].name;
-            dashboardChoices[choiceKey].pathFromTop = pathFromTop + choiceKey;
+            let fullPathFromTop = pathFromTop ? pathFromTop.concat(choiceKey) : [choiceKey];
+
             dashboardChoices[choiceKey].fullTitle = fullTitle;
+            dashboardChoices[choiceKey].pathFromTop = fullPathFromTop;
 
             let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
 
@@ -188,7 +190,7 @@ export class DatasetService {
                 }
 
                 this.validateDashboardChoices(dashboardChoices[choiceKey].choices, nestedChoiceKeys,
-                    pathFromTop + choiceKey + '.choices.', dashboardChoices[choiceKey].fullTitle);
+                    fullPathFromTop, dashboardChoices[choiceKey].fullTitle);
             }
         });
     }
