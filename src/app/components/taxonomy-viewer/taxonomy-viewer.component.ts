@@ -56,7 +56,6 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
     public filterFields: string[];
     public ignoreSelf: boolean;
     public extendedFilter: boolean;
-    public extensionFields: any[];
 
     /**
      * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
@@ -112,7 +111,6 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
         this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.filterFields = this.injector.get('filterFields', []);
         this.extendedFilter = this.injector.get('extendedFilter', false);
-        this.extensionFields = this.injector.get('extensionFields', []);
     }
 }
 
