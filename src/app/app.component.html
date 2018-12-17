@@ -6,23 +6,23 @@
             </mat-toolbar>
 
             <div class="right-panel-container">
-                <div class="about-neon-container" *ngIf="checkPanel('aboutNeon')">
+                <div class="about-neon-container" id="about.neon" *ngIf="createAboutNeon">
                     <app-about-neon></app-about-neon>
                 </div>
-                <div class="add-visualization-container" *ngIf="checkPanel('addVis')">
+                <div class="add-visualization-container" id="add.vis" *ngIf="createAddVis">
                     <app-add-visualization></app-add-visualization>
                 </div>
-                <div class="dataset-selector-container" *ngIf="checkPanel('dashboardLayouts')">
+                <div class="dataset-selector-container" id="dashboard.layouts" *ngIf="createDashboardLayouts">
                     <app-dataset-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); sideNavRight.toggle()">
                     </app-dataset-selector>
                 </div>
-                <div class="gear-container" *ngIf="checkPanel('gear')">
+                <div class="gear-container" id="gear" *ngIf="createGear">
                     <app-gear></app-gear>
                 </div>
-                <div class="saved-state-container" *ngIf="checkPanel('saveState')">
+                <div class="saved-state-container" id="saved.state" *ngIf="createSavedState">
                     <app-save-state [sidenav]="sideNavRight" [widgetGridItems]="widgetGridItems" [widgets]="widgets"></app-save-state>
                 </div>
-                <div class="setting-container" *ngIf="checkPanel('settings')">
+                <div class="setting-container" id="settings" *ngIf="createSettings">
                     <app-settings [widgets]="widgets"></app-settings>
                 </div>
             </div>
@@ -54,16 +54,16 @@
         </button>
 
         <mat-menu #appMenu="matMenu" yPosition="below" [overlapTrigger]="false">
-            <button mat-menu-item (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()">
+            <button mat-menu-item (click)="setPanel('add.vis', 'Visualization'); sideNavRight.toggle()">
                 <mat-icon>add_circle</mat-icon>Visualizations</button>
-            <button mat-menu-item (click)="setPanel('dashboardLayouts', 'Dashboard Layouts'); sideNavRight.toggle()">
+            <button mat-menu-item (click)="setPanel('dashboard.layouts', 'Dashboard Layouts'); sideNavRight.toggle()">
                 <mat-icon>dashboard</mat-icon>Dashboard Layouts</button>
-            <button mat-menu-item (click)="setPanel('saveState', 'Save States'); sideNavRight.toggle()">
+            <button mat-menu-item (click)="setPanel('saved.state', 'Save States'); sideNavRight.toggle()">
                 <mat-icon>save</mat-icon>Saved States</button>
             <button mat-menu-item (click)="setPanel('settings', 'Settings'); sideNavRight.toggle()">
                 <mat-icon>settings</mat-icon>Settings
             </button>
-            <button mat-menu-item (click)="setPanel('aboutNeon', 'About Neon'); sideNavRight.toggle()">
+            <button mat-menu-item (click)="setPanel('about.neon', 'About Neon'); sideNavRight.toggle()">
                 <mat-icon>info</mat-icon>About
             </button>
         </mat-menu>

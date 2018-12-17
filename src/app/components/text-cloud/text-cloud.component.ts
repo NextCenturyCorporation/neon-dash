@@ -295,6 +295,23 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return options.aggregation !== neonVariables.COUNT;
     }
 
+    publishOptions() {
+        this.messenger.publish('options', {
+            options: this.options
+        });
+    }
+
+    publishToggleGear() {
+        this.messenger.publish('toggleGear', {
+            toggleGear: true
+        });
+    }
+
+    toggleGear() {
+        this.publishOptions();
+        this.publishToggleGear();
+    }
+
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
