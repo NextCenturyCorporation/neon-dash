@@ -22,52 +22,52 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardDropdownComponent } from './dashboard-dropdown.component';
 import { DashboardOptions, Dashboard } from '../../dataset';
 
-describe('Component: DashboardDropdown with input', () => {
-    let fixture: ComponentFixture<DashboardDropdownComponent>;
-    let component: DashboardDropdownComponent;
+let fixture: ComponentFixture<DashboardDropdownComponent>;
+let component: DashboardDropdownComponent;
 
-    let dashboardTableKeys1: {[key: string]: string} = {};
-    dashboardTableKeys1.tableKey = 'datastore1.database1.table1';
+let dashboardTableKeys1: {[key: string]: string} = {};
+dashboardTableKeys1.tableKey = 'datastore1.database1.table1';
 
-    let dashboardFieldKeys1: {[key: string]: string} = {};
-    dashboardFieldKeys1.fieldKey = 'datastore1.database1.table1.field1';
+let dashboardFieldKeys1: {[key: string]: string} = {};
+dashboardFieldKeys1.fieldKey = 'datastore1.database1.table1.field1';
 
-    let dashboardTableKeys2: {[key: string]: string} = {};
-    dashboardTableKeys2.tableKey = 'datastore2.database2.table1';
+let dashboardTableKeys2: {[key: string]: string} = {};
+dashboardTableKeys2.tableKey = 'datastore2.database2.table1';
 
-    let dashboardFieldKeys2: {[key: string]: string} = {};
-    dashboardFieldKeys2.fieldKey = 'datastore2.database2.table1.field1';
+let dashboardFieldKeys2: {[key: string]: string} = {};
+dashboardFieldKeys2.fieldKey = 'datastore2.database2.table1.field1';
 
-    let choices: {[key: string]: Dashboard} = {};
-    choices.dash1 = {
-        pathFromTop: 'choices.dash1',
-        name: 'Test Discovery Config',
-        layout: 'DISCOVERY',
-        tables: dashboardTableKeys1,
-        fields: dashboardFieldKeys1,
-        options: new DashboardOptions()
-    };
-    choices.dash2 = {
-        name: 'Other Config',
-        pathFromTop: 'choices.dash2',
-        category: 'Select an option...',
-        choices: {
-            nextChoice: {
-                pathFromTop: 'choices.dash2.choices.nextChoice',
-                name: 'Last Config',
-                layout: 'layout3',
-                tables: dashboardTableKeys2,
-                fields: dashboardFieldKeys2,
-                options: new DashboardOptions()
-            }
+let choices: {[key: string]: Dashboard} = {};
+choices.dash1 = {
+    pathFromTop: 'choices.dash1',
+    name: 'Test Discovery Config',
+    layout: 'DISCOVERY',
+    tables: dashboardTableKeys1,
+    fields: dashboardFieldKeys1,
+    options: new DashboardOptions()
+};
+choices.dash2 = {
+    name: 'Other Config',
+    pathFromTop: 'choices.dash2',
+    category: 'Select an option...',
+    choices: {
+        nextChoice: {
+            pathFromTop: 'choices.dash2.choices.nextChoice',
+            name: 'Last Config',
+            layout: 'layout3',
+            tables: dashboardTableKeys2,
+            fields: dashboardFieldKeys2,
+            options: new DashboardOptions()
         }
-    };
+    }
+};
 
-    let dashboards = {
-        category: 'Choose an option',
-        choices: choices
-    };
+let dashboards = {
+    category: 'Choose an option',
+    choices: choices
+};
 
+describe('Component: DashboardDropdown with input', () => {
     initializeTestBed({
         declarations: [
             DashboardDropdownComponent
@@ -164,51 +164,6 @@ describe('Component: DashboardDropdown with input', () => {
 });
 
 describe('Component: DashboardDropdown with no inputs', () => {
-    let fixture: ComponentFixture<DashboardDropdownComponent>;
-    let component: DashboardDropdownComponent;
-
-    let dashboardTableKeys1: {[key: string]: string} = {};
-    dashboardTableKeys1.tableKey = 'datastore1.database1.table1';
-
-    let dashboardFieldKeys1: {[key: string]: string} = {};
-    dashboardFieldKeys1.fieldKey = 'datastore1.database1.table1.field1';
-
-    let dashboardTableKeys2: {[key: string]: string} = {};
-    dashboardTableKeys2.tableKey = 'datastore2.database2.table1';
-
-    let dashboardFieldKeys2: {[key: string]: string} = {};
-    dashboardFieldKeys2.fieldKey = 'datastore2.database2.table1.field1';
-
-    let choices: {[key: string]: Dashboard} = {};
-    choices.dash1 = {
-        pathFromTop: 'choices.dash1',
-        name: 'Test Discovery Config',
-        layout: 'DISCOVERY',
-        tables: dashboardTableKeys1,
-        fields: dashboardFieldKeys1,
-        options: new DashboardOptions()
-    };
-    choices.dash2 = {
-        name: 'Other Config',
-        pathFromTop: 'choices.dash2',
-        category: 'Select an option...',
-        choices: {
-            nextChoice: {
-                pathFromTop: 'choices.dash2.choices.nextChoice',
-                name: 'Last Config',
-                layout: 'layout3',
-                tables: dashboardTableKeys2,
-                fields: dashboardFieldKeys2,
-                options: new DashboardOptions()
-            }
-        }
-    };
-
-    let dashboards = {
-        category: 'Choose an option',
-        choices: choices
-    };
-
     initializeTestBed({
         declarations: [
             DashboardDropdownComponent
