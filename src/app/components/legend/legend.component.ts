@@ -76,7 +76,7 @@ export class LegendComponent implements OnInit {
     private _colorKeys: string[];
 
     constructor(protected widgetService: AbstractWidgetService) {
-        this.menuIcon = 'keyboard_arrow_down';
+        this.menuIcon = 'neon:keyboard_arrow_down';
     }
 
     @Input() set colorKeys(colorKeys: string[]) {
@@ -171,11 +171,11 @@ export class LegendComponent implements OnInit {
     }
 
     onMenuOpen() {
-        this.menuIcon = 'keyboard_arrow_up';
+        this.menuIcon = 'neon:keyboard_arrow_up';
     }
 
     onMenuClose() {
-        this.menuIcon = 'keyboard_arrow_down';
+        this.menuIcon = 'neon:keyboard_arrow_down';
     }
 
     stopPropagation($event) {

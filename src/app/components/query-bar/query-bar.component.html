@@ -1,6 +1,6 @@
 <div class="query-bar">
     <button mat-button mat-icon-button>
-        <mat-icon mat-button>{{ 'search' }}</mat-icon>
+        <mat-icon mat-button svgIcon="neon:search"></mat-icon>
     </button>
     <mat-form-field class="full-width" *ngIf="autoComplete">
         <input #queryBar matInput [placeholder]="options.placeHolder" class="query-bar-input" [matAutocomplete]="auto" [formControl]="filterFormControl"

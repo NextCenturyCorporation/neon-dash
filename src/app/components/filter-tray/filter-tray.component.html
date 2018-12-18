@@ -7,7 +7,7 @@
         <mat-list>
             <mat-list-item *ngFor="let filter of filters.formatted" class="filter-tray-item filter-tray-filter">
                 <button mat-icon-button matTooltip="Remove filter" tooltip-position="below" (click)="removeFilter(filter.ids)">
-                    <mat-icon>delete</mat-icon>
+                    <mat-icon svgIcon="neon:delete"></mat-icon>
                 </button>
                 <div>{{ filter.name }}</div>
             </mat-list-item>

@@ -10,7 +10,7 @@
 
         <button mat-icon-button aria-label="Reset" matTooltip="Reset Filter Builder" tooltip-position="below"
                 (click)="resetFilterBuilder()">
-            <mat-icon>delete_sweep</mat-icon>
+            <mat-icon svgIcon="neon:delete_sweep"></mat-icon>
         </button>
 
         <mat-button-toggle-group #operatorToggle="matButtonToggleGroup" [(ngModel)]="options.requireAll" (change)="updateFilters()"

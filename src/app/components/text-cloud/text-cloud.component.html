@@ -9,7 +9,7 @@
             <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
-            <mat-icon>settings</mat-icon>
+            <mat-icon svgIcon="neon:settings"></mat-icon>
         </button>
     </mat-toolbar>
 
@@ -88,7 +88,7 @@
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                        <mat-icon>refresh</mat-icon>
+                        <mat-icon svgIcon="neon:refresh"></mat-icon>
                     </button>
                 </div>
                 <p></p>

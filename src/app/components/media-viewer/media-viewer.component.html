@@ -9,7 +9,7 @@
             <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
         <button *ngIf="options.url == ''" mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
-            <mat-icon>settings</mat-icon>
+            <mat-icon svgIcon="neon:settings"></mat-icon>
         </button>
     </mat-toolbar>
 

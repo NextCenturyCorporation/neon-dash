@@ -835,7 +835,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @return {string}
      */
     getIconForFilter(index: number): string {
-        return this.filterVisible[index] ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
+        return this.filterVisible[index] ? 'neon:keyboard_arrow_up' : 'neon:keyboard_arrow_down';
     }
 
     /**

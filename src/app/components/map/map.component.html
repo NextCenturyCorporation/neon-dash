@@ -9,7 +9,7 @@
             <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
-            <mat-icon>settings</mat-icon>
+            <mat-icon svgIcon="neon:settings"></mat-icon>
         </button>
     </mat-toolbar>
 
@@ -48,7 +48,7 @@
                         <span>{{ layer.title }}</span>
                         <span class="toolbar-spacer"></span>
                         <mat-icon class="neon-icon-small" *ngIf="options.layers.length > 1" (click)="removeLayer(i)" svgIcon="neon:delete"></mat-icon>
-                        <mat-icon class="neon-icon-small">{{ getIconForFilter(i) }}</mat-icon>
+                        <mat-icon class="neon-icon-small" svgIcon="{{ getIconForFilter(i) }}"></mat-icon>
                     </mat-toolbar>
                     <p></p>
 
@@ -150,7 +150,7 @@
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                        <mat-icon>refresh</mat-icon>
+                        <mat-icon svgIcon="neon:refresh"></mat-icon>
                     </button>
                 </div>
                 <p></p>
