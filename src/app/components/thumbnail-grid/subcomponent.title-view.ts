@@ -32,39 +32,3 @@ export class TitleThumbnailSubComponent {
         this.thumbnailGrid = grid;
     }
 }
-
-@Component({
-    selector: 'app-subcomponent-details-thumbnail',
-    templateUrl: './subcomponent.details-view.html',
-    styleUrls: ['./thumbnail-grid.component.scss']
-})
-
-export class DetailsThumbnailSubComponent {
-
-    @Input() item: any;
-    @Input() options: ThumbnailGridOptions;
-
-    thumbnailGrid: ThumbnailGridComponent;
-
-    constructor(grid: ThumbnailGridComponent) {
-        this.thumbnailGrid = grid;
-    }
-}
-
-@Component({
-    selector: 'app-subcomponent-card-thumbnail',
-    templateUrl: './subcomponent.card-view.html',
-    styleUrls: ['./thumbnail-grid.component.scss']
-})
-
-export class CardThumbnailSubComponent {
-
-    @Input() item: any;
-    @Input() options: ThumbnailGridOptions;
-
-    thumbnailGrid: ThumbnailGridComponent;
-
-    constructor(grid: ThumbnailGridComponent) {
-        this.thumbnailGrid = grid;
-    }
-}

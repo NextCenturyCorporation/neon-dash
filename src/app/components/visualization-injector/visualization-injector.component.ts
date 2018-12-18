@@ -37,6 +37,9 @@ import { VisualizationService } from '../../services/visualization.service';
 import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 import { NewsFeedComponent } from '../news-feed/news-feed.component';
 import { QueryBarComponent } from '../query-bar/query-bar.component';
+import { DetailsThumbnailSubComponent } from '../thumbnail-grid/subcomponent.details-view';
+import { TitleThumbnailSubComponent } from '../thumbnail-grid/subcomponent.title-view';
+import { CardThumbnailSubComponent } from '../thumbnail-grid/subcomponent.card-view';
 
 @Component({
     selector: 'app-visualization-injector',
@@ -57,6 +60,9 @@ import { QueryBarComponent } from '../query-bar/query-bar.component';
         ScatterPlotComponent,
         TaxonomyViewerComponent,
         TextCloudComponent,
+        CardThumbnailSubComponent,
+        TitleThumbnailSubComponent,
+        DetailsThumbnailSubComponent,
         ThumbnailGridComponent,
         TimelineComponent,
         WikiViewerComponent

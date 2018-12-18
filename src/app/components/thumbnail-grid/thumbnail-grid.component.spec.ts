@@ -42,7 +42,9 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatAutocompleteModule } from '@angular/material';
-import { TitleThumbnailSubComponent, DetailsThumbnailSubComponent, CardThumbnailSubComponent } from './thumbnail-details.component';
+import { DetailsThumbnailSubComponent } from './subcomponent.details-view';
+import { TitleThumbnailSubComponent } from './subcomponent.title-view';
+import { CardThumbnailSubComponent } from './subcomponent.card-view';
 
 let validateSelect = (element: any, name: string, required: boolean = false, disabled: boolean = false) => {
     expect(element.componentInstance.disabled).toEqual(disabled);

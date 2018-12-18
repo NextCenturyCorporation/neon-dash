@@ -79,11 +79,9 @@ import { NetworkGraphComponent } from './components/network-graph/network-graph.
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { TreeModule } from 'angular-tree-component';
 import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-grid.component';
-import {
-    TitleThumbnailSubComponent,
-    DetailsThumbnailSubComponent,
-    CardThumbnailSubComponent
-} from './components/thumbnail-grid/thumbnail-details.component';
+import { DetailsThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.details-view';
+import { TitleThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.title-view';
+import { CardThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.card-view';
 import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
