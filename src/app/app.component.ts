@@ -155,16 +155,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             this.projectTitle = this.datasets[0].title ? this.datasets[0].title : this.projectTitle;
             this.projectIcon = this.datasets[0].icon ? this.datasets[0].icon : this.projectIcon;
         }
-
-        this.matIconRegistry.addSvgIcon(
-            'filter_builder',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filter_builder.svg')
-        );
-
-        this.matIconRegistry.addSvgIcon(
-            'filter_builder_active',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filter_builder_active.svg')
-        );
+        this.registerIcons();
 
         this.changeFavicon();
         this.filterBuilderIcon = 'filter_builder';
@@ -182,8 +173,39 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messenger.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
     }
 
+    protected registerIcons() {
+        this.registerIcon('filter_builder', 'filter_builder', null,
+            './assets/icons');
+
+        this.registerIcon(
+            'filter_builder_active', 'filter_builder_active', null,
+            './assets/icons'
+        );
+
+        this.registerIcon('add_circle', 'add_circle-24px');
+    }
+
+    protected registerIcon(name: string,
+                           fileBasename: string,
+                           namespace: string = 'neon',
+                           directory: string = './assets/material-icons') {
+        let url = this.domSanitizer.bypassSecurityTrustResourceUrl(
+            directory + '/' + fileBasename + '.svg');
+        if (namespace == null) {
+            this.matIconRegistry.addSvgIcon(name, url);
+        } else {
+            this.matIconRegistry.addSvgIconInNamespace(
+                namespace,
+                name,
+                url
+            );
+        }
+
+    }
+
     /**
-     * Adds the given widget to the grid in its specified column and row or in the first open space if no column and row are specified.
+     * Adds the given widget to the grid in its specified column and row or in
+     * the first open space if no column and row are specified.
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
@@ -337,8 +359,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
-     * Returns the 1-based index of the last column occupied.  Thus, for a 10 column grid, 10 would be the
-     * largest possble max column in use.  If no columns are filled (i.e., an empty grid), 0 is returned.
+     * Returns the 1-based index of the last column occupied.  Thus, for a 10
+     * column grid, 10 would be the largest possble max column in use.  If no
+     * columns are filled (i.e., an empty grid), 0 is returned.
      */
     getMaxColInUse(): number {
         let maxCol = 0;
@@ -350,8 +373,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
-     * Returns the 1-based index of the last row occupied.  Thus, for a 10 row grid, 10 would be the
-     * largest possble max row in use.  If no rows are filled (i.e., an empty grid), 0 is returned.
+     * Returns the 1-based index of the last row occupied.  Thus, for a 10 row
+     * grid, 10 would be the largest possble max row in use.  If no rows are
+     * filled (i.e., an empty grid), 0 is returned.
      */
     getMaxRowInUse(): number {
         let maxRow = 0;
@@ -484,7 +508,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     /**
      * Registers the given widget with the given ID.
      *
-     * @arg {{id:string,widget:BaseNeonComponent|BaseLayeredNeonComponent}} eventMessage
+     * @arg {{id:string,widget:BaseNeonComponent|BaseLayeredNeonComponent}}
+     *     eventMessage
      */
     registerWidget(eventMessage: { id: string, widget: BaseNeonComponent | BaseLayeredNeonComponent }) {
         if (this.widgets.get(eventMessage.id) === undefined) {
@@ -499,13 +524,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     showItemLocation(event) {
         /**
-         * COMMENTED OUT!  If you are debugging, you can uncomment this, and see what is going on
-         * as you move grid items.  It should not be in production code.
-         * if (event == null) {
-         *   return;
+         * COMMENTED OUT!  If you are debugging, you can uncomment this, and
+         * see what is going on as you move grid items.  It should not be in
+         * production code. if (event == null) { return;
          * }
-         * let str = `row: ${event.row} col: ${event.col} sizex: ${event.sizex} sizey: ${event.sizey}`;
-         * console.log(str);
+         * let str = `row: ${event.row} col: ${event.col} sizex: ${event.sizex}
+         * sizey: ${event.sizey}`; console.log(str);
          */
     }
 
@@ -527,7 +551,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
-     * Updates the showFilterBuilderIcon boolean value from the messenger channel
+     * Updates the showFilterBuilderIcon boolean value from the messenger
+     * channel
      * @param message
      */
     updateShowFilterBuilderIcon(message) {
@@ -535,8 +560,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
-     * This function determines if a widget will overlap any existing grid items if placed
-     * at the given row and column.  This function assumes the given widget has valid sizes.
+     * This function determines if a widget will overlap any existing grid
+     * items if placed at the given row and column.  This function assumes the
+     * given widget has valid sizes.
      * @arg widgetGridItem The widget to place
      */
     widgetFits(widgetGridItem: NeonGridItem) {
@@ -551,7 +577,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * This function uses a simple Axis-Aligned Bounding Box (AABB)
-     * calculation to check for overlap of two items.  This function assumes the given items have valid sizes.
+     * calculation to check for overlap of two items.  This function assumes
+     * the given items have valid sizes.
      * @arg one the first widget
      * @arg two the second widget
      */

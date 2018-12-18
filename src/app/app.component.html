@@ -31,7 +31,7 @@
         <span class="fill-remaining"></span>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below" id="showVisShortcutButton"
             matTooltip="Add a New Visualization" (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()" *ngIf="showVisShortcut">
-            <mat-icon class="neon-icon-large">add_circle</mat-icon>
+            <mat-icon class="neon-icon-large" svgIcon="neon:add_circle"></mat-icon>
         </button>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Connect to a Custom Data Source"
             tooltip-position="below" matTooltip="Connect to a Custom Data Source" (click)="openCustomConnectionDialog()"
@@ -52,7 +52,7 @@
 
         <mat-menu #appMenu="matMenu" yPosition="below" [overlapTrigger]="false">
             <button mat-menu-item (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()">
-                <mat-icon>add_circle</mat-icon>Visualizations</button>
+                <mat-icon svgIcon="neon:add_circle"></mat-icon>Visualizations</button>
             <button mat-menu-item (click)="setPanel('dashboardLayouts', 'Dashboard Layouts'); sideNavRight.toggle()">
                 <mat-icon>dashboard</mat-icon>Dashboard Layouts</button>
             <button mat-menu-item (click)="setPanel('saveState', 'Save States'); sideNavRight.toggle()">
