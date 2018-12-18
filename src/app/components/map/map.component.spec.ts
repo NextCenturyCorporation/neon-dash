@@ -40,6 +40,7 @@ import { AppMaterialModule } from '../../app.material.module';
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { WidgetOptionCollection } from '../../widget-option';
 
 import * as neon from 'neon-framework';
@@ -161,9 +162,9 @@ class TestMap extends AbstractMap {
 /* tslint:enable:component-class-suffix */
 
 function updateMapLayer1(component: TestMapComponent) {
-    component.docCount.set('testLayer1', 1);
     component.filterVisible.set('testLayer1', true);
-    component.mapPoints.set('testLayer1', [{}]);
+    component.layerIdToActiveData.set('testLayer1', new TransformedVisualizationData([{}]));
+    component.layerIdToElementCount.set('testLayer1', 1);
 
     component.options.layers[0] = new WidgetOptionCollection(undefined, {});
     component.options.layers[0]._id = 'testLayer1';
@@ -186,9 +187,9 @@ function updateMapLayer1(component: TestMapComponent) {
 }
 
 function updateMapLayer2(component: TestMapComponent) {
-    component.docCount.set('testLayer2', 10);
     component.filterVisible.set('testLayer2', true);
-    component.mapPoints.set('testLayer2', [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]);
+    component.layerIdToActiveData.set('testLayer2', new TransformedVisualizationData([{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]));
+    component.layerIdToElementCount.set('testLayer2', 10);
 
     component.options.layers[1] = new WidgetOptionCollection(undefined, {});
     component.options.layers[1]._id = 'testLayer2';
@@ -285,8 +286,6 @@ describe('Component: Map', () => {
     it('does have expected public properties', () => {
         expect(component.colorKeys).toEqual([]);
         expect(component.disabledSet).toEqual([]);
-        expect(Array.from(component.docCount.keys())).toEqual([component.options.layers[0]._id]);
-        expect(component.docCount.get(component.options.layers[0]._id)).toEqual(0);
         expect(Array.from(component.filterVisible.keys())).toEqual([component.options.layers[0]._id]);
         expect(component.filterVisible.get(component.options.layers[0]._id)).toEqual(true);
     });
@@ -483,14 +482,11 @@ describe('Component: Map', () => {
         expect(mapSpy.calls.count()).toBe(1);
     });
 
-    it('postAddLayer updates docCount and filterVisible', () => {
+    it('postAddLayer does update filterVisible', () => {
         component.postAddLayer({
             _id: 'testId1'
         });
 
-        expect(Array.from(component.docCount.keys())).toEqual([component.options.layers[0]._id, 'testId1']);
-        expect(component.docCount.get(component.options.layers[0]._id)).toEqual(0);
-        expect(component.docCount.get('testId1')).toEqual(0);
         expect(Array.from(component.filterVisible.keys())).toEqual([component.options.layers[0]._id, 'testId1']);
         expect(component.filterVisible.get(component.options.layers[0]._id)).toEqual(true);
         expect(component.filterVisible.get('testId1')).toEqual(true);
@@ -499,10 +495,6 @@ describe('Component: Map', () => {
             _id: 'testId2'
         });
 
-        expect(Array.from(component.docCount.keys())).toEqual([component.options.layers[0]._id, 'testId1', 'testId2']);
-        expect(component.docCount.get(component.options.layers[0]._id)).toEqual(0);
-        expect(component.docCount.get('testId1')).toEqual(0);
-        expect(component.docCount.get('testId2')).toEqual(0);
         expect(Array.from(component.filterVisible.keys())).toEqual([component.options.layers[0]._id, 'testId1', 'testId2']);
         expect(component.filterVisible.get(component.options.layers[0]._id)).toEqual(true);
         expect(component.filterVisible.get('testId1')).toEqual(true);
@@ -684,98 +676,36 @@ describe('Component: Map', () => {
         expect(component.getFiltersToIgnore()).toEqual(null);
     });
 
-    it('isValidQuery does return expected boolean', () => {
-        expect(component.isValidQuery(component.options.layers[0])).toBe(false);
+    it('validateVisualizationQuery does return expected boolean', () => {
+        expect(component.validateVisualizationQuery(component.options.layers[0])).toBe(false);
 
         updateMapLayer1(component);
 
-        expect(component.isValidQuery(component.options.layers[0])).toBe(true);
+        expect(component.validateVisualizationQuery(component.options.layers[0])).toBe(true);
     });
 
-    it('createQuery does return expected object', () => {
+    it('finalizeVisualizationQuery does return expected object', () => {
         updateMapLayer1(component);
 
         component.options.limit = 5678;
 
         let where1 = [neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)];
         let query1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1').where(neon.query.and.apply(neon.query, where1))
-            .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testId1', 'testColor1', 'testSize1',
-            'testDate1', 'testHover1']).limit(5678);
+            .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testId1', 'testColor1', 'testSize1', 'testDate1', 'testHover1']);
+        let input1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1')
+            .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testId1', 'testColor1', 'testSize1', 'testDate1', 'testHover1']);
 
-        expect(component.createQuery(component.options.layers[0])).toEqual(query1);
+        expect(component.finalizeVisualizationQuery(component.options.layers[0], input1, [])).toEqual(query1);
 
         updateMapLayer2(component);
 
         let where2 = [neon.query.where('testLatitude2', '!=', null), neon.query.where('testLongitude2', '!=', null)];
         let query2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2').where(neon.query.and.apply(neon.query, where2))
-            .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testId2', 'testColor2', 'testSize2',
-            'testDate2', 'testHover2']).limit(5678);
+            .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testId2', 'testColor2', 'testSize2', 'testDate2', 'testHover2']);
+        let input2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2')
+            .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testId2', 'testColor2', 'testSize2', 'testDate2', 'testHover2']);
 
-        expect(component.createQuery(component.options.layers[1])).toEqual(query2);
-    });
-
-    it('onQuerySuccess does call runDocumentCountQuery if response is not a docCount', () => {
-        component.assignTestMap();
-
-        let spy = spyOn(component, 'runDocumentCountQuery');
-
-        updateMapLayer1(component);
-
-        component.onQuerySuccess(component.options.layers[0], {
-            data: [{
-                testId1: 'testId1',
-                testColor1: 'testValue',
-                testDate1: '2018-01-01T00:00:00',
-                testLatitude1: 0,
-                testLongitude1: 0,
-                testSize1: 1
-            }]
-        });
-
-        expect(spy.calls.count()).toBe(1);
-        expect(spy.calls.argsFor(0)).toEqual([component.options.layers[0]]);
-
-        updateMapLayer2(component);
-
-        component.onQuerySuccess(component.options.layers[1], {
-            data: [{
-                testId2: 'testId2',
-                testColor2: 'testValue',
-                testDate2: '2018-01-01T00:00:00',
-                testLatitude2: 0,
-                testLongitude2: 0,
-                testSize2: 1
-            }]
-        });
-
-        expect(spy.calls.count()).toBe(2);
-        expect(spy.calls.argsFor(1)).toEqual([component.options.layers[1]]);
-    });
-
-    it('onQuerySuccess does set layer docCount and does not call runDocumentCountQuery if response is a docCount', () => {
-        let spy = spyOn(component, 'runDocumentCountQuery');
-
-        updateMapLayer1(component);
-
-        component.onQuerySuccess(component.options.layers[0], {
-            data: [{
-                _docCount: 1111
-            }]
-        });
-
-        expect(spy.calls.count()).toBe(0);
-        expect(component.docCount.get(component.options.layers[0]._id)).toEqual(1111);
-
-        updateMapLayer2(component);
-
-        component.onQuerySuccess(component.options.layers[1], {
-            data: [{
-                _docCount: 2222
-            }]
-        });
-
-        expect(spy.calls.count()).toBe(0);
-        expect(component.docCount.get(component.options.layers[1]._id)).toEqual(2222);
+        expect(component.finalizeVisualizationQuery(component.options.layers[1], input2, [])).toEqual(query2);
     });
 
     it('updateLegend does update colorKeys', () => {
@@ -939,64 +869,32 @@ describe('Component: Map', () => {
         expect(mapSpy.calls.count()).toBe(1);
     });
 
-    it('createBasicQuery does return expected object', () => {
-        updateMapLayer1(component);
-
-        let where1 = [neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)];
-        let query1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1').where(neon.query.and.apply(neon.query, where1));
-
-        expect(component.createBasicQuery(component.options.layers[0])).toEqual(query1);
-
-        updateMapLayer2(component);
-
-        let where2 = [neon.query.where('testLatitude2', '!=', null), neon.query.where('testLongitude2', '!=', null)];
-        let query2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2').where(neon.query.and.apply(neon.query, where2));
-
-        expect(component.createBasicQuery(component.options.layers[1])).toEqual(query2);
-    });
-
     it('getButtonText does return expected string', () => {
-        component.options.limit = 1;
-
-        expect(component.getButtonText()).toEqual('0 Points');
+        expect(component.getButtonText()).toEqual('');
 
         updateMapLayer1(component);
 
         expect(component.getButtonText()).toEqual('1 Point');
 
-        updateMapLayer2(component);
+        component.layerIdToElementCount.set(component.options.layers[0]._id, 0);
 
-        expect(component.getButtonText()).toEqual('Layer A (1 Point), Layer B (10 Points (Limited))');
+        expect(component.getButtonText()).toEqual('0 Points');
 
-        component.options.limit = 10;
+        component.layerIdToElementCount.set(component.options.layers[0]._id, 2);
 
-        expect(component.getButtonText()).toEqual('Layer A (1 Point), Layer B (10 Points)');
-    });
-
-    it('runDocumentCountQuery does call executeQuery', () => {
-        let spy = spyOn(component, 'executeQuery');
-
-        updateMapLayer1(component);
-
-        component.runDocumentCountQuery(component.options.layers[0]);
-
-        let where1 = [neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)];
-        let query1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1').where(neon.query.and.apply(neon.query, where1))
-            .aggregate('count', '*', '_docCount');
-
-        expect(spy.calls.count()).toBe(1);
-        expect(spy.calls.argsFor(0)).toEqual([component.options.layers[0], query1]);
+        expect(component.getButtonText()).toEqual('2 Points');
 
         updateMapLayer2(component);
 
-        component.runDocumentCountQuery(component.options.layers[1]);
+        expect(component.getButtonText()).toEqual('Layer A (2 Points), Layer B (10 Points)');
 
-        let where2 = [neon.query.where('testLatitude2', '!=', null), neon.query.where('testLongitude2', '!=', null)];
-        let query2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2').where(neon.query.and.apply(neon.query, where2))
-            .aggregate('count', '*', '_docCount');
+        component.layerIdToElementCount.set(component.options.layers[0]._id, 0);
 
-        expect(spy.calls.count()).toBe(2);
-        expect(spy.calls.argsFor(1)).toEqual([component.options.layers[1], query2]);
+        expect(component.getButtonText()).toEqual('Layer A (0 Points), Layer B (10 Points)');
+
+        component.layerIdToElementCount.delete(component.options.layers[0]._id);
+
+        expect(component.getButtonText()).toEqual('Layer B (10 Points)');
     });
 });
 

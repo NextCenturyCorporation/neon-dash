@@ -32,6 +32,7 @@ import { FilterService } from '../../services/filter.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import * as neon from 'neon-framework';
 
 describe('Component: Filter Builder', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -176,8 +177,8 @@ describe('Component: Filter Builder', () => {
         // TODO
     });
 
-    it('createQuery does return null always', () => {
-        expect(component.createQuery(component.options)).toEqual(null);
+    it('finalizeVisualizationQuery does return null always', () => {
+        expect(component.finalizeVisualizationQuery(component.options, new neon.query.Query(), [])).toEqual(null);
     });
 
     it('getCloseableFilters does return empty array always', () => {
@@ -235,11 +236,11 @@ describe('Component: Filter Builder', () => {
         // TODO
     });
 
-    it('isValidQuery does return false always', () => {
-        expect(component.isValidQuery(component.options)).toEqual(false);
+    it('validateVisualizationQuery does return false always', () => {
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
     });
 
-    it('onQuerySuccess does nothing', () => {
+    it('transformVisualizationQueryResults does nothing', () => {
         // TODO
     });
 

@@ -55,7 +55,7 @@
 
                 <div *ngIf="options.detailedThumbnails">
                     <span class="toggle-text">Label Names:</span>
-                    <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showLabelName" (ngModelChange)="updatePageData()">
+                    <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showLabelName" (ngModelChange)="refreshVisualization()">
                         <mat-button-toggle [value]="true">On</mat-button-toggle>
                         <mat-button-toggle [value]="false">Off</mat-button-toggle>
                     </mat-button-toggle-group>
@@ -193,7 +193,7 @@
                 </div>
                 <p></p>
 
-                <mat-select placeholder="Border" [(ngModel)]="options.border" required="true" (ngModelChange)="updatePageData()">
+                <mat-select placeholder="Border" [(ngModel)]="options.border" required="true" (ngModelChange)="refreshVisualization()">
                     <mat-option [value]="''">Off</mat-option>
                     <mat-option [value]="'valueCompare'">Comparison Field (Blue / Red)</mat-option>
                     <mat-option [value]="'percentCompare'">Comparison and Probability Fields (Blue / Red)</mat-option>
@@ -221,7 +221,7 @@
                 <p></p>
 
                 <span class="toggle-text">Crop or Scale:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.cropAndScale" (ngModelChange)="updatePageData()">
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.cropAndScale" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle value="">None</mat-button-toggle>
                     <mat-button-toggle value="scale">Scale</mat-button-toggle>
                     <mat-button-toggle value="crop">Crop</mat-button-toggle>
@@ -272,9 +272,9 @@
         </div>
     </div>
 
-    <div #thumbnailGrid class="body-container thumbnail-grid" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="gridArray.length > pagingGrid.length">
-        <div class="thumbnail-grid-container" *ngIf="showGrid">
-            <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid" [matTooltip]="getThumbnailTitle(item)"
+    <div #thumbnailGrid class="body-container thumbnail-grid" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="showPagination()">
+        <div class="thumbnail-grid-container" *ngIf="gridArray.length">
+            <div class="thumbnail-grid-div" *ngFor="let item of gridArray" [matTooltip]="getThumbnailTitle(item)"
                 [class.with-text]="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
                 <app-thumbnail-details-contracted *ngIf="!options.detailedThumbnails" [item]="item" [options]="options">
                 </app-thumbnail-details-contracted>
@@ -284,7 +284,7 @@
         </div>
     </div>
 
-    <div class="footer" *ngIf="gridArray.length > pagingGrid.length">
+    <div class="footer" *ngIf="showPagination()">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
                     (click)="goToPreviousPage()">

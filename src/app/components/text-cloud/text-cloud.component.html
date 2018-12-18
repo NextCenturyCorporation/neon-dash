@@ -123,7 +123,7 @@
     </div>
 
     <div class="text-cloud body-container" [class.with-filter]="getCloseableFilters().length" mat-fill layout="col">
-        <a (click)="onClick(item)" class="text" [class.paragraphs]="options.paragraphs" *ngFor="let item of activeData"
+        <a (click)="onClick(item)" class="text" [class.paragraphs]="options.paragraphs" *ngFor="let item of textCloudData"
             [matTooltip]="item.key + ': ' + item.value" tooltip-position="below" [rel]="item.value"
             [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
             <span [class.filter]="isFiltered(item.key)">{{ item.key }}</span>
