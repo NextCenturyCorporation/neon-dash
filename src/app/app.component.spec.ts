@@ -79,6 +79,7 @@ import { TreeModule } from 'angular-tree-component';
 import { DatasetServiceMock } from '../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../testUtils/MockServices/FilterServiceMock';
 import * as neon from 'neon-framework';
+import { initializeTestBed } from '../testUtils/initializeTestBed';
 
 describe('App', () => {
     let fixture: ComponentFixture<AppComponent>;
@@ -87,68 +88,68 @@ describe('App', () => {
     let component: AppComponent;
     let spyOnInit;
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                AddVisualizationComponent,
-                AppComponent,
-                AboutNeonComponent,
-                AggregationComponent,
-                AnnotationViewerComponent,
-                CardThumbnailSubComponent,
-                DatasetSelectorComponent,
-                DataTableComponent,
-                DetailsThumbnailSubComponent,
-                DocumentViewerComponent,
-                ExportControlComponent,
-                FilterBuilderComponent,
-                FiltersComponent,
-                CurrentFiltersComponent,
-                LegendComponent,
-                MapComponent,
-                MediaViewerComponent,
-                NetworkGraphComponent,
-                NewsFeedComponent,
-                QueryBarComponent,
-                SampleComponent,
-                SaveStateComponent,
-                SettingsComponent,
-                SimpleFilterComponent,
-                TaxonomyViewerComponent,
-                TextCloudComponent,
-                ThumbnailGridComponent,
-                TimelineComponent,
-                TitleThumbnailSubComponent,
-                UnsharedFilterComponent,
-                VisualizationContainerComponent,
-                VisualizationInjectorComponent,
-                WikiViewerComponent
-            ],
-            imports: [
-                FormsModule,
-                AppMaterialModule,
-                MatAutocompleteModule,
-                NgxChartsModule,
-                NgGridModule,
-                NgxGraphModule,
-                NgxDatatableModule,
-                HttpModule,
-                HttpClientModule,
-                BrowserAnimationsModule,
-                ReactiveFormsModule,
-                TreeModule.forRoot()
-            ],
-            providers: [
-                { provide: 'config', useValue: new NeonGTDConfig() },
-                { provide: APP_BASE_HREF, useValue: '/' },
-                ConnectionService,
-                { provide: DatasetService, useClass: DatasetServiceMock },
-                { provide: FilterService, useClass: FilterServiceMock },
-                ParameterService,
-                { provide: AbstractWidgetService, useClass: WidgetService }
-            ]
-        });
+    initializeTestBed({
+        declarations: [
+            AddVisualizationComponent,
+            AppComponent,
+            AboutNeonComponent,
+            AggregationComponent,
+            AnnotationViewerComponent,
+            CardThumbnailSubComponent,
+            DatasetSelectorComponent,
+            DataTableComponent,
+            DetailsThumbnailSubComponent,
+            DocumentViewerComponent,
+            ExportControlComponent,
+            FilterBuilderComponent,
+            FiltersComponent,
+            CurrentFiltersComponent,
+            LegendComponent,
+            MapComponent,
+            MediaViewerComponent,
+            NetworkGraphComponent,
+            NewsFeedComponent,
+            QueryBarComponent,
+            SampleComponent,
+            SaveStateComponent,
+            SettingsComponent,
+            SimpleFilterComponent,
+            TaxonomyViewerComponent,
+            TextCloudComponent,
+            ThumbnailGridComponent,
+            TimelineComponent,
+            TitleThumbnailSubComponent,
+            UnsharedFilterComponent,
+            VisualizationContainerComponent,
+            VisualizationInjectorComponent,
+            WikiViewerComponent
+        ],
+        imports: [
+            FormsModule,
+            AppMaterialModule,
+            MatAutocompleteModule,
+            NgxChartsModule,
+            NgGridModule,
+            NgxGraphModule,
+            NgxDatatableModule,
+            HttpModule,
+            HttpClientModule,
+            BrowserAnimationsModule,
+            ReactiveFormsModule,
+            TreeModule.forRoot()
+        ],
+        providers: [
+            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: APP_BASE_HREF, useValue: '/' },
+            ConnectionService,
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: FilterService, useClass: FilterServiceMock },
+            ParameterService,
+            { provide: AbstractWidgetService, useClass: WidgetService }
+        ]
+    });
 
+    beforeEach(() => {
         fixture = TestBed.createComponent(AppComponent);
         component = fixture.componentInstance;
         spyOnInit = spyOn(component, 'ngOnInit');
