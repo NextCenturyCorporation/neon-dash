@@ -605,6 +605,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     toggleGear() {
+        //console.log(this.options);
         this.publishOptions();
         this.publishToggleGear();
     }

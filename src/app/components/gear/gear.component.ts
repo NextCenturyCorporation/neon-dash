@@ -97,9 +97,13 @@ export class GearComponent implements OnInit, OnDestroy {
         return titleOption.valueCurrent;
     }
 
-    handleBtnChange(widgetOption, newValue) {
+    handleDataChange(widgetOption, newValue) {
         //console.log(widgetOption);
         //console.log(newValue);
+        this.options[widgetOption.bindingKey] = newValue;
+        //this.optionsList.access
+        //console.log(this.options.get[widgetOption.bindingkey]);
+        //this.options[widgetOption.bindingKey](newValue);
     }
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
@@ -139,7 +143,7 @@ export class GearComponent implements OnInit, OnDestroy {
         this.optionsList = this.options.list();
         this.cleanShowOptions();
         this.constructOptionsLists();
-        //console.log(this.options);
+        //console.log(this.optionsList);
     }
 
 }
