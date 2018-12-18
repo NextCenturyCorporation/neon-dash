@@ -234,7 +234,7 @@ export class WidgetTableOption extends WidgetOption {
  */
 export class WidgetOptionCollection {
     // An object containing strings mapped to WidgetOption objects.
-    public _collection: { [bindingKey: string]: WidgetOption; } = {};
+    private _collection: { [bindingKey: string]: WidgetOption; } = {};
 
     public _id: string;
     public databases: DatabaseMetaData[] = [];

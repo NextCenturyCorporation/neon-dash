@@ -24,7 +24,8 @@
     <div class="option-container" *ngFor="let requiredOption of requiredList">
         <!-- Select Option Type-->
         <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(requiredOption.optionType, 'SELECT')">
-            <mat-select requiredOption.prettyName placeholder={{requiredOption.prettyName}}>
+            <mat-select requiredOption.prettyName placeholder={{requiredOption.prettyName}}
+            [ngModel]="requiredOption.valueCurrent" name="requiredOption" (ngModelChange)="handleDataChange(requiredOption, $event)">
                 <mat-option *ngFor="let choice of requiredOption.valueChoices" [value]="choice.variable">
                     {{ choice.prettyName }}
                 </mat-option>
@@ -32,15 +33,17 @@
         </mat-form-field>
         <!-- Field Option Type-->
         <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(requiredOption.optionType, 'FIELD')">
-            <mat-select requiredOption.prettyName placeholder={{requiredOption.prettyName}}>
+            <mat-select requiredOption.prettyName placeholder={{requiredOption.prettyName}}
+            [ngModel]="requiredOption.valueCurrent" name="requiredOption" (ngModelChange)="handleDataChange(requiredOption, $event)">
                 <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
             </mat-select>
         </mat-form-field>
         <!-- Free Text Option Type-->
         <div mat-fill class="flex center" *ngIf="checkOptionType(requiredOption.optionType, 'FREE_TEXT')">
             <mat-form-field class='widgetOption-container' requiredOption.prettyName>
-                <input matInput placeholder={{optionalOption.prettyName}} [(ngModel)]="newLimit" required="false"
-                    (keyup.enter)="handleChangeLimit()">
+                <input matInput placeholder={{optionalOption.prettyName}}
+                [ngModel]="requiredOption.valueCurrent" name="requiredOption" (ngModelChange)="handleDataChange(requiredOption, $event)" required="false"
+                (keyup.enter)="handleChangeLimit()">
             </mat-form-field>
         </div>
         <!-- Field Array Option Type
@@ -57,7 +60,8 @@
     <div class="option-container" *ngFor="let optionalOption of optionalList">
 
         <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(optionalOption.optionType, 'SELECT')">
-            <mat-select optionalOption.prettyName placeholder={{optionalOption.prettyName}}>
+            <mat-select optionalOption.prettyName placeholder={{optionalOption.prettyName}} 
+            [ngModel]="optionalOption.valueCurrent" name="optionalOption" (ngModelChange)="handleDataChange(optionalOption, $event)">
                 <mat-option *ngFor="let choice of optionalOption.valueChoices" [value]="choice.variable">
                     {{ choice.prettyName }}
                 </mat-option>
@@ -70,8 +74,8 @@
         </mat-form-field>
         <div mat-fill class="flex center" *ngIf="checkOptionType(optionalOption.optionType, 'FREE_TEXT')">
             <mat-form-field class='widgetOption-container'>
-                <input matInput placeholder={{optionalOption.prettyName}} [(ngModel)]="newLimit" required="false"
-                    (keyup.enter)="handleChangeLimit()">
+                <input matInput placeholder={{optionalOption.prettyName}} required="false"
+                    (keyup.enter)="handleDataChange(optionalOption, $event)">
             </mat-form-field>
         </div>
     </div>
