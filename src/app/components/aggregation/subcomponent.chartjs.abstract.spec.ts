@@ -83,7 +83,7 @@ class TestChartJsSubcomponent extends AbstractChartJsSubcomponent {
     }
 
     protected createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset {
-        return new TestChartJsDataset(color, label, xList);
+        return new TestChartJsDataset(this.elementRef, color, label, xList);
     }
 
     protected findAxisTypeX(): string {
@@ -131,22 +131,22 @@ describe('ChartJsSubcomponent', () => {
 
     it('createChartDataAndOptions does return expected object', () => {
         let dataAndOptions = subcomponent.getChartDataAndOptions([{
-            color: new Color(1, 2, 3),
+            color: Color.fromRgb(1, 2, 3),
             group: 'a',
             x: 1,
             y: 2
         }, {
-            color: new Color(1, 2, 3),
+            color: Color.fromRgb(1, 2, 3),
             group: 'a',
             x: 3,
             y: 4
         }, {
-            color: new Color(4, 5, 6),
+            color: Color.fromRgb(4, 5, 6),
             group: 'b',
             x: 5,
             y: 6
         }, {
-            color: new Color(4, 5, 6),
+            color: Color.fromRgb(4, 5, 6),
             group: 'b',
             x: 7,
             y: 8
@@ -193,7 +193,7 @@ describe('ChartJsSubcomponent', () => {
         expect(dataAndOptions.options.tooltips.callbacks.label).toBeDefined();
         expect(dataAndOptions.options.tooltips.callbacks.title).toBeDefined();
 
-        expect(dataAndOptions.data.datasets[0].color).toEqual(new Color(1, 2, 3));
+        expect(dataAndOptions.data.datasets[0].color).toEqual(Color.fromRgb(1, 2, 3));
         expect(dataAndOptions.data.datasets[0].label).toEqual('a');
         expect(dataAndOptions.data.datasets[0].data).toEqual([{
             x: 1,
@@ -209,7 +209,7 @@ describe('ChartJsSubcomponent', () => {
             y: null
         }]);
 
-        expect(dataAndOptions.data.datasets[1].color).toEqual(new Color(4, 5, 6));
+        expect(dataAndOptions.data.datasets[1].color).toEqual(Color.fromRgb(4, 5, 6));
         expect(dataAndOptions.data.datasets[1].label).toEqual('b');
         expect(dataAndOptions.data.datasets[1].data).toEqual([{
             x: 1,
@@ -238,22 +238,22 @@ describe('ChartJsSubcomponent', () => {
         subcomponent.horizontal = true;
 
         let dataAndOptions = subcomponent.getChartDataAndOptions([{
-            color: new Color(1, 2, 3),
+            color: Color.fromRgb(1, 2, 3),
             group: 'a',
             x: 1,
             y: 2
         }, {
-            color: new Color(1, 2, 3),
+            color: Color.fromRgb(1, 2, 3),
             group: 'a',
             x: 3,
             y: 4
         }, {
-            color: new Color(4, 5, 6),
+            color: Color.fromRgb(4, 5, 6),
             group: 'b',
             x: 5,
             y: 6
         }, {
-            color: new Color(4, 5, 6),
+            color: Color.fromRgb(4, 5, 6),
             group: 'b',
             x: 7,
             y: 8

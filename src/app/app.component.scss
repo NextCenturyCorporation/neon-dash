@@ -45,14 +45,6 @@
     overflow-y: auto;
 }
 
-.color-primary {
-    color: var(--color-primary, grey);
-}
-
-.color-highlight {
-    color: var(--color-accent, lightgrey);
-}
-
 .header-toggle-container {
     z-index: 9999;
     position: absolute;

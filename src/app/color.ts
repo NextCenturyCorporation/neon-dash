@@ -13,131 +13,153 @@
  * limitations under the License.
  *
  */
+import { ElementRef } from '@angular/core';
 
 /**
  * General color class.
  * This class can provide colors in a hex string, RGB formatted, or in RGB percent.
  */
 export class Color {
-    private red: number;
-    private green: number;
-    private blue: number;
-
     /**
-     * Creates and returns a Color object using the given Hex string like #123 or #112233.
+     * Creates and returns a Color object using the given Hex string like "#123" or "#112233" or "112233".
      * @arg {string} inputHex
      * @return {Color}
      */
     static fromHexString(inputHex: string): Color {
+        if (!inputHex) {
+            return null;
+        }
         // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
         let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
         let hex = inputHex.replace(shorthandRegex, function(m, r, g, b) {
             return r + r + g + g + b + b;
         });
-
-        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? new Color(
-            parseInt(result[1], 16),
-            parseInt(result[2], 16),
-            parseInt(result[3], 16)
-        ) : null;
+        let hexArray = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        if (hexArray) {
+            let rgb = parseInt(hexArray[1], 16) + ',' + parseInt(hexArray[2], 16) + ',' + parseInt(hexArray[3], 16);
+            return new Color((inputHex.indexOf('#') === 0 ? inputHex : ('#' + inputHex)), 'rgba(' + rgb + ',0.66)',
+                'rgba(' + rgb + ',0.33)');
+        }
+        return null;
     }
 
     /**
-     * Create a color object from an array of RGB values.
-     * The array must have 3 elements in it
-     * @arg {number[]} rgb
+     * Creates and returns a Color object using the given RGB numbers.
+     * @arg {number} red
+     * @arg {number} green
+     * @arg {number} blue
      * @return {Color}
      */
-    static fromRgbArray(rgb: number[]): Color {
-        if (rgb == null || rgb.length !== 3) {
+    static fromRgb(red: number, green: number, blue: number): Color {
+        if (red === null || green === null || blue === null) {
             return null;
         }
-        return new Color(rgb[0], rgb[1], rgb[2]);
+        let rgb = red + ',' + green + ',' + blue;
+        return new Color('rgb(' + rgb + ')', 'rgba(' + rgb + ',0.66)', 'rgba(' + rgb + ',0.33)');
     }
 
     /**
-     * Create a color object from an RGB string, like "rgb(39, 96, 126)"
-     * @arg {string} rgbstring
+     * Creates and returns a Color object using the given RGB array like [12, 34, 56].
+     * @arg {number[]} inputRGB
      * @return {Color}
      */
-    static fromRgbString(rgbstring: string): Color {
-        if (rgbstring == null || rgbstring.length < 5) {
+    static fromRgbArray(inputRGB: number[]): Color {
+        if (inputRGB === null || inputRGB.length !== 3) {
             return null;
         }
-        let rgbstringarray = rgbstring.replace(/[^\d,]/g, '').split(',');
-        let red = Number(rgbstringarray[0]);
-        let green = Number(rgbstringarray[1]);
-        let blue = Number(rgbstringarray[2]);
-        return Color.fromRgbArray([red, green, blue]);
-    }
-
-    constructor(r: number, g: number, b: number) {
-        this.red = r;
-        this.green = g;
-        this.blue = b;
-    }
-
-    private getBase255(value: number) {
-        return value;
-    }
-
-    private getBase1(value: number) {
-        return value / 255;
-    }
-
-    private getHex(value: number) {
-        return value.toString(16);
+        return Color.fromRgb(inputRGB[0], inputRGB[1], inputRGB[2]);
     }
 
     /**
-     * Get the 'inactive' color, aka the RGBA string with an alpha of 0.3
-     * @return {string}
+     * Creates and returns a Color object using the given RGB string like "12,34,56".
+     * @arg {string} inputRGB
+     * @return {Color}
      */
-    getInactiveRgba(): string {
-        return this.toRgba(0.2);
+    static fromRgbString(inputRGB: string): Color {
+        if (inputRGB === null || inputRGB.length < 5) {
+            return null;
+        }
+        let arrayRGB = inputRGB.replace(/[^\d,]/g, '').split(',');
+        return arrayRGB.length === 3 ? Color.fromRgb(Number(arrayRGB[0]), Number(arrayRGB[1]), Number(arrayRGB[2])) : null;
     }
 
     /**
-     * Get the color as a string of RGB percentages
-     * @return {string}
+     * @constructor
+     * @arg {string} css
+     * @arg {string} transparencyMedium
+     * @arg {string} transparencyHigh
      */
-    toPercentages(): string {
-        return '' + this.getBase1(this.red) + ',' +
-            this.getBase1(this.green) + ',' +
-            this.getBase1(this.blue);
+    constructor(private css: string, private transparencyMedium: string, private transparencyHigh: string) {
+        // Do nothing.
     }
 
     /**
-     * Get the color as a rgb(0,0,0) string
+     * Returns the computed CSS for the color using the given ElementRef object to find custom CSS properties like "--variable".
+     * @arg {ElementRef} elementRef
      * @return {string}
      */
-    toRgb(): string {
-        return 'rgb(' + this.getBase255(this.red) + ',' +
-            this.getBase255(this.green) + ',' +
-            this.getBase255(this.blue) + ')';
+    public getComputedCss(elementRef: ElementRef): string {
+        return this.computeColor(this.css, elementRef);
     }
 
     /**
-     * Get the color as a rgba(0,0,0,a) string
-     * @arg a alpha value (0-1)
+     * Returns the CSS for the medium transparency color using the given ElementRef object to find custom CSS properties like "--variable".
+     * @arg {ElementRef} elementRef
      * @return {string}
      */
-    toRgba(a: number): string {
-        return 'rgba(' + this.getBase255(this.red) + ',' +
-            this.getBase255(this.green) + ',' +
-            this.getBase255(this.blue) + ',' +
-            a + ')';
+    public getComputedCssTransparencyMedium(elementRef: ElementRef): string {
+        return this.computeColor(this.transparencyMedium, elementRef);
     }
 
     /**
-     * Get the color as a '#RRGGBB' string
+     * Returns the CSS for the high transparency color using the given ElementRef object to find custom CSS properties like "--variable".
+     * @arg {ElementRef} elementRef
      * @return {string}
      */
-    toHexString(): string {
-        return '#' + this.getHex(this.red) +
-            this.getHex(this.green) +
-            this.getHex(this.blue);
+    public getComputedCssTransparencyHigh(elementRef: ElementRef): string {
+        return this.computeColor(this.transparencyHigh, elementRef);
+    }
+
+    /**
+     * Returns the CSS for the color.
+     * @return {string}
+     */
+    public getCss(): string {
+        return this.css;
+    }
+
+    /**
+     * Returns the CSS for the color with medium transparency.
+     * @return {string}
+     */
+    public getCssTransparencyMedium(): string {
+        return this.transparencyMedium;
+    }
+
+    /**
+     * Returns the CSS for the color with high transparency.
+     * @return {string}
+     */
+    public getCssTransparencyHigh(): string {
+        return this.transparencyHigh;
+    }
+
+    /**
+     * Returns the color for the given CSS using the given ElementRef object to find custom CSS properties like "--variable".
+     * @arg {string} colorCss
+     * @arg {ElementRef} elementRef
+     * @return {string}
+     */
+    private computeColor(colorCss: string, elementRef: ElementRef): string {
+        if (colorCss.indexOf('var(--') === 0) {
+            let css = colorCss.substring(4, colorCss.length - 1);
+            css = css.indexOf(',') >= 0 ? css.substring(0, css.indexOf(',')) : css;
+            return getComputedStyle(elementRef.nativeElement).getPropertyValue(css);
+        }
+        if (colorCss.indexOf('--') === 0) {
+            return getComputedStyle(elementRef.nativeElement).getPropertyValue(colorCss);
+        }
+        return colorCss;
     }
 }
 
@@ -145,40 +167,42 @@ export class Color {
  * A set of colors, used to keep track of which values map to which colors
  */
 export class ColorSet {
-    // TODO Move to WidgetService
     private colors: Color[] = [
-        // NEON TEAL COLOR THEME
-        new Color(94, 80, 143),   // #5E508F (deep purple)
-        new Color(255, 135, 55),  // #FF8737 (orange)
-        new Color(179, 79, 146),  // #B34F92 (purple)
-        new Color(177, 194, 54),  // #B1C236 (lime)
-        new Color(243, 88, 112),  // #F35870 (pink)
-        new Color(0, 153, 255),   // #0099FF (blue)
-        new Color(255, 214, 0),   // #FFD600 (yellow)
-        new Color(106, 204, 127), // #6ACC7F (sea green)
-
-        // NEON TEAL COLOR THEME - LIGHT
-        new Color(141, 124, 192),   // #8D7CC0 (deep purple)
-        new Color(255, 184, 102),   // #FFb866 (orange)
-        new Color(231, 127, 194),   // #E77FC2 (purple)
-        new Color(230, 245, 105),   // #E6F569 (lime)
-        new Color(255, 139, 158),   // #FF8B9E (pink)
-        new Color(105, 204, 255),   // #69CCFF (blue)
-        new Color(255, 255, 82),    // #FFFF52 (yellow)
-        new Color(157, 255, 175),   // #369A52 (sea green)
-
-        // NEON TEAL COLOR THEME - DARK
-        new Color(49, 39, 97),    // #312761 (deep purple)
-        new Color(198, 88, 0),    // #C65800 (orange)
-        new Color(129, 29, 100),  // #811D64 (purple)
-        new Color(126, 146, 0),   // #7E9200 (lime)
-        new Color(187, 30, 69),   // #BB1E45 (pink)
-        new Color(0, 108, 203),   // #006CCB (blue)
-        new Color(199, 165, 0),   // #C7A500 (yellow)
-        new Color(54, 154, 82)    // #369A52 (sea green)
+        new Color('var(--color-set-1)', 'var(--color-set-1-transparency-medium)', 'var(--color-set-1-transparency-high)'),
+        new Color('var(--color-set-2)', 'var(--color-set-2-transparency-medium)', 'var(--color-set-2-transparency-high)'),
+        new Color('var(--color-set-3)', 'var(--color-set-3-transparency-medium)', 'var(--color-set-3-transparency-high)'),
+        new Color('var(--color-set-4)', 'var(--color-set-4-transparency-medium)', 'var(--color-set-4-transparency-high)'),
+        new Color('var(--color-set-5)', 'var(--color-set-5-transparency-medium)', 'var(--color-set-5-transparency-high)'),
+        new Color('var(--color-set-6)', 'var(--color-set-6-transparency-medium)', 'var(--color-set-6-transparency-high)'),
+        new Color('var(--color-set-7)', 'var(--color-set-7-transparency-medium)', 'var(--color-set-7-transparency-high)'),
+        new Color('var(--color-set-8)', 'var(--color-set-8-transparency-medium)', 'var(--color-set-8-transparency-high)'),
+        new Color('var(--color-set-light-1)', 'var(--color-set-light-1-transparency-medium)', 'var(--color-set-light-1-transparency-high)'),
+        new Color('var(--color-set-light-2)', 'var(--color-set-light-2-transparency-medium)', 'var(--color-set-light-2-transparency-high)'),
+        new Color('var(--color-set-light-3)', 'var(--color-set-light-3-transparency-medium)', 'var(--color-set-light-3-transparency-high)'),
+        new Color('var(--color-set-light-4)', 'var(--color-set-light-4-transparency-medium)', 'var(--color-set-light-4-transparency-high)'),
+        new Color('var(--color-set-light-5)', 'var(--color-set-light-5-transparency-medium)', 'var(--color-set-light-5-transparency-high)'),
+        new Color('var(--color-set-light-6)', 'var(--color-set-light-6-transparency-medium)', 'var(--color-set-light-6-transparency-high)'),
+        new Color('var(--color-set-light-7)', 'var(--color-set-light-7-transparency-medium)', 'var(--color-set-light-7-transparency-high)'),
+        new Color('var(--color-set-light-8)', 'var(--color-set-light-8-transparency-medium)', 'var(--color-set-light-8-transparency-high)'),
+        new Color('var(--color-set-dark-1)', 'var(--color-set-dark-1-transparency-medium)', 'var(--color-set-dark-1-transparency-high)'),
+        new Color('var(--color-set-dark-2)', 'var(--color-set-dark-2-transparency-medium)', 'var(--color-set-dark-2-transparency-high)'),
+        new Color('var(--color-set-dark-3)', 'var(--color-set-dark-3-transparency-medium)', 'var(--color-set-dark-3-transparency-high)'),
+        new Color('var(--color-set-dark-4)', 'var(--color-set-dark-4-transparency-medium)', 'var(--color-set-dark-4-transparency-high)'),
+        new Color('var(--color-set-dark-5)', 'var(--color-set-dark-5-transparency-medium)', 'var(--color-set-dark-5-transparency-high)'),
+        new Color('var(--color-set-dark-6)', 'var(--color-set-dark-6-transparency-medium)', 'var(--color-set-dark-6-transparency-high)'),
+        new Color('var(--color-set-dark-7)', 'var(--color-set-dark-7-transparency-medium)', 'var(--color-set-dark-7-transparency-high)'),
+        new Color('var(--color-set-dark-8)', 'var(--color-set-dark-8-transparency-medium)', 'var(--color-set-dark-8-transparency-high)')
     ];
     private currentIndex: number = 0;
 
+    /**
+     * @constructor
+     * @arg {string} colorKey
+     * @arg {string} databaseName
+     * @arg {string} tableName
+     * @arg {string} fieldName
+     * @arg {Map<string, Color>} [valueToColor=new Map<string, Color>()]
+     */
     constructor(private colorKey: string, private databaseName: string, private tableName: string, private fieldName: string,
         private valueToColor: Map<string, Color> = new Map<string, Color>()) {
 

@@ -18,6 +18,14 @@ import { BaseNeonComponent } from '../components/base-neon-component/base-neon.c
 import { Color, ColorSet } from '../color';
 
 /**
+ * @interface Theme
+ */
+export interface Theme {
+    id: string;
+    name: string;
+}
+
+/**
  * A service for everything a Neon widget needs.
  *
  * @class AbstractWidgetService
@@ -69,10 +77,26 @@ export abstract class AbstractWidgetService {
     /**
      * Returns the list of available application themes.
      *
-     * @return {{id:string,name:string}[]}
+     * @return {Theme[]}
      * @abstract
      */
-    public abstract getThemes(): { id: string, name: string }[];
+    public abstract getThemes(): Theme[];
+
+    /**
+     * Returns the hex for the accent color for the current application theme.
+     *
+     * @return {string}
+     * @abstract
+     */
+    public abstract getThemeAccentColorHex(): string;
+
+    /**
+     * Returns the hex for the main color for the current application theme.
+     *
+     * @return {string}
+     * @abstract
+     */
+    public abstract getThemeMainColorHex(): string;
 
     /**
      * Sets the current application theme to the theme with the given ID.

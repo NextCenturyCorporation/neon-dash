@@ -29,10 +29,12 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { TimelineComponent, TransformedTimelineAggregationData } from './timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { WidgetService } from '../../services/widget.service';
 
 let d3 = require('../../../assets/d3.min.js');
 
@@ -48,6 +50,7 @@ describe('Component: Timeline', () => {
             UnsharedFilterComponent
         ],
         providers: [
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             DatasetService,
             FilterService,
