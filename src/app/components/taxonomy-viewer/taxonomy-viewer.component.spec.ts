@@ -147,7 +147,7 @@ describe('Component: TaxonomyViewer', () => {
 
         let query = new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
-            .withFields(['testIdField','testCategoryField', 'testFilter1', 'testFilter2',  'testTypeField',
+            .withFields(['testIdField', 'testCategoryField', 'testFilter1', 'testFilter2',  'testTypeField',
                 'testSubTypeField']);
 
         let whereClauses = [
