@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, Input, ElementRef, ViewChild } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
@@ -25,34 +25,16 @@ import * as _ from 'lodash';
     templateUrl: './filters.component.html',
     styleUrls: ['./filters.component.scss']
 })
-// TODO: 943: extend baseneoncomponent?
 export class FiltersComponent {
     @Input() widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent>;
     public showFilterBuilderView: boolean = true; // if false, show active filters instead
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
-    @ViewChild('headerText') headerText: ElementRef;
 
     /**
-     * Returns the default title for the visualization.
+     * Returns the default title.
      *
      * @return {string}
-     * @override
      */
-    getVisualizationDefaultTitle(): string {
+    getDefaultTitle(): string {
         return 'Filters';
     }
-
-    /**
-     * Returns an object containing the ElementRef objects for the visualization.
-     *
-     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} visualization
-     * @override
-     */
-    getElementRefs(): any {
-        return {
-            visualization: this.visualization,
-            headerText: this.headerText
-        };
-    }
-
 }
