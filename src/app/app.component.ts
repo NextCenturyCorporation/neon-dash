@@ -42,7 +42,6 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../app/services/filter.service';
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatSidenav, MatMenuTrigger } from '@angular/material';
-import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from './neon-grid-item';
 import { NeonGTDConfig } from './neon-gtd-config';
 import { neonEvents } from './neon-namespaces';
@@ -50,6 +49,7 @@ import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { SaveStateComponent } from './components/save-state/save-state.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
+import {IconService} from "./services/icon.service";
 
 @Component({
     selector: 'app-root',
@@ -126,7 +126,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         public dialog: MatDialog,
         private domSanitizer: DomSanitizer,
         public filterService: FilterService,
-        private matIconRegistry: MatIconRegistry,
+        private iconService: IconService,
         public snackBar: MatSnackBar,
         public widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
@@ -155,7 +155,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             this.projectTitle = this.datasets[0].title ? this.datasets[0].title : this.projectTitle;
             this.projectIcon = this.datasets[0].icon ? this.datasets[0].icon : this.projectIcon;
         }
-        this.registerIcons();
+        this.iconService.registerIcons();
 
         this.changeFavicon();
         this.filterBuilderIcon = 'filter_builder';
@@ -171,53 +171,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messenger.subscribe(neonEvents.WIDGET_REGISTER, this.registerWidget.bind(this));
         this.messenger.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
         this.messenger.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
-    }
-
-    protected registerIcons() {
-        this.registerIcon('filter_builder', 'filter_builder', null,
-            './assets/icons');
-
-        this.registerIcon(
-            'filter_builder_active', 'filter_builder_active', null,
-            './assets/icons'
-        );
-
-        this.registerIcon('add_circle', 'add_circle-24px');
-        this.registerIcon('arrow_downward', 'arrow_downward-24px');
-        this.registerIcon('arrow_drop_down', 'arrow_drop_down-24px');
-        this.registerIcon('arrow_upward', 'arrow_upward-24px');
-        this.registerIcon('clear', 'clear-24px');
-        this.registerIcon('delete', 'delete-24px');
-        this.registerIcon('delete_sweep', 'delete_sweep-24px');
-        this.registerIcon('filter_list', 'filter_list-24px');
-        this.registerIcon('fullscreen', 'fullscreen-24px');
-        this.registerIcon('info', 'info-24px');
-        this.registerIcon('keyboard_arrow_down', 'keyboard_arrow_down-24px');
-        this.registerIcon('keyboard_arrow_up', 'keyboard_arrow_up-24px');
-        this.registerIcon('menu', 'menu-24px');
-        this.registerIcon('refresh', 'refresh-24px');
-        this.registerIcon('save', 'save-24px');
-        this.registerIcon('search', 'search-24px');
-        this.registerIcon('settings', 'settings-24px');
-        this.registerIcon('storage', 'storage-24px');
-    }
-
-    protected registerIcon(name: string,
-                           fileBasename: string,
-                           namespace: string = 'neon',
-                           directory: string = './assets/material-icons') {
-        let url = this.domSanitizer.bypassSecurityTrustResourceUrl(
-            directory + '/' + fileBasename + '.svg');
-        if (namespace == null) {
-            this.matIconRegistry.addSvgIcon(name, url);
-        } else {
-            this.matIconRegistry.addSvgIconInNamespace(
-                namespace,
-                name,
-                url
-            );
-        }
-
     }
 
     /**

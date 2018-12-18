@@ -78,6 +78,7 @@ import { CustomConnectionComponent } from './components/custom-connection/custom
 import { CustomConnectionSimpleSetupStepComponent } from './components/custom-connection/simple-setup.component';
 import { MatAutocompleteModule } from '@angular/material';
 import { QueryBarComponent } from './components/query-bar/query-bar.component';
+import { IconService } from './services/icon.service';
 
 export function getAppConfig() {
     /* tslint:disable:no-string-literal */
@@ -143,6 +144,7 @@ export function getAppConfig() {
         ConnectionService,
         DatasetService,
         FilterService,
+        IconService,
         ParameterService,
         PropertyService,
         {
