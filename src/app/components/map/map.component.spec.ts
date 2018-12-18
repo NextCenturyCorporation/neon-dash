@@ -915,13 +915,13 @@ describe('Component: Map', () => {
 
     it('getIconForFilter does return expected string', () => {
         component.filterVisible = [true];
-        expect(component.getIconForFilter(0)).toBe('keyboard_arrow_up');
+        expect(component.getIconForFilter(0)).toBe('neon:keyboard_arrow_up');
         component.filterVisible = [false];
-        expect(component.getIconForFilter(0)).toBe('keyboard_arrow_down');
+        expect(component.getIconForFilter(0)).toBe('neon:keyboard_arrow_down');
         component.filterVisible = [false, true];
-        expect(component.getIconForFilter(1)).toBe('keyboard_arrow_up');
+        expect(component.getIconForFilter(1)).toBe('neon:keyboard_arrow_up');
         component.filterVisible = [true, false];
-        expect(component.getIconForFilter(1)).toBe('keyboard_arrow_down');
+        expect(component.getIconForFilter(1)).toBe('neon:keyboard_arrow_down');
     });
 
     it('onResizeStop does call mapObject.sizeChanged', () => {

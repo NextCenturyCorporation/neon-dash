@@ -1152,7 +1152,7 @@ describe('Component: Sample', () => {
 
         let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
         expect(dataInfoIconInSidenav).not.toBeNull();
-        expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
+        expect(dataInfoIconInSidenav.attributes.svgIcon).toEqual('neon:info');
 
         let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
         expect(dataInfoTextInSidenav).not.toBeNull();
@@ -1181,7 +1181,7 @@ describe('Component: Sample', () => {
 
             let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
             expect(dataInfoIconInSidenav).not.toBeNull();
-            expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
+            expect(dataInfoIconInSidenav.attributes.svgIcon).toEqual('neon:info');
 
             let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
             expect(dataInfoTextInSidenav).not.toBeNull();
@@ -1205,7 +1205,7 @@ describe('Component: Sample', () => {
         let button = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button'));
 
         let icon = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button mat-icon'));
-        expect(icon.nativeElement.textContent).toEqual('settings');
+        expect(icon.attributes.svgIcon).toEqual('neon:settings');
     });
 
     it('does show sidenav options menu', () => {
@@ -1424,9 +1424,9 @@ describe('Component: Sample', () => {
             let dataItemIcons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item mat-icon'));
             expect(dataItemIcons.length).toEqual(4);
 
-            expect(dataItemIcons[0].nativeElement.textContent).toEqual('search');
+            expect(dataItemIcons[0].attributes.svgIcon).toEqual('neon:search');
             expect(dataItemIcons[1].nativeElement.textContent).toEqual('find_replace');
-            expect(dataItemIcons[2].nativeElement.textContent).toEqual('search');
+            expect(dataItemIcons[2].attributes.svgIcon).toEqual('neon:search');
             expect(dataItemIcons[3].nativeElement.textContent).toEqual('find_replace');
         });
     }));

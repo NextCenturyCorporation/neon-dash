@@ -980,7 +980,7 @@ describe('Component: MediaViewer', () => {
         expect(button.attributes.matTooltip).toBe('Open/Close the Options Menu');
 
         let icon = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button mat-icon'));
-        expect(icon.nativeElement.textContent).toBe('settings');
+        expect(icon.attributes.svgIcon).toBe('neon:settings');
     }));
 
     it('does show sidenav options menu', (() => {

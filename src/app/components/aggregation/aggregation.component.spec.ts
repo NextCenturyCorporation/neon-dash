@@ -3744,7 +3744,7 @@ describe('Component: Aggregation', () => {
 
         let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
         expect(dataInfoIconInSidenav).not.toBeNull();
-        expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
+        expect(dataInfoIconInSidenav.attributes.svgIcon).toEqual('neon:info');
 
         let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
         expect(dataInfoTextInSidenav).not.toBeNull();
@@ -3773,7 +3773,7 @@ describe('Component: Aggregation', () => {
 
             let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
             expect(dataInfoIconInSidenav).not.toBeNull();
-            expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
+            expect(dataInfoIconInSidenav.attributes.svgIcon).toEqual('neon:info');
 
             let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
             expect(dataInfoTextInSidenav).not.toBeNull();
@@ -3797,7 +3797,7 @@ describe('Component: Aggregation', () => {
         let button = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button'));
 
         let icon = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button mat-icon'));
-        expect(icon.nativeElement.textContent).toEqual('settings');
+        expect(icon.attributes.svgIcon).toEqual('neon:settings');
     });
 
     it('does show sidenav options menu', () => {
