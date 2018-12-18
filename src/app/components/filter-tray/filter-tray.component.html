@@ -1,8 +1,4 @@
 <div>
-    <mat-toolbar color="primary">
-        <span>{{ filters.formatted.length + ' filter' + ((filters.formatted.length === 1) ? '': 's') }}</span>
-    </mat-toolbar>
-
     <div mat-fill>
         <mat-list>
             <mat-list-item *ngFor="let filter of filters.formatted" class="filter-tray-item filter-tray-filter">

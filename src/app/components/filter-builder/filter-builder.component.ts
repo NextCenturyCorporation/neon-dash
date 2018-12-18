@@ -17,18 +17,15 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    ElementRef,
     Injector,
     OnDestroy,
     OnInit,
-    ViewChild,
-    ViewEncapsulation,
-    Input
+    ViewEncapsulation
 } from '@angular/core';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService, ServiceFilter } from '../../services/filter.service';
+import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
@@ -41,7 +38,6 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
-import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 
 @Component({
     selector: 'app-filter-builder',
@@ -51,9 +47,6 @@ import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-ne
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FilterBuilderComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
-    @ViewChild('headerText') headerText: ElementRef;
-
     public clauses: FilterClauseMetaData[] = [];
     public databaseTableFieldKeysToFilterIds: Map<string, string> = new Map<string, string>();
     public operators: OperatorMetaData[] = [
@@ -282,10 +275,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     getElementRefs(): any {
-        return {
-            visualization: this.visualization,
-            headerText: this.headerText
-        };
+        return {};
     }
 
     /**

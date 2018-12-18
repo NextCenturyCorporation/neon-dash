@@ -108,7 +108,6 @@ export class VisualizationInjectorComponent {
             case 'annotationViewer': return AnnotationViewerComponent;
             case 'dataTable': return DataTableComponent;
             case 'documentViewer': return DocumentViewerComponent;
-            case 'filterBuilder': return FilterBuilderComponent;
             case 'map': return MapComponent;
             case 'mediaViewer': return MediaViewerComponent;
             case 'networkGraph' : return NetworkGraphComponent;
