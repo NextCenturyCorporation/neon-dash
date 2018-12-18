@@ -26,7 +26,7 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { ExportControlComponent } from '../export-control/export-control.component';
-import { TimelineComponent } from './timeline.component';
+import { TimelineComponent, TransformedTimelineAggregationData } from './timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { ConnectionService } from '../../services/connection.service';
@@ -69,59 +69,6 @@ describe('Component: Timeline', () => {
 
     it('should create an instance', () => {
         expect(component).toBeTruthy();
-    });
-
-    it('createClause does return expected object', () => {
-        component.options.dateField = new FieldMetaData('testDateField');
-        expect(component.createClause()).toEqual(neon.query.where('testDateField', '!=', null));
-
-        component.options.unsharedFilterField = new FieldMetaData('testFilterField');
-        component.options.unsharedFilterValue = 'testFilterValue';
-        expect(component.createClause()).toEqual(neon.query.and(neon.query.where('testDateField', '!=', null),
-            neon.query.where('testFilterField', '=', 'testFilterValue')));
-    });
-
-    it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toBe('0 Results');
-
-        component.activeData = [{
-            date: new Date(),
-            value: 0
-        }];
-        expect(component.getButtonText()).toBe('0 Results');
-
-        component.activeData = [{
-            date: new Date(),
-            value: 1
-        }];
-        expect(component.getButtonText()).toBe('1 Result');
-
-        component.activeData = [{
-            date: new Date(),
-            value: 1
-        }, {
-            date: new Date(),
-            value: 1
-        }];
-        expect(component.getButtonText()).toBe('2 Results');
-
-        component.activeData = [{
-            date: new Date(),
-            value: 3
-        }, {
-            date: new Date(),
-            value: 2
-        }, {
-            date: new Date(),
-            value: 1
-        }, {
-            date: new Date(),
-            value: 0
-        }];
-        expect(component.getButtonText()).toBe('6 Results');
-
-        component.options.limit = 2;
-        expect(component.getButtonText()).toBe('6 Results (Limited)');
     });
 
     it('getElementRefs does return expected object', () => {

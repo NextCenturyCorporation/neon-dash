@@ -398,7 +398,7 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="showHeaderContainer()" [class.with-footer]="showFooterContainer()">
+    <div class="body-container" [class.with-filter]="showHeaderContainer()">
         <div class="subcomponent-container zoom" [class.hide]="!showBothViews()" [style.minHeight.px]="minimumDimensionsZoom.height"
             [style.minWidth.px]="minimumDimensionsZoom.width" (click)="stopEventPropagation($event)">
 
@@ -413,20 +413,6 @@
                 [style.top.px]="selectedAreaOffset.y + selectedArea.y"></div>
 
             <div #subcomponentMain class="subcomponent-element"></div>
-        </div>
-    </div>
-
-    <div class="footer" *ngIf="showFooterContainer()">
-        <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
-                (click)="goToPreviousPage()">
-                Previous
-            </button>
-            <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary"
-                (click)="goToNextPage()">
-                Next
-            </button>
         </div>
     </div>
 

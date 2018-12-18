@@ -194,11 +194,11 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="docCount > options.limit">
+    <div class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="showPagination()">
         <div class="table-container">
-            <ngx-datatable #table class="material table" [class.skinny]="this.options.skinny"
+            <ngx-datatable #table class="material table"[class.skinny]="this.options.skinny"
                 [class.selectable]="options.filterable || options.idField.columnName"
-                [rows]="activeData"
+                [rows]="getTableRowData()"
                 [columnMode]="'force'"
                 [columns]="activeHeaders"
                 [headerHeight]="getTableHeaderHeight()"
@@ -240,14 +240,14 @@
         </div>
     </div>
 
-    <div class="footer" *ngIf="docCount > options.limit">
+    <div class="footer" *ngIf="showPagination()">
         <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button" color="primary" (click)="previousPage()">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button" color="primary" (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="page*options.limit >= (docCount)" class="pagination-button" color="primary"
-                    (click)="nextPage()">
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button" color="primary"
+                    (click)="goToNextPage()">
                 Next
             </button>
         </div>

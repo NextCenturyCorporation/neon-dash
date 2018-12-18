@@ -30,7 +30,7 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { AbstractSubcomponent, SubcomponentListener } from './subcomponent.abstract';
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonVariables } from '../../neon-namespaces';
 import {
@@ -71,15 +71,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         value: string
     }[] = [];
 
-    // The data shown in the visualization (limited).
-    public activeData: any[] = [];
-
-    // The data count used for the settings text and pagination.
-    public docCount: number = 0;
-
-    // The data returned by the visualization query response (not limited).
-    public responseData: any[] = [];
-
     // TODO The subcomponent is here as a sample but it's not doing anything.  Use it or remove it!
     // The properties for the subcomponent.
     public subcomponentObject: AbstractSubcomponent;
@@ -100,8 +91,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             injector,
             ref
         );
-
-        this.isPaginationWidget = true;
     }
 
     // TODO Change arguments as needed.
@@ -158,27 +147,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         ];
     }
 
-    /**
-     * Creates and returns the visualization data query using the given options.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @return {neon.query.Query}
-     * @override
-     */
-    createQuery(options: any): neon.query.Query {
-        let query = new neon.query.Query().selectFrom(options.database.name, options.table.name).where(this.createWhere());
-
-        // TODO Change this behavior as needed to create your visualization query.  Here is a sample of a count aggregation query.
-
-        let aggregationFields = [options.sampleRequiredField.columnName];
-
-        if (options.sampleOptionalField.columnName) {
-            aggregationFields.push(options.sampleOptionalField.columnName);
-        }
-
-        return query.groupBy(aggregationFields).aggregate(neonVariables.COUNT, '*', 'count').sortBy('count', neonVariables.DESCENDING);
-    }
-
     // TODO Change arguments as needed.
     /**
      * Creates and returns a filter object for the visualization.
@@ -199,28 +167,34 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Creates and returns the where predicate for the visualization.
+     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
      *
-     * @return {neon.query.WherePredicate}
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {neon.query.Query} query
+     * @arg {neon.query.WherePredicate[]} wherePredicates
+     * @return {neon.query.Query}
+     * @override
      */
-    createWhere(): neon.query.WherePredicate {
-        // TODO Add or remove clauses as needed.
-        let clauses: neon.query.WherePredicate[] = [neon.query.where(this.options.sampleRequiredField.columnName, '!=', null)];
+    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
+        // TODO Change this behavior as needed to create your visualization query.  Here is a sample of a count aggregation query.
+
+        // TODO Add or remove where predicates as needed.
+        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(
+            neon.query.where(this.options.sampleRequiredField.columnName, '!=', null));
 
         // Only add the optional field if it is defined.
         if (this.options.sampleOptionalField.columnName) {
-            clauses.push(neon.query.where(this.options.sampleOptionalField.columnName, '!=', null));
+            wheres.push(neon.query.where(this.options.sampleOptionalField.columnName, '!=', null));
         }
 
-        if (this.options.filter) {
-            clauses.push(neon.query.where(this.options.filter.lhs, this.options.filter.operator, this.options.filter.rhs));
+        let aggregationFields = [options.sampleRequiredField.columnName];
+
+        if (options.sampleOptionalField.columnName) {
+            aggregationFields.push(options.sampleOptionalField.columnName);
         }
 
-        if (this.hasUnsharedFilter()) {
-            clauses.push(neon.query.where(this.options.unsharedFilterField.columnName, '=', this.options.unsharedFilterValue));
-        }
-
-        return clauses.length > 1 ? neon.query.and.apply(neon.query, clauses) : clauses[0];
+        return query.where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
+            .groupBy(aggregationFields).aggregate(neonVariables.COUNT, '*', 'count').sortBy('count', neonVariables.DESCENDING);
     }
 
     /**
@@ -350,26 +324,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
-     *
-     * @return {any[]}
-     * @override
-     */
-    public getShownDataArray(): any[] {
-        return this.activeData;
-    }
-
-    /**
-     * Returns the count of data items that an unlimited query for the visualization would contain.
-     *
-     * @return {number}
-     * @override
-     */
-    public getTotalDataCount(): number {
-        return this.docCount;
-    }
-
-    /**
      * Returns the default limit for the visualization.
      *
      * @return {string}
@@ -387,28 +341,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      */
     getVisualizationDefaultTitle(): string {
         return 'Sample';
-    }
-
-    // TODO Remove this function if you don't need pagination.
-    /**
-     * Increases the page and updates the active data.
-     */
-    goToNextPage() {
-        if (!this.lastPage) {
-            this.page++;
-            this.updateActiveData();
-        }
-    }
-
-    // TODO Remove this function if you don't need pagination.
-    /**
-     * Decreases the page and updates the active data.
-     */
-    goToPreviousPage() {
-        if (this.page !== 1) {
-            this.page--;
-            this.updateActiveData();
-        }
     }
 
     // TODO Remove this function if you don't have a sub-component with multiple configurable types.
@@ -454,18 +386,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         this.subcomponentObject.buildElements(this.subcomponentElementRef);
     }
 
-    /**
-     * Returns whether the visualization data query created using the given options is valid.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @return {boolean}
-     * @override
-     */
-    isValidQuery(options: any): boolean {
-        // TODO Add or remove fields and properties as needed.
-        return !!(options.database.name && options.table.name && options.sampleRequiredField.columnName);
-    }
-
     // TODO Change arguments as needed.
     /**
      * Returns whether a visualization filter object in the filter list matching the given properties exists.
@@ -482,26 +402,18 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Handles the given response data for a successful visualization data query created using the given options.
+     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {object} response
+     * @arg {any[]} results
+     * @return {TransformedVisualizationData}
      * @override
      */
-    onQuerySuccess(options: any, response: any) {
-        // TODO Remove this part if you don't need a document count query.
-        // Check for undefined because the count may be zero.
-        if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
-            this.docCount = response.data[0]._docCount;
-            return;
-        }
-
-        // TODO If you need to show an error message, set this.errorMessage as needed.
-
+    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
         // TODO Change this behavior as needed to handle your query results:  update and/or redraw and properties and/or subcomponents.
 
         // The aggregation query response data will have a count field and all visualization fields.
-        this.responseData = response.data.map((item) => {
+        let data = results.map((item) => {
             let label = item[options.sampleRequiredField.columnName] + (options.sampleOptionalField.columnName ? ' - ' +
                 item[options.sampleOptionalField.columnName] : '');
 
@@ -514,25 +426,19 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             };
         });
 
-        this.page = 1;
-        this.updateActiveData();
-
-        // TODO Remove this part if you don't need a document count query.
-        if (this.responseData.length) {
-            this.runDocCountQuery();
-        } else {
-            this.docCount = 0;
-        }
+        return new TransformedVisualizationData(data);
     }
 
     /**
-     * Updates any properties and/or sub-components as needed.
+     * Updates and redraws the elements and properties for the visualization.
      *
      * @override
      */
     refreshVisualization() {
         // TODO Do you need to update and properties or redraw any sub-components?
-        this.subcomponentObject.updateData(this.activeData);
+        if (this.getActiveData(this.options)) {
+            this.subcomponentObject.updateData(this.getActiveData(this.options).data);
+        }
     }
 
     /**
@@ -545,24 +451,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         this.filters = this.filters.filter((existingFilter) => {
             return existingFilter.id !== filter.id;
         });
-    }
-
-    // TODO Remove this function if you don't need a document count query.
-    /**
-     * Creates and runs the document count query.
-     */
-    runDocCountQuery() {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createWhere());
-
-        let ignoreFilters = this.getFiltersToIgnore();
-        if (ignoreFilters && ignoreFilters.length) {
-            query.ignoreFilters(ignoreFilters);
-        }
-
-        // The document count query is a count aggregation for all the documents.
-        query.aggregate(neonVariables.COUNT, '*', '_docCount');
-
-        this.executeQuery(this.options, query);
     }
 
     /**
@@ -604,27 +492,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         return !!this.getCloseableFilters().length;
     }
 
-    // TODO Remove this function if you don't need a footer-container.
-    /**
-     * Returns whether any components are shown in the footer-container.
-     *
-     * @return {boolean}
-     */
-    showFooterContainer(): boolean {
-        // TODO Check for any other components.
-        return this.activeData.length < this.responseData.length;
-    }
-
-    /**
-     * Updates the pagination properties and the active data.
-     */
-    updateActiveData() {
-        let offset = (this.page - 1) * this.options.limit;
-        this.activeData = this.responseData.slice(offset, (offset + this.options.limit));
-        this.lastPage = (this.responseData.length <= (offset + this.options.limit));
-        this.refreshVisualization();
-    }
-
     // TODO Remove this function if you don't need to update and/or redraw any sub-components on resize.
     /**
      * Updates the visualization as needed whenever it is resized.
@@ -633,5 +500,17 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      */
     updateOnResize() {
         this.subcomponentObject.redraw();
+    }
+
+    /**
+     * Returns whether the visualization query created using the given options is valid.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     * @override
+     */
+    validateVisualizationQuery(options: any): boolean {
+        // TODO Add or remove fields and properties as needed.
+        return !!(options.database.name && options.table.name && options.sampleRequiredField.columnName);
     }
 }

@@ -25,7 +25,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -84,11 +84,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         return [];
     }
 
-    createQuery() {
-        let query = new neon.query.Query();
-        return query;
-    }
-
     getCloseableFilters() {
         return [];
     }
@@ -118,12 +113,16 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         return 'Mock Superclass';
     }
 
-    isValidQuery() {
-        return true;
+    validateVisualizationQuery() {
+        return false;
     }
 
-    onQuerySuccess() {
-        return new neon.query.Query();
+    finalizeVisualizationQuery(options, query, wherePredicates) {
+        return query;
+    }
+
+    transformVisualizationQueryResults(options, results) {
+        return new TransformedVisualizationData();
     }
 
     refreshVisualization() {
@@ -762,17 +761,29 @@ describe('BaseNeon', () => {
         expect(spy.calls.count()).toBe(1);
     });
 
-    it('Tests expected return', (() => {
+    it('getButtonText does return expected string', () => {
         expect(component.getButtonText()).toBe('');
-    }));
+
+        component.layerIdToElementCount.set(component.options._id, 0);
+        expect(component.getButtonText()).toBe('0 Results');
+
+        component.layerIdToElementCount.set(component.options._id, 1);
+        expect(component.getButtonText()).toBe('1 Result');
+
+        component.layerIdToElementCount.set(component.options._id, 2);
+        expect(component.getButtonText()).toBe('2 Results');
+
+        component.layerIdToElementCount.set(component.options._id, 100000);
+        expect(component.getButtonText()).toBe('100,000 Results');
+    });
 
     it('Tests onQuery default response', (() => {
-        let spyOnQuerySuccess = spyOn(component, 'onQuerySuccess');
-        component.baseOnQuerySuccess(component.options, {
+        // TODO THOR-971
+        /*
+        component.handleSuccessfulVisualizationQuery(component.options, {
             data: []
          });
-        expect(spyOnQuerySuccess.calls.count()).toBe(1);
-        expect(component.loadingCount).toEqual(-1);
+         */
     }));
 
     it('isNumber does return expected boolean', () => {

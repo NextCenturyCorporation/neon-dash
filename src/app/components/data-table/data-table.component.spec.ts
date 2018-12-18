@@ -31,6 +31,7 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { By } from '@angular/platform-browser';
@@ -575,36 +576,36 @@ describe('Component: DataTable', () => {
         }, 300);
     }));
 
-    it('isValidQuery does return false if no options exist', (() => {
-        expect(component.isValidQuery(component.options)).toBeFalsy();
+    it('validateVisualizationQuery does return false if no options exist', (() => {
+        expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
     }));
 
-    it('isValidQuery does return false if not all specified options exist', (() => {
+    it('validateVisualizationQuery does return false if not all specified options exist', (() => {
         component.options.database = new DatabaseMetaData(undefined);
         component.options.table = new TableMetaData('documents');
         component.options.sortField = new FieldMetaData('sortField');
 
-        expect(component.isValidQuery(component.options)).toBeFalsy();
+        expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
 
         component.options.database = new DatabaseMetaData('someDatastore');
         component.options.table = new TableMetaData(undefined);
         component.options.sortField = new FieldMetaData('sortField');
 
-        expect(component.isValidQuery(component.options)).toBeFalsy();
+        expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
 
         component.options.database = new DatabaseMetaData('someDatastore');
         component.options.table = new TableMetaData('documents');
         component.options.sortField = new FieldMetaData(undefined);
 
-        expect(component.isValidQuery(component.options)).toBeFalsy();
+        expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
     }));
 
-    it('isValidQuery does return true if all specified options exist', (() => {
+    it('validateVisualizationQuery does return true if all specified options exist', (() => {
         component.options.database = new DatabaseMetaData('someDatastore');
         component.options.table = new TableMetaData('documents');
         component.options.sortField = new FieldMetaData('sortField');
 
-        expect(component.isValidQuery(component.options)).toBeTruthy();
+        expect(component.validateVisualizationQuery(component.options)).toBeTruthy();
     }));
 
     it('headerIsInExceptions does return whether or not header is in options.exceptionsToStatus', (() => {
@@ -650,28 +651,19 @@ describe('Component: DataTable', () => {
         }]);
     }));
 
-    it('createClause does return expected object', () => {
-        component.options.sortField = new FieldMetaData('testSortField');
-        expect(component.createClause()).toEqual(neon.query.where('testSortField', '!=', null));
-
-        component.options.unsharedFilterField = new FieldMetaData('testFilterField');
-        component.options.unsharedFilterValue = 'testFilterValue';
-        expect(component.createClause()).toEqual(neon.query.and(neon.query.where('testSortField', '!=', null),
-            neon.query.where('testFilterField', '=', 'testFilterValue')));
-    });
-
-    it('createQuery does return expected object', () => {
+    it('finalizeVisualizationQuery does return expected object', () => {
         component.options.database = new DatabaseMetaData('someDatastore');
         component.options.table = new TableMetaData('documents');
         component.options.sortField = new FieldMetaData('testSortField');
         component.options.limit = 25;
         component.page = 1;
 
-        let expectedQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name)
-            .where('testSortField', '!=', null).sortBy('testSortField', -1).limit(25)
-            .offset(0);
+        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
 
-        expect(component.createQuery(component.options)).toEqual(expectedQuery);
+        let query = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name)
+            .where('testSortField', '!=', null).sortBy('testSortField', -1);
+
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
     });
 
     it('getFiltersToIgnore does return null', () => {
@@ -711,73 +703,38 @@ describe('Component: DataTable', () => {
         expect(component.toCellString(4, 'number')).toEqual(4);
     });
 
-    it('onQuerySuccess does update properties as expected when response.data.length is 1', () => {
-        let getDocCountSpy = spyOn(component, 'getDocCount');
-        let refreshVisSpy = spyOn(component, 'refreshVisualization');
+    it('transformVisualizationQueryResults does update properties as expected when response.data.length is 1', () => {
         component.options.fields = component.options.fields = [
             new FieldMetaData('_id', 'id', false, 'number'),
             new FieldMetaData('category', 'Category', false, 'string'),
             new FieldMetaData('testField', 'Test Field', false, 'string')
         ];
 
-        component.onQuerySuccess(component.options, { data: [
+        let actual = component.transformVisualizationQueryResults(component.options, [
             {_id: 1, category: 'books', testField: 'test', ignore: 'ignore', _docCount: 1}
-        ]});
+        ]);
 
-        expect(component.activeData).toEqual([]);
-        expect(component.responseData).toEqual([]);
-        expect(component.docCount).toEqual(1);
-        expect(getDocCountSpy).toHaveBeenCalledTimes(0);
-        expect(refreshVisSpy).toHaveBeenCalledTimes(0);
+        expect(actual.data).toEqual([
+            {_id: 1, category: 'books', testField: 'test'}
+        ]);
     });
 
-    it('onQuerySuccess does update properties as expected when response.data.length is not equal to 1', () => {
-        let getDocCountSpy = spyOn(component, 'getDocCount');
-        let refreshVisSpy = spyOn(component, 'refreshVisualization');
+    it('transformVisualizationQueryResults does update properties as expected when response.data.length is not equal to 1', () => {
         component.options.fields = component.options.fields = [
             new FieldMetaData('_id', 'id', false, 'number'),
             new FieldMetaData('category', 'Category', false, 'string'),
             new FieldMetaData('testField', 'Test Field', false, 'string')
         ];
 
-        component.onQuerySuccess(component.options, { data: [
+        let actual = component.transformVisualizationQueryResults(component.options, [
             {_id: 1, category: 'books', testField: 'test', ignore: 'ignore', _docCount: 1},
             {_id: 2, category: 'books', testField: 'some other value', ignore: 'ignoring'}
-        ]});
+        ]);
 
-        expect(component.activeData).toEqual([
+        expect(actual.data).toEqual([
             {_id: 1, category: 'books', testField: 'test'},
             {_id: 2, category: 'books', testField: 'some other value'}
         ]);
-        expect(component.responseData).toEqual([
-            {_id: 1, category: 'books', testField: 'test', ignore: 'ignore', _docCount: 1},
-            {_id: 2, category: 'books', testField: 'some other value', ignore: 'ignoring'}
-        ]);
-        expect(component.docCount).toEqual(0);
-        expect(getDocCountSpy).toHaveBeenCalled();
-        expect(refreshVisSpy).toHaveBeenCalled();
-    });
-
-    it('getDocCount does call expected functions if cannotExecuteQuery returns false', () => {
-        spyOn(component, 'cannotExecuteQuery').and.returnValue(false);
-        let getFiltersSpy = spyOn(component, 'getFiltersToIgnore');
-        let exQuerySpy = spyOn(component, 'executeQuery');
-
-        component.getDocCount();
-
-        expect(getFiltersSpy).toHaveBeenCalled();
-        expect(exQuerySpy).toHaveBeenCalled();
-    });
-
-    it('getDocCount does not call executeQuery if cannotExecuteQuery returns true', () => {
-        spyOn(component, 'cannotExecuteQuery').and.returnValue(true);
-        let getFiltersSpy = spyOn(component, 'getFiltersToIgnore');
-        let exQuerySpy = spyOn(component, 'executeQuery');
-
-        component.getDocCount();
-
-        expect(getFiltersSpy).toHaveBeenCalledTimes(0);
-        expect(exQuerySpy).toHaveBeenCalledTimes(0);
     });
 
     it('setupFilters does not do anything if no filter exists', () => {
@@ -1221,43 +1178,28 @@ describe('Component: DataTable', () => {
         }]);
     });
 
-    it('nextPage does add 1 to page and call expected function', () => {
-        component.page = 1;
-        let spy = spyOn(component, 'executeQueryChain');
-        component.nextPage();
-
-        expect(component.page).toEqual(2);
-        expect(spy).toHaveBeenCalled();
-    });
-
-    it('previousPage does subtract 1 from page and call expected function', () => {
-        component.page = 5;
-        let spy = spyOn(component, 'executeQueryChain');
-        component.previousPage();
-
-        expect(component.page).toEqual(4);
-        expect(spy).toHaveBeenCalled();
-    });
-
     it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toBe('0 Rows');
+        expect(component.getButtonText()).toBe('');
 
         component.options.hideUnfiltered = true;
         expect(component.getButtonText()).toBe('Please Filter');
         component.options.hideUnfiltered = false;
 
-        component.activeData = [{}];
+        component.layerIdToElementCount.set(component.options._id, 0);
+        expect(component.getButtonText()).toBe('0 Rows');
+
+        component.layerIdToElementCount.set(component.options._id, 1);
         expect(component.getButtonText()).toBe('1 Row');
 
-        component.activeData = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}];
-        expect(component.getButtonText()).toBe('10 Rows');
+        component.layerIdToElementCount.set(component.options._id, 5);
+        expect(component.getButtonText()).toBe('5 Rows');
 
-        component.docCount = 20;
-        component.options.limit = 10;
-        expect(component.getButtonText()).toBe('1 - 10 of 20 Rows');
+        component.layerIdToElementCount.set(component.options._id, 10);
+        component.options.limit = 5;
+        expect(component.getButtonText()).toBe('1 - 5 of 10 Rows');
 
         component.page = 2;
-        expect(component.getButtonText()).toBe('11 - 20 of 20 Rows');
+        expect(component.getButtonText()).toBe('6 - 10 of 10 Rows');
     });
 
     it('onSelect does update selected array and calls publishAnyCustomEvents, but not publishSelectId', () => {
@@ -1307,13 +1249,13 @@ describe('Component: DataTable', () => {
         component.options.fields = [new FieldMetaData('category')];
         component.options.filterFields = [new FieldMetaData('category')];
         component.options.filterable = true;
-        component.responseData = [{
+        component.layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
             category: 'books',
             title: 'Test'
         }, {
             category: 'test',
             title: 'Test 2'
-        }];
+        }]));
 
         component.onSelect({selected: selected});
 

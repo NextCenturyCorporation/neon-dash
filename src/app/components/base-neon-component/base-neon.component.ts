@@ -27,7 +27,7 @@ import { FilterService } from '../../services/filter.service';
 
 import { Color } from '../../color';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { neonEvents } from '../../neon-namespaces';
+import { neonEvents, neonVariables } from '../../neon-namespaces';
 import {
     OptionChoices,
     OptionType,
@@ -45,6 +45,23 @@ import {
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 
+export class TransformedVisualizationData {
+    constructor(protected _data: any = []) {}
+
+    get data(): any {
+        return this._data;
+    }
+
+    /**
+     * Returns the length of the data if it is an array or 0 otherwise (override as needed).
+     *
+     * @return {number}
+     */
+    public count(): number {
+        return this._data instanceof Array ? this._data.length : 0;
+    }
+}
+
 /**
  * @class BaseNeonComponent
  *
@@ -59,8 +76,14 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     private nextLayerIndex = 1;
 
-    // Maps the options/layer ID to the database + table key to the query object.
-    protected outstandingDataQueriesByLayer: Map<string, Map<string, any>> = new Map<string, Map<string, any>>();
+    // Maps the options/layer ID to the active transformed visualization data.
+    public layerIdToActiveData: Map<string, TransformedVisualizationData> = new Map<string, TransformedVisualizationData>();
+
+    // Maps the options/layer ID to the element count.
+    public layerIdToElementCount: Map<string, number> = new Map<string, number>();
+
+    // Maps the options/layer ID to the query ID to the query object.
+    public layerIdToQueryTypeToQueryObject: Map<string, Map<string, any>> = new Map<string, Map<string, any>>();
 
     public id: string;
     public messenger: neon.eventing.Messenger;
@@ -69,9 +92,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public errorMessage: string = '';
     public initializing: boolean = false;
     public isMultiLayerWidget: boolean = false;
-    public isPaginationWidget: boolean = false;
     public loadingCount: number = 0;
     public redrawOnResize: boolean = false;
+    public selectedDataId: string = '';
+    public showingZeroOrMultipleElementsPerResult: boolean = false;
+    public updateOnSelectId: boolean = false;
 
     // TODO THOR-349 Move into future widget option menu component
     public newLimit: number;
@@ -123,6 +148,19 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.messenger.events({
             filtersChanged: this.handleFiltersChangedEvent.bind(this)
         });
+        this.messenger.subscribe('select_id', (eventMessage) => {
+            if (this.updateOnSelectId) {
+                (this.isMultiLayerWidget ? this.options.layers : [this.options]).forEach((layer) => {
+                    if (eventMessage.database === layer.database.name && eventMessage.table === layer.table.name) {
+                        let eventMessageId = Array.isArray(eventMessage.id) ? eventMessage.id[0] : eventMessage.id;
+                        if (eventMessageId !== this.selectedDataId) {
+                            this.onSelectId(layer, eventMessageId);
+                            this.handleChangeData(layer);
+                        }
+                    }
+                });
+            }
+        });
         this.messenger.publish(neonEvents.WIDGET_REGISTER, {
             id: this.id,
             widget: this
@@ -144,28 +182,28 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} options A WidgetOptionCollection object.
      */
     public postAddLayer(options: any): void {
-        // Override as needed.
+        // Override if needed.
     }
 
     /**
      * Creates any visualization elements when the widget is drawn.
      */
     public constructVisualization(): void {
-        // Override as needed.
+        // Override if needed.
     }
 
     /**
      * Removes any visualization elements when the widget is deleted.
      */
     public destroyVisualization(): void {
-        // Override as needed.
+        // Override if needed.
     }
 
     /**
      * Initializes any visualization properties when the widget is created.
      */
     public initializeProperties(): void {
-        // Override as needed.
+        // Override if needed.
     }
 
     /**
@@ -176,7 +214,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public addLayer(options?: any, layerBindings?: any): void {
         let layerOptions = new WidgetOptionCollection(undefined, layerBindings || {});
-        this.outstandingDataQueriesByLayer.set(layerOptions._id, new Map<string, any>());
+        this.layerIdToQueryTypeToQueryObject.set(layerOptions._id, new Map<string, any>());
         layerOptions.inject(new WidgetFreeTextOption('title', 'Title', 'Layer ' + this.nextLayerIndex++));
         layerOptions.inject(this.createLayerNonFieldOptions());
         layerOptions.append(new WidgetDatabaseOption(), new DatabaseMetaData());
@@ -193,12 +231,15 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} options A WidgetOptionCollection object.
      */
     public removeLayer(options: any): void {
-        this.outstandingDataQueriesByLayer.delete(options._id);
+        Array.from(this.layerIdToQueryTypeToQueryObject.get(options._id).keys()).forEach((key) => {
+            this.layerIdToQueryTypeToQueryObject.get(options._id).get(key).abort();
+        });
+        this.layerIdToQueryTypeToQueryObject.delete(options._id);
         this.handleChangeData();
     }
 
     /**
-     * Returns the export header data using the given options and visualization data query.
+     * Returns the export header data using the given options and visualization query.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {neon.query.Query} query
@@ -230,8 +271,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public createExportData(): { name: string, data: any }[] {
         return (this.isMultiLayerWidget ? this.options.layers : [this.options]).map((options) => {
-            let query = this.createQuery(options);
-            return this.createExportOptions(options, query);
+            let query: neon.query.Query = this.createCompleteVisualizationQuery(options);
+            return query ? this.createExportOptions(options, query) : [];
         }).filter((exportObject) => !!exportObject);
     }
 
@@ -246,7 +287,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Handles any needed behavior before the widget is resized.
      */
     public onResizeStart() {
-        // Override as needed.
+        // Override if needed.
     }
 
     /**
@@ -264,7 +305,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Updates the visualization as needed whenever it is resized.
      */
     public updateOnResize() {
-        // Override as needed.
+        // Override if needed.
     }
 
     /**
@@ -320,7 +361,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     abstract getFiltersToIgnore(): string[];
 
     /**
-     * Adds a new filter to neon and runs a visualization data query.
+     * Adds a new filter to neon and runs a visualization query.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {boolean} executeQueryChainOnSuccess
@@ -367,7 +408,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Adds all the given filters to neon and runs a visualization data query.
+     * Adds all the given filters to neon and runs a visualization query.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {{singleFilter:any,clause:neon.query.WherePredicate}[]} filters
@@ -390,7 +431,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Replaces a filter in neon and runs a visualization data query.
+     * Replaces a filter in neon and runs a visualization query.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {boolean} executeQueryChainOnSuccess
@@ -448,66 +489,247 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Runs the visualization data query using the given options (or this.options if no options are given).
+     * Runs the visualization query using the given options (or this.options if no options are given).
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
     public executeQueryChain(options?: any): void {
-        if (!this.initializing && this.isValidQuery(options || this.options)) {
+        let queryOptions = options || this.options;
+
+        if (!this.initializing && this.validateVisualizationQuery(queryOptions)) {
             this.changeDetection.detectChanges();
-            let query = this.createQuery(options || this.options);
 
-            let filtersToIgnore = this.getFiltersToIgnore();
-            if (filtersToIgnore && filtersToIgnore.length) {
-                query.ignoreFilters(filtersToIgnore);
+            let query: neon.query.Query = this.createCompleteVisualizationQuery(queryOptions);
+
+            if (query) {
+                query.limit(this.options.limit);
+
+                if (this.isPaginationVisualizationQuery()) {
+                    query.offset((this.page - 1) * this.options.limit);
+                }
+
+                let filtersToIgnore = this.getFiltersToIgnore();
+                if (filtersToIgnore && filtersToIgnore.length) {
+                    query.ignoreFilters(filtersToIgnore);
+                }
+
+                this.executeQuery(queryOptions, query, 'default visualization query', this.handleSuccessfulVisualizationQuery.bind(this));
             }
-
-            this.executeQuery((options || this.options), query);
         }
     }
 
     /**
-     * Returns whether the visualization data query created using the given options is valid.
+     * Returns whether the visualization query does pagination.
+     *
+     * @return {boolean}
+     */
+    protected isPaginationVisualizationQuery(): boolean {
+        // Override if needed.
+        return false;
+    }
+
+    /**
+     * Returns whether the visualization query created using the given options is valid.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @abstract
      */
-    public abstract isValidQuery(options: any): boolean;
+    public abstract validateVisualizationQuery(options: any): boolean;
 
     /**
-     * Creates and returns the visualization data query using the given options.
+     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
+     * @arg {neon.query.Query} query
+     * @arg {neon.query.WherePredicate[]} wherePredicates
      * @return {neon.query.Query}
      * @abstract
      */
-    public abstract createQuery(options: any): neon.query.Query;
+    public abstract finalizeVisualizationQuery(options: any, query: neon.query.Query,
+        wherePredicates: neon.query.WherePredicate[]): neon.query.Query;
 
     /**
-     * Handles the given response data for a successful visualization data query created using the given options.
+     * Creates and returns the visualization query with the database, table, and fields, but not the limit or offset.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {neon.query.Query}
+     */
+    public createCompleteVisualizationQuery(options: any): neon.query.Query {
+        let fields: string[] = options.list().reduce((list: string[], option: WidgetOption) => {
+            if (option.optionType === OptionType.FIELD && option.valueCurrent.columnName) {
+                list.push(option.valueCurrent.columnName);
+            }
+            if (option.optionType === OptionType.FIELD_ARRAY) {
+                option.valueCurrent.filter((fieldsObject) => !!fieldsObject.columnName).forEach((fieldsObject) => {
+                    list.push(fieldsObject.columnName);
+                });
+            }
+            return list;
+        }, []);
+
+        (options.customEventsToPublish || []).forEach((config) => {
+            (config.fields || []).forEach((fieldsConfig) => {
+                if (fields.indexOf(fieldsConfig.columnName) < 0) {
+                    fields.push(fieldsConfig.columnName);
+                }
+            });
+        });
+
+        (options.customEventsToReceive || []).forEach((config) => {
+            (config.fields || []).forEach((fieldsConfig) => {
+                if (fields.indexOf(fieldsConfig.columnName) < 0) {
+                    fields.push(fieldsConfig.columnName);
+                }
+            });
+        });
+
+        let query: neon.query.Query = new neon.query.Query().selectFrom(options.database.name, options.table.name).withFields(fields);
+        return this.finalizeVisualizationQuery(options, query, this.createWherePredicates(options));
+    }
+
+    /**
+     * Creates and returns the common where predicates for the visualization query.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {neon.query.WherePredicate[]}
+     */
+    public createWherePredicates(options: any): neon.query.WherePredicate[] {
+        let wheres: neon.query.WherePredicate[] = [];
+        if (options.filter) {
+            wheres.push(neon.query.where(options.filter.lhs, options.filter.operator, options.filter.rhs));
+        }
+        if (this.hasUnsharedFilter(options)) {
+            wheres.push(neon.query.where(options.unsharedFilterField.columnName, '=', options.unsharedFilterValue));
+        }
+        return wheres;
+    }
+
+    /**
+     * Handles the given response data for a successful total count query created using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any} response
+     * @arg {() => void} callback
      * @abstract
      */
-    public abstract onQuerySuccess(options: any, response: any): void;
+    public handleSuccessfulTotalCountQuery(options: any, response: any, callback: () => void): void {
+        if (!response || !response.data || response.data[0]._count === undefined) {
+            this.layerIdToElementCount.set(options._id, 0);
+        } else {
+            this.layerIdToElementCount.set(options._id, response.data[0]._count);
+        }
+        this.lastPage = ((this.page * this.options.limit) <= this.layerIdToElementCount.get(options._id));
+        // Decrease loadingCount because of the visualization query.
+        this.loadingCount--;
+        callback();
+    }
 
     /**
-     * Refreshes the visualization.
+     * Creates the transformed visualization data using the given options and results and then calls the given success callback function.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any[]} results
+     * @arg {(data: TransformedVisualizationData) => void} successCallback
+     * @arg {(err: Error) => void} successCallback
+     */
+    public handleTransformVisualizationQueryResults(options: any, results: any[],
+        successCallback: (data: TransformedVisualizationData) => void, failureCallback: (err: Error) => void): void {
+
+        try {
+            let data = this.transformVisualizationQueryResults(options, results);
+            successCallback(data);
+        } catch (err) {
+            failureCallback(err);
+        }
+    }
+
+    /**
+     * Handles the given response data for a successful visualization query created using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} response
+     * @arg {() => void} callback
+     * @abstract
+     */
+    public handleSuccessfulVisualizationQuery(options: any, response: any, callback: () => void): void {
+        if (!response || !response.data || !response.data.length) {
+            this.errorMessage = 'No Data';
+            this.layerIdToActiveData.set(options._id, new TransformedVisualizationData());
+            this.layerIdToElementCount.set(options._id, 0);
+            this.refreshVisualization();
+            return;
+        }
+
+        let successCallback = (data: TransformedVisualizationData) => {
+            this.layerIdToActiveData.set(options._id, data);
+
+            if (this.isPaginationVisualizationQuery() && !this.showingZeroOrMultipleElementsPerResult) {
+                let countQuery: neon.query.Query = this.createCompleteVisualizationQuery(options);
+                if (this.page === 1 && countQuery) {
+                    // Do not add a limit or an offset!
+                    countQuery.aggregate(neonVariables.COUNT, '*', '_count');
+                    let filtersToIgnore = this.getFiltersToIgnore();
+                    if (filtersToIgnore && filtersToIgnore.length) {
+                        countQuery.ignoreFilters(filtersToIgnore);
+                    }
+                    this.executeQuery(options, countQuery, 'total count query', this.handleSuccessfulTotalCountQuery.bind(this));
+                    // Ignore our own callback since the visualization will be refreshed within handleSuccessfulTotalCountQuery.
+                } else {
+                    this.lastPage = ((this.page * this.options.limit) <= this.layerIdToElementCount.get(options._id));
+                    callback();
+                }
+            } else {
+                this.layerIdToElementCount.set(options._id, this.layerIdToActiveData.get(options._id).count());
+                callback();
+            }
+        };
+
+        let failureCallback = (err: Error) => {
+            this.errorMessage = 'Error';
+            this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+                error: err,
+                message: 'FAILED ' + options.title + ' transform results'
+            });
+            this.layerIdToActiveData.set(options._id, new TransformedVisualizationData());
+            this.layerIdToElementCount.set(options._id, 0);
+            callback();
+        };
+
+        this.handleTransformVisualizationQueryResults(options, response.data, successCallback, failureCallback);
+    }
+
+    /**
+     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any[]} results
+     * @return TransformedVisualizationData
+     * @abstract
+     */
+    public abstract transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData;
+
+    /**
+     * Returns the active transformed visualization data (or null) for the given options (or this.options if no options are given).
+     *
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
+     * @return {TransformedVisualizationData}
+     */
+    public getActiveData(options?: any): TransformedVisualizationData {
+        return this.layerIdToActiveData.get((options || this.options)._id) || null;
+    }
+
+    /**
+     * Updates and redraws the elements and properties for the visualization.
      */
     public abstract refreshVisualization(): void;
 
     /**
-     * Handles the given response data for a successful visualization data query created using the given options and updates Angular.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {any} response
+     * Finishes the execution of any query by decreasing the loadingCount and updating Angular.
      */
-    baseOnQuerySuccess(options: any, response: any) {
-        //Converts the response to have the pretty names from the labelOptions in config to display
-        this.onQuerySuccess(options, this.prettifyLabels(options, response));
+    public finishQueryExecution(): void {
         this.loadingCount--;
+        this.refreshVisualization();
         this.changeDetection.detectChanges();
         this.updateHeaderTextStyles();
     }
@@ -516,22 +738,24 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Runs the given query.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} query
+     * @arg {neon.query.Query} queryObject
+     * @arg {string} queryId
+     * @arg {(options: any, response: any, callback: () => void) => void} callback
      */
-    executeQuery(options: any, query: neon.query.Query) {
+    executeQuery(options: any, queryObject: neon.query.Query, queryId: string,
+        callback: (options: any, response: any, callback: () => void) => void) {
+
         this.loadingCount++;
 
         if (this.cannotExecuteQuery(options)) {
-            this.baseOnQuerySuccess(options, {
+            callback(options, {
                 data: []
-            });
+            }, this.finishQueryExecution.bind(this));
             return;
         }
 
-        let databaseTableKey = options.database.name + '_' + options.table.name;
-
         /* tslint:disable:no-string-literal */
-        let filter = _.cloneDeep(query['filter']);
+        let filter = _.cloneDeep(queryObject['filter']);
         /* tslint:enable:no-string-literal */
 
         //If we have any labelOptions in the config, we want to edit the data to convert whatever data items that are specified to the
@@ -539,25 +763,27 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         //database won't recognize the pretty name.
         this.datifyWherePredicates(options, filter.whereClause);
 
-        if (this.outstandingDataQueriesByLayer.get(options._id).has(databaseTableKey)) {
-            this.outstandingDataQueriesByLayer.get(options._id).get(databaseTableKey).abort();
+        if (this.layerIdToQueryTypeToQueryObject.get(options._id).has(queryId)) {
+            this.layerIdToQueryTypeToQueryObject.get(options._id).get(queryId).abort();
         }
 
-        this.outstandingDataQueriesByLayer.get(options._id).set(databaseTableKey,
-            this.connectionService.getActiveConnection().executeQuery(query, null));
+        this.layerIdToQueryTypeToQueryObject.get(options._id).set(queryId,
+            this.connectionService.getActiveConnection().executeQuery(queryObject, null));
 
-        this.outstandingDataQueriesByLayer.get(options._id).get(databaseTableKey).always(() => {
-            this.outstandingDataQueriesByLayer.get(options._id).delete(databaseTableKey);
+        this.layerIdToQueryTypeToQueryObject.get(options._id).get(queryId).always(() => {
+            this.layerIdToQueryTypeToQueryObject.get(options._id).delete(queryId);
         });
 
-        this.outstandingDataQueriesByLayer.get(options._id).get(databaseTableKey).done(this.baseOnQuerySuccess.bind(this, options));
+        this.layerIdToQueryTypeToQueryObject.get(options._id).get(queryId).done((response) => {
+            callback(options, this.prettifyLabels(options, response), this.finishQueryExecution.bind(this));
+        });
 
-        this.outstandingDataQueriesByLayer.get(options._id).get(databaseTableKey).fail((response) => {
+        this.layerIdToQueryTypeToQueryObject.get(options._id).get(queryId).fail((response) => {
             this.loadingCount--;
             if (response.statusText !== 'abort') {
                 this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
                     error: response,
-                    message: options.title + ' visualization data query failed on ' + databaseTableKey
+                    message: 'FAILED ' + options.title + ' ' + queryId
                 });
                 this.changeDetection.detectChanges();
             }
@@ -576,7 +802,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Handles any needed behavior on a filtersChanged event and then runs the visualization data query.
+     * Handles any needed behavior on a filtersChanged event and then runs the visualization query.
      */
     private handleFiltersChangedEvent(): void {
         this.setupFilters();
@@ -598,7 +824,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     abstract getCloseableFilters(): any[];
 
     /**
-     * Updates tables, fields, and filters whenenver the database is changed and then runs the visualization data query.
+     * Updates tables, fields, and filters whenenver the database is changed and then runs the visualization query.
      *
      * @arg {any} options A WidgetOptionCollection object.
      */
@@ -612,7 +838,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Updates fields and filters whenever the table is changed and then runs the visualization data query.
+     * Updates fields and filters whenever the table is changed and then runs the visualization query.
      *
      * @arg {any} options A WidgetOptionCollection object.
      */
@@ -626,7 +852,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Updates filters whenever a filter field is changed and then runs the visualization data query.
+     * Updates filters whenever a filter field is changed and then runs the visualization query.
      *
      * @arg {any} options A WidgetOptionCollection object.
      */
@@ -641,16 +867,25 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Updates elements and properties whenever the widget config is changed.
      */
     public onChangeData() {
-        // Override as needed.
+        // Override if needed.
     }
 
     /**
-     * Handles any behavior needed whenever the widget config is changed and then runs the visualization data query.
+     * Handles any behavior needed whenever the widget config is changed and then runs the visualization query.
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
     public handleChangeData(options?: any): void {
+        this.layerIdToActiveData.delete((options || this.options)._id);
+        this.layerIdToElementCount.set((options || this.options)._id, 0);
+
+        this.errorMessage = '';
+        this.lastPage = true;
+        this.page = 1;
+        this.showingZeroOrMultipleElementsPerResult = false;
+
         this.onChangeData();
+
         if (!options) {
             this.executeAllQueryChain();
         } else {
@@ -659,7 +894,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Handles any behavior needed whenever the query limit is changed and then runs the visualization data query.
+     * Handles any behavior needed whenever the query limit is changed and then runs the visualization query.
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
@@ -668,12 +903,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             let newLimit = parseFloat('' + this.newLimit);
             if (newLimit > 0) {
                 (options || this.options).limit = newLimit;
-                this.onChangeData();
-                if (!options) {
-                    this.executeAllQueryChain();
-                } else {
-                    this.executeQueryChain(options);
-                }
+                this.handleChangeData();
             } else {
                 this.newLimit = (options || this.options).limit;
             }
@@ -772,41 +1002,34 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {string}
      */
     public createButtonText(options: any, queryLimit: number): string {
-        let shownDataArray = this.getShownDataArray(options);
-
         // If the query was not yet run, show no text unless waiting on an event.
-        if (!shownDataArray) {
+        if (!this.layerIdToElementCount.has(options._id)) {
             // TODO Add support for 'Please Select'
             return this.options.hideUnfiltered ? 'Please Filter' : '';
         }
 
-        let shownDataCount = this.getShownDataCount(shownDataArray);
-        let elementLabel = this.getVisualizationElementLabel(shownDataCount);
+        let elementCount = this.layerIdToElementCount.get(options._id);
+        let elementLabel = this.getVisualizationElementLabel(elementCount);
 
         // If the query was empty, show the relevant text.
-        if (!shownDataCount) {
+        if (!elementCount) {
             return (this.options.hideUnfiltered && !this.getCloseableFilters().length) ? 'Please Filter' :
                 ('0' + (elementLabel ? (' ' + elementLabel) : ''));
         }
 
-        let totalDataCount = this.getTotalDataCount(options);
-
-        // If the query was not limited, show the total count.
-        if (totalDataCount <= queryLimit) {
-            return this.prettifyInteger(shownDataCount) + (elementLabel ? (' ' + elementLabel) : '');
-        }
-
-        // If the query was limited and the widget uses pagination, show the pagination text.
-        if (this.isPaginationWidget) {
-            elementLabel = this.getVisualizationElementLabel(totalDataCount);
+        // If the visualization query does pagination, show the pagination text.
+        if (this.isPaginationVisualizationQuery() && !this.showingZeroOrMultipleElementsPerResult) {
             let begin = this.prettifyInteger((this.page - 1) * queryLimit + 1);
-            let end = this.prettifyInteger(Math.min(this.page * queryLimit, totalDataCount));
-            return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + this.prettifyInteger(totalDataCount) +
+            let end = this.prettifyInteger(Math.min(this.page * queryLimit, elementCount));
+            if (elementCount <= queryLimit) {
+                return this.prettifyInteger(elementCount) + (elementLabel ? (' ' + elementLabel) : '');
+            }
+            return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + this.prettifyInteger(elementCount) +
                 (elementLabel ? (' ' + elementLabel) : '');
         }
 
-        // Otherwise just show the shown count with a note that the query was limited.
-        return this.prettifyInteger(shownDataCount) + (elementLabel ? (' ' + elementLabel) : '') + ' (Limited)';
+        // Otherwise just show the element count.
+        return this.prettifyInteger(elementCount) + (elementLabel ? (' ' + elementLabel) : '');
     }
 
     /**
@@ -833,41 +1056,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         return '';
     }
 
-    // TODO THOR-971 Replace this function with a new local variable.
     /**
-     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @return {any[]}
-     */
-    public getShownDataArray(options: any): any[] {
-        return undefined;
-    }
-
-    /**
-     * Returns the count of the given array of data items that are currently shown in the visualization.
-     *
-     * @arg {any[]} data
-     * @return {number}
-     */
-    public getShownDataCount(data: any[]): number {
-        return data.length;
-    }
-
-    // TODO THOR-971 Replace this function with a new local variable.
-    /**
-     * Returns the count of data items that an unlimited query for the visualization would contain.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @return {number}
-     */
-    public getTotalDataCount(options: any): number {
-        let shownDataArray = this.getShownDataArray(options);
-        return (shownDataArray || []).length;
-    }
-
-    /**
-     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Returns the label for the objects that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
      * Uses the given count to determine plurality.
      *
      * @arg {number} count
@@ -914,13 +1104,13 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Subscribes the given callback function to the select_id event channel.
+     * Handles any needed behavior whenever a select_id event is observed that is relevant for the visualization.
      *
-     * @arg {function} callback
-     * @listens select_id
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} id
      */
-    public subscribeToSelectId(callback) {
-        this.messenger.subscribe('select_id', callback);
+    public onSelectId(options: any, id: any) {
+        // Override if needed.
     }
 
     getHighlightThemeColor() {
@@ -1002,7 +1192,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     /**
      * Converts data elements that are specified to have a pretty name back to their original data label so that the database can
-     * correctly query. When it comes back in onQuerySuccess, the response will be converted back to their "pretty" form
+     * correctly query. When it comes back in handleSuccessfulVisualizationQuery, the response will be converted back to their "pretty" form
      * Will probably skew the data if the config specifies a data label to have a pretty name that is the same as another data label
      *
      * @arg {any} options A WidgetOptionCollection object.
@@ -1111,7 +1301,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
         let options: any = new WidgetOptionCollection(injector);
-        this.outstandingDataQueriesByLayer.set(options._id, new Map<string, any>());
+        this.layerIdToQueryTypeToQueryObject.set(options._id, new Map<string, any>());
 
         options.inject(new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', []));
         options.inject(new WidgetNonPrimitiveOption('customEventsToReceive', 'Custom Events To Receive', []));
@@ -1350,5 +1540,36 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
 
         return this.updateFieldsInOptions(options);
+    }
+
+    /**
+     * Increases the page and runs the visualization query.
+     */
+    public goToNextPage(): void {
+        if (!this.lastPage) {
+            this.page++;
+            this.executeAllQueryChain();
+        }
+    }
+
+    /**
+     * Decreases the page and runs the visualization query.
+     */
+    public goToPreviousPage(): void {
+        if (this.page !== 1) {
+            this.page--;
+            this.executeAllQueryChain();
+        }
+    }
+
+    /**
+     * Returns whether to show the pagination buttons.
+     *
+     * @return {boolean}
+     */
+    public showPagination(): boolean {
+        // Assumes single-layer widget.
+        return this.isPaginationVisualizationQuery() && (this.page > 1 || this.showingZeroOrMultipleElementsPerResult ||
+            ((this.page * this.options.limit) < this.layerIdToElementCount.get(this.options._id)));
     }
 }
