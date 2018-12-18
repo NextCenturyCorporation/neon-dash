@@ -40,7 +40,6 @@ export class DatasetService {
     private dashboards: Dashboard;
 
     // The currently selected dashboard.
-    private currentDashboardName: string;
     private currentDashboard: Dashboard;
     private layout: string = '';
 
@@ -124,15 +123,24 @@ export class DatasetService {
      * changes when expected values are missing. Also used to translate tableKey/fieldKey
      * values into databaseName, tableName, and fieldName.
      *
-     * @param {Map<string, Dashboard>} dashboardChoices
+     * @param {[key: string]: Dashboard} dashboardChoices
      * @param {string[]} keys for dashboardChoices map
+     * @param {string} pathFromTop path to append to current dashboard object
+     * @param {string} title title to append to current dashboard object
      */
-    static validateDashboardChoices(dashboardChoices: Map<string, Dashboard>, keys: string[]): void {
+    static validateDashboardChoices(dashboardChoices: {[key: string]: Dashboard}, keys: string[],
+        pathFromTop?: string[], title?: string): void {
         if (!keys.length) {
             return;
         }
 
         keys.forEach((choiceKey) => {
+            let fullTitle = title ? title + ' ' + dashboardChoices[choiceKey].name : dashboardChoices[choiceKey].name;
+            let fullPathFromTop = pathFromTop ? pathFromTop.concat(choiceKey) : [choiceKey];
+
+            dashboardChoices[choiceKey].fullTitle = fullTitle;
+            dashboardChoices[choiceKey].pathFromTop = fullPathFromTop;
+
             let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
 
             if (!nestedChoiceKeys.length) {
@@ -181,7 +189,8 @@ export class DatasetService {
                     dashboardChoices[choiceKey].category = this.DASHBOARD_CATEGORY_DEFAULT;
                 }
 
-                this.validateDashboardChoices(dashboardChoices[choiceKey].choices, nestedChoiceKeys);
+                this.validateDashboardChoices(dashboardChoices[choiceKey].choices, nestedChoiceKeys,
+                    fullPathFromTop, dashboardChoices[choiceKey].fullTitle);
             }
         });
     }
@@ -219,7 +228,7 @@ export class DatasetService {
     constructor(@Inject('config') private config: NeonGTDConfig) {
         this.datasets = [];
         let datastores = (config.datastores ? config.datastores : {});
-        this.dashboards = (config.dashboards ? config.dashboards : {category: 'No Options', choices: new Map<string, Dashboard>()});
+        this.dashboards = (config.dashboards ? config.dashboards : {category: 'No Options', choices: {}});
 
         DatasetService.validateDashboards(this.dashboards);
 
@@ -322,21 +331,14 @@ export class DatasetService {
         this.dataset.databases = dataset.databases || [];
     }
 
-    // TODO: 825: combine setCurrentDashboardName and setCurrentDashboard.
     /**
-     * Sets the current dashboard config name.
-     * @param {string} name
-     */
-    public setCurrentDashboardName(name: string) {
-        this.currentDashboardName = name;
-    }
-
-    /**
-     * Returns the current dashboard config name.
+     * Returns the current dashboard config title.
      * @return {string}
      */
-    public getCurrentDashboardName(): string {
-        return this.currentDashboardName;
+    public getCurrentDashboardTitle(): string {
+        if (this.currentDashboard) {
+            return this.currentDashboard.fullTitle;
+        }
     }
 
     /**
@@ -454,9 +456,9 @@ export class DatasetService {
 
     /**
      * Returns all of the layouts.
-     * @return {Map<string, any>}
+     * @return {[key: string]: any}
      */
-    public getLayouts(): Map<string, any> {
+    public getLayouts(): {[key: string]: any} {
         return this.config.layouts;
     }
 
@@ -1073,13 +1075,13 @@ export class DatasetService {
     /**
      * If a database is not found in updateDatabases(), delete dashboards associated with that database so that
      * the user cannot select them.
-     * @param {Map<String, Dashboard>} dashboardChoices
+     * @param {[key: string]: Dashboard} dashboardChoices
      * @param {String[]} keys
      * @param {String} invalidDatabaseName
      * @return {Promise}
      * @private
      */
-    private deleteInvalidDashboards(dashboardChoices: Map<string, Dashboard>, keys: string[],
+    private deleteInvalidDashboards(dashboardChoices: {[key: string]: Dashboard}, keys: string[],
         invalidDatabaseName: string): any {
         if (!keys.length) {
             return Promise.resolve();

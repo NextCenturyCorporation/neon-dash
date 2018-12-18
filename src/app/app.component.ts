@@ -76,6 +76,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     //Toolbar
     public showSimpleSearch: boolean = false;
     public showVisShortcut: boolean = true;
+    public showDashboardSelector: boolean = false;
 
     public rightPanelTitle: string = 'Dashboard Layouts';
 
@@ -161,6 +162,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.matIconRegistry.addSvgIcon(
             'filter_builder_active',
             this.domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/filter_builder_active.svg')
+        );
+
+        this.matIconRegistry.addSvgIcon(
+            'dashboard_selector',
+            this.domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/database_icon.svg')
         );
 
         this.changeFavicon();
@@ -460,6 +466,16 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             filterBuilderContainer.setAttribute('style', 'display: show');
         } else if (filterBuilderContainer) {
             filterBuilderContainer.setAttribute('style', 'display: none');
+        }
+    }
+
+    toggleDashboardSelectorDialog(showSelector: boolean) {
+        this.showDashboardSelector = showSelector;
+        let dashboardSelectorContainer: HTMLElement = document.getElementById('dashboard.selector');
+        if (this.showDashboardSelector && dashboardSelectorContainer) {
+            dashboardSelectorContainer.setAttribute('style', 'display: show');
+        } else if (dashboardSelectorContainer) {
+            dashboardSelectorContainer.setAttribute('style', 'display: none');
         }
     }
 

@@ -47,27 +47,21 @@ class MockDatasetService extends DatasetService {
     constructor() {
         super(new NeonGTDConfig());
 
-        let dashboardTableKeys = new Map<string, string>();
-        /* tslint:disable:no-string-literal */
-        dashboardTableKeys['tableKey'] = 'datastore1.' + databaseName + '.' + tableName;
-        /* tslint:enable:no-string-literal */
+        let dashboardTableKeys: {[key: string]: string} = {};
+        dashboardTableKeys.tableKey = 'datastore1.' + databaseName + '.' + tableName;
 
-        let dashboardFieldKeys = new Map<string, string>();
-        /* tslint:disable:no-string-literal */
-        dashboardFieldKeys['fieldKey'] = 'datastore1.' + databaseName + '.' + tableName + '.' + fieldName;
-        /* tslint:enable:no-string-literal */
+        let dashboardFieldKeys: {[key: string]: string} = {};
+        dashboardFieldKeys.fieldKey = 'datastore1.' + databaseName + '.' + tableName + '.' + fieldName;
 
         let dashboard = {
             name: 'Test Discovery Config',
             layout: 'DISCOVERY',
-            datastore: 'datastore1',
             tables: dashboardTableKeys,
             fields: dashboardFieldKeys,
             options: new DashboardOptions()
         };
         dashboard.options.simpleFilter = new SimpleFilter(databaseName, tableName, fieldName, 'Search', '', 'tableKey', 'fieldKey');
         this.setCurrentDashboard(dashboard);
-        this.setCurrentDashboardName('test_discovery');
     }
 }
 

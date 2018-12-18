@@ -167,21 +167,19 @@ datastores:
                             date: createdAt
 
 dashboards:
-    category: 'Select an option...'
+    category: 'Select a task...'
     choices:
-        darpa60:
-            category: 'Select an option...'
-            name: 'DARPA60:'
+        situation_discovery:
+            name: 'Situation Discovery'
+            category: 'Select a layout...'
             choices:
-                uyghur:
-                    category: 'Select an option...'
-                    name: Uyghur
+                darpa60:
+                    name: 'DARPA60'
+                    category: 'Select a datastore...'
                     choices:
-                        uyg_ldc_discovery:
-                            name: LDC Situation Discovery
+                        uyg_ldc:
+                            name: Uyghur LDC
                             layout: uyghur-sd
-                            # TODO: 825: temporary reference to datastore
-                            datastore: es1
                             tables:
                                 table_key_1: es1.ldc_uyg_jul_18.ui_out
                             fields:
@@ -193,12 +191,10 @@ dashboards:
                                     tableKey: table_key_1
                                     fieldKey: field_key_2
                                     placeHolder: Search
-                        # TODO: 825: The uyg_elisa_discovery dashboard probably won't work correctly until layouts are using field keys
-                        uyg_elisa_discovery:
-                            name: ELISA Situation Discovery
+                        # TODO: 825: The uyg_elisa dashboard probably won't work correctly until layouts are using field keys
+                        uyg_elisa:
+                            name: Uyghur ELISA
                             layout: uyghur-sd
-                            # TODO: 825: temporary reference to datastore
-                            datastore: es1
                             tables:
                                 table_key_1: es1.uyg_elisa_sd.ui_out
                             fields:
@@ -210,14 +206,9 @@ dashboards:
                                     tableKey: table_key_1
                                     fieldKey: field_key_2
                                     placeHolder: Search
-                nepal:
-                    name: Nepal
-                    choices:
                         nepal_elisa_discovery:
-                            name: ELISA Situation Discovery
+                            name: Nepal ELISA
                             layout: nepal-elisa-sd
-                            # TODO: 825: temporary reference to datastore
-                            datastore: es1
                             tables:
                                 table_key_1: es1.ll_nepal_07_11_3.annotations
                             fields:
@@ -228,14 +219,9 @@ dashboards:
                                     tableKey: table_key_1
                                     fieldKey: field_key_1
                                     placeHolder: Search
-                car:
-                    name: Central African Republic
-                    choices:
                         car_elisa_discovery:
-                            name: ELISA Situation Discovery
+                            name: Central African Republic ELISA
                             layout: car-elisa-sd
-                            # TODO: 825: temporary reference to datastore
-                            datastore: es1
                             tables:
                                 table_key_1: es1.elisa_car_1.annotations
                             fields:
@@ -246,19 +232,17 @@ dashboards:
                                     tableKey: table_key_1
                                     fieldKey: field_key_1
                                     placeHolder: Search
-        dev:
-            category: 'Select an option...'
-            name: 'DEV:'
+        situation_awareness:
+            name: 'Situation Awareness'
+            category: 'Select a layout...'
             choices:
-                nepal_elisa:
-                    category: 'Select an option...'
-                    name: Nepal ELISA
+                dev:
+                    name: 'DEV'
+                    category: 'Select a datastore...'
                     choices:
-                        awareness:
-                            name: Situation Awareness
+                        nepal_elisa:
+                            name: Nepal ELISA
                             layout: nepal-elisa-sa
-                            # TODO: 825: temporary reference to datastore
-                            datastore: es1
                             tables:
                                 table_key_1: es1.ll_nepal_06_14.situations
                                 table_key_2: es1.ll_nepal_06_14.annotations
@@ -271,11 +255,17 @@ dashboards:
                                     tableKey: table_key_2
                                     fieldKey: field_key_1
                                     placeHolder: Search
-                        terrain:
-                            name: Human Terrain
+        human_terrain:
+            name: 'Human Terrain'
+            category: 'Select a layout...'
+            choices:
+                dev:
+                    name: 'DEV'
+                    category: 'Select a datastore...'
+                    choices:
+                        nepal_elisa:
+                            name: Nepal ELISA
                             layout: human-terrain
-                            # TODO: 825: temporary reference to datastore
-                            datastore: es1
                             tables:
                                 table_key_1: es1.ll_nepal_06_14_2.annotations1Author
                             fields:

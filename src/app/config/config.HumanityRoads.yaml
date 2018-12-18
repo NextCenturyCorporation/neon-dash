@@ -86,8 +86,6 @@ dashboards:
                         uyg_ldc_discovery:
                             name: Situation Discovery
                             layout: LDC_DISCOVERY
-                            # TODO: 825: temporary reference to datastore
-                            datastore: es1
                             tables:
                                 table_key_1: es1.ldc_uyg_jul_18.ui_out
                             # TODO: 825: use field keys
@@ -111,8 +109,6 @@ dashboards:
                         nepal_elisa_discovery:
                             name: Situation Discovery
                             layout: ELISA_DISCOVERY
-                            # TODO: 825: temporary reference to datastore
-                            datastore: es1
                             tables:
                                 table_key_1: es1.ll_nepal_08_14.annotations
                             fields:

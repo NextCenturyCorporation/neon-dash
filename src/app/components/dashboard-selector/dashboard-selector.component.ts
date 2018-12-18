@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 
 import { ConnectionService } from '../../services/connection.service';
 import { Datastore, DatabaseMetaData, TableMetaData, FieldMetaData, Relation, Dashboard } from '../../dataset';
@@ -26,6 +26,7 @@ import { neonEvents, neonVisualizationMinPixel } from '../../neon-namespaces';
 
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
+import { DashboardDropdownComponent } from '../dashboard-dropdown/dashboard-dropdown.component';
 
 export interface CustomTable {
     table: TableMetaData;
@@ -51,27 +52,29 @@ export interface CustomDatabase {
 }
 
 /**
- * The dataset selector allows a user to select one of the pre-configured datasets stored in the application
+ * The dashboard selector allows a user to select one of the pre-configured dashboards stored in the application
  * config file/service.
  * TODO: Refactoring the updateLayout methods that clone layout components to use the active layout
  * service instead.  This may be accomplished by adding a vis factory method to the service that takes
  * the generic JSON in the config file and returns a valid NeonGridItem
  */
 @Component({
-    selector: 'app-dataset-selector',
-    templateUrl: 'dataset-selector.component.html',
-    styleUrls: ['dataset-selector.component.scss']
+    selector: 'app-dashboard-selector',
+    templateUrl: 'dashboard-selector.component.html',
+    styleUrls: ['dashboard-selector.component.scss']
 })
-export class DatasetSelectorComponent implements OnInit, OnDestroy {
+export class DashboardSelectorComponent implements OnInit, OnDestroy {
     public static HIDE_INFO_POPOVER: string = 'sr-only';
 
     public connectOnLoad: boolean = false;
     public datasets: Datastore[] = [];
-    private datasetName: string = '';
     private datastoreType: string = 'mongo';
     private datastoreHost: string = 'localhost';
-    private layouts: Map<string, any> = new Map<string, any>();
-    public dashboards: Map<string, Dashboard> = new Map<string, Dashboard>();
+    private layouts: {[key: string]: any} = {};
+    public dashboards: Dashboard;
+    public dashboardChoice: Dashboard;
+
+    @ViewChild('dashboardDropdown') dashboardDropdown: DashboardDropdownComponent;
 
     /**
      * This is the array of custom database objects configured by the user through the popup.  Each custom database contains:
@@ -131,43 +134,52 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         return this.datasets;
     }
 
-    // TODO: 825: flatten dashboards here - won't need to flatten when
-    // multi-stage dataset selector (THOR-826) is finished
-    getFlattenedDashboards(): Map<string, Dashboard> {
-        let tempDashboards = this.datasetService.getDashboards();
-        let finalDashboards: Map<string, Dashboard> = new Map<string, Dashboard>();
-
-        Object.keys(tempDashboards.choices).forEach((dashboardKey) => {
-            let dashboard = tempDashboards.choices[dashboardKey];
-
-            let choices = (dashboard.choices ? dashboard.choices : {});
-
-            Object.keys(choices).forEach((choiceKey) => {
-                let choice = choices[choiceKey];
-                let nestedChoices = choice.choices;
-
-                Object.keys(nestedChoices).forEach((nestedChoiceKey) => {
-                    let nextChoice = nestedChoices[nestedChoiceKey];
-                    let keyToUse = dashboard.name + ' ' + choice.name + ' ' + nextChoice.name;
-                    finalDashboards[keyToUse] = nextChoice;
-                });
-            });
-        });
-
-        return finalDashboards;
-    }
-
     getDashboardKeys() {
         return Object.keys(this.dashboards);
     }
 
-    // TODO: 825: using this to match dashboards to datastores for now
-    findMatchingIndex(choice: Dashboard) {
+    /**
+     * Grab the datastore name from first table key in dashboard.tables
+     * @param {Dashboard} dashboard
+     * @return {String}
+     */
+    getDatastoreNameFromTableKey(dashboard: Dashboard) {
+        let key = Object.keys(dashboard.tables)[0];
+        return dashboard.tables[key].split('.')[0];
+    }
+
+    // TODO: 825: later will need to account for multiple datastores
+    findMatchingDatastoreIndex(choice: Dashboard) {
         for (let index = 0; index < this.datasets.length; index ++) {
-            if (this.datasets[index].name === choice.datastore) {
+            let datastoreName = this.getDatastoreNameFromTableKey(choice);
+
+            if (datastoreName && this.datasets[index].name === datastoreName) {
                 return index;
             }
         }
+    }
+
+    /**
+     * Returns Dashboard or null based on whether or not a dashboard exists that has connectOnLoad set to true.
+     * @param {[key: string]: Dashboard} dashboardChoices
+     * @param {string[]} keys
+     * @return {Dashboard}
+     */
+    hasConnectOnLoadDashboard(dashboardChoices: {[key: string]: Dashboard}, keys: string[]): Dashboard {
+        for (let choiceKey of keys) {
+            let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
+            if (!nestedChoiceKeys.length) {
+                if (dashboardChoices[choiceKey].options && dashboardChoices[choiceKey].options.connectOnLoad === true) {
+                    return dashboardChoices[choiceKey];
+                }
+            } else {
+                let nestedDashboard = this.hasConnectOnLoadDashboard(dashboardChoices[choiceKey].choices, nestedChoiceKeys);
+                if (nestedDashboard) {
+                    return nestedDashboard;
+                }
+            }
+        }
+        return null;
     }
 
     ngOnInit(): void {
@@ -175,33 +187,43 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
         this.datasets = this.datasetService.getDatasets();
         this.layouts = this.datasetService.getLayouts();
-        this.dashboards = this.getFlattenedDashboards();
+        this.dashboards = this.datasetService.getDashboards();
 
         if (dashboardStateId) {
             this.parameterService.loadState(dashboardStateId, this.parameterService.findFilterStateIdInUrl());
         } else {
             let activeDataset: string = (this.parameterService.findActiveDatasetInUrl() || '').toLowerCase();
 
-            Object.keys(this.dashboards).some((dashboardName) => {
-                // TODO: 825: Won't need to use findMatchingIndex later to match dashboards to datastores.
-                // Likely we would match via table keys. If error reporting is needed (dashboard/datastore
-                // mismatch), we might be able to use ErrorNotificationService.
-                let configItem = this.dashboards[dashboardName];
-                let index = this.findMatchingIndex(configItem);
-                let dataset = this.datasets[index];
+            let dashboardKeys = this.dashboards.choices ? Object.keys(this.dashboards.choices) : [];
 
-                if (configItem.options.connectOnLoad) {
-                    this.connectOnLoad = true;
-                }
+            let connectOnLoadDashboard = this.hasConnectOnLoadDashboard(this.dashboards.choices, dashboardKeys);
 
-                if ((activeDataset && activeDataset === dataset.name.toLowerCase())
-                    || (!activeDataset && configItem.options.connectOnLoad)) {
-                    this.connectToPreset(index, true, dashboardName);
-                    this.activeDatasetChanged.emit(); // Close the sidenav opened by connectToPreset.
-                    return true;
+            if (connectOnLoadDashboard !== null) {
+                this.connectOnLoad = true;
+
+                let paths = connectOnLoadDashboard.pathFromTop;
+
+                // If there is a dashboard choice with connectOnLoad set to true,
+                // update the dashboard dropdowns one at a time until all
+                // the dropdowns are populated
+                this.dashboardDropdown.selectDashboardChoice(this.dashboards, paths, 0, this.dashboardDropdown);
+
+                // TODO: 825: Will need to account for multiple datastores later.
+                let index = this.findMatchingDatastoreIndex(connectOnLoadDashboard);
+                if (index !== undefined) {
+                    let dataset = this.datasets[index];
+
+                    if ((activeDataset && activeDataset === dataset.name.toLowerCase())
+                        || (!activeDataset && connectOnLoadDashboard.options.connectOnLoad)) {
+                        this.connectToPreset(index, true, connectOnLoadDashboard);
+                        this.activeDatasetChanged.emit(); // Close the sidenav opened by connectToPreset.
+                    }
+                } else {
+                    console.error('Datastore ' +
+                        this.getDatastoreNameFromTableKey(connectOnLoadDashboard) +
+                        ' not found for dashboard ' + connectOnLoadDashboard.name + '.');
                 }
-                return false;
-            });
+            }
         }
 
         // TODO: 825: fix later
@@ -214,7 +236,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
                     this.activeDataset = {
                         name: message.dataset.name,
-                        info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
+                        info: DashboardSelectorComponent.HIDE_INFO_POPOVER,
                         data: true
                     };
                     this.activeDatasetChanged.emit(this.activeDataset);
@@ -254,6 +276,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      * Connects to the preset dataset at the given index.
      * @param {Number} index
      * @param {Boolean} loadDashboardState Whether to load any saved dashboard states shown upon a dataset change
+     * @param {Dashboard} dashboard to connect to
      * @method connectToPreset
      */
     // TODO: 825: new implementation:
@@ -261,10 +284,10 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     // - for now using the datastores name to link dashboard and datastore
     // - then later, use the tablekeys and field keys from dashboards instead of
     //      the datastores/dashboards combo
-    connectToPreset(index: number, loadDashboardState: boolean, configName: string) {
+    connectToPreset(index: number, loadDashboardState: boolean, dashboard: Dashboard) {
         this.activeDataset = {
             name: this.datasets[index].name,
-            info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
+            info: DashboardSelectorComponent.HIDE_INFO_POPOVER,
             data: true
         };
         this.datastoreType = this.datasets[index].type;
@@ -277,7 +300,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
         // Don't update the dataset if its fields are already updated.
         if (this.datasets[index].hasUpdatedFields) {
-            this.finishConnectToPreset(this.datasets[index], loadDashboardState, configName);
+            this.finishConnectToPreset(this.datasets[index], loadDashboardState, dashboard);
             return;
         }
 
@@ -285,22 +308,46 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         // to include fields that weren't listed in the configuration file.
         this.datasetService.updateDatabases(this.datasets[index], connection).then((dataset) => {
             this.datasets[index] = dataset;
-            this.dashboards = this.getFlattenedDashboards();
+            this.dashboards = this.datasetService.getDashboards();
 
             // Wait to update the layout until after we finish the dataset updates.
-            this.finishConnectToPreset(dataset, loadDashboardState, configName);
+            this.finishConnectToPreset(dataset, loadDashboardState, dashboard);
         });
     }
 
-    finishConnectToPreset(dataset: Datastore, loadDashboardState: boolean, configName: string) {
-        // Make sure dashboard still exists and wasn't deleted in the updateDatabases() call
-        if (this.dashboards[configName]) {
+    finishConnectToPreset(dataset: Datastore, loadDashboardState: boolean, dashboard: Dashboard) {
+        if (_.get(this.dashboards, 'choices.' + dashboard.pathFromTop.join('.choices.'))) {
             this.datasetService.setActiveDataset(dataset);
-            // TODO: 825: combine setCurrentDashboardName and setCurrentDashboard.
-            this.datasetService.setCurrentDashboardName(configName);
-            this.datasetService.setCurrentDashboard(this.dashboards[configName]);
+            this.datasetService.setCurrentDashboard(dashboard);
             this.updateLayout(loadDashboardState);
             this.filterService.clearFilters();
+        }
+    }
+
+    /**
+     * If selection change event bubbles up from dashboard-dropdown, this will set the
+     * dashboardChoice to the appropriate value.
+     * @param {any} event
+     */
+    setDashboardChoice($event: any) {
+        this.dashboardChoice = $event;
+    }
+
+    /**
+     * Finds the correct index for a particular dataset based on the dashboardChoice selected,
+     * then calls connectToPreset().
+     */
+    callConnectToPreset() {
+        if (this.dashboardChoice) {
+            let index = this.findMatchingDatastoreIndex(this.dashboardChoice);
+
+            if (index !== undefined) {
+                this.connectToPreset(index, false, this.dashboardChoice);
+            } else {
+                console.error('Datastore ' +
+                this.getDatastoreNameFromTableKey(this.dashboardChoice) +
+                ' not found for dashboard ' + this.dashboardChoice.name + '.');
+            }
         }
     }
 
