@@ -17,7 +17,7 @@
                 [(ngModel)]="formData.stateToLoad">
             </mat-form-field>
 
-            <mat-icon class="fake-dropdown-arrow">arrow_drop_down</mat-icon>
+            <mat-icon class="fake-dropdown-arrow" svgIcon="neon:arrow_drop_down"></mat-icon>
             <mat-menu #loadMenu="matMenu" y-position="below" name="loadMenu" class="fake-dropdown-span" overlapTrigger=false>
                 <button mat-menu-item (click)="setStateToLoad('')"> None </button>
                 <button mat-menu-item *ngFor="let name of stateNames" (click)="setStateToLoad(name)"> {{ name }} </button>
@@ -34,7 +34,7 @@
                 [(ngModel)]="formData.stateToDelete">
             </mat-form-field>
 
-            <mat-icon class="fake-dropdown-arrow">arrow_drop_down</mat-icon>
+            <mat-icon class="fake-dropdown-arrow" svgIcon="neon:arrow_drop_down"></mat-icon>
             <mat-menu #deleteMenu="matMenu" y-position="below" name="deleteMenu" class="fake-dropdown-span" overlapTrigger=false>
                 <button mat-menu-item (click)="setStateToDelete('')"> None </button>
                 <button mat-menu-item *ngFor="let name of stateNames"  (click)="setStateToDelete(name)"> {{ name }} </button>

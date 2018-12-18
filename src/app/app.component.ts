@@ -183,6 +183,16 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         );
 
         this.registerIcon('add_circle', 'add_circle-24px');
+        this.registerIcon('arrow_downward', 'arrow_downward-24px');
+        this.registerIcon('arrow_drop_down', 'arrow_drop_down-24px');
+        this.registerIcon('arrow_upward', 'arrow_upward-24px');
+        this.registerIcon('delete', 'delete-24px');
+        this.registerIcon('filter_list', 'filter_list-24px');
+        this.registerIcon('fullscreen', 'fullscreen-24px');
+        this.registerIcon('info', 'info-24px');
+        this.registerIcon('menu', 'menu-24px');
+        this.registerIcon('search', 'search-24px');
+        this.registerIcon('storage', 'storage-24px');
     }
 
     protected registerIcon(name: string,

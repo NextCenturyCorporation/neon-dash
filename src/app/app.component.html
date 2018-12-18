@@ -36,7 +36,7 @@
         <button mat-icon-button class="neon-icon-button-large" aria-label="Connect to a Custom Data Source"
             tooltip-position="below" matTooltip="Connect to a Custom Data Source" (click)="openCustomConnectionDialog()"
             *ngIf="showCustomConnectionButton">
-            <mat-icon class="neon-icon-large">storage</mat-icon>
+            <mat-icon class="neon-icon-large" svgIcon="neon:storage"></mat-icon>
         </button>
         <div class="simple-search-container">
             <app-simple-filter #simpleFilter></app-simple-filter>
@@ -47,7 +47,7 @@
         </button>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" tooltip-position="below"
             matTooltip="Show Filters" (click)="openFilterTrayDialog()" *ngIf="showFilterTrayButton">
-            <mat-icon class="neon-icon-large">filter_list</mat-icon>
+            <mat-icon class="neon-icon-large" svgIcon="neon:filter_list"></mat-icon>
         </button>
 
         <mat-menu #appMenu="matMenu" yPosition="below" [overlapTrigger]="false">
@@ -66,7 +66,7 @@
         </mat-menu>
 
         <button mat-icon-button class="neon-icon-button-large" [matMenuTriggerFor]="appMenu">
-            <mat-icon class="neon-icon-large">menu</mat-icon>
+            <mat-icon class="neon-icon-large" svgIcon="neon:menu"></mat-icon>
         </button>
 
     </mat-toolbar>

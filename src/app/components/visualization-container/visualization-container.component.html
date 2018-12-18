@@ -6,15 +6,15 @@
             <div class="icon-container" *ngIf="showToolbar">
                 <button mat-icon-button aria-label="Move to top" matTooltip="Move to Top" tooltip-position="below"
                     (click)="moveToTop()">
-                  <mat-icon color="primary">arrow_upward</mat-icon>
+                  <mat-icon color="primary" svgIcon="neon:arrow_upward"></mat-icon>
                 </button>
                 <button mat-icon-button aria-label="Move to bottom" matTooltip="Move to Bottom" tooltip-position="below"
                     (click)="moveToBottom()">
-                  <mat-icon color="primary">arrow_downward</mat-icon>
+                  <mat-icon color="primary" svgIcon="neon:arrow_downward"></mat-icon>
                 </button>
                 <button mat-icon-button aria-label="Menu" matTooltip="Expand" tooltip-position="below" (click)="expand()"
                     *ngIf="!expanded">
-                  <mat-icon color="primary">fullscreen</mat-icon>
+                  <mat-icon color="primary" svgIcon="neon:fullscreen"></mat-icon>
                 </button>
                 <button mat-icon-button aria-label="Menu" matTooltip="Contract" tooltip-position="below" (click)="contract()"
                     *ngIf="expanded">

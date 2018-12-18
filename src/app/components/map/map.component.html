@@ -26,7 +26,7 @@
 
                 <div *ngIf="getButtonText()">
                     <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
-                        <mat-icon class="neon-icon-small">info</mat-icon>
+                        <mat-icon class="neon-icon-small" svgIcon="neon:info"></mat-icon>
                         <span>{{ getButtonText() }}</span>
                     </label>
                     <p></p>
@@ -47,7 +47,7 @@
                     <mat-toolbar style="cursor: pointer;" (click)="toggleFilter(i)">
                         <span>{{ layer.title }}</span>
                         <span class="toolbar-spacer"></span>
-                        <mat-icon class="neon-icon-small" *ngIf="options.layers.length > 1" (click)="removeLayer(i)">delete</mat-icon>
+                        <mat-icon class="neon-icon-small" *ngIf="options.layers.length > 1" (click)="removeLayer(i)" svgIcon="neon:delete"></mat-icon>
                         <mat-icon class="neon-icon-small">{{ getIconForFilter(i) }}</mat-icon>
                     </mat-toolbar>
                     <p></p>

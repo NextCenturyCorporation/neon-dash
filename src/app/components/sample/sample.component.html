@@ -29,7 +29,7 @@
 
                 <div *ngIf="getButtonText()">
                     <label class="icon-with-text data-info" [matTooltip]="getButtonText()" tooltip-position="below">
-                        <mat-icon class="neon-icon-small">info</mat-icon>
+                        <mat-icon class="neon-icon-small" svgIcon="neon:info"></mat-icon>
                         <span>{{ getButtonText() }}</span>
                     </label>
                     <p></p>
@@ -141,7 +141,7 @@
             </span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Add Filter"
                 [matTooltip]="'Add Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, false)">
-                <mat-icon class="neon-icon-small">search</mat-icon>
+                <mat-icon class="neon-icon-small" svgIcon="neon:search"></mat-icon>
             </button>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Replace Filter"
                 [matTooltip]="'Replace Filters with Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, true)">
