@@ -26,7 +26,7 @@ import { AnnotationViewerComponent } from './components/annotation-viewer/annota
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
-import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
+import { DashboardSelectorComponent } from './components/dashboard-selector/dashboard-selector.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
 import { ExportControlComponent } from './components/export-control/export-control.component';
@@ -76,6 +76,7 @@ import {
     ThumbnailDetailsContractedComponent,
     ThumbnailDetailsExpandedComponent
 } from './components/thumbnail-grid/thumbnail-details.component';
+import { DashboardDropdownComponent } from './components/dashboard-dropdown/dashboard-dropdown.component';
 
 describe('App', () => {
     let fixture: ComponentFixture<AppComponent>;
@@ -93,7 +94,8 @@ describe('App', () => {
                 AnnotationViewerComponent,
                 BarChartComponent,
                 ChartComponent,
-                DatasetSelectorComponent,
+                DashboardDropdownComponent,
+                DashboardSelectorComponent,
                 DataTableComponent,
                 DocumentViewerComponent,
                 ExportControlComponent,
@@ -155,7 +157,7 @@ describe('App', () => {
 
     it('should include top level layout components', async(() => {
         expect(debugElement.nativeElement.querySelectorAll('mat-sidenav-container')).toBeTruthy();
-        expect(debugElement.nativeElement.querySelectorAll('app-dataset-selector')).toBeTruthy();
+        expect(debugElement.nativeElement.querySelectorAll('app-dashboard-selector')).toBeTruthy();
         // Since the about pane and options pane are rendered only after a user opens their sidenav area,
         // these should not exist upon initial render.
         expect(debugElement.nativeElement.querySelectorAll('app-right-panel').length === 0).toBeTruthy();
