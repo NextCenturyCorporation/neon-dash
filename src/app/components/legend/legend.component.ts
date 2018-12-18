@@ -69,6 +69,7 @@ export class LegendComponent implements OnInit {
      */
     @Output() itemSelected = new EventEmitter<{ fieldName: string, value: string, currentlyActive: boolean }>();
 
+    @ViewChild('legend') legend: ElementRef;
     @ViewChild('menu') menu: ElementRef;
 
     public menuIcon: string;
@@ -107,7 +108,7 @@ export class LegendComponent implements OnInit {
 
     getColorFor(colorSet: ColorSet, key: string): string {
         let color = colorSet.getColorForValue(key);
-        return color.toRgb();
+        return color.getComputedCss(this.legend);
     }
 
     /**

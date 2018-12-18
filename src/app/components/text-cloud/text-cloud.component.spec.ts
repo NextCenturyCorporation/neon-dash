@@ -21,13 +21,17 @@ import { Injector } from '@angular/core';
 
 import { TextCloudComponent } from './text-cloud.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
+import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
+import { WidgetService } from '../../services/widget.service';
+
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { neonVariables } from '../../neon-namespaces';
 import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 
@@ -48,6 +52,7 @@ describe('Component: TextCloud', () => {
             UnsharedFilterComponent
         ],
         providers: [
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             {
                 provide: DatasetService,
@@ -82,7 +87,7 @@ describe('Component: TextCloud', () => {
     });
 
     it('has expected class properties', () => {
-        expect(component.textColor).toBe('#ffffff');
+        expect(component.textColor).toBe('#54C8CD');
     });
 
     it('returns the correct value from getExportFields', () => {

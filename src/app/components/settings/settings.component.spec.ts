@@ -21,15 +21,14 @@ import {
     ChangeDetectorRef,
     Component,
     DebugElement,
-    NO_ERRORS_SCHEMA,
     Injector,
     ViewEncapsulation
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialogRef, MatSnackBar } from '@angular/material';
+import { MatDialog, MatDialogRef, MatSnackBar } from '@angular/material';
 import { } from 'jasmine-core';
 
-import { AddVisualizationComponent } from './add-visualization.component';
+import { SettingsComponent } from './settings.component';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -48,20 +47,27 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 // Must define the test component.
 @Component({
-    selector: 'app-test-add-visualization',
-    templateUrl: 'add-visualization.component.html',
-    styleUrls: ['add-visualization.component.scss'],
+    selector: 'app-settings',
+    templateUrl: 'settings.component.html',
+    styleUrls: ['settings.component.scss'],
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-class TestAddVisualizationComponent extends AddVisualizationComponent {
+class TestSettingsComponent extends SettingsComponent {
     constructor(
-        widgetService: AbstractWidgetService,
-        snackBar: MatSnackBar
+        changeDetection: ChangeDetectorRef,
+        datasetService: DatasetService,
+        dialog: MatDialog,
+        injector: Injector,
+        widgetService: AbstractWidgetService
     ) {
+
         super(
-            snackBar,
+            changeDetection,
+            datasetService,
+            dialog,
+            injector,
             widgetService
         );
     }
@@ -69,66 +75,35 @@ class TestAddVisualizationComponent extends AddVisualizationComponent {
     // TODO Add any needed custom functions here.
 }
 
-describe('Component: AddVisualization', () => {
-    let component: TestAddVisualizationComponent;
-    let fixture: ComponentFixture<TestAddVisualizationComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
+describe('Component: Settings', () => {
+    let component: TestSettingsComponent;
+    let fixture: ComponentFixture<TestSettingsComponent>,
+        getService = (type: any) => fixture.debugElement.injector.get(type);
     let debugElement: DebugElement;
-    let spyOnInit;
 
     initializeTestBed({
         declarations: [
-            TestAddVisualizationComponent
+            TestSettingsComponent
         ],
         providers: [
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
-            {
-                provide: AbstractWidgetService,
-                useClass: WidgetService
-            }
+            { provide: AbstractWidgetService, useClass: WidgetService }
         ],
         imports: [
             AppMaterialModule,
             BrowserAnimationsModule,
             FormsModule
-        ],
-        schemas: [NO_ERRORS_SCHEMA]
+        ]
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(TestAddVisualizationComponent);
+        fixture = TestBed.createComponent(TestSettingsComponent);
         component = fixture.componentInstance;
-        spyOnInit = spyOn(component, 'ngOnInit');
         fixture.detectChanges();
 
         debugElement = fixture.debugElement;
     });
-
-    it('tests default values', (() => {
-        expect(component.showVisShortcut).toEqual(true);
-        expect(component.selectedIndex).toEqual(-1);
-        expect(component.messenger).toBeTruthy();
-    }));
-
-    it('Check that updateShowVisShortcut changes the correct booleans', (() => {
-        let spyOnUpdateShowVisShortcut = spyOn(component, 'updateShowVisShortcut');
-        let message = {
-            showVisShortcut: false
-        };
-
-        expect(spyOnInit.calls.count()).toEqual(1);
-        component.showVisShortcut = false;
-        expect(component.showVisShortcut).toEqual(false);
-        component.ngOnInit();
-        expect(spyOnInit.calls.count()).toEqual(2);
-
-        component.ngOnInit();
-        component.updateShowVisShortcut(message);
-
-        expect(spyOnInit.calls.count()).toEqual(3);
-        expect(spyOnUpdateShowVisShortcut.calls.count()).toEqual(1);
-    }));
 
 });

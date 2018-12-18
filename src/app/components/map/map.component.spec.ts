@@ -322,87 +322,91 @@ describe('Component: Map', () => {
     });
 
     it('should create uncollapsed map points, largest first', () => {
+        let aHoverMap = new Map<string, number>().set('a', 1);
+        let bHoverMap = new Map<string, number>().set('b', 1);
+        let cHoverMap = new Map<string, number>().set('c', 1);
+        let dHoverMap = new Map<string, number>().set('d', 1);
 
-        //define maps for all test cases
-        let aHoverMap = new Map<string, number>().set('a', 1),
-            bHoverMap = new Map<string, number>().set('b', 1),
-            cHoverMap = new Map<string, number>().set('c', 1),
-            dHoverMap = new Map<string, number>().set('d', 1);
+        let widgetService = getService(AbstractWidgetService);
 
-        let widgetService = getService(AbstractWidgetService),
-            dataset1 = {
-                data: [
-                    { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'Hover Popup Field:  A' },
-                    { id: 'testId2', lat: 0, lng: 0, category: 'b', hoverPopupField: 'Hover Popup Field:  B' },
-                    { id: 'testId3', lat: 0, lng: 0, category: 'c', hoverPopupField: 'Hover Popup Field:  C' },
-                    { id: 'testId4', lat: 0, lng: 0, category: 'd', hoverPopupField: 'Hover Popup Field:  D' },
-                    { id: 'testId5', lat: 0, lng: 0, category: 'd', hoverPopupField: 'Hover Popup Field:  D' }
-                ],
-                expected: [
-                    new MapPoint('testId4', ['testId4', 'testId5'], '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'd').toRgb(), 'Count: 2', 'category', 'd', dHoverMap),
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
-                    new MapPoint('testId3', ['testId3'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'c').toRgb(), 'Count: 1', 'category', 'c', cHoverMap)
-                ]
-            },
-            dataset2 = {
-                data: [
-                    { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'Hover Popup Field:  A' },
-                    { id: 'testId2', lat: 0, lng: 1, category: 'b', hoverPopupField: 'Hover Popup Field:  B' },
-                    { id: 'testId3', lat: 0, lng: 2, category: 'c', hoverPopupField: 'Hover Popup Field:  C' },
-                    { id: 'testId4', lat: 0, lng: 3, category: 'd', hoverPopupField: 'Hover Popup Field:  D' }
-                ],
-                expected: [
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
-                    new MapPoint('testId3', ['testId3'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'c').toRgb(), 'Count: 1', 'category', 'c', cHoverMap),
-                    new MapPoint('testId4', ['testId4'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'd').toRgb(), 'Count: 1', 'category', 'd', dHoverMap)
-                ]
-            },
-            dataset3 = {
-                data: [
-                    { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a', hoverPopupField: 'Hover Popup Field:  A' },
-                    { id: 'testId2', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b', hoverPopupField: 'Hover Popup Field:  B' }
-                ],
-                expected: [
-                    new MapPoint('testId1', ['testId1', 'testId1', 'testId1', 'testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 4', 'category', 'a', aHoverMap),
-                    new MapPoint('testId2', ['testId2', 'testId2', 'testId2', 'testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 4', 'category', 'b', bHoverMap)
-                ]
-            },
-            dataset4 = {
-                data: [
-                    { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a', hoverPopupField: 'Hover Popup Field:  A' },
-                    { id: 'testId2', lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b', hoverPopupField: 'Hover Popup Field:  B' }
-                ],
-                expected: [
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap)
-                ]
-            };
+        let aColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'a').getComputedCss(component.visualization);
+        let bColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'b').getComputedCss(component.visualization);
+        let cColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'c').getComputedCss(component.visualization);
+        let dColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'd').getComputedCss(component.visualization);
+
+        let dataset1 = {
+            data: [
+                { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'Hover Popup Field:  A'},
+                { id: 'testId2', lat: 0, lng: 0, category: 'b', hoverPopupField: 'Hover Popup Field:  B' },
+                { id: 'testId3', lat: 0, lng: 0, category: 'c', hoverPopupField: 'Hover Popup Field:  C'},
+                { id: 'testId4', lat: 0, lng: 0, category: 'd', hoverPopupField: 'Hover Popup Field:  D'},
+                { id: 'testId5', lat: 0, lng: 0, category: 'd', hoverPopupField: 'Hover Popup Field:  D'}
+            ],
+            expected: [
+                new MapPoint('testId4', ['testId4', 'testId5'], '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
+                    dColor, 'Count: 2', 'category', 'd', dHoverMap),
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap),
+                new MapPoint('testId3', ['testId3'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                    cColor, 'Count: 1', 'category', 'c', cHoverMap)
+            ]
+        };
+        let dataset2 = {
+            data: [
+                { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'Hover Popup Field:  A' },
+                { id: 'testId2', lat: 0, lng: 1, category: 'b', hoverPopupField: 'Hover Popup Field:  B'},
+                { id: 'testId3', lat: 0, lng: 2, category: 'c', hoverPopupField: 'Hover Popup Field:  C' },
+                { id: 'testId4', lat: 0, lng: 3, category: 'd', hoverPopupField: 'Hover Popup Field:  D'}
+            ],
+            expected: [
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap),
+                new MapPoint('testId3', ['testId3'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                    cColor, 'Count: 1', 'category', 'c', cHoverMap),
+                new MapPoint('testId4', ['testId4'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
+                    dColor, 'Count: 1', 'category', 'd', dHoverMap)
+            ]
+        };
+        let dataset3 = {
+            data: [
+                { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a', hoverPopupField: 'Hover Popup Field:  A'},
+                { id: 'testId2', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b', hoverPopupField: 'Hover Popup Field:  B' }
+            ],
+            expected: [
+                new MapPoint('testId1', ['testId1', 'testId1', 'testId1', 'testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                    aColor, 'Count: 4', 'category', 'a', aHoverMap),
+                new MapPoint('testId2', ['testId2', 'testId2', 'testId2', 'testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                    bColor, 'Count: 4', 'category', 'b', bHoverMap)
+            ]
+        };
+        let dataset4 = {
+            data: [
+                { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a', hoverPopupField: 'Hover Popup Field:  A' },
+                { id: 'testId2', lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b', hoverPopupField: 'Hover Popup Field:  B' }
+            ],
+            expected: [
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap)
+            ]
+        };
 
         let mapPoints1 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category',
             new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset1.data);
