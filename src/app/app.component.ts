@@ -49,7 +49,7 @@ import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { SaveStateComponent } from './components/save-state/save-state.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
-import {IconService} from "./services/icon.service";
+import { IconService } from './services/icon.service';
 
 @Component({
     selector: 'app-root',

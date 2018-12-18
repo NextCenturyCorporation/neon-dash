@@ -76,6 +76,7 @@ import {
 import { DatasetServiceMock } from '../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../testUtils/MockServices/FilterServiceMock';
 import * as neon from 'neon-framework';
+import { IconService } from './services/icon.service';
 
 describe('App', () => {
     let fixture: ComponentFixture<AppComponent>;
@@ -136,6 +137,7 @@ describe('App', () => {
                 ConnectionService,
                 { provide: DatasetService, useClass: DatasetServiceMock },
                 { provide: FilterService, useClass: FilterServiceMock },
+                IconService,
                 ParameterService,
                 { provide: AbstractWidgetService, useClass: WidgetService }
             ]

@@ -44,6 +44,9 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { IconService } from '../../services/icon.service';
+import { MatIconRegistry } from '@angular/material';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('Component: Aggregation', () => {
     let component: AggregationComponent;
@@ -66,17 +69,20 @@ describe('Component: Aggregation', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: 'config', useValue: new NeonGTDConfig() },
+            IconService
         ],
         imports: [
             AppMaterialModule,
             BrowserAnimationsModule,
-            FormsModule
+            FormsModule,
+            HttpClientModule
         ]
     });
 
     beforeEach(() => {
         fixture = TestBed.createComponent(AggregationComponent);
+        getService(IconService).registerIcons();
         component = fixture.componentInstance;
         fixture.detectChanges();
 
