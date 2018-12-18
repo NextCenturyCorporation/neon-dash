@@ -14,9 +14,18 @@
  *
  */
 ///<reference path="../../node_modules/@types/jasmine/index.d.ts"/>
-import { async, TestBed } from '@angular/core/testing';
+import { async, inject, TestBed } from '@angular/core/testing';
+import { HttpClientModule } from '@angular/common/http';
+import { MatIconRegistry } from '@angular/material';
+import { IconService } from '../app/services/icon.service';
 
 export const initializeTestBed = (config) => {
+    config.providers = config.providers || [];
+    config.providers.push(IconService);
+    config.providers.push(MatIconRegistry);
+    config.imports = config.imports || [];
+    config.imports.push(HttpClientModule);
+
     // From https://github.com/angular/angular/issues/12409#issuecomment-314814671
     let resetTestingModule = TestBed.resetTestingModule;
 
@@ -26,6 +35,10 @@ export const initializeTestBed = (config) => {
         await TestBed.compileComponents();
         TestBed.resetTestingModule = () => TestBed;
     })().then(done).catch(done.fail));
+
+    beforeAll(inject([IconService], (iconService) => {
+        iconService.registerIcons();
+    }));
 
     afterAll(() => {
         TestBed.resetTestingModule = resetTestingModule;

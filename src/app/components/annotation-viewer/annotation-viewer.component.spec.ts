@@ -52,6 +52,7 @@ import { FilterServiceMock } from '../../../testUtils/MockServices/FilterService
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 // Must define the test component.
 @Component({
@@ -91,28 +92,29 @@ describe('Component: AnnotationViewer', () => {
     let fixture: ComponentFixture<TestAnnotationViewerComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
+    initializeTestBed({
+        declarations: [
+            ExportControlComponent,
+            LegendComponent,
+            TestAnnotationViewerComponent,
+            UnsharedFilterComponent
+        ],
+        providers: [
+            ConnectionService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: FilterService, useClass: FilterServiceMock },
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() }
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                ExportControlComponent,
-                LegendComponent,
-                TestAnnotationViewerComponent,
-                UnsharedFilterComponent
-            ],
-            providers: [
-                ConnectionService,
-                { provide: AbstractWidgetService, useClass: WidgetService },
-                { provide: DatasetService, useClass: DatasetServiceMock },
-                { provide: FilterService, useClass: FilterServiceMock },
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() }
-            ],
-            imports: [
-                AppMaterialModule,
-                BrowserAnimationsModule,
-                FormsModule
-            ]
-        });
         fixture = TestBed.createComponent(TestAnnotationViewerComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
