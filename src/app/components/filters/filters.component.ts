@@ -20,6 +20,7 @@ import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-ne
 
 import * as _ from 'lodash';
 
+// TODO: 943: documentation at top?
 @Component({
     selector: 'app-filters',
     templateUrl: './filters.component.html',

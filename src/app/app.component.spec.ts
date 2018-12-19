@@ -169,10 +169,10 @@ describe('App', () => {
         expect(component.rightPanelTitle).toEqual('Dashboard Layouts');
 
         expect(component.showCustomConnectionButton).toEqual(true);
-        expect(component.showFilterBuilderIcon).toEqual(true);
+        expect(component.showFiltersComponentIcon).toEqual(true);
         expect(component.showVisShortcut).toEqual(true);
 
-        expect(component.createFilterBuilder).toEqual(false);
+        expect(component.createFiltersComponent).toEqual(false);
     }));
 
     it('should be showing correct filter builder icons', async(() => {
@@ -207,19 +207,19 @@ describe('App', () => {
     }));
 
     it('toggle filter builder', async(() => {
-        component.showFilterBuilderIcon = false;
+        component.showFiltersComponentIcon = false;
         expect(debugElement.nativeElement.querySelectorAll('app-filter-builder').length === 0).toBeTruthy();
-        component.showFilterBuilderIcon = true;
-        component.createFilterBuilder = true;
-        component.openFilterBuilderDialog();
+        component.showFiltersComponentIcon = true;
+        component.createFiltersComponent = true;
+        component.openFiltersDialog();
         expect(debugElement.nativeElement.querySelectorAll('app-filter-builder')).toBeTruthy();
     }));
 
     it('check that the messagenger subscribes to the correct channels and that the callbacks update the correct booleans', async(() => {
-        let spyOnShowFilterBuilderIcon = spyOn(component, 'updateShowFilterBuilderIcon');
+        let spyOnShowFiltersComponentIcon = spyOn(component, 'updateShowFiltersComponentIcon');
         let spyOnShowVisualShortcut = spyOn(component, 'updateShowVisShortcut');
         let message = {
-            showFilterBuilderIcon: false,
+            showFiltersComponentIcon: false,
             showVisShortcut: false
         };
 
@@ -227,19 +227,19 @@ describe('App', () => {
         component.ngOnInit();
         expect(spyOnInit.calls.count()).toEqual(2);
         component.updateShowVisShortcut(message);
-        component.updateShowFilterBuilderIcon(message);
+        component.updateShowFiltersComponentIcon(message);
 
-        expect(spyOnShowFilterBuilderIcon.calls.argsFor(0)).toEqual([{
-            showFilterBuilderIcon: false,
+        expect(spyOnShowFiltersComponentIcon.calls.argsFor(0)).toEqual([{
+            showFiltersComponentIcon: false,
             showVisShortcut: false
         }]);
 
         expect(spyOnShowVisualShortcut.calls.argsFor(0)).toEqual([{
-            showFilterBuilderIcon: false,
+            showFiltersComponentIcon: false,
             showVisShortcut: false
         }]);
 
-        expect(spyOnShowFilterBuilderIcon.calls.count()).toEqual(1);
+        expect(spyOnShowFiltersComponentIcon.calls.count()).toEqual(1);
         expect(spyOnShowVisualShortcut.calls.count()).toEqual(1);
     }));
 
@@ -261,21 +261,21 @@ describe('App', () => {
         });
     }));
 
-    it('getShowFilterBuilderIcon does update showFilterBuilder', async(() => {
-        component.updateShowFilterBuilderIcon({
-            showFilterBuilderIcon: false
+    it('updateShowFiltersComponentIcon does update showFiltersComponent', async(() => {
+        component.updateShowFiltersComponentIcon({
+            showFiltersComponentIcon: false
         });
         fixture.detectChanges();
-        expect(component.showFilterBuilderIcon).toEqual(false);
-        expect(debugElement.query(By.css('#showFilterBuilderIcon'))).toBeNull();
-        component.updateShowFilterBuilderIcon({
-            showFilterBuilderIcon: true
+        expect(component.showFiltersComponentIcon).toEqual(false);
+        expect(debugElement.query(By.css('#showFiltersComponentIcon'))).toBeNull();
+        component.updateShowFiltersComponentIcon({
+            showFiltersComponentIcon: true
         });
         fixture.detectChanges();
-        expect(component.showFilterBuilderIcon).toEqual(true);
+        expect(component.showFiltersComponentIcon).toEqual(true);
         fixture.whenStable().then(() => {
             fixture.detectChanges();
-            expect(debugElement.query(By.css('#showFilterBuilderIcon'))).not.toBeNull();
+            expect(debugElement.query(By.css('#showFiltersComponentIcon'))).not.toBeNull();
         });
     }));
 
