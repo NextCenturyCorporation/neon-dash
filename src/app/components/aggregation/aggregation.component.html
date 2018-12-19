@@ -21,7 +21,7 @@
             <mat-card-content>
                 <div *ngIf="errorMessage">
                     <label class="icon-with-text error-message" [matTooltip]="errorMessage" tooltip-position="below">
-                        <mat-icon class="neon-icon-small">error</mat-icon>
+                        <mat-icon class="neon-icon-small" svgIcon="neon:error"></mat-icon>
                         <span>{{ errorMessage }}</span>
                     </label>
                     <p></p>
@@ -382,7 +382,7 @@
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close"
                 [matTooltip]="'Delete Filter ' + createFilterPrettyText(filter)" tooltip-position="below"
                 (click)="toggleFilter(groupFilters, filter)">
-                <mat-icon class="neon-icon-small">close</mat-icon>
+                <mat-icon class="neon-icon-small" svgIcon="neon:close"></mat-icon>
             </button>
         </div>
 
@@ -393,7 +393,7 @@
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close"
                 [matTooltip]="'Delete Filter ' + createFilterPrettyText(filter)" tooltip-position="below"
                 (click)="toggleFilter(valueFilters, filter)">
-                <mat-icon class="neon-icon-small">close</mat-icon>
+                <mat-icon class="neon-icon-small" svgIcon="neon:close"></mat-icon>
             </button>
         </div>
     </div>

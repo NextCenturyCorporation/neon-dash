@@ -4,6 +4,6 @@
     </button>
     <input class="simple-filter-input" #filter [placeholder]="" (keyup)="0" (keyup.enter)="addFilter(filter.value)">
     <button mat-button *ngIf="filter.value || (filterId | async)" mat-icon-button aria-label="Clear" (click)="filter.value = ''; removeFilter()">
-        <mat-icon>close</mat-icon>
+        <mat-icon svgIcon="neon:close"></mat-icon>
     </button>
 </div>

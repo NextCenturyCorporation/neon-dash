@@ -352,7 +352,7 @@ describe('Component: WikiViewer', () => {
 
             let iconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
             expect(iconInSidenav).not.toBeNull();
-            expect(iconInSidenav.nativeElement.textContent).toBe('error');
+            expect(iconInSidenav.attributes.svgIcon).toBe('neon:error');
 
             let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
             expect(errorMessageInSidenav).not.toBeNull();

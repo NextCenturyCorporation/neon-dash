@@ -21,7 +21,7 @@
             <mat-card-content>
                 <div *ngIf="errorMessage">
                     <label class="icon-with-text error-message" [matTooltip]="errorMessage" tooltip-position="below">
-                        <mat-icon class="neon-icon-small">error</mat-icon>
+                        <mat-icon class="neon-icon-small" svgIcon="neon:error"></mat-icon>
                         <span>{{ errorMessage }}</span>
                     </label>
                     <p></p>
@@ -125,7 +125,7 @@
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close"
                 [matTooltip]="'Delete Filter ' + getFilterText(filter)" tooltip-position="below"
                 (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
-                <mat-icon class="neon-icon-small">close</mat-icon>
+                <mat-icon class="neon-icon-small" svgIcon="neon:close"></mat-icon>
             </button>
         </div>
     </div>
@@ -145,7 +145,7 @@
             </button>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Replace Filter"
                 [matTooltip]="'Replace Filters with Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, true)">
-                <mat-icon class="neon-icon-small">find_replace</mat-icon>
+                <mat-icon class="neon-icon-small" svgIcon="neon:find_replace"></mat-icon>
             </button>
         </div>
 

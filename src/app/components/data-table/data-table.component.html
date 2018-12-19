@@ -18,7 +18,7 @@
             <mat-card-content>
                 <div *ngIf="errorMessage">
                     <label class="icon-with-text error-message" [matTooltip]="errorMessage" tooltip-position="below">
-                        <mat-icon class="neon-icon-small">error</mat-icon>
+                        <mat-icon class="neon-icon-small" svgIcon="neon:error"></mat-icon>
                         <span>{{ errorMessage }}</span>
                     </label>
                     <p></p>
@@ -188,7 +188,7 @@
         <div class="datatable-filter-reset" *ngFor="let filter of getCloseableFilters()">
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
                     [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, false)">
-                <mat-icon class="neon-icon-small">close</mat-icon>
+                <mat-icon class="neon-icon-small" svgIcon="neon:close"></mat-icon>
             </button>
             <span class="datatable-filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.value }}</span>
         </div>
@@ -217,7 +217,7 @@
             <div *ngIf="showColumnSelector=='show'" class="column-selector">
                 <div class="column-selector-header"><span> Columns </span>
                     <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" tooltip-position="below" (click)="closeColumnSelector()">
-                      <mat-icon class="column-selector-close-icon">close</mat-icon>
+                      <mat-icon class="column-selector-close-icon" svgIcon="neon:close"></mat-icon>
                     </button>
 
                 </div>
@@ -232,7 +232,7 @@
                 <mat-list dense class="column-selector-list" (mouseleave)="onMouseLeaveArea(i)" (mousemove)="onMouseMove($event)">
                     <mat-list-item *ngFor="let header of options.headers; let i = index" (mouseenter)="onMouseEnter(i)" (mouseup)="onMouseUp(i)"
                         (mouseleave)="onMouseLeaveItem(i)" [ngStyle]="{'border': header.style.border, 'background-color': header.style.backgroundColor, 'border-top': header.style.borderTop, 'border-bottom': header.style.borderBottom}">
-                        <mat-icon (mousedown)="onMouseDown(i)">drag_handle</mat-icon>
+                        <mat-icon (mousedown)="onMouseDown(i)" svgIcon="neon:drag_handle"></mat-icon>
                         <mat-checkbox color="primary" [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">{{ header.name }}</mat-checkbox>
                     </mat-list-item>
                 </mat-list>

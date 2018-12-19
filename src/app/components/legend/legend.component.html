@@ -7,15 +7,14 @@
         <div *ngFor="let colorSet of colorSets">
             <div *ngIf="filteringOn">
             <button mat-menu-item *ngFor="let key of colorSet.getAllKeys()" (click)="keySelected($event, colorSet.getColorField(), key)">
-			  <!-- TODO for THOR-729 -->
-                <mat-icon [ngStyle]="{'color': getColorFor(colorSet, key)}">{{ getIcon(colorSet.getColorField(), key) }}</mat-icon>
+                <mat-icon [ngStyle]="{'color': getColorFor(colorSet, key)}" svgIcon="{{ getIcon(colorSet.getColorField(), key) }}"></mat-icon>
                 <span [ngStyle]="{'text-decoration': getTextDecoration(colorSet.getColorField(), key)}">{{ key }}</span>
             </button>
         </div>
             <div *ngIf="!filteringOn">
                 <button class="resize-icon" mat-menu-item *ngFor="let key of colorSet.getAllKeys()" (click)="stopPropagation($event)">
 				  <!-- TODO for THOR-729 -->
-                    <mat-icon  [ngStyle]="{'color': getColorFor(colorSet, key)}">{{ getIcon(colorSet.getColorField(), key) }}</mat-icon>
+                    <mat-icon  [ngStyle]="{'color': getColorFor(colorSet, key)}" svgIcon="{{ getIcon(colorSet.getColorField(), key) }}"></mat-icon>
                 <span >{{ key }}</span>
             </button>
             </div>

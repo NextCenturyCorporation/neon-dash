@@ -66,7 +66,7 @@
                     <button mat-icon-button class="neon-icon-button clause-button" [class.active]="clause.active"
                             [matTooltip]="'Filter is ' + (clause.active ? 'On' : 'Off') + ' (Click to Toggle)'" tooltip-position="below"
                             [disabled]="!validateClause(clause)" (click)="toggleClause(clause)">
-                        <mat-icon class="neon-icon">check_circle</mat-icon>
+                        <mat-icon class="neon-icon" svgIcon="neon:check_circle"></mat-icon>
                     </button>
 
                     <button mat-icon-button class="neon-icon-button clause-button" (click)="removeClause(clause)"

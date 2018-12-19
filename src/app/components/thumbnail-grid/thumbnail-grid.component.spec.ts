@@ -213,7 +213,7 @@ describe('Component: ThumbnailGrid', () => {
 
             let errorIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
             expect(errorIconInSidenav).not.toBeNull();
-            expect(errorIconInSidenav.nativeElement.textContent).toEqual('error');
+            expect(errorIconInSidenav.attributes.svgIcon).toEqual('neon:error');
 
             let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
             expect(errorMessageInSidenav).not.toBeNull();
@@ -411,8 +411,8 @@ describe('Component: ThumbnailGrid', () => {
             let filterIcons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container button mat-icon'));
             expect(filterIcons.length).toEqual(2);
 
-            expect(filterIcons[0].nativeElement.textContent).toEqual('close');
-            expect(filterIcons[1].nativeElement.textContent).toEqual('close');
+            expect(filterIcons[0].attributes.svgIcon).toEqual('neon:close');
+            expect(filterIcons[1].attributes.svgIcon).toEqual('neon:close');
         });
     }));
 
