@@ -69,10 +69,4 @@ describe('Component: Filters', () => {
     it('exists', (() => {
         expect(component).toBeTruthy();
     }));
-
-    it('getElementRefs does return expected object', () => {
-        let refs = component.getElementRefs();
-        expect(refs.headerText).toBeDefined();
-        expect(refs.visualization).toBeDefined();
-    });
 });
