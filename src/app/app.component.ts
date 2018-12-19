@@ -150,19 +150,18 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             this.projectIcon = this.datasets[0].icon ? this.datasets[0].icon : this.projectIcon;
         }
 
-        // TODO: 943: rename icons
         this.matIconRegistry.addSvgIcon(
-            'filter_builder',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filter_builder.svg')
+            'filters',
+            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filters.svg')
         );
 
         this.matIconRegistry.addSvgIcon(
-            'filter_builder_active',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filter_builder_active.svg')
+            'filters_active',
+            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filters_active.svg')
         );
 
         this.changeFavicon();
-        this.filtersIcon = 'filter_builder';
+        this.filtersIcon = 'filters';
 
         this.messenger.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearDashboard.bind(this));
         this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, this.refreshDashboard.bind(this));
@@ -253,9 +252,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     changeFiltersComponentIcon() {
         let filters = this.filterService.getFilters();
         if (filters.length > 0) {
-            this.filtersIcon = 'filter_builder_active';
+            this.filtersIcon = 'filters_active';
         } else {
-            this.filtersIcon = 'filter_builder';
+            this.filtersIcon = 'filters';
         }
         return true;
     }

@@ -175,12 +175,12 @@ describe('App', () => {
         expect(component.createFiltersComponent).toEqual(false);
     }));
 
-    it('should be showing correct filter builder icons', async(() => {
-        expect(component.filterBuilderIcon).toEqual('filter_builder');
+    it('should be showing correct filter icons', async(() => {
+        expect(component.filtersIcon).toEqual('filters');
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '=', 'value1'), 'testFilterField');
         fixture.detectChanges();
-        expect(component.filterBuilderIcon).toEqual('filter_builder_active');
+        expect(component.filtersIcon).toEqual('filters_active');
     }));
 
     it('should correctly toggle the panels', async(() => {
@@ -206,13 +206,13 @@ describe('App', () => {
 
     }));
 
-    it('toggle filter builder', async(() => {
+    it('toggle filters component', async(() => {
         component.showFiltersComponentIcon = false;
-        expect(debugElement.nativeElement.querySelectorAll('app-filter-builder').length === 0).toBeTruthy();
+        expect(debugElement.nativeElement.querySelectorAll('app-filters').length === 0).toBeTruthy();
         component.showFiltersComponentIcon = true;
         component.createFiltersComponent = true;
         component.openFiltersDialog();
-        expect(debugElement.nativeElement.querySelectorAll('app-filter-builder')).toBeTruthy();
+        expect(debugElement.nativeElement.querySelectorAll('app-filters')).toBeTruthy();
     }));
 
     it('check that the messagenger subscribes to the correct channels and that the callbacks update the correct booleans', async(() => {
