@@ -92,13 +92,23 @@ export class GearComponent implements OnInit, OnDestroy {
         //console.log(this.optionalList);
     }
 
+    getApplyButtonText() {
+        return 'Apply';
+    }
+
     getTitle() {
         let titleOption = this.options.access('title');
         return titleOption.valueCurrent;
     }
 
+    handleApplyClick() {
+        //
+    }
+
     handleDataChange(widgetOption, newValue) {
+        //console.log('widget option');
         //console.log(widgetOption);
+        //console.log('New value"');
         //console.log(newValue);
         this.options[widgetOption.bindingKey] = newValue;
         //this.optionsList.access
@@ -143,7 +153,6 @@ export class GearComponent implements OnInit, OnDestroy {
         this.optionsList = this.options.list();
         this.cleanShowOptions();
         this.constructOptionsLists();
-        //console.log(this.optionsList);
     }
 
 }

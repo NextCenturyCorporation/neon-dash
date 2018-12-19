@@ -80,7 +80,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public rightPanelTitle: string = 'Dashboard Layouts';
 
-    public createAboutNeon: boolean = true;
+    public createAboutNeon: boolean = false;
     public createAddVis: boolean = false;
     public createDashboardLayouts: boolean = true;
     public createFilterBuilder: boolean = false; //This is used to create the Filter Builder later
@@ -535,7 +535,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.resetAllPanel();
         let rightPanelContainer: HTMLElement = document.getElementById(newPanel);
 
-        if (newPanel === 'add.vis' && !this.createAddVis) {
+        if (newPanel === 'about.neon' && !this.createAboutNeon) {
+            this.createAboutNeon = true;
+        } else if (newPanel === 'add.vis' && !this.createAddVis) {
             this.createAddVis = true;
         } else if (newPanel === 'saved.state' && !this.createSavedState) {
             this.createSavedState = true;

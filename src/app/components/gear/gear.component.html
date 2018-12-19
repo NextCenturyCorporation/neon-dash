@@ -58,7 +58,7 @@
     <h4>Optional Fields</h4>
 
     <div class="option-container" *ngFor="let optionalOption of optionalList">
-
+        <!-- Select Option Type-->
         <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(optionalOption.optionType, 'SELECT')">
             <mat-select optionalOption.prettyName placeholder={{optionalOption.prettyName}} 
             [ngModel]="optionalOption.valueCurrent" name="optionalOption" (ngModelChange)="handleDataChange(optionalOption, $event)">
@@ -67,15 +67,16 @@
                 </mat-option>
             </mat-select>
         </mat-form-field>
+        <!-- Field Option Type-->
         <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(optionalOption.optionType, 'FIELD')">
             <mat-select placeholder={{optionalOption.prettyName}}>
                 <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
             </mat-select>
         </mat-form-field>
+        <!-- Free Text Option Type-->
         <div mat-fill class="flex center" *ngIf="checkOptionType(optionalOption.optionType, 'FREE_TEXT')">
             <mat-form-field class='widgetOption-container'>
-                <input matInput placeholder={{optionalOption.prettyName}} required="false"
-                    (keyup.enter)="handleDataChange(optionalOption, $event)">
+                <input matInput placeholder={{optionalOption.prettyName}} required="false">
             </mat-form-field>
         </div>
     </div>
@@ -95,3 +96,8 @@
     </div> -->
     <app-export-control [widgets]="this"></app-export-control>
 </form>
+<div class="button-footer" align="right" >
+    <button mat-raised-button class="neon-button-large" color="primary" (click)="handleApplyClick()">
+        {{ getApplyButtonText() }}
+    </button>
+</div>
