@@ -16,6 +16,6 @@
 
     <div class="body-container">
         <app-filter-builder [hidden]="!showFilterBuilderView"></app-filter-builder>
-        <app-filter-tray [hidden]="showFilterBuilderView" [widgets]="widgets"></app-filter-tray>
+        <app-current-filters [hidden]="showFilterBuilderView" [widgets]="widgets"></app-current-filters>
     </div>
 </mat-sidenav-container>

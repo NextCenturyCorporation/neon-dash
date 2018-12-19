@@ -24,11 +24,11 @@ import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 
 @Component({
-    selector: 'app-filter-tray',
-    templateUrl: './filter-tray.component.html',
-    styleUrls: ['./filter-tray.component.scss']
+    selector: 'app-current-filters',
+    templateUrl: './current-filters.component.html',
+    styleUrls: ['./current-filters.component.scss']
 })
-export class FilterTrayComponent implements OnInit, OnDestroy {
+export class CurrentFiltersComponent implements OnInit, OnDestroy {
 
     @Input() widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent>;
 
@@ -75,10 +75,10 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
     }
 
     onEventChanged() {
-        this.updateFilterTray(this.filterService.getFilters());
+        this.updateCurrentFilters(this.filterService.getFilters());
     }
 
-    updateFilterTray(rawState: any[]) {
+    updateCurrentFilters(rawState: any[]) {
         this.filters.raw = rawState;
         let filters = this.formatFilters(rawState);
         this.filters.formatted = filters;
