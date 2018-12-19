@@ -20,7 +20,7 @@ import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-ne
 
 import * as _ from 'lodash';
 
-// TODO: 943: documentation at top?
+// Includes the filter-builder as well as the current-filters component.
 @Component({
     selector: 'app-filters',
     templateUrl: './filters.component.html',
@@ -28,7 +28,7 @@ import * as _ from 'lodash';
 })
 export class FiltersComponent {
     @Input() widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent>;
-    public showFilterBuilderView: boolean = true; // if false, show active filters instead
+    public showFilterBuilderView: boolean = true; // if false, show current filters instead
 
     /**
      * Returns the default title.

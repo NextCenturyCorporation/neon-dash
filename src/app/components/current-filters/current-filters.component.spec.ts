@@ -19,7 +19,7 @@ import { FormsModule } from '@angular/forms';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
-import { FilterTrayComponent } from './filter-tray.component';
+import { CurrentFiltersComponent } from './current-filters.component';
 import { FilterService } from '../../services/filter.service';
 import { DatasetService } from '../../services/dataset.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
@@ -27,14 +27,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
-describe('Component: FilterTray', () => {
-    let fixture: ComponentFixture<FilterTrayComponent>;
+describe('Component: CurrentFiltersComponent', () => {
+    let fixture: ComponentFixture<CurrentFiltersComponent>;
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
-    let component: FilterTrayComponent;
+    let component: CurrentFiltersComponent;
 
     initializeTestBed({
         declarations: [
-            FilterTrayComponent
+            CurrentFiltersComponent
         ],
         providers: [
             FilterService,
@@ -49,7 +49,7 @@ describe('Component: FilterTray', () => {
     });
 
     it('should create an instance', (() => {
-        fixture = TestBed.createComponent(FilterTrayComponent);
+        fixture = TestBed.createComponent(CurrentFiltersComponent);
         component = fixture.componentInstance;
         expect(component).toBeTruthy();
     }));
