@@ -25,6 +25,7 @@ export class ColorSet {
     // TODO Change on theme changed
     private colors: Color[] = THEME_TEAL_COLORS;
     private currentIndex: number = 0;
+    globalColor: Color;
 
     constructor(private colorField: string, private valueToColor: Map<string, Color> = new Map<string, Color>()) {
         // Do nothing.
@@ -98,14 +99,22 @@ export class ColorSchemeService {
         Object.keys(colorMaps).forEach((databaseName) => {
             Object.keys(colorMaps[databaseName]).forEach((tableName) => {
                 Object.keys(colorMaps[databaseName][tableName]).forEach((fieldName) => {
-                    let valueToColor = new Map<string, Color>();
-                    Object.keys(colorMaps[databaseName][tableName][fieldName]).forEach((valueName) => {
-                        let color = colorMaps[databaseName][tableName][fieldName][valueName];
+                    if (typeof colorMaps[databaseName][tableName][fieldName] === 'string') {
+                        let colorSet = new ColorSet(fieldName);
+                        let color = colorMaps[databaseName][tableName][fieldName];
                         let isRGB = (color.indexOf('#') < 0);
-                        valueToColor.set(valueName, isRGB ? Color.fromRgbString(color) : Color.fromHexString(color));
-                    });
-                    let colorSet = new ColorSet(fieldName, valueToColor);
-                    this.colorFieldToColorSet.set(fieldName, colorSet);
+                        colorSet.globalColor = isRGB ? Color.fromRgbString(color) : Color.fromHexString(color);
+                        this.colorFieldToColorSet.set(fieldName, colorSet);
+                    } else {
+                        let valueToColor = new Map<string, Color>();
+                        Object.keys(colorMaps[databaseName][tableName][fieldName]).forEach((valueName) => {
+                            let color = colorMaps[databaseName][tableName][fieldName][valueName];
+                            let isRGB = (color.indexOf('#') < 0);
+                            valueToColor.set(valueName, isRGB ? Color.fromRgbString(color) : Color.fromHexString(color));
+                        });
+                        let colorSet = new ColorSet(fieldName, valueToColor);
+                        this.colorFieldToColorSet.set(fieldName, colorSet);
+                    }
                 });
             });
         });
@@ -126,7 +135,7 @@ export class ColorSchemeService {
             this.colorFieldToColorSet.set(colorField, colorSet);
         }
         let colorValue = (value instanceof Array) ? value.join() : value;
-        return colorSet.getColorForValue(colorValue);
+        return colorSet.globalColor || colorSet.getColorForValue(colorValue);
     }
 
     /**

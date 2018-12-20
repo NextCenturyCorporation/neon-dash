@@ -147,7 +147,7 @@ describe('Component: TaxonomyViewer', () => {
 
         let query = new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
-            .withFields(['testIdField', 'testFilter1', 'testFilter2', 'testCategoryField', 'testTypeField',
+            .withFields(['testIdField', 'testCategoryField', 'testFilter1', 'testFilter2',  'testTypeField',
                 'testSubTypeField']);
 
         let whereClauses = [
@@ -179,6 +179,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField', 'Test SubType Field');
+        component.options.sourceIdField = new FieldMetaData('sourceIdField', 'Source ID Field');
 
         expect(component.getExportFields()).toEqual([{
             columnName: 'testCategoryField',
@@ -189,6 +190,9 @@ describe('Component: TaxonomyViewer', () => {
         }, {
             columnName: 'testIdField',
             prettyName: 'Test ID Field'
+        }, {
+            columnName: 'sourceIdField',
+            prettyName: 'Source ID Field'
         }, {
             columnName: 'testSubTypeField',
             prettyName: 'Test SubType Field'

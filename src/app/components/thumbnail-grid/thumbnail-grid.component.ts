@@ -34,13 +34,16 @@ import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
-
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-import * as _ from 'lodash';
 
+export const ViewType = {
+    CARD: 'card',
+    DETAILS: 'details',
+    TITLE: 'title'
+};
 /**
  * Manages configurable options for the specific visualization.
  */
@@ -55,7 +58,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public dateField: FieldMetaData;
     public defaultLabel: string;
     public defaultPercent: string;
-    public detailedThumbnails: boolean;
+    public viewType: string;
     public filterField: FieldMetaData;
     public id: string;
     public idField: FieldMetaData;
@@ -94,7 +97,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         bindings.cropAndScale = this.cropAndScale;
         bindings.defaultLabel = this.defaultLabel;
         bindings.defaultPercent = this.defaultPercent;
-        bindings.detailedThumbnails = this.detailedThumbnails;
+        bindings.viewType = this.viewType;
         bindings.ignoreSelf = this.ignoreSelf;
         bindings.linkPrefix = this.linkPrefix;
         bindings.openOnMouseClick = this.openOnMouseClick;
@@ -163,8 +166,8 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
         this.textMap = this.injector.get('textMap', {});
         this.typeMap = this.injector.get('typeMap', {});
-        this.detailedThumbnails = this.injector.get('detailedThumbnails', false);
         this.showLabelName = this.injector.get('showLabelName', false);
+        this.viewType = this.injector.get('viewType', ViewType.TITLE);
     }
 }
 
@@ -205,6 +208,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     public isLoading: boolean = false;
     public showGrid: boolean;
     public mediaTypes: any = MediaTypes;
+    public view: any = ViewType;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
         filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -355,6 +359,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         return query.withFields(fields).where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
             .sortBy(this.options.sortField.columnName, this.options.ascending ? neonVariables.ASCENDING : neonVariables.DESCENDING);
+
     }
 
     /**
@@ -564,6 +569,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.isLoading = true;
+
                 response.data.forEach((d) => {
                     let item = {},
                         links = [];
@@ -681,8 +687,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @return {boolean}
      */
     isSelected(item) {
-        return (!!this.options.filterField.columnName && this.filterExists(this.options.filterField.columnName,
-            item[this.options.filterField.columnName]));
+        return (!!this.options.filterField.columnName &&
+            this.filterExists(this.options.filterField.columnName, item[this.options.filterField.columnName]));
     }
 
     /**
