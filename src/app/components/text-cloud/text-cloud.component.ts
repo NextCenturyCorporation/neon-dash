@@ -181,13 +181,13 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         if (this.options.aggregation === neonVariables.COUNT) {
             // Normal aggregation query
             return query.where(whereClause).groupBy(dataField).aggregate(neonVariables.COUNT, '*', 'value')
-                .sortBy('value', neonVariables.DESCENDING).limit(this.options.limit);
+                .sortBy('value', neonVariables.DESCENDING).limit(this.options.limit as number);
         } else {
             // Query for data with the size field and sort by it
             let sizeColumn = this.options.sizeField.columnName;
             return query.where(neon.query.and(whereClause, neon.query.where(sizeColumn, '!=', null)))
                 .groupBy(dataField).aggregate(this.options.aggregation, sizeColumn, sizeColumn)
-                .sortBy(sizeColumn, neonVariables.DESCENDING).limit(this.options.limit);
+                .sortBy(sizeColumn, neonVariables.DESCENDING).limit(this.options.limit as number);
         }
     }
 
@@ -297,7 +297,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     publishOptions() {
         this.messenger.publish('options', {
-            options: this.options
+            options: this.options,
+            changeCallback: this.handleChangeFilterField(),
+            changeLimitCallback: this.handleChangeLimit()
         });
     }
 

@@ -16,11 +16,8 @@
 
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, Injector } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
+import { FormsModule } from '@angular/forms';
 
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { DatasetOptions, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
@@ -46,6 +43,9 @@ export class GearComponent implements OnInit, OnDestroy {
     public optionsList: WidgetOption[];
     public requiredList: WidgetOption[];
     public optionalList: WidgetOption[];
+    public changeList: any[];
+    public changeCallback: Function; //{(): => void; };
+    public changeLimitCallback: Function;
     //public toggleGear: boolean;
 
     constructor(
@@ -57,8 +57,16 @@ export class GearComponent implements OnInit, OnDestroy {
 
         this.requiredList = [];
         this.optionalList = [];
+        this.changeList = [];
         this.messenger = new neon.eventing.Messenger();
         //this.messenger.subscribe('options', (message) => this.updateOptions(message));
+    }
+
+    overrideExistingChange(option: WidgetOption) {
+        //let exists = false;
+        this.changeList = this.changeList.filter((change) =>
+            change.widgetOption.bindingKey !== option.bindingKey
+        );
     }
 
     checkOptionType(currentType: string, checkType) {
@@ -93,7 +101,7 @@ export class GearComponent implements OnInit, OnDestroy {
     }
 
     getApplyButtonText() {
-        return 'Apply';
+        return 'Apply Field Changes';
     }
 
     getTitle() {
@@ -102,10 +110,19 @@ export class GearComponent implements OnInit, OnDestroy {
     }
 
     handleApplyClick() {
-        //
+        this.changeList.forEach((change) => {
+            this.options[change.widgetOption.bindingkey] = change.newValue;
+        });
+        this.changeList = [];
+        if (typeof this.changeCallback === 'function') {
+            this.changeCallback();
+        }
     }
 
     handleDataChange(widgetOption, newValue) {
+        this.overrideExistingChange(widgetOption);
+        this.changeList.push({widgetOption, newValue});
+        //console.log(this.changeList);
         //console.log('widget option');
         //console.log(widgetOption);
         //console.log('New value"');
@@ -148,8 +165,18 @@ export class GearComponent implements OnInit, OnDestroy {
         return newList;
     }
 
+    resetChangeList() {
+        this.changeList = [];
+        this.optionsList = this.options.list();
+        this.cleanShowOptions();
+        this.constructOptionsLists();
+        this.changeDetection.detectChanges();
+    }
+
     updateOptions(message) {
         this.options = message.options;
+        this.changeCallback = message.changeCallback;
+        this.changeLimitCallback = message.changeLimitCallback;
         this.optionsList = this.options.list();
         this.cleanShowOptions();
         this.constructOptionsLists();
