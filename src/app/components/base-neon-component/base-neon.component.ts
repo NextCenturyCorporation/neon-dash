@@ -792,7 +792,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Called after the filters in the filter service have changed.
      * Defaults to calling setupFilters() then executeQueryChain()
      */
-    handleFiltersChangedEvent(): void {
+    handleFiltersChangedEvent(event?: any): void {
         this.setupFilters();
         this.executeQueryChain();
     }

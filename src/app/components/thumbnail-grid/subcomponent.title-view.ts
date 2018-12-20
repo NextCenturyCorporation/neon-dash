@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,30 +17,12 @@ import { Component, Input } from '@angular/core';
 import { ThumbnailGridOptions, ThumbnailGridComponent } from './thumbnail-grid.component';
 
 @Component({
-    selector: 'app-thumbnail-details-contracted',
-    templateUrl: './thumbnail-details-contracted.component.html',
+    selector: 'app-subcomponent-title-thumbnail',
+    templateUrl: './subcomponent.title-view.html',
     styleUrls: ['./thumbnail-grid.component.scss']
 })
 
-export class ThumbnailDetailsContractedComponent {
-    @Input() item: any;
-    @Input() options: ThumbnailGridOptions;
-
-    thumbnailGrid: ThumbnailGridComponent;
-
-    constructor(grid: ThumbnailGridComponent) {
-        this.thumbnailGrid = grid;
-    }
-}
-
-@Component({
-    selector: 'app-thumbnail-details-expanded',
-    templateUrl: './thumbnail-details-expanded.component.html',
-    styleUrls: ['./thumbnail-grid.component.scss']
-})
-
-export class ThumbnailDetailsExpandedComponent {
-
+export class TitleThumbnailSubComponent {
     @Input() item: any;
     @Input() options: ThumbnailGridOptions;
 

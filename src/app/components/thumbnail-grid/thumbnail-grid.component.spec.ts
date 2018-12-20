@@ -42,7 +42,9 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatAutocompleteModule } from '@angular/material';
-import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from './thumbnail-details.component';
+import { DetailsThumbnailSubComponent } from './subcomponent.details-view';
+import { TitleThumbnailSubComponent } from './subcomponent.title-view';
+import { CardThumbnailSubComponent } from './subcomponent.card-view';
 
 let validateSelect = (element: any, name: string, required: boolean = false, disabled: boolean = false) => {
     expect(element.componentInstance.disabled).toEqual(disabled);
@@ -76,8 +78,9 @@ describe('Component: ThumbnailGrid', () => {
 
     initializeTestBed({
         declarations: [
-            ThumbnailDetailsContractedComponent,
-            ThumbnailDetailsExpandedComponent,
+            CardThumbnailSubComponent,
+            TitleThumbnailSubComponent,
+            DetailsThumbnailSubComponent,
             ThumbnailGridComponent,
             ExportControlComponent,
             UnsharedFilterComponent
@@ -2022,7 +2025,7 @@ describe('Component: ThumbnailGrid', () => {
             cropAndScale: '',
             defaultLabel: '',
             defaultPercent: '',
-            detailedThumbnails: false,
+            viewType: 'title',
             ignoreSelf: false,
             linkPrefix: '',
             openOnMouseClick: true,
@@ -2056,7 +2059,6 @@ describe('Component: ThumbnailGrid', () => {
         component.options.cropAndScale = 'both';
         component.options.defaultLabel = 'testDefaultLabel';
         component.options.defaultPercent = 'testDefaultPercent';
-        component.options.detailedThumbnails = true;
         component.options.ignoreSelf = true;
         component.options.linkPrefix = 'prefix/';
         component.options.openOnMouseClick = false;
@@ -2106,7 +2108,7 @@ describe('Component: ThumbnailGrid', () => {
             cropAndScale: 'both',
             defaultLabel: 'testDefaultLabel',
             defaultPercent: 'testDefaultPercent',
-            detailedThumbnails: true,
+            viewType: 'title',
             ignoreSelf: true,
             linkPrefix: 'prefix/',
             openOnMouseClick: false,
@@ -2165,8 +2167,9 @@ describe('Component: ThumbnailGrid with config', () => {
 
     initializeTestBed({
         declarations: [
-            ThumbnailDetailsContractedComponent,
-            ThumbnailDetailsExpandedComponent,
+            CardThumbnailSubComponent,
+            TitleThumbnailSubComponent,
+            DetailsThumbnailSubComponent,
             ThumbnailGridComponent,
             ExportControlComponent,
             UnsharedFilterComponent
@@ -2197,7 +2200,6 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'dateField', useValue: 'testDateField'},
             { provide: 'defaultLabel', useValue: 'testDefaultLabel' },
             { provide: 'defaultPercent', useValue: 'testDefaultPercent' },
-            { provide: 'detailedThumbnails', useValue: false},
             { provide: 'filterField', useValue: 'testFilterField' },
             { provide: 'id', useValue: 'testId' },
             { provide: 'idField', useValue: 'testIdField' },
@@ -2252,7 +2254,6 @@ describe('Component: ThumbnailGrid with config', () => {
         expect(component.options.cropAndScale).toEqual('both');
         expect(component.options.defaultLabel).toEqual('testDefaultLabel');
         expect(component.options.defaultPercent).toEqual('testDefaultPercent');
-        expect(component.options.detailedThumbnails).toEqual(false);
         expect(component.options.id).toEqual('testId');
         expect(component.options.ignoreSelf).toEqual(true);
         expect(component.options.linkPrefix).toEqual('prefix/');

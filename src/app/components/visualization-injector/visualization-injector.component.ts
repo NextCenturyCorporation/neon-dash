@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, Input, ViewContainerRef, ViewChild, ReflectiveInjector, ComponentFactoryResolver } from '@angular/core';
+import { Component, ComponentFactoryResolver, Input, ReflectiveInjector, ViewChild, ViewContainerRef } from '@angular/core';
 
 import { AggregationComponent } from '../aggregation/aggregation.component';
 import { AnnotationViewerComponent } from '../annotation-viewer/annotation-viewer.component';
@@ -37,7 +37,9 @@ import { VisualizationService } from '../../services/visualization.service';
 import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 import { NewsFeedComponent } from '../news-feed/news-feed.component';
 import { QueryBarComponent } from '../query-bar/query-bar.component';
-import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from '../thumbnail-grid/thumbnail-details.component';
+import { DetailsThumbnailSubComponent } from '../thumbnail-grid/subcomponent.details-view';
+import { TitleThumbnailSubComponent } from '../thumbnail-grid/subcomponent.title-view';
+import { CardThumbnailSubComponent } from '../thumbnail-grid/subcomponent.card-view';
 
 @Component({
     selector: 'app-visualization-injector',
@@ -58,18 +60,20 @@ import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent 
         ScatterPlotComponent,
         TaxonomyViewerComponent,
         TextCloudComponent,
-        ThumbnailDetailsContractedComponent,
-        ThumbnailDetailsExpandedComponent,
+        CardThumbnailSubComponent,
+        TitleThumbnailSubComponent,
+        DetailsThumbnailSubComponent,
         ThumbnailGridComponent,
         TimelineComponent,
         WikiViewerComponent
     ],
-    template: `<div #dynamicComponentContainer></div>`
+    template: `
+        <div #dynamicComponentContainer></div>`
 })
 export class VisualizationInjectorComponent {
     currentComponent = null;
 
-    @ViewChild('dynamicComponentContainer', { read: ViewContainerRef }) dynamicComponentContainer: ViewContainerRef;
+    @ViewChild('dynamicComponentContainer', {read: ViewContainerRef}) dynamicComponentContainer: ViewContainerRef;
 
     // component: Class for the component you want to create
     // inputs: An object with key/value pairs mapped to input name/input value
@@ -114,31 +118,52 @@ export class VisualizationInjectorComponent {
         }
     }
 
-    constructor(private resolver: ComponentFactoryResolver, private visualizationService: VisualizationService) { }
+    constructor(private resolver: ComponentFactoryResolver, private visualizationService: VisualizationService) {
+    }
 
     findVisualizationComponent(type: string): any {
         switch (type) {
-            case 'aggregation': return AggregationComponent;
-            case 'annotationViewer': return AnnotationViewerComponent;
-            case 'barChart': return BarChartComponent;
-            case 'dataTable': return DataTableComponent;
-            case 'documentViewer': return DocumentViewerComponent;
-            case 'filterBuilder': return FilterBuilderComponent;
-            case 'lineChart': return LineChartComponent;
-            case 'map': return MapComponent;
-            case 'mediaViewer': return MediaViewerComponent;
-            case 'networkGraph' : return NetworkGraphComponent;
-            case 'newsFeed' : return NewsFeedComponent;
-            case 'queryBar' : return QueryBarComponent;
-            case 'sample': return SampleComponent;
-            case 'scatterPlot': return ScatterPlotComponent;
-            case 'taxonomyViewer': return TaxonomyViewerComponent;
-            case 'textCloud': return TextCloudComponent;
-            case 'thumbnailGrid': return ThumbnailGridComponent;
-            case 'timeline': return TimelineComponent;
-            case 'wikiViewer': return WikiViewerComponent;
+            case 'aggregation':
+                return AggregationComponent;
+            case 'annotationViewer':
+                return AnnotationViewerComponent;
+            case 'barChart':
+                return BarChartComponent;
+            case 'dataTable':
+                return DataTableComponent;
+            case 'documentViewer':
+                return DocumentViewerComponent;
+            case 'filterBuilder':
+                return FilterBuilderComponent;
+            case 'lineChart':
+                return LineChartComponent;
+            case 'map':
+                return MapComponent;
+            case 'mediaViewer':
+                return MediaViewerComponent;
+            case 'networkGraph' :
+                return NetworkGraphComponent;
+            case 'newsFeed' :
+                return NewsFeedComponent;
+            case 'queryBar' :
+                return QueryBarComponent;
+            case 'sample':
+                return SampleComponent;
+            case 'scatterPlot':
+                return ScatterPlotComponent;
+            case 'taxonomyViewer':
+                return TaxonomyViewerComponent;
+            case 'textCloud':
+                return TextCloudComponent;
+            case 'thumbnailGrid':
+                return ThumbnailGridComponent;
+            case 'timeline':
+                return TimelineComponent;
+            case 'wikiViewer':
+                return WikiViewerComponent;
 
-            default: return null;
+            default:
+                return null;
         }
     }
 

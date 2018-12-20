@@ -48,7 +48,9 @@ import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.compone
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from '../news-feed/news-feed.component';
 import { QueryBarComponent } from '../query-bar/query-bar.component';
-import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from '../thumbnail-grid/thumbnail-details.component';
+import { DetailsThumbnailSubComponent } from '../thumbnail-grid/subcomponent.details-view';
+import { TitleThumbnailSubComponent } from '../thumbnail-grid/subcomponent.title-view';
+import { CardThumbnailSubComponent } from '../thumbnail-grid/subcomponent.card-view';
 import { MatAutocompleteModule } from '@angular/material';
 import { TreeModule } from 'angular-tree-component';
 
@@ -59,8 +61,10 @@ describe('Component: VisualizationInjector', () => {
             AggregationComponent,
             AnnotationViewerComponent,
             BarChartComponent,
+            CardThumbnailSubComponent,
             ChartComponent,
             DataTableComponent,
+            DetailsThumbnailSubComponent,
             DocumentViewerComponent,
             ExportControlComponent,
             FilterBuilderComponent,
@@ -75,9 +79,8 @@ describe('Component: VisualizationInjector', () => {
             ScatterPlotComponent,
             TaxonomyViewerComponent,
             TextCloudComponent,
-            ThumbnailDetailsContractedComponent,
-            ThumbnailDetailsExpandedComponent,
             ThumbnailGridComponent,
+            TitleThumbnailSubComponent,
             TimelineComponent,
             UnsharedFilterComponent,
             VisualizationInjectorComponent,

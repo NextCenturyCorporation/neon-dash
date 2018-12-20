@@ -119,7 +119,7 @@
                         type="checkbox"
                         [indeterminate]="node.data.indeterminate"
                         [checked]="node.data.checked">
-                    <span (click)="onEvent($event, node)">{{ node.data.name }} <span *ngIf="node.data.children && node.data.children.length">({{ node.data.children.length }})</span></span>
+                        <span (click)="onEvent($event, node)">{{ node.data.name }} <span *ngIf="node.data.nodeCount > 0">({{ node.data.nodeCount }})</span></span>
                 </ng-template>
             </tree-root>
         </div>
