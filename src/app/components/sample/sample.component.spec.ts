@@ -712,12 +712,12 @@ describe('Component: Sample', () => {
         component.refreshVisualization();
         expect(spy.calls.count()).toEqual(0);
 
-        component.layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([]));
         component.refreshVisualization();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[]]);
 
-        component.layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}, {}]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}, {}]));
         component.refreshVisualization();
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)).toEqual([[{}, {}]]);
@@ -944,7 +944,7 @@ describe('Component: Sample', () => {
     });
 
     it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', async(() => {
-        component.layerIdToElementCount.set(component.options._id, 10);
+        (component as any).layerIdToElementCount.set(component.options._id, 10);
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -975,7 +975,7 @@ describe('Component: Sample', () => {
     }));
 
     it('does show error-message in toolbar and sidenav if errorMessage is defined', async(() => {
-        component.errorMessage = 'Test Error Message';
+        (component as any).errorMessage = 'Test Error Message';
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -1108,7 +1108,7 @@ describe('Component: Sample', () => {
     });
 
     it('does show loading overlay if loadingCount is positive', async(() => {
-        component.loadingCount = 1;
+        (component as any).loadingCount = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -1181,7 +1181,7 @@ describe('Component: Sample', () => {
     });
 
     it('does show data-item elements if active data is non-empty array', async(() => {
-        component.layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
             count: 2,
             label: 'alpha',
             value: 'a'

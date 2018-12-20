@@ -111,6 +111,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         );
 
         this.redrawOnResize = true;
+        this.visualizationQueryPaginates = true;
 
         let style = document.createElement('style');
         style.appendChild(document.createTextNode(''));
@@ -899,16 +900,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     getTableRowHeight() {
         return this.options.skinny ? 20 : 25;
-    }
-
-    /**
-     * Returns whether the visualization query does pagination.
-     *
-     * @return {boolean}
-     * @override
-     */
-    protected isPaginationVisualizationQuery(): boolean {
-        return true;
     }
 
     public getTableRowData(): any {

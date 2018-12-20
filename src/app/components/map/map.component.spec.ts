@@ -163,8 +163,8 @@ class TestMap extends AbstractMap {
 
 function updateMapLayer1(component: TestMapComponent) {
     component.filterVisible.set('testLayer1', true);
-    component.layerIdToActiveData.set('testLayer1', new TransformedVisualizationData([{}]));
-    component.layerIdToElementCount.set('testLayer1', 1);
+    (component as any).layerIdToActiveData.set('testLayer1', new TransformedVisualizationData([{}]));
+    (component as any).layerIdToElementCount.set('testLayer1', 1);
 
     component.options.layers[0] = new WidgetOptionCollection(undefined, {});
     component.options.layers[0]._id = 'testLayer1';
@@ -188,8 +188,8 @@ function updateMapLayer1(component: TestMapComponent) {
 
 function updateMapLayer2(component: TestMapComponent) {
     component.filterVisible.set('testLayer2', true);
-    component.layerIdToActiveData.set('testLayer2', new TransformedVisualizationData([{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]));
-    component.layerIdToElementCount.set('testLayer2', 10);
+    (component as any).layerIdToActiveData.set('testLayer2', new TransformedVisualizationData([{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]));
+    (component as any).layerIdToElementCount.set('testLayer2', 10);
 
     component.options.layers[1] = new WidgetOptionCollection(undefined, {});
     component.options.layers[1]._id = 'testLayer2';
@@ -871,34 +871,6 @@ describe('Component: Map', () => {
         let mapSpy = component.spyOnTestMap('sizeChanged');
         component.onResizeStop();
         expect(mapSpy.calls.count()).toBe(1);
-    });
-
-    it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toEqual('');
-
-        updateMapLayer1(component);
-
-        expect(component.getButtonText()).toEqual('1 Point');
-
-        component.layerIdToElementCount.set(component.options.layers[0]._id, 0);
-
-        expect(component.getButtonText()).toEqual('0 Points');
-
-        component.layerIdToElementCount.set(component.options.layers[0]._id, 2);
-
-        expect(component.getButtonText()).toEqual('2 Points');
-
-        updateMapLayer2(component);
-
-        expect(component.getButtonText()).toEqual('Layer A (2 Points), Layer B (10 Points)');
-
-        component.layerIdToElementCount.set(component.options.layers[0]._id, 0);
-
-        expect(component.getButtonText()).toEqual('Layer A (0 Points), Layer B (10 Points)');
-
-        component.layerIdToElementCount.delete(component.options.layers[0]._id);
-
-        expect(component.getButtonText()).toEqual('Layer B (10 Points)');
     });
 });
 

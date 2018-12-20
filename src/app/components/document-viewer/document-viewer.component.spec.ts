@@ -220,22 +220,6 @@ describe('Component: DocumentViewer', () => {
         expect(component.options.showText).toBe(false);
     });
 
-    it('returns the expected value from getButtonText', () => {
-        expect(component.getButtonText()).toBe('');
-
-        component.layerIdToElementCount.set(component.options._id, 0);
-        expect(component.getButtonText()).toBe('0 Documents');
-
-        component.layerIdToElementCount.set(component.options._id, 100);
-        expect(component.getButtonText()).toBe('1 - 50 of 100 Documents');
-
-        component.options.limit = 10;
-        expect(component.getButtonText()).toBe('1 - 10 of 100 Documents');
-
-        component.page = 2;
-        expect(component.getButtonText()).toBe('11 - 20 of 100 Documents');
-    });
-
     it('has setupFilters method that does nothing of substance', () => {
         expect(component.setupFilters).toBeDefined();
     });
@@ -333,7 +317,7 @@ describe('Component: DocumentViewer', () => {
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
             data: {
                 testTextField: 'This is a string.',
                 testDateField: '12:34:56 7/8/90',

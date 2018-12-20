@@ -678,7 +678,7 @@ describe('Component: MediaViewer', () => {
             testLinkField: ['video.avi', 'image.jpg', 'alpha.txt', 'audio.wav', 'other.xyz']
         }]);
 
-        expect(component.errorMessage).toBe('');
+        expect((component as any).errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
             slider: 0,
@@ -826,7 +826,7 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('does show error-message in toolbar and sidenav if errorMessage is defined', async(() => {
-        component.errorMessage = 'Test Error Message';
+        (component as any).errorMessage = 'Test Error Message';
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {
@@ -943,7 +943,7 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('does show loading overlay if loadingCount is positive', async(() => {
-        component.loadingCount = 1;
+        (component as any).loadingCount = 1;
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {

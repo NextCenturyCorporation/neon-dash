@@ -85,6 +85,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             injector,
             ref
         );
+
+        this.visualizationQueryPaginates = true;
     }
 
     /**
@@ -268,16 +270,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     getVisualizationDefaultTitle(): string {
         return 'News Feed';
-    }
-
-    /**
-     * Returns whether the visualization query does pagination.
-     *
-     * @return {boolean}
-     * @override
-     */
-    protected isPaginationVisualizationQuery(): boolean {
-        return true;
     }
 
     /**

@@ -92,6 +92,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             injector,
             ref
         );
+
+        this.visualizationQueryPaginates = true;
     }
 
     /**
@@ -358,16 +360,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             text.push((actualText ? actualText + ' : ' : '') + item[this.options.objectNameField.columnName]);
         }
         return text.join(', ');
-    }
-
-    /**
-     * Returns whether the visualization query does pagination.
-     *
-     * @return {boolean}
-     * @override
-     */
-    protected isPaginationVisualizationQuery(): boolean {
-        return true;
     }
 
     /**

@@ -186,7 +186,7 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('does show error-message in toolbar and sidenav if errorMessage is defined', async(() => {
-        component.errorMessage = 'Test Error Message';
+        (component as any).errorMessage = 'Test Error Message';
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {
@@ -268,7 +268,7 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('does show loading overlay if loadingCount is positive', async(() => {
-        component.loadingCount = 1;
+        (component as any).loadingCount = 1;
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {
@@ -292,7 +292,7 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('does show wiki-text tabs if active data is not empty', async(inject([DomSanitizer], (sanitizer) => {
-        component.layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
             name: 'Tab 1',
             text: sanitizer.bypassSecurityTrustHtml('<p>one</p>')
         }, {
@@ -361,7 +361,7 @@ describe('Component: WikiViewer with mock HTTP', () => {
     }));
 
     it('handleTransformVisualizationQueryResults with no data does call callback function with expected data', (done) => {
-        component.errorMessage = 'testErrorMessage';
+        (component as any).errorMessage = 'testErrorMessage';
 
         let successCallback = (data) => {
             expect(data.data).toEqual([]);
