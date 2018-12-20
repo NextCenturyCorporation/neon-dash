@@ -17,6 +17,7 @@
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material';
 import { Injectable } from '@angular/core';
+import { neonVisualizations } from '../neon-namespaces';
 
 /**
  * Registers icons for use with the mat-icon tag
@@ -40,6 +41,8 @@ export class IconService {
         this.registerIcon('arrow_downward', 'arrow_downward-24px');
         this.registerIcon('arrow_drop_down', 'arrow_drop_down-24px');
         this.registerIcon('arrow_upward', 'arrow_upward-24px');
+        this.registerIcon('check_box', 'check_box-24px');
+        this.registerIcon('check_box_outline_blank', 'check_box_outline_blank-24px');
         this.registerIcon('check_circle', 'check_circle-24px');
         this.registerIcon('clear', 'clear-24px');
         this.registerIcon('close', 'close-24px');
@@ -62,6 +65,13 @@ export class IconService {
         this.registerIcon('settings', 'settings-24px');
         this.registerIcon('stop', 'stop-24px');
         this.registerIcon('storage', 'storage-24px');
+
+        for (let visualization of neonVisualizations) {
+            if (visualization.type !== 'sample') {
+                this.registerIcon(visualization.icon, visualization.icon,
+                    'neon', './assets/icons');
+            }
+        }
     }
 
     protected registerIcon(name: string,

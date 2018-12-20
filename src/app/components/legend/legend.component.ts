@@ -152,14 +152,13 @@ export class LegendComponent implements OnInit {
         return this.disabledList && this.disabledList.indexOf(key) >= 0;
     }
 
-    // TODO for THOR-729
     getIcon(setName: string, key: string): string {
         if (!this.filteringOn) {
-            return 'stop';
+            return 'neon:stop';
         } else if (this.isDisabled(setName, key)) {
-            return 'check_box_outline_blank';
+            return 'neon:check_box_outline_blank';
         } else {
-            return 'check_box';
+            return 'neon:check_box';
         }
     }
 

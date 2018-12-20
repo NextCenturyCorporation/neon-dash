@@ -13,7 +13,6 @@
         </div>
             <div *ngIf="!filteringOn">
                 <button class="resize-icon" mat-menu-item *ngFor="let key of colorSet.getAllKeys()" (click)="stopPropagation($event)">
-				  <!-- TODO for THOR-729 -->
                     <mat-icon  [ngStyle]="{'color': getColorFor(colorSet, key)}" svgIcon="{{ getIcon(colorSet.getColorField(), key) }}"></mat-icon>
                 <span >{{ key }}</span>
             </button>
