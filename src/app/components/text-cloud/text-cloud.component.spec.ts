@@ -115,7 +115,7 @@ describe('Component: TextCloud', () => {
 
     it('has a refreshVisualization method that calls createTextCloud', () => {
         let spy = spyOn(component.textCloud, 'createTextCloud');
-        component.layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([]));
         component.refreshVisualization();
         expect(spy.calls.count()).toEqual(1);
     });
@@ -331,7 +331,7 @@ describe('Component: TextCloud', () => {
             testTextField: 'Value 3',
             value: 30
         }];
-        component.layerIdToActiveData.set(component.options._id, new TransformedVisualizationData(data));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData(data));
         component.refreshVisualization();
         expect(component.textCloudData[0].fontSize).toBeDefined();
         expect(component.textCloudData[0].color).toBeDefined();

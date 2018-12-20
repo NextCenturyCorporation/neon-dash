@@ -163,7 +163,7 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', async(() => {
-        component.layerIdToElementCount.set(component.options._id, 10);
+        (component as any).layerIdToElementCount.set(component.options._id, 10);
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -194,7 +194,7 @@ describe('Component: ThumbnailGrid', () => {
     }));
 
     it('does show error-message in toolbar and sidenav if errorMessage is defined', async(() => {
-        component.errorMessage = 'Test Error Message';
+        (component as any).errorMessage = 'Test Error Message';
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -352,7 +352,7 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('does show loading overlay if loadingCount is positive', async(() => {
-        component.loadingCount = 1;
+        (component as any).loadingCount = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -500,10 +500,10 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('does show footer-container and pagination-button elements if on first page', async(() => {
-        component.layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}]));
-        component.layerIdToElementCount.set(component.options._id, 3);
-        component.lastPage = false;
-        component.page = 1;
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}]));
+        (component as any).layerIdToElementCount.set(component.options._id, 3);
+        (component as any).lastPage = false;
+        (component as any).page = 1;
         component.options.limit = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
@@ -530,10 +530,10 @@ describe('Component: ThumbnailGrid', () => {
     }));
 
     it('does show footer-container and pagination-button elements if on middle page', async(() => {
-        component.layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}]));
-        component.layerIdToElementCount.set(component.options._id, 3);
-        component.lastPage = false;
-        component.page = 2;
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}]));
+        (component as any).layerIdToElementCount.set(component.options._id, 3);
+        (component as any).lastPage = false;
+        (component as any).page = 2;
         component.options.limit = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
@@ -560,10 +560,10 @@ describe('Component: ThumbnailGrid', () => {
     }));
 
     it('does show footer-container and pagination-button elements if on last page', async(() => {
-        component.layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}]));
-        component.layerIdToElementCount.set(component.options._id, 3);
-        component.lastPage = true;
-        component.page = 3;
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}]));
+        (component as any).layerIdToElementCount.set(component.options._id, 3);
+        (component as any).lastPage = true;
+        (component as any).page = 3;
         component.options.limit = 1;
 
         // Force the component to update all its ngFor and ngIf elements.

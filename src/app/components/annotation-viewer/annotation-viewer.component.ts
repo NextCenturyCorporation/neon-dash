@@ -139,6 +139,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         );
 
         this.updateOnSelectId = true;
+        this.visualizationQueryPaginates = true;
     }
 
     /**
@@ -717,16 +718,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     validateVisualizationQuery(options: any): boolean {
         return !!(options.database.name && options.table.name && (options.documentTextField.columnName || options.linkField.columnName) &&
             (!options.respondMode || this.selectedDataId));
-    }
-
-    /**
-     * Returns whether the visualization query does pagination.
-     *
-     * @return {boolean}
-     * @override
-     */
-    protected isPaginationVisualizationQuery(): boolean {
-        return true;
     }
 
     /**

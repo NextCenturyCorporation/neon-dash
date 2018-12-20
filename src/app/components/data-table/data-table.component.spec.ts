@@ -656,7 +656,7 @@ describe('Component: DataTable', () => {
         component.options.table = new TableMetaData('documents');
         component.options.sortField = new FieldMetaData('testSortField');
         component.options.limit = 25;
-        component.page = 1;
+        (component as any).page = 1;
 
         let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
 
@@ -1178,30 +1178,6 @@ describe('Component: DataTable', () => {
         }]);
     });
 
-    it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toBe('');
-
-        component.options.hideUnfiltered = true;
-        expect(component.getButtonText()).toBe('Please Filter');
-        component.options.hideUnfiltered = false;
-
-        component.layerIdToElementCount.set(component.options._id, 0);
-        expect(component.getButtonText()).toBe('0 Rows');
-
-        component.layerIdToElementCount.set(component.options._id, 1);
-        expect(component.getButtonText()).toBe('1 Row');
-
-        component.layerIdToElementCount.set(component.options._id, 5);
-        expect(component.getButtonText()).toBe('5 Rows');
-
-        component.layerIdToElementCount.set(component.options._id, 10);
-        component.options.limit = 5;
-        expect(component.getButtonText()).toBe('1 - 5 of 10 Rows');
-
-        component.page = 2;
-        expect(component.getButtonText()).toBe('6 - 10 of 10 Rows');
-    });
-
     it('onSelect does update selected array and calls publishAnyCustomEvents, but not publishSelectId', () => {
         let publishIdSpy = spyOn(component, 'publishSelectId');
         let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
@@ -1249,7 +1225,7 @@ describe('Component: DataTable', () => {
         component.options.fields = [new FieldMetaData('category')];
         component.options.filterFields = [new FieldMetaData('category')];
         component.options.filterable = true;
-        component.layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
             category: 'books',
             title: 'Test'
         }, {

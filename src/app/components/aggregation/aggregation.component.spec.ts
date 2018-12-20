@@ -120,14 +120,12 @@ describe('Component: Aggregation', () => {
         expect(component.colorKeys).toEqual([]);
         expect(component.filterToPassToSuperclass).toEqual({});
         expect(component.groupFilters).toEqual([]);
-        expect(component.lastPage).toEqual(true);
         expect(component.legendActiveGroups).toEqual([]);
         expect(component.legendGroups).toEqual([]);
         expect(component.minimumDimensionsMain.height).toBeDefined();
         expect(component.minimumDimensionsMain.width).toBeDefined();
         expect(component.minimumDimensionsZoom.height).toBeDefined();
         expect(component.minimumDimensionsZoom.width).toBeDefined();
-        expect(component.page).toEqual(1);
         expect(component.selectedArea).toEqual(null);
         expect(component.selectedAreaOffset.x).toBeDefined();
         expect(component.selectedAreaOffset.y).toBeDefined();
@@ -2060,7 +2058,7 @@ describe('Component: Aggregation', () => {
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
-        component.layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2077,7 +2075,7 @@ describe('Component: Aggregation', () => {
         }]);
         expect(spy2.calls.count()).toEqual(0);
 
-        component.layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
             x: 1,
             y: 2
         }, {
@@ -2119,7 +2117,7 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        component.layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2136,7 +2134,7 @@ describe('Component: Aggregation', () => {
         }]);
         expect(spy2.calls.count()).toEqual(0);
 
-        component.layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
             x: 1,
             y: 2
         }, {
@@ -2176,7 +2174,7 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.xField = DatasetServiceMock.DATE_FIELD;
         component.options.yField = DatasetServiceMock.DATE_FIELD;
-        component.layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2193,7 +2191,7 @@ describe('Component: Aggregation', () => {
         }]);
         expect(spy2.calls.count()).toEqual(0);
 
-        component.layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
             x: 1,
             y: 2
         }, {
@@ -2233,7 +2231,7 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.xField = DatasetServiceMock.TEXT_FIELD;
         component.options.yField = DatasetServiceMock.TEXT_FIELD;
-        component.layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2250,7 +2248,7 @@ describe('Component: Aggregation', () => {
         }]);
         expect(spy2.calls.count()).toEqual(0);
 
-        component.layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
             x: 1,
             y: 2
         }, {
@@ -2293,7 +2291,7 @@ describe('Component: Aggregation', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.dualView = 'on';
 
-        component.layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
             x: 1,
             y: 2
         }, {
@@ -2396,7 +2394,7 @@ describe('Component: Aggregation', () => {
         component.options.dualView = 'on';
         component.filterToPassToSuperclass.id = 'testId';
 
-        component.layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
             x: 1,
             y: 2
         }, {
@@ -2465,7 +2463,7 @@ describe('Component: Aggregation', () => {
         component.options.dualView = 'on';
         component.filterToPassToSuperclass.id = 'testId';
 
-        component.layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
             x: 1,
             y: 2
         }, {
@@ -3552,7 +3550,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', async(() => {
-        component.layerIdToElementCount.set(component.options._id, 10);
+        (component as any).layerIdToElementCount.set(component.options._id, 10);
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -3583,7 +3581,7 @@ describe('Component: Aggregation', () => {
     }));
 
     it('does show error-message and hide data-info in toolbar and sidenav if errorMessage is defined', async(() => {
-        component.errorMessage = 'Test Error Message';
+        (component as any).errorMessage = 'Test Error Message';
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -3652,7 +3650,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('does show loading overlay if loadingCount is positive', async(() => {
-        component.loadingCount = 1;
+        (component as any).loadingCount = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();

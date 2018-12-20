@@ -81,6 +81,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             injector,
             ref
         );
+
+        this.visualizationQueryPaginates = true;
     }
 
     /**
@@ -435,16 +437,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             headerText: this.headerText,
             infoText: this.infoText
         };
-    }
-
-    /**
-     * Returns whether the visualization query does pagination.
-     *
-     * @return {boolean}
-     * @override
-     */
-    protected isPaginationVisualizationQuery(): boolean {
-        return true;
     }
 
     /**
