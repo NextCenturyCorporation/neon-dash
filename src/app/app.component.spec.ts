@@ -211,7 +211,7 @@ describe('App', () => {
         expect(debugElement.nativeElement.querySelectorAll('app-filters').length === 0).toBeTruthy();
         component.showFiltersComponentIcon = true;
         component.createFiltersComponent = true;
-        component.openFiltersDialog();
+        component.toggleFiltersDialog();
         expect(debugElement.nativeElement.querySelectorAll('app-filters')).toBeTruthy();
     }));
 

@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
@@ -28,6 +28,7 @@ import * as _ from 'lodash';
 })
 export class FiltersComponent {
     @Input() widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent>;
+    @Output() closeDialog: EventEmitter<boolean> = new EventEmitter<boolean>();
     public showFilterBuilderView: boolean = true; // if false, show current filters instead
 
     /**
@@ -37,5 +38,12 @@ export class FiltersComponent {
      */
     getDefaultTitle(): string {
         return 'Filters';
+    }
+
+    /**
+     * Emits an event to close the filters component.
+     */
+    closeFiltersDialog() {
+        this.closeDialog.emit(true);
     }
 }

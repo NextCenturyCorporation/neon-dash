@@ -42,7 +42,7 @@
             <app-simple-filter #simpleFilter></app-simple-filter>
         </div>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" tooltip-position="below" id="showFiltersComponentIcon"
-            matTooltip="Show Filters" (click)="openFiltersDialog()" *ngIf="showFiltersComponentIcon">
+            matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFiltersComponentIcon">
             <mat-icon class="neon-icon-large" *ngIf="changeFiltersComponentIcon()" svgIcon="{{filtersIcon}}"></mat-icon>
         </button>
 
@@ -69,7 +69,7 @@
 
     <div class="header-toggle-container">
         <div class="filters-container" id="filters" *ngIf="createFiltersComponent">
-            <app-filters [widgets]="widgets"></app-filters>
+            <app-filters [widgets]="widgets" (closeDialog)="toggleFiltersDialog()"></app-filters>
             <div class="header-toggle-footer">
             </div>
         </div>

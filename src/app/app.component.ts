@@ -442,7 +442,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         });
     }
 
-    openFiltersDialog() {
+    toggleFiltersDialog() {
         // Added this to create the filters component at first click so it's after dataset initialization
         if (!this.createFiltersComponent) {
             this.createFiltersComponent = true;
