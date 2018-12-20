@@ -71,7 +71,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     public options: any;
 
     // TODO THOR-349 Move into future widget option menu component
-    public newLimit: number;
+    public newLimit: string;
 
     constructor(
         protected connectionService: ConnectionService,

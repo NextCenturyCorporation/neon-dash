@@ -407,6 +407,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngAfterViewInit() {
+        let gearContainer: HTMLElement = document.getElementById('gear');
+        gearContainer.setAttribute('style', 'display: none');
         // child is set
         /* NOTE:
          * The gear component is created when the app component is created because if it is created when

@@ -135,7 +135,7 @@
                 <p></p>
 
                 <span class="toggle-text">Show Column Selector:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="showColumnSelector">
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showColumnSelector">
                     <mat-button-toggle value="show">Yes</mat-button-toggle>
                     <mat-button-toggle value="hide">No</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -214,7 +214,7 @@
                 (select)="onSelect($event)">
             </ngx-datatable>
 
-            <div *ngIf="showColumnSelector=='show'" class="column-selector">
+            <div *ngIf="getShowColumnSelector()" class="column-selector">
                 <div class="column-selector-header"><span> Columns </span>
                     <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" tooltip-position="below" (click)="closeColumnSelector()">
                       <mat-icon class="column-selector-close-icon">close</mat-icon>

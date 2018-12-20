@@ -426,7 +426,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     closeColumnSelector() {
-        this.showColumnSelector = 'hide';
+        this.options.showColumnSelector = 'hide';
         this.changeDetection.detectChanges();
     }
 
@@ -505,8 +505,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
             .where(whereClause)
             .sortBy(this.options.sortField.columnName, this.options.sortDescending ? neonVariables.DESCENDING : neonVariables.ASCENDING)
-            .limit(this.options.limit)
-            .offset((this.page - 1) * this.options.limit);
+            .limit(this.options.limit as number)
+            .offset((this.page - 1) * this.options.limit as number);
     }
 
     /**
@@ -594,7 +594,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     publishOptions() {
         this.messenger.publish('options', {
-            options: this.options
+            options: this.options,
+            changeCallback: this.handleChangeFilterField(),
+            changeLimitCallback: this.handleChangeLimit()
         });
     }
 
@@ -767,11 +769,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }
             return 'No Data';
         }
-        if (this.docCount <= this.options.limit) {
+        if (this.docCount <= (this.options.limit as number)) {
             return 'Total ' + super.prettifyInteger(this.docCount);
         }
-        let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.docCount));
+        let begin = super.prettifyInteger((this.page - 1) * (this.options.limit as number) + 1);
+        let end = super.prettifyInteger(Math.min(this.page * (this.options.limit as number), this.docCount));
         return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.docCount);
     }
 
@@ -969,5 +971,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     getTableRowHeight() {
         return this.options.skinny ? 20 : 25;
+    }
+
+    getShowColumnSelector(): boolean {
+        return this.options.showColumnSelector === 'show';
     }
 }
