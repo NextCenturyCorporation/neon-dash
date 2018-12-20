@@ -81,6 +81,13 @@ describe('Component: Filters', () => {
         expect(component.getDefaultTitle()).toEqual('Filters');
     }));
 
+    it('closeFiltersDialog() emits boolean when called', (() => {
+        spyOn(component.closeDialog, 'emit');
+        component.closeFiltersDialog();
+        expect(component.closeDialog.emit).toHaveBeenCalled();
+        expect(component.closeDialog.emit).toHaveBeenCalledWith(true);
+    }));
+
     it('filter-builder is shown when showFilterBuilderView is true', (() => {
         expect(debugElement.nativeElement.querySelectorAll('app-filter-builder')).toBeTruthy();
         expect(debugElement.nativeElement.querySelectorAll('app-current-filters')).toBeTruthy();

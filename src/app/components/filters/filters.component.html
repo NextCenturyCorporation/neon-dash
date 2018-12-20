@@ -11,7 +11,9 @@
 
         <span class="fill-remaining"></span>
 
-        <!-- TODO: 943: close button? -->
+        <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" tooltip-position="below" (click)="closeFiltersDialog()">
+            <mat-icon class="column-selector-close-icon">close</mat-icon>
+        </button>
     </mat-toolbar>
 
     <div class="body-container">
