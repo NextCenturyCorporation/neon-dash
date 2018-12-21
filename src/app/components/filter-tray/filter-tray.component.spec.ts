@@ -18,7 +18,6 @@ import { MatDialogRef } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { FilterTrayComponent } from './filter-tray.component';
 import { FilterService } from '../../services/filter.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -48,7 +47,7 @@ describe('Component: FilterTray', () => {
 
     it('should create an instance', inject([FilterService], (filterService: FilterService, matDialogRef: MatDialogRef<FilterTrayComponent>
     ) => {
-        let component = new FilterTrayComponent(new Map<string, BaseNeonComponent | BaseLayeredNeonComponent>(), filterService,
+        let component = new FilterTrayComponent(new Map<string, BaseNeonComponent>(), filterService,
             matDialogRef);
         expect(component).toBeTruthy();
     }));

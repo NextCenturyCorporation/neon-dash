@@ -34,7 +34,6 @@ import * as uuid from 'node-uuid';
 import { AbstractWidgetService } from './services/abstract.widget.service';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { BaseNeonComponent } from './components/base-neon-component/base-neon.component';
-import { BaseLayeredNeonComponent } from './components/base-neon-component/base-layered-neon.component';
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
 import { Dataset } from './dataset';
 import { DatasetService } from './services/dataset.service';
@@ -82,7 +81,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public createFilterBuilder: boolean = false; //This is used to create the Filter Builder later
 
     public widgetGridItems: NeonGridItem[] = [];
-    public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent> = new Map();
+    public widgets: Map<string, BaseNeonComponent> = new Map();
 
     public datasets: Dataset[] = [];
 
@@ -484,9 +483,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     /**
      * Registers the given widget with the given ID.
      *
-     * @arg {{id:string,widget:BaseNeonComponent|BaseLayeredNeonComponent}} eventMessage
+     * @arg {{id:string,widget:BaseNeonComponent}} eventMessage
      */
-    registerWidget(eventMessage: { id: string, widget: BaseNeonComponent | BaseLayeredNeonComponent }) {
+    registerWidget(eventMessage: { id: string, widget: BaseNeonComponent }) {
         if (this.widgets.get(eventMessage.id) === undefined) {
             this.widgets.set(eventMessage.id, eventMessage.widget);
         }

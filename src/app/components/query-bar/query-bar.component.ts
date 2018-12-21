@@ -112,16 +112,23 @@ export class QueryBarComponent  extends BaseNeonComponent {
         ];
     }
 
-    createQuery(): neon.query.Query  {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
+    /**
+     * Creates and returns the visualization data query using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {neon.query.Query}
+     * @override
+     */
+    createQuery(options: any): neon.query.Query  {
+        let query = new neon.query.Query().selectFrom(options.database.name, options.table.name);
 
-        let fields = [this.options.idField.columnName, this.options.filterField.columnName];
+        let fields = [options.idField.columnName, options.filterField.columnName];
         let whereClauses = [
-            neon.query.where(this.options.filterField.columnName, '!=', null)
+            neon.query.where(options.filterField.columnName, '!=', null)
         ];
 
         return query.withFields(fields).where(neon.query.and.apply(query, whereClauses))
-            .sortBy(this.options.filterField.columnName, neonVariables.ASCENDING);
+            .sortBy(options.filterField.columnName, neonVariables.ASCENDING);
     }
 
     /**
@@ -145,17 +152,24 @@ export class QueryBarComponent  extends BaseNeonComponent {
     }
 
     /**
-     * Returns whether the query bar using the active data config is valid.
+     * Returns whether the visualization data query created using the given options is valid.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(): boolean {
-        return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name &&
-            this.options.idField && this.options.idField.columnName && this.options.filterField && this.options.filterField.columnName);
+    isValidQuery(options: any): boolean {
+        return !!(options.database.name && options.table.name && options.idField.columnName && options.filterField.columnName);
     }
 
-    onQuerySuccess(response) {
+    /**
+     * Handles the given response data for a successful visualization data query created using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} response
+     * @override
+     */
+    onQuerySuccess(options: any, response: any) {
         this.queryArray = [];
 
         let setValues = true;
@@ -169,9 +183,9 @@ export class QueryBarComponent  extends BaseNeonComponent {
 
                 response.data.forEach((d) => {
                     let item = {};
-                    for (let field of this.options.fields) {
-                        if (field.columnName === this.options.filterField.columnName && setValues) {
-                            this.queryValues.push(neonUtilities.deepFind(d, this.options.filterField.columnName));
+                    for (let field of options.fields) {
+                        if (field.columnName === options.filterField.columnName && setValues) {
+                            this.queryValues.push(neonUtilities.deepFind(d, options.filterField.columnName));
                         }
                         if (field.type || field.columnName === '_id') {
                             let value = neonUtilities.deepFind(d, field.columnName);
@@ -296,7 +310,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
                 clause = neon.query.where(this.options.filterField.columnName, '=', text);
 
                 if (this.currentFilter && this.filterIds) {
-                    this.removeAllFilters(this.filterService.getFilters());
+                    this.removeAllFilters(this.options, this.filterService.getFilters());
                 }
 
                 this.addFilter(text, clause, this.options.filterField.columnName);
@@ -308,7 +322,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
                     }
                 }
             } else {
-                this.removeAllFilters(this.filterService.getFilters());
+                this.removeAllFilters(this.options, this.filterService.getFilters());
             }
         }
     }
@@ -433,7 +447,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
      */
     removeFilter() {
         if (this.filterIds) {
-            this.removeAllFilters(this.filterService.getFilters());
+            this.removeAllFilters(this.options, this.filterService.getFilters());
             this.filterIds = [];
             this.currentFilter = '';
         }
