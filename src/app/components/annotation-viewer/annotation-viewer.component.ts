@@ -144,11 +144,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             ref
         );
 
-        this.isPaginationWidget = true;
-
-        // Backwards compatibility (documentLimit deprecated due to its redundancy with limit).
-        this.options.limit = this.injector.get('documentLimit', this.options.limit);
-
         this.subscribeToSelectId(this.getSelectIdCallback());
     }
 
@@ -216,7 +211,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         if (this.filterIsUnique(filter) && !this.options.respondMode) {
             this.addLocalFilter(filter);
             let whereClause = neon.query.where(filter.field, '=', filter.value);
-            this.addNeonFilter(true, filter, whereClause);
+            this.addNeonFilter(this.options, true, filter, whereClause);
         }
     }
 
@@ -230,7 +225,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         if (this.filterIsUnique(filter) && part.annotation) {
             this.addLocalFilter(filter);
             let whereClause = neon.query.where(filter.field, '=', filter.value);
-            this.addNeonFilter(true, filter, whereClause);
+            this.addNeonFilter(this.options, true, filter, whereClause);
         }
         if (!part.annotation) {
             this.onClick(item);
@@ -570,31 +565,32 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Creates and returns the query for the visualization.
+     * Creates and returns the visualization data query using the given options.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {neon.query.Query}
      * @override
      */
-    createQuery(): neon.query.Query {
+    createQuery(options: any): neon.query.Query {
 
         let aggregationFields = [this.displayField];
         let clause = neon.query.where(this.displayField, '!=', null);
-        let databaseName = this.options.database.name;
-        let tableName = this.options.table.name;
-        let limit = this.options.limit;
+        let databaseName = options.database.name;
+        let tableName = options.table.name;
+        let limit = options.limit;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
-        this.displayField = this.options.respondMode ? this.options.linkField.columnName : this.options.documentTextField.columnName;
+        this.displayField = options.respondMode ? options.linkField.columnName : options.documentTextField.columnName;
 
         if (this.hasUnsharedFilter()) {
             clause = neon.query.and(clause,
-                neon.query.where(this.options.unsharedFilterField.columnName, '=', this.options.unsharedFilterValue));
+                neon.query.where(options.unsharedFilterField.columnName, '=', options.unsharedFilterValue));
         }
 
-        if (this.options.respondMode && this.options.idField && this.previousId) {
-            let fields = [this.options.idField.columnName, this.options.linkField.columnName];
+        if (options.respondMode && options.idField && this.previousId) {
+            let fields = [options.idField.columnName, options.linkField.columnName];
 
             let whereClauses = [
-                neon.query.where(this.options.idField.columnName, '=', this.options.id)
+                neon.query.where(options.idField.columnName, '=', options.id)
             ];
 
             return query.withFields(fields).where(neon.query.and.apply(query, whereClauses));
@@ -662,23 +658,23 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                 // If we have a single existing filter, keep the ID and replace the old filter with the new filter.
                 filter.id = this.filters[0].id;
                 this.filters = [filter];
-                this.replaceNeonFilter(true, filter, neonFilter);
+                this.replaceNeonFilter(this.options, true, filter, neonFilter);
             } else if (this.filters.length > 1) {
                 // If we have multiple existing filters, remove all the old filters and add the new filter once done.
                 // Use concat to copy the filter list.
-                this.removeAllFilters([].concat(this.filters), () => {
+                this.removeAllFilters(this.options, [].concat(this.filters), () => {
                     this.filters = [filter];
-                    this.addNeonFilter(true, filter, neonFilter);
+                    this.addNeonFilter(this.options, true, filter, neonFilter);
                 });
             } else {
                 // If we don't have an existing filter, add the new filter.
                 this.filters = [filter];
-                this.addNeonFilter(true, filter, neonFilter);
+                this.addNeonFilter(this.options, true, filter, neonFilter);
             }
         } else {
             // If the new filter is unique, add the filter to the existing filters in both neon and the visualization.
             if (this.isVisualizationFilterUnique(item.field, item.value)) {
-                this.addNeonFilter(true, filter, neonFilter);
+                this.addNeonFilter(this.options, true, filter, neonFilter);
             }
         }
     }
@@ -791,6 +787,16 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationName(): string {
+        return 'Annotation Viewer';
+    }
+
+    /**
      * Increases the page and updates the active data.
      */
     goToNextPage() {
@@ -820,18 +826,15 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Returns whether the data and fields for the visualization are valid.
+     * Returns whether the visualization data query created using the given options is valid.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(): boolean {
-        return !!(
-            this.options.database.name &&
-            this.options.table.name &&
-            (this.options.documentTextField.columnName || this.options.linkField.columnName) &&
-            (!this.options.respondMode || this.previousId)
-        );
+    isValidQuery(options: any): boolean {
+        return !!(options.database.name && options.table.name && (options.documentTextField.columnName || options.linkField.columnName) &&
+            (!options.respondMode || this.previousId));
     }
 
     /**
@@ -893,18 +896,19 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Handles the query results for the visualization; updates and/or redraws any properties and/or sub-components as needed.
+     * Handles the given response data for a successful visualization data query created using the given options.
      *
-     * @arg {object} response
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} response
      * @override
      */
-    onQuerySuccess(response: any) {
+    onQuerySuccess(options: any, response: any) {
         // Check for undefined because the count may be zero.
         if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
             this.docCount = response.data[0]._docCount;
             return;
         }
-        this.displayField = this.options.respondMode ? this.options.linkField.columnName : this.options.documentTextField.columnName;
+        this.displayField = options.respondMode ? options.linkField.columnName : options.documentTextField.columnName;
         // The aggregation query response data will have a count field and all visualization fields.
         this.responseData = response.data.map((item) => {
             let label = item[this.displayField];
@@ -963,6 +967,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @override
      */
     postInit() {
+        // Backwards compatibility (documentLimit deprecated due to its redundancy with limit).
+        this.options.limit = this.injector.get('documentLimit', this.options.limit);
+
         // Run the query to load the data.
         this.executeQueryChain();
     }
@@ -1000,7 +1007,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             query.ignoreFilters(ignoreFilters);
         }
 
-        this.executeQuery(query);
+        this.executeQuery(this.options, query);
     }
 
     /**
@@ -1072,7 +1079,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @override
      */
     subNgOnInit() {
-        this.executeQueryChain();
+        // Do nothing.
     }
 
     /**

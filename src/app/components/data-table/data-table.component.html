@@ -180,14 +180,14 @@
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+    <div [class.loading-overlay]="isLoading > 0" [class.not-loading-overlay]="isLoading == 0">
         <mat-spinner></mat-spinner>
     </div>
 
     <div class="datatable-filter-container">
         <div class="datatable-filter-reset" *ngFor="let filter of getCloseableFilters()">
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, false)">
+                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(options, filter, true, false)">
                 <mat-icon class="neon-icon-small">close</mat-icon>
             </button>
             <span class="datatable-filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.value }}</span>

@@ -19,7 +19,6 @@ import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { FilterService } from '../../services/filter.service';
 
 import * as neon from 'neon-framework';
@@ -38,7 +37,7 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
         formatted: any[]
     };
 
-    constructor(@Inject(MAT_DIALOG_DATA) public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent>,
+    constructor(@Inject(MAT_DIALOG_DATA) public widgets: Map<string, BaseNeonComponent>,
         protected filterService: FilterService, public dialogRef: MatDialogRef<FilterTrayComponent>) {
         this.messenger = new neon.eventing.Messenger();
         this.filters = {
