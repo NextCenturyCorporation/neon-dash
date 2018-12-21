@@ -49,7 +49,7 @@ export class IconService {
         this.registerIcon('delete', 'delete-24px');
         this.registerIcon('delete_sweep', 'delete_sweep-24px');
         this.registerIcon('dashboard', 'dashboard-24px');
-        this.registerIcon('drag_handle', 'drag_handle-24px');
+        this.registerIcon('drag_indicator', 'drag_indicator-24px');
         this.registerIcon('error', 'error-24px');
         this.registerIcon('filter_list', 'filter_list-24px');
         this.registerIcon('find_replace', 'find_replace-24px');
