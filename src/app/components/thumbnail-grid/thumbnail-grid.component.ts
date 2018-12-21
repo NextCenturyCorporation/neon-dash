@@ -31,138 +31,20 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetNonPrimitiveOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-
-/**
- * Manages configurable options for the specific visualization.
- */
-export class ThumbnailGridOptions extends BaseNeonOptions {
-    public ascending: boolean;
-    public border: string;
-    public borderCompareValue: string;
-    public borderPercentThreshold: number;
-    public categoryField: FieldMetaData;
-    public compareField: FieldMetaData;
-    public cropAndScale: string;
-    public dateField: FieldMetaData;
-    public defaultLabel: string;
-    public defaultPercent: string;
-    public detailedThumbnails: boolean;
-    public filterField: FieldMetaData;
-    public id: string;
-    public idField: FieldMetaData;
-    public ignoreSelf: boolean;
-    public linkField: FieldMetaData;
-    public linkPrefix: string;
-    public nameField: FieldMetaData;
-    public objectIdField: FieldMetaData;
-    public objectNameField: FieldMetaData;
-    public openOnMouseClick: boolean;
-    public percentField: FieldMetaData;
-    public predictedNameField: FieldMetaData;
-    public showOnlyFiltered: boolean;
-    public sortField: FieldMetaData;
-    public textMap: any;
-    public typeField: FieldMetaData;
-    public typeMap: any;
-    public flagLabel: FieldMetaData;
-    public flagSubLabel1: FieldMetaData;
-    public flagSubLabel2: FieldMetaData;
-    public flagSubLabel3: FieldMetaData;
-    public showLabelName: boolean;
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        bindings.ascending = this.ascending;
-        bindings.border = this.border;
-        bindings.borderCompareValue = this.borderCompareValue;
-        bindings.borderPercentThreshold = this.borderPercentThreshold;
-        bindings.cropAndScale = this.cropAndScale;
-        bindings.defaultLabel = this.defaultLabel;
-        bindings.defaultPercent = this.defaultPercent;
-        bindings.detailedThumbnails = this.detailedThumbnails;
-        bindings.ignoreSelf = this.ignoreSelf;
-        bindings.linkPrefix = this.linkPrefix;
-        bindings.openOnMouseClick = this.openOnMouseClick;
-        bindings.showLabelName = this.showLabelName;
-        bindings.textMap = this.textMap;
-        bindings.typeMap = this.typeMap;
-
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'categoryField',
-            'compareField',
-            'dateField',
-            'filterField',
-            'flagLabel',
-            'flagSubLabel1',
-            'flagSubLabel2',
-            'flagSubLabel3',
-            'idField',
-            'linkField',
-            'nameField',
-            'objectIdField',
-            'objectNameField',
-            'percentField',
-            'predictedNameField',
-            'sortField',
-            'typeField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.ascending = this.injector.get('ascending', false);
-        this.border = this.injector.get('border', '');
-        this.borderCompareValue = this.injector.get('borderCompareValue', '');
-        this.borderPercentThreshold = this.injector.get('borderPercentThreshold', 0.5);
-        this.cropAndScale = this.injector.get('cropAndScale', '') || '';
-        this.defaultLabel = this.injector.get('defaultLabel', '');
-        this.defaultPercent = this.injector.get('defaultPercent', '');
-        this.id = this.injector.get('id', '');
-        this.ignoreSelf = this.injector.get('ignoreSelf', false);
-        this.linkPrefix = this.injector.get('linkPrefix', '');
-        this.openOnMouseClick = this.injector.get('openOnMouseClick', true);
-        this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
-        this.textMap = this.injector.get('textMap', {});
-        this.typeMap = this.injector.get('typeMap', {});
-        this.detailedThumbnails = this.injector.get('detailedThumbnails', false);
-        this.showLabelName = this.injector.get('showLabelName', false);
-    }
-}
 
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
@@ -190,13 +72,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         value: string
     }[] = [];
 
-    public options: ThumbnailGridOptions;
-
     public gridArray: any[] = [];
     public pagingGrid: any[] = [];
 
-    public lastPage: boolean = true;
-    public page: number = 1;
     public neonFilters: any[] = [];
     public isLoading: boolean = false;
     public showGrid: boolean;
@@ -210,7 +88,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         ref: ChangeDetectorRef,
         private sanitizer: DomSanitizer
     ) {
-
         super(
             connectionService,
             datasetService,
@@ -219,7 +96,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             ref
         );
 
-        this.options = new ThumbnailGridOptions(this.injector, this.datasetService, 'Thumbnail Grid', 30);
+        this.isPaginationWidget = true;
 
         if (!this.options.sortField.columnName) {
             this.options.sortField = this.options.percentField;
@@ -229,7 +106,40 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             this.options.flagLabel = this.options.idField;
         }
 
-        this.showGrid = !this.options.showOnlyFiltered;
+        // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
+        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+        // Backwards compatibility (ascending deprecated and replaced by sortDescending).
+        this.options.sortDescending = !(this.injector.get('ascending', !this.options.sortDescending));
+
+        this.showGrid = !this.options.hideUnfiltered;
+    }
+
+    /**
+     * Creates and returns an array of field options for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('categoryField', 'Category Field', false),
+            new WidgetFieldOption('compareField', 'Comparison Field', false),
+            new WidgetFieldOption('dateField', 'Date Field', false),
+            new WidgetFieldOption('filterField', 'Filter Field', false),
+            new WidgetFieldOption('flagLabel', 'Flag Field', false),
+            new WidgetFieldOption('flagSubLabel1', 'Flag Sub-Label Field 1', false),
+            new WidgetFieldOption('flagSubLabel2', 'Flag Sub-Label Field 2', false),
+            new WidgetFieldOption('flagSubLabel3', 'Flag Sub-Label Field 3', false),
+            new WidgetFieldOption('idField', 'ID Field', false),
+            new WidgetFieldOption('linkField', 'Link Field', true),
+            new WidgetFieldOption('nameField', 'Name Field', false),
+            new WidgetFieldOption('objectIdField', 'Object ID Field', false),
+            new WidgetFieldOption('objectNameField', 'Actual Name Field', false),
+            new WidgetFieldOption('percentField', 'Predicted Probability Field', false),
+            new WidgetFieldOption('predictedNameField', 'Predicted Name Field', false),
+            new WidgetFieldOption('sortField', 'Sort Field', true),
+            new WidgetFieldOption('typeField', 'Type Field', false)
+        ];
     }
 
     /**
@@ -267,6 +177,47 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 this.addNeonFilter(runQuery, filter, clause);
             });
         }
+    }
+
+    /**
+     * Creates and returns an array of non-field options for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetSelectOption('autoplay', 'Autoplay', false, OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('border', 'Border', ''),
+            new WidgetFreeTextOption('borderCompareValue', 'Border Comparison Field Equals', '',
+                this.optionsBorderIsPercentCompareOrValueCompare),
+            new WidgetFreeTextOption('borderPercentThreshold', 'Border Probability Greater Than', 0.5,
+                this.optionsBorderIsPercentCompareOrPercentField),
+            new WidgetSelectOption('cropAndScale', 'Crop or Scale', '', [{
+                prettyName: 'None',
+                variable: ''
+            }, {
+                prettyName: 'Scale',
+                variable: 'scale'
+            }, {
+                prettyName: 'Crop',
+                variable: 'crop'
+            }, {
+                prettyName: 'Both',
+                variable: 'both'
+            }]),
+            new WidgetFreeTextOption('defaultLabel', 'Default Label', ''),
+            new WidgetFreeTextOption('defaultPercent', 'Default Percent', ''),
+            new WidgetSelectOption('detailedThumbnails', 'Detailed Thumbnails', false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue),
+            new WidgetFreeTextOption('id', 'ID', ''),
+            new WidgetFreeTextOption('linkPrefix', 'Link Prefix', ''),
+            new WidgetSelectOption('openOnMouseClick', 'Open Media on Mouse Click', true, OptionChoices.YesFalseNoTrue),
+            new WidgetSelectOption('showLabelName', 'Label Names', false, OptionChoices.HideFalseShowTrue),
+            new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue),
+            new WidgetNonPrimitiveOption('textMap', 'Text Map', {}),
+            new WidgetNonPrimitiveOption('typeMap', 'Type Map', {})
+        ];
     }
 
     /**
@@ -360,7 +311,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         });
 
         return query.withFields(fields).where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
-            .sortBy(this.options.sortField.columnName, this.options.ascending ? neonVariables.ASCENDING : neonVariables.DESCENDING);
+            .sortBy(this.options.sortField.columnName, this.options.sortDescending ? neonVariables.DESCENDING : neonVariables.ASCENDING);
     }
 
     /**
@@ -378,31 +329,45 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Creates and returns the text for the settings button.
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
+     *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        return this.gridArray;
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'File' + (count === 1 ? '' : 's');
+    }
+
+    /**
+     * Returns the default limit for the visualization.
      *
      * @return {string}
      * @override
      */
-    getButtonText() {
-        if (!this.gridArray.length) {
-            if (this.options.hideUnfiltered) {
-                return 'Please Filter';
-            }
-            return 'No Data';
-        }
+    getVisualizationDefaultLimit(): number {
+        return 30;
+    }
 
-        if (this.options.showOnlyFiltered && !this.neonFilters.length) {
-            return 'No Filter Selected';
-        }
-
-        if (this.gridArray.length <= this.options.limit) {
-            return 'Total ' + super.prettifyInteger(this.gridArray.length);
-        }
-
-        let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1),
-            end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.gridArray.length));
-
-        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.gridArray.length);
+    /**
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'Thumbnail Grid';
     }
 
     /**
@@ -496,16 +461,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     getFilterText(filter: any): string {
         return filter.prettyField + ' = ' + filter.value;
-    }
-
-    /**
-     * Returns the options for the specific visualization.
-     *
-     * @return {BaseNeonOptions}
-     * @override
-     */
-    getOptions(): BaseNeonOptions {
-        return this.options;
     }
 
     getThumbnailLabel(item): string {
@@ -640,7 +595,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 this.neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
                     this.options.table.name, [this.options.filterField.columnName]);
 
-                if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
+                if (this.options.hideUnfiltered && this.neonFilters.length || !this.options.hideUnfiltered) {
                     this.page = (this.gridArray.length < (((this.page - 1) * this.options.limit) + 1)) ? 1 : this.page;
                     this.updatePageData();
                 } else {
@@ -662,6 +617,26 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             this.errorMessage = 'Error';
             this.refreshVisualization();
         }
+    }
+
+    /**
+     * Returns whether the border property in the given options is percentCompare or percentField.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsBorderIsPercentCompareOrPercentField(options: any): boolean {
+        return options.border === 'percentCompare' || options.border === 'percentField';
+    }
+
+    /**
+     * Returns whether the border property in the given options is percentCompare or valueCompare.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsBorderIsPercentCompareOrValueCompare(options: any): boolean {
+        return options.border === 'percentCompare' || options.border === 'valueCompare';
     }
 
     /**
@@ -972,7 +947,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
+                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 let filter = {
                     id: neonFilter.id,

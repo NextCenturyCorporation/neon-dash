@@ -617,132 +617,6 @@ describe('Component: DataTable', () => {
         expect(component.isValidQuery()).toBeTruthy();
     }));
 
-    it('options.createBindings does set expected bindings', (() => {
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 100,
-            table: 'testTable1',
-            title: 'Data Table',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            colorField: '',
-            heatmapField: '',
-            idField: '',
-            sortField: '',
-            filterFields: [],
-            arrayFilterOperator: 'and',
-            exceptionsToStatus: [],
-            filterable: false,
-            heatmapDivisor: 0,
-            ignoreSelf: false,
-            reorderable: true,
-            singleFilter: false,
-            skinny: false,
-            sortDescending: true,
-            fieldsConfig: [({
-                name: 'Test Category Field',
-                hide: false
-            }), ({
-                name: 'Test Date Field',
-                hide: false
-            }), ({
-                name: 'Test Filter Field',
-                hide: false
-            }), ({
-                name: 'Test ID Field',
-                hide: false
-            }), ({
-                name: 'Test Link Field',
-                hide: false
-            }), ({
-                name: 'Test Name Field',
-                hide: false
-            }), ({
-                name: 'Test Relation Field A',
-                hide: false
-            }), ({
-                name: 'Test Relation Field B',
-                hide: false
-            }), ({
-                name: 'Test Size Field',
-                hide: false
-            }), ({
-                name: 'Test Sort Field',
-                hide: false
-            }), ({
-                name: 'Test Text Field',
-                hide: false
-            }), ({
-                name: 'Test Type Field',
-                hide: false
-            }), ({
-                name: 'Test X Field',
-                hide: false
-            }), ({
-                name: 'Test Y Field',
-                hide: false
-            }), ({
-                name: '_id',
-                hide: false
-            })]
-        });
-
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.sortField = new FieldMetaData('testSortField');
-        component.options.filterFields = [new FieldMetaData('filterField')];
-        component.options.arrayFilterOperator = 'or';
-        component.options.exceptionsToStatus = ['exception1', 'exception2'];
-        component.options.filterable = true;
-        component.options.ignoreSelf = true;
-        component.options.reorderable = false;
-        component.options.singleFilter = true;
-        component.options.skinny = true;
-        component.options.sortDescending = false;
-        component.options.headers = [{
-            cellClass: function() { /* No-op */ },
-            prop: 'name',
-            name: 'Name',
-            active: false,
-            style: {},
-            width: 100
-        }];
-
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 100,
-            table: 'testTable1',
-            title: 'Data Table',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            colorField: '',
-            heatmapField: '',
-            idField: 'testIdField',
-            sortField: 'testSortField',
-            filterFields: ['filterField'],
-            arrayFilterOperator: 'or',
-            exceptionsToStatus: ['exception1', 'exception2'],
-            filterable: true,
-            heatmapDivisor: 0,
-            ignoreSelf: true,
-            reorderable: false,
-            singleFilter: true,
-            skinny: true,
-            sortDescending: false,
-            fieldsConfig: [{
-                name: 'Name',
-                hide: true
-            }]
-        });
-    }));
-
     it('headerIsInExceptions does return whether or not header is in options.exceptionsToStatus', (() => {
         component.options.exceptionsToStatus = ['testField2'];
 
@@ -1385,20 +1259,24 @@ describe('Component: DataTable', () => {
     });
 
     it('getButtonText does return expected string', () => {
-        component.options.limit = 10;
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Rows');
+
         component.options.hideUnfiltered = true;
         expect(component.getButtonText()).toBe('Please Filter');
-        component.docCount = 10;
-        expect(component.getButtonText()).toBe('Total 10');
+        component.options.hideUnfiltered = false;
+
+        component.activeData = [{}];
+        expect(component.getButtonText()).toBe('1 Row');
+
+        component.activeData = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}];
+        expect(component.getButtonText()).toBe('10 Rows');
+
         component.docCount = 20;
-        expect(component.getButtonText()).toBe('1 - 10 of 20');
+        component.options.limit = 10;
+        expect(component.getButtonText()).toBe('1 - 10 of 20 Rows');
+
         component.page = 2;
-        expect(component.getButtonText()).toBe('11 - 20 of 20');
-        component.options.limit = 5;
-        expect(component.getButtonText()).toBe('6 - 10 of 20');
-        component.docCount = 5;
-        expect(component.getButtonText()).toBe('Total 5');
+        expect(component.getButtonText()).toBe('11 - 20 of 20 Rows');
     });
 
     it('onSelect does update selected array and calls publishAnyCustomEvents, but not publishSelectId', () => {

@@ -86,7 +86,7 @@
                  <p></p>
 
                  <mat-form-field>
-                     <mat-select placeholder="PrimaryTitleField Field" [(ngModel)]="options.primaryTitleField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                     <mat-select placeholder="Primary Title Field" [(ngModel)]="options.primaryTitleField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                          <mat-option [value]="createEmptyField()">(None)</mat-option>
                          <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                      </mat-select>
@@ -117,32 +117,13 @@
 
                  <div mat-fill class="flex center">
                      <mat-form-field>
-                         <input matInput placeholder="Thumbnail Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                         <input matInput placeholder="News Feed Limit" [(ngModel)]="newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                      </mat-form-field>
 
                      <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
                          <mat-icon>refresh</mat-icon>
                      </button>
                  </div>
-                 <p></p>
-
-                 <mat-form-field>
-                     <input matInput placeholder="Border" [(ngModel)]="options.border" required="false">
-                 </mat-form-field>
-                 <p></p>
-
-                 <mat-form-field>
-                     <input matInput placeholder="Link Prefix" [(ngModel)]="options.linkPrefix" required="false">
-                 </mat-form-field>
-                 <p></p>
-
-                 <span class="toggle-text">Crop or Scale:</span>
-                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.cropAndScale" (ngModelChange)="updatePageData()">
-                     <mat-button-toggle value="">None</mat-button-toggle>
-                     <mat-button-toggle value="scale">Scale</mat-button-toggle>
-                     <mat-button-toggle value="crop">Crop</mat-button-toggle>
-                     <mat-button-toggle value="both">Both</mat-button-toggle>
-                 </mat-button-toggle-group>
                  <p></p>
 
                  <span class="toggle-text">Ignore Own Filters:</span>
@@ -153,9 +134,9 @@
                  <p></p>
 
                  <span class="toggle-text">Sort:</span>
-                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.ascending" (ngModelChange)="handleChangeData()">
-                     <mat-button-toggle [value]="true">Ascending</mat-button-toggle>
-                     <mat-button-toggle [value]="false">Descending</mat-button-toggle>
+                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.sortDescending" (ngModelChange)="handleChangeData()">
+                     <mat-button-toggle [value]="false">Ascending</mat-button-toggle>
+                     <mat-button-toggle [value]="true">Descending</mat-button-toggle>
                  </mat-button-toggle-group>
                  <p></p>
 

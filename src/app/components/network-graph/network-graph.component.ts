@@ -31,9 +31,18 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetNonPrimitiveOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';
@@ -107,116 +116,6 @@ class Edge {
     ) {}
 }
 
-/**
- * Manages configurable options for the specific visualization.
- */
-export class NetworkGraphOptions extends BaseNeonOptions {
-    public isDirected: boolean;
-    public isReified: boolean;
-    public displayLegend: boolean;
-    public nodeColor: string;
-    public nodeShape: string;
-    public linkColor: string;
-    public edgeColor: string;
-    public fontColor: string;
-    public nodeColorField: FieldMetaData;
-    public edgeColorField: FieldMetaData;
-    public targetColorField: FieldMetaData;
-    public linkField: FieldMetaData;
-    public linkNameField: FieldMetaData;
-    public nodeField: FieldMetaData;
-    public nodeNameField: FieldMetaData;
-    public targetNameField: FieldMetaData;
-    public typeField: FieldMetaData;
-    public edgeWidth: number;
-    public limit: number;
-    public andFilters: boolean;
-    public showOnlyFiltered: boolean;
-    public filterFields: string[];
-    public xPositionField: FieldMetaData;
-    public yPositionField: FieldMetaData;
-    public xTargetPositionField: FieldMetaData;
-    public yTargetPositionField: FieldMetaData;
-    public physics: boolean;
-    public filterable: boolean;
-    public multiFilterOperator: string;
-    public cleanLegendLabels: boolean;
-    public legendFiltering: boolean;
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        bindings.andFilters = this.andFilters;
-
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'nodeField',
-            'nodeNameField',
-            'targetNameField',
-            'linkField',
-            'linkNameField',
-            'nodeColorField',
-            'edgeColorField',
-            'targetColorField',
-            'typeField',
-            'xPositionField',
-            'yPositionField',
-            'xTargetPositionField',
-            'yTargetPositionField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.isDirected = this.injector.get('isDirected', false);
-        this.isReified = this.injector.get('isReified', false);
-        this.displayLegend = this.injector.get('displayLegend', false);
-        this.nodeShape = this.injector.get('nodeShape', 'box');
-        this.nodeColor = this.injector.get('nodeColor', '#96c1fc');
-        this.linkColor = this.injector.get('linkColor', '#96c1fc');
-        this.edgeColor = this.injector.get('edgeColor', '#2b7ce9');
-        this.fontColor = this.injector.get('fontColor', '#343434');
-        this.edgeWidth = this.injector.get('edgeWidth', 1);
-        this.limit = this.injector.get('limit', Infinity);
-        this.andFilters = this.injector.get('andFilters', true);
-        this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
-        this.filterFields = this.injector.get('filterFields', []);
-        this.physics = this.injector.get('physics', true);
-        this.filterable = this.injector.get('filterable', false);
-        this.multiFilterOperator = this.injector.get('multiFilterOperator', 'or');
-        this.cleanLegendLabels = this.injector.get('cleanLegendLabels', false);
-        this.legendFiltering = this.injector.get('legendFiltering', true);
-    }
-}
-
 @Component({
     selector: 'app-network-graph',
     templateUrl: './network-graph.component.html',
@@ -226,6 +125,9 @@ export class NetworkGraphOptions extends BaseNeonOptions {
 })
 export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild('graphElement') graphElement: ElementRef;
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
 
     public filters: {
         id: string,
@@ -235,7 +137,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         operator: any
     }[] = [];
 
-    public options: NetworkGraphOptions;
     public activeData: any[] = [];
     public graphData = new GraphData();
     public displayGraph: boolean;
@@ -243,8 +144,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     public totalNodes: number;
     public prettifiedNodeLabels: string[] = [];
     public prettifiedEdgeLabels: string[] = [];
-
-    graphType = 'Network Graph';
 
     existingNodeNames: String[];
     view: any[];
@@ -307,10 +206,12 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             ref
         );
 
-        this.options = new NetworkGraphOptions(this.injector, this.datasetService, this.graphType, 500000);
-
         this.graphData = new GraphData();
-        this.displayGraph = !this.options.showOnlyFiltered;
+
+        // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
+        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+
+        this.displayGraph = !this.options.hideUnfiltered;
 
         this.setInterpolationType('Bundle');
     }
@@ -326,8 +227,122 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     }
 
+    /**
+     * Creates and returns an array of field options for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('nodeField', 'Node Field', true, this.optionsNotReified),
+            new WidgetFieldOption('nodeNameField', 'Node Name Field', false, this.optionsNotReified),
+            new WidgetFieldOption('targetNameField', 'Target Name Field', false, this.optionsNotReified),
+            new WidgetFieldOption('linkField', 'Link Field', true, this.optionsNotReified),
+            new WidgetFieldOption('linkNameField', 'Link Name Field', false, this.optionsNotReified),
+            new WidgetFieldOption('nodeColorField', 'Node Color Field', false, this.optionsNotReified),
+            new WidgetFieldOption('edgeColorField', 'Edge Color Field', false, this.optionsNotReified),
+            new WidgetFieldOption('targetColorField', 'Target Color Field', false, this.optionsNotReified),
+            new WidgetFieldOption('typeField', 'Type Field', false, this.optionsNotReified),
+            new WidgetFieldOption('xPositionField', 'X Position Field', false, this.optionsNotReified),
+            new WidgetFieldOption('yPositionField', 'Y Position Field', false, this.optionsNotReified),
+            new WidgetFieldOption('xTargetPositionField', 'X Target Position Field', false, this.optionsNotReified),
+            new WidgetFieldOption('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified)
+        ];
+    }
+
+    /**
+     * Creates and returns an array of non-field options for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetSelectOption('cleanLegendLabels', 'Clean Legend Labels', false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('isReified', 'Data Format', false, [{
+                prettyName: 'Tabular',
+                variable: false
+            }, {
+                prettyName: 'Reified',
+                variable: true
+            }]),
+            new WidgetSelectOption('isDirected', 'Directed', false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('filterable', 'Filterable', false, OptionChoices.NoFalseYesTrue),
+            // TODO THOR-949 Rename option and change to boolean.
+            new WidgetSelectOption('multiFilterOperator', 'Filter Operator', 'or', [{
+                prettyName: 'OR',
+                variable: 'or'
+            }, {
+                prettyName: 'AND',
+                variable: 'and'
+            }], this.optionsFilterable),
+            new WidgetSelectOption('displayLegend', 'Legend', false, OptionChoices.HideFalseShowTrue, this.optionsDoesHaveColorField),
+            new WidgetSelectOption('legendFiltering', 'Legend Filtering', true, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('physics', 'Physics', true, OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('edgeColor', 'Edge Color', '#2b7ce9', this.optionsNotReified),
+            new WidgetFreeTextOption('edgeWidth', 'Edge Width', '1'),
+            new WidgetFreeTextOption('fontColor', 'Font Color', '#343434', this.optionsNotReified),
+            new WidgetFreeTextOption('linkColor', 'Link Color', '#96c1fc', this.optionsNotReified),
+            new WidgetFreeTextOption('nodeColor', 'Node Color', '#96c1fc', this.optionsNotReified),
+            new WidgetFreeTextOption('nodeShape', 'Node Shape', 'box'),
+            // TODO THOR-950 Rename filterFields because it is not an array of FieldMetaData objects!
+            new WidgetNonPrimitiveOption('filterFields', 'Filter Fields', [])
+        ];
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultLimit(): number {
+        return 500000;
+    }
+
+    /**
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'Network Graph';
+    }
+
     applyDimensions() {
         this.view = [this.width, this.height];
+    }
+
+    /**
+     * Returns whether the widget has any color fields.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsDoesHaveColorField(options: any): boolean {
+        return options.nodeColorField.columnName || options.edgeColorField.columnName || options.targetColorField.columnName;
+    }
+
+    /**
+     * Returns whether the widget is filterable.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsFilterable(options: any): boolean {
+        return options.filterable;
+    }
+
+    /**
+     * Returns whether the widget is not reified.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsNotReified(options: any): boolean {
+        return !options.isReified;
     }
 
     toggleFitContainer(fitContainer: boolean, autoZoom: boolean): void {
@@ -528,7 +543,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.filters = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
+                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 let myFilter = {
                     id: neonFilter.id,
@@ -627,7 +642,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             array.findIndex((object) => object.id === value.id) === index).length;
 
         this.clearGraphData();
-        if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
+        if (this.options.hideUnfiltered && this.neonFilters.length || !this.options.hideUnfiltered) {
             this.graph.setOptions({physics: {enabled: this.options.physics}});
             this.displayGraph = true;
             this.graphData.nodes.update(graphProperties.nodes);
@@ -647,10 +662,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         //
     }
 
-    selectGraph(graphSelector) {
-        this.graphType = graphSelector;
-    }
-
     select(data) {
         //console.log('Item clicked', data);
     }
@@ -663,36 +674,78 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         //console.log('toggle expand', node);
     }
 
-    formatingCallback(value): string {
-        if (!isNaN(parseFloat(value)) && !isNaN(value - 0)) {
-            //round to at most 3 decimal places, so as to not display tiny floating-point errors
-            return String(Math.round((parseFloat(value) + 0.00001) * 1000) / 1000);
-        }
-        // can't be converted to a number, so just use it as-is.
-        return value;
-    }
-
-    getButtonText() {
-        let data = this.graphData,
-            visibleNodeCount = data.nodes.length;
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     * @override
+     */
+    public getButtonText(): string {
+        let totalDataCount = this.getTotalDataCount();
+        let elementLabel = this.getVisualizationElementLabel(totalDataCount);
 
         if (this.options.isReified) {
-            let prefix = '';
-            if (this.displayGraph) {
-                prefix = 'Total Nodes: ';
-            } else {
-                prefix = 'Total Hidden Nodes: ';
-            }
-            return prefix + this.formatingCallback(this.totalNodes);
-        } else {
-            if (!data || !visibleNodeCount) {
-                return 'No Data';
-            } else if (visibleNodeCount === this.totalNodes) {
-                return 'Total Nodes: ' + super.prettifyInteger(this.totalNodes);
-            } else {
-                return '1 - ' + super.prettifyInteger(visibleNodeCount) + ' of ' + super.prettifyInteger(this.totalNodes);
-            }
+            return super.prettifyInteger(totalDataCount) + (this.displayGraph ? '' : ' Hidden') +
+                (elementLabel ? (' ' + elementLabel) : '');
         }
+
+        // TODO Return super.getButtonText() here once clustering works.
+
+        let shownDataArray = this.getShownDataArray();
+
+        // If the query was not yet run, show no text unless waiting on an event.
+        if (!shownDataArray) {
+            return this.options.hideUnfiltered ? 'Please Filter' : '';
+        }
+
+        let shownDataCount = this.getShownDataCount(shownDataArray);
+
+        // If the query was empty, show the relevant text.
+        if (!shownDataCount) {
+            return (this.options.hideUnfiltered && !this.getCloseableFilters().length) ? 'Please Filter' : '0 Nodes';
+        }
+
+        // If the query was not limited, show the total count.
+        if (shownDataCount === totalDataCount) {
+            elementLabel = this.getVisualizationElementLabel(shownDataCount);
+            return super.prettifyInteger(shownDataCount) + (elementLabel ? (' ' + elementLabel) : '');
+        }
+
+        return super.prettifyInteger(shownDataCount) + ' of ' + super.prettifyInteger(totalDataCount) +
+            (elementLabel ? (' ' + elementLabel) : '');
+    }
+
+    /**
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
+     *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        // TODO THOR-971 Return the nodes themselves rather than the IDs.
+        return this.graphData.nodes.getIds();
+    }
+
+    /**
+     * Returns the count of data items that an unlimited query for the visualization would contain.
+     *
+     * @return {number}
+     * @override
+     */
+    public getTotalDataCount(): number {
+        return this.totalNodes;
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Node' + (count === 1 ? '' : 's');
     }
 
     resetData() {
@@ -792,7 +845,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             if (nodeColorField && this.prettifiedNodeLabels.length === 0) {
                 let colorMapVal = nodeColorField && nodeType;
                 nodeColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, nodeColorField,
-                    colorMapVal).toRgb();
+                    colorMapVal).getComputedCss(this.visualization);
             }
 
             // create a new node for each unique nodeId
@@ -808,7 +861,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                             if (nodeLabel === shortName) {
                                 let colorMapVal = nodeColorField && nodeLabel;
                                 nodeColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, nodeColorField,
-                                    colorMapVal).toRgb();
+                                    colorMapVal).getComputedCss(this.visualization);
                                 break;
                             }
                         }
@@ -833,7 +886,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             if (nodeColorField && this.prettifiedNodeLabels.length === 0) {
                 let colorMapVal = nodeColorField && nodeType;
                 linkColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, nodeColorField,
-                    colorMapVal).toRgb();
+                    colorMapVal).getComputedCss(this.visualization);
             }
 
             // create a node if linkfield doesn't point to a node that already exists
@@ -850,7 +903,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                             if (nodeLabel === shortName) {
                                 let colorMapVal = nodeColorField && nodeLabel;
                                 linkColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, nodeColorField,
-                                    colorMapVal).toRgb();
+                                    colorMapVal).getComputedCss(this.visualization);
                                 break;
                             }
                         }
@@ -869,7 +922,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 if (edgeColorField && this.prettifiedEdgeLabels.length === 0) {
                     let colorMapVal = edgeColorField && edgeType;
                     edgeColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, edgeColorField,
-                        colorMapVal).toRgb();
+                        colorMapVal).getComputedCss(this.visualization);
                 }
 
                 let edgeColorObject = { color: edgeColor, highlight: edgeColor};
@@ -885,7 +938,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                                 let colorMapVal = edgeColorField && edgeLabel;
                                 edgeType = edgeLabel;
                                 edgeColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, edgeColorField,
-                                    colorMapVal).toRgb();
+                                    colorMapVal).getComputedCss(this.visualization);
                                 edgeColorObject = { color: edgeColor, highlight: edgeColor};
                                 break;
                             }
@@ -985,20 +1038,18 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.resetGraphData();
     }
 
-    getElementRefs() {
-        return {
-            //
-        };
-    }
-
     /**
-     * Returns the options for the specific visualization.
+     * Returns an object containing the ElementRef objects for the visualization.
      *
-     * @return {BaseNeonOptions}
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
      * @override
      */
-    getOptions(): BaseNeonOptions {
-        return this.options;
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
     }
 
     legendIsNeeded() {

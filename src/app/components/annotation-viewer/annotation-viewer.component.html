@@ -3,10 +3,10 @@
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
         <span #infoText class="info text">
-            <span class="error-message" *ngIf="options.errorMessage" [matTooltip]="options.errorMessage" tooltip-position="below">
-                {{ options.errorMessage }}
+            <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
+                {{ errorMessage }}
             </span>
-            <span *ngIf="!options.errorMessage" class="data-info" [matTooltip]="getButtonText()" tooltip-position="below">
+            <span *ngIf="!errorMessage" class="data-info" [matTooltip]="getButtonText()" tooltip-position="below">
                 {{ getButtonText() }}
             </span>
         </span>
@@ -19,10 +19,10 @@
     <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
-                <div *ngIf="options.errorMessage">
-                    <label class="icon-with-text error-message" [matTooltip]="options.errorMessage" tooltip-position="below">
+                <div *ngIf="errorMessage">
+                    <label class="icon-with-text error-message" [matTooltip]="errorMessage" tooltip-position="below">
                         <mat-icon class="neon-icon-small">error</mat-icon>
-                        <span>{{ options.errorMessage }}</span>
+                        <span>{{ errorMessage }}</span>
                     </label>
                     <p></p>
                 </div>
@@ -86,7 +86,7 @@
                 <!-- TODO Do you need a limit? -->
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Document Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                        <input matInput placeholder="Document Limit" [(ngModel)]="newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
                         <mat-icon>refresh</mat-icon>
