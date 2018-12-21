@@ -1085,7 +1085,25 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         options.database = options.databases[0] || options.database;
 
         if (options.databases.length) {
-            let configDatabase = config ? config.database : this.injector.get('database', null);
+            // TODO: 873: verify which one of these is correct
+            let key = this.injector.get('tableKey', null);
+
+            if (key) {
+                let configDatabase = this.datasetService.getDatabaseNameFromCurrentDashboardByKey(key);
+                if (configDatabase) {
+                    for (let database of options.databases) {
+                        if (configDatabase === database.name) {
+                            options.database = database;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            /*
+            let configDatabase = config ?
+                this.datasetService.getDatabaseNameFromCurrentDashboardByKey(config.tableKey) :
+                this.injector.get('database', null);
             if (configDatabase) {
                 let isName = false;
                 for (let database of options.databases) {
@@ -1102,7 +1120,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                         options.database = options.databases[databaseIndex];
                     }
                 }
-            }
+            }*/
         }
 
         return this.updateTablesInOptions(options, config);
@@ -1124,7 +1142,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         return options;
     }
 
-    // TODO: 825/873: fix this and related functions/unit tests to use tableKeys if config exists
     /**
      * Updates all the tables and fields in the given options.  Called on init and whenever the database is changed.
      *
@@ -1137,7 +1154,24 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         options.table = options.tables[0] || options.table;
 
         if (options.tables.length > 0) {
-            let configTable = config ? config.table : this.injector.get('table', null);
+            // TODO: 873: verify which one of these is correct
+            let key = config ? config.tableKey : this.injector.get('tableKey', null);
+
+            if (key) {
+                let configTable = this.datasetService.getTableNameFromCurrentDashboardByKey(key);
+                if (configTable) {
+                    for (let table of options.tables) {
+                        if (configTable === table.name) {
+                            options.table = table;
+                            break;
+                        }
+                    }
+                }
+            }
+            /*
+            let configTable = config ?
+                this.datasetService.getTableNameFromCurrentDashboardByKey(config.tableKey) :
+                this.injector.get('table', null);
             if (configTable) {
                 let isName = false;
                 for (let table of options.tables) {
@@ -1154,7 +1188,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                         options.table = options.tables[tableIndex];
                     }
                 }
-            }
+            }*/
         }
 
         return this.updateFieldsInOptions(options);
