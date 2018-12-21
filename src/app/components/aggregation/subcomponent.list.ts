@@ -97,7 +97,7 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
             if (groups.length > 1) {
                 let groupElement = document.createElement('td');
                 groupElement.setAttribute('class', 'list-text');
-                groupElement.setAttribute('style', 'color: ' + item.color.toRgb());
+                groupElement.setAttribute('style', 'color: ' + item.color.getComputedCss(this.elementRef));
                 groupElement.innerHTML = item.group;
                 rowTitle = item.group + ' - ' + rowTitle;
                 rowElement.appendChild(groupElement);
@@ -172,6 +172,17 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
             height: undefined,
             width: undefined
         };
+    }
+
+    /**
+     * Returns the label for a visualization element using the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Result' + (count === 1 ? '' : 's');
     }
 
     /**

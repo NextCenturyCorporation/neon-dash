@@ -75,7 +75,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     public activeHeaders: { prop: string, name: string, active: boolean, style: Object, cellClass: any }[] = [];
     public headerWidths: Map<string, number> = new Map<string, number>();
-    public page: number = 1;
     public selected: any[] = [];
     public showColumnSelector: string = 'hide';
     public styleRules: string[] = [];
@@ -107,7 +106,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         injector: Injector,
         ref: ChangeDetectorRef
     ) {
-
         super(
             connectionService,
             datasetService,
@@ -115,6 +113,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             injector,
             ref
         );
+
+        this.isPaginationWidget = true;
 
         this.enableRedrawAfterResize(true);
 
@@ -475,12 +475,15 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }, 300);
     }
 
-    isValidQuery() {
-        let valid = true;
-        valid = (this.options.database && this.options.database.name && valid);
-        valid = (this.options.table && this.options.table.name && valid);
-        valid = (this.options.sortField && this.options.sortField.columnName && valid);
-        return valid;
+    /**
+     * Returns whether the visualization data query created using the given options is valid.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     * @override
+     */
+    isValidQuery(options: any): boolean {
+        return !!(options.database.name && options.table.name && options.sortField.columnName);
     }
 
     /**
@@ -499,13 +502,20 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return clause;
     }
 
-    createQuery(): neon.query.Query {
+    /**
+     * Creates and returns the visualization data query using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {neon.query.Query}
+     * @override
+     */
+    createQuery(options: any): neon.query.Query {
         let whereClause = this.createClause();
-        return new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
+        return new neon.query.Query().selectFrom(options.database.name, options.table.name)
             .where(whereClause)
-            .sortBy(this.options.sortField.columnName, this.options.sortDescending ? neonVariables.DESCENDING : neonVariables.ASCENDING)
-            .limit(this.options.limit)
-            .offset((this.page - 1) * this.options.limit);
+            .sortBy(options.sortField.columnName, options.sortDescending ? neonVariables.DESCENDING : neonVariables.ASCENDING)
+            .limit(options.limit)
+            .offset((this.page - 1) * options.limit);
     }
 
     /**
@@ -568,14 +578,21 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
     }
 
-    onQuerySuccess(response): void {
+    /**
+     * Handles the given response data for a successful visualization data query created using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} response
+     * @override
+     */
+    onQuerySuccess(options: any, response: any): void {
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.docCount = response.data[0]._docCount - this.duplicateNumber;
         } else {
             let responses = response.data;
             let data = responses.map((d) => {
                 let row = {};
-                for (let field of this.options.fields) {
+                for (let field of options.fields) {
                     if (field.type || field.columnName === '_id') {
                         row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
                     }
@@ -592,7 +609,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getDocCount() {
-        if (!this.cannotExecuteQuery()) {
+        if (!this.cannotExecuteQuery(this.options)) {
             let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
                 .where(this.createClause()).aggregate(neonVariables.COUNT, '*', '_docCount');
 
@@ -601,7 +618,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 countQuery.ignoreFilters(ignoreFilters);
             }
 
-            this.executeQuery(countQuery);
+            this.executeQuery(this.options, countQuery);
         }
     }
 
@@ -736,24 +753,35 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Creates and returns the text for the settings button.
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
      *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        return this.activeData;
+    }
+
+    /**
+     * Returns the count of data items that an unlimited query for the visualization would contain.
+     *
+     * @return {number}
+     * @override
+     */
+    public getTotalDataCount(): number {
+        return this.docCount;
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
      * @return {string}
      * @override
      */
-    getButtonText() {
-        if (!this.docCount) {
-            if (this.options.hideUnfiltered) {
-                return 'Please Filter';
-            }
-            return 'No Data';
-        }
-        if (this.docCount <= this.options.limit) {
-            return 'Total ' + super.prettifyInteger(this.docCount);
-        }
-        let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.docCount));
-        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.docCount);
+    public getVisualizationElementLabel(count: number): string {
+        return 'Row' + (count === 1 ? '' : 's');
     }
 
     /**
@@ -818,10 +846,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             if (this.filters.length && this.options.singleFilter) {
                 filter.id = this.filters[0].id;
                 this.filters = [filter];
-                this.replaceNeonFilter(true, filter, clause);
+                this.replaceNeonFilter(this.options, true, filter, clause);
             } else {
                 this.addLocalFilter(filter);
-                this.addNeonFilter(true, filter, clause);
+                this.addNeonFilter(this.options, true, filter, clause);
             }
         }
     }

@@ -21,7 +21,6 @@ import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/mater
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { DatasetOptions, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
@@ -40,7 +39,7 @@ import * as neon from 'neon-framework';
 })
 export class SettingsComponent implements OnInit, OnDestroy {
 
-    @Input() public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent> = new Map();
+    @Input() public widgets: Map<string, BaseNeonComponent> = new Map();
 
     public formData: any = {
         currentTheme: 'neon-green-theme'

@@ -48,8 +48,8 @@ import { NeonGridItem } from '../../neon-grid-item';
         QueryBarComponent,
         SampleComponent,
         TextCloudComponent,
-        TimelineComponent,
         ThumbnailGridComponent,
+        TimelineComponent,
         WikiViewerComponent
     ],
     template: `<div #dynamicComponentContainer></div>`
@@ -116,6 +116,7 @@ export class VisualizationInjectorComponent {
             case 'sample': return SampleComponent;
             case 'textCloud': return TextCloudComponent;
             case 'thumbnailGrid': return ThumbnailGridComponent;
+            case 'timeline': return TimelineComponent;
             case 'wikiViewer': return WikiViewerComponent;
 
             default: return null;

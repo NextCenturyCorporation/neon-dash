@@ -17,7 +17,6 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { neonEvents } from '../../neon-namespaces';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { FilterService } from '../../services/filter.service';
 
 import * as neon from 'neon-framework';
@@ -30,7 +29,7 @@ import * as _ from 'lodash';
 })
 export class CurrentFiltersComponent implements OnInit, OnDestroy {
 
-    @Input() widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent>;
+    @Input() widgets: Map<string, BaseNeonComponent>;
 
     private messenger: neon.eventing.Messenger;
     public filters: {

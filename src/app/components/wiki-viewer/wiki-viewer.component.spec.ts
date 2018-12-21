@@ -100,17 +100,17 @@ describe('Component: WikiViewer', () => {
 
         query.where(neon.query.and.apply(query, whereClauses));
 
-        expect(component.createQuery()).toEqual(query);
+        expect(component.createQuery(component.options)).toEqual(query);
     }));
 
     it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Pages');
         component.wikiName = ['a'];
-        expect(component.getButtonText()).toBe('Total 1');
+        expect(component.getButtonText()).toBe('1 Page');
         component.wikiName = ['a', 'b', 'c', 'd'];
-        expect(component.getButtonText()).toBe('Total 4');
+        expect(component.getButtonText()).toBe('4 Pages');
         component.wikiName = ['a', 'b'];
-        expect(component.getButtonText()).toBe('Total 2');
+        expect(component.getButtonText()).toBe('2 Pages');
     });
 
     it('getElementRefs does return expected object', () => {
@@ -132,24 +132,24 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('isValidQuery does return expected result', (() => {
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.isValidQuery(component.options)).toBe(false);
 
         component.options.database = new DatabaseMetaData('testDatabase');
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.isValidQuery(component.options)).toBe(false);
 
         component.options.table = new TableMetaData('testTable');
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.isValidQuery(component.options)).toBe(false);
 
         component.options.id = 'testId';
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.isValidQuery(component.options)).toBe(false);
         expect(component.options.idField).toEqual(new FieldMetaData());
         expect(component.options.linkField).toEqual(new FieldMetaData());
 
         component.options.idField = new FieldMetaData('testIdField');
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.isValidQuery(component.options)).toBe(false);
 
         component.options.linkField = new FieldMetaData('testLinkField');
-        expect(component.isValidQuery()).toBe(true);
+        expect(component.isValidQuery(component.options)).toBe(true);
     }));
 
     it('onQuerySuccess does set expected properties if response returns no data', (() => {
@@ -158,7 +158,7 @@ describe('Component: WikiViewer', () => {
         component.wikiName = ['testName'];
         component.wikiText = ['testText'];
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: []
         });
 
@@ -173,7 +173,7 @@ describe('Component: WikiViewer', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.linkField.columnName = 'testLinkField';
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 testLinkField: 'testLinkValue'
             }]
@@ -208,7 +208,7 @@ describe('Component: WikiViewer', () => {
         component.wikiName = ['testName'];
         component.wikiText = ['testText'];
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 testLinkField: 'testLinkValue'
             }]
@@ -237,7 +237,7 @@ describe('Component: WikiViewer', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.linkField.columnName = 'testLinkField';
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 testLinkField: ['testLinkValue1', 'testLinkValue2']
             }]
@@ -422,7 +422,7 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('does show loading overlay if isLoading is true', async(() => {
-        component.isLoading = true;
+        component.isLoading = 1;
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {

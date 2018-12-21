@@ -127,7 +127,7 @@ describe('Component: NewsFeed', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([true, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -155,7 +155,7 @@ describe('Component: NewsFeed', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([false, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, false, {
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -189,7 +189,7 @@ describe('Component: NewsFeed', () => {
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([true, {
+        expect(spy2.calls.argsFor(0)).toEqual([component.options, true, {
             id: 'idA',
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -223,7 +223,7 @@ describe('Component: NewsFeed', () => {
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([false, {
+        expect(spy2.calls.argsFor(0)).toEqual([component.options, false, {
             id: 'idA',
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -232,7 +232,7 @@ describe('Component: NewsFeed', () => {
         expect(spy3.calls.count()).toEqual(0);
     });
 
-   it('createFilter with multiple existing filters does remove all filters and then add a new filter', () => {
+    it('createFilter with multiple existing filters does remove all filters and then add a new filter', () => {
         let spy1 = spyOn(component, 'addNeonFilter');
         let spy2 = spyOn(component, 'replaceNeonFilter');
         let spy3 = spyOn(component, 'removeAllFilters');
@@ -256,7 +256,8 @@ describe('Component: NewsFeed', () => {
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(1);
         let args = spy3.calls.argsFor(0);
-        expect(args[0]).toEqual([{
+        expect(args[0]).toEqual(component.options);
+        expect(args[1]).toEqual([{
             id: 'idA',
             field: 'field1',
             prettyField: 'prettyField1',
@@ -269,8 +270,8 @@ describe('Component: NewsFeed', () => {
         }]);
 
         // Run the callback.
-        expect(typeof args[1]).toEqual('function');
-        args[1]();
+        expect(typeof args[2]).toEqual('function');
+        args[2]();
 
         expect(component.filters).toEqual([{
             id: undefined,
@@ -280,7 +281,7 @@ describe('Component: NewsFeed', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([true, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -315,7 +316,8 @@ describe('Component: NewsFeed', () => {
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(1);
         let args = spy3.calls.argsFor(0);
-        expect(args[0]).toEqual([{
+        expect(args[0]).toEqual(component.options);
+        expect(args[1]).toEqual([{
             id: 'idA',
             field: 'field1',
             prettyField: 'prettyField1',
@@ -328,8 +330,8 @@ describe('Component: NewsFeed', () => {
         }]);
 
         // Run the callback.
-        expect(typeof args[1]).toEqual('function');
-        args[1]();
+        expect(typeof args[2]).toEqual('function');
+        args[2]();
 
         expect(component.filters).toEqual([{
             id: undefined,
@@ -339,7 +341,7 @@ describe('Component: NewsFeed', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([false, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, false, {
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -375,7 +377,7 @@ describe('Component: NewsFeed', () => {
 
         query.where(neon.query.and.apply(query, whereClauses));
 
-        expect(component.createQuery()).toEqual(query);
+        expect(component.createQuery(component.options)).toEqual(query);
     }));
 
     // //for filter exists method
@@ -443,14 +445,14 @@ describe('Component: NewsFeed', () => {
 
     //for get button text method
     it('getButton does return the expected string', () => {
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Results');
         component.gridArray = [{
             border: '',
             link: '1',
             name: '1',
             type: ''
         }];
-        expect(component.getButtonText()).toBe('Total Items 1');
+        expect(component.getButtonText()).toBe('1 Result');
         for (let i = 2; i <= 11; i++) {
             component.gridArray.push({
                 border: '',
@@ -459,7 +461,7 @@ describe('Component: NewsFeed', () => {
                 type: ''
             });
         }
-        expect(component.getButtonText()).toBe('1 - 10 of 11');
+        expect(component.getButtonText()).toBe('1 - 10 of 11 Results');
     });
 
     //for go to next page method
@@ -705,19 +707,19 @@ describe('Component: NewsFeed', () => {
 
     //for isValidQuery method
     it('isValidQuery does return expected boolean', () => {
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.isValidQuery(component.options)).toEqual(false);
 
         component.options.database = DatasetServiceMock.DATABASES[0];
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.isValidQuery(component.options)).toEqual(false);
 
         component.options.table = DatasetServiceMock.TABLES[0];
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.isValidQuery(component.options)).toEqual(false);
 
         component.options.idField = new FieldMetaData('tesIdField', 'Test Id Field');
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.isValidQuery(component.options)).toEqual(false);
 
         component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
-        expect(component.isValidQuery()).toEqual(true);
+        expect(component.isValidQuery(component.options)).toEqual(true);
     });
 
     //for on Query success method
@@ -730,7 +732,7 @@ describe('Component: NewsFeed', () => {
         component.showGrid = false;
         let spy1 = spyOn(component, 'refreshVisualization');
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 _id: 'id1',
                 testLinkField: 'link1',
@@ -788,7 +790,7 @@ describe('Component: NewsFeed', () => {
         component.showGrid = false;
         let spy1 = spyOn(component, 'refreshVisualization');
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: []
         });
 
@@ -813,7 +815,7 @@ describe('Component: NewsFeed', () => {
         component.showGrid = false;
         let spy1 = spyOn(component, 'refreshVisualization');
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 _id: 'id1',
                 testLinkField: 'link1',
@@ -863,7 +865,7 @@ describe('Component: NewsFeed', () => {
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         let spy1 = spyOn(component, 'refreshVisualization');
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 _id: 'id1',
                 testLinkField: 'link1',

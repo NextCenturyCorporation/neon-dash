@@ -136,7 +136,7 @@ describe('Component: ThumbnailGrid', () => {
     it('does have expected class properties', () => {
         expect(component.gridArray).toEqual([]);
         expect(component.filters).toEqual([]);
-        expect(component.isLoading).toEqual(false);
+        expect(component.isLoading).toEqual(0);
         expect(component.lastPage).toEqual(true);
         expect(component.mediaTypes).toEqual({
             image: 'img',
@@ -168,7 +168,7 @@ describe('Component: ThumbnailGrid', () => {
     it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', () => {
         let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
         expect(dataInfoTextInToolbar).not.toBeNull();
-        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('No Data');
+        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('0 Files');
 
         let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
         expect(dataInfoIconInSidenav).not.toBeNull();
@@ -176,7 +176,7 @@ describe('Component: ThumbnailGrid', () => {
 
         let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
         expect(dataInfoTextInSidenav).not.toBeNull();
-        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('No Data');
+        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Files');
 
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
@@ -205,7 +205,7 @@ describe('Component: ThumbnailGrid', () => {
 
             let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
             expect(dataInfoTextInSidenav).not.toBeNull();
-            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('No Data');
+            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Files');
 
             let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
             expect(errorMessageInToolbar).not.toBeNull();
@@ -349,7 +349,7 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('does show loading overlay if isLoading is true', async(() => {
-        component.isLoading = true;
+        component.isLoading = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -613,7 +613,7 @@ describe('Component: ThumbnailGrid', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([true, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -641,7 +641,7 @@ describe('Component: ThumbnailGrid', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([false, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, false, {
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -676,7 +676,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([true, {
+        expect(spy2.calls.argsFor(0)).toEqual([component.options, true, {
             id: 'idA',
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -710,7 +710,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([false, {
+        expect(spy2.calls.argsFor(0)).toEqual([component.options, false, {
             id: 'idA',
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -744,7 +744,8 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(1);
         let args = spy3.calls.argsFor(0);
-        expect(args[0]).toEqual([{
+        expect(args[0]).toEqual(component.options);
+        expect(args[1]).toEqual([{
             id: 'idA',
             field: 'field1',
             prettyField: 'prettyField1',
@@ -757,8 +758,8 @@ describe('Component: ThumbnailGrid', () => {
         }]);
 
         // Run the callback.
-        expect(typeof args[1]).toEqual('function');
-        args[1]();
+        expect(typeof args[2]).toEqual('function');
+        args[2]();
 
         expect(component.filters).toEqual([{
             id: undefined,
@@ -768,7 +769,7 @@ describe('Component: ThumbnailGrid', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([true, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -803,7 +804,8 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(1);
         let args = spy3.calls.argsFor(0);
-        expect(args[0]).toEqual([{
+        expect(args[0]).toEqual(component.options);
+        expect(args[1]).toEqual([{
             id: 'idA',
             field: 'field1',
             prettyField: 'prettyField1',
@@ -816,8 +818,8 @@ describe('Component: ThumbnailGrid', () => {
         }]);
 
         // Run the callback.
-        expect(typeof args[1]).toEqual('function');
-        args[1]();
+        expect(typeof args[2]).toEqual('function');
+        args[2]();
 
         expect(component.filters).toEqual([{
             id: undefined,
@@ -827,7 +829,7 @@ describe('Component: ThumbnailGrid', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([false, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, false, {
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -850,7 +852,7 @@ describe('Component: ThumbnailGrid', () => {
             neon.query.where('testLinkField', '!=', '')
         ]);
 
-        expect(component.createQuery()).toEqual(new neon.query.Query()
+        expect(component.createQuery(component.options)).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
             .withFields(fields)
             .where(wherePredicate)
@@ -871,7 +873,7 @@ describe('Component: ThumbnailGrid', () => {
         fields = ['testLinkField', 'testSortField', 'testCategoryField', 'testCompareField', 'testFilterField', 'testIdField',
             'testNameField', 'testObjectIdField', 'testObjectNameField', 'testPercentField', 'testPredictedNameField', 'testTypeField'];
 
-        expect(component.createQuery()).toEqual(new neon.query.Query()
+        expect(component.createQuery(component.options)).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
             .withFields(fields)
             .where(wherePredicate)
@@ -941,23 +943,23 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toEqual('No Data');
+        expect(component.getButtonText()).toEqual('0 Files');
 
         component.options.limit = 1;
         component.gridArray = [{}];
-        expect(component.getButtonText()).toEqual('Total 1');
+        expect(component.getButtonText()).toEqual('1 File');
 
         component.gridArray = [{}, {}, {}, {}];
-        expect(component.getButtonText()).toEqual('1 of 4');
+        expect(component.getButtonText()).toEqual('1 of 4 Files');
 
         component.options.limit = 2;
-        expect(component.getButtonText()).toEqual('1 - 2 of 4');
+        expect(component.getButtonText()).toEqual('1 - 2 of 4 Files');
 
         component.page = 2;
-        expect(component.getButtonText()).toEqual('3 - 4 of 4');
+        expect(component.getButtonText()).toEqual('3 - 4 of 4 Files');
 
         component.options.limit = 4;
-        expect(component.getButtonText()).toEqual('Total 4');
+        expect(component.getButtonText()).toEqual('4 Files');
     });
 
     it('getCloseableFilters does return expected array of filters', () => {
@@ -1326,19 +1328,19 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('isValidQuery does return expected boolean', () => {
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.isValidQuery(component.options)).toEqual(false);
 
         component.options.database = DatasetServiceMock.DATABASES[0];
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.isValidQuery(component.options)).toEqual(false);
 
         component.options.table = DatasetServiceMock.TABLES[0];
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.isValidQuery(component.options)).toEqual(false);
 
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.isValidQuery(component.options)).toEqual(false);
 
         component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
-        expect(component.isValidQuery()).toEqual(true);
+        expect(component.isValidQuery(component.options)).toEqual(true);
     });
 
     it('onQuerySuccess with aggregation query data does update expected properties and call expected functions', () => {
@@ -1361,7 +1363,7 @@ describe('Component: ThumbnailGrid', () => {
         let spy1 = spyOn(component, 'refreshVisualization');
         let spy2 = spyOn(component, 'createMediaThumbnail');
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 _id: 'id1',
                 testCategoryField: 'category1',
@@ -1465,7 +1467,7 @@ describe('Component: ThumbnailGrid', () => {
         let spy1 = spyOn(component, 'refreshVisualization');
         let spy2 = spyOn(component, 'createMediaThumbnail');
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: []
         });
 
@@ -1496,7 +1498,7 @@ describe('Component: ThumbnailGrid', () => {
         let spy1 = spyOn(component, 'refreshVisualization');
         let spy2 = spyOn(component, 'createMediaThumbnail');
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 _id: 'id1',
                 testLinkField: 'link1',
@@ -1587,7 +1589,7 @@ describe('Component: ThumbnailGrid', () => {
         let spy1 = spyOn(component, 'refreshVisualization');
         let spy2 = spyOn(component, 'createMediaThumbnail');
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 _id: 'id1',
                 testLinkField: 'link1',
@@ -1674,7 +1676,7 @@ describe('Component: ThumbnailGrid', () => {
         let spy1 = spyOn(component, 'refreshVisualization');
         let spy2 = spyOn(component, 'createMediaThumbnail');
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 _id: 'id1',
                 testLinkField: 'link1',

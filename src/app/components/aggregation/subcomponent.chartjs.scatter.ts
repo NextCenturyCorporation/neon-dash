@@ -21,8 +21,8 @@ import { Color } from '../../color';
 
 // http://www.chartjs.org/docs/latest/charts/line.html#dataset-properties
 class ChartJsScatterDataset extends ChartJsLineDataset {
-    constructor(color: Color, label: string, xList: any[]) {
-        super(color, label, xList);
+    constructor(elementRef: ElementRef, color: Color, label: string, xList: any[]) {
+        super(elementRef, color, label, xList);
         this.fill = false;
         this.showLine = false;
     }
@@ -53,7 +53,7 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
      * @override
      */
     protected createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset {
-        return new ChartJsScatterDataset(color, label, xList);
+        return new ChartJsScatterDataset(this.elementRef, color, label, xList);
     }
 
     /**
@@ -69,6 +69,17 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
         superclassOptions.hover.mode = 'point';
         superclassOptions.tooltips.mode = 'point';
         return superclassOptions;
+    }
+
+    /**
+     * Returns the label for a visualization element using the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Point' + (count === 1 ? '' : 's');
     }
 
     /**

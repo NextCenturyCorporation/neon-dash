@@ -22,7 +22,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { ParameterService } from '../../services/parameter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 
 import { neonEvents } from '../../neon-namespaces';
@@ -35,7 +34,7 @@ import * as neon from 'neon-framework';
   styleUrls: ['./export-control.component.scss']
 })
 export class ExportControlComponent {
-    @Input() widgets: BaseNeonComponent | BaseLayeredNeonComponent | Map<string, BaseNeonComponent | BaseLayeredNeonComponent>;
+    @Input() widgets: BaseNeonComponent | Map<string, BaseNeonComponent>;
 
     public exportFormatList: any[] = [{
         name: 'csv',
