@@ -1086,7 +1086,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
         if (options.databases.length) {
             // TODO: 873: verify which one of these is correct
-            let key = this.injector.get('tableKey', null);
+            let key = config ? config.tableKey : this.injector.get('tableKey', null);
 
             if (key) {
                 let configDatabase = this.datasetService.getDatabaseNameFromCurrentDashboardByKey(key);
