@@ -277,4 +277,73 @@ describe('NeonUtilities', () => {
             key: null
         }, 'key')).toEqual(null);
     });
+
+    it('returns the expected sort result for string values in ascending order', () => {
+        let keys = [{
+            keyA: 'value4',
+            keyB: 'bravo'
+        }, {
+            keyA: 'value21',
+            keyB: 'Oscar'
+        }, {
+            keyA: 'value16',
+            keyB: 'sierra'
+        }, {
+            keyA: 'value5',
+            keyB: 'foxtrot'
+        }, {
+            keyA: 'value75',
+            keyB: 'Tango'
+        }];
+
+        expect(neonUtilities.sortArrayOfObjects(keys, 'keyA')).toEqual([
+                {keyA: 'value16', keyB: 'sierra'},
+                {keyA: 'value21', keyB: 'Oscar'},
+                {keyA: 'value4', keyB: 'bravo'},
+                {keyA: 'value5', keyB: 'foxtrot'},
+                {keyA: 'value75', keyB: 'Tango'}
+            ]);
+
+        expect(neonUtilities.sortArrayOfObjects(keys, 'keyB')).toEqual([
+                {keyA: 'value4', keyB: 'bravo'},
+                {keyA: 'value5', keyB: 'foxtrot'},
+                {keyA: 'value21', keyB: 'Oscar'},
+                {keyA: 'value16', keyB: 'sierra'},
+                {keyA: 'value75', keyB: 'Tango'}
+            ]);
+    });
+
+    it('returns the expected sort result for string values in descending order', () => {
+        let keys = [{
+            keyA: 'value4',
+            keyB: 'bravo'
+        }, {
+            keyA: 'value21',
+            keyB: 'Oscar'
+        }, {
+            keyA: 'value16',
+            keyB: 'sierra'
+        }, {
+            keyA: 'value5',
+            keyB: 'foxtrot'
+        }, {
+            keyA: 'value75',
+            keyB: 'Tango'
+        }];
+
+        expect(neonUtilities.sortArrayOfObjects(keys, 'keyA', neonVariables.DESCENDING)).toEqual([
+                {keyA: 'value75', keyB: 'Tango'},
+                {keyA: 'value5', keyB: 'foxtrot'},
+                {keyA: 'value4', keyB: 'bravo'},
+                {keyA: 'value21', keyB: 'Oscar'},
+                {keyA: 'value16', keyB: 'sierra'}
+            ]);
+        expect(neonUtilities.sortArrayOfObjects(keys, 'keyB', neonVariables.DESCENDING)).toEqual([
+            {keyA: 'value75', keyB: 'Tango'},
+            {keyA: 'value16', keyB: 'sierra'},
+            {keyA: 'value21', keyB: 'Oscar'},
+            {keyA: 'value5', keyB: 'foxtrot'},
+            {keyA: 'value4', keyB: 'bravo'}
+        ]);
+    });
 });

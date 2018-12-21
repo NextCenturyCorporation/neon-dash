@@ -533,15 +533,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
                 [filterField.columnName]);
 
-            let fieldFilterIds = neonFilters.filter((neonFilter) => {
-                return !neonFilter.filter.whereClause.whereClauses;
-            }).map((neonFilter) => {
+            let fieldFilterIds = neonFilters.map((neonFilter) => {
                 return neonFilter.id;
             });
 
             return filterIds.concat(fieldFilterIds);
         }, []);
-
         return ignoredFilterIds.length ? ignoredFilterIds : null;
     }
 
@@ -813,7 +810,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     if (this.options.arrayFilterOperator === 'and') {
                         value.forEach((element) => {
                             let arrayFilter = this.createFilterObject(filterFieldObject.columnName, element, filterFieldObject.prettyName);
-                            let whereClause = neon.query.where(arrayFilter.filterFieldObject.columnName, '=', arrayFilter.value);
+                            let whereClause = neon.query.where(filterFieldObject.columnName, '=', arrayFilter.value);
                             this.addFilter(arrayFilter, whereClause);
                         });
                     } else {

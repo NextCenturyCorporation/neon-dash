@@ -46,6 +46,12 @@ import {
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 
+export const ViewType = {
+    CARD: 'card',
+    DETAILS: 'details',
+    TITLE: 'title'
+};
+
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
  */
@@ -78,6 +84,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     public neonFilters: any[] = [];
     public showGrid: boolean;
     public mediaTypes: any = MediaTypes;
+    public view: any = ViewType;
 
     constructor(
         connectionService: ConnectionService,
@@ -512,7 +519,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 this.isLoading++;
                 response.data.forEach((d) => {
                     let item = {},
-                         links = [];
+                        links = [];
 
                     if (options.linkField.columnName) {
                         links = this.getArrayValues(neonUtilities.deepFind(d, options.linkField.columnName) || '');
@@ -580,20 +587,26 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 this.neonFilters = this.filterService.getFiltersForFields(options.database.name, options.table.name,
                     [options.filterField.columnName]);
 
-                if (options.hideUnfiltered && this.neonFilters.length || !options.hideUnfiltered) {
-                    this.page = (this.gridArray.length < (((this.page - 1) * options.limit) + 1)) ? 1 : this.page;
-                    this.updatePageData();
+                if (this.options.hideUnfiltered && this.neonFilters.length || !this.options.hideUnfiltered) {
+                    this.lastPage = (this.gridArray.length <= this.options.limit);
+                    if (this.page > 1 && !this.lastPage) {
+                        let offset = (this.page - 1) * this.options.limit;
+                        this.pagingGrid = this.gridArray.slice(offset,
+                            Math.min(this.page * this.options.limit, this.gridArray.length));
+                    } else {
+                        this.pagingGrid = this.gridArray.slice(0, this.options.limit);
+                    }
+                    this.showGrid = true;
                 } else {
                     this.pagingGrid = [];
                     this.showGrid = false;
-                    this.refreshVisualization();
-                    this.createMediaThumbnail();
                 }
 
+                this.refreshVisualization();
+                this.createMediaThumbnail();
                 this.isLoading--;
 
             } else {
-                this.pagingGrid = [];
                 this.errorMessage = 'No Data';
                 this.refreshVisualization();
             }
@@ -640,8 +653,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @return {boolean}
      */
     isSelected(item) {
-        return (!!this.options.filterField.columnName && this.filterExists(this.options.filterField.columnName,
-            item[this.options.filterField.columnName]));
+        return (!!this.options.filterField.columnName &&
+            this.filterExists(this.options.filterField.columnName, item[this.options.filterField.columnName]));
     }
 
     /**
@@ -891,9 +904,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         }
         if (this.options.filterField.columnName) {
             this.createFilter(item[this.options.filterField.columnName]);
-        }
-        if (this.options.openOnMouseClick) {
-            window.open(item[this.options.linkField.columnName]);
         }
         this.publishAnyCustomEvents(item, this.options.idField.columnName);
     }
