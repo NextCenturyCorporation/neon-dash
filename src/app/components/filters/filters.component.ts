@@ -18,8 +18,6 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 
-import * as _ from 'lodash';
-
 // Includes the filter-builder as well as the current-filters component.
 @Component({
     selector: 'app-filters',
