@@ -18,7 +18,6 @@ import { MatDialogRef } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { CurrentFiltersComponent } from './current-filters.component';
 import { FilterService } from '../../services/filter.service';
 import { DatasetService } from '../../services/dataset.service';

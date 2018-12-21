@@ -177,7 +177,7 @@ describe('Component: Filter Builder', () => {
     });
 
     it('createQuery does return null always', () => {
-        expect(component.createQuery()).toEqual(null);
+        expect(component.createQuery(component.options)).toEqual(null);
     });
 
     it('getCloseableFilters does return empty array always', () => {
@@ -235,7 +235,7 @@ describe('Component: Filter Builder', () => {
     });
 
     it('isValidQuery does return false always', () => {
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.isValidQuery(component.options)).toEqual(false);
     });
 
     it('onQuerySuccess does nothing', () => {

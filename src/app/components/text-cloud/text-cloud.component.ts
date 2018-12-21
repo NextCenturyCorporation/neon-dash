@@ -25,6 +25,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -73,9 +74,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         datasetService: DatasetService,
         filterService: FilterService,
         injector: Injector,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        protected widgetService: AbstractWidgetService
     ) {
-
         super(
             connectionService,
             datasetService,
@@ -84,8 +85,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             ref
         );
 
-        // Backwards compatibility (sizeAggregation deprecated and replaced by aggregation).
-        this.options.aggregation = (this.options.aggregation || this.injector.get('sizeAggregation', neonVariables.COUNT)).toLowerCase();
+        this.isPaginationWidget = true;
     }
 
     subNgOnInit() {
@@ -93,8 +93,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     postInit() {
+        // Backwards compatibility (sizeAggregation deprecated and replaced by aggregation).
+        this.options.aggregation = (this.options.aggregation || this.injector.get('sizeAggregation', neonVariables.COUNT)).toLowerCase();
+
         // This should happen before execute query as #refreshVisualization() depends on this.textCloud
-        this.textColor = this.getPrimaryThemeColor().toHexString();
+        this.textColor = this.widgetService.getThemeAccentColorHex();
         this.updateTextCloudSettings();
 
         this.executeQueryChain();
@@ -120,9 +123,16 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return filter.translated ? (' (' + filter.translated + ')') : '';
     }
 
-    isValidQuery() {
-        return this.options.database.name && this.options.table.name && this.options.dataField.columnName &&
-            (this.options.aggregation !== neonVariables.COUNT ? this.options.sizeField.columnName : true);
+    /**
+     * Returns whether the visualization data query created using the given options is valid.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     * @override
+     */
+    isValidQuery(options: any): boolean {
+        return options.database.name && options.table.name && options.dataField.columnName &&
+            (options.aggregation !== neonVariables.COUNT ? options.sizeField.columnName : true);
     }
 
     /**
@@ -173,21 +183,28 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         ];
     }
 
-    createQuery(): neon.query.Query {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
+    /**
+     * Creates and returns the visualization data query using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {neon.query.Query}
+     * @override
+     */
+    createQuery(options: any): neon.query.Query {
+        let query = new neon.query.Query().selectFrom(options.database.name, options.table.name);
         let whereClause = this.createClause();
-        let dataField = this.options.dataField.columnName;
+        let dataField = options.dataField.columnName;
 
-        if (this.options.aggregation === neonVariables.COUNT) {
+        if (options.aggregation === neonVariables.COUNT) {
             // Normal aggregation query
             return query.where(whereClause).groupBy(dataField).aggregate(neonVariables.COUNT, '*', 'value')
-                .sortBy('value', neonVariables.DESCENDING).limit(this.options.limit);
+                .sortBy('value', neonVariables.DESCENDING).limit(options.limit);
         } else {
             // Query for data with the size field and sort by it
-            let sizeColumn = this.options.sizeField.columnName;
+            let sizeColumn = options.sizeField.columnName;
             return query.where(neon.query.and(whereClause, neon.query.where(sizeColumn, '!=', null)))
-                .groupBy(dataField).aggregate(this.options.aggregation, sizeColumn, sizeColumn)
-                .sortBy(sizeColumn, neonVariables.DESCENDING).limit(this.options.limit);
+                .groupBy(dataField).aggregate(options.aggregation, sizeColumn, sizeColumn)
+                .sortBy(sizeColumn, neonVariables.DESCENDING).limit(options.limit);
         }
     }
 
@@ -234,7 +251,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     getTermsCount() {
         let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createClause())
             .groupBy(this.options.dataField.columnName).aggregate(neonVariables.COUNT, '*', '_termsCount');
-        this.executeQuery(countQuery);
+        this.executeQuery(this.options, countQuery);
     }
 
     /**
@@ -257,7 +274,14 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return 'Text Cloud';
     }
 
-    onQuerySuccess(response): void {
+    /**
+     * Handles the given response data for a successful visualization data query created using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} response
+     * @override
+     */
+    onQuerySuccess(options: any, response: any): void {
         try {
             if (response && response.data && response.data.length && response.data[0]._termsCount !== undefined) {
                 this.termsCount = response.data.length;
@@ -265,11 +289,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 let cloudData = response.data || [];
 
                 this.activeData = cloudData.map((item) => {
-                    item.key = item[this.options.dataField.columnName];
+                    item.key = item[options.dataField.columnName];
                     item.keyTranslated = item.key;
                     // If we have a size field, asign the value to the value field
-                    if (this.options.sizeField.columnName) {
-                        item.value = item[this.options.sizeField.columnName];
+                    if (options.sizeField.columnName) {
+                        item.value = item[options.sizeField.columnName];
                     }
                     return item;
                 });
@@ -336,7 +360,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         if (!this.filters.length) {
             this.filters.push(filter);
             let whereClause = neon.query.where(filter.field, '=', filter.value);
-            this.addNeonFilter(true, filter, whereClause);
+            this.addNeonFilter(this.options, true, filter, whereClause);
         } else if (this.filterIsUnique(filter)) {
             filter.id = this.filters[0].id;
             this.filters.push(filter);
@@ -345,7 +369,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             });
             let whereClause = whereClauses.length === 1 ? whereClauses[0] : (this.options.andFilters ? neon.query.and.apply(neon.query,
                 whereClauses) : neon.query.or.apply(neon.query, whereClauses));
-            this.replaceNeonFilter(true, filter, whereClause);
+            this.replaceNeonFilter(this.options, true, filter, whereClause);
         }
     }
 
@@ -363,25 +387,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Creates and returns the text for the settings button.
-     *
-     * @return {string}
-     * @override
-     */
-    getButtonText() {
-        if (!this.filters.length && !this.termsCount) {
-            if (this.options.hideUnfiltered) {
-                return 'Please Filter';
-            }
-            return 'No Data';
-        }
-        if (this.termsCount <= this.activeData.length) {
-            return 'Total ' + super.prettifyInteger(this.termsCount);
-        }
-        return super.prettifyInteger(this.activeData.length) + ' of ' + super.prettifyInteger(this.termsCount);
-    }
-
-    /**
      * Returns the list of filter objects.
      *
      * @return {array}
@@ -389,6 +394,38 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getCloseableFilters() {
         return this.filters;
+    }
+
+    /**
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
+     *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        return this.activeData;
+    }
+
+    /**
+     * Returns the count of data items that an unlimited query for the visualization would contain.
+     *
+     * @return {number}
+     * @override
+     */
+    public getTotalDataCount(): number {
+        return this.termsCount;
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Term' + (count === 1 ? '' : 's');
     }
 
     // filter is a filter from the filter service that the filter to remove corresponds to.

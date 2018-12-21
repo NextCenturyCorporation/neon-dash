@@ -16,7 +16,7 @@
 import { Color } from '../../color';
 import { ElementRef } from '@angular/core';
 
-export const whiteString = new Color(255, 255, 255).toRgb();
+export const whiteString = 'rgb(255,255,255)';
 
 export enum MapType {Leaflet, Cesium}
 

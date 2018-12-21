@@ -238,7 +238,7 @@ describe('Component: AnnotationViewer', () => {
         });
         expect(component.filters).toEqual([]);
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([true, {
+        expect(spy.calls.argsFor(0)).toEqual([component.options, true, {
             id: undefined,
             field: 'field1',
             prettyField: 'prettyField1',

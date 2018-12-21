@@ -21,13 +21,17 @@ import { Injector } from '@angular/core';
 
 import { TextCloudComponent } from './text-cloud.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
+import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
+import { WidgetService } from '../../services/widget.service';
+
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { neonVariables } from '../../neon-namespaces';
 
 import * as neon from 'neon-framework';
@@ -47,6 +51,7 @@ describe('Component: TextCloud', () => {
             UnsharedFilterComponent
         ],
         providers: [
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             {
                 provide: DatasetService,
@@ -83,7 +88,7 @@ describe('Component: TextCloud', () => {
     it('has expected class properties', () => {
         expect(component.activeData).toEqual([]);
         expect(component.termsCount).toBe(0);
-        expect(component.textColor).toBe('#ffffff');
+        expect(component.textColor).toBe('#54C8CD');
     });
 
     it('has a subNgOnInit method', () => {
@@ -163,13 +168,13 @@ describe('Component: TextCloud', () => {
     });
 
     it('has an isValidQuery method that properly checks whether or not a valid query can be made', () => {
-        expect(component.isValidQuery()).toBeFalsy();
+        expect(component.isValidQuery(component.options)).toBeFalsy();
         component.options.database = new DatabaseMetaData('testDatabase1');
-        expect(component.isValidQuery()).toBeFalsy();
+        expect(component.isValidQuery(component.options)).toBeFalsy();
         component.options.table = new TableMetaData('testTable1');
-        expect(component.isValidQuery()).toBeFalsy();
+        expect(component.isValidQuery(component.options)).toBeFalsy();
         component.options.dataField = new FieldMetaData('testTextField');
-        expect(component.isValidQuery()).toBeTruthy();
+        expect(component.isValidQuery(component.options)).toBeTruthy();
     });
 
     it('returns expected query from createQuery', () => {
@@ -185,7 +190,7 @@ describe('Component: TextCloud', () => {
             .sortBy('value', neonVariables.DESCENDING)
             .limit(40);
 
-        expect(component.createQuery()).toEqual(query);
+        expect(component.createQuery(component.options)).toEqual(query);
 
         component.options.aggregation = neonVariables.AVG;
         component.options.sizeField = new FieldMetaData('testSizeField');
@@ -199,7 +204,7 @@ describe('Component: TextCloud', () => {
             .sortBy('testSizeField', neonVariables.DESCENDING)
             .limit(25);
 
-        expect(component.createQuery()).toEqual(query);
+        expect(component.createQuery(component.options)).toEqual(query);
     });
 
     it('returns null from getFiltersToIgnore', () => {
@@ -225,7 +230,7 @@ describe('Component: TextCloud', () => {
         let calledExecuteQuery = false;
         component.executeQuery = () => {
             calledExecuteQuery = true;
-            component.onQuerySuccess(termsCountResponse);
+            component.onQuerySuccess(component.options, termsCountResponse);
         };
 
         component.getTermsCount();
@@ -248,7 +253,7 @@ describe('Component: TextCloud', () => {
 
         component.executeQueryChain = () => undefined; // postInit calls executeQueryChain, but we don't care.
         component.postInit(); // To initialize the text cloud so it can update.
-        component.onQuerySuccess(response);
+        component.onQuerySuccess(component.options, response);
 
         expect(component.activeData).toEqual([]);
         expect(component.termsCount).toBe(0);
@@ -256,7 +261,7 @@ describe('Component: TextCloud', () => {
 
         component.options.sizeField = new FieldMetaData('testSizeField', 'Test Size Field');
 
-        component.onQuerySuccess(response);
+        component.onQuerySuccess(component.options, response);
 
         expect(component.activeData).toEqual([]);
         expect(component.termsCount).toBe(0);
@@ -301,7 +306,7 @@ describe('Component: TextCloud', () => {
         let calledExecuteQuery = false;
         component.executeQuery = () => {
             calledExecuteQuery = true;
-            component.onQuerySuccess(termsCountResponse);
+            component.onQuerySuccess(component.options, termsCountResponse);
         };
         // Mock createTextCloud to skip over its editing of activeData. That will be tested elsewhere.
         let calledCreateTextCloud = false;
@@ -310,7 +315,7 @@ describe('Component: TextCloud', () => {
         };
 
         component.subNgOnInit();
-        component.onQuerySuccess(response);
+        component.onQuerySuccess(component.options, response);
 
         expect(component.activeData).toEqual([{
             value: 8,
@@ -341,7 +346,7 @@ describe('Component: TextCloud', () => {
         calledCreateTextCloud = false;
         calledExecuteQuery = false;
 
-        component.onQuerySuccess(response);
+        component.onQuerySuccess(component.options, response);
 
         expect(component.activeData).toEqual([{
             value: 100,
@@ -440,15 +445,23 @@ describe('Component: TextCloud', () => {
     });
 
     it('returns the proper value from getButtonText', () => {
-        expect(component.getButtonText()).toEqual('No Data');
+        expect(component.getButtonText()).toEqual('0 Terms');
         component.activeData = [{
             testTextField: 'Value',
             value: 10
         }];
-        component.termsCount = 1;
-        expect(component.getButtonText()).toEqual('Total 1');
+        expect(component.getButtonText()).toEqual('1 Term');
+        component.activeData = [{
+            testTextField: 'Value',
+            value: 10
+        }, {
+            testTextField: 'Value',
+            value: 100
+        }];
+        expect(component.getButtonText()).toEqual('2 Terms');
         component.termsCount = 5;
-        expect(component.getButtonText()).toEqual('1 of 5');
+        component.options.limit = 2;
+        expect(component.getButtonText()).toEqual('1 - 2 of 5 Terms');
     });
 
     it('properly returns the list of filters from getCloseableFilters', () => {
@@ -539,6 +552,7 @@ describe('Component: Textcloud with config', () => {
             UnsharedFilterComponent
         ],
         providers: [
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
@@ -586,7 +600,7 @@ describe('Component: Textcloud with config', () => {
             .sortBy('value', neonVariables.DESCENDING)
             .limit(25);
 
-        expect(component.createQuery()).toEqual(query);
+        expect(component.createQuery(component.options)).toEqual(query);
     });
 });
 
@@ -601,6 +615,7 @@ describe('Component: Textcloud with config including filter', () => {
             UnsharedFilterComponent
         ],
         providers: [
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
@@ -652,7 +667,7 @@ describe('Component: Textcloud with config including filter', () => {
             .sortBy('value', neonVariables.DESCENDING)
             .limit(25);
 
-        expect(component.createQuery()).toEqual(query);
+        expect(component.createQuery(component.options)).toEqual(query);
     });
 
     it('createClause does return expected object', () => {

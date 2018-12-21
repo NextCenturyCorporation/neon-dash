@@ -236,7 +236,7 @@ describe('Component: Sample', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
-        expect(component.createQuery()).toEqual(new neon.query.Query()
+        expect(component.createQuery(component.options)).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
             .where(neon.query.where('testRequiredField1', '!=', null)).groupBy(['testRequiredField1'])
             .aggregate(neonVariables.COUNT, '*', 'count').sortBy('count', neonVariables.DESCENDING));
@@ -253,7 +253,7 @@ describe('Component: Sample', () => {
             neon.query.where('testOptionalField1', '!=', null)
         ]);
 
-        expect(component.createQuery()).toEqual(new neon.query.Query()
+        expect(component.createQuery(component.options)).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name).where(wherePredicate)
             .groupBy(['testRequiredField1', 'testOptionalField1']).aggregate(neonVariables.COUNT, '*', 'count')
             .sortBy('count', neonVariables.DESCENDING));
@@ -323,7 +323,7 @@ describe('Component: Sample', () => {
             value: 'value1'
         }]);
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([true, {
+        expect(spy.calls.argsFor(0)).toEqual([component.options, true, {
             id: undefined,
             field: 'field1',
             prettyField: 'prettyField1',
@@ -359,7 +359,7 @@ describe('Component: Sample', () => {
             value: 'value1'
         }]);
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([true, {
+        expect(spy.calls.argsFor(0)).toEqual([component.options, true, {
             id: undefined,
             field: 'field1',
             prettyField: 'prettyField1',
@@ -410,7 +410,7 @@ describe('Component: Sample', () => {
             value: 'value1'
         }]);
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([true, {
+        expect(spy.calls.argsFor(0)).toEqual([component.options, true, {
             id: undefined,
             field: 'field1',
             prettyField: 'prettyField1',
@@ -443,7 +443,7 @@ describe('Component: Sample', () => {
         }]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([true, {
+        expect(spy.calls.argsFor(0)).toEqual([component.options, true, {
             id: 'idA',
             field: 'field1',
             prettyField: 'prettyField1',
@@ -475,7 +475,8 @@ describe('Component: Sample', () => {
         }, true);
         expect(spy.calls.count()).toEqual(1);
         let args = spy.calls.argsFor(0);
-        expect(args[0]).toEqual([{
+        expect(args[0]).toEqual(component.options);
+        expect(args[1]).toEqual([{
             id: 'idB',
             field: 'field2',
             prettyField: 'prettyField2',
@@ -489,8 +490,8 @@ describe('Component: Sample', () => {
 
         // Run the callback.
         spy = spyOn(component, 'addNeonFilter');
-        expect(typeof args[1]).toEqual('function');
-        args[1]();
+        expect(typeof args[2]).toEqual('function');
+        args[2]();
         expect(component.filters).toEqual([{
             id: undefined,
             field: 'field1',
@@ -498,7 +499,7 @@ describe('Component: Sample', () => {
             value: 'value1'
         }]);
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([true, {
+        expect(spy.calls.argsFor(0)).toEqual([component.options, true, {
             id: undefined,
             field: 'field1',
             prettyField: 'prettyField1',
@@ -507,24 +508,24 @@ describe('Component: Sample', () => {
     });
 
     it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toEqual('No Data');
-
-        component.options.limit = 1;
-        component.activeData = [{}];
-        component.responseData = [{}, {}];
-        expect(component.getButtonText()).toEqual('1 of 2');
+        expect(component.getButtonText()).toEqual('0 Results');
 
         component.activeData = [{}, {}];
-        expect(component.getButtonText()).toEqual('Total 2');
+        expect(component.getButtonText()).toEqual('2 Results');
 
-        component.responseData = [{}, {}, {}, {}];
-        expect(component.getButtonText()).toEqual('1 of 4');
+        component.activeData = [{}];
+        component.docCount = 2;
+        component.options.limit = 1;
+        expect(component.getButtonText()).toEqual('1 of 2 Results');
+
+        component.docCount = 4;
+        expect(component.getButtonText()).toEqual('1 of 4 Results');
 
         component.options.limit = 2;
-        expect(component.getButtonText()).toEqual('1 - 2 of 4');
+        expect(component.getButtonText()).toEqual('1 - 2 of 4 Results');
 
         component.page = 2;
-        expect(component.getButtonText()).toEqual('3 - 4 of 4');
+        expect(component.getButtonText()).toEqual('3 - 4 of 4 Results');
     });
 
     it('getCloseableFilters does return expected array of filters', () => {
@@ -694,16 +695,16 @@ describe('Component: Sample', () => {
     });
 
     it('isValidQuery does return expected boolean', () => {
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.isValidQuery(component.options)).toEqual(false);
 
         component.options.database = DatasetServiceMock.DATABASES[0];
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.isValidQuery(component.options)).toEqual(false);
 
         component.options.table = DatasetServiceMock.TABLES[0];
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.isValidQuery(component.options)).toEqual(false);
 
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
-        expect(component.isValidQuery()).toEqual(true);
+        expect(component.isValidQuery(component.options)).toEqual(true);
     });
 
     it('isVisualizationFilterUnique does return expected boolean', () => {
@@ -727,7 +728,7 @@ describe('Component: Sample', () => {
         let spy1 = spyOn(component, 'updateActiveData');
         let spy2 = spyOn(component, 'runDocCountQuery');
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 count: 2,
                 testRequiredField1: 'a'
@@ -760,7 +761,7 @@ describe('Component: Sample', () => {
         let spy1 = spyOn(component, 'updateActiveData');
         let spy2 = spyOn(component, 'runDocCountQuery');
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: []
         });
         expect(component.page).toEqual(1);
@@ -776,7 +777,7 @@ describe('Component: Sample', () => {
         let spy1 = spyOn(component, 'updateActiveData');
         let spy2 = spyOn(component, 'runDocCountQuery');
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 count: 2,
                 testOptionalField1: 'alpha',
@@ -809,7 +810,7 @@ describe('Component: Sample', () => {
         let spy1 = spyOn(component, 'updateActiveData');
         let spy2 = spyOn(component, 'runDocCountQuery');
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 _docCount: 1234
             }]
@@ -893,7 +894,7 @@ describe('Component: Sample', () => {
         expect(spy.calls.count()).toEqual(1);
         let query = new neon.query.Query().selectFrom('testDatabase1', 'testTable1')
             .where(neon.query.where('testRequiredField1', '!=', null)).aggregate(neonVariables.COUNT, '*', '_docCount');
-        expect(spy.calls.argsFor(0)).toEqual([query]);
+        expect(spy.calls.argsFor(0)).toEqual([component.options, query]);
     });
 
     it('runDocCountQuery does add ignoreFilters to query', () => {
@@ -911,7 +912,7 @@ describe('Component: Sample', () => {
         let query = new neon.query.Query().selectFrom('testDatabase1', 'testTable1')
             .where(neon.query.where('testRequiredField1', '!=', null)).ignoreFilters(['testDatabase1-testTable1-testFilterName1'])
             .aggregate(neonVariables.COUNT, '*', '_docCount');
-        expect(spy.calls.argsFor(0)).toEqual([query]);
+        expect(spy.calls.argsFor(0)).toEqual([component.options, query]);
 
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
@@ -1148,7 +1149,7 @@ describe('Component: Sample', () => {
     it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', () => {
         let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
         expect(dataInfoTextInToolbar).not.toBeNull();
-        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('No Data');
+        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('0 Results');
 
         let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
         expect(dataInfoIconInSidenav).not.toBeNull();
@@ -1156,7 +1157,7 @@ describe('Component: Sample', () => {
 
         let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
         expect(dataInfoTextInSidenav).not.toBeNull();
-        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('No Data');
+        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Results');
 
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
@@ -1185,7 +1186,7 @@ describe('Component: Sample', () => {
 
             let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
             expect(dataInfoTextInSidenav).not.toBeNull();
-            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('No Data');
+            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Results');
 
             let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
             expect(errorMessageInToolbar).not.toBeNull();
@@ -1304,7 +1305,7 @@ describe('Component: Sample', () => {
     });
 
     it('does show loading overlay if isLoading is true', async(() => {
-        component.isLoading = true;
+        component.isLoading = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();

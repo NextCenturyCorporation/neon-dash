@@ -66,7 +66,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     public activeData: any[] = [];
     public docCount: number = 0;
-    public page: number = 1;
 
     constructor(
         connectionService: ConnectionService,
@@ -78,7 +77,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         ref: ChangeDetectorRef,
         public dialog: MatDialog
     ) {
-
         super(
             connectionService,
             datasetService,
@@ -87,17 +85,19 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             ref
         );
 
-        // Backwards compatibility (sortOrder deprecated and replaced by sortDescending).
-        let sortOrder = this.injector.get('sortOrder', null);
-        this.options.sortDescending = sortOrder ? (sortOrder === 'DESCENDING') : this.options.sortDescending;
+        this.isPaginationWidget = true;
     }
 
     subNgOnInit() {
-        this.executeQueryChain();
+        // Do nothing.
     }
 
     postInit() {
-        // Do nothing.
+        // Backwards compatibility (sortOrder deprecated and replaced by sortDescending).
+        let sortOrder = this.injector.get('sortOrder', null);
+        this.options.sortDescending = sortOrder ? (sortOrder === 'DESCENDING') : this.options.sortDescending;
+
+        this.executeQueryChain();
     }
 
     subNgOnDestroy() {
@@ -112,13 +112,15 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         return null;
     }
 
-    isValidQuery(): boolean {
-        let valid = true;
-        valid = (this.options.database && this.options.database.name && valid);
-        valid = (this.options.table && this.options.table.name && valid);
-        valid = (this.options.dataField && this.options.dataField.columnName && valid);
-        // We intentionally don't include dateField or idField in the validity check, because we're allowed to leave it null.
-        return !!(valid);
+    /**
+     * Returns whether the visualization data query created using the given options is valid.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     * @override
+     */
+    isValidQuery(options: any): boolean {
+        return !!(options.database.name && options.table.name && options.dataField.columnName);
     }
 
     /**
@@ -171,25 +173,32 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         ];
     }
 
-    createQuery() {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
+    /**
+     * Creates and returns the visualization data query using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {neon.query.Query}
+     * @override
+     */
+    createQuery(options: any): neon.query.Query {
+        let query = new neon.query.Query().selectFrom(options.database.name, options.table.name);
         let whereClause = this.createClause();
-        let fields = [this.options.dataField.columnName].concat(neonUtilities.flatten(this.options.metadataFields).map((item) => {
+        let fields = [options.dataField.columnName].concat(neonUtilities.flatten(options.metadataFields).map((item) => {
             return item.field;
-        })).concat(neonUtilities.flatten(this.options.popoutFields).map((item) => {
+        })).concat(neonUtilities.flatten(options.popoutFields).map((item) => {
             return item.field;
         }));
-        if (this.options.dateField.columnName) {
-            fields = fields.concat(this.options.dateField.columnName);
+        if (options.dateField.columnName) {
+            fields = fields.concat(options.dateField.columnName);
         }
-        if (this.options.sortField.columnName) {
-            query = query.sortBy(this.options.sortField.columnName, this.options.sortDescending ? neonVariables.DESCENDING :
+        if (options.sortField.columnName) {
+            query = query.sortBy(options.sortField.columnName, options.sortDescending ? neonVariables.DESCENDING :
                 neonVariables.ASCENDING);
         }
-        if (this.options.idField.columnName) {
-            fields = fields.concat(this.options.idField.columnName);
+        if (options.idField.columnName) {
+            fields = fields.concat(options.idField.columnName);
         }
-        return query.where(whereClause).withFields(fields).limit(this.options.limit).offset((this.page - 1) * this.options.limit);
+        return query.where(whereClause).withFields(fields).limit(options.limit).offset((this.page - 1) * options.limit);
     }
 
     /**
@@ -212,39 +221,46 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         return 'Document Viewer';
     }
 
-    onQuerySuccess(response) {
+    /**
+     * Handles the given response data for a successful visualization data query created using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} response
+     * @override
+     */
+    onQuerySuccess(options: any, response: any) {
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.docCount = response.data[0]._docCount;
             return;
         }
 
-        let configFields: { name?: string, field: string, arrayFilter?: any }[] = neonUtilities.flatten(this.options.metadataFields).concat(
-            neonUtilities.flatten(this.options.popoutFields));
+        let configFields: { name?: string, field: string, arrayFilter?: any }[] = neonUtilities.flatten(options.metadataFields).concat(
+            neonUtilities.flatten(options.popoutFields));
 
         if (!configFields.some((configField) => {
-            return configField.field === this.options.dataField.columnName;
+            return configField.field === options.dataField.columnName;
         })) {
             configFields.splice(0, 0, {
-                field: this.options.dataField.columnName,
-                name: this.options.dataField.prettyName
+                field: options.dataField.columnName,
+                name: options.dataField.prettyName
             });
         }
 
-        if (this.options.dateField.columnName && !configFields.some((configField) => {
-            return configField.field === this.options.dateField.columnName;
+        if (options.dateField.columnName && !configFields.some((configField) => {
+            return configField.field === options.dateField.columnName;
         })) {
             configFields.push({
-                field: this.options.dateField.columnName,
-                name: this.options.dateField.prettyName
+                field: options.dateField.columnName,
+                name: options.dateField.prettyName
             });
         }
 
-        if (this.options.idField.columnName && !configFields.some((configField) => {
-            return configField.field === this.options.idField.columnName;
+        if (options.idField.columnName && !configFields.some((configField) => {
+            return configField.field === options.idField.columnName;
         })) {
             configFields.push({
-                field: this.options.idField.columnName,
-                name: this.options.idField.prettyName
+                field: options.idField.columnName,
+                name: options.idField.prettyName
             });
         }
 
@@ -310,10 +326,10 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     getDocCount() {
-        if (!this.cannotExecuteQuery()) {
+        if (!this.cannotExecuteQuery(this.options)) {
             let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
                 .where(this.createClause()).aggregate(neonVariables.COUNT, '*', '_docCount');
-            this.executeQuery(countQuery);
+            this.executeQuery(this.options, countQuery);
         }
     }
 
@@ -322,24 +338,35 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Creates and returns the text for the settings button.
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
      *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        return this.activeData;
+    }
+
+    /**
+     * Returns the count of data items that an unlimited query for the visualization would contain.
+     *
+     * @return {number}
+     * @override
+     */
+    public getTotalDataCount(): number {
+        return this.docCount;
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
      * @return {string}
      * @override
      */
-    getButtonText() {
-        if (!this.docCount) {
-            if (this.options.hideUnfiltered) {
-                return 'Please Filter';
-            }
-            return 'No Data';
-        }
-        if (this.docCount <= this.activeData.length) {
-            return 'Total ' + super.prettifyInteger(this.docCount);
-        }
-        let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.docCount));
-        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.docCount);
+    public getVisualizationElementLabel(count: number): string {
+        return 'Document' + (count === 1 ? '' : 's');
     }
 
     setupFilters() {

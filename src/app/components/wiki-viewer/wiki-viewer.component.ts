@@ -61,7 +61,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
-    public isLoadingWikiPage: boolean = false;
     public wikiName: string[] = [];
     public wikiText: SafeHtml[] = [];
 
@@ -112,35 +111,45 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Creates and returns the query for the wiki viewer.
+     * Creates and returns the visualization data query using the given options.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {neon.query.Query}
      * @override
      */
-    createQuery(): neon.query.Query {
+    createQuery(options: any): neon.query.Query {
         let query = new neon.query.Query()
-            .selectFrom(this.options.database.name, this.options.table.name)
-            .withFields([this.options.linkField.columnName]);
+            .selectFrom(options.database.name, options.table.name)
+            .withFields([options.linkField.columnName]);
 
         let whereClauses = [
-            neon.query.where(this.options.idField.columnName, '=', this.options.id),
-            neon.query.where(this.options.linkField.columnName, '!=', null)
+            neon.query.where(options.idField.columnName, '=', options.id),
+            neon.query.where(options.linkField.columnName, '!=', null)
         ];
 
         return query.where(neon.query.and.apply(query, whereClauses));
     }
 
     /**
-     * Creates and returns the text for the settings button.
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
      *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        return this.wikiName;
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
      * @return {string}
      * @override
      */
-    getButtonText() {
-        if (!this.wikiName.length) {
-            return 'No Data';
-        }
-        return 'Total ' + super.prettifyInteger(this.wikiName.length);
+    public getVisualizationElementLabel(count: number): string {
+        return 'Page' + (count === 1 ? '' : 's');
     }
 
     /**
@@ -236,40 +245,41 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Returns whether the wiki viewer query using the options data config is valid.
+     * Returns whether the visualization data query created using the given options is valid.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(): boolean {
-        return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name && this.options.id &&
-            this.options.idField && this.options.idField.columnName && this.options.linkField && this.options.linkField.columnName);
+    isValidQuery(options: any): boolean {
+        return !!(options.database.name && options.table.name && options.id && options.idField.columnName && options.linkField.columnName);
     }
 
     /**
-     * Handles the wiki viewer query results.
+     * Handles the given response data for a successful visualization data query created using the given options.
      *
-     * @arg {object} response
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} response
      * @override
      */
-    onQuerySuccess(response: any) {
+    onQuerySuccess(options: any, response: any) {
         this.wikiName = [];
         this.wikiText = [];
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.errorMessage = '';
-                this.isLoadingWikiPage = true;
-                let links = neonUtilities.deepFind(response.data[0], this.options.linkField.columnName);
+                this.isLoading++;
+                let links = neonUtilities.deepFind(response.data[0], options.linkField.columnName);
                 this.retrieveWikiPage(Array.isArray(links) ? links : [links]);
             } else {
                 this.errorMessage = 'No Data';
                 this.refreshVisualization();
             }
         } catch (e) {
-            this.isLoadingWikiPage = false;
+            this.isLoading--;
             this.errorMessage = 'Error';
-            console.error('Error in ' + this.options.title, e);
+            console.error('Error in ' + options.title, e);
             this.refreshVisualization();
         }
     }
@@ -310,7 +320,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     private retrieveWikiPage(links) {
         if (!links.length) {
-            this.isLoadingWikiPage = false;
+            this.isLoading--;
             this.refreshVisualization();
             return;
         }

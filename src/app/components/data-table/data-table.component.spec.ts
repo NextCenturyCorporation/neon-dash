@@ -586,7 +586,7 @@ describe('Component: DataTable', () => {
     }));
 
     it('isValidQuery does return false if no options exist', (() => {
-        expect(component.isValidQuery()).toBeFalsy();
+        expect(component.isValidQuery(component.options)).toBeFalsy();
     }));
 
     it('isValidQuery does return false if not all specified options exist', (() => {
@@ -594,19 +594,19 @@ describe('Component: DataTable', () => {
         component.options.table = new TableMetaData('documents');
         component.options.sortField = new FieldMetaData('sortField');
 
-        expect(component.isValidQuery()).toBeFalsy();
+        expect(component.isValidQuery(component.options)).toBeFalsy();
 
         component.options.database = new DatabaseMetaData('someDatastore');
         component.options.table = new TableMetaData(undefined);
         component.options.sortField = new FieldMetaData('sortField');
 
-        expect(component.isValidQuery()).toBeFalsy();
+        expect(component.isValidQuery(component.options)).toBeFalsy();
 
         component.options.database = new DatabaseMetaData('someDatastore');
         component.options.table = new TableMetaData('documents');
         component.options.sortField = new FieldMetaData(undefined);
 
-        expect(component.isValidQuery()).toBeFalsy();
+        expect(component.isValidQuery(component.options)).toBeFalsy();
     }));
 
     it('isValidQuery does return true if all specified options exist', (() => {
@@ -614,7 +614,7 @@ describe('Component: DataTable', () => {
         component.options.table = new TableMetaData('documents');
         component.options.sortField = new FieldMetaData('sortField');
 
-        expect(component.isValidQuery()).toBeTruthy();
+        expect(component.isValidQuery(component.options)).toBeTruthy();
     }));
 
     it('headerIsInExceptions does return whether or not header is in options.exceptionsToStatus', (() => {
@@ -681,7 +681,7 @@ describe('Component: DataTable', () => {
             .where('testSortField', '!=', null).sortBy('testSortField', -1).limit(25)
             .offset(0);
 
-        expect(component.createQuery()).toEqual(expectedQuery);
+        expect(component.createQuery(component.options)).toEqual(expectedQuery);
     });
 
     it('getFiltersToIgnore does return null', () => {
@@ -730,7 +730,7 @@ describe('Component: DataTable', () => {
             new FieldMetaData('testField', 'Test Field', false, 'string')
         ];
 
-        component.onQuerySuccess({data: [
+        component.onQuerySuccess(component.options, { data: [
             {_id: 1, category: 'books', testField: 'test', ignore: 'ignore', _docCount: 1}
         ]});
 
@@ -750,7 +750,7 @@ describe('Component: DataTable', () => {
             new FieldMetaData('testField', 'Test Field', false, 'string')
         ];
 
-        component.onQuerySuccess({data: [
+        component.onQuerySuccess(component.options, { data: [
             {_id: 1, category: 'books', testField: 'test', ignore: 'ignore', _docCount: 1},
             {_id: 2, category: 'books', testField: 'some other value', ignore: 'ignoring'}
         ]});
@@ -1259,20 +1259,24 @@ describe('Component: DataTable', () => {
     });
 
     it('getButtonText does return expected string', () => {
-        component.options.limit = 10;
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Rows');
+
         component.options.hideUnfiltered = true;
         expect(component.getButtonText()).toBe('Please Filter');
-        component.docCount = 10;
-        expect(component.getButtonText()).toBe('Total 10');
+        component.options.hideUnfiltered = false;
+
+        component.activeData = [{}];
+        expect(component.getButtonText()).toBe('1 Row');
+
+        component.activeData = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}];
+        expect(component.getButtonText()).toBe('10 Rows');
+
         component.docCount = 20;
-        expect(component.getButtonText()).toBe('1 - 10 of 20');
+        component.options.limit = 10;
+        expect(component.getButtonText()).toBe('1 - 10 of 20 Rows');
+
         component.page = 2;
-        expect(component.getButtonText()).toBe('11 - 20 of 20');
-        component.options.limit = 5;
-        expect(component.getButtonText()).toBe('6 - 10 of 20');
-        component.docCount = 5;
-        expect(component.getButtonText()).toBe('Total 5');
+        expect(component.getButtonText()).toBe('11 - 20 of 20 Rows');
     });
 
     it('onSelect does update selected array and calls publishAnyCustomEvents, but not publishSelectId', () => {
@@ -1416,7 +1420,7 @@ describe('Component: DataTable', () => {
         component.addFilter(filter1, neon.query.where('testDataField', '=', 'Test Value'));
 
         expect(getService(FilterService).getFilters().length).toBe(1);
-        component.removeLocalFilterFromLocalAndNeon(filter1, true, true);
+        component.removeLocalFilterFromLocalAndNeon(component.options, filter1, true, true);
         expect(getService(FilterService).getFilters().length).toBe(0);
 
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {

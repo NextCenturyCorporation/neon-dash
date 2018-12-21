@@ -27,6 +27,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -87,7 +88,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         inactiveColor: string
     };
 
-    public defaultActiveColor;
     public timelineChart: TimelineSelectorChart;
     public timelineData: TimelineData = new TimelineData();
 
@@ -96,7 +96,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         datasetService: DatasetService,
         filterService: FilterService,
         injector: Injector,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        protected widgetService: AbstractWidgetService
     ) {
 
         super(
@@ -108,10 +109,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         );
 
         console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');
-
-        this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
-        this.timelineData.granularity = this.options.granularity;
-        this.timelineData.bucketizer = this.getBucketizer();
         this.enableRedrawAfterResize(true);
     }
 
@@ -141,13 +138,15 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     subNgOnInit() {
+        this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
+        this.timelineData.granularity = this.options.granularity;
+        this.timelineData.bucketizer = this.getBucketizer();
+
         this.timelineChart = new TimelineSelectorChart(this, this.svg, this.timelineData);
     }
 
     postInit() {
         this.executeQueryChain();
-
-        this.defaultActiveColor = this.getPrimaryThemeColor();
     }
 
     subNgOnDestroy() {
@@ -183,9 +182,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         }
         this.filters[0] = filter;
         if (filter.id === undefined) {
-            this.addNeonFilter(false, filter, this.createNeonFilter(filter));
+            this.addNeonFilter(this.options, false, filter, this.createNeonFilter(filter));
         } else {
-            this.replaceNeonFilter(false, filter, this.createNeonFilter(filter));
+            this.replaceNeonFilter(this.options, false, filter, this.createNeonFilter(filter));
         }
 
         // Update the charts
@@ -217,12 +216,15 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.timelineChart.redrawChart();
     }
 
-    isValidQuery() {
-        let valid = true;
-        valid = (this.options.database && this.options.database.name && valid);
-        valid = (this.options.table && this.options.table.name && valid);
-        valid = (this.options.dateField && this.options.dateField.columnName && valid);
-        return valid;
+    /**
+     * Returns whether the visualization data query created using the given options is valid.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     * @override
+     */
+    isValidQuery(options: any): boolean {
+        return !!(options.database.name && options.table.name && options.dateField.columnName);
     }
 
     /**
@@ -241,13 +243,20 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         return clause;
     }
 
-    createQuery(): neon.query.Query {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
+    /**
+     * Creates and returns the visualization data query using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {neon.query.Query}
+     * @override
+     */
+    createQuery(options: any): neon.query.Query {
+        let query = new neon.query.Query().selectFrom(options.database.name, options.table.name);
         let whereClause = this.createClause();
-        let dateField = this.options.dateField.columnName;
+        let dateField = options.dateField.columnName;
         query = query.aggregate(neonVariables.MIN, dateField, 'date');
         let groupBys: any[] = [];
-        switch (this.options.granularity) {
+        switch (options.granularity) {
             // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
             case 'minute':
                 groupBys.push(new neon.query.GroupByFunctionClause('minute', dateField, 'minute'));
@@ -272,10 +281,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     getDocCount() {
-        if (!this.cannotExecuteQuery()) {
+        if (!this.cannotExecuteQuery(this.options)) {
             let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
                 .where(this.createClause()).aggregate(neonVariables.COUNT, '*', '_docCount');
-            this.executeQuery(countQuery);
+            this.executeQuery(this.options, countQuery);
         }
     }
 
@@ -295,7 +304,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         return (ignoredFilterIds.length > 0 ? ignoredFilterIds : null);
     }
 
-    onQuerySuccess(response) {
+    /**
+     * Handles the given response data for a successful visualization data query created using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} response
+     * @override
+     */
+    onQuerySuccess(options: any, response: any) {
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.docCount = response.data[0]._docCount;
         } else {
@@ -311,22 +327,23 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Creates and returns the text for the settings button.
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
      *
-     * @return {string}
+     * @return {any[]}
+     */
+    public getShownDataArray(): any[] {
+        return this.activeData;
+    }
+
+    /**
+     * Returns the count of the given array of data items that are currently shown in the visualization.
+     *
+     * @arg {any[]} data
+     * @return {number}
      * @override
      */
-    getButtonText() {
-        let shownCount = (this.activeData || []).reduce((sum, element) => {
-            return sum + element.value;
-        }, 0);
-        if (!shownCount) {
-            return 'No Data';
-        }
-        if (this.docCount <= shownCount) {
-            return 'Total ' + super.prettifyInteger(shownCount);
-        }
-        return super.prettifyInteger(shownCount) + ' of ' + super.prettifyInteger(this.docCount);
+    public getShownDataCount(data: any[]): number {
+        return data.reduce((sum, element) => sum + element.value, 0);
     }
 
     /**
@@ -334,7 +351,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     filterAndRefreshData() {
         let series: TimelineSeries = {
-            color: this.defaultActiveColor,
+            color: this.widgetService.getThemeMainColorHex(),
             name: 'Total',
             type: 'bar',
             options: {},
@@ -445,7 +462,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
         this.timelineData.bucketizer = this.getBucketizer();
         this.timelineData.granularity = this.options.granularity;
-        this.logChangeAndStartQueryChain();
+        this.handleChangeData();
     }
 
     getBucketizer() {
