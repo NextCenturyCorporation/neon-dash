@@ -16,7 +16,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 
 // Includes the filter-builder as well as the current-filters component.
 @Component({
@@ -25,7 +24,7 @@ import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-ne
     styleUrls: ['./filters.component.scss']
 })
 export class FiltersComponent {
-    @Input() widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent>;
+    @Input() widgets: Map<string, BaseNeonComponent>;
     @Output() closeDialog: EventEmitter<boolean> = new EventEmitter<boolean>();
     public showFilterBuilderView: boolean = true; // if false, show current filters instead
 
