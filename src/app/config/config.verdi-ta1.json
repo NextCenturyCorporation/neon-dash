@@ -2,158 +2,8 @@
     "datasets": [
         {
             "title": "VERDI",
-            "name": "VERDI JHU TA1",
+            "name": "Pilot GAIA TA1",
             "connectOnLoad": false,
-            "icon": "assets/images/verdi-favicon.ico",
-            "layout": "verdi-jhu-ta1-layout",
-            "datastore": "elasticsearch",
-            "hostname": "localhost",
-            "databases": [
-                {
-                    "name": "jhu",
-                    "prettyName": "JHU",
-                    "tables": [
-                        {
-                            "name": "graph",
-                            "prettyName": "Graph"
-                        }
-                    ]
-                },
-                {
-                    "name": "aida-docs",
-                    "prettyName": "Documents",
-                    "tables": [
-                        {
-                            "name": "parent_children",
-                            "prettyName": "Child Documents"
-                        },
-                        {
-                            "name": "parents",
-                            "prettyName": "Root Documents"
-                        }
-                    ]
-                }
-            ],
-            "relations": [
-                {
-                    "members": [
-                        {
-                            "database": "aida-docs",
-                            "table": "parent_children",
-                            "field": "id"
-                        },
-                        {
-                            "database": "aida-docs",
-                            "table": "parents",
-                            "field": "children"
-                        },
-                        {
-                            "database": "jhu",
-                            "table": "graph",
-                            "field": "docIds"
-                        }
-                    ]
-                },
-                {
-                    "members": [
-                        {
-                            "database": "aida-docs",
-                            "table": "parent_children",
-                            "field": "parent_uid"
-                        },
-                        {
-                            "database": "aida-docs",
-                            "table": "parents",
-                            "field": "id"
-                        },
-                        {
-                            "database": "jhu",
-                            "table": "graph",
-                            "field": "parentIds"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "title": "VERDI",
-            "name": "VERDI BBN TA1",
-            "connectOnLoad": false,
-            "icon": "assets/images/verdi-favicon.ico",
-            "layout": "verdi-bbn-ta1-layout",
-            "datastore": "elasticsearch",
-            "hostname": "localhost",
-            "databases": [
-                {
-                    "name": "bbn",
-                    "prettyName": "BBN",
-                    "tables": [
-                        {
-                            "name": "graph",
-                            "prettyName": "Graph"
-                        }
-                    ]
-                },
-                {
-                    "name": "aida-docs",
-                    "prettyName": "Documents",
-                    "tables": [
-                        {
-                            "name": "parent_children",
-                            "prettyName": "Child Documents"
-                        },
-                        {
-                            "name": "parents",
-                            "prettyName": "Root Documents"
-                        }
-                    ]
-                }
-            ],
-            "relations": [
-                {
-                    "members": [
-                        {
-                            "database": "aida-docs",
-                            "table": "parent_children",
-                            "field": "id"
-                        },
-                        {
-                            "database": "aida-docs",
-                            "table": "parents",
-                            "field": "children"
-                        },
-                        {
-                            "database": "bbn",
-                            "table": "graph",
-                            "field": "docIds"
-                        }
-                    ]
-                },
-                {
-                    "members": [
-                        {
-                            "database": "aida-docs",
-                            "table": "parent_children",
-                            "field": "parent_uid"
-                        },
-                        {
-                            "database": "aida-docs",
-                            "table": "parents",
-                            "field": "id"
-                        },
-                        {
-                            "database": "bbn",
-                            "table": "graph",
-                            "field": "parentIds"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "title": "VERDI",
-            "name": "VERDI GAIA TA1",
-            "connectOnLoad": true,
             "icon": "assets/images/verdi-favicon.ico",
             "layout": "verdi-gaia-ta1-layout",
             "datastore": "elasticsearch",
@@ -170,7 +20,7 @@
                     ]
                 },
                 {
-                    "name": "aida-docs",
+                    "name": "aida-docs-tmp",
                     "prettyName": "Documents",
                     "tables": [
                         {
@@ -188,12 +38,12 @@
                 {
                     "members": [
                         {
-                            "database": "aida-docs",
+                            "database": "aida-docs-tmp",
                             "table": "parent_children",
                             "field": "id"
                         },
                         {
-                            "database": "aida-docs",
+                            "database": "aida-docs-tmp",
                             "table": "parents",
                             "field": "children"
                         },
@@ -207,12 +57,12 @@
                 {
                     "members": [
                         {
-                            "database": "aida-docs",
+                            "database": "aida-docs-tmp",
                             "table": "parent_children",
                             "field": "parent_uid"
                         },
                         {
-                            "database": "aida-docs",
+                            "database": "aida-docs-tmp",
                             "table": "parents",
                             "field": "id"
                         },
@@ -220,90 +70,28 @@
                             "database": "gaia",
                             "table": "graph",
                             "field": "parentIds"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "title": "VERDI",
-            "name": "VERDI Michigan TA1",
-            "connectOnLoad": false,
-            "icon": "assets/images/verdi-favicon.ico",
-            "layout": "verdi-michigan-ta1-layout",
-            "datastore": "elasticsearch",
-            "hostname": "localhost",
-            "databases": [
-                {
-                    "name": "michigan",
-                    "prettyName": "Michigan",
-                    "tables": [
-                        {
-                            "name": "graph",
-                            "prettyName": "Graph"
-                        }
-                    ]
-                },
-                {
-                    "name": "aida-docs",
-                    "prettyName": "Documents",
-                    "tables": [
-                        {
-                            "name": "parent_children",
-                            "prettyName": "Child Documents"
-                        },
-                        {
-                            "name": "parents",
-                            "prettyName": "Root Documents"
                         }
                     ]
                 }
             ],
-            "relations": [
-                {
-                    "members": [
-                        {
-                            "database": "aida-docs",
-                            "table": "parent_children",
-                            "field": "id"
-                        },
-                        {
-                            "database": "aida-docs",
-                            "table": "parents",
-                            "field": "children"
-                        },
-                        {
-                            "database": "michigan",
-                            "table": "graph",
-                            "field": "docIds"
+            "options": {
+                "colorMaps": {
+                    "gaia": {
+                        "graph": {
+                            "categories": {
+                                "ENTITY": "#ADD8E6",
+                                "EVENT": "#D98C8C",
+                                "RELATION": "#FFE4B5"
+                            }
                         }
-                    ]
-                },
-                {
-                    "members": [
-                        {
-                            "database": "aida-docs",
-                            "table": "parent_children",
-                            "field": "parent_uid"
-                        },
-                        {
-                            "database": "aida-docs",
-                            "table": "parents",
-                            "field": "id"
-                        },
-                        {
-                            "database": "michigan",
-                            "table": "graph",
-                            "field": "parentIds"
-                        }
-                    ]
+                    }
                 }
-            ]
+            }
         },
         {
             "title": "VERDI",
-            "name": "VERDI LDC TA1",
-            "connectOnLoad": false,
+            "name": "Pilot LDC TA1",
+            "connectOnLoad": true,
             "icon": "assets/images/verdi-favicon.ico",
             "layout": "verdi-ldc-ta1-layout",
             "datastore": "elasticsearch",
@@ -320,7 +108,7 @@
                     ]
                 },
                 {
-                    "name": "aida-docs",
+                    "name": "aida-docs-tmp",
                     "prettyName": "Documents",
                     "tables": [
                         {
@@ -338,12 +126,12 @@
                 {
                     "members": [
                         {
-                            "database": "aida-docs",
+                            "database": "aida-docs-tmp",
                             "table": "parent_children",
                             "field": "id"
                         },
                         {
-                            "database": "aida-docs",
+                            "database": "aida-docs-tmp",
                             "table": "parents",
                             "field": "children"
                         },
@@ -357,12 +145,12 @@
                 {
                     "members": [
                         {
-                            "database": "aida-docs",
+                            "database": "aida-docs-tmp",
                             "table": "parent_children",
                             "field": "parent_uid"
                         },
                         {
-                            "database": "aida-docs",
+                            "database": "aida-docs-tmp",
                             "table": "parents",
                             "field": "id"
                         },
@@ -373,304 +161,29 @@
                         }
                     ]
                 }
-            ]
+            ],
+            "options": {
+                "colorMaps": {
+                    "gaia": {
+                        "graph": {
+                            "categories": {
+                                "ENTITY": "#ADD8E6",
+                                "EVENT": "#D98C8C",
+                                "RELATION": "#FFE4B5"
+                            }
+                        }
+                    }
+                }
+            }
         }
     ],
     "layouts": {
-        "verdi-jhu-ta1-layout": [
-            {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
-                "sizex": 4,
-                "sizey": 16,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:31",
-                "selected": true,
-                "bindings": {
-                    "title": "Documents",
-                    "database": "aida-docs",
-                    "table": "parents",
-                    "idField": "id",
-                    "sortField": "id",
-                    "filterable": true,
-                    "ignoreSelf": true,
-                    "singleFilter": true,
-                    "filterFields": [
-                        "id"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "id",
-                        "reconstructed"
-                    ]
-                },
-                "row": 1,
-                "col": 1
-            },
-            {
-                "name": "Bar Chart",
-                "type": "aggregation",
-                "icon": "bar_chart",
-                "sizex": 4,
-                "sizey": 5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:30",
-                "selected": true,
-                "bindings": {
-                    "title": "Entities",
-                    "database": "jhu",
-                    "table": "graph",
-                    "type": "bar-h",
-                    "xField": "types",
-                    "aggregation": "count",
-                    "logScaleX": true,
-                    "sortByAggregation": true,
-                    "unsharedFilterField": "categories",
-                    "unsharedFilterValue": "ENTITY"
-                },
-                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-                "row": 1,
-                "col": 5
-            },
-            {
-                "name": "Bar Chart",
-                "type": "aggregation",
-                "icon": "bar_chart",
-                "sizex": 4,
-                "sizey": 5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:30",
-                "selected": true,
-                "bindings": {
-                    "title": "Relations",
-                    "database": "jhu",
-                    "table": "graph",
-                    "type": "bar-h",
-                    "xField": "types",
-                    "aggregation": "count",
-                    "logScaleX": true,
-                    "sortByAggregation": true,
-                    "unsharedFilterField": "categories",
-                    "unsharedFilterValue": "RELATION"
-                },
-                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-                "row": 6,
-                "col": 5
-            },
-            {
-                "name": "Bar Chart",
-                "type": "aggregation",
-                "icon": "bar_chart",
-                "sizex": 4,
-                "sizey": 5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:30",
-                "selected": true,
-                "bindings": {
-                    "title": "Events",
-                    "database": "jhu",
-                    "table": "graph",
-                    "type": "bar-h",
-                    "xField": "types",
-                    "aggregation": "count",
-                    "logScaleX": true,
-                    "sortByAggregation": true,
-                    "unsharedFilterField": "categories",
-                    "unsharedFilterValue": "EVENT"
-                },
-                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-                "row": 11,
-                "col": 5
-            },
-            {
-                "name": "Media Viewer",
-                "type": "mediaViewer",
-                "icon": "mediaViewer",
-                "sizex": 4,
-                "sizey": 16,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:35",
-                "selected": true,
-                "bindings": {
-                    "id": "_id",
-                    "title": "Media Viewer",
-                    "database": "aida-docs",
-                    "table": "parents",
-                    "idField": "id",
-                    "linkField": "reconstructed",
-                    "typeField": "dtype",
-                    "clearMedia": true
-                },
-                "row": 1,
-                "col": 9
-            }
-        ],
-        "verdi-bbn-ta1-layout": [
-            {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
-                "sizex": 4,
-                "sizey": 16,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:31",
-                "selected": true,
-                "bindings": {
-                    "title": "Documents",
-                    "database": "aida-docs",
-                    "table": "parents",
-                    "idField": "id",
-                    "sortField": "id",
-                    "filterable": true,
-                    "ignoreSelf": true,
-                    "singleFilter": true,
-                    "filterFields": [
-                        "id"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "id",
-                        "reconstructed"
-                    ]
-                },
-                "row": 1,
-                "col": 1
-            },
-            {
-                "name": "Bar Chart",
-                "type": "aggregation",
-                "icon": "bar_chart",
-                "sizex": 4,
-                "sizey": 5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:30",
-                "selected": true,
-                "bindings": {
-                    "title": "Entities",
-                    "database": "bbn",
-                    "table": "graph",
-                    "type": "bar-h",
-                    "xField": "types",
-                    "aggregation": "count",
-                    "logScaleX": true,
-                    "sortByAggregation": true,
-                    "unsharedFilterField": "categories",
-                    "unsharedFilterValue": "ENTITY"
-                },
-                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-                "row": 1,
-                "col": 5
-            },
-            {
-                "name": "Bar Chart",
-                "type": "aggregation",
-                "icon": "bar_chart",
-                "sizex": 4,
-                "sizey": 5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:30",
-                "selected": true,
-                "bindings": {
-                    "title": "Relations",
-                    "database": "bbn",
-                    "table": "graph",
-                    "type": "bar-h",
-                    "xField": "types",
-                    "aggregation": "count",
-                    "logScaleX": true,
-                    "sortByAggregation": true,
-                    "unsharedFilterField": "categories",
-                    "unsharedFilterValue": "RELATION"
-                },
-                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-                "row": 6,
-                "col": 5
-            },
-            {
-                "name": "Bar Chart",
-                "type": "aggregation",
-                "icon": "bar_chart",
-                "sizex": 4,
-                "sizey": 5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:30",
-                "selected": true,
-                "bindings": {
-                    "title": "Events",
-                    "database": "bbn",
-                    "table": "graph",
-                    "type": "bar-h",
-                    "xField": "types",
-                    "aggregation": "count",
-                    "logScaleX": true,
-                    "sortByAggregation": true,
-                    "unsharedFilterField": "categories",
-                    "unsharedFilterValue": "EVENT"
-                },
-                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-                "row": 11,
-                "col": 5
-            },
-            {
-                "name": "Media Viewer",
-                "type": "mediaViewer",
-                "icon": "mediaViewer",
-                "sizex": 4,
-                "sizey": 16,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:35",
-                "selected": true,
-                "bindings": {
-                    "id": "_id",
-                    "title": "Media Viewer",
-                    "database": "aida-docs",
-                    "table": "parents",
-                    "idField": "id",
-                    "linkField": "reconstructed",
-                    "typeField": "dtype",
-                    "clearMedia": true
-                },
-                "row": 1,
-                "col": 9
-            }
-        ],
         "verdi-gaia-ta1-layout": [
             {
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
-                "sizex": 4,
+                "sizex": 2,
                 "sizey": 16,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -680,7 +193,7 @@
                 "selected": true,
                 "bindings": {
                     "title": "Documents",
-                    "database": "aida-docs",
+                    "database": "aida-docs-tmp",
                     "table": "parents",
                     "idField": "id",
                     "sortField": "id",
@@ -692,8 +205,7 @@
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "id",
-                        "reconstructed"
+                        "id"
                     ]
                 },
                 "row": 1,
@@ -717,6 +229,7 @@
                     "table": "graph",
                     "type": "bar-h",
                     "xField": "types",
+                    "groupField": "categories",
                     "aggregation": "count",
                     "logScaleX": true,
                     "sortByAggregation": true,
@@ -725,7 +238,7 @@
                 },
                 "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
                 "row": 1,
-                "col": 5
+                "col": 3
             },
             {
                 "name": "Bar Chart",
@@ -745,6 +258,7 @@
                     "table": "graph",
                     "type": "bar-h",
                     "xField": "types",
+                    "groupField": "categories",
                     "aggregation": "count",
                     "logScaleX": true,
                     "sortByAggregation": true,
@@ -753,7 +267,7 @@
                 },
                 "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
                 "row": 6,
-                "col": 5
+                "col": 3
             },
             {
                 "name": "Bar Chart",
@@ -773,6 +287,7 @@
                     "table": "graph",
                     "type": "bar-h",
                     "xField": "types",
+                    "groupField": "categories",
                     "aggregation": "count",
                     "logScaleX": true,
                     "sortByAggregation": true,
@@ -781,13 +296,13 @@
                 },
                 "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
                 "row": 11,
-                "col": 5
+                "col": 3
             },
             {
                 "name": "Media Viewer",
                 "type": "mediaViewer",
                 "icon": "mediaViewer",
-                "sizex": 4,
+                "sizex": 6,
                 "sizey": 16,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -798,159 +313,16 @@
                 "bindings": {
                     "id": "_id",
                     "title": "Media Viewer",
-                    "database": "aida-docs",
+                    "database": "aida-docs-tmp",
                     "table": "parents",
                     "idField": "id",
                     "linkField": "reconstructed",
+                    "linkPrefix": "../Reconstructed/html/gaia/",
                     "typeField": "dtype",
                     "clearMedia": true
                 },
                 "row": 1,
-                "col": 9
-            }
-        ],
-        "verdi-michigan-ta1-layout": [
-            {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
-                "sizex": 4,
-                "sizey": 16,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:31",
-                "selected": true,
-                "bindings": {
-                    "title": "Documents",
-                    "database": "aida-docs",
-                    "table": "parents",
-                    "idField": "id",
-                    "sortField": "id",
-                    "filterable": true,
-                    "ignoreSelf": true,
-                    "singleFilter": true,
-                    "filterFields": [
-                        "id"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "id",
-                        "reconstructed"
-                    ]
-                },
-                "row": 1,
-                "col": 1
-            },
-            {
-                "name": "Bar Chart",
-                "type": "aggregation",
-                "icon": "bar_chart",
-                "sizex": 4,
-                "sizey": 5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:30",
-                "selected": true,
-                "bindings": {
-                    "title": "Entities",
-                    "database": "michigan",
-                    "table": "graph",
-                    "type": "bar-h",
-                    "xField": "types",
-                    "aggregation": "count",
-                    "logScaleX": true,
-                    "sortByAggregation": true,
-                    "unsharedFilterField": "categories",
-                    "unsharedFilterValue": "ENTITY"
-                },
-                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-                "row": 1,
-                "col": 5
-            },
-            {
-                "name": "Bar Chart",
-                "type": "aggregation",
-                "icon": "bar_chart",
-                "sizex": 4,
-                "sizey": 5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:30",
-                "selected": true,
-                "bindings": {
-                    "title": "Relations",
-                    "database": "michigan",
-                    "table": "graph",
-                    "type": "bar-h",
-                    "xField": "types",
-                    "aggregation": "count",
-                    "logScaleX": true,
-                    "sortByAggregation": true,
-                    "unsharedFilterField": "categories",
-                    "unsharedFilterValue": "RELATION"
-                },
-                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-                "row": 6,
-                "col": 5
-            },
-            {
-                "name": "Bar Chart",
-                "type": "aggregation",
-                "icon": "bar_chart",
-                "sizex": 4,
-                "sizey": 5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:30",
-                "selected": true,
-                "bindings": {
-                    "title": "Events",
-                    "database": "michigan",
-                    "table": "graph",
-                    "type": "bar-h",
-                    "xField": "types",
-                    "aggregation": "count",
-                    "logScaleX": true,
-                    "sortByAggregation": true,
-                    "unsharedFilterField": "categories",
-                    "unsharedFilterValue": "EVENT"
-                },
-                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-                "row": 11,
-                "col": 5
-            },
-            {
-                "name": "Media Viewer",
-                "type": "mediaViewer",
-                "icon": "mediaViewer",
-                "sizex": 4,
-                "sizey": 16,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:35",
-                "selected": true,
-                "bindings": {
-                    "id": "_id",
-                    "title": "Media Viewer",
-                    "database": "aida-docs",
-                    "table": "parents",
-                    "idField": "id",
-                    "linkField": "reconstructed",
-                    "typeField": "dtype",
-                    "clearMedia": true
-                },
-                "row": 1,
-                "col": 9
+                "col": 7
             }
         ],
         "verdi-ldc-ta1-layout": [
@@ -958,7 +330,7 @@
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
-                "sizex": 4,
+                "sizex": 2,
                 "sizey": 16,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -968,7 +340,7 @@
                 "selected": true,
                 "bindings": {
                     "title": "Documents",
-                    "database": "aida-docs",
+                    "database": "aida-docs-tmp",
                     "table": "parents",
                     "idField": "id",
                     "sortField": "id",
@@ -980,8 +352,7 @@
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "id",
-                        "reconstructed"
+                        "id"
                     ]
                 },
                 "row": 1,
@@ -1005,6 +376,7 @@
                     "table": "graph",
                     "type": "bar-h",
                     "xField": "types",
+                    "groupField": "categories",
                     "aggregation": "count",
                     "logScaleX": true,
                     "sortByAggregation": true,
@@ -1013,7 +385,7 @@
                 },
                 "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
                 "row": 1,
-                "col": 5
+                "col": 3
             },
             {
                 "name": "Bar Chart",
@@ -1033,6 +405,7 @@
                     "table": "graph",
                     "type": "bar-h",
                     "xField": "types",
+                    "groupField": "categories",
                     "aggregation": "count",
                     "logScaleX": true,
                     "sortByAggregation": true,
@@ -1041,7 +414,7 @@
                 },
                 "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
                 "row": 6,
-                "col": 5
+                "col": 3
             },
             {
                 "name": "Bar Chart",
@@ -1061,6 +434,7 @@
                     "table": "graph",
                     "type": "bar-h",
                     "xField": "types",
+                    "groupField": "categories",
                     "aggregation": "count",
                     "logScaleX": true,
                     "sortByAggregation": true,
@@ -1069,13 +443,13 @@
                 },
                 "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
                 "row": 11,
-                "col": 5
+                "col": 3
             },
             {
                 "name": "Media Viewer",
                 "type": "mediaViewer",
                 "icon": "mediaViewer",
-                "sizex": 4,
+                "sizex": 6,
                 "sizey": 16,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -1086,15 +460,16 @@
                 "bindings": {
                     "id": "_id",
                     "title": "Media Viewer",
-                    "database": "aida-docs",
+                    "database": "aida-docs-tmp",
                     "table": "parents",
                     "idField": "id",
                     "linkField": "reconstructed",
+                    "linkPrefix": "../Reconstructed/html/ldc/",
                     "typeField": "dtype",
                     "clearMedia": true
                 },
                 "row": 1,
-                "col": 9
+                "col": 7
             }
         ]
     }
