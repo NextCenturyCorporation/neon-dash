@@ -70,7 +70,7 @@
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading || isLoadingWikiPage" [class.not-loading-overlay]="!isLoading && !isLoadingWikiPage">
+    <div [class.loading-overlay]="isLoading > 0" [class.not-loading-overlay]="isLoading == 0">
         <mat-spinner></mat-spinner>
     </div>
 

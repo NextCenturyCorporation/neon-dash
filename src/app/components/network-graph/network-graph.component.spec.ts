@@ -130,14 +130,14 @@ describe('Component: NetworkGraph', () => {
                 'testYTargetPositionField', 'testFilter1', 'testFilter2']);
 
         query.where(neon.query.and.apply(query, [])).sortBy('testNodeColorField', neonVariables.ASCENDING);
-        expect(component.createQuery()).toEqual(query);
+        expect(component.createQuery(component.options)).toEqual(query);
     }));
 
     it('onQuerySuccess does load the Network Graph with reified data', (() => {
         component.options.isReified = true;
         component.options.limit = 8;
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 object : 'testObject',
                 predicate : 'testPredicate',
@@ -192,7 +192,7 @@ describe('Component: NetworkGraph', () => {
         component.options.isReified = false;
         component.options.limit = 3;
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 testLinkField: 'testLinkValue',
                 testLinkNameField: 'testLinkNameValue',
@@ -300,7 +300,7 @@ describe('Component: NetworkGraph', () => {
 
         let spy = spyOn(component, 'resetGraphData');
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 testLinkField: 'testLinkValue',
                 testLinkNameField: 'testLinkNameValue',
@@ -368,7 +368,7 @@ describe('Component: NetworkGraph', () => {
         component.options.isReified = false;
         component.options.limit = Infinity;
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 testLinkField: 'testLinkValue',
                 testLinkNameField: 'testLinkNameValue',
@@ -419,7 +419,7 @@ describe('Component: NetworkGraph', () => {
         component.options.filterFields = ['testTypeField'];
         component.options.limit = Infinity;
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 testLinkField: 'testLinkValue',
                 testLinkNameField: 'testLinkNameValue',
