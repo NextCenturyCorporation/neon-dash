@@ -17,25 +17,9 @@
 'use strict';
 
 import { ListSubcomponent } from './subcomponent.list';
-import { AggregationSubcomponentListener, AggregationSubcomponentOptions } from './subcomponent.aggregation.abstract';
-import { Color } from '../../services/color-scheme.service';
+import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
+import { Color } from '../../color';
 import { ElementRef } from '@angular/core';
-
-class TestAggregationSubcomponentOptions implements AggregationSubcomponentOptions {
-    public granularity: string = 'year';
-    public hideGridLines: boolean = false;
-    public hideGridTicks: boolean = false;
-    public lineCurveTension: number = 0.3;
-    public lineFillArea: boolean = false;
-    public logScaleX: boolean = false;
-    public logScaleY: boolean = false;
-    public scaleMaxX: string = '';
-    public scaleMaxY: string = '';
-    public scaleMinX: string = '';
-    public scaleMinY: string = '';
-    public showHeat: boolean = false;
-    public yPercentage: number = 0.3;
-}
 
 class TestAggregationSubcomponentListener implements AggregationSubcomponentListener {
     getHiddenCanvas(): ElementRef {
@@ -83,13 +67,11 @@ class TestListSubcomponent extends ListSubcomponent {
 
 describe('ListSubcomponent', () => {
     let listener;
-    let options;
     let subcomponent;
 
     beforeEach(() => {
         listener = new TestAggregationSubcomponentListener();
-        options = new TestAggregationSubcomponentOptions();
-        subcomponent = new TestListSubcomponent(options, listener, null);
+        subcomponent = new TestListSubcomponent({}, listener, null);
     });
 
     it('click does add to selectedData', () => {

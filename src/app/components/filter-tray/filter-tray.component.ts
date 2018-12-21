@@ -13,13 +13,15 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { MatDialogRef } from '@angular/material';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { NeonGridItem } from '../../neon-grid-item';
+import { neonEvents } from '../../neon-namespaces';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ParameterService } from '../../services/parameter.service';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
+
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 
@@ -36,10 +38,9 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
         formatted: any[]
     };
 
-    constructor(private activeGridService: ActiveGridService, private filterService: FilterService,
-        public themesService: ThemesService, public dialogRef: MatDialogRef<FilterTrayComponent>) {
+    constructor(@Inject(MAT_DIALOG_DATA) public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent>,
+        protected filterService: FilterService, public dialogRef: MatDialogRef<FilterTrayComponent>) {
         this.messenger = new neon.eventing.Messenger();
-        this.themesService = themesService;
         this.filters = {
             raw: [],
             formatted: []
@@ -59,14 +60,16 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
             filtersChanged: this.onEventChanged
         });
 
-        this.messenger.subscribe(ParameterService.STATE_CHANGED_CHANNEL, this.onEventChanged);
+        this.messenger.subscribe(neonEvents.DASHBOARD_STATE, this.onEventChanged);
         this.onEventChanged();
     }
 
     removeFilter(filterIds: string[]) {
         let onSuccess = (removedFilter) => {
-            let visualization = this.activeGridService.getVisualizationById(removedFilter.ownerId);
-            visualization.removeFilter(removedFilter);
+            let visualization = this.widgets.get(removedFilter.ownerId);
+            if (visualization) {
+                visualization.removeFilter(removedFilter);
+            }
             this.onEventChanged();
         };
         this.filterService.removeFilters(this.messenger, filterIds, onSuccess.bind(this));

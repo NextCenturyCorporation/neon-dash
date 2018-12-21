@@ -1,0 +1,207 @@
+@import '~@angular/material/_theming';
+
+// TODO THOR-853 Change to dark theme (currently just a copy of teal theme).
+
+$dark-theme-primary: #27607E;
+$dark-theme-primary-lighter: #598DAD;
+$dark-theme-primary-darker: #003652;
+
+$dark-theme-accent: #54C8CD;
+$dark-theme-accent-lighter: #8BFBFF;
+$dark-theme-accent-darker: #00979C;
+
+$dark-theme-grey: #666666;
+$dark-theme-grey-lighter: #999999;
+$dark-theme-grey-darker: #333333;
+
+$dark-theme-white: #F2F2F2;
+$dark-theme-white-lighter: #FFFFFF;
+$dark-theme-white-darker: #D7D7D7;
+
+$dark-theme-base: (
+    50: $dark-theme-primary-lighter,
+    100: #96C1CC,
+    200: #7EAEBB,
+    300: #669BAA,
+    400: #4E8899,
+    500: $dark-theme-primary,
+    600: #31697B,
+    700: #2D5E6E,
+    800: #295361,
+    900: $dark-theme-primary-darker,
+    A100: $dark-theme-accent-lighter,
+    A200: $dark-theme-accent-lighter,
+    A400: $dark-theme-accent,
+    A700: $dark-theme-accent-darker,
+    contrast: (
+        50: $dark-theme-grey-darker,
+        100: $dark-theme-grey-darker,
+        200: $dark-theme-grey-darker,
+        300: $dark-theme-white-lighter,
+        400: $dark-theme-white-lighter,
+        500: $dark-theme-white-lighter,
+        600: $dark-theme-white-lighter,
+        700: $dark-theme-white-lighter,
+        800: $dark-theme-white-lighter,
+        900: $dark-theme-white-lighter,
+        A100: $dark-theme-grey-darker,
+        A200: $dark-theme-grey-darker,
+        A400: $dark-theme-grey-darker,
+        A700: $dark-theme-white-lighter
+    )
+);
+
+// https://github.com/angular/material2/blob/master/src/lib/core/theming/_palette.scss#L692
+// TODO Update default angular material design dark theme background as needed.
+$dark-theme-background: (
+    status-bar:               black,
+    app-bar:                  map_get($mat-grey, 900),
+    background:               #303030,
+    hover:                    rgba(white, 0.04),
+    card:                     map_get($mat-grey, 800),
+    dialog:                   map_get($mat-grey, 800),
+    disabled-button:          rgba(white, 0.12),
+    raised-button:            map-get($mat-grey, 800),
+    focused-button:           $light-focused,
+    selected-button:          map_get($mat-grey, 900),
+    selected-disabled-button: map_get($mat-grey, 800),
+    disabled-button-toggle:   black,
+    unselected-chip:          map_get($mat-grey, 700),
+    disabled-list-option:     black,
+);
+
+// https://github.com/angular/material2/blob/master/src/lib/core/theming/_palette.scss#L729
+// TODO Update default angular material design dark theme foreground as needed.
+$dark-theme-foreground: (
+    base:              white,
+    divider:           $light-dividers,
+    dividers:          $light-dividers,
+    disabled:          $light-disabled-text,
+    disabled-button:   rgba(white, 0.3),
+    disabled-text:     $light-disabled-text,
+    elevation:         black,
+    hint-text:         $light-disabled-text,
+    secondary-text:    $light-secondary-text,
+    icon:              white,
+    icons:             white,
+    text:              white,
+    slider-min:        white,
+    slider-off:        rgba(white, 0.3),
+    slider-off-active: rgba(white, 0.3),
+);
+
+$dark-theme-primary-palette: mat-palette($dark-theme-base, 500, 100, 700);
+$dark-theme-accent-palette: mat-palette($dark-theme-base, A400, A200, A700);
+$dark-theme-warn-palette: mat-palette($mat-red, A400, A200, A700);
+
+$dark-theme: (
+    primary: $dark-theme-primary-palette,
+    accent: $dark-theme-accent-palette,
+    warn: $dark-theme-warn-palette,
+    is-dark: false,
+    foreground: $dark-theme-foreground,
+    background: $dark-theme-background
+);
+
+.neon-dark {
+    @include angular-material-theme($dark-theme);
+
+    /* DO NOT USE SASS VARIABLES ($VAR) HERE!  YOU MUST HARDCODE ALL COLORS! */
+    --color-accent: #54C8CD;
+    --color-accent-contrast: #333333;
+    --color-accent-transparent: rgba(84,200,205,0.33);
+    --color-primary: #27607E;
+    --color-primary-contrast: #F2F2F2;
+    --color-primary-transparent: rgba(39,96,126,0.33);
+    --color-background: #F2F2F2;
+    --color-background-contrast: #D7D7D7;
+    --color-text-header: #666666;
+    --color-text-main: #333333;
+
+    --color-set-1: rgb(94,80,143); // #5E508F deep purple
+    --color-set-2: rgb(255,135,55); // #FF8737 orange
+    --color-set-3: rgb(179,79,146); // #B34F92 purple
+    --color-set-4: rgb(177,194,54); // #B1C236 lime
+    --color-set-5: rgb(243,88,112); // #F35870 pink
+    --color-set-6: rgb(0,153,255); // #0099FF blue
+    --color-set-7: rgb(255,214,0); // #FFD600 yellow
+    --color-set-8: rgb(106,204,127); // #6ACC7F sea green
+
+    --color-set-light-1: rgb(141,124,192); // #8D7CC0 deep purple
+    --color-set-light-2: rgb(255,184,102); // #FFB866 orange
+    --color-set-light-3: rgb(231,127,194); // #E77FC2 purple
+    --color-set-light-4: rgb(230,245,105); // #E6F569 lime
+    --color-set-light-5: rgb(255,139,158); // #FF8B9E pink
+    --color-set-light-6: rgb(105,204,255); // #69CCFF blue
+    --color-set-light-7: rgb(255,255,82); // #FFFF52 yellow
+    --color-set-light-8: rgb(54,154,82); // #369A52 sea green
+
+    --color-set-dark-1: rgb(49,39,97); // #312761 deep purple
+    --color-set-dark-2: rgb(198,88,0); // #C65800 orange
+    --color-set-dark-3: rgb(129,29,100); // #811D64 purple
+    --color-set-dark-4: rgb(126,146,0); // #7E9200 lime
+    --color-set-dark-5: rgb(187,30,69); // #BB1E45 pink
+    --color-set-dark-6: rgb(0,108,203); // #006CCB blue
+    --color-set-dark-7: rgb(199,165,0); // #C7A500 yellow
+    --color-set-dark-8: rgb(54,154,82); // #369A52 sea green
+
+    --color-set-1-transparency-medium: rgba(94,80,143,0.66);
+    --color-set-2-transparency-medium: rgba(255,135,55,0.66);
+    --color-set-3-transparency-medium: rgba(179,79,146,0.66);
+    --color-set-4-transparency-medium: rgba(177,194,54,0.66);
+    --color-set-5-transparency-medium: rgba(243,88,112,0.66);
+    --color-set-6-transparency-medium: rgba(0,153,255,0.66);
+    --color-set-7-transparency-medium: rgba(255,214,0,0.66);
+    --color-set-8-transparency-medium: rgba(106,204,127,0.66);
+
+    --color-set-light-1-transparency-medium: rgba(141,124,192,0.66);
+    --color-set-light-2-transparency-medium: rgba(255,184,102,0.66);
+    --color-set-light-3-transparency-medium: rgba(231,127,194,0.66);
+    --color-set-light-4-transparency-medium: rgba(230,245,105,0.66);
+    --color-set-light-5-transparency-medium: rgba(255,139,158,0.66);
+    --color-set-light-6-transparency-medium: rgba(105,204,255,0.66);
+    --color-set-light-7-transparency-medium: rgba(255,255,82,0.66);
+    --color-set-light-8-transparency-medium: rgba(54,154,82,0.66);
+
+    --color-set-dark-1-transparency-medium: rgba(49,39,97,0.66);
+    --color-set-dark-2-transparency-medium: rgba(198,88,0,0.66);
+    --color-set-dark-3-transparency-medium: rgba(129,29,100,0.66);
+    --color-set-dark-4-transparency-medium: rgba(126,146,0,0.66);
+    --color-set-dark-5-transparency-medium: rgba(187,30,69,0.66);
+    --color-set-dark-6-transparency-medium: rgba(0,108,203,0.66);
+    --color-set-dark-7-transparency-medium: rgba(199,165,0,0.66);
+    --color-set-dark-8-transparency-medium: rgba(54,154,82,0.66);
+
+    --color-set-1-transparency-high: rgba(94,80,143,0.33);
+    --color-set-2-transparency-high: rgba(255,135,55,0.33);
+    --color-set-3-transparency-high: rgba(179,79,146,0.33);
+    --color-set-4-transparency-high: rgba(177,194,54,0.33);
+    --color-set-5-transparency-high: rgba(243,88,112,0.33);
+    --color-set-6-transparency-high: rgba(0,153,255,0.33);
+    --color-set-7-transparency-high: rgba(255,214,0,0.33);
+    --color-set-8-transparency-high: rgba(106,204,127,0.33);
+
+    --color-set-light-1-transparency-high: rgba(141,124,192,0.33);
+    --color-set-light-2-transparency-high: rgba(255,184,102,0.33);
+    --color-set-light-3-transparency-high: rgba(231,127,194,0.33);
+    --color-set-light-4-transparency-high: rgba(230,245,105,0.33);
+    --color-set-light-5-transparency-high: rgba(255,139,158,0.33);
+    --color-set-light-6-transparency-high: rgba(105,204,255,0.33);
+    --color-set-light-7-transparency-high: rgba(255,255,82,0.33);
+    --color-set-light-8-transparency-high: rgba(54,154,82,0.33);
+
+    --color-set-dark-1-transparency-high: rgba(49,39,97,0.33);
+    --color-set-dark-2-transparency-high: rgba(198,88,0,0.33);
+    --color-set-dark-3-transparency-high: rgba(129,29,100,0.33);
+    --color-set-dark-4-transparency-high: rgba(126,146,0,0.33);
+    --color-set-dark-5-transparency-high: rgba(187,30,69,0.33);
+    --color-set-dark-6-transparency-high: rgba(0,108,203,0.33);
+    --color-set-dark-7-transparency-high: rgba(199,165,0,0.33);
+    --color-set-dark-8-transparency-high: rgba(54,154,82,0.33);
+
+    &.mat-autocomplete-panel {
+        background: #303030;
+        color: white;
+    }
+}
+

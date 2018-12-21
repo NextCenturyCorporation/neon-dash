@@ -26,23 +26,29 @@ import {
     ViewContainerRef
 } from '@angular/core';
 
+import * as _ from 'lodash';
+import * as neon from 'neon-framework';
 import * as L from 'leaflet'; // imported for use of DomUtil.enable/disableTextSelection
-import { ActiveGridService } from './services/active-grid.service';
+import * as uuid from 'node-uuid';
+
+import { AbstractWidgetService } from './services/abstract.widget.service';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
+import { BaseNeonComponent } from './components/base-neon-component/base-neon.component';
+import { BaseLayeredNeonComponent } from './components/base-neon-component/base-layered-neon.component';
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
-import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { Dataset } from './dataset';
 import { DatasetService } from './services/dataset.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../app/services/filter.service';
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
-import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatSidenav } from '@angular/material';
+import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatSidenav, MatMenuTrigger } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from './neon-grid-item';
 import { NeonGTDConfig } from './neon-gtd-config';
+import { neonEvents } from './neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
+import { SaveStateComponent } from './components/save-state/save-state.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
-import { ThemesService } from './services/themes.service';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 
 @Component({
@@ -54,21 +60,29 @@ import { VisualizationContainerComponent } from './components/visualization-cont
     ]
 })
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
-    @ViewChild(DashboardOptionsComponent) dashboardOptionsComponent: DashboardOptionsComponent;
+    private static DEFAULT_SIZEX = 4;
+    private static DEFAULT_SIZEY = 4;
+
     @ViewChild(NgGrid) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
 
     @Input() sidenav = MatSidenav;
     // Used to determine which pane is show in the right sidenav
 
-    public showAbout: boolean = true;
-    public showAddVisualizationButton: boolean = false;
-    public showFilterTrayButton: boolean = false;
+    public currentPanel: string = 'dashboardLayouts';
     public showCustomConnectionButton: boolean = false;
     public showFilterBuilder: boolean = false;
+    public showFilterBuilderIcon: boolean = false;
+    public showFilterTrayButton: boolean = false;
+    //Toolbar
+    public showVisShortcut: boolean = true;
+
+    public rightPanelTitle: string = 'Dashboard Layouts';
+
     public createFilterBuilder: boolean = false; //This is used to create the Filter Builder later
 
-    public gridItems: NeonGridItem[] = [];
+    public widgetGridItems: NeonGridItem[] = [];
+    public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent> = new Map();
 
     public datasets: Dataset[] = [];
 
@@ -105,29 +119,32 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public filterBuilderIcon;
 
+    public messenger: neon.eventing.Messenger;
+
     constructor(
-        private activeGridService: ActiveGridService,
         public datasetService: DatasetService,
         public dialog: MatDialog,
         private domSanitizer: DomSanitizer,
         public filterService: FilterService,
         private matIconRegistry: MatIconRegistry,
         public snackBar: MatSnackBar,
-        public themesService: ThemesService,
+        public widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
         @Inject('config') private neonConfig: NeonGTDConfig
     ) {
+        this.messenger = new neon.eventing.Messenger();
+
         // TODO: Default to false and set to true only after a dataset has been selected.
-        this.showAddVisualizationButton = true;
+        this.showFilterBuilderIcon = true;
         this.showFilterTrayButton = true;
         this.showCustomConnectionButton = true;
         this.datasets = this.datasetService.getDatasets();
-        this.themesService = themesService;
         this.neonConfig = neonConfig;
         this.snackBar = snackBar;
 
         if (neonConfig.errors && neonConfig.errors.length > 0) {
             let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
+                panelClass: this.widgetService.getTheme(),
                 viewContainerRef: this.viewContainerRef
             });
             snackBarRef.instance.snackBarRef = snackBarRef;
@@ -141,17 +158,80 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.matIconRegistry.addSvgIcon(
             'filter_builder',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/filter_builder.svg')
+            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filter_builder.svg')
         );
 
         this.matIconRegistry.addSvgIcon(
             'filter_builder_active',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/filter_builder_active.svg')
+            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filter_builder_active.svg')
         );
 
         this.changeFavicon();
         this.filterBuilderIcon = 'filter_builder';
 
+        this.messenger.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearDashboard.bind(this));
+        this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, this.refreshDashboard.bind(this));
+        this.messenger.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));
+        this.messenger.subscribe(neonEvents.WIDGET_DELETE, this.deleteWidget.bind(this));
+        this.messenger.subscribe(neonEvents.WIDGET_CONTRACT, this.contractWidget.bind(this));
+        this.messenger.subscribe(neonEvents.WIDGET_EXPAND, this.expandWidget.bind(this));
+        this.messenger.subscribe(neonEvents.WIDGET_MOVE_TO_BOTTOM, this.moveWidgetToBottom.bind(this));
+        this.messenger.subscribe(neonEvents.WIDGET_MOVE_TO_TOP, this.moveWidgetToTop.bind(this));
+        this.messenger.subscribe(neonEvents.WIDGET_REGISTER, this.registerWidget.bind(this));
+        this.messenger.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
+        this.messenger.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
+    }
+
+    /**
+     * Adds the given widget to the grid in its specified column and row or in the first open space if no column and row are specified.
+     *
+     * @arg {{widgetGridItem:NeonGridItem}} eventMessage
+     */
+    addWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
+        let widgetGridItem: NeonGridItem = eventMessage.widgetGridItem;
+
+        // Set default grid item config properties for the Neon dashboard.
+        widgetGridItem.config = widgetGridItem.config || {};
+        widgetGridItem.config.borderSize = widgetGridItem.config.borderSize || 10;
+        widgetGridItem.config.dragHandle = widgetGridItem.config.dragHandle || '.drag-handle';
+        widgetGridItem.id = widgetGridItem.id || uuid.v4();
+
+        // Move grid item config properties from the top-level into the config object.
+        widgetGridItem.config.col = widgetGridItem.config.col || widgetGridItem.col;
+        widgetGridItem.config.row = widgetGridItem.config.row || widgetGridItem.row;
+        widgetGridItem.config.sizex = widgetGridItem.config.sizex || widgetGridItem.sizex || AppComponent.DEFAULT_SIZEX;
+        widgetGridItem.config.sizey = widgetGridItem.config.sizey || widgetGridItem.sizey || AppComponent.DEFAULT_SIZEY;
+
+        // If both col and row are set, add the widget to the grid.
+        if (widgetGridItem.config.col && widgetGridItem.config.row) {
+            this.widgetGridItems.push(widgetGridItem);
+            return;
+        }
+
+        // Otherwise insert the widget into the first empty space in the grid.
+        widgetGridItem.config.col = widgetGridItem.config.col || 1;
+        widgetGridItem.config.row = widgetGridItem.config.row || 1;
+
+        // Zero max rows or columns denotes unlimited.  Adjust the rows and columns for the widget size.
+        let maxCol: number = (this.gridConfig.max_cols || Number.MAX_SAFE_INTEGER.valueOf()) - widgetGridItem.config.sizex + 1;
+        let maxRow: number = (this.gridConfig.max_rows || Number.MAX_SAFE_INTEGER.valueOf()) - widgetGridItem.config.sizey + 1;
+
+        // Find the first empty space for the widget.
+        let x = 1;
+        let y = 1;
+        let found = false;
+        while (y <= maxRow && !found) {
+            x = 1;
+            while (x <= maxCol && !found) {
+                widgetGridItem.config.col = x;
+                widgetGridItem.config.row = y;
+                found = this.widgetFits(widgetGridItem);
+                x++;
+            }
+            y++;
+        }
+
+        this.widgetGridItems.push(widgetGridItem);
     }
 
     changeFavicon() {
@@ -185,12 +265,142 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         return true;
     }
 
-    gridItemsToString(): string {
-        return JSON.stringify(this.gridItems);
+    checkPanel(panel: string) {
+        return this.currentPanel === panel;
+    }
+
+    /**
+     * Clears the grid.
+     */
+    clearDashboard() {
+        this.widgetGridItems = [];
+    }
+
+    /**
+     * Contracts the given widget to its previous size.
+     *
+     * @arg {{widgetGridItem:NeonGridItem}} eventMessage
+     */
+    contractWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
+        eventMessage.widgetGridItem.config.sizex = eventMessage.widgetGridItem.previousConfig.sizex;
+        eventMessage.widgetGridItem.config.sizey = eventMessage.widgetGridItem.previousConfig.sizey;
+        eventMessage.widgetGridItem.config.row = eventMessage.widgetGridItem.previousConfig.row;
+        eventMessage.widgetGridItem.config.col = eventMessage.widgetGridItem.previousConfig.col;
+    }
+
+    /**
+     * Deletes the widget with the given ID from the grid.
+     *
+     * @arg {{id:string}} eventMessage
+     */
+    deleteWidget(eventMessage: { id: string }) {
+        for (let i = 0; i < this.widgetGridItems.length; i++) {
+            if (this.widgetGridItems[i].id === eventMessage.id) {
+                this.widgetGridItems.splice(i, 1);
+            }
+        }
+    }
+
+    /**
+     * Expands the given widget to fill the width of the grid.
+     *
+     * @arg {{widgetGridItem:NeonGridItem}} eventMessage
+     */
+    expandWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
+        let visibleRowCount = this.getVisibleRowCount();
+        eventMessage.widgetGridItem.previousConfig = {
+            col: eventMessage.widgetGridItem.config.col,
+            row: eventMessage.widgetGridItem.config.row,
+            sizex: eventMessage.widgetGridItem.config.sizex,
+            sizey: eventMessage.widgetGridItem.config.sizey
+        };
+        eventMessage.widgetGridItem.config.sizex = (this.gridConfig) ? this.gridConfig.max_cols : this.getMaxColInUse();
+        eventMessage.widgetGridItem.config.col = 1;
+        // TODO:  Puzzle out why this exceeds the visible space by a couple rows.
+        eventMessage.widgetGridItem.config.sizey = (visibleRowCount > 0) ? visibleRowCount : eventMessage.widgetGridItem.config.sizex;
     }
 
     getDatasets(): Dataset[] {
         return this.datasets;
+    }
+
+    /**
+     * Returns the grid element.
+     *
+     * @return {object}
+     * @private
+     */
+    private getGridElement() {
+        /* tslint:disable:no-string-literal */
+        return this.grid['_ngEl'];
+        /* tslint:enable:no-string-literal */
+    }
+
+    /**
+     * Returns the 1-based index of the last column occupied.  Thus, for a 10 column grid, 10 would be the
+     * largest possble max column in use.  If no columns are filled (i.e., an empty grid), 0 is returned.
+     */
+    getMaxColInUse(): number {
+        let maxCol = 0;
+
+        for (let widgetGridItem of this.widgetGridItems) {
+            maxCol = Math.max(maxCol, (widgetGridItem.config.col + widgetGridItem.config.sizex - 1));
+        }
+        return maxCol;
+    }
+
+    /**
+     * Returns the 1-based index of the last row occupied.  Thus, for a 10 row grid, 10 would be the
+     * largest possble max row in use.  If no rows are filled (i.e., an empty grid), 0 is returned.
+     */
+    getMaxRowInUse(): number {
+        let maxRow = 0;
+
+        for (let widgetGridItem of this.widgetGridItems) {
+            maxRow = Math.max(maxRow, (widgetGridItem.config.row + widgetGridItem.config.sizey - 1));
+        }
+        return maxRow;
+    }
+
+    /**
+     * Returns the visible row count.
+     *
+     * @return {number}
+     */
+    getVisibleRowCount(): number {
+        let gridElement = this.getGridElement();
+        if (this.grid && gridElement) {
+            return Math.floor(gridElement.nativeElement.offsetParent.clientHeight / this.grid.rowHeight);
+        }
+        return 0;
+    }
+
+    /**
+     * Handles the given error and message.
+     *
+     * @arg {{error:Error|ExceptionInformation,message:string}} eventMessage
+     */
+    handleDashboardError(eventMessage: { error: Error | ExceptionInformation, message: string }) {
+        // TODO THOR-916
+        console.error('An error occured: ' + eventMessage.message + '\n' + eventMessage.error);
+    }
+
+    /**
+     * Moves the given widget to the bottom of the grid.
+     *
+     * @arg {{widgetGridItem:NeonGridItem}} eventMessage
+     */
+    moveWidgetToBottom(eventMessage: { widgetGridItem: NeonGridItem }) {
+        eventMessage.widgetGridItem.config.row = this.getMaxRowInUse() + 1;
+    }
+
+    /**
+     * Moves the given widget to the top of the grid.
+     *
+     * @arg {{widgetGridItem:NeonGridItem}} eventMessage
+     */
+    moveWidgetToTop(eventMessage: { widgetGridItem: NeonGridItem }) {
+        eventMessage.widgetGridItem.config.row = 1;
     }
 
     ngAfterViewInit() {
@@ -202,7 +412,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
          * To work around this, trigger a resize event in the grid on page load so that it measures
          * correctly
          */
-        this.activeGridService.triggerResize();
+        this.refreshDashboard();
     }
 
     ngOnDestroy(): void {
@@ -210,9 +420,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.gridItems = this.activeGridService.getGridItems();
-        this.activeGridService.setGrid(this.grid);
-        this.activeGridService.setGridConfig(this.gridConfig);
+        this.messenger.subscribe('showVisShortcut', (message) => this.updateShowVisShortcut(message));
+        this.messenger.subscribe('showFilterBuilderIcon', (message) => this.updateShowFilterBuilderIcon(message));
     }
 
     onDragStop(i, event) {
@@ -228,20 +437,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.visualizations.toArray()[i].onResizeStop();
     }
 
-    openAddVisualizationDialog() {
-        let config = new MatDialogConfig();
-        config.viewContainerRef = this.viewContainerRef;
-
-        this.addVisDialogRef = this.dialog.open(AddVisualizationComponent, config);
-        L.DomUtil.disableTextSelection();
-        this.addVisDialogRef.afterClosed().subscribe(() => {
-            this.addVisDialogRef = null;
-            L.DomUtil.enableTextSelection();
-        });
-    }
-
     openCustomConnectionDialog() {
         let config = new MatDialogConfig();
+        config.panelClass = this.widgetService.getTheme();
         config.viewContainerRef = this.viewContainerRef;
 
         this.customConnectionDialogRef = this.dialog.open(CustomConnectionComponent, config);
@@ -257,21 +455,46 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         }
         this.showFilterBuilder = !this.showFilterBuilder;
         let filterBuilderContainer: HTMLElement = document.getElementById('filter.builder');
-        if (this.showFilterBuilder) {
+        if (this.showFilterBuilder && filterBuilderContainer) {
             filterBuilderContainer.setAttribute('style', 'display: show');
-        } else {
+        } else if (filterBuilderContainer) {
             filterBuilderContainer.setAttribute('style', 'display: none');
         }
     }
 
     openFilterTrayDialog() {
         let config = new MatDialogConfig();
+        config.panelClass = this.widgetService.getTheme();
         config.viewContainerRef = this.viewContainerRef;
+        config.data = this.widgets;
 
         this.filterTrayDialogRef = this.dialog.open(FilterTrayComponent, config);
         this.filterTrayDialogRef.afterClosed().subscribe(() => {
             this.filterTrayDialogRef = null;
         });
+    }
+
+    /**
+     * Refreshes the grid.
+     */
+    refreshDashboard() {
+        this.grid.triggerResize();
+    }
+
+    /**
+     * Registers the given widget with the given ID.
+     *
+     * @arg {{id:string,widget:BaseNeonComponent|BaseLayeredNeonComponent}} eventMessage
+     */
+    registerWidget(eventMessage: { id: string, widget: BaseNeonComponent | BaseLayeredNeonComponent }) {
+        if (this.widgets.get(eventMessage.id) === undefined) {
+            this.widgets.set(eventMessage.id, eventMessage.widget);
+        }
+    }
+
+    setPanel(newPanel: string, newTitle: string) {
+        this.currentPanel = newPanel;
+        this.rightPanelTitle = newTitle;
     }
 
     showItemLocation(event) {
@@ -286,11 +509,62 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
          */
     }
 
-    toggleDashboardOptions() {
-        if (this.dashboardOptionsComponent) {
-            this.dashboardOptionsComponent.loadStateNames();
-        }
-        this.showAbout = false;
+    /**
+     * Unregisters the widget with the given ID.
+     *
+     * @arg {{id:string}} eventMessage
+     */
+    unregisterWidget(eventMessage: { id: string }) {
+        this.widgets.delete(eventMessage.id);
     }
 
+    /**
+     * Updates the showVisShortcut boolean value from the messenger channel
+     * @param message
+     */
+    updateShowVisShortcut(message) {
+        this.showVisShortcut = message.showVisShortcut;
+    }
+
+    /**
+     * Updates the showFilterBuilderIcon boolean value from the messenger channel
+     * @param message
+     */
+    updateShowFilterBuilderIcon(message) {
+        this.showFilterBuilderIcon = message.showFilterBuilderIcon;
+    }
+
+    /**
+     * This function determines if a widget will overlap any existing grid items if placed
+     * at the given row and column.  This function assumes the given widget has valid sizes.
+     * @arg widgetGridItem The widget to place
+     */
+    widgetFits(widgetGridItem: NeonGridItem) {
+        for (let existingWidgetGridItem of this.widgetGridItems) {
+            if (this.widgetOverlaps(widgetGridItem, existingWidgetGridItem)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * This function uses a simple Axis-Aligned Bounding Box (AABB)
+     * calculation to check for overlap of two items.  This function assumes the given items have valid sizes.
+     * @arg one the first widget
+     * @arg two the second widget
+     */
+    widgetOverlaps(one: NeonGridItem, two: NeonGridItem) {
+        if (one.config.col > (two.config.col + two.config.sizex - 1) ||
+            two.config.col > (one.config.col + one.config.sizex - 1)) {
+            return false;
+        }
+        if (one.config.row > (two.config.row + two.config.sizey - 1) ||
+            two.config.row > (one.config.row + one.config.sizey - 1)) {
+            return false;
+        }
+
+        return true;
+    }
 }

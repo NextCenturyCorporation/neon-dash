@@ -26,14 +26,9 @@ import * as neon from 'neon-framework';
 
 import { ExportControlComponent } from '../export-control/export-control.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
@@ -52,14 +47,9 @@ describe('Component: NewsFeed', () => {
             ExportControlComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
-            ExportService,
-            ErrorNotificationService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -453,14 +443,14 @@ describe('Component: NewsFeed', () => {
 
     //for get button text method
     it('getButton does return the expected string', () => {
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Results');
         component.gridArray = [{
             border: '',
             link: '1',
             name: '1',
             type: ''
         }];
-        expect(component.getButtonText()).toBe('Total Items 1');
+        expect(component.getButtonText()).toBe('1 Result');
         for (let i = 2; i <= 11; i++) {
             component.gridArray.push({
                 border: '',
@@ -469,7 +459,7 @@ describe('Component: NewsFeed', () => {
                 type: ''
             });
         }
-        expect(component.getButtonText()).toBe('1 - 10 of 11');
+        expect(component.getButtonText()).toBe('1 - 10 of 11 Results');
     });
 
     //for go to next page method
@@ -711,11 +701,6 @@ describe('Component: NewsFeed', () => {
             prettyField: 'prettyField1',
             value: 'value1'
         })).toEqual('prettyField1 = value1');
-    });
-
-    //for getOptions method
-    it('getOptions does return options', () => {
-        expect(component.getOptions()).toEqual(component.options);
     });
 
     //for isValidQuery method
@@ -1198,64 +1183,6 @@ describe('Component: NewsFeed', () => {
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
         }));
-    });
-
-    it('options.createBindings does set expected properties in bindings', () => {
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: '',
-            hideUnfiltered: false,
-            limit: 10,
-            table: '',
-            title: 'News Feed',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            idField: '',
-            ignoreSelf: false,
-            linkField: '',
-            dateField: '',
-            primaryTitleField: '',
-            secondaryTitleField: '',
-            contentField: '',
-            filterField: '',
-            sortField: ''
-        });
-
-        //add more component options (deleted some specific to thumbnailgrid)
-
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
-        component.options.ignoreSelf = false;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
-        component.options.primaryTitleField = new FieldMetaData('testPrimaryTitleField', 'Test Primary Title Field');
-        component.options.secondaryTitleField = new FieldMetaData('testSecondaryTitleField', 'Test Secondary Title Field');
-        component.options.contentField = new FieldMetaData('testContentField', 'Test Content Field');
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
-
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: '',
-            hideUnfiltered: false,
-            limit: 10,
-            table: '',
-            title: 'News Feed',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            idField: 'testIdField',
-            ignoreSelf: false,
-            linkField: 'testLinkField',
-            dateField: 'testDateField',
-            primaryTitleField: 'testPrimaryTitleField',
-            secondaryTitleField: 'testSecondaryTitleField',
-            contentField: 'testContentField',
-            filterField: 'testFilterField',
-            sortField: 'testSortField'
-        });
     });
 
     //for subNgOnDestroy and subNgOnInit methods

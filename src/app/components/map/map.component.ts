@@ -26,14 +26,13 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
-import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+
+import { Color } from '../../color';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import {
     AbstractMap,
@@ -44,11 +43,20 @@ import {
     MapTypePairs,
     whiteString
 } from './map.type.abstract';
-import { BaseLayeredNeonComponent, BaseNeonLayer, BaseNeonMultiLayerOptions } from '../base-neon-component/base-layered-neon.component';
+import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { CesiumNeonMap } from './map.type.cesium';
 import { FieldMetaData } from '../../dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
 import { neonMappings, neonUtilities, neonVariables } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetNonPrimitiveOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import * as geohash from 'geo-hash';
@@ -56,122 +64,6 @@ import * as geohash from 'geo-hash';
 class UniqueLocationPoint {
     constructor(public idField: string, public idList: string[], public lat: number, public lng: number, public count: number,
         public colorField: string, public colorValue: string, public hoverPopupMap: Map<string, number>) { }
-}
-
-export class MapLayer extends BaseNeonLayer {
-    public idField: FieldMetaData;
-    public colorField: FieldMetaData;
-    public dateField: FieldMetaData;
-    public latitudeField: FieldMetaData;
-    public longitudeField: FieldMetaData;
-    public sizeField: FieldMetaData;
-    public hoverPopupField: FieldMetaData;
-
-    /**
-     * Appends all the non-field bindings for the specific layer to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field properties for the specific layer.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'idField',
-            'colorField',
-            'dateField',
-            'hoverPopupField',
-            'latitudeField',
-            'longitudeField',
-            'sizeField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific layer.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific layer.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        // Do nothing.
-    }
-}
-
-export class MapOptions extends BaseNeonMultiLayerOptions {
-    public id: string;
-    public clustering: string;
-    public clusterPixelRange: number;
-    public customServer: {
-        useCustomServer: boolean,
-        mapUrl: string,
-        layer: string
-    };
-    public disableCtrlZoom: boolean;
-    public hoverPopupEnabled: boolean;
-    public hoverSelect: {
-        hoverTime: number;
-    };
-    public minClusterSize: number;
-    public singleColor: boolean;
-    public type: MapType | string;
-
-    public west: number;
-    public east: number;
-    public north: number;
-    public south: number;
-
-    public layers: MapLayer[] = [];
-
-    /**
-     * Returns the layers for the options.
-     *
-     * @return {BaseNeonLayer[]}
-     * @override
-     */
-    public getLayers(): BaseNeonLayer[] {
-        return this.layers;
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    public initializeNonFieldBindings() {
-        this.clustering = this.injector.get('clustering', 'points');
-        this.clusterPixelRange = this.injector.get('clusterPixelRange', 15);
-        this.customServer = this.injector.get('customServer', null);
-        this.disableCtrlZoom = this.injector.get('disableCtrlZoom', false);
-        this.hoverPopupEnabled = this.injector.get('hoverPopupEnabled', false);
-        this.hoverSelect = this.injector.get('hoverSelect', null);
-        this.minClusterSize = this.injector.get('minClusterSize', 5);
-        this.singleColor = this.injector.get('singleColor', false);
-        this.type = this.injector.get('mapType', MapType.Leaflet);
-
-        this.west = this.injector.get('west', null);
-        this.east = this.injector.get('east', null);
-        this.north = this.injector.get('north', null);
-        this.south = this.injector.get('south', null);
-    }
 }
 
 @Component({
@@ -204,51 +96,35 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
     protected filterHistory = new Array();
 
-    public options: MapOptions;
-
+    public colorKeys: string[] = [];
     public docCount: number[] = [];
-
-    public colorByFields: string[] = [];
-
     public filterVisible: boolean[] = [];
+    public mapPoints: any[] = [];
 
     public mapTypes = MapTypePairs;
-
-    public previousId = '';
 
     protected mapObject: AbstractMap;
     protected filterBoundingBox: BoundingBoxByDegrees;
 
     public disabledSet: [string[]] = [] as [string[]];
-    protected defaultActiveColor: Color;
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        protected colorSchemeService: ColorSchemeService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        protected widgetService: AbstractWidgetService,
+        ref: ChangeDetectorRef
     ) {
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
-            themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
-
-        this.options = new MapOptions(this.injector, 'Map', 1000);
 
         this.subscribeToSelectId(this.getSelectIdCallback());
     }
@@ -286,12 +162,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @override
      */
     postInit() {
-        // There is one layer automatically added
-        for (let layer of this.injector.get('layers', [])) {
-            this.addLayer(layer);
-        }
-
-        this.defaultActiveColor = this.getPrimaryThemeColor();
+        // Backwards compatibility (mapType deprecated and replaced by type).
+        this.options.type = this.injector.get('mapType', this.options.type);
     }
 
     /**
@@ -343,16 +215,15 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     /**
-     * Adds a new empty layer for the specific visualization using the given config.
+     * Runs any needed behavior after a new layer was added.
      *
-     * @arg {any} config
+     * @arg {any} options
      * @override
      */
-    subAddLayer(config: any) {
-        let layer: MapLayer = new MapLayer(config, this.injector, this.datasetService);
-        this.options.layers.push(layer);
-        this.docCount[this.options.layers.length - 1] = 0;
-        this.filterVisible[this.options.layers.length - 1] = true;
+    postAddLayer(options: any) {
+        this.docCount[options.layers.length - 1] = 0;
+        this.filterVisible[options.layers.length - 1] = true;
+        this.mapPoints[options.layers.length - 1] = [];
     }
 
     /**
@@ -619,17 +490,20 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     /**
      * Creates and returns the map points in the given data using the given fields.
      *
+     * @arg {string} databaseName
+     * @arg {string} tableName
+     * @arg {string} idField
      * @arg {string} lngField
      * @arg {string} latField
      * @arg {string} colorField
-     * @arg {string} hoverPopupField
+     * @arg {FieldMetaData} hoverPopupField
      * @arg {array} data
      * @return {array}
      * @protected
      */
-
-    protected getMapPoints(idField: string, lngField: string, latField: string, colorField: string,
-        hoverPopupField: string, data: any[]): any[] {
+    protected getMapPoints(databaseName: string, tableName: string, idField: string, lngField: string, latField: string, colorField: string,
+        hoverPopupField: FieldMetaData, data: any[]
+    ): any[] {
 
         let map = new Map<string, UniqueLocationPoint>();
 
@@ -638,7 +512,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 latCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, latField)),
                 colorValue = neonUtilities.deepFind(point, colorField),
                 idValue = neonUtilities.deepFind(point, idField),
-                hoverPopupValue = hoverPopupField ? neonUtilities.deepFind(point, hoverPopupField) : '';
+                hoverPopupValue = hoverPopupField.columnName ? neonUtilities.deepFind(point, hoverPopupField.columnName) : '';
 
             //use first value if deepFind returns an array
             colorValue = colorValue instanceof Array ? (colorValue.length ? colorValue[0] : '') : colorValue;
@@ -650,10 +524,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                     //check if hover popup value is nested within coordinate array
                     if (hoverPopupValue instanceof Array) {
                         this.addOrUpdateUniquePoint(map, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue,
-                            hoverPopupValue[pos]);
+                            (hoverPopupField.prettyName ? hoverPopupField.prettyName + ':  ' : '') + hoverPopupValue[pos]);
                     } else {
                         this.addOrUpdateUniquePoint(map, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue,
-                            hoverPopupValue);
+                            (hoverPopupField.prettyName ? hoverPopupField.prettyName + ':  ' : '') + hoverPopupValue);
                     }
                 }
             } else {
@@ -662,11 +536,12 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         }
 
         let mapPoints: MapPoint[] = [];
-        let rgbColor = this.defaultActiveColor.toRgb();
+        let rgbColor = this.widgetService.getThemeAccentColorHex();
         map.forEach((unique) => {
             let color = rgbColor;
             if (!this.options.singleColor) {
-                color = unique.colorValue ? this.colorSchemeService.getColorFor(colorField, unique.colorValue).toRgb() : whiteString;
+                color = !unique.colorValue ? whiteString : this.widgetService.getColor(databaseName, tableName, colorField,
+                    unique.colorValue).getComputedCss(this.visualization);
             }
 
             mapPoints.push(
@@ -707,15 +582,17 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             this.options.singleColor = false;
         }
 
-        let layer = this.options.layers[layerIndex],
-            mapPoints = this.getMapPoints(
-                layer.idField.columnName,
-                layer.longitudeField.columnName,
-                layer.latitudeField.columnName,
-                layer.colorField.columnName,
-                layer.hoverPopupField.columnName,
-                response.data
-            );
+        let layer = this.options.layers[layerIndex];
+        this.mapPoints[layerIndex] = this.getMapPoints(
+            layer.database.name,
+            layer.table.name,
+            layer.idField.columnName,
+            layer.longitudeField.columnName,
+            layer.latitudeField.columnName,
+            layer.colorField.columnName,
+            layer.hoverPopupField.columnName,
+            response.data
+        );
 
         // Unhide all points
         for (let currentLayer of this.options.layers) {
@@ -723,7 +600,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         }
 
         this.mapObject.clearLayer(layer);
-        this.mapObject.addPoints(mapPoints, layer, this.options.clustering === 'clusters');
+        this.mapObject.addPoints(this.mapPoints[layerIndex], layer, true);
 
         this.filterMapForLegend();
         this.updateLegend();
@@ -734,13 +611,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * Updates the map legend using the layers.
      */
     updateLegend() {
-        let colorByFields: string[] = [];
+        let colorKeys: string[] = [];
         for (let layer of this.options.layers) {
             if (layer.colorField.columnName !== '') {
-                colorByFields.push(layer.colorField.columnName);
+                colorKeys.push(this.widgetService.getColorKey(layer.database.name, layer.table.name, layer.colorField.columnName));
             }
         }
-        this.colorByFields = colorByFields;
+        this.colorKeys = colorKeys;
     }
 
     /**
@@ -776,7 +653,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
             let hoverPopupMap = new Map<string, number>();
 
-            if (hoverPopupValue) { hoverPopupMap.set(hoverPopupValue, 1); } //add to map if hover value exists
+            //add to map if hover value exists
+            if (hoverPopupValue) {
+                hoverPopupMap.set(hoverPopupValue, 1);
+            }
 
             obj = new UniqueLocationPoint(idValue, idList, lat, lng, 1, colorField, colorValue, hoverPopupMap);
             map.set(hashCode, obj);
@@ -786,10 +666,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
             //check if popup value already exists increase count in map
             if (hoverPopupValue && (obj.hoverPopupMap.has(hoverPopupValue)))  {
-                    obj.hoverPopupMap.set(hoverPopupValue, obj.count);
+                obj.hoverPopupMap.set(hoverPopupValue, obj.hoverPopupMap.get(hoverPopupValue));
+            } else {
+                obj.hoverPopupMap.set(hoverPopupValue, 1);
             }
         }
-
     }
 
     /**
@@ -986,31 +867,36 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     /**
-     * Creates and returns the text for the settings button.
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
      *
+     * @arg {number} layerIndex
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(layerIndex: number): any[] {
+        return this.mapPoints[layerIndex];
+    }
+
+    /**
+     * Returns the count of data items that an unlimited query for the visualization would contain.
+     *
+     * @arg {number} layerIndex
+     * @return {number}
+     */
+    public getTotalDataCount(layerIndex: number): number {
+        return this.docCount[layerIndex];
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
      * @return {string}
      * @override
      */
-    getButtonText(): string {
-        let prettifyInteger = super.prettifyInteger;
-        let createButtonText = (count, limit) => {
-            if (!count) {
-                return 'No Data';
-            }
-            return (limit < count ? prettifyInteger(limit) + ' of ' : 'Total ') + prettifyInteger(count);
-        };
-
-        if (this.options.layers.length === 1) {
-            return createButtonText(this.docCount[0], this.options.limit);
-        }
-        if (this.options.layers.length) {
-            return this.options.layers.map((layer, index) => {
-                return layer.title + ' (' + createButtonText(this.docCount[index], this.options.limit) + ')';
-            }).filter((text) => {
-                return !!text;
-            }).join(', ');
-        }
-        return '';
+    public getVisualizationElementLabel(count: number): string {
+        return 'Point' + (count === 1 ? '' : 's');
     }
 
     /**
@@ -1048,7 +934,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         return (eventMessage) => {
 
             //get the message id and set it
-            this.options.id = Array.isArray(eventMessage.id) ? eventMessage.id[0] : eventMessage.id;
+            let eventMessageId = Array.isArray(eventMessage.id) ? eventMessage.id[0] : eventMessage.id;
+
+            let previousId = '';
 
             //loop through all of the layers
             this.options.layers.forEach((elem, index) => {
@@ -1056,26 +944,16 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 //check if database and table exists in the current layer
                 if ((eventMessage.database === elem.database.name) && (eventMessage.table === elem.table.name)) {
 
-                    if (this.options.id !== this.previousId) {
-                        this.previousId = this.options.id;
+                    if (eventMessageId !== previousId) {
+                        previousId = eventMessageId;
                         this.executeQueryChain(index);
                     }
                 }
 
                 //reset previousId for next layer
-                this.previousId = '';
+                previousId = '';
             });
         };
-    }
-
-    /**
-     * Returns the options for the specific visualization.
-     *
-     * @return {BaseNeonMultiLayerOptions}
-     * @override
-     */
-    getOptions(): BaseNeonMultiLayerOptions {
-        return this.options;
     }
 
     mouseWheelUp(e) {
@@ -1112,5 +990,93 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 ? 'Use ⌘ + scroll wheel to zoom'
                 : 'Use ctrl + scroll wheel to zoom'
         );
+    }
+
+    /**
+     * Creates and returns an array of field options for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [];
+    }
+
+    /**
+     * Creates and returns an array of field options for a layer for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createLayerFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('latitudeField', 'Latitude Field', true),
+            new WidgetFieldOption('longitudeField', 'Longitude Field', true),
+            new WidgetFieldOption('colorField', 'Color Field', false),
+            new WidgetFieldOption('dateField', 'Date Field', false),
+            new WidgetFieldOption('hoverPopupField', 'Hover Popup Field', false),
+            new WidgetFieldOption('idField', 'ID Field', false),
+            new WidgetFieldOption('sizeField', 'Size Field', false)
+        ];
+    }
+
+    /**
+     * Creates and returns an array of non-field options for a layer for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createLayerNonFieldOptions(): WidgetOption[] {
+        return [];
+    }
+
+    /**
+     * Creates and returns an array of non-field options for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetFreeTextOption('clusterPixelRange', 'Cluster Pixel Range', 15),
+            new WidgetSelectOption('showPointDataOnHover', 'Coordinates on Point Hover', false, OptionChoices.HideFalseShowTrue),
+            // Properties of customServer:  useCustomServer: boolean, mapUrl: string, layer: string
+            new WidgetNonPrimitiveOption('customServer', 'Custom Server', null),
+            new WidgetSelectOption('disableCtrlZoom', 'Disable Control Zoom', false, OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('east', 'East', null),
+            // Properties of hoverSelect:  hoverTime: number
+            new WidgetNonPrimitiveOption('hoverSelect', 'Hover Select', null),
+            new WidgetFreeTextOption('minClusterSize', 'Minimum Cluster Size', 5),
+            new WidgetFreeTextOption('north', 'North', null),
+            new WidgetSelectOption('singleColor', 'Single Color', false, OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('south', 'South', null),
+            new WidgetSelectOption('type', 'Map Type', MapType.Leaflet, [{
+                prettyName: 'Leaflet',
+                variable: MapType.Leaflet
+            }, {
+                prettyName: 'Cesium',
+                variable: MapType.Cesium
+            }]),
+            new WidgetFreeTextOption('west', 'West', null)
+        ];
+    }
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultLimit(): number {
+        return 1000;
+    }
+
+    /**
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'Map';
     }
 }

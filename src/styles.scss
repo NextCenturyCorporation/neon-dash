@@ -1,11 +1,14 @@
-/* You can add global styles to this file, and also import other style files */
-@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
-@import '~@angular/material/prebuilt-themes/purple-green.css';
 @import '~@angular/material/_theming';
-@import 'themes/neon-green-theme.scss';
+@import 'themes/neon-dark-theme';
+@import 'themes/neon-green-theme';
+@import 'themes/neon-teal-theme';
 @import '~angular-tree-component/dist/angular-tree-component.css';
 
+@include mat-core();
+
 body {
+    background-color: var(--color-background, white);
+    color: var(--color-text-main, dimgrey);
     font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
@@ -13,10 +16,10 @@ body {
     font-family: 'Material Icons';
     font-style: normal;
     font-weight: 400;
-    src: url(assets/Material/2fcrYFNaTjcS6g4U3t-Y5ZjZjT5FdEJ140U2DJYC3mY.woff2); /* For IE6-8 */
+    src: url(assets/Material/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2); /* For IE6-8 */
     src: local('Material Icons'),
       local('MaterialIcons-Regular'),
-      url(assets/Material/2fcrYFNaTjcS6g4U3t-Y5ZjZjT5FdEJ140U2DJYC3mY.woff2) format('woff2'),
+      url(assets/Material/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2) format('woff2');
 }
 
 .material-icons {
@@ -77,7 +80,7 @@ body {
 
 /* Angular2-Grid Overrides */
 .grid {
-    background-color: #fafafa !important;
+    background-color: var(--color-background, white) !important;
     position: relative;
 }
 
@@ -95,7 +98,7 @@ body {
 }
 
 .grid-placeholder {
-    background-color: gray;
+    background-color: var(--color-background-contrast, grey);
     border: 2px dotted black;
     opacity: 0.3;
     z-index: 10;
@@ -171,7 +174,7 @@ body {
 
     &:not([disabled]) {
         &:hover {
-            background-color: $accent-bright !important;
+            background-color: var(--color-accent, lightgrey) !important;
         }
     }
 }
@@ -196,7 +199,7 @@ body {
         }
 
         &:hover:not(.mat-button-toggle-checked) {
-            background-color: $accent-bright !important;
+            background-color: var(--color-accent, lightgrey) !important;
         }
     }
 
@@ -288,7 +291,7 @@ body {
     &:not([disabled]) {
         &.active,
         &:hover {
-            color: $accent-bright !important;
+            color: var(--color-accent, lightgrey) !important;
         }
     }
 }
@@ -316,7 +319,7 @@ body {
 
     &:not([disabled]) {
         &.active {
-            color: $accent-bright !important;
+            color: var(--color-accent, lightgrey) !important;
         }
     }
 }
@@ -354,6 +357,17 @@ body {
     padding: 5px 20px !important;
 }
 
+
+/* TODO THOR-898 */
+.mat-select-panel {
+    background-color: white;
+    color: #333333;
+
+    .mat-option:hover {
+        background-color: #999999;
+    }
+}
+
 .mat-sidenav {
     > .mat-card {
         padding: 20px !important;
@@ -389,7 +403,7 @@ body {
     height: 40px !important;
     min-height: 40px !important;
     padding: 5px 10px !important;
-    border-bottom: 5px solid $accent-bright !important;
+    border-bottom: 5px solid var(--color-accent, lightgrey) !important;
 
     &.neon-toolbar-large {
         height: 50px !important;
@@ -406,18 +420,25 @@ body {
     }
 }
 
+.mat-tooltip {
+    background-color: grey;
+    color: white;
+    margin: 5px;
+    padding: 5px;
+}
+
 .simpleSnackBar {
-    background-color: rgba(0, 0, 0, 0.54) !important;
-    
+    background-color: var(--color-accent, grey) !important;
+    color: var(--color-accent-contrast, white);
 
     .mat-simple-snackbar-action {
-        position: absolute; 
+        position: absolute;
         top: 0;
         right: 0;
         font-weight: 800;
     }
 
-    .mat-simple-snackbar{
+    .mat-simple-snackbar {
         justify-content: center;
     }
 }

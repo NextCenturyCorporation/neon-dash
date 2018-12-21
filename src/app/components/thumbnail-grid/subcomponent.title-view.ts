@@ -14,7 +14,7 @@
  *
  */
 import { Component, Input } from '@angular/core';
-import { ThumbnailGridOptions, ThumbnailGridComponent } from './thumbnail-grid.component';
+import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
 @Component({
     selector: 'app-subcomponent-title-thumbnail',
@@ -24,7 +24,7 @@ import { ThumbnailGridOptions, ThumbnailGridComponent } from './thumbnail-grid.c
 
 export class TitleThumbnailSubComponent {
     @Input() item: any;
-    @Input() options: ThumbnailGridOptions;
+    @Input() options: any;
 
     thumbnailGrid: ThumbnailGridComponent;
 

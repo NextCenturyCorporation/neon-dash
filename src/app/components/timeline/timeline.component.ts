@@ -27,128 +27,32 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { Bucketizer } from '../bucketizers/Bucketizer';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { FieldMetaData } from '../../dataset';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
 import { neonMappings, neonVariables } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import { TimelineSelectorChart, TimelineSeries, TimelineData } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
+
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 
 declare let d3;
-
-/**
- * Manages configurable options for the specific visualization.
- */
-export class TimelineOptions extends BaseNeonOptions {
-    public dateField: FieldMetaData;
-    public granularity: string;
-    public yLabel: string;
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        bindings.granularity = this.granularity;
-        bindings.yLabel = this.yLabel;
-
-        return bindings;
-    }
-
-    /**
-     * Returns the list of fields to export.
-     *
-     * @return {{ columnName: string, prettyName: string }[]}
-     * @override
-     */
-    getExportFields() {
-        let exportFields = [{
-            columnName: 'value',
-            prettyName: 'Count'
-        }];
-        switch (this.granularity) {
-            case 'minute':
-                exportFields.push({
-                    columnName: 'minute',
-                    prettyName: 'Minute'
-                });
-                /* falls through */
-            case 'hour':
-                exportFields.push({
-                    columnName: 'hour',
-                    prettyName: 'Hour'
-                });
-                /* falls through */
-            case 'day':
-                exportFields.push({
-                    columnName: 'day',
-                    prettyName: 'Day'
-                });
-                /* falls through */
-            case 'month':
-                exportFields.push({
-                    columnName: 'month',
-                    prettyName: 'Month'
-                });
-                /* falls through */
-            case 'year':
-                exportFields.push({
-                    columnName: 'year',
-                    prettyName: 'Year'
-                });
-                /* falls through */
-        }
-        return exportFields;
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'dateField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.granularity = this.injector.get('granularity', 'day');
-        this.yLabel = this.injector.get('yLabel', 'Count');
-    }
-}
 
 @Component({
     selector: 'app-timeline',
@@ -173,8 +77,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         local: boolean
     }[] = [];
 
-    public options: TimelineOptions;
-
     public activeData: {
         value: number,
         date: Date
@@ -186,43 +88,57 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         inactiveColor: string
     };
 
-    public defaultActiveColor;
     public timelineChart: TimelineSelectorChart;
     public timelineData: TimelineData = new TimelineData();
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        protected colorSchemeService: ColorSchemeService,
         ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        protected widgetService: AbstractWidgetService
     ) {
 
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
-            themesService,
-            ref,
-            visualizationService
+            ref
         );
 
         console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');
-
-        this.options = new TimelineOptions(this.injector, this.datasetService, 'Timeline', 10);
 
         this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
         this.timelineData.granularity = this.options.granularity;
         this.timelineData.bucketizer = this.getBucketizer();
         this.enableRedrawAfterResize(true);
+    }
+
+    /**
+     * Creates and returns an array of field options for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('dateField', 'Date Field', true)
+        ];
+    }
+
+    /**
+     * Creates and returns an array of non-field options for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetSelectOption('granularity', 'Date Granularity', 'year', OptionChoices.DateGranularity),
+            new WidgetFreeTextOption('yLabel', 'Count', '')
+        ];
     }
 
     subNgOnInit() {
@@ -231,8 +147,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     postInit() {
         this.executeQueryChain();
-
-        this.defaultActiveColor = this.getPrimaryThemeColor();
     }
 
     subNgOnDestroy() {
@@ -396,22 +310,23 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Creates and returns the text for the settings button.
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
      *
-     * @return {string}
+     * @return {any[]}
+     */
+    public getShownDataArray(): any[] {
+        return this.activeData;
+    }
+
+    /**
+     * Returns the count of the given array of data items that are currently shown in the visualization.
+     *
+     * @arg {any[]} data
+     * @return {number}
      * @override
      */
-    getButtonText() {
-        let shownCount = (this.activeData || []).reduce((sum, element) => {
-            return sum + element.value;
-        }, 0);
-        if (!shownCount) {
-            return 'No Data';
-        }
-        if (this.docCount <= shownCount) {
-            return 'Total ' + super.prettifyInteger(shownCount);
-        }
-        return super.prettifyInteger(shownCount) + ' of ' + super.prettifyInteger(this.docCount);
+    public getShownDataCount(data: any[]): number {
+        return data.reduce((sum, element) => sum + element.value, 0);
     }
 
     /**
@@ -419,7 +334,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     filterAndRefreshData() {
         let series: TimelineSeries = {
-            color: this.defaultActiveColor,
+            color: this.widgetService.getThemeMainColorHex(),
             name: 'Total',
             type: 'bar',
             options: {},
@@ -605,12 +520,68 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns the options for the specific visualization.
+     * Returns the list of fields to export.
      *
-     * @return {BaseNeonOptions}
+     * @return {{ columnName: string, prettyName: string }[]}
      * @override
      */
-    getOptions(): BaseNeonOptions {
-        return this.options;
+    getExportFields() {
+        let exportFields = [{
+            columnName: 'value',
+            prettyName: 'Count'
+        }];
+        switch (this.options.granularity) {
+            case 'minute':
+                exportFields.push({
+                    columnName: 'minute',
+                    prettyName: 'Minute'
+                });
+                /* falls through */
+            case 'hour':
+                exportFields.push({
+                    columnName: 'hour',
+                    prettyName: 'Hour'
+                });
+                /* falls through */
+            case 'day':
+                exportFields.push({
+                    columnName: 'day',
+                    prettyName: 'Day'
+                });
+                /* falls through */
+            case 'month':
+                exportFields.push({
+                    columnName: 'month',
+                    prettyName: 'Month'
+                });
+                /* falls through */
+            case 'year':
+                exportFields.push({
+                    columnName: 'year',
+                    prettyName: 'Year'
+                });
+                /* falls through */
+        }
+        return exportFields;
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultLimit(): number {
+        return 10;
+    }
+
+    /**
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'Timeline';
     }
 }

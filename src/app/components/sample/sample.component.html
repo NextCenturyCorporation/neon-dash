@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -77,7 +77,7 @@
                 <!-- TODO Do you need a limit? -->
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Sample Limit" [(ngModel)]="options.newLimit" required="true"
+                        <input matInput placeholder="Sample Limit" [(ngModel)]="newLimit" required="true"
                             (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
@@ -92,7 +92,7 @@
                 <mat-form-field>
                     <mat-select placeholder="Subcomponent Type" [(ngModel)]="options.subcomponentType" required="true"
                         (ngModelChange)="handleChangeSubcomponentType($event)">
-                        <mat-option *ngFor="let type of options.subcomponentTypes" [value]="type">{{ type }}</mat-option>
+                        <mat-option *ngFor="let type of subcomponentTypes" [value]="type">{{ type }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
@@ -109,7 +109,7 @@
                     (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
-                <app-export-control [exportId]="exportId"></app-export-control>
+                <app-export-control [widgets]="this"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>

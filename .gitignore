@@ -26,6 +26,7 @@ docker/run.sh
 .vscode/
 *.swp
 /out-tsc
+*~
 
 # misc
 /.sass-cache
