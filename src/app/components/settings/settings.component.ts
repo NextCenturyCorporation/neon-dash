@@ -114,7 +114,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
             height: '80%',
             width: '80%',
             hasBackdrop: true,
-            disableClose: true
+            disableClose: true,
+            panelClass: this.widgetService.getTheme()
         };
         let dialogRef = this.dialog.open(ConfigEditorComponent, dConfig);
     }
