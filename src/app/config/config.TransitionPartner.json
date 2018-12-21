@@ -505,24 +505,6 @@
                 "minSizey": 3
             },
             {
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "col": 1,
-                "row": 14,
-                "sizex": 6,
-                "sizey": 4,
-                "bindings": {
-                    "title": "Filter Builder",
-                    "database": "ldc_uyg_jul_18",
-                    "table": "ui_output"
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2
-            },
-            {
                 "name": "Text Cloud",
                 "type": "textCloud",
                 "icon": "TagCloud64",
@@ -718,24 +700,6 @@
                 "minPixely": 240,
                 "minSizex": 4,
                 "minSizey": 3
-            },
-            {
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "col": 1,
-                "row": 14,
-                "sizex": 6,
-                "sizey": 4,
-                "bindings": {
-                    "title": "Filter Builder",
-                    "database": "uyg_elisa_sd",
-                    "table": "ui_out"
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2
             },
             {
                 "name": "Text Cloud",
@@ -944,24 +908,6 @@
                 "minSizey": 4
             },
             {
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "col": 1,
-                "row": 15,
-                "sizex": 4,
-                "sizey": 4,
-                "bindings": {
-                    "title": "Filter Builder",
-                    "database": "ll_nepal_07_11_3",
-                    "table": "annotations"
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2
-            },
-            {
                 "name": "Text Cloud",
                 "type": "textCloud",
                 "icon": "TagCloud64",
@@ -998,7 +944,7 @@
                     "database": "ll_nepal_07_11_3",
                     "table": "annotations",
                     "xField": "need",
-                    
+
                     "limit": 10,
                     "sortByAggregation": false
                 },
@@ -1021,7 +967,7 @@
                     "database": "ll_nepal_07_11_3",
                     "table": "annotations",
                     "xField": "llAnnotation.Status.Urgent",
-                    
+
                     "limit": 10,
                     "sortByAggregation": false
                 },
@@ -1205,24 +1151,6 @@
                 "minSizey": 3
             },
             {
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "col": 1,
-                "row": 15,
-                "sizex": 4,
-                "sizey": 4,
-                "bindings": {
-                    "title": "Filter Builder",
-                    "database": "elisa_car_1",
-                    "table": "annotations"
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2
-            },
-            {
                 "name": "Text Cloud",
                 "type": "textCloud",
                 "icon": "TagCloud64",
@@ -1259,7 +1187,7 @@
                     "database": "elisa_car_1",
                     "table": "annotations",
                     "xField": "Status",
-                    
+
                     "limit": 10,
                     "sortByAggregation": false
                 },
@@ -1420,24 +1348,6 @@
                 "minSizey": 3
             },
             {
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "col": 1,
-                "row": 15,
-                "sizex": 4,
-                "sizey": 4,
-                "bindings": {
-                    "title": "Filter Builder",
-                    "database": "uyg_elisa_sd",
-                    "table": "ui_out"
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2
-            },
-            {
                 "name": "Text Cloud",
                 "type": "textCloud",
                 "icon": "TagCloud64",
@@ -1474,7 +1384,7 @@
                     "database": "uyg_elisa_sd",
                     "table": "ui_out",
                     "xField": "Status",
-                    
+
                     "limit": 10,
                     "sortByAggregation": false
                 },

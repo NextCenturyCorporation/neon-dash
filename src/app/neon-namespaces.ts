@@ -159,12 +159,6 @@ export const neonVisualizations: any[] = [{
     },
     config: {}
 }, {
-    name: 'Filter Builder',
-    type: 'filterBuilder',
-    icon: 'create_filter',
-    bindings: {},
-    config: {}
-}, {
     name: 'Histogram',
     type: 'aggregation',
     icon: 'timeline',
