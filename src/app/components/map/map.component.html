@@ -116,30 +116,20 @@
                         </mat-form-field>
                         <p></p>
 
-                        <span class="toggle-text">Hover Popup Enabled:</span>
-                        <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.hoverPopupEnabled"
+                        <span class="toggle-text">Coordinates on Point Hover:</span>
+                        <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showPointDataOnHover"
                         (ngModelChange)="handleChangeData()">
-                            <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-                            <mat-button-toggle [value]="false">No</mat-button-toggle>
+                            <mat-button-toggle [value]="true">Show</mat-button-toggle>
+                            <mat-button-toggle [value]="false">Hide</mat-button-toggle>
                         </mat-button-toggle-group>
                         <p></p>
 
-                        <div *ngIf="options.hoverPopupEnabled">
-                            <mat-form-field>
-                                <mat-select placeholder="Hover Popup Field" [(ngModel)]="options.layers[i].hoverPopupField"
-                                            (ngModelChange)="handleChangeDataAtLayerIndex(i)" [disabled]="options.layers[i].fields.length == 0">
-                                    <mat-option [value]="emptyField">(None)</mat-option>
-                                    <mat-option *ngFor="let field of options.layers[i].fields"
-                                                [value]="field">{{ field.prettyName }}</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                            <p></p>
-                        </div>
-
                         <mat-form-field>
-                            <mat-select placeholder="Type" [(ngModel)]="options.clustering" (ngModelChange)="handleChangeData()">
-                                <mat-option value="points">Points</mat-option>
-                                <mat-option value="clusters">Clusters</mat-option>
+                            <mat-select placeholder="Hover Popup Field" [(ngModel)]="options.layers[i].hoverPopupField"
+                                        (ngModelChange)="handleChangeDataAtLayerIndex(i)" [disabled]="options.layers[i].fields.length == 0">
+                                <mat-option [value]="createEmptyField">(None)</mat-option>
+                                <mat-option *ngFor="let field of options.layers[i].fields"
+                                            [value]="field">{{ field.prettyName }}</mat-option>
                             </mat-select>
                         </mat-form-field>
                         <p></p>
@@ -156,7 +146,7 @@
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Point Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                        <input matInput placeholder="Point Limit" [(ngModel)]="newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">

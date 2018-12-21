@@ -24,7 +24,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { MapComponent, MapLayer } from './map.component';
+import { MapComponent } from './map.component';
 import { LegendComponent } from '../legend/legend.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 
@@ -40,7 +40,10 @@ import { AppMaterialModule } from '../../app.material.module';
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { WidgetOptionCollection } from '../../widget-option';
+
 import * as neon from 'neon-framework';
+
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -105,7 +108,7 @@ class TestMapComponent extends MapComponent {
     }
 
     getMapPoints(databaseName: string, tableName: string, idField: string, lngField: string, latField: string, colorField: string,
-        hoverPopupField: string, data: any[]
+        hoverPopupField: FieldMetaData, data: any[]
     ) {
         return super.getMapPoints(databaseName, tableName, idField, lngField, latField, colorField, hoverPopupField, data);
     }
@@ -121,10 +124,10 @@ class TestMapComponent extends MapComponent {
 
 /* tslint:disable:component-class-suffix */
 class TestMap extends AbstractMap {
-    addPoints(points: MapPoint[], layer?: MapLayer, cluster?: boolean) {
+    addPoints(points: MapPoint[], layer?: any, cluster?: boolean) {
         /* NO-OP */
     }
-    clearLayer(layer: MapLayer) {
+    clearLayer(layer: any) {
         /* NO-OP */
     }
     destroy() {
@@ -133,7 +136,7 @@ class TestMap extends AbstractMap {
     doCustomInitialization(mapContainer: ElementRef) {
         /* NO-OP */
     }
-    hidePoints(layer: MapLayer, value: string) {
+    hidePoints(layer: any, value: string) {
         /* NO-OP */
     }
     makeSelectionInexact() {
@@ -142,10 +145,10 @@ class TestMap extends AbstractMap {
     removeFilterBox() {
         /* NO-OP */
     }
-    unhidePoints(layer: MapLayer, value: string) {
+    unhidePoints(layer: any, value: string) {
         /* NO-OP */
     }
-    unhideAllPoints(layer: MapLayer) {
+    unhideAllPoints(layer: any) {
         /* NO-OP */
     }
     zoomIn() {
@@ -158,9 +161,10 @@ class TestMap extends AbstractMap {
 /* tslint:enable:component-class-suffix */
 
 function updateMapLayer1(component: TestMapComponent) {
-    component.docCount[0] = 1234;
+    component.docCount[0] = 1;
+    component.mapPoints[0] = [{}];
 
-    component.options.layers[0] = new MapLayer({}, component.getInjector(), component.getDatasetService());
+    component.options.layers[0] = new WidgetOptionCollection(undefined, {});
     component.options.layers[0].databases = [];
     component.options.layers[0].database = new DatabaseMetaData('testDatabase1');
     component.options.layers[0].fields = [];
@@ -180,9 +184,10 @@ function updateMapLayer1(component: TestMapComponent) {
 }
 
 function updateMapLayer2(component: TestMapComponent) {
-    component.docCount[1] = 5678;
+    component.docCount[1] = 10;
+    component.mapPoints[1] = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}];
 
-    component.options.layers[1] = new MapLayer({}, component.getInjector(), component.getDatasetService());
+    component.options.layers[1] = new WidgetOptionCollection(undefined, {});
     component.options.layers[1].databases = [];
     component.options.layers[1].database = new DatabaseMetaData('testDatabase2');
     component.options.layers[1].fields = [];
@@ -256,14 +261,13 @@ describe('Component: Map', () => {
     });
 
     it('does have expected options', () => {
-        expect(component.options.clustering).toEqual('points');
         expect(component.options.clusterPixelRange).toEqual(15);
         expect(component.options.customServer).toEqual(null);
         expect(component.options.disableCtrlZoom).toEqual(false);
-        expect(component.options.hoverPopupEnabled).toEqual(false);
         expect(component.options.hoverSelect).toEqual(null);
         expect(component.options.limit).toEqual(1000);
         expect(component.options.minClusterSize).toEqual(5);
+        expect(component.options.showPointDataOnHover).toEqual(false);
         expect(component.options.singleColor).toEqual(false);
         expect(component.options.title).toEqual('Map');
         expect(component.options.type).toEqual(MapType.Leaflet);
@@ -287,7 +291,7 @@ describe('Component: Map', () => {
         expect(component.options.layers[0].tables).toEqual([]);
         expect(component.options.layers[0].table).toEqual(new TableMetaData());
         expect(component.options.layers[0].fields).toEqual([]);
-        expect(component.options.layers[0].title).toEqual('New Layer');
+        expect(component.options.layers[0].title).toEqual('Layer 1');
         expect(component.options.layers[0].idField).toEqual(new FieldMetaData());
         expect(component.options.layers[0].colorField).toEqual(new FieldMetaData());
         expect(component.options.layers[0].hoverPopupField).toEqual(new FieldMetaData());
@@ -313,95 +317,103 @@ describe('Component: Map', () => {
     });
 
     it('should create uncollapsed map points, largest first', () => {
+        let aHoverMap = new Map<string, number>().set('a', 1);
+        let bHoverMap = new Map<string, number>().set('b', 1);
+        let cHoverMap = new Map<string, number>().set('c', 1);
+        let dHoverMap = new Map<string, number>().set('d', 1);
 
-        //define maps for all test cases
-        let aHoverMap = new Map<string, number>().set('a', 1),
-            bHoverMap = new Map<string, number>().set('b', 1),
-            cHoverMap = new Map<string, number>().set('c', 1),
-            dHoverMap = new Map<string, number>().set('d', 1);
+        let widgetService = getService(AbstractWidgetService);
 
-        let widgetService = getService(AbstractWidgetService),
-            dataset1 = {
-                data: [
-                    { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'A'},
-                    { id: 'testId2', lat: 0, lng: 0, category: 'b', hoverPopupField: 'B' },
-                    { id: 'testId3', lat: 0, lng: 0, category: 'c', hoverPopupField: 'C'},
-                    { id: 'testId4', lat: 0, lng: 0, category: 'd', hoverPopupField: 'D'},
-                    { id: 'testId5', lat: 0, lng: 0, category: 'd', hoverPopupField: 'D'}
-                ],
-                expected: [
-                    new MapPoint('testId4', ['testId4', 'testId5'], '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'd').toRgb(), 'Count: 2', 'category', 'd', dHoverMap),
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
-                    new MapPoint('testId3', ['testId3'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'c').toRgb(), 'Count: 1', 'category', 'c', cHoverMap)
-                ]
-            },
-            dataset2 = {
-                data: [
-                    { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'A' },
-                    { id: 'testId2', lat: 0, lng: 1, category: 'b', hoverPopupField: 'B'},
-                    { id: 'testId3', lat: 0, lng: 2, category: 'c', hoverPopupField: 'C' },
-                    { id: 'testId4', lat: 0, lng: 3, category: 'd', hoverPopupField: 'D'}
-                ],
-                expected: [
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
-                    new MapPoint('testId3', ['testId3'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'c').toRgb(), 'Count: 1', 'category', 'c', cHoverMap),
-                    new MapPoint('testId4', ['testId4'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'd').toRgb(), 'Count: 1', 'category', 'd', dHoverMap)
-                ]
-            },
-            dataset3 = {
-                data: [
-                    { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a', hoverPopupField: 'A'},
-                    { id: 'testId2', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b', hoverPopupField: 'B' }
-                ],
-                expected: [
-                    new MapPoint('testId1', ['testId1', 'testId1', 'testId1', 'testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 4', 'category', 'a', aHoverMap),
-                    new MapPoint('testId2', ['testId2', 'testId2', 'testId2', 'testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 4', 'category', 'b', bHoverMap)
-                ]
-            },
-            dataset4 = {
-                data: [
-                    { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a', hoverPopupField: 'A' },
-                    { id: 'testId2', lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b', hoverPopupField: 'B' }
-                ],
-                expected: [
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap)
-                ]
-            };
+        let aColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'a').getComputedCss(component.visualization);
+        let bColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'b').getComputedCss(component.visualization);
+        let cColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'c').getComputedCss(component.visualization);
+        let dColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'd').getComputedCss(component.visualization);
 
-        let mapPoints1 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category', 'hoverPopupField', dataset1.data);
+        let dataset1 = {
+            data: [
+                { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'Hover Popup Field:  A'},
+                { id: 'testId2', lat: 0, lng: 0, category: 'b', hoverPopupField: 'Hover Popup Field:  B' },
+                { id: 'testId3', lat: 0, lng: 0, category: 'c', hoverPopupField: 'Hover Popup Field:  C'},
+                { id: 'testId4', lat: 0, lng: 0, category: 'd', hoverPopupField: 'Hover Popup Field:  D'},
+                { id: 'testId5', lat: 0, lng: 0, category: 'd', hoverPopupField: 'Hover Popup Field:  D'}
+            ],
+            expected: [
+                new MapPoint('testId4', ['testId4', 'testId5'], '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
+                    dColor, 'Count: 2', 'category', 'd', dHoverMap),
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap),
+                new MapPoint('testId3', ['testId3'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                    cColor, 'Count: 1', 'category', 'c', cHoverMap)
+            ]
+        };
+        let dataset2 = {
+            data: [
+                { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'Hover Popup Field:  A' },
+                { id: 'testId2', lat: 0, lng: 1, category: 'b', hoverPopupField: 'Hover Popup Field:  B'},
+                { id: 'testId3', lat: 0, lng: 2, category: 'c', hoverPopupField: 'Hover Popup Field:  C' },
+                { id: 'testId4', lat: 0, lng: 3, category: 'd', hoverPopupField: 'Hover Popup Field:  D'}
+            ],
+            expected: [
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap),
+                new MapPoint('testId3', ['testId3'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                    cColor, 'Count: 1', 'category', 'c', cHoverMap),
+                new MapPoint('testId4', ['testId4'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
+                    dColor, 'Count: 1', 'category', 'd', dHoverMap)
+            ]
+        };
+        let dataset3 = {
+            data: [
+                { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a', hoverPopupField: 'Hover Popup Field:  A'},
+                { id: 'testId2', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b', hoverPopupField: 'Hover Popup Field:  B' }
+            ],
+            expected: [
+                new MapPoint('testId1', ['testId1', 'testId1', 'testId1', 'testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                    aColor, 'Count: 4', 'category', 'a', aHoverMap),
+                new MapPoint('testId2', ['testId2', 'testId2', 'testId2', 'testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                    bColor, 'Count: 4', 'category', 'b', bHoverMap)
+            ]
+        };
+        let dataset4 = {
+            data: [
+                { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a', hoverPopupField: 'Hover Popup Field:  A' },
+                { id: 'testId2', lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b', hoverPopupField: 'Hover Popup Field:  B' }
+            ],
+            expected: [
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap)
+            ]
+        };
+
+        let mapPoints1 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category',
+            new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset1.data);
         expect(mapPoints1).toEqual(dataset1.expected);
-        let mapPoints2 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category', 'hoverPopupField', dataset2.data);
+        let mapPoints2 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category',
+            new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset2.data);
         expect(mapPoints2).toEqual(dataset2.expected);
-        let mapPoints3 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category', 'hoverPopupField', dataset3.data);
+        let mapPoints3 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category',
+            new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset3.data);
         expect(mapPoints3).toEqual(dataset3.expected);
-        let mapPoints4 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category', 'hoverPopupField', dataset4.data);
+        let mapPoints4 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category',
+            new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset4.data);
         expect(mapPoints4).toEqual(dataset4.expected);
     });
 
@@ -478,64 +490,6 @@ describe('Component: Map', () => {
         expect(spy.calls.count()).toBe(2);
     });
 
-    it('options.createBindings does set expected bindings', () => {
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            title: 'Map',
-            limit: 1000,
-            layers: [{
-                idField: '',
-                database: '',
-                table: '',
-                title: 'New Layer',
-                unsharedFilterValue: '',
-                unsharedFilterField: '',
-                latitudeField: '',
-                longitudeField: '',
-                sizeField: '',
-                colorField: '',
-                dateField: '',
-                hoverPopupField: ''
-            }]
-        });
-
-        updateMapLayer1(component);
-        updateMapLayer2(component);
-
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            title: 'Map',
-            limit: 1000,
-            layers: [{
-                idField: 'testId1',
-                database: 'testDatabase1',
-                table: 'testTable1',
-                title: 'Layer A',
-                unsharedFilterValue: '',
-                unsharedFilterField: '',
-                latitudeField: 'testLatitude1',
-                longitudeField: 'testLongitude1',
-                sizeField: 'testSize1',
-                colorField: 'testColor1',
-                dateField: 'testDate1',
-                hoverPopupField: 'testHover1'
-            }, {
-                idField: 'testId2',
-                database: 'testDatabase2',
-                table: 'testTable2',
-                title: 'Layer B',
-                unsharedFilterValue: '',
-                unsharedFilterField: '',
-                latitudeField: 'testLatitude2',
-                longitudeField: 'testLongitude2',
-                sizeField: 'testSize2',
-                colorField: 'testColor2',
-                dateField: 'testDate2',
-                hoverPopupField: 'testHover2'
-            }]
-        });
-    });
-
     it('ngAfterViewInit does call mapObject.initialize and handleChangeData', () => {
         component.assignTestMap();
         let spy = spyOn(component, 'handleChangeData');
@@ -552,17 +506,10 @@ describe('Component: Map', () => {
         expect(mapSpy.calls.count()).toBe(1);
     });
 
-    it('subAddLayer creates new layer and updates docCount and filterVisible', () => {
-        let layer = component.subAddLayer({});
-
-        expect(component.options.layers[1].title).toEqual('New Layer');
-        expect(component.options.layers[1].idField).toEqual(new FieldMetaData());
-        expect(component.options.layers[1].colorField).toEqual(new FieldMetaData());
-        expect(component.options.layers[1].hoverPopupField).toEqual(new FieldMetaData());
-        expect(component.options.layers[1].dateField).toEqual(new FieldMetaData());
-        expect(component.options.layers[1].latitudeField).toEqual(new FieldMetaData());
-        expect(component.options.layers[1].longitudeField).toEqual(new FieldMetaData());
-        expect(component.options.layers[1].sizeField).toEqual(new FieldMetaData());
+    it('postAddLayer updates docCount and filterVisible', () => {
+        component.postAddLayer({
+            layers: [{}, {}]
+        });
 
         expect(component.docCount).toEqual([0, 0]);
         expect(component.filterVisible).toEqual([true, true]);
@@ -1007,17 +954,21 @@ describe('Component: Map', () => {
     });
 
     it('getButtonText does return expected string', () => {
+        component.options.limit = 1;
+
+        expect(component.getButtonText()).toEqual('0 Points');
+
         updateMapLayer1(component);
 
-        expect(component.getButtonText()).toEqual('1,000 of 1,234');
-
-        component.options.limit = 2000;
-
-        expect(component.getButtonText()).toEqual('Total 1,234');
+        expect(component.getButtonText()).toEqual('1 Point');
 
         updateMapLayer2(component);
 
-        expect(component.getButtonText()).toEqual('Layer A (Total 1,234), Layer B (2,000 of 5,678)');
+        expect(component.getButtonText()).toEqual('Layer A (1 Point), Layer B (10 Points (Limited))');
+
+        component.options.limit = 10;
+
+        expect(component.getButtonText()).toEqual('Layer A (1 Point), Layer B (10 Points)');
     });
 
     it('runDocumentCountQuery does call executeQuery', () => {
@@ -1077,13 +1028,12 @@ describe('Component: Map with config', () => {
                 }]
             },
             { provide: 'limit', useValue: 9999 },
-            { provide: 'clustering', useValue: 'clusters' },
             { provide: 'clusterPixelRange', useValue: 20 },
             { provide: 'customServer', useValue: { mapUrl: 'testUrl', layer: 'testLayer' } },
             { provide: 'disableCtrlZoom', useValue: true },
-            { provide: 'hoverPopupEnabled', useValue: true },
             { provide: 'hoverSelect', useValue: { hoverTime: 5 } },
             { provide: 'minClusterSize', useValue: 10 },
+            { provide: 'showPointDataOnHover', useValue: true },
             { provide: 'singleColor', useValue: true },
             { provide: 'west', useValue: 1 },
             { provide: 'east', useValue: 2 },
@@ -1105,19 +1055,18 @@ describe('Component: Map with config', () => {
     });
 
     it('does have expected options', () => {
-        expect(component.options.clustering).toEqual('clusters');
         expect(component.options.clusterPixelRange).toEqual(20);
         expect(component.options.customServer).toEqual({
             mapUrl: 'testUrl',
             layer: 'testLayer'
         });
         expect(component.options.disableCtrlZoom).toEqual(true);
-        expect(component.options.hoverPopupEnabled).toEqual(true);
         expect(component.options.hoverSelect).toEqual({
             hoverTime: 5
         });
         expect(component.options.limit).toEqual(9999);
         expect(component.options.minClusterSize).toEqual(10);
+        expect(component.options.showPointDataOnHover).toEqual(true);
         expect(component.options.singleColor).toEqual(true);
         expect(component.options.title).toEqual('Test Title');
         expect(component.options.type).toEqual(MapType.Leaflet);

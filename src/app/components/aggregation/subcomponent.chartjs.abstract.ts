@@ -15,19 +15,17 @@
  */
 import { ElementRef } from '@angular/core';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { AggregationOptions } from './aggregation.component';
 import { Color } from '../../color';
 
 import * as _ from 'lodash';
-
-import * as Chart from 'chart.js';
 import * as moment from 'moment-timezone';
+import * as Chart from 'chart.js';
 
 export abstract class AbstractChartJsDataset {
     public data: any[] = [];
     public xToY: Map<any, any> = new Map<any, any[]>();
 
-    constructor(public color: Color, public label: string, xList: string[]) {
+    constructor(protected elementRef: ElementRef, public color: Color, public label: string, xList: string[]) {
         xList.forEach((x) => {
             this.xToY.set(x, []);
         });
@@ -41,15 +39,15 @@ export abstract class AbstractChartJsDataset {
     public abstract finalizeData();
 
     public getColorBackground(): string {
-        return this.color.toRgba(0.33);
+        return this.color.getComputedCssTransparencyHigh(this.elementRef);
     }
 
     public getColorDeselected(): string {
-        return this.color.toRgba(0.66);
+        return this.color.getComputedCssTransparencyMedium(this.elementRef);
     }
 
     public getColorSelected(): string {
-        return this.color.toRgb();
+        return this.color.getComputedCss(this.elementRef);
     }
 
     public getLabels(): any[] {
@@ -104,12 +102,12 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * @constructor
-     * @arg {AggregationOptions} options
+     * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
      * @arg {boolean} [cannotSelect=false]
      */
-    constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef,
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
         protected cannotSelect: boolean = false) {
 
         super(options, listener, elementRef);
@@ -665,7 +663,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * Returns whether the chart is horizontal.
      *
      * @return {boolean}
-     * @protected
+     * @override
      */
     public isHorizontal(): boolean {
         return false;

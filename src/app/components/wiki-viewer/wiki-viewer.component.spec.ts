@@ -104,13 +104,13 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Pages');
         component.wikiName = ['a'];
-        expect(component.getButtonText()).toBe('Total 1');
+        expect(component.getButtonText()).toBe('1 Page');
         component.wikiName = ['a', 'b', 'c', 'd'];
-        expect(component.getButtonText()).toBe('Total 4');
+        expect(component.getButtonText()).toBe('4 Pages');
         component.wikiName = ['a', 'b'];
-        expect(component.getButtonText()).toBe('Total 2');
+        expect(component.getButtonText()).toBe('2 Pages');
     });
 
     it('getElementRefs does return expected object', () => {
@@ -300,26 +300,6 @@ describe('Component: WikiViewer', () => {
 
     it('setupFilters function does exist', (() => {
         expect(component.setupFilters).toBeDefined();
-    }));
-
-    it('options.createBindings does set expected bindings', (() => {
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.linkField = new FieldMetaData('testLinkField');
-
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: '',
-            hideUnfiltered: false,
-            limit: 10,
-            table: '',
-            title: 'Wiki Viewer',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            idField: 'testIdField',
-            linkField: 'testLinkField'
-        });
     }));
 
     it('subNgOnDestroy function does exist', (() => {

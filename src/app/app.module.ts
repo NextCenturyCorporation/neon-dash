@@ -38,8 +38,6 @@ import { AddVisualizationComponent } from './components/add-visualization/add-vi
 import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AppComponent } from './app.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
-import { BarChartComponent } from './components/bar-chart/bar-chart.component';
-import { ChartComponent } from './components/chart/chart.component';
 import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { DashboardDropdownComponent } from './components/dashboard-dropdown/dashboard-dropdown.component';
@@ -51,12 +49,10 @@ import { ExportControlComponent } from './components/export-control/export-contr
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 import { LegendComponent } from './components/legend/legend.component';
-import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components/map/map.component';
 import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { SaveStateComponent } from './components/save-state/save-state.component';
-import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
@@ -97,8 +93,6 @@ export function getAppConfig() {
         AnnotationViewerComponent,
         AppComponent,
         AggregationComponent,
-        BarChartComponent,
-        ChartComponent,
         ConfigEditorComponent,
         ConfirmationDialogComponent,
         CustomConnectionComponent,
@@ -112,7 +106,6 @@ export function getAppConfig() {
         FilterBuilderComponent,
         FilterTrayComponent,
         LegendComponent,
-        LineChartComponent,
         MapComponent,
         MediaViewerComponent,
         NetworkGraphComponent,
@@ -120,7 +113,6 @@ export function getAppConfig() {
         QueryBarComponent,
         SampleComponent,
         SaveStateComponent,
-        ScatterPlotComponent,
         SettingsComponent,
         SimpleFilterComponent,
         SnackBarComponent,

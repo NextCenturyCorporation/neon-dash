@@ -21,17 +21,20 @@ import { Injector } from '@angular/core';
 
 import { TextCloudComponent } from './text-cloud.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
+import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
+import { WidgetService } from '../../services/widget.service';
+
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { neonVariables } from '../../neon-namespaces';
 
 import * as neon from 'neon-framework';
-import { ChartComponent } from '../chart/chart.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
@@ -43,13 +46,12 @@ describe('Component: TextCloud', () => {
 
     initializeTestBed({
         declarations: [
-            ChartComponent,
             TextCloudComponent,
             ExportControlComponent,
-            UnsharedFilterComponent,
-            ChartComponent
+            UnsharedFilterComponent
         ],
         providers: [
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             {
                 provide: DatasetService,
@@ -77,7 +79,7 @@ describe('Component: TextCloud', () => {
     });
 
     it('has expected options properties', () => {
-        expect(component.options.aggregation).toBe('AVG');
+        expect(component.options.aggregation).toBe(neonVariables.COUNT);
         expect(component.options.andFilters).toBe(true);
         expect(component.options.dataField).toEqual(new FieldMetaData());
         expect(component.options.sizeField).toEqual(new FieldMetaData());
@@ -86,7 +88,7 @@ describe('Component: TextCloud', () => {
     it('has expected class properties', () => {
         expect(component.activeData).toEqual([]);
         expect(component.termsCount).toBe(0);
-        expect(component.textColor).toBe('#ffffff');
+        expect(component.textColor).toBe('#54C8CD');
     });
 
     it('has a subNgOnInit method', () => {
@@ -107,21 +109,11 @@ describe('Component: TextCloud', () => {
         expect(component.subNgOnDestroy).toBeDefined();
     });
 
-    it('has options.createBindings function that updates the input bindings with specific config options', () => {
-        component.options.dataField = new FieldMetaData('testTextField');
-        component.options.sizeField = new FieldMetaData('testSizeField');
-        component.options.aggregation = 'SUM';
-        let bindings = component.options.createBindings();
-        expect(bindings.dataField).toEqual('testTextField');
-        expect(bindings.sizeField).toEqual('testSizeField');
-        expect(bindings.sizeAggregation).toEqual('SUM');
-    });
-
-    it('returns the correct value from options.getExportFields', () => {
+    it('returns the correct value from getExportFields', () => {
         component.options.dataField = new FieldMetaData('testTextField', 'Test Text Field');
         component.options.sizeField = new FieldMetaData('testSizeField');
 
-        expect(component.options.getExportFields()).toEqual([{
+        expect(component.getExportFields()).toEqual([{
             columnName: 'testTextField',
             prettyName: 'Test Text Field'
         }, {
@@ -131,7 +123,7 @@ describe('Component: TextCloud', () => {
 
         component.options.sizeField.prettyName = 'Test Size Field';
 
-        expect(component.options.getExportFields()).toEqual([{
+        expect(component.getExportFields()).toEqual([{
             columnName: 'testTextField',
             prettyName: 'Test Text Field'
         }, {
@@ -200,6 +192,7 @@ describe('Component: TextCloud', () => {
 
         expect(component.createQuery()).toEqual(query);
 
+        component.options.aggregation = neonVariables.AVG;
         component.options.sizeField = new FieldMetaData('testSizeField');
         component.options.limit = 25;
         let whereClauses = neon.query.and(whereClause, neon.query.where('testSizeField', '!=', null));
@@ -452,15 +445,23 @@ describe('Component: TextCloud', () => {
     });
 
     it('returns the proper value from getButtonText', () => {
-        expect(component.getButtonText()).toEqual('No Data');
+        expect(component.getButtonText()).toEqual('0 Terms');
         component.activeData = [{
             testTextField: 'Value',
             value: 10
         }];
-        component.termsCount = 1;
-        expect(component.getButtonText()).toEqual('Total 1');
+        expect(component.getButtonText()).toEqual('1 Term');
+        component.activeData = [{
+            testTextField: 'Value',
+            value: 10
+        }, {
+            testTextField: 'Value',
+            value: 100
+        }];
+        expect(component.getButtonText()).toEqual('2 Terms');
         component.termsCount = 5;
-        expect(component.getButtonText()).toEqual('1 of 5');
+        component.options.limit = 2;
+        expect(component.getButtonText()).toEqual('1 - 2 of 5 Terms');
     });
 
     it('properly returns the list of filters from getCloseableFilters', () => {
@@ -546,12 +547,12 @@ describe('Component: Textcloud with config', () => {
 
     initializeTestBed({
         declarations: [
-            ChartComponent,
             TextCloudComponent,
             ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
@@ -560,11 +561,11 @@ describe('Component: Textcloud with config', () => {
             { provide: 'title', useValue: 'Textcloud with Config Title' },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'dataField', useValue: 'testTextField' },
-            { provide: 'configFilter', useValue: null },
+            { provide: 'filter', useValue: null },
             { provide: 'unsharedFilterField', useValue: 'testUnsharedFilterField' },
             { provide: 'unsharedFilterValue', useValue: 'testUnsharedFilterValue' },
             { provide: 'sizeField', useValue: 'testSizeField' },
-            { provide: 'sizeAggregation', useValue: 'COUNT' },
+            { provide: 'aggregation', useValue: neonVariables.COUNT },
             { provide: 'limit', useValue: 25 }
         ],
         imports: [
@@ -602,18 +603,18 @@ describe('Component: Textcloud with config', () => {
     });
 });
 
-describe('Component: Textcloud with config including configFilter', () => {
+describe('Component: Textcloud with config including filter', () => {
     let component: TextCloudComponent;
     let fixture: ComponentFixture<TextCloudComponent>;
 
     initializeTestBed({
         declarations: [
-            ChartComponent,
             TextCloudComponent,
             ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
@@ -622,7 +623,7 @@ describe('Component: Textcloud with config including configFilter', () => {
             { provide: 'title', useValue: 'Textcloud with Config Title' },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'dataField', useValue: 'testTextField' },
-            { provide: 'configFilter', useValue: {
+            { provide: 'filter', useValue: {
                 use: true,
                 lhs: 'testConfigFilterField',
                 operator: '=',
@@ -632,7 +633,7 @@ describe('Component: Textcloud with config including configFilter', () => {
             { provide: 'unsharedFilterField', useValue: 'testUnsharedFilterField' },
             { provide: 'unsharedFilterValue', useValue: 'testUnsharedFilterValue' },
             { provide: 'sizeField', useValue: 'testSizeField' },
-            { provide: 'sizeAggregation', useValue: 'COUNT' },
+            { provide: 'aggregation', useValue: neonVariables.COUNT },
             { provide: 'limit', useValue: 25 }
         ],
         imports: [

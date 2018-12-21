@@ -83,6 +83,11 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
         }
     }
 
+    bindShowSimpleSearch(message) {
+        this.showSimpleSearch = message.showSimpleSearch;
+        this.changeDetection.detectChanges();
+    }
+
     checkSimpleFilter() {
         if (this.simpleFilter && this.showSimpleSearch !== false) {
             this.showSimpleSearch = true;
@@ -99,10 +104,7 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.checkSimpleFilter();
 
-        this.messenger.subscribe('showSimpleSearch', (message) => {
-            this.showSimpleSearch = message.showSimpleSearch;
-            this.changeDetection.detectChanges();
-        });
+        this.messenger.subscribe('showSimpleSearch', (message) => this.bindShowSimpleSearch(message));
     }
 
     publishShowSimpleSearch() {

@@ -25,7 +25,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -35,6 +35,16 @@ import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetMultipleSelectOption,
+    WidgetNonPrimitiveOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import { basename } from 'path';
 import * as neon from 'neon-framework';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
@@ -42,58 +52,15 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import * as _ from 'lodash';
 
-export class TestOptions extends BaseNeonOptions {
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        // Do nothing.
-    }
-}
-
 @Component({
-    selector: 'app-kebah-case',
+    selector: 'app-test-base-neon',
     templateUrl: './base-neon.component.html',
     styleUrls: ['./base-neon.component.scss'],
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
-  })
+})
 class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     public filters: any[] = [];
-    public options: TestOptions;
     constructor(
         connectionService: ConnectionService,
         datasetService: DatasetService,
@@ -108,7 +75,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
             injector,
             changeDetection
         );
-        this.options = new TestOptions(this.injector, this.datasetService, 'TestName');
     }
 
     postInit() {
@@ -121,6 +87,14 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
 
     subNgOnDestroy() {
         //Get an option from the visualization's config
+    }
+
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [];
+    }
+
+    createNonFieldOptions(): WidgetOption[] {
+        return [];
     }
 
     createQuery() {
@@ -149,8 +123,12 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         }
     }
 
-    getOptions() {
-        return this.options;
+    getVisualizationDefaultLimit(): number {
+        return 1234;
+    }
+
+    getVisualizationDefaultTitle(): string {
+        return 'Mock Superclass';
     }
 
     isValidQuery() {
@@ -192,10 +170,56 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     }
 }
 
-describe('Component: BaseNeonOptions', () => {
+@Component({
+    selector: 'app-test-advanced-neon',
+    templateUrl: './base-neon.component.html',
+    styleUrls: ['./base-neon.component.scss'],
+    encapsulation: ViewEncapsulation.Emulated,
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+class TestAdvancedNeonComponent extends TestBaseNeonComponent {
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('testRequiredField', 'Test Required Field', true),
+            new WidgetFieldOption('testOptionalField', 'Test Optional Field', false),
+            new WidgetFieldArrayOption('testMultipleFields', 'Test Multiple Fields', false)
+        ];
+    }
+
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetFreeTextOption('testFreeText', 'Test Free Text', ''),
+            new WidgetMultipleSelectOption('testMultipleSelect', 'Test Multiple Select', [], [{
+                prettyName: 'A',
+                variable: 'a'
+            }, {
+                prettyName: 'B',
+                variable: 'b'
+            }, {
+                prettyName: 'C',
+                variable: 'c'
+            }]),
+            new WidgetNonPrimitiveOption('testArray', 'Test Array', []),
+            new WidgetNonPrimitiveOption('testObject', 'Test Object', {}),
+            new WidgetSelectOption('testSelect', 'Test Select', 'y', [{
+                prettyName: 'X',
+                variable: 'x'
+            }, {
+                prettyName: 'Y',
+                variable: 'y'
+            }, {
+                prettyName: 'Z',
+                variable: 'z'
+            }]),
+            new WidgetSelectOption('testToggle', 'Test Toggle', false, OptionChoices.NoFalseYesTrue)
+        ];
+    }
+}
+
+describe('BaseNeonComponent Options', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: BaseNeonComponent;
-    let options: BaseNeonOptions;
+    let options: any;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
     initializeTestBed({
@@ -224,7 +248,7 @@ describe('Component: BaseNeonOptions', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(TestBaseNeonComponent);
         component = fixture.componentInstance;
-        options = component.getOptions();
+        options = component.options;
         fixture.detectChanges();
     });
 
@@ -236,35 +260,20 @@ describe('Component: BaseNeonOptions', () => {
         expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
         expect(options.filter).toEqual(null);
         expect(options.hideUnfiltered).toEqual(false);
-        expect(options.limit).toEqual(10);
-        expect(options.newLimit).toEqual(10);
+        expect(options.limit).toEqual(1234);
+        expect(component.newLimit).toEqual(1234);
         expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.title).toEqual('TestName');
+        expect(options.title).toEqual('Mock Superclass');
         expect(options.unsharedFilterField).toEqual(new FieldMetaData());
         expect(options.unsharedFilterValue).toEqual('');
     });
 
-    it('createBindings does return expected object', () => {
-        expect(options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 10,
-            table: 'testTable1',
-            title: 'TestName',
-            unsharedFilterValue: '',
-            unsharedFilterField: ''
-        });
-    });
-
     it('findField does return expected object or undefined', () => {
-        expect(options.findField('testDateField')).toEqual(DatasetServiceMock.DATE_FIELD);
-        expect(options.findField('testNameField')).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect(options.findField('testSizeField')).toEqual(DatasetServiceMock.SIZE_FIELD);
-        expect(options.findField('testFakeField')).toEqual(undefined);
+        expect(component.findField(options.fields, 'testDateField')).toEqual(DatasetServiceMock.DATE_FIELD);
+        expect(component.findField(options.fields, 'testNameField')).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(component.findField(options.fields, 'testSizeField')).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(component.findField(options.fields, 'testFakeField')).toEqual(undefined);
     });
 
     it('findField does work as expected if given an array index', () => {
@@ -277,46 +286,70 @@ describe('Component: BaseNeonOptions', () => {
         let sizeIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => {
             return fieldObject.columnName === 'testSizeField';
         });
-        expect(options.findField('' + dateIndex)).toEqual(DatasetServiceMock.DATE_FIELD);
-        expect(options.findField('' + nameIndex)).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect(options.findField('' + sizeIndex)).toEqual(DatasetServiceMock.SIZE_FIELD);
-        expect(options.findField('' + DatasetServiceMock.FIELDS.length)).toEqual(undefined);
-        expect(options.findField('-1')).toEqual(undefined);
+        expect(component.findField(options.fields, '' + dateIndex)).toEqual(DatasetServiceMock.DATE_FIELD);
+        expect(component.findField(options.fields, '' + nameIndex)).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(component.findField(options.fields, '' + sizeIndex)).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(component.findField(options.fields, '' + DatasetServiceMock.FIELDS.length)).toEqual(undefined);
+        expect(component.findField(options.fields, '-1')).toEqual(undefined);
     });
 
     it('findFieldObject does return expected object', () => {
-        expect(options.findFieldObject('testDate')).toEqual(DatasetServiceMock.DATE_FIELD);
-        expect(options.findFieldObject('testName')).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect(options.findFieldObject('testSize')).toEqual(DatasetServiceMock.SIZE_FIELD);
-        expect(options.findFieldObject('testFake')).toEqual(new FieldMetaData());
-        expect(options.findFieldObject('fakeBind')).toEqual(new FieldMetaData());
+        expect(component.findFieldObject(options.fields, 'testDate')).toEqual(DatasetServiceMock.DATE_FIELD);
+        expect(component.findFieldObject(options.fields, 'testName')).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(component.findFieldObject(options.fields, 'testSize')).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(component.findFieldObject(options.fields, 'testFake')).toEqual(new FieldMetaData());
+        expect(component.findFieldObject(options.fields, 'fakeBind')).toEqual(new FieldMetaData());
     });
 
     it('findFieldObjects does return expected array', () => {
-        expect(options.findFieldObjects('testList')).toEqual([
+        expect(component.findFieldObjects(options.fields, 'testList')).toEqual([
             DatasetServiceMock.DATE_FIELD,
-            new FieldMetaData(),
             DatasetServiceMock.NAME_FIELD,
             DatasetServiceMock.SIZE_FIELD
         ]);
-        expect(options.findFieldObjects('testName')).toEqual([]);
-        expect(options.findFieldObjects('fakeBind')).toEqual([]);
+        expect(component.findFieldObjects(options.fields, 'testName')).toEqual([]);
+        expect(component.findFieldObjects(options.fields, 'fakeBind')).toEqual([]);
     });
 
-    it('getAllFieldArrayProperties does return expected array', () => {
-        expect(options.getAllFieldArrayProperties()).toEqual([]);
-    });
-
-    it('getAllFieldProperties does return expected array', () => {
-        expect(options.getAllFieldProperties()).toEqual(['unsharedFilterField']);
+    it('getBindings does return expected object', () => {
+        expect(component.getBindings()).toEqual({
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            filter: null,
+            hideUnfiltered: false,
+            limit: 1234,
+            table: 'testTable1',
+            title: 'Mock Superclass',
+            unsharedFilterValue: '',
+            unsharedFilterField: ''
+        });
     });
 
     it('getExportFields does return expected array', () => {
-        expect(options.getExportFields()).toEqual([]);
+        expect(component.getExportFields()).toEqual([]);
     });
 
-    it('updateDatabases does update databases, tables, and fields', () => {
-        options.updateDatabases();
+    it('getVisualizationDefaultLimit does return expected number', () => {
+        expect(component.getVisualizationDefaultLimit()).toEqual(1234);
+    });
+
+    it('getVisualizationDefaultTitle does return expected string', () => {
+        expect(component.getVisualizationDefaultTitle()).toEqual('Mock Superclass');
+    });
+
+    it('hasUnsharedFilter does return expected boolean', () => {
+        expect(component.hasUnsharedFilter()).toEqual(false);
+    });
+
+    it('initializeFieldsInOptions does not update unshared filter field because it is not set', () => {
+        options.fields = DatasetServiceMock.FIELDS;
+        component.initializeFieldsInOptions(options);
+        expect(options.unsharedFilterField).toEqual(new FieldMetaData());
+    });
+
+    it('updateDatabasesInOptions does update databases, tables, and fields', () => {
+        component.updateDatabasesInOptions(options);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -324,12 +357,12 @@ describe('Component: BaseNeonOptions', () => {
         expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
     });
 
-    it('updateFields does update fields', () => {
+    it('updateFieldsInOptions does update fields', () => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
         options.tables = DatasetServiceMock.TABLES;
         options.table = DatasetServiceMock.TABLES[0];
-        options.updateFields();
+        component.updateFieldsInOptions(options);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -337,10 +370,10 @@ describe('Component: BaseNeonOptions', () => {
         expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
     });
 
-    it('updateTables does update tables and fields', () => {
+    it('updateTablesInOptions does update tables and fields', () => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
-        options.updateTables();
+        component.updateTablesInOptions(options);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -349,15 +382,105 @@ describe('Component: BaseNeonOptions', () => {
     });
 });
 
-describe('Component: BaseNeonOptions with config', () => {
+describe('Advanced BaseNeonComponent Options', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: BaseNeonComponent;
-    let options: BaseNeonOptions;
+    let options: any;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
     initializeTestBed({
         declarations: [
-            TestBaseNeonComponent
+            TestAdvancedNeonComponent
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule
+        ],
+        providers: [
+            ConnectionService,
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            FilterService,
+            Injector,
+            { provide: 'config', useValue: testConfig }
+        ]
+    });
+
+    beforeEach(() => {
+        fixture = TestBed.createComponent(TestAdvancedNeonComponent);
+        component = fixture.componentInstance;
+        options = component.options;
+        fixture.detectChanges();
+    });
+
+    it('does have expected properties', () => {
+        expect(options.customEventsToPublish).toEqual([]);
+        expect(options.customEventsToReceive).toEqual([]);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(options.filter).toEqual(null);
+        expect(options.hideUnfiltered).toEqual(false);
+        expect(options.limit).toEqual(1234);
+        expect(component.newLimit).toEqual(1234);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.testArray).toEqual([]);
+        expect(options.testFreeText).toEqual('');
+        expect(options.testMultipleFields).toEqual([]);
+        expect(options.testMultipleSelect).toEqual([]);
+        expect(options.testObject).toEqual({});
+        expect(options.testOptionalField).toEqual(new FieldMetaData());
+        expect(options.testRequiredField).toEqual(new FieldMetaData());
+        expect(options.testSelect).toEqual('y');
+        expect(options.testToggle).toEqual(false);
+        expect(options.title).toEqual('Mock Superclass');
+        expect(options.unsharedFilterField).toEqual(new FieldMetaData());
+        expect(options.unsharedFilterValue).toEqual('');
+    });
+
+    it('getBindings does return expected object', () => {
+        expect(component.getBindings()).toEqual({
+            customEventsToPublish: [],
+            customEventsToReceive: [],
+            database: 'testDatabase1',
+            filter: null,
+            hideUnfiltered: false,
+            limit: 1234,
+            table: 'testTable1',
+            testArray: [],
+            testFreeText: '',
+            testMultipleFields: [],
+            testMultipleSelect: [],
+            testObject: {},
+            testOptionalField: '',
+            testRequiredField: '',
+            testSelect: 'y',
+            testToggle: false,
+            title: 'Mock Superclass',
+            unsharedFilterValue: '',
+            unsharedFilterField: ''
+        });
+    });
+
+    it('getExportFields does return expected array', () => {
+        expect(component.getExportFields()).toEqual([]);
+    });
+
+    it('hasUnsharedFilter does return expected boolean', () => {
+        expect(component.hasUnsharedFilter()).toEqual(false);
+    });
+});
+
+describe('Advanced BaseNeonComponent Options with Config', () => {
+    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let component: BaseNeonComponent;
+    let options: any;
+    let fixture: ComponentFixture<BaseNeonComponent>;
+
+    initializeTestBed({
+        declarations: [
+            TestAdvancedNeonComponent
         ],
         imports: [
             AppMaterialModule,
@@ -378,6 +501,15 @@ describe('Component: BaseNeonOptions with config', () => {
             { provide: 'hideUnfiltered', useValue: true },
             { provide: 'limit', useValue: 1234 },
             { provide: 'tableKey', useValue: 'table_key_2'},
+            { provide: 'testArray', useValue: [4, 3, 2, 1] },
+            { provide: 'testFreeText', useValue: 'the quick brown fox jumps over the lazy dog' },
+            { provide: 'testMultipleFields', useValue: ['testXField', 'testYField'] },
+            { provide: 'testMultipleSelect', useValue: ['b', 'c'] },
+            { provide: 'testObject', useValue: { key: 'value' } },
+            { provide: 'testOptionalField', useValue: 'testNameField' },
+            { provide: 'testRequiredField', useValue: 'testSizeField' },
+            { provide: 'testSelect', useValue: 'z' },
+            { provide: 'testToggle', useValue: true },
             { provide: 'title', useValue: 'VisualizationTitle' },
             { provide: 'unsharedFilterField', useValue: 'testFilterField' },
             { provide: 'unsharedFilterValue', useValue: 'testFilterValue' }
@@ -385,9 +517,9 @@ describe('Component: BaseNeonOptions with config', () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(TestBaseNeonComponent);
+        fixture = TestBed.createComponent(TestAdvancedNeonComponent);
         component = fixture.componentInstance;
-        options = component.getOptions();
+        options = component.options;
         fixture.detectChanges();
     });
 
@@ -416,21 +548,27 @@ describe('Component: BaseNeonOptions with config', () => {
         });
         expect(options.hideUnfiltered).toEqual(true);
         expect(options.limit).toEqual(1234);
-        expect(options.newLimit).toEqual(1234);
+        expect(component.newLimit).toEqual(1234);
         expect(options.table).toEqual(DatasetServiceMock.TABLES[1]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.testArray).toEqual([4, 3, 2, 1]);
+        expect(options.testFreeText).toEqual('the quick brown fox jumps over the lazy dog');
+        expect(options.testMultipleFields).toEqual([DatasetServiceMock.X_FIELD, DatasetServiceMock.Y_FIELD]);
+        expect(options.testMultipleSelect).toEqual(['b', 'c']);
+        expect(options.testObject).toEqual({
+            key: 'value'
+        });
+        expect(options.testOptionalField).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(options.testRequiredField).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(options.testSelect).toEqual('z');
+        expect(options.testToggle).toEqual(true);
         expect(options.title).toEqual('VisualizationTitle');
         expect(options.unsharedFilterField).toEqual(DatasetServiceMock.FILTER_FIELD);
         expect(options.unsharedFilterValue).toEqual('testFilterValue');
     });
 
-    it('createBindings does return expected object', () => {
-        expect(options.createBindings()).toEqual({
-            configFilter: {
-                lhs: 'testConfigField',
-                operator: '!=',
-                rhs: 'testConfigValue'
-            },
+    it('getBindings does return expected object', () => {
+        expect(component.getBindings()).toEqual({
             customEventsToPublish: [{
                 id: 'testPublishId',
                 fields: [{
@@ -446,17 +584,62 @@ describe('Component: BaseNeonOptions with config', () => {
                 }]
             }],
             database: 'testDatabase2',
+            filter: {
+                lhs: 'testConfigField',
+                operator: '!=',
+                rhs: 'testConfigValue'
+            },
             hideUnfiltered: true,
             limit: 1234,
             table: 'testTable2',
+            testArray: [4, 3, 2, 1],
+            testFreeText: 'the quick brown fox jumps over the lazy dog',
+            testMultipleFields: ['testXField', 'testYField'],
+            testMultipleSelect: ['b', 'c'],
+            testObject: {
+                key: 'value'
+            },
+            testOptionalField: 'testNameField',
+            testRequiredField: 'testSizeField',
+            testSelect: 'z',
+            testToggle: true,
             title: 'VisualizationTitle',
             unsharedFilterValue: 'testFilterValue',
             unsharedFilterField: 'testFilterField'
         });
     });
 
-    it('updateDatabases does update database if given a key', () => {
-        options.updateDatabases();
+    it('getExportFields does return expected array', () => {
+        expect(component.getExportFields()).toEqual([{
+            columnName: 'testSizeField',
+            prettyName: 'Test Size Field'
+        }, {
+            columnName: 'testNameField',
+            prettyName: 'Test Name Field'
+        }, {
+            columnName: 'testXField',
+            prettyName: 'Test X Field'
+        }, {
+            columnName: 'testYField',
+            prettyName: 'Test Y Field'
+        }, {
+            columnName: 'testFilterField',
+            prettyName: 'Test Filter Field'
+        }]);
+    });
+
+    it('hasUnsharedFilter does return expected boolean', () => {
+        expect(component.hasUnsharedFilter()).toEqual(true);
+    });
+
+    it('initializeFieldsInOptions does update unshared filter field', () => {
+        options.fields = DatasetServiceMock.FIELDS;
+        component.initializeFieldsInOptions(options);
+        expect(options.unsharedFilterField).toEqual(DatasetServiceMock.FILTER_FIELD);
+    });
+
+    it('updateDatabasesInOptions does update database if given an array index', () => {
+        component.updateDatabasesInOptions(options);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[1]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -464,21 +647,21 @@ describe('Component: BaseNeonOptions with config', () => {
         expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
     });
 
-    it('updateFields does update unshared filter', () => {
+    it('updateFieldsInOptions does update fields', () => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
         options.tables = DatasetServiceMock.TABLES;
         options.table = DatasetServiceMock.TABLES[0];
         options.unsharedFilterField = null;
         options.unsharedFilterValue = null;
-        options.updateFields();
-        expect(options.unsharedFilterField).toEqual(DatasetServiceMock.FILTER_FIELD);
+        component.updateFieldsInOptions(options);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
     });
 
-    it('updateTables does update tables if given a key', () => {
+    it('updateTablesInOptions does update tables if given an array index', () => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
-        options.updateTables();
+        component.updateTablesInOptions(options);
         expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(options.tables).toEqual(DatasetServiceMock.TABLES);
@@ -487,9 +670,10 @@ describe('Component: BaseNeonOptions with config', () => {
     });
 });
 
-describe('Component: base-neon', () => {
+describe('BaseNeon', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: BaseNeonComponent;
+    let options: any;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
     initializeTestBed({
@@ -516,22 +700,18 @@ describe('Component: base-neon', () => {
         fixture.detectChanges();
     });
 
-    it('should return expected value from bindings', (() => {
-        component.getOptions().database = new DatabaseMetaData('testDatabase1');
-        component.getOptions().table = new TableMetaData('testTable1');
-        expect(component.getBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 10,
-            table: 'testTable1',
-            title: 'TestName',
-            unsharedFilterValue: '',
-            unsharedFilterField: ''
-        });
-    }));
+    it('does have expected properties', () => {
+        expect(component.id).toBeDefined();
+        expect(component.messenger).toBeDefined();
+
+        expect(component.initializing).toBe(false);
+        expect(component.isLoading).toBe(false);
+        expect(component.isExportable).toBe(true);
+        expect(component.errorMessage).toBe('');
+
+        expect(component.options).toBeDefined();
+        expect(component.newLimit).toBeDefined();
+    });
 
     it('Tests ngOnDestroy function', (() => {
         expect(component.ngOnDestroy()).toBeUndefined();
@@ -541,41 +721,39 @@ describe('Component: base-neon', () => {
     }));
 
     it('handleChangeDatabase does update options and does call logChangeAndStartQueryChain', () => {
-        let options = component.getOptions();
         let spyLog = spyOn(component, 'logChangeAndStartQueryChain');
-        options.databases = DatasetServiceMock.DATABASES;
-        options.database = DatasetServiceMock.DATABASES[0];
-        options.tables = [];
-        options.table = null;
-        options.fields = [];
+        component.options.databases = DatasetServiceMock.DATABASES;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.tables = [];
+        component.options.table = null;
+        component.options.fields = [];
         component.handleChangeDatabase();
         expect(spyLog.calls.count()).toBe(1);
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
-        expect(options.unsharedFilterField).toEqual(new FieldMetaData());
-        expect(options.unsharedFilterValue).toEqual('');
+        expect(component.options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(component.options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component.options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.options.unsharedFilterField).toEqual(new FieldMetaData());
+        expect(component.options.unsharedFilterValue).toEqual('');
     });
 
     it('handleChangeTable does update options and does call logChangeAndStartQueryChain', () => {
-        let options = component.getOptions();
         let spyLog = spyOn(component, 'logChangeAndStartQueryChain');
-        options.databases = DatasetServiceMock.DATABASES;
-        options.database = DatasetServiceMock.DATABASES[0];
-        options.tables = DatasetServiceMock.TABLES;
-        options.table = DatasetServiceMock.TABLES[0];
-        options.fields = [];
+        component.options.databases = DatasetServiceMock.DATABASES;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.tables = DatasetServiceMock.TABLES;
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = [];
         component.handleChangeTable();
         expect(spyLog.calls.count()).toBe(1);
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
-        expect(options.unsharedFilterField).toEqual(new FieldMetaData());
-        expect(options.unsharedFilterValue).toEqual('');
+        expect(component.options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(component.options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component.options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.options.unsharedFilterField).toEqual(new FieldMetaData());
+        expect(component.options.unsharedFilterValue).toEqual('');
     });
 
     it('handleChangeData does call logChangeAndStartQueryChain', () => {
@@ -585,20 +763,19 @@ describe('Component: base-neon', () => {
     });
 
     it('handleChangeLimit does update limit and does call logChangeAndStartQueryChain', () => {
-        let options = component.getOptions();
         let spy = spyOn(component, 'logChangeAndStartQueryChain');
 
-        options.newLimit = 1234;
+        component.newLimit = 1234;
 
         component.handleChangeLimit();
-        expect(options.limit).toBe(1234);
+        expect(component.options.limit).toBe(1234);
         expect(spy.calls.count()).toBe(1);
 
-        options.newLimit = 0;
+        component.newLimit = 0;
 
         component.handleChangeLimit();
-        expect(options.limit).toBe(1234);
-        expect(options.newLimit).toBe(1234);
+        expect(component.options.limit).toBe(1234);
+        expect(component.newLimit).toBe(1234);
         expect(spy.calls.count()).toBe(1);
     });
 

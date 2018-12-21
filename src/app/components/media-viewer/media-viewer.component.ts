@@ -31,99 +31,19 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetNonPrimitiveOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import * as neon from 'neon-framework';
-
-/**
- * Manages configurable options for the specific visualization.
- */
-export class MediaViewerOptions extends BaseNeonOptions {
-    public autoplay: boolean;
-    public border: string;
-    public clearMedia: boolean;
-    public delimiter: string;
-    public id: string;
-    public idField: FieldMetaData;
-    public maskField: FieldMetaData;
-    public linkField: FieldMetaData; // DEPRECATED
-    public linkFields: FieldMetaData[];
-    public linkPrefix: string;
-    public nameField: FieldMetaData;
-    public oneTabPerArray: boolean;
-    public resize: boolean;
-    public sliderValue: number;
-    public typeField: FieldMetaData;
-    public typeMap: any;
-    public url: string;
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        bindings.autoplay = this.autoplay;
-        bindings.border = this.border;
-        bindings.clearMedia = this.clearMedia;
-        bindings.delimiter = this.delimiter;
-        bindings.linkPrefix = this.linkPrefix;
-        bindings.oneTabPerArray = this.oneTabPerArray;
-        bindings.resize = this.resize;
-        bindings.sliderValue = this.sliderValue;
-        bindings.typeMap = this.typeMap;
-
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'idField',
-            'linkField', // DEPRECATED
-            'maskField',
-            'nameField',
-            'typeField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return ['linkFields'];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.border = this.injector.get('border', '');
-        this.clearMedia = this.injector.get('clearMedia', false);
-        this.delimiter = this.injector.get('delimiter', ',');
-        this.id = this.injector.get('id', '');
-        this.linkPrefix = this.injector.get('linkPrefix', '');
-        this.oneTabPerArray = this.injector.get('oneTabPerArray', false);
-        this.resize = this.injector.get('resize', true);
-        this.sliderValue = this.injector.get('sliderValue', 0);
-        this.typeMap = this.injector.get('typeMap', {});
-        this.url = this.injector.get('url', '');
-        this.autoplay = this.injector.get('autoplay', false);
-    }
-}
 
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
@@ -143,8 +63,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
-
-    public options: MediaViewerOptions;
 
     public mediaTypes: any = MediaTypes;
 
@@ -192,9 +110,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             ref
         );
 
-        this.options = new MediaViewerOptions(this.injector, this.datasetService, 'Media Viewer', 10);
-
-        // Backwards compatibility.
+        // Backwards compatibility (linkField deprecated and replaced by linkFields).
         if (this.options.linkField.columnName && !this.options.linkFields.length) {
             this.options.linkFields.push(this.options.linkField);
         }
@@ -308,6 +224,51 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Creates and returns an array of field options for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('idField', 'ID Field', true),
+            new WidgetFieldOption('linkField', 'Link Field', false, false), // DEPRECATED
+            new WidgetFieldOption('maskField', 'Mask Field', false),
+            new WidgetFieldOption('nameField', 'Name Field', false),
+            new WidgetFieldOption('typeField', 'Type Field', false),
+            new WidgetFieldArrayOption('linkFields', 'Link Field(s)', true)
+        ];
+    }
+
+    /**
+     * Creates and returns an array of non-field options for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetSelectOption('autoplay', 'Autoplay', false, OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('border', 'Border', ''),
+            new WidgetSelectOption('clearMedia', 'Clear Media', false, OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('id', 'ID', ''),
+            new WidgetFreeTextOption('delimiter', 'Link Delimiter', ','),
+            new WidgetFreeTextOption('linkPrefix', 'Link Prefix', ''),
+            new WidgetSelectOption('resize', 'Resize Media to Fit', true, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('oneTabPerArray', 'Tab Behavior with Link Arrays', false, [{
+                prettyName: 'One Tab per Element',
+                variable: false
+            }, {
+                prettyName: 'One Tab per Array',
+                variable: true
+            }]),
+            new WidgetFreeTextOption('sliderValue', 'Slider Value', '0'),
+            new WidgetNonPrimitiveOption('typeMap', 'Type Map', {}),
+            new WidgetFreeTextOption('url', 'URL', '')
+        ];
+    }
+
+    /**
      * Creates and returns the query for the media viewer.
      *
      * @return {neon.query.Query}
@@ -354,7 +315,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     createTabs(links: any, masks: any, names: any[], types: any[], oneTabName: string = '') {
         let oneTab = {
             selected: undefined,
-            slider: this.options.sliderValue,
+            slider: Number.parseInt(this.options.sliderValue),
             name: oneTabName,
             loaded: false,
             list: []
@@ -378,7 +339,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 if (!this.options.oneTabPerArray) {
                     tab = {
                         selected: undefined,
-                        slider: this.options.sliderValue,
+                        slider: Number.parseInt(this.options.sliderValue),
                         name: (links.length > 1 ? ((index + 1) + ': ') : '') + name,
                         loaded: false,
                         list: []
@@ -423,19 +384,11 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @return {string}
      * @override
      */
-    getButtonText() {
-        if (!this.tabsAndMedia.length && !this.options.url) {
+    public getButtonText(): string {
+        if (!this.getShownDataCount(this.getShownDataArray()) && !this.options.url) {
             return 'Please Select';
         }
-        if (!this.tabsAndMedia.length && this.options.url) {
-            if (this.options.hideUnfiltered) {
-                return 'Please Filter';
-            }
-            return 'No Data';
-        }
-        return 'Total Files ' + super.prettifyInteger(this.tabsAndMedia.reduce((sum, tab) => {
-            return sum + tab.list.length;
-        }, 0));
+        return super.getButtonText();
     }
 
     /**
@@ -446,6 +399,39 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     getCloseableFilters(): any[] {
         return [];
+    }
+
+    /**
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
+     *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        return this.tabsAndMedia;
+    }
+
+    /**
+     * Returns the count of the given array of data items that are currently shown in the visualization.
+     *
+     * @arg {any[]} data
+     * @return {number}
+     * @override
+     */
+    public getShownDataCount(data: any[]): number {
+        return data.reduce((sum, tab) => sum + tab.list.length, 0);
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'File' + (count === 1 ? '' : 's');
     }
 
     /**
@@ -523,16 +509,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the options for the specific visualization.
-     *
-     * @return {BaseNeonOptions}
-     * @override
-     */
-    getOptions(): BaseNeonOptions {
-        return this.options;
-    }
-
-    /**
      * Returns the label for the tab using the given array of names and the given index.
      *
      * @arg {array} names
@@ -542,6 +518,26 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     getTabLabel(names, index) {
         return names && names.length > index ? names[index] : '';
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultLimit(): number {
+        return 10;
+    }
+
+    /**
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'Media Viewer';
     }
 
     /**
