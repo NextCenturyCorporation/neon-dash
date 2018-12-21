@@ -1,8 +1,4 @@
-<div [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-toolbar color="primary">
-        <span>Add Visualizations</span>
-    </mat-toolbar>
-
+<div>
     <div class="add-visualization-grid-container" mat-fill>
         <mat-grid-list cols="4" rowHeight="130px" gutterSize="5px">
             <mat-grid-tile *ngFor="let item of visualizations; let i = index;" [class.selected]="item.selected"
@@ -21,10 +17,13 @@
                 </a>
             </mat-grid-tile>
         </mat-grid-list>
+        <mat-divider class="divider"></mat-divider>
     </div>
-
+    <div class="checkmark-container">
+        <input type="checkbox" [checked]="showVisShortcut" (change)="publishShowVisShortcut()">
+        Show shortcut
+    </div>
     <div mat-fill class="flex">
         <span class="fill-remaining"></span>
-        <button mat-raised-button color="primary" (click)="dialogRef.close('close')"> Close </button>
     </div>
 </div>

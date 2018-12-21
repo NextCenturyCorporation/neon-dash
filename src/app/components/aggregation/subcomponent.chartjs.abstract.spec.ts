@@ -17,25 +17,9 @@
 'use strict';
 
 import { AbstractChartJsDataset, AbstractChartJsSubcomponent } from './subcomponent.chartjs.abstract';
-import { AggregationSubcomponentListener, AggregationSubcomponentOptions } from './subcomponent.aggregation.abstract';
-import { Color } from '../../services/color-scheme.service';
+import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
+import { Color } from '../../color';
 import { ElementRef } from '@angular/core';
-
-class TestAggregationSubcomponentOptions implements AggregationSubcomponentOptions {
-    public granularity: string = 'year';
-    public hideGridLines: boolean = false;
-    public hideGridTicks: boolean = false;
-    public lineCurveTension: number = 0.3;
-    public lineFillArea: boolean = false;
-    public logScaleX: boolean = false;
-    public logScaleY: boolean = false;
-    public scaleMaxX: string = '';
-    public scaleMaxY: string = '';
-    public scaleMinX: string = '';
-    public scaleMinY: string = '';
-    public showHeat: boolean = false;
-    public yPercentage: number = 0.3;
-}
 
 class TestAggregationSubcomponentListener implements AggregationSubcomponentListener {
     getHiddenCanvas(): ElementRef {
@@ -99,7 +83,7 @@ class TestChartJsSubcomponent extends AbstractChartJsSubcomponent {
     }
 
     protected createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset {
-        return new TestChartJsDataset(color, label, xList);
+        return new TestChartJsDataset(this.elementRef, color, label, xList);
     }
 
     protected findAxisTypeX(): string {
@@ -123,44 +107,46 @@ class TestChartJsSubcomponent extends AbstractChartJsSubcomponent {
         return this.createChartDataAndOptions(data, meta);
     }
 
+    public getVisualizationElementLabel(count: number): string {
+        return 'Foobar' + (count === 1 ? '' : 's');
+    }
+
     public getSelectedLabels() {
         return this.selectedLabels;
     }
 
-    protected isHorizontal(): boolean {
+    public isHorizontal(): boolean {
         return this.horizontal;
     }
 }
 
 describe('ChartJsSubcomponent', () => {
     let listener;
-    let options;
     let subcomponent;
 
     beforeEach(() => {
         listener = new TestAggregationSubcomponentListener();
-        options = new TestAggregationSubcomponentOptions();
-        subcomponent = new TestChartJsSubcomponent(options, listener, null);
+        subcomponent = new TestChartJsSubcomponent({}, listener, null);
     });
 
     it('createChartDataAndOptions does return expected object', () => {
         let dataAndOptions = subcomponent.getChartDataAndOptions([{
-            color: new Color(1, 2, 3),
+            color: Color.fromRgb(1, 2, 3),
             group: 'a',
             x: 1,
             y: 2
         }, {
-            color: new Color(1, 2, 3),
+            color: Color.fromRgb(1, 2, 3),
             group: 'a',
             x: 3,
             y: 4
         }, {
-            color: new Color(4, 5, 6),
+            color: Color.fromRgb(4, 5, 6),
             group: 'b',
             x: 5,
             y: 6
         }, {
-            color: new Color(4, 5, 6),
+            color: Color.fromRgb(4, 5, 6),
             group: 'b',
             x: 7,
             y: 8
@@ -207,7 +193,7 @@ describe('ChartJsSubcomponent', () => {
         expect(dataAndOptions.options.tooltips.callbacks.label).toBeDefined();
         expect(dataAndOptions.options.tooltips.callbacks.title).toBeDefined();
 
-        expect(dataAndOptions.data.datasets[0].color).toEqual(new Color(1, 2, 3));
+        expect(dataAndOptions.data.datasets[0].color).toEqual(Color.fromRgb(1, 2, 3));
         expect(dataAndOptions.data.datasets[0].label).toEqual('a');
         expect(dataAndOptions.data.datasets[0].data).toEqual([{
             x: 1,
@@ -223,7 +209,7 @@ describe('ChartJsSubcomponent', () => {
             y: null
         }]);
 
-        expect(dataAndOptions.data.datasets[1].color).toEqual(new Color(4, 5, 6));
+        expect(dataAndOptions.data.datasets[1].color).toEqual(Color.fromRgb(4, 5, 6));
         expect(dataAndOptions.data.datasets[1].label).toEqual('b');
         expect(dataAndOptions.data.datasets[1].data).toEqual([{
             x: 1,
@@ -243,31 +229,31 @@ describe('ChartJsSubcomponent', () => {
     });
 
     it('createChartDataAndOptions with config does return expected object', () => {
-        options.hideGridLines = true;
-        options.hideGridTicks = true;
-        options.scaleMaxX = 4;
-        options.scaleMaxY = 3;
-        options.scaleMinX = 2;
-        options.scaleMinY = 1;
+        subcomponent.options.hideGridLines = true;
+        subcomponent.options.hideGridTicks = true;
+        subcomponent.options.scaleMaxX = 4;
+        subcomponent.options.scaleMaxY = 3;
+        subcomponent.options.scaleMinX = 2;
+        subcomponent.options.scaleMinY = 1;
         subcomponent.horizontal = true;
 
         let dataAndOptions = subcomponent.getChartDataAndOptions([{
-            color: new Color(1, 2, 3),
+            color: Color.fromRgb(1, 2, 3),
             group: 'a',
             x: 1,
             y: 2
         }, {
-            color: new Color(1, 2, 3),
+            color: Color.fromRgb(1, 2, 3),
             group: 'a',
             x: 3,
             y: 4
         }, {
-            color: new Color(4, 5, 6),
+            color: Color.fromRgb(4, 5, 6),
             group: 'b',
             x: 5,
             y: 6
         }, {
-            color: new Color(4, 5, 6),
+            color: Color.fromRgb(4, 5, 6),
             group: 'b',
             x: 7,
             y: 8
@@ -1032,6 +1018,7 @@ describe('ChartJsSubcomponent', () => {
     });
 
     it('selectDomain with time axis does create expected filter', () => {
+        subcomponent.options.granularity = 'day';
         let spy1 = spyOn(listener, 'subcomponentRequestsSelect');
         let spy2 = spyOn(listener, 'subcomponentRequestsDeselect');
         let spy3 = spyOn(listener, 'subcomponentRequestsFilterOnDomain');
@@ -1088,7 +1075,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy1.calls.count()).toEqual(2);
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(1);
-        expect(spy3.calls.argsFor(0)).toEqual([new Date('2018-01-02T00:00:00.000Z'), new Date('2018-01-03T00:00:00.000Z')]);
+        expect(spy3.calls.argsFor(0)).toEqual([new Date('2018-01-02T00:00:00.000Z'), new Date('2018-01-03T23:59:59.000Z')]);
         expect(spy4.calls.count()).toEqual(2);
         expect(spy5.calls.count()).toEqual(2);
         expect(spy6.calls.count()).toEqual(0);

@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +15,7 @@
  *
  */
 import { Component, Input } from '@angular/core';
-import { ThumbnailGridOptions, ThumbnailGridComponent } from './thumbnail-grid.component';
+import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
 @Component({
     selector: 'app-subcomponent-card-thumbnail',
@@ -25,7 +26,7 @@ import { ThumbnailGridOptions, ThumbnailGridComponent } from './thumbnail-grid.c
 export class CardThumbnailSubComponent {
 
     @Input() item: any;
-    @Input() options: ThumbnailGridOptions;
+    @Input() options: any;
 
     thumbnailGrid: ThumbnailGridComponent;
 

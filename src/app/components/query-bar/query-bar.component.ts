@@ -13,82 +13,32 @@
  * limitations under the License.
  *
  */
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewChild } from '@angular/core';
-import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { DatasetService } from '../../services/dataset.service';
-import { FieldMetaData, SimpleFilter } from '../../dataset';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import * as neon from 'neon-framework';
-import * as uuid from 'node-uuid';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { map, startWith } from 'rxjs/operators';
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
-import { ExportService } from '../../services/export.service';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
-import { VisualizationService } from '../../services/visualization.service';
-import { ActiveGridService } from '../../services/active-grid.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { FieldMetaData, SimpleFilter } from '../../dataset';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetNonPrimitiveOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import WherePredicate = neon.query.WherePredicate;
 
-/**
- * Manages configurable options for the specific visualization.
- */
-export class QueryBarOptions extends BaseNeonOptions {
-    public id: string;
-    public placeHolder: string;
-    public idField: FieldMetaData;
-    public filterField: FieldMetaData;
-    public extendedFilter: boolean;
-    public extensionFields: any[];
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'filterField',
-            'idField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.id = this.injector.get('id', '');
-        this.placeHolder = this.injector.get('placeHolder', 'Query');
-        this.extendedFilter = this.injector.get('extendedFilter', false);
-        this.extensionFields = this.injector.get('extensionFields', []);
-    }
-}
+import * as neon from 'neon-framework';
 
 @Component({
     selector: 'app-query-bar',
@@ -97,8 +47,6 @@ export class QueryBarOptions extends BaseNeonOptions {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QueryBarComponent  extends BaseNeonComponent {
-    public idField: FieldMetaData;
-    public filterField: FieldMetaData;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('queryBar') queryBar: ElementRef;
@@ -112,21 +60,56 @@ export class QueryBarComponent  extends BaseNeonComponent {
     public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
     public filterId = new BehaviorSubject<string>(undefined);
     public queryOptions: Observable<void | string[]>;
-    public options: QueryBarOptions;
 
-    public id = uuid.v4();
-    public messenger = new neon.eventing.Messenger();
     private filterFormControl: FormControl;
 
-    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
-                filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-                ref: ChangeDetectorRef, visualizationService: VisualizationService) {
+    constructor(
+        connectionService: ConnectionService,
+        datasetService: DatasetService,
+        filterService: FilterService,
+        injector: Injector,
+        protected widgetService: AbstractWidgetService,
+        ref: ChangeDetectorRef
+    ) {
 
-        super(activeGridService, connectionService, datasetService,
-            filterService, exportService, injector, themesService, ref, visualizationService);
+        super(
+            connectionService,
+            datasetService,
+            filterService,
+            injector,
+            ref
+        );
 
         this.filterFormControl = new FormControl();
-        this.options = new QueryBarOptions(this.injector, this.datasetService, 'Query Bar');
+    }
+
+    /**
+     * Creates and returns an array of field options for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('filterField', 'Filter Field', true),
+            new WidgetFieldOption('idField', 'ID Field', true)
+        ];
+    }
+
+    /**
+     * Creates and returns an array of non-field options for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetSelectOption('extendedFilter', 'Extended Filter', false, OptionChoices.NoFalseYesTrue),
+            // TODO THOR-950 Rename extensionFields because it is not an array of FieldMetaData objects!
+            new WidgetNonPrimitiveOption('extensionFields', 'Extension Fields', []),
+            new WidgetFreeTextOption('id', 'ID', ''),
+            new WidgetFreeTextOption('placeHolder', 'Place Holder', 'Query')
+        ];
     }
 
     createQuery(): neon.query.Query  {
@@ -140,6 +123,27 @@ export class QueryBarComponent  extends BaseNeonComponent {
         return query.withFields(fields).where(neon.query.and.apply(query, whereClauses))
             .sortBy(this.options.filterField.columnName, neonVariables.ASCENDING);
     }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultLimit(): number {
+        return 10;
+    }
+
+    /**
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'Query Bar';
+    }
+
     /**
      * Returns whether the query bar using the active data config is valid.
      *
@@ -220,16 +224,6 @@ export class QueryBarComponent  extends BaseNeonComponent {
             visualization: this.visualization,
             headerText: this.queryBar
         };
-    }
-
-    /**
-     * Returns the options for the specific visualization.
-     *
-     * @return {BaseNeonOptions}
-     * @override
-     */
-    getOptions(): BaseNeonOptions {
-        return this.options;
     }
 
     /**

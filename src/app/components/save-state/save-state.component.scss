@@ -15,10 +15,38 @@
  */
 @import '../base-neon-component/base-neon.component.scss';
 
-.hidden-canvas {
-    display: none;
-    height: auto;
-    position: absolute;
-    white-space: nowrap;
-    width: auto;
+.fake-dropdown-arrow {
+    right: 25px;
+    position: relative;
+}
+
+.fake-dropdown-menu {
+    width: 200px;
+}
+
+.add-margin-right {
+    margin-right: 25px;
+}
+
+.btn-open-config-edit {
+    margin: 10px;
+}
+
+.radio-container > * > * {
+    margin: 0 5px;
+}
+
+.option-row {
+    display: flex;
+    align-items: center;
+}
+
+input {
+    width: 200px;
+}
+
+.save-state-container {
+    width: 410px;
+    padding-left: 15px;
+    padding-right: 15px;
 }

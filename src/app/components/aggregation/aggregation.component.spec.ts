@@ -20,7 +20,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Inje
 import { FormsModule } from '@angular/forms';
 import {} from 'jasmine-core';
 
-import { AggregationComponent, AggregationOptions } from './aggregation.component';
+import { AggregationComponent } from './aggregation.component';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { ChartJsData } from './subcomponent.chartjs.abstract';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
@@ -29,17 +29,14 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { LegendComponent } from '../legend/legend.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
+import { WidgetService } from '../../services/widget.service';
 
 import { AppMaterialModule } from '../../app.material.module';
+import { Color } from '../../color';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
@@ -53,8 +50,8 @@ describe('Component: Aggregation', () => {
     let fixture: ComponentFixture<AggregationComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    let COLOR_1 = new Color(255, 135, 55);
-    let COLOR_2 = new Color(94, 80, 143);
+    let COLOR_1 = new Color('var(--color-set-1)', 'var(--color-set-1-transparency-medium)', 'var(--color-set-1-transparency-high)');
+    let COLOR_2 = new Color('var(--color-set-2)', 'var(--color-set-2-transparency-medium)', 'var(--color-set-2-transparency-high)');
 
     initializeTestBed({
         declarations: [
@@ -64,15 +61,10 @@ describe('Component: Aggregation', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ErrorNotificationService,
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -98,7 +90,7 @@ describe('Component: Aggregation', () => {
         expect(component.options.xField).toEqual(new FieldMetaData());
         expect(component.options.yField).toEqual(new FieldMetaData());
 
-        expect(component.options.aggregation).toEqual('count');
+        expect(component.options.aggregation).toEqual(neonVariables.COUNT);
         expect(component.options.dualView).toEqual('');
         expect(component.options.granularity).toEqual('year');
         expect(component.options.hideGridLines).toEqual(false);
@@ -116,20 +108,21 @@ describe('Component: Aggregation', () => {
         expect(component.options.scaleMinX).toEqual('');
         expect(component.options.scaleMinY).toEqual('');
         expect(component.options.showHeat).toEqual(false);
+        expect(component.options.showLegend).toEqual(true);
         expect(component.options.sortByAggregation).toEqual(false);
         expect(component.options.timeFill).toEqual(false);
         expect(component.options.type).toEqual('line');
         expect(component.options.yPercentage).toEqual(0.3);
-        expect(component.options.newType).toEqual('line');
+        expect(component.newType).toEqual('line');
     });
 
     it('class properties are set to expected defaults', () => {
         expect(component.activeData).toEqual([]);
+        expect(component.colorKeys).toEqual([]);
         expect(component.filterToPassToSuperclass).toEqual({});
         expect(component.groupFilters).toEqual([]);
         expect(component.lastPage).toEqual(true);
         expect(component.legendActiveGroups).toEqual([]);
-        expect(component.legendFields).toEqual([]);
         expect(component.legendGroups).toEqual([]);
         expect(component.minimumDimensionsMain.height).toBeDefined();
         expect(component.minimumDimensionsMain.width).toBeDefined();
@@ -180,20 +173,6 @@ describe('Component: Aggregation', () => {
         expect(component.subcomponentMainElementRef).toBeDefined();
         expect(component.subcomponentZoomElementRef).toBeDefined();
         expect(component.visualization).toBeDefined();
-    });
-
-    it('allowDualView does return expected boolean', () => {
-        expect(component.allowDualView('histogram')).toEqual(true);
-        expect(component.allowDualView('line')).toEqual(true);
-        expect(component.allowDualView('line-xy')).toEqual(true);
-
-        expect(component.allowDualView('bar-h')).toEqual(false);
-        expect(component.allowDualView('bar-v')).toEqual(false);
-        expect(component.allowDualView('doughnut')).toEqual(false);
-        expect(component.allowDualView('pie')).toEqual(false);
-        expect(component.allowDualView('scatter')).toEqual(false);
-        expect(component.allowDualView('scatter-xy')).toEqual(false);
-        expect(component.allowDualView('table')).toEqual(false);
     });
 
     it('createFilterPrettyText does return expected string', () => {
@@ -253,7 +232,7 @@ describe('Component: Aggregation', () => {
                 beginX: '2018-01-01T00:00:00.000Z',
                 endX: '2018-01-03T00:00:00.000Z'
             }
-        })).toEqual('prettyField1 from Mon, Jan 1, 2018, 12:00 AM to Wed, Jan 3, 2018, 12:00 AM');
+        })).toEqual('prettyField1 from Mon, Jan 1, 2018, 12:00:00 AM to Wed, Jan 3, 2018, 12:00:00 AM');
 
         expect(component.createFilterPrettyText({
             field: 'field1',
@@ -269,7 +248,7 @@ describe('Component: Aggregation', () => {
                 endX: '2018-01-03T00:00:00.000Z',
                 endY: 'endY1'
             }
-        })).toEqual('prettyX1 from Mon, Jan 1, 2018, 12:00 AM to Wed, Jan 3, 2018, 12:00 AM and prettyY1 from beginY1 to endY1');
+        })).toEqual('prettyX1 from Mon, Jan 1, 2018, 12:00:00 AM to Wed, Jan 3, 2018, 12:00:00 AM and prettyY1 from beginY1 to endY1');
     });
 
     it('createOrRemoveNeonFilter with no groupFilters, valueFilters, or filterToPassToSuperclass.id does nothing', () => {
@@ -604,7 +583,7 @@ describe('Component: Aggregation', () => {
     it('createQuery does return expected aggregation query with optional fields', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.aggregation = 'sum';
+        component.options.aggregation = neonVariables.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.limit = 100;
@@ -642,7 +621,7 @@ describe('Component: Aggregation', () => {
     it('createQuery does return expected aggregation query with filters', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.aggregation = 'sum';
+        component.options.aggregation = neonVariables.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
@@ -700,7 +679,7 @@ describe('Component: Aggregation', () => {
     it('createQuery does return expected date aggregation query', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.aggregation = 'sum';
+        component.options.aggregation = neonVariables.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.DATE_FIELD;
@@ -749,7 +728,7 @@ describe('Component: Aggregation', () => {
     it('createQuery does add multiple groups to date query if needed', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.aggregation = 'sum';
+        component.options.aggregation = neonVariables.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.granularity = 'minute';
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
@@ -774,24 +753,48 @@ describe('Component: Aggregation', () => {
     });
 
     it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toEqual('No Data');
+        component.activeData = null;
+        expect(component.getButtonText()).toEqual('');
 
         component.options.limit = 1;
-        component.activeData = [{}];
-        component.responseData = [{}, {}];
-        expect(component.getButtonText()).toEqual('1 of 2');
+        component.activeData = [{
+            y: 0
+        }];
+        component.responseData = [{
+            y: 0
+        }];
+        expect(component.getButtonText()).toEqual('0 Results');
 
-        component.activeData = [{}, {}];
-        expect(component.getButtonText()).toEqual('Total 0');
-
-        component.responseData = [{}, {}, {}, {}];
-        expect(component.getButtonText()).toEqual('1 of 4');
+        component.activeData = [{
+            y: 1
+        }];
+        component.responseData = [{
+            y: 1
+        }, {
+            y: 10
+        }];
+        expect(component.getButtonText()).toEqual('1 Result (Limited)');
 
         component.options.limit = 2;
-        expect(component.getButtonText()).toEqual('1 - 2 of 4');
+        component.activeData = [{
+            y: 1
+        }, {
+            y: 10
+        }];
+        expect(component.getButtonText()).toEqual('11 Results');
 
-        component.page = 2;
-        expect(component.getButtonText()).toEqual('3 - 4 of 4');
+        component.options.limit = 1;
+        component.responseData = [{
+            y: 1
+        }, {
+            y: 10
+        }, {
+            y: 100
+        }];
+        expect(component.getButtonText()).toEqual('11 Results (Limited)');
+
+        component.options.limit = 2;
+        expect(component.getButtonText()).toEqual('11 Results (Limited)');
     });
 
     it('getCloseableFilters does return expected object', () => {
@@ -1152,10 +1155,6 @@ describe('Component: Aggregation', () => {
         expect(component.getHiddenCanvas()).toEqual(component.hiddenCanvas);
     });
 
-    it('getOptions does return options', () => {
-        expect(component.getOptions()).toEqual(component.options);
-    });
-
     it('getXFieldLabel does return expected string', () => {
         expect(component.getXFieldLabel('bar-h')).toEqual('Bar Field');
         expect(component.getXFieldLabel('bar-v')).toEqual('Bar Field');
@@ -1216,7 +1215,7 @@ describe('Component: Aggregation', () => {
 
     it('handleChangeSubcomponentType does update subcomponent type and call expected functions', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.options.newType = 'line-xy';
+        component.newType = 'line-xy';
 
         component.handleChangeSubcomponentType();
 
@@ -1227,7 +1226,7 @@ describe('Component: Aggregation', () => {
 
     it('handleChangeSubcomponentType does not call expected functions if new type equals subcomponent type', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.options.newType = 'line';
+        component.newType = 'line';
         component.options.sortByAggregation = true;
 
         component.handleChangeSubcomponentType();
@@ -1239,7 +1238,7 @@ describe('Component: Aggregation', () => {
 
     it('handleChangeSubcomponentType does not update dualView if new type is allowed to have dual views', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.options.newType = 'line-xy';
+        component.newType = 'line-xy';
         component.options.dualView = 'on';
 
         component.handleChangeSubcomponentType();
@@ -1251,7 +1250,7 @@ describe('Component: Aggregation', () => {
 
     it('handleChangeSubcomponentType does update dualView if new type is not allowed to have dual views', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.options.newType = 'bar-h';
+        component.newType = 'bar-h';
         component.options.dualView = 'on';
 
         component.handleChangeSubcomponentType();
@@ -1263,7 +1262,7 @@ describe('Component: Aggregation', () => {
 
     it('handleChangeSubcomponentType does update sortByAggregation if new type is not sortable by aggregation', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.options.newType = 'line-xy';
+        component.newType = 'line-xy';
         component.options.sortByAggregation = true;
 
         component.handleChangeSubcomponentType();
@@ -1275,7 +1274,7 @@ describe('Component: Aggregation', () => {
 
     it('handleChangeSubcomponentType does not update sortByAggregation if new type is sortable by aggregation', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.options.newType = 'bar-h';
+        component.newType = 'bar-h';
         component.options.sortByAggregation = true;
 
         component.handleChangeSubcomponentType();
@@ -1355,34 +1354,6 @@ describe('Component: Aggregation', () => {
         expect(subcomponentObject.constructor.name).toEqual(ChartJsLineSubcomponent.name);
     });
 
-    it('isContinuous does return expected boolean', () => {
-        expect(component.isContinuous('histogram')).toEqual(true);
-        expect(component.isContinuous('line')).toEqual(true);
-        expect(component.isContinuous('line-xy')).toEqual(true);
-        expect(component.isContinuous('scatter')).toEqual(true);
-        expect(component.isContinuous('scatter-xy')).toEqual(true);
-
-        expect(component.isContinuous('bar-h')).toEqual(false);
-        expect(component.isContinuous('bar-v')).toEqual(false);
-        expect(component.isContinuous('doughnut')).toEqual(false);
-        expect(component.isContinuous('pie')).toEqual(false);
-        expect(component.isContinuous('table')).toEqual(false);
-    });
-
-    it('isScaled does return expected boolean', () => {
-        expect(component.isScaled('bar-h')).toEqual(true);
-        expect(component.isScaled('bar-v')).toEqual(true);
-        expect(component.isScaled('histogram')).toEqual(true);
-        expect(component.isScaled('line')).toEqual(true);
-        expect(component.isScaled('line-xy')).toEqual(true);
-        expect(component.isScaled('scatter')).toEqual(true);
-        expect(component.isScaled('scatter-xy')).toEqual(true);
-
-        expect(component.isScaled('doughnut')).toEqual(false);
-        expect(component.isScaled('pie')).toEqual(false);
-        expect(component.isScaled('table')).toEqual(false);
-    });
-
     it('isValidQuery does return expected boolean', () => {
         expect(component.isValidQuery()).toEqual(false);
 
@@ -1395,7 +1366,7 @@ describe('Component: Aggregation', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
         expect(component.isValidQuery()).toEqual(true);
 
-        component.options.aggregation = 'sum';
+        component.options.aggregation = neonVariables.SUM;
         expect(component.isValidQuery()).toEqual(false);
 
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
@@ -1418,20 +1389,6 @@ describe('Component: Aggregation', () => {
 
         component.options.yField = DatasetServiceMock.Y_FIELD;
         expect(component.isValidQuery()).toEqual(true);
-    });
-
-    it('isXYSubcomponent does return expected boolean', () => {
-        expect(component.isXYSubcomponent('bar-h')).toEqual(false);
-        expect(component.isXYSubcomponent('bar-v')).toEqual(false);
-        expect(component.isXYSubcomponent('doughnut')).toEqual(false);
-        expect(component.isXYSubcomponent('histogram')).toEqual(false);
-        expect(component.isXYSubcomponent('pie')).toEqual(false);
-        expect(component.isXYSubcomponent('line')).toEqual(false);
-        expect(component.isXYSubcomponent('scatter')).toEqual(false);
-        expect(component.isXYSubcomponent('table')).toEqual(false);
-
-        expect(component.isXYSubcomponent('line-xy')).toEqual(true);
-        expect(component.isXYSubcomponent('scatter-xy')).toEqual(true);
     });
 
     it('onQuerySuccess with XY data does update expected properties and call expected functions', () => {
@@ -2068,6 +2025,145 @@ describe('Component: Aggregation', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
+    it('optionsAggregationIsNotCount does return expected boolean', () => {
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'bar-h' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'bar-v' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'doughnut' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'histogram' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'pie' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'line' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'scatter' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'table' })).toEqual(false);
+
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'line-xy' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'scatter-xy' })).toEqual(false);
+
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'bar-h' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'bar-v' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'doughnut' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'histogram' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'pie' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'line' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'scatter' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'table' })).toEqual(true);
+
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'line-xy' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'scatter-xy' })).toEqual(false);
+    });
+
+    it('optionsTypeIsContinuous does return expected boolean', () => {
+        expect(component.optionsTypeIsContinuous({ type: 'histogram' })).toEqual(true);
+        expect(component.optionsTypeIsContinuous({ type: 'line' })).toEqual(true);
+        expect(component.optionsTypeIsContinuous({ type: 'line-xy' })).toEqual(true);
+        expect(component.optionsTypeIsContinuous({ type: 'scatter' })).toEqual(true);
+        expect(component.optionsTypeIsContinuous({ type: 'scatter-xy' })).toEqual(true);
+
+        expect(component.optionsTypeIsContinuous({ type: 'bar-h' })).toEqual(false);
+        expect(component.optionsTypeIsContinuous({ type: 'bar-v' })).toEqual(false);
+        expect(component.optionsTypeIsContinuous({ type: 'doughnut' })).toEqual(false);
+        expect(component.optionsTypeIsContinuous({ type: 'pie' })).toEqual(false);
+        expect(component.optionsTypeIsContinuous({ type: 'table' })).toEqual(false);
+    });
+
+    it('optionsTypeIsDualViewCompatible does return expected boolean', () => {
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'histogram' })).toEqual(true);
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'line' })).toEqual(true);
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'line-xy' })).toEqual(true);
+
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'bar-h' })).toEqual(false);
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'bar-v' })).toEqual(false);
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'doughnut' })).toEqual(false);
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'pie' })).toEqual(false);
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'scatter' })).toEqual(false);
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'scatter-xy' })).toEqual(false);
+        expect(component.optionsTypeIsDualViewCompatible({ type: 'table' })).toEqual(false);
+    });
+
+    it('optionsTypeIsLine does return expected boolean', () => {
+        expect(component.optionsTypeIsLine({ type: 'line' })).toEqual(true);
+        expect(component.optionsTypeIsLine({ type: 'line-xy' })).toEqual(true);
+
+        expect(component.optionsTypeIsLine({ type: 'bar-h' })).toEqual(false);
+        expect(component.optionsTypeIsLine({ type: 'bar-v' })).toEqual(false);
+        expect(component.optionsTypeIsLine({ type: 'doughnut' })).toEqual(false);
+        expect(component.optionsTypeIsLine({ type: 'histogram' })).toEqual(false);
+        expect(component.optionsTypeIsLine({ type: 'pie' })).toEqual(false);
+        expect(component.optionsTypeIsLine({ type: 'scatter' })).toEqual(false);
+        expect(component.optionsTypeIsLine({ type: 'scatter-xy' })).toEqual(false);
+        expect(component.optionsTypeIsLine({ type: 'table' })).toEqual(false);
+    });
+
+    it('optionsTypeIsList does return expected boolean', () => {
+        expect(component.optionsTypeIsList({ type: 'list' })).toEqual(true);
+
+        expect(component.optionsTypeIsList({ type: 'bar-h' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'bar-v' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'doughnut' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'histogram' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'line' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'line-xy' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'pie' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'scatter' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'scatter-xy' })).toEqual(false);
+        expect(component.optionsTypeIsList({ type: 'table' })).toEqual(false);
+    });
+
+    it('optionsTypeIsNotXY does return expected boolean', () => {
+        expect(component.optionsTypeIsNotXY({ type: 'bar-h' })).toEqual(true);
+        expect(component.optionsTypeIsNotXY({ type: 'bar-v' })).toEqual(true);
+        expect(component.optionsTypeIsNotXY({ type: 'doughnut' })).toEqual(true);
+        expect(component.optionsTypeIsNotXY({ type: 'histogram' })).toEqual(true);
+        expect(component.optionsTypeIsNotXY({ type: 'pie' })).toEqual(true);
+        expect(component.optionsTypeIsNotXY({ type: 'line' })).toEqual(true);
+        expect(component.optionsTypeIsNotXY({ type: 'scatter' })).toEqual(true);
+        expect(component.optionsTypeIsNotXY({ type: 'table' })).toEqual(true);
+
+        expect(component.optionsTypeIsNotXY({ type: 'line-xy' })).toEqual(false);
+        expect(component.optionsTypeIsNotXY({ type: 'scatter-xy' })).toEqual(false);
+    });
+
+    it('optionsTypeUsesGrid does return expected boolean', () => {
+        expect(component.optionsTypeUsesGrid({ type: 'bar-h' })).toEqual(true);
+        expect(component.optionsTypeUsesGrid({ type: 'bar-v' })).toEqual(true);
+        expect(component.optionsTypeUsesGrid({ type: 'histogram' })).toEqual(true);
+        expect(component.optionsTypeUsesGrid({ type: 'line' })).toEqual(true);
+        expect(component.optionsTypeUsesGrid({ type: 'line-xy' })).toEqual(true);
+        expect(component.optionsTypeUsesGrid({ type: 'scatter' })).toEqual(true);
+        expect(component.optionsTypeUsesGrid({ type: 'scatter-xy' })).toEqual(true);
+
+        expect(component.optionsTypeUsesGrid({ type: 'doughnut' })).toEqual(false);
+        expect(component.optionsTypeUsesGrid({ type: 'pie' })).toEqual(false);
+        expect(component.optionsTypeUsesGrid({ type: 'table' })).toEqual(false);
+    });
+
+    it('optionsTypeIsXY does return expected boolean', () => {
+        expect(component.optionsTypeIsXY({ type: 'bar-h' })).toEqual(false);
+        expect(component.optionsTypeIsXY({ type: 'bar-v' })).toEqual(false);
+        expect(component.optionsTypeIsXY({ type: 'doughnut' })).toEqual(false);
+        expect(component.optionsTypeIsXY({ type: 'histogram' })).toEqual(false);
+        expect(component.optionsTypeIsXY({ type: 'pie' })).toEqual(false);
+        expect(component.optionsTypeIsXY({ type: 'line' })).toEqual(false);
+        expect(component.optionsTypeIsXY({ type: 'scatter' })).toEqual(false);
+        expect(component.optionsTypeIsXY({ type: 'table' })).toEqual(false);
+
+        expect(component.optionsTypeIsXY({ type: 'line-xy' })).toEqual(true);
+        expect(component.optionsTypeIsXY({ type: 'scatter-xy' })).toEqual(true);
+    });
+
+    it('optionsXFieldIsDate does return expected boolean', () => {
+        expect(component.optionsXFieldIsDate({ xField: { type: 'date' } })).toEqual(true);
+
+        expect(component.optionsXFieldIsDate({ xField: { type: 'boolean' } })).toEqual(false);
+        expect(component.optionsXFieldIsDate({ xField: { type: 'float' } })).toEqual(false);
+        expect(component.optionsXFieldIsDate({ xField: { type: 'keyword' } })).toEqual(false);
+        expect(component.optionsXFieldIsDate({ xField: { type: 'int' } })).toEqual(false);
+        expect(component.optionsXFieldIsDate({ xField: { type: 'long' } })).toEqual(false);
+        expect(component.optionsXFieldIsDate({ xField: { type: 'number' } })).toEqual(false);
+        expect(component.optionsXFieldIsDate({ xField: { type: 'object' } })).toEqual(false);
+        expect(component.optionsXFieldIsDate({ xField: { type: 'string' } })).toEqual(false);
+        expect(component.optionsXFieldIsDate({ xField: { type: 'text' } })).toEqual(false);
+    });
+
     it('postInit does work as expected', () => {
         let spy = spyOn(component, 'executeQueryChain');
         component.postInit();
@@ -2112,7 +2208,7 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does draw data', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
-        component.options.aggregation = 'sum';
+        component.options.aggregation = neonVariables.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
@@ -2121,7 +2217,7 @@ describe('Component: Aggregation', () => {
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 0,
             groups: [],
             sort: 'x',
@@ -2154,7 +2250,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2164,7 +2260,7 @@ describe('Component: Aggregation', () => {
             yList: [2, 4]
         }]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
     it('refreshVisualization with XY subcomponent does draw data', () => {
@@ -2221,7 +2317,7 @@ describe('Component: Aggregation', () => {
             yList: [2, 4]
         }]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
     it('refreshVisualization does work as expected with date fields', () => {
@@ -2277,7 +2373,7 @@ describe('Component: Aggregation', () => {
             yList: [2, 4]
         }]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.legendFields).toEqual(['']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_']);
     });
 
     it('refreshVisualization does work as expected with string fields', () => {
@@ -2333,13 +2429,13 @@ describe('Component: Aggregation', () => {
             yList: [2, 4]
         }]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.legendFields).toEqual(['']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_']);
     });
 
     it('refreshVisualization does draw zoom data if dualView is truthy', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
-        component.options.aggregation = 'sum';
+        component.options.aggregation = neonVariables.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
@@ -2367,7 +2463,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2385,7 +2481,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2394,7 +2490,7 @@ describe('Component: Aggregation', () => {
             yAxis: 'number',
             yList: [2, 4]
         }]);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
 
         component.options.dualView = 'filter';
 
@@ -2408,7 +2504,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2426,7 +2522,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2435,13 +2531,13 @@ describe('Component: Aggregation', () => {
             yAxis: 'number',
             yList: [2, 4]
         }]);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
     it('refreshVisualization does not draw main data if filterToPassToSuperclass.id is defined unless dualView is falsey', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
-        component.options.aggregation = 'sum';
+        component.options.aggregation = neonVariables.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
@@ -2471,7 +2567,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2480,7 +2576,7 @@ describe('Component: Aggregation', () => {
             yAxis: 'number',
             yList: [2, 4]
         }]);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
 
         component.options.dualView = '';
 
@@ -2494,7 +2590,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2504,13 +2600,13 @@ describe('Component: Aggregation', () => {
             yList: [2, 4]
         }]);
         expect(spy2.calls.count()).toEqual(1);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
     it('refreshVisualization does draw main data if given true argument', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
-        component.options.aggregation = 'sum';
+        component.options.aggregation = neonVariables.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
@@ -2539,7 +2635,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2557,7 +2653,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: 'sum',
+            aggregationLabel: neonVariables.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2566,7 +2662,7 @@ describe('Component: Aggregation', () => {
             yAxis: 'number',
             yList: [2, 4]
         }]);
-        expect(component.legendFields).toEqual(['testCategoryField']);
+        expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
     it('removeFilter does delete filters and call subcomponentMain.deselect', () => {
@@ -3348,12 +3444,12 @@ describe('Component: Aggregation', () => {
         expect(component.selectedAreaOffset.y).toBeDefined();
     });
 
-    it('options.createBindings does set expected properties in bindings', () => {
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
+    it('getBindings does set expected properties in bindings', () => {
+        expect(component.getBindings()).toEqual({
             customEventsToPublish: [],
             customEventsToReceive: [],
             database: 'testDatabase1',
+            filter: null,
             hideUnfiltered: false,
             limit: 10000,
             table: 'testTable1',
@@ -3364,7 +3460,9 @@ describe('Component: Aggregation', () => {
             groupField: '',
             xField: '',
             yField: '',
-            aggregation: 'count',
+            aggregation: neonVariables.COUNT,
+            axisLabelX: '',
+            axisLabelY: 'count',
             dualView: '',
             granularity: 'year',
             hideGridLines: false,
@@ -3382,6 +3480,7 @@ describe('Component: Aggregation', () => {
             scaleMinX: '',
             scaleMinY: '',
             showHeat: false,
+            showLegend: true,
             sortByAggregation: false,
             timeFill: false,
             type: 'line',
@@ -3393,7 +3492,7 @@ describe('Component: Aggregation', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
 
-        component.options.aggregation = 'sum';
+        component.options.aggregation = neonVariables.SUM;
         component.options.dualView = 'on';
         component.options.granularity = 'day';
         component.options.hideGridLines = true;
@@ -3411,16 +3510,17 @@ describe('Component: Aggregation', () => {
         component.options.scaleMinX = '22';
         component.options.scaleMinY = '11';
         component.options.showHeat = true;
+        component.options.showLegend = true;
         component.options.sortByAggregation = true;
         component.options.timeFill = true;
         component.options.type = 'line-xy';
         component.options.yPercentage = 0.5;
 
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
+        expect(component.getBindings()).toEqual({
             customEventsToPublish: [],
             customEventsToReceive: [],
             database: 'testDatabase1',
+            filter: null,
             hideUnfiltered: false,
             limit: 10000,
             table: 'testTable1',
@@ -3431,7 +3531,9 @@ describe('Component: Aggregation', () => {
             groupField: 'testCategoryField',
             xField: 'testXField',
             yField: 'testYField',
-            aggregation: 'sum',
+            aggregation: neonVariables.SUM,
+            axisLabelX: '',
+            axisLabelY: 'count',
             dualView: 'on',
             granularity: 'day',
             hideGridLines: true,
@@ -3449,6 +3551,7 @@ describe('Component: Aggregation', () => {
             scaleMinX: '22',
             scaleMinY: '11',
             showHeat: true,
+            showLegend: true,
             sortByAggregation: true,
             timeFill: true,
             type: 'line-xy',
@@ -3661,7 +3764,7 @@ describe('Component: Aggregation', () => {
     it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', () => {
         let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
         expect(dataInfoTextInToolbar).not.toBeNull();
-        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('No Data');
+        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('0 Results');
 
         let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
         expect(dataInfoIconInSidenav).not.toBeNull();
@@ -3669,7 +3772,7 @@ describe('Component: Aggregation', () => {
 
         let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
         expect(dataInfoTextInSidenav).not.toBeNull();
-        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('No Data');
+        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Results');
 
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
@@ -3698,7 +3801,7 @@ describe('Component: Aggregation', () => {
 
             let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
             expect(dataInfoTextInSidenav).not.toBeNull();
-            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('No Data');
+            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Results');
 
             let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
             expect(errorMessageInToolbar).not.toBeNull();
@@ -3742,7 +3845,6 @@ describe('Component: Aggregation', () => {
         let exportControl = fixture.debugElement.query(By.css(
             'mat-sidenav-container mat-sidenav mat-card mat-card-content app-export-control'));
         expect(exportControl).not.toBeNull();
-        expect(exportControl.componentInstance.exportId).toEqual(component.exportId);
     });
 
     it('does hide loading overlay by default', () => {
@@ -4048,25 +4150,32 @@ describe('Component: Aggregation', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(7);
+            expect(inputs.length).toEqual(9);
 
-            expect(inputs[0].attributes.placeholder).toBe('Title');
-            expect(inputs[0].nativeElement.value).toContain('Aggregation');
+            let n = 0;
+            expect(inputs[n].attributes.placeholder).toBe('Title');
+            expect(inputs[n++].nativeElement.value).toContain('Aggregation');
 
-            expect(inputs[1].attributes.placeholder).toBe('Limit');
-            expect(inputs[1].nativeElement.value).toContain('10');
+            expect(inputs[n].attributes.placeholder).toBe('Limit');
+            expect(inputs[n++].nativeElement.value).toContain('10');
 
-            expect(inputs[2].attributes.placeholder).toBe('X Scale Min');
-            expect(inputs[2].nativeElement.value).toEqual('');
+            expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[3].attributes.placeholder).toBe('X Scale Max');
-            expect(inputs[3].nativeElement.value).toEqual('');
+            expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[4].attributes.placeholder).toBe('Y Scale Min');
-            expect(inputs[4].nativeElement.value).toEqual('');
+            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[5].attributes.placeholder).toBe('Y Scale Max');
-            expect(inputs[5].nativeElement.value).toEqual('');
+            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Max');
+            expect(inputs[n++].nativeElement.value).toEqual('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Min');
+            expect(inputs[n++].nativeElement.value).toEqual('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Max');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
@@ -4211,19 +4320,14 @@ describe('Component: Aggregation with config', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ErrorNotificationService,
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'database', useValue: 'testDatabase2' },
+            { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
             { provide: 'table', useValue: 'testTable2' },
             { provide: 'title', useValue: 'Test Title' },
@@ -4231,7 +4335,7 @@ describe('Component: Aggregation with config', () => {
             { provide: 'groupField', useValue: 'testCategoryField' },
             { provide: 'xField', useValue: 'testXField' },
             { provide: 'yField', useValue: 'testYField' },
-            { provide: 'aggregation', useValue: 'sum' },
+            { provide: 'aggregation', useValue: neonVariables.SUM },
             { provide: 'granularity', useValue: 'day' },
             { provide: 'hideGridLines', useValue: true },
             { provide: 'hideGridTicks', useValue: true },
@@ -4248,6 +4352,7 @@ describe('Component: Aggregation with config', () => {
             { provide: 'scaleMinX', useValue: '22' },
             { provide: 'scaleMinY', useValue: '11' },
             { provide: 'showHeat', useValue: true },
+            { provide: 'showLegend', useValue: true },
             { provide: 'sortByAggregation', useValue: true },
             { provide: 'timeFill', useValue: true },
             { provide: 'type', useValue: 'scatter' },
@@ -4284,7 +4389,7 @@ describe('Component: Aggregation with config', () => {
         expect(component.options.xField).toEqual(DatasetServiceMock.X_FIELD);
         expect(component.options.yField).toEqual(DatasetServiceMock.Y_FIELD);
 
-        expect(component.options.aggregation).toEqual('sum');
+        expect(component.options.aggregation).toEqual(neonVariables.SUM);
         expect(component.options.granularity).toEqual('day');
         expect(component.options.hideGridLines).toEqual(true);
         expect(component.options.hideGridTicks).toEqual(true);
@@ -4301,7 +4406,8 @@ describe('Component: Aggregation with config', () => {
         expect(component.options.scaleMinX).toEqual('22');
         expect(component.options.scaleMinY).toEqual('11');
         expect(component.options.showHeat).toEqual(true);
-        expect(component.options.newType).toEqual('scatter');
+        expect(component.options.showLegend).toEqual(true);
+        expect(component.newType).toEqual('scatter');
         expect(component.options.sortByAggregation).toEqual(true);
         expect(component.options.timeFill).toEqual(true);
         expect(component.options.type).toEqual('scatter');
@@ -4323,25 +4429,32 @@ describe('Component: Aggregation with config', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(7);
+            expect(inputs.length).toEqual(9);
 
-            expect(inputs[0].attributes.placeholder).toBe('Title');
-            expect(inputs[0].nativeElement.value).toContain('Test Title');
+            let n = 0;
+            expect(inputs[n].attributes.placeholder).toBe('Title');
+            expect(inputs[n++].nativeElement.value).toContain('Test Title');
 
-            expect(inputs[1].attributes.placeholder).toBe('Limit');
-            expect(inputs[1].nativeElement.value).toContain('1234');
+            expect(inputs[n].attributes.placeholder).toBe('Limit');
+            expect(inputs[n++].nativeElement.value).toContain('1234');
 
-            expect(inputs[2].attributes.placeholder).toBe('X Scale Min');
-            expect(inputs[2].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[3].attributes.placeholder).toBe('X Scale Max');
-            expect(inputs[3].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[4].attributes.placeholder).toBe('Y Scale Min');
-            expect(inputs[4].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
-            expect(inputs[5].attributes.placeholder).toBe('Y Scale Max');
-            expect(inputs[5].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
@@ -4478,19 +4591,14 @@ describe('Component: Aggregation with XY config', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ErrorNotificationService,
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'database', useValue: 'testDatabase2' },
+            { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
             { provide: 'table', useValue: 'testTable2' },
             { provide: 'title', useValue: 'Test Title' },
@@ -4498,7 +4606,7 @@ describe('Component: Aggregation with XY config', () => {
             { provide: 'groupField', useValue: 'testCategoryField' },
             { provide: 'xField', useValue: 'testXField' },
             { provide: 'yField', useValue: 'testYField' },
-            { provide: 'aggregation', useValue: 'sum' },
+            { provide: 'aggregation', useValue: neonVariables.SUM },
             { provide: 'granularity', useValue: 'day' },
             { provide: 'hideGridLines', useValue: true },
             { provide: 'hideGridTicks', useValue: true },
@@ -4515,6 +4623,7 @@ describe('Component: Aggregation with XY config', () => {
             { provide: 'scaleMinX', useValue: '22' },
             { provide: 'scaleMinY', useValue: '11' },
             { provide: 'showHeat', useValue: true },
+            { provide: 'showLegend', useValue: true },
             { provide: 'sortByAggregation', useValue: true },
             { provide: 'timeFill', useValue: true },
             { provide: 'type', useValue: 'scatter-xy' },
@@ -4541,25 +4650,32 @@ describe('Component: Aggregation with XY config', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(7);
+            expect(inputs.length).toEqual(9);
 
-            expect(inputs[0].attributes.placeholder).toBe('Title');
-            expect(inputs[0].nativeElement.value).toContain('Test Title');
+            let n = 0;
+            expect(inputs[n].attributes.placeholder).toBe('Title');
+            expect(inputs[n++].nativeElement.value).toContain('Test Title');
 
-            expect(inputs[1].attributes.placeholder).toBe('Limit');
-            expect(inputs[1].nativeElement.value).toContain('1234');
+            expect(inputs[n].attributes.placeholder).toBe('Limit');
+            expect(inputs[n++].nativeElement.value).toContain('1234');
 
-            expect(inputs[2].attributes.placeholder).toBe('X Scale Min');
-            expect(inputs[2].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[3].attributes.placeholder).toBe('X Scale Max');
-            expect(inputs[3].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[4].attributes.placeholder).toBe('Y Scale Min');
-            expect(inputs[4].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
-            expect(inputs[5].attributes.placeholder).toBe('Y Scale Max');
-            expect(inputs[5].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
@@ -4679,19 +4795,14 @@ describe('Component: Aggregation with date config', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ErrorNotificationService,
-            ExportService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'database', useValue: 'testDatabase2' },
+            { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
             { provide: 'table', useValue: 'testTable2' },
             { provide: 'title', useValue: 'Test Title' },
@@ -4699,7 +4810,7 @@ describe('Component: Aggregation with date config', () => {
             { provide: 'groupField', useValue: 'testCategoryField' },
             { provide: 'xField', useValue: 'testDateField' },
             { provide: 'yField', useValue: 'testYField' },
-            { provide: 'aggregation', useValue: 'sum' },
+            { provide: 'aggregation', useValue: neonVariables.SUM },
             { provide: 'granularity', useValue: 'day' },
             { provide: 'hideGridLines', useValue: true },
             { provide: 'hideGridTicks', useValue: true },
@@ -4716,6 +4827,7 @@ describe('Component: Aggregation with date config', () => {
             { provide: 'scaleMinX', useValue: '22' },
             { provide: 'scaleMinY', useValue: '11' },
             { provide: 'showHeat', useValue: true },
+            { provide: 'showLegend', useValue: true },
             { provide: 'sortByAggregation', useValue: true },
             { provide: 'timeFill', useValue: true },
             { provide: 'type', useValue: 'scatter' },
@@ -4742,25 +4854,32 @@ describe('Component: Aggregation with date config', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(7);
+            expect(inputs.length).toEqual(9);
 
-            expect(inputs[0].attributes.placeholder).toBe('Title');
-            expect(inputs[0].nativeElement.value).toContain('Test Title');
+            let n = 0;
+            expect(inputs[n].attributes.placeholder).toBe('Title');
+            expect(inputs[n++].nativeElement.value).toContain('Test Title');
 
-            expect(inputs[1].attributes.placeholder).toBe('Limit');
-            expect(inputs[1].nativeElement.value).toContain('1234');
+            expect(inputs[n].attributes.placeholder).toBe('Limit');
+            expect(inputs[n++].nativeElement.value).toContain('1234');
 
-            expect(inputs[2].attributes.placeholder).toBe('X Scale Min');
-            expect(inputs[2].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[3].attributes.placeholder).toBe('X Scale Max');
-            expect(inputs[3].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
+            expect(inputs[n++].nativeElement.value).toEqual('');
 
-            expect(inputs[4].attributes.placeholder).toBe('Y Scale Min');
-            expect(inputs[4].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
-            expect(inputs[5].attributes.placeholder).toBe('Y Scale Max');
-            expect(inputs[5].nativeElement.value).toContain('');
+            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Min');
+            expect(inputs[n++].nativeElement.value).toContain('');
+
+            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Max');
+            expect(inputs[n++].nativeElement.value).toContain('');
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));

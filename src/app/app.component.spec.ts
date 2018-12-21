@@ -15,27 +15,27 @@
  */
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 import { DebugElement, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { APP_BASE_HREF, CommonModule } from '@angular/common';
 
 import 'hammerjs';
 
+import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { AppComponent } from './app.component';
 import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
-import { BarChartComponent } from './components/bar-chart/bar-chart.component';
-import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
 import { ExportControlComponent } from './components/export-control/export-control.component';
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
 import { LegendComponent } from './components/legend/legend.component';
-import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components//map/map.component';
 import { SampleComponent } from './components/sample/sample.component';
-import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
+import { SaveStateComponent } from './components/save-state/save-state.component';
+import { SettingsComponent } from './components/settings/settings.component';
 import { TaxonomyViewerComponent } from './components/taxonomy-viewer/taxonomy-viewer.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
@@ -45,18 +45,14 @@ import { VisualizationInjectorComponent } from './components/visualization-injec
 import { WikiViewerComponent } from './components/wiki-viewer/wiki-viewer.component';
 
 import { NeonGTDConfig } from './neon-gtd-config';
+import { NeonGridItem } from './neon-grid-item';
 
-import { ActiveGridService } from './services/active-grid.service';
-import { DatasetService } from './services/dataset.service';
+import { AbstractWidgetService } from './services/abstract.widget.service';
 import { ConnectionService } from './services/connection.service';
-import { ErrorNotificationService } from './services/error-notification.service';
-import { ExportService } from './services/export.service';
+import { DatasetService } from './services/dataset.service';
 import { FilterService } from './services/filter.service';
-
 import { ParameterService } from './services/parameter.service';
-import { ThemesService } from './services/themes.service';
-import { VisualizationService } from './services/visualization.service';
-import { ColorSchemeService } from './services/color-scheme.service';
+import { WidgetService } from './services/widget.service';
 
 import { NgGridModule } from 'angular2-grid';
 
@@ -66,7 +62,6 @@ import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
-import { ChartComponent } from './components/chart/chart.component';
 import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
@@ -79,24 +74,26 @@ import { DetailsThumbnailSubComponent } from './components/thumbnail-grid/subcom
 import { TitleThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.title-view';
 import { CardThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.card-view';
 import { TreeModule } from 'angular-tree-component';
+import { DatasetServiceMock } from '../testUtils/MockServices/DatasetServiceMock';
+import { FilterServiceMock } from '../testUtils/MockServices/FilterServiceMock';
+import * as neon from 'neon-framework';
 
-describe('App: NeonGtd', () => {
+describe('App', () => {
     let fixture: ComponentFixture<AppComponent>;
+    let getService = (type: any) => fixture.debugElement.injector.get(type);
     let debugElement: DebugElement;
     let component: AppComponent;
+    let spyOnInit;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
-                ChartComponent,
+                AddVisualizationComponent,
                 AppComponent,
                 AboutNeonComponent,
                 AggregationComponent,
                 AnnotationViewerComponent,
-                BarChartComponent,
                 CardThumbnailSubComponent,
-                ChartComponent,
-                DashboardOptionsComponent,
                 DatasetSelectorComponent,
                 DataTableComponent,
                 DetailsThumbnailSubComponent,
@@ -104,14 +101,14 @@ describe('App: NeonGtd', () => {
                 ExportControlComponent,
                 FilterBuilderComponent,
                 LegendComponent,
-                LineChartComponent,
                 MapComponent,
                 MediaViewerComponent,
                 NetworkGraphComponent,
                 NewsFeedComponent,
                 QueryBarComponent,
                 SampleComponent,
-                ScatterPlotComponent,
+                SaveStateComponent,
+                SettingsComponent,
                 SimpleFilterComponent,
                 TaxonomyViewerComponent,
                 TextCloudComponent,
@@ -140,38 +137,1065 @@ describe('App: NeonGtd', () => {
             providers: [
                 { provide: 'config', useValue: new NeonGTDConfig() },
                 { provide: APP_BASE_HREF, useValue: '/' },
-                ActiveGridService,
-                DatasetService,
                 ConnectionService,
-                ErrorNotificationService,
-                ExportService,
-                FilterService,
+                { provide: DatasetService, useClass: DatasetServiceMock },
+                { provide: FilterService, useClass: FilterServiceMock },
                 ParameterService,
-                ThemesService,
-                VisualizationService,
-                ColorSchemeService
+                { provide: AbstractWidgetService, useClass: WidgetService }
             ]
         });
 
         fixture = TestBed.createComponent(AppComponent);
-        debugElement = fixture.debugElement;
         component = fixture.componentInstance;
+        spyOnInit = spyOn(component, 'ngOnInit');
+        fixture.detectChanges();
+        debugElement = fixture.debugElement;
     });
 
     afterEach(() => {
         fixture.detectChanges();
     });
 
-    it('should create an instance', async(() => {
-        expect(component).toBeTruthy();
-    }));
-
     it('should include top level layout components', async(() => {
         expect(debugElement.nativeElement.querySelectorAll('mat-sidenav-container')).toBeTruthy();
         expect(debugElement.nativeElement.querySelectorAll('app-dataset-selector')).toBeTruthy();
         // Since the about pane and options pane are rendered only after a user opens their sidenav area,
         // these should not exist upon initial render.
-        expect(debugElement.nativeElement.querySelectorAll('app-about-neon').length === 0).toBeTruthy();
-        expect(debugElement.nativeElement.querySelectorAll('app-dashboard-options').length === 0).toBeTruthy();
+        expect(debugElement.nativeElement.querySelectorAll('app-right-panel')).toBeTruthy();
+    }));
+
+    it('should be showing the correct defaults', async(() => {
+        expect(component.currentPanel).toEqual('dashboardLayouts');
+        expect(component.rightPanelTitle).toEqual('Dashboard Layouts');
+
+        expect(component.showCustomConnectionButton).toEqual(true);
+        expect(component.showFilterBuilderIcon).toEqual(true);
+        expect(component.showFilterTrayButton).toEqual(true);
+        expect(component.showVisShortcut).toEqual(true);
+
+        expect(component.createFilterBuilder).toEqual(false);
+    }));
+
+    it('should be showing correct filter builder icons', async(() => {
+        expect(component.filterBuilderIcon).toEqual('filter_builder');
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testFilterField', '=', 'value1'), 'testFilterField');
+        fixture.detectChanges();
+        expect(component.filterBuilderIcon).toEqual('filter_builder_active');
+    }));
+
+    it('should correctly toggle the panels', async(() => {
+        component.setPanel('aboutNeon', 'About Neon');
+        expect(component.currentPanel).toEqual('aboutNeon');
+        expect(component.rightPanelTitle).toEqual('About Neon');
+
+        component.setPanel('addVis', 'Visualization');
+        expect(component.currentPanel).toEqual('addVis');
+        expect(component.rightPanelTitle).toEqual('Visualization');
+
+        component.setPanel('dashboardLayouts', 'Dashboard Layouts');
+        expect(component.currentPanel).toEqual('dashboardLayouts');
+        expect(component.rightPanelTitle).toEqual('Dashboard Layouts');
+
+        component.setPanel('saveState', 'Save States');
+        expect(component.currentPanel).toEqual('saveState');
+        expect(component.rightPanelTitle).toEqual('Save States');
+
+        component.setPanel('settings', 'Settings');
+        expect(component.currentPanel).toEqual('settings');
+        expect(component.rightPanelTitle).toEqual('Settings');
+
+    }));
+
+    it('toggle filter builder', async(() => {
+        component.showFilterBuilderIcon = false;
+        expect(debugElement.nativeElement.querySelectorAll('app-filter-builder').length === 0).toBeTruthy();
+        component.showFilterBuilderIcon = true;
+        component.createFilterBuilder = true;
+        component.openFilterBuilderDialog();
+        expect(debugElement.nativeElement.querySelectorAll('app-filter-builder')).toBeTruthy();
+    }));
+
+    it('check that the messagenger subscribes to the correct channels and that the callbacks update the correct booleans', async(() => {
+        let spyOnShowFilterBuilderIcon = spyOn(component, 'updateShowFilterBuilderIcon');
+        let spyOnShowVisualShortcut = spyOn(component, 'updateShowVisShortcut');
+        let message = {
+            showFilterBuilderIcon: false,
+            showVisShortcut: false
+        };
+
+        expect(spyOnInit.calls.count()).toEqual(1);
+        component.ngOnInit();
+        expect(spyOnInit.calls.count()).toEqual(2);
+        component.updateShowVisShortcut(message);
+        component.updateShowFilterBuilderIcon(message);
+
+        expect(spyOnShowFilterBuilderIcon.calls.argsFor(0)).toEqual([{
+            showFilterBuilderIcon: false,
+            showVisShortcut: false
+        }]);
+
+        expect(spyOnShowVisualShortcut.calls.argsFor(0)).toEqual([{
+            showFilterBuilderIcon: false,
+            showVisShortcut: false
+        }]);
+
+        expect(spyOnShowFilterBuilderIcon.calls.count()).toEqual(1);
+        expect(spyOnShowVisualShortcut.calls.count()).toEqual(1);
+    }));
+
+    it('getShowVisShortcut does update showVisShortcut', async(() => {
+        component.updateShowVisShortcut({
+            showVisShortcut: false
+        });
+        fixture.detectChanges();
+        expect(component.showVisShortcut).toEqual(false);
+        expect(debugElement.query(By.css('#showVisShortcutButton'))).toBeNull();
+        component.updateShowVisShortcut({
+            showVisShortcut: true
+        });
+        fixture.detectChanges();
+        expect(component.showVisShortcut).toEqual(true);
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            expect(debugElement.query(By.css('#showVisShortcutButton'))).not.toBeNull();
+        });
+    }));
+
+    it('getShowFilterBuilderIcon does update showFilterBuilder', async(() => {
+        component.updateShowFilterBuilderIcon({
+            showFilterBuilderIcon: false
+        });
+        fixture.detectChanges();
+        expect(component.showFilterBuilderIcon).toEqual(false);
+        expect(debugElement.query(By.css('#showFilterBuilderIcon'))).toBeNull();
+        component.updateShowFilterBuilderIcon({
+            showFilterBuilderIcon: true
+        });
+        fixture.detectChanges();
+        expect(component.showFilterBuilderIcon).toEqual(true);
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            expect(debugElement.query(By.css('#showFilterBuilderIcon'))).not.toBeNull();
+        });
+    }));
+
+    it('addWidget does add the given widget with specified position to the grid', async(() => {
+        let widgetGridItem1: NeonGridItem = {
+            col: 2,
+            config: {},
+            row: 2,
+            sizex: 3,
+            sizey: 3
+        };
+
+        component.addWidget({
+            widgetGridItem: widgetGridItem1
+        });
+
+        expect(component.widgetGridItems).toEqual([{
+            col: 2,
+            config: {
+                borderSize: 10,
+                col: 2,
+                dragHandle: '.drag-handle',
+                row: 2,
+                sizex: 3,
+                sizey: 3
+            },
+            id: widgetGridItem1.id,
+            row: 2,
+            sizex: 3,
+            sizey: 3
+        }]);
+    }));
+
+    it('addWidget does prefer position inside config object', async(() => {
+        let widgetGridItem1: NeonGridItem = {
+            col: 2,
+            config: {
+                col: 4,
+                row: 4,
+                sizex: 5,
+                sizey: 5
+            },
+            row: 2,
+            sizex: 3,
+            sizey: 3
+        };
+
+        component.addWidget({
+            widgetGridItem: widgetGridItem1
+        });
+
+        expect(component.widgetGridItems).toEqual([{
+            col: 2,
+            config: {
+                borderSize: 10,
+                col: 4,
+                dragHandle: '.drag-handle',
+                row: 4,
+                sizex: 5,
+                sizey: 5
+            },
+            id: widgetGridItem1.id,
+            row: 2,
+            sizex: 3,
+            sizey: 3
+        }]);
+    }));
+
+    it('addWidget does set the position of the given widget with unspecified position and add it to the end of the grid', async(() => {
+        let widgetGridItem1: NeonGridItem = {
+            config: {}
+        };
+
+        component.addWidget({
+            widgetGridItem: widgetGridItem1
+        });
+
+        expect(component.widgetGridItems).toEqual([{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 4,
+                sizey: 4
+            },
+            id: widgetGridItem1.id
+        }]);
+
+        let widgetGridItem2: NeonGridItem = {
+            config: {}
+        };
+
+        component.addWidget({
+            widgetGridItem: widgetGridItem2
+        });
+
+        expect(component.widgetGridItems).toEqual([{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 4,
+                sizey: 4
+            },
+            id: widgetGridItem1.id
+        }, {
+            config: {
+                borderSize: 10,
+                col: 5,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 4,
+                sizey: 4
+            },
+            id: widgetGridItem2.id
+        }]);
+
+        let widgetGridItem3: NeonGridItem = {
+            config: {}
+        };
+
+        component.addWidget({
+            widgetGridItem: widgetGridItem3
+        });
+
+        expect(component.widgetGridItems).toEqual([{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 4,
+                sizey: 4
+            },
+            id: widgetGridItem1.id
+        }, {
+            config: {
+                borderSize: 10,
+                col: 5,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 4,
+                sizey: 4
+            },
+            id: widgetGridItem2.id
+        }, {
+            config: {
+                borderSize: 10,
+                col: 9,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 4,
+                sizey: 4
+            },
+            id: widgetGridItem3.id
+        }]);
+
+        let widgetGridItem4: NeonGridItem = {
+            config: {}
+        };
+
+        component.addWidget({
+            widgetGridItem: widgetGridItem4
+        });
+
+        expect(component.widgetGridItems).toEqual([{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 4,
+                sizey: 4
+            },
+            id: widgetGridItem1.id
+        }, {
+            config: {
+                borderSize: 10,
+                col: 5,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 4,
+                sizey: 4
+            },
+            id: widgetGridItem2.id
+        }, {
+            config: {
+                borderSize: 10,
+                col: 9,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 4,
+                sizey: 4
+            },
+            id: widgetGridItem3.id
+        }, {
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 5,
+                sizex: 4,
+                sizey: 4
+            },
+            id: widgetGridItem4.id
+        }]);
+    }));
+
+    it('addWidget does set the position of the given widget with unspecified position and add it to the middle of the grid', async(() => {
+        component.widgetGridItems = [{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 12,
+                sizey: 4
+            },
+            id: 'a'
+        }, {
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 5,
+                sizex: 4,
+                sizey: 4
+            },
+            id: 'b'
+        }, {
+            config: {
+                borderSize: 10,
+                col: 9,
+                dragHandle: '.drag-handle',
+                row: 5,
+                sizex: 4,
+                sizey: 4
+            },
+            id: 'c'
+        }, {
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 9,
+                sizex: 12,
+                sizey: 4
+            },
+            id: 'd'
+        }];
+
+        let widgetGridItem1: NeonGridItem = {
+            config: {}
+        };
+
+        component.addWidget({
+            widgetGridItem: widgetGridItem1
+        });
+
+        expect(component.widgetGridItems).toEqual([{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 12,
+                sizey: 4
+            },
+            id: 'a'
+        }, {
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 5,
+                sizex: 4,
+                sizey: 4
+            },
+            id: 'b'
+        }, {
+            config: {
+                borderSize: 10,
+                col: 9,
+                dragHandle: '.drag-handle',
+                row: 5,
+                sizex: 4,
+                sizey: 4
+            },
+            id: 'c'
+        }, {
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 9,
+                sizex: 12,
+                sizey: 4
+            },
+            id: 'd'
+        }, {
+            config: {
+                borderSize: 10,
+                col: 5,
+                dragHandle: '.drag-handle',
+                row: 5,
+                sizex: 4,
+                sizey: 4
+            },
+            id: widgetGridItem1.id
+        }]);
+    }));
+
+    it('clearDashboard does delete all elements from the grid', async(() => {
+        component.widgetGridItems = [{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            },
+            id: 'a'
+        }, {
+            config: {
+                borderSize: 10,
+                col: 2,
+                dragHandle: '.drag-handle',
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            },
+            id: 'b'
+        }];
+
+        component.clearDashboard();
+
+        expect(component.widgetGridItems).toEqual([]);
+    }));
+
+    it('contractWidget does update the size and position of the given widget to its previous config', async(() => {
+        let widgetGridItem1: NeonGridItem = {
+            config: {
+                col: 1,
+                row: 1,
+                sizex: 12,
+                sizey: 12
+            },
+            previousConfig: {
+                col: 2,
+                row: 2,
+                sizex: 4,
+                sizey: 4
+            }
+        };
+
+        component.contractWidget({
+            widgetGridItem: widgetGridItem1
+        });
+
+        expect(widgetGridItem1).toEqual({
+            config: {
+                col: 2,
+                row: 2,
+                sizex: 4,
+                sizey: 4
+            },
+            previousConfig: {
+                col: 2,
+                row: 2,
+                sizex: 4,
+                sizey: 4
+            }
+        });
+    }));
+
+    it('deleteWidget does delete the widget from the grid', async(() => {
+        component.widgetGridItems = [{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            },
+            id: 'a'
+        }, {
+            config: {
+                borderSize: 10,
+                col: 2,
+                dragHandle: '.drag-handle',
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            },
+            id: 'b'
+        }];
+
+        component.deleteWidget({
+            id: 'a'
+        });
+
+        expect(component.widgetGridItems).toEqual([{
+            config: {
+                borderSize: 10,
+                col: 2,
+                dragHandle: '.drag-handle',
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            },
+            id: 'b'
+        }]);
+    }));
+
+    it('expandWidget does update the size and position of the given widget and save its previous config', async(() => {
+        let widgetGridItem1: NeonGridItem = {
+            config: {
+                col: 2,
+                row: 2,
+                sizex: 4,
+                sizey: 4
+            }
+        };
+
+        let spy = spyOn(component, 'getVisibleRowCount').and.returnValue(50);
+
+        component.expandWidget({
+            widgetGridItem: widgetGridItem1
+        });
+
+        expect(widgetGridItem1).toEqual({
+            config: {
+                col: 1,
+                row: 2,
+                sizex: 12,
+                sizey: 50
+            },
+            previousConfig: {
+                col: 2,
+                row: 2,
+                sizex: 4,
+                sizey: 4
+            }
+        });
+    }));
+
+    it('getMaxColInUse does return expected number', async(() => {
+        expect(component.getMaxColInUse()).toEqual(0);
+
+        component.widgetGridItems = [{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            },
+            id: 'a'
+        }];
+
+        expect(component.getMaxColInUse()).toEqual(1);
+
+        component.widgetGridItems = [{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            },
+            id: 'a'
+        }, {
+            config: {
+                borderSize: 10,
+                col: 2,
+                dragHandle: '.drag-handle',
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            },
+            id: 'b'
+        }];
+
+        expect(component.getMaxColInUse()).toEqual(2);
+    }));
+
+    it('getMaxRowInUse does return expected number', async(() => {
+        expect(component.getMaxRowInUse()).toEqual(0);
+
+        component.widgetGridItems = [{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            },
+            id: 'a'
+        }];
+
+        expect(component.getMaxRowInUse()).toEqual(1);
+
+        component.widgetGridItems = [{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            },
+            id: 'a'
+        }, {
+            config: {
+                borderSize: 10,
+                col: 2,
+                dragHandle: '.drag-handle',
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            },
+            id: 'b'
+        }];
+
+        expect(component.getMaxRowInUse()).toEqual(2);
+    }));
+
+    it('moveWidgetToBottom does update the row of the given widget', async(() => {
+        let widgetGridItem1: NeonGridItem = {
+            config: {
+                col: 1,
+                row: 1,
+                sizex: 4,
+                sizey: 4
+            }
+        };
+
+        component.moveWidgetToBottom({
+            widgetGridItem: widgetGridItem1
+        });
+
+        expect(widgetGridItem1.config.row).toEqual(1);
+
+        component.widgetGridItems = [{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            },
+            id: 'a'
+        }, {
+            config: {
+                borderSize: 10,
+                col: 2,
+                dragHandle: '.drag-handle',
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            },
+            id: 'b'
+        }];
+
+        component.moveWidgetToBottom({
+            widgetGridItem: widgetGridItem1
+        });
+
+        expect(widgetGridItem1.config.row).toEqual(3);
+    }));
+
+    it('moveWidgetToTop does update the row of the given widget', async(() => {
+        let widgetGridItem1: NeonGridItem = {
+            config: {
+                col: 1,
+                row: 2,
+                sizex: 4,
+                sizey: 4
+            }
+        };
+
+        component.moveWidgetToTop({
+            widgetGridItem: widgetGridItem1
+        });
+
+        expect(widgetGridItem1.config.row).toEqual(1);
+    }));
+
+    it('refreshDashboard does resize the grid', async(() => {
+        let spy = spyOn(component.grid, 'triggerResize');
+        component.refreshDashboard();
+        expect(spy.calls.count()).toEqual(1);
+    }));
+
+    it('registerWidget does update the global collection of widgets', async(() => {
+        expect(Array.from(component.widgets.keys())).toEqual([]);
+
+        component.registerWidget({
+            id: 'a',
+            widget: null
+        });
+
+        expect(Array.from(component.widgets.keys())).toEqual(['a']);
+
+        component.registerWidget({
+            id: 'b',
+            widget: null
+        });
+
+        expect(Array.from(component.widgets.keys())).toEqual(['a', 'b']);
+    }));
+
+    it('registerWidget does not re-register the same widget', async(() => {
+        expect(Array.from(component.widgets.keys())).toEqual([]);
+
+        component.registerWidget({
+            id: 'a',
+            widget: null
+        });
+
+        expect(Array.from(component.widgets.keys())).toEqual(['a']);
+
+        component.registerWidget({
+            id: 'a',
+            widget: null
+        });
+
+        expect(Array.from(component.widgets.keys())).toEqual(['a']);
+    }));
+
+    it('unregisterWidget does update the global collection of widgets', async(() => {
+        component.widgets.set('a', null);
+        component.widgets.set('b', null);
+
+        expect(Array.from(component.widgets.keys())).toEqual(['a', 'b']);
+
+        component.unregisterWidget({
+            id: 'a'
+        });
+
+        expect(Array.from(component.widgets.keys())).toEqual(['b']);
+
+        component.unregisterWidget({
+            id: 'b'
+        });
+
+        expect(Array.from(component.widgets.keys())).toEqual([]);
+    }));
+
+    it('widgetFits does return expected boolean', async(() => {
+        let widgetGridItem1: NeonGridItem = {
+            config: {
+                col: 2,
+                row: 2,
+                sizex: 2,
+                sizey: 2
+            }
+        };
+
+        expect(component.widgetFits(widgetGridItem1)).toEqual(true);
+
+        component.widgetGridItems = [{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            },
+            id: 'a'
+        }];
+
+        expect(component.widgetFits(widgetGridItem1)).toEqual(true);
+
+        component.widgetGridItems = [{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 2,
+                sizey: 2
+            },
+            id: 'a'
+        }];
+
+        expect(component.widgetFits(widgetGridItem1)).toEqual(false);
+
+        component.widgetGridItems = [{
+            config: {
+                borderSize: 10,
+                col: 2,
+                dragHandle: '.drag-handle',
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            },
+            id: 'a'
+        }];
+
+        expect(component.widgetFits(widgetGridItem1)).toEqual(false);
+
+        component.widgetGridItems = [{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 4,
+                sizey: 1
+            },
+            id: 'a'
+        }, {
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 2,
+                sizex: 1,
+                sizey: 4
+            },
+            id: 'b'
+        }];
+
+        expect(component.widgetFits(widgetGridItem1)).toEqual(true);
+
+        component.widgetGridItems = [{
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 1,
+                sizex: 4,
+                sizey: 1
+            },
+            id: 'a'
+        }, {
+            config: {
+                borderSize: 10,
+                col: 1,
+                dragHandle: '.drag-handle',
+                row: 2,
+                sizex: 4,
+                sizey: 1
+            },
+            id: 'b'
+        }];
+
+        expect(component.widgetFits(widgetGridItem1)).toEqual(false);
+    }));
+
+    it('widgetOverlaps does return expected boolean', async(() => {
+        expect(component.widgetOverlaps({
+            config: {
+                col: 1,
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            }
+        }, {
+            config: {
+                col: 2,
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            }
+        })).toEqual(false);
+
+        expect(component.widgetOverlaps({
+            config: {
+                col: 1,
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            }
+        }, {
+            config: {
+                col: 1,
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            }
+        })).toEqual(false);
+
+        expect(component.widgetOverlaps({
+            config: {
+                col: 1,
+                row: 1,
+                sizex: 2,
+                sizey: 1
+            }
+        }, {
+            config: {
+                col: 2,
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            }
+        })).toEqual(true);
+
+        expect(component.widgetOverlaps({
+            config: {
+                col: 1,
+                row: 1,
+                sizex: 1,
+                sizey: 2
+            }
+        }, {
+            config: {
+                col: 1,
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            }
+        })).toEqual(true);
+
+        expect(component.widgetOverlaps({
+            config: {
+                col: 2,
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            }
+        }, {
+            config: {
+                col: 1,
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            }
+        })).toEqual(false);
+
+        expect(component.widgetOverlaps({
+            config: {
+                col: 1,
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            }
+        }, {
+            config: {
+                col: 1,
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            }
+        })).toEqual(false);
+
+        expect(component.widgetOverlaps({
+            config: {
+                col: 2,
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            }
+        }, {
+            config: {
+                col: 1,
+                row: 1,
+                sizex: 2,
+                sizey: 1
+            }
+        })).toEqual(true);
+
+        expect(component.widgetOverlaps({
+            config: {
+                col: 1,
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            }
+        }, {
+            config: {
+                col: 1,
+                row: 1,
+                sizex: 1,
+                sizey: 2
+            }
+        })).toEqual(true);
+
+        expect(component.widgetOverlaps({
+            config: {
+                col: 1,
+                row: 1,
+                sizex: 4,
+                sizey: 4
+            }
+        }, {
+            config: {
+                col: 2,
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            }
+        })).toEqual(true);
+
+        expect(component.widgetOverlaps({
+            config: {
+                col: 1,
+                row: 1,
+                sizex: 4,
+                sizey: 4
+            }
+        }, {
+            config: {
+                col: 3,
+                row: 3,
+                sizex: 4,
+                sizey: 4
+            }
+        })).toEqual(true);
     }));
 });

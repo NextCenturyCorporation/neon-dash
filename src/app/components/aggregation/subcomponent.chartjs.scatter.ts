@@ -15,15 +15,14 @@
  */
 import { ElementRef } from '@angular/core';
 import { AbstractChartJsDataset } from './subcomponent.chartjs.abstract';
-import { AggregationOptions } from './aggregation.component';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { ChartJsLineSubcomponent, ChartJsLineDataset } from './subcomponent.chartjs.line';
-import { Color } from '../../services/color-scheme.service';
+import { Color } from '../../color';
 
 // http://www.chartjs.org/docs/latest/charts/line.html#dataset-properties
 class ChartJsScatterDataset extends ChartJsLineDataset {
-    constructor(color: Color, label: string, xList: any[]) {
-        super(color, label, xList);
+    constructor(elementRef: ElementRef, color: Color, label: string, xList: any[]) {
+        super(elementRef, color, label, xList);
         this.fill = false;
         this.showLine = false;
     }
@@ -32,14 +31,14 @@ class ChartJsScatterDataset extends ChartJsLineDataset {
 export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
     /**
      * @constructor
-     * @arg {AggregationOptions} options
+     * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
      * @arg {boolean} [cannotSelect=false]
      * @arg {boolean} [domainOnly=false]
      */
-    constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef,
-        cannotSelect: boolean = false, private domainOnly: boolean = false) {
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef, cannotSelect: boolean = false,
+        private domainOnly: boolean = false) {
 
         super(options, listener, elementRef, cannotSelect);
     }
@@ -54,7 +53,7 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
      * @override
      */
     protected createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset {
-        return new ChartJsScatterDataset(color, label, xList);
+        return new ChartJsScatterDataset(this.elementRef, color, label, xList);
     }
 
     /**
@@ -70,6 +69,17 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
         superclassOptions.hover.mode = 'point';
         superclassOptions.tooltips.mode = 'point';
         return superclassOptions;
+    }
+
+    /**
+     * Returns the label for a visualization element using the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Point' + (count === 1 ? '' : 's');
     }
 
     /**
