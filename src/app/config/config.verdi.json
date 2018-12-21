@@ -298,17 +298,9 @@
     "layouts": {
         "verdi-ta1-layout": [
             {
-                "name": "Data Table",
                 "type": "dataTable",
-                "icon": "ViewData64",
                 "sizex": 12,
                 "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:31",
-                "selected": true,
                 "bindings": {
                     "title": "Document",
                     "database": "verdi-rdf",
@@ -333,17 +325,9 @@
                 "col": 1
             },
             {
-                "name": "Data Table",
                 "type": "dataTable",
-                "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
-                "selected": true,
                 "bindings": {
                     "title": "Subject",
                     "database": "verdi-rdf",
@@ -365,16 +349,9 @@
                 "col": 1
             },
             {
-                "name": "Data Table",
                 "type": "dataTable",
-                "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
                 "bindings": {
                     "title": "Predicate",
                     "database": "verdi-rdf",
@@ -396,17 +373,9 @@
                 "col": 5
             },
             {
-                "name": "Data Table",
                 "type": "dataTable",
-                "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
-                "selected": true,
                 "bindings": {
                     "title": "Object",
                     "database": "verdi-rdf",
@@ -428,17 +397,9 @@
                 "col": 9
             },
             {
-                "name": "Media Viewer",
                 "type": "mediaViewer",
-                "icon": "mediaViewer",
                 "sizex": 6,
                 "sizey": 8,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:35",
-                "selected": true,
                 "bindings": {
                     "id": "_id",
                     "title": "Media Viewer",
@@ -453,17 +414,9 @@
                 "col": 1
             },
             {
-                "name": "Network Graph",
                 "type": "networkGraph",
-                "icon": "Graph",
                 "sizex": 6,
                 "sizey": 8,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:36",
-                "selected": true,
                 "bindings": {
                     "title": "Network Graph",
                     "database": "verdi-rdf",
@@ -486,17 +439,9 @@
                 "col": 7
             },
             {
-                "name": "Filter Builder",
                 "type": "filterBuilder",
-                "icon": "CreateFilter64",
                 "sizex": 12,
                 "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:37",
-                "selected": true,
                 "bindings": {
                     "title": "Filter Builder",
                     "database": "verdi-rdf",
@@ -508,17 +453,9 @@
         ],
         "verdi-ta2-layout": [
             {
-                "name": "Data Table",
                 "type": "dataTable",
-                "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
-                "selected": true,
                 "bindings": {
                     "title": "Subject",
                     "database": "verdi-rdf",
@@ -544,16 +481,9 @@
                 "col": 1
             },
             {
-                "name": "Data Table",
                 "type": "dataTable",
-                "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
                 "bindings": {
                     "title": "Predicate",
                     "database": "verdi-rdf",
@@ -576,17 +506,9 @@
                 "col": 5
             },
             {
-                "name": "Data Table",
                 "type": "dataTable",
-                "icon": "ViewData64",
                 "sizex": 4,
                 "sizey": 5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
-                "selected": true,
                 "bindings": {
                     "title": "Object",
                     "database": "verdi-rdf",
@@ -609,17 +531,9 @@
                 "col": 9
             },
             {
-                "name": "Network Graph",
                 "type": "networkGraph",
-                "icon": "Graph",
                 "sizex": 10,
                 "sizey": 12,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:36",
-                "selected": true,
                 "bindings": {
                     "title": "Network Graph",
                     "database": "verdi-rdf",
@@ -652,17 +566,9 @@
                 "col": 1
             },
             {
-                "name": "Thumbnail Grid",
                 "type": "thumbnailGrid",
-                "icon": "ThumbnailGrid",
                 "sizex": 2,
                 "sizey": 12,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:35",
-                "selected": true,
                 "bindings": {
                     "id": "_id",
                     "title": "Documents",
@@ -681,7 +587,7 @@
                     "sortField": "dtyp",
                     "filterField": "id",
                     "ascending": true,
-                    "detailedThumbnails": true,
+                    "viewType": "details",
                     "limit": 8,
                     "typeMap": {
                         "jpg": "img",
@@ -698,17 +604,9 @@
                 "col": 11
             },
             {
-                "name": "Filter Builder",
                 "type": "filterBuilder",
-                "icon": "CreateFilter64",
                 "sizex": 12,
                 "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:37",
-                "selected": true,
                 "bindings": {
                     "title": "Filter Builder",
                     "database": "verdi-rdf",
@@ -720,17 +618,9 @@
         ],
         "verdi-ta3-layout": [
             {
-                "name": "Query Bar",
                 "type": "queryBar",
-                "icon": "QueryBar",
                 "sizex": 12,
                 "sizey": 1,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 6,
-                "minSizey": 5,
-                "$$hashKey": "object:72",
-                "selected": true,
                 "bindings": {
                     "database": "verdi-support",
                     "table": "hypothesis_info",
@@ -757,17 +647,9 @@
                 "col": 1
             },
             {
-                "name": "News Feed",
                 "type": "newsFeed",
-                "icon": "NewsFeed",
                 "sizex": 3,
                 "sizey": 14.5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 6,
-                "minSizey": 5,
-                "$$hashKey": "object:72",
-                "selected": true,
                 "bindings": {
                     "title": "Hypotheses",
                     "database": "verdi-support",
@@ -788,17 +670,9 @@
                 "col": 1
             },
             {
-                "name": "Network Graph",
                 "type": "networkGraph",
-                "icon": "Graph",
                 "sizex": 7,
                 "sizey": 14.5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:36",
-                "selected": true,
                 "bindings": {
                     "title": "Network Graph",
                     "database": "verdi-rdf",
@@ -810,6 +684,8 @@
                     "nodeShape": "box",
                     "linkField": "edgeTarget",
                     "linkNameField": "edgeLabel",
+                    "nodeColor": "",
+                    "linkColor": "#D1C2F0",
                     "edgeColor": "#63B4CF",
                     "xPositionField": "x",
                     "yPositionField": "y",
@@ -836,17 +712,9 @@
                 "col": 4
             },
             {
-                "name": "Thumbnail Grid",
                 "type": "thumbnailGrid",
-                "icon": "ThumbnailGrid",
                 "sizex": 2,
                 "sizey": 14.5,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:35",
-                "selected": true,
                 "bindings": {
                     "id": "_id",
                     "title": "Documents",
@@ -868,7 +736,7 @@
                     "sortField": "dtyp",
                     "filterField": "id",
                     "ascending": true,
-                    "detailedThumbnails": true,
+                    "viewType": "details",
                     "limit": 8,
                     "typeMap": {
                         "jpg": "img",
@@ -887,16 +755,9 @@
         ],
         "verdi-taxonomy": [
             {
-                "name": "Taxonomy Viewer",
                 "type": "taxonomyViewer",
                 "sizex": 4,
                 "sizey": 16,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:35",
-                "selected": true,
                 "bindings": {
                     "id": "_id",
                     "title": "Taxonomy",
@@ -918,17 +779,9 @@
                 "col": 0
             },
             {
-                "name": "Network Graph",
                 "type": "networkGraph",
-                "icon": "Graph",
                 "sizex": 8,
                 "sizey": 16,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:36",
-                "selected": true,
                 "bindings": {
                     "title": "Network Graph",
                     "database": "verdi-rdf",
@@ -940,6 +793,8 @@
                     "nodeShape": "box",
                     "linkField": "edgeTarget",
                     "linkNameField": "edgeLabel",
+                    "nodeColor": "",
+                    "linkColor": "#D1C2F0",
                     "edgeColor": "#63B4CF",
                     "xPositionField": "x",
                     "yPositionField": "y",

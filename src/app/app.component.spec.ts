@@ -38,6 +38,7 @@ import { MapComponent } from './components//map/map.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { SaveStateComponent } from './components/save-state/save-state.component';
 import { SettingsComponent } from './components/settings/settings.component';
+import { TaxonomyViewerComponent } from './components/taxonomy-viewer/taxonomy-viewer.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
@@ -71,10 +72,10 @@ import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-gr
 import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 import { MatAutocompleteModule } from '@angular/material';
 import { QueryBarComponent } from './components/query-bar/query-bar.component';
-import {
-    ThumbnailDetailsContractedComponent,
-    ThumbnailDetailsExpandedComponent
-} from './components/thumbnail-grid/thumbnail-details.component';
+import { DetailsThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.details-view';
+import { TitleThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.title-view';
+import { CardThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.card-view';
+import { TreeModule } from 'angular-tree-component';
 import { DatasetServiceMock } from '../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../testUtils/MockServices/FilterServiceMock';
 import * as neon from 'neon-framework';
@@ -94,8 +95,10 @@ describe('App', () => {
                 AboutNeonComponent,
                 AggregationComponent,
                 AnnotationViewerComponent,
+                CardThumbnailSubComponent,
                 DatasetSelectorComponent,
                 DataTableComponent,
+                DetailsThumbnailSubComponent,
                 DocumentViewerComponent,
                 ExportControlComponent,
                 FilterBuilderComponent,
@@ -111,11 +114,11 @@ describe('App', () => {
                 SaveStateComponent,
                 SettingsComponent,
                 SimpleFilterComponent,
+                TaxonomyViewerComponent,
                 TextCloudComponent,
-                ThumbnailDetailsContractedComponent,
-                ThumbnailDetailsExpandedComponent,
                 ThumbnailGridComponent,
                 TimelineComponent,
+                TitleThumbnailSubComponent,
                 UnsharedFilterComponent,
                 VisualizationContainerComponent,
                 VisualizationInjectorComponent,
@@ -132,7 +135,8 @@ describe('App', () => {
                 HttpModule,
                 HttpClientModule,
                 BrowserAnimationsModule,
-                ReactiveFormsModule
+                ReactiveFormsModule,
+                TreeModule.forRoot()
             ],
             providers: [
                 { provide: 'config', useValue: new NeonGTDConfig() },

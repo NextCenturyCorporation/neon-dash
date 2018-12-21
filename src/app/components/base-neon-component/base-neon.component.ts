@@ -554,7 +554,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     /**
      * Runs a visualization data query and handles any other behavior needed whenever the filters are changed.
      */
-    handleFiltersChangedEvent(): void {
+    handleFiltersChangedEvent(event?: any): void {
         this.setupFilters();
         this.executeAllQueryChain();
     }
