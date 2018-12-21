@@ -122,13 +122,13 @@ describe('Component: DocumentViewer', () => {
     });
 
     it('returns the expectedvalue from isValidQuery', () => {
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.isValidQuery(component.options)).toBe(false);
         component.options.database = new DatabaseMetaData('testDatabase1');
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.isValidQuery(component.options)).toBe(false);
         component.options.table = new TableMetaData('testTable1');
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.isValidQuery(component.options)).toBe(false);
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        expect(component.isValidQuery()).toBe(true);
+        expect(component.isValidQuery(component.options)).toBe(true);
     });
 
     it('returns expected query from createQuery with no sort', () => {
@@ -143,7 +143,7 @@ describe('Component: DocumentViewer', () => {
             .withFields(['testTextField', 'testDateField', 'testIdField'])
             .limit(50)
             .offset(0);
-        expect(component.createQuery()).toEqual(query);
+        expect(component.createQuery(component.options)).toEqual(query);
     });
 
     it('returns expected query from createQuery with sort', () => {
@@ -164,7 +164,7 @@ describe('Component: DocumentViewer', () => {
             .sortBy('testSortField', neonVariables.DESCENDING)
             .limit(50)
             .offset(0);
-        expect(component.createQuery()).toEqual(query);
+        expect(component.createQuery(component.options)).toEqual(query);
     });
 
     it('sets expected properties and calls getDocCount if onQuerySuccess returns no data', () => {
@@ -198,13 +198,13 @@ describe('Component: DocumentViewer', () => {
         // If we get to executeQuery after calling onQuerySuccess, that means we went through getDocCount.
         component.executeQuery = () => {
             calledExecuteQuery = true;
-            component.onQuerySuccess(docCountResponse);
+            component.onQuerySuccess(component.options, docCountResponse);
         };
         component.cannotExecuteQuery = () => {
             return false;
         };
 
-        component.onQuerySuccess(response);
+        component.onQuerySuccess(component.options, response);
 
         expect(calledExecuteQuery).toBeTruthy();
         expect(component.docCount).toBe(0);
@@ -242,13 +242,13 @@ describe('Component: DocumentViewer', () => {
         // If we get to executeQuery after calling onQuerySuccess, that means we went through getDocCount.
         component.executeQuery = () => {
             calledExecuteQuery = true;
-            component.onQuerySuccess(docCountResponse);
+            component.onQuerySuccess(component.options, docCountResponse);
         };
         component.cannotExecuteQuery = () => {
             return false;
         };
 
-        component.onQuerySuccess(response);
+        component.onQuerySuccess(component.options, response);
 
         expect(calledExecuteQuery).toBeTruthy();
         expect(component.docCount).toBe(2);
@@ -299,7 +299,7 @@ describe('Component: DocumentViewer', () => {
         // The XHR is done via jQuery which makes it astoundingly difficult to test, so we're going to bypass it.
         component.executeQuery = () => {
             calledExecuteQuery = true;
-            component.onQuerySuccess(docCountResponse);
+            component.onQuerySuccess(component.options, docCountResponse);
         };
         component.cannotExecuteQuery = () => {
             return false;

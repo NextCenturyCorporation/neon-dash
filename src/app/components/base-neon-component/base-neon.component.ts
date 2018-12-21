@@ -58,13 +58,15 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
     public id: string;
     public messenger: neon.eventing.Messenger;
-    protected outstandingDataQuery: any;
+    protected outstandingDataQueriesByLayer: Map<string, Map<string, any>> = new Map<string, Map<string, any>>();
 
     private redrawAfterResize: boolean = false;
+    private nextLayerIndex = 1;
 
     public initializing: boolean = false;
-    public isLoading: boolean = false;
+    public isLoading: number = 0;
     public isExportable: boolean = true;
+    public isMultiLayerWidget: boolean = false;
     public isPaginationWidget: boolean = false;
 
     public errorMessage: string = '';
@@ -86,8 +88,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         public changeDetection: ChangeDetectorRef
     ) {
         this.messenger = new neon.eventing.Messenger();
-        this.options = this.createWidgetOptions(this.injector, this.getVisualizationDefaultTitle(), this.getVisualizationDefaultLimit());
-        this.newLimit = this.options.limit;
     }
 
     /**
@@ -100,7 +100,11 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     ngOnInit() {
         this.initializing = true;
+
+        this.options = this.createWidgetOptions(this.injector, this.getVisualizationDefaultTitle(), this.getVisualizationDefaultLimit());
+        this.newLimit = this.options.limit;
         this.id = this.options._id;
+
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
         this.messenger.publish(neonEvents.WIDGET_REGISTER, {
@@ -108,10 +112,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             widget: this
         });
 
-        this.outstandingDataQuery = {};
-        for (let database of this.datasetService.getDatabases()) {
-            this.outstandingDataQuery[database.name] = {};
-        }
         try {
             this.setupFilters();
         } catch (e) {
@@ -121,6 +121,15 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.subNgOnInit();
         this.initializing = false;
         this.postInit();
+    }
+
+    /**
+     * Runs any needed behavior after a new layer was added.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     */
+    public postAddLayer(options: any) {
+        // Do nothing.
     }
 
     /**
@@ -139,32 +148,70 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     abstract subNgOnDestroy();
 
     /**
+     * Adds a new layer for the visualization using the given bindings.
+     *
+     * @arg {any} [options]
+     * @arg {any} [layerBindings]
+     */
+    public addLayer(options?: any, layerBindings?: any) {
+        let layerOptions = new WidgetOptionCollection(undefined, layerBindings || {});
+        this.outstandingDataQueriesByLayer.set(layerOptions._id, new Map<string, any>());
+        layerOptions.inject(new WidgetFreeTextOption('title', 'Title', 'Layer ' + this.nextLayerIndex++));
+        layerOptions.inject(this.createLayerNonFieldOptions());
+        layerOptions.append(new WidgetDatabaseOption(), new DatabaseMetaData());
+        layerOptions.append(new WidgetTableOption(), new TableMetaData());
+        this.updateDatabasesInOptions(layerOptions, layerBindings);
+        this.initializeFieldsInOptions(layerOptions, this.createLayerFieldOptions());
+        (options || this.options).layers.push(layerOptions);
+        this.postAddLayer(layerOptions);
+    }
+
+    /**
+     * Removes the layer at the given index.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     */
+    public removeLayer(options: any) {
+        this.outstandingDataQueriesByLayer.delete(options._id);
+        this.handleChangeData();
+    }
+
+    /**
+     * Returns the export header data using the given options and visualization data query.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {neon.query.Query} query
+     * @return {{name:string,data:any[]}}
+     */
+    createExportOptions(options: any, query: neon.query.Query) {
+        let exportName = this.options.title.split(':').join(' ');
+        return {
+            name: 'Query_Results_Table',
+            data: [{
+                query: query,
+                name: exportName + '-' + this.id,
+                fields: this.getExportFields(options).map((exportFieldsObject) => ({
+                    query: exportFieldsObject.columnName,
+                    pretty: exportFieldsObject.prettyName || exportFieldsObject.columnName
+                })),
+                ignoreFilters: query.ignoreFilters,
+                selectionOnly: query.selectionOnly,
+                ignoredFilterIds: [],
+                type: 'query'
+            }]
+        };
+    }
+
+    /**
      * Returns the export header data.
+     *
+     * @return {{name:string,data:any[]}[]}
      */
     doExport(): any {
-        // TODO this function needs to be changed  to abstract once we get through all the visualizations.
-
-        let query = this.createQuery();
-        let exportName = this.options.title.split(':').join(' ');
-        if (query) {
-            return {
-                name: 'Query_Results_Table',
-                data: [{
-                    query: query,
-                    name: exportName + '-' + this.id,
-                    fields: this.getExportFields().map((exportFieldsObject) => ({
-                        query: exportFieldsObject.columnName,
-                        pretty: exportFieldsObject.prettyName || exportFieldsObject.columnName
-                    })),
-                    ignoreFilters: query.ignoreFilters,
-                    selectionOnly: query.selectionOnly,
-                    ignoredFilterIds: [],
-                    type: 'query'
-                }]
-            };
-        }
-        console.error('SKIPPING EXPORT FOR ' + exportName);
-        return null;
+        return (this.isMultiLayerWidget ? this.options.layers : [this.options]).map((options) => {
+            let query = this.createQuery(options);
+            return this.createExportOptions(options, query);
+        }).filter((exportObject) => !!exportObject);
     }
 
     protected enableRedrawAfterResize(enable: boolean) {
@@ -181,14 +228,14 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     /**
      * Initializes sub-component styles as needed.
      */
-    onResizeStart() {
+    public onResizeStart() {
         // Do nothing.
     }
 
     /**
      * Updates the header text styling.
      */
-    updateHeaderTextStyling() {
+    public updateHeaderTextStyling() {
         let refs = this.getElementRefs();
         if (refs.headerText && refs.infoText && refs.visualization) {
             refs.headerText.nativeElement.style.maxWidth = Math.floor(refs.visualization.nativeElement.clientWidth -
@@ -199,14 +246,14 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     /**
      * Resizes visualization-specific sub-components as needed.  Override as needed.
      */
-    subOnResizeStop() {
+    public subOnResizeStop() {
         // Do nothing.
     }
 
     /**
      * Resizes sub-components as needed.
      */
-    onResizeStop() {
+    public onResizeStop() {
         this.updateHeaderTextStyling();
 
         this.subOnResizeStop();
@@ -251,41 +298,45 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     abstract getFiltersToIgnore(): string[];
 
     /**
-     * Add a filter and register it with neon.
+     * Adds a new filter to neon and runs a visualization data query.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @arg {boolean} executeQueryChainOnSuccess
      * @arg {object} subclassFilter
      * @arg {neon.query.WherePredicate} wherePredicate
      * @arg {function} [callback]
      */
-    addNeonFilter(executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate,
+    addNeonFilter(options: any, executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate,
         callback?: Function) {
 
         let filterName = {
-            visName: this.options.title,
+            visName: options.title,
             text: this.getFilterText(subclassFilter)
         };
-        let onSuccess = (resp: any) => {
-            if (typeof resp === 'string') {
-                subclassFilter.id = resp;
+        let onSuccess = (response: any) => {
+            if (typeof response === 'string') {
+                subclassFilter.id = response;
             }
             if (callback) {
                 callback();
             }
             if (executeQueryChainOnSuccess) {
-                this.executeQueryChain();
+                this.executeQueryChain(options);
             }
         };
-
         this.filterService.addFilter(this.messenger,
             this.id,
-            this.options.database.name,
-            this.options.table.name,
+            options.database.name,
+            options.table.name,
             wherePredicate,
             filterName,
             onSuccess.bind(this),
-            () => {
-                console.error('filter failed to set');
+            (response: any) => {
+                this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+                    error: response,
+                    message: 'Add filter failed on visualization ' + options.title + ' database ' + options.database.name + ' table ' +
+                        options.table.name
+                });
                 if (callback) {
                     callback();
                 }
@@ -294,56 +345,65 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Adds all the given filters to this component and neon with an optional callback function
-     * @param filters
-     * @param callback
+     * Adds all the given filters to neon and runs a visualization data query.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {{singleFilter:any,clause:neon.query.WherePredicate}[]} filters
+     * @arg {function} [callback]
      */
-    addMultipleFilters(filters: {singleFilter: any, clause: neon.query.WherePredicate}[], callback?: Function) {
+    addMultipleFilters(options: any, filters: { singleFilter: any, clause: neon.query.WherePredicate }[], callback?: Function) {
         if (!filters.length) {
             if (callback) {
                 callback();
             }
+            this.executeQueryChain(options);
             return;
         }
 
-        this.addNeonFilter(true, filters[0].singleFilter, filters[0].clause, () => {
-            this.addMultipleFilters(filters.slice(1), callback);
+        this.addNeonFilter(options, false, filters[0].singleFilter, filters[0].clause, () => {
+            this.addMultipleFilters(options, filters.slice(1), callback);
         });
     }
 
     /**
-     * Replace a filter and register the change with Neon.
+     * Replaces a filter in neon and runs a visualization data query.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @arg {boolean} executeQueryChainOnSuccess
      * @arg {object} subclassFilter
      * @arg {neon.query.WherePredicate} wherePredicate
      * @arg {function} [callback]
      */
-    replaceNeonFilter(executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate,
+    replaceNeonFilter(options: any, executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate,
         callback?: Function) {
 
         let filterName = {
-            visName: this.options.title,
+            visName: options.title,
             text: this.getFilterText(subclassFilter)
         };
-        let onSuccess = (resp: any) => {
+        let onSuccess = (response: any) => {
             if (callback) {
                 callback();
             }
             if (executeQueryChainOnSuccess) {
-                this.executeQueryChain();
+                this.executeQueryChain(options);
             }
         };
-        this.filterService.replaceFilter(this.messenger,
+        this.filterService.replaceFilter(
+            this.messenger,
             subclassFilter.id,
             this.id,
-            this.options.database.name,
-            this.options.table.name,
+            options.database.name,
+            options.table.name,
             wherePredicate,
             filterName,
             onSuccess.bind(this),
-            () => {
-                console.error('filter failed to set');
+            (response: any) => {
+                this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+                    error: response,
+                    message: 'Replace filter failed on visualization ' + options.title + ' database ' + options.database.name + ' table ' +
+                        options.table.name
+                });
                 if (callback) {
                     callback();
                 }
@@ -352,141 +412,151 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Execute the Neon query chain.
-     *
-     * This is expected to get called whenever a query is expected to be run.
-     * This could be startup, user action to change field, relevant filter change
-     * from another visualization
+     * Runs all the data queries for the visualization.  Called on initialization, if a user changes the visualization config or sets a
+     * filter, or whenever else the data queries need to be run.
      */
-    executeQueryChain() {
-        let isValidQuery = this.isValidQuery();
-        if (!isValidQuery) {
-            return;
+    executeAllQueryChain() {
+        if (!this.initializing) {
+            (this.isMultiLayerWidget ? this.options.layers : [this.options]).forEach((options) => {
+                this.executeQueryChain(options);
+            });
         }
-        this.isLoading = true;
-        this.changeDetection.detectChanges();
-        let query = this.createQuery();
-
-        let filtersToIgnore = this.getFiltersToIgnore();
-        if (filtersToIgnore && filtersToIgnore.length > 0) {
-            query.ignoreFilters(filtersToIgnore);
-        }
-
-        this.executeQuery(query);
     }
 
     /**
-     * Check if the current query (Including filters) is valid
+     * Runs the visualization data query using the given options (or this.options if no options are given).
+     *
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
-    abstract isValidQuery(): boolean;
+    executeQueryChain(options?: any) {
+        if (!this.initializing && this.isValidQuery(options || this.options)) {
+            this.changeDetection.detectChanges();
+            let query = this.createQuery(options || this.options);
+
+            let filtersToIgnore = this.getFiltersToIgnore();
+            if (filtersToIgnore && filtersToIgnore.length) {
+                query.ignoreFilters(filtersToIgnore);
+            }
+
+            this.executeQuery((options || this.options), query);
+        }
+    }
 
     /**
-     * Create the query needed to get the data for the visualization
+     * Returns whether the visualization data query created using the given options is valid.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     * @abstract
      */
-    abstract createQuery(): neon.query.Query;
+    abstract isValidQuery(options: any): boolean;
 
     /**
-     * Called after a successful query
-     * @param response the quersy response
+     * Creates and returns the visualization data query using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {neon.query.Query}
+     * @abstract
      */
-    abstract onQuerySuccess(response: any): void;
+    abstract createQuery(options: any): neon.query.Query;
 
     /**
-     * Update the visualization
+     * Handles the given response data for a successful visualization data query created using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} response
+     * @abstract
+     */
+    abstract onQuerySuccess(options: any, response: any): void;
+
+    /**
+     * Refreshes the visualization.
      */
     abstract refreshVisualization(): void;
 
     /**
-     * Generic query success method
-     * @param response
+     * Handles the given response data for a successful visualization data query created using the given options and updates Angular.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} response
      */
-    baseOnQuerySuccess(response) {
+    baseOnQuerySuccess(options: any, response: any) {
         //Converts the response to have the pretty names from the labelOptions in config to display
-        this.onQuerySuccess(this.prettifyLabels(response));
-        this.isLoading = false;
+        this.onQuerySuccess(options, this.prettifyLabels(options, response));
+        this.isLoading--;
         this.changeDetection.detectChanges();
         this.updateHeaderTextStyling();
     }
 
     /**
-     * Returns whether this visualization cannot execute its query right now.
+     * Runs the given query.
      *
-     * @return {boolean}
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {neon.query.Query} query
      */
-    cannotExecuteQuery(): boolean {
-        let connection = this.connectionService.getActiveConnection();
-        let database = this.options.database.name;
-        let table = this.options.table.name;
-        return (!connection || (this.options.hideUnfiltered && !this.filterService.getFiltersForFields(database, table).length));
-    }
+    executeQuery(options: any, query: neon.query.Query) {
+        this.isLoading++;
 
-    /**
-     * Execute a neon query
-     * @param query The query to execute
-     */
-    executeQuery(query: neon.query.Query) {
-        let database = this.options.database.name;
-        let table = this.options.table.name;
-        let connection = this.connectionService.getActiveConnection();
-
-        if (this.cannotExecuteQuery()) {
-            this.baseOnQuerySuccess({
+        if (this.cannotExecuteQuery(options)) {
+            this.baseOnQuerySuccess(options, {
                 data: []
             });
             return;
         }
 
-        if (!connection) {
-            return;
-        }
-        /* tslint:disable:no-string-literal */
+        let databaseTableKey = options.database.name + '_' + options.table.name;
 
+        /* tslint:disable:no-string-literal */
         let filter = _.cloneDeep(query['filter']);
+        /* tslint:enable:no-string-literal */
+
         //If we have any labelOptions in the config, we want to edit the data to convert whatever data items that are specified to the
         //"pretty" name. The pretty name goes to the visualizations, but it must be converted back before doing a query as the
         //database won't recognize the pretty name.
-        this.datifyWherePredicates(filter.whereClause);
-        /* tslint:enable:no-string-literal */
+        this.datifyWherePredicates(options, filter.whereClause);
 
-        // Cancel any previous data query currently running.
-        if (this.outstandingDataQuery[database] && this.outstandingDataQuery[database][table]) {
-            this.outstandingDataQuery[database][table].abort();
+        if (this.outstandingDataQueriesByLayer.get(options._id).has(databaseTableKey)) {
+            this.outstandingDataQueriesByLayer.get(options._id).get(databaseTableKey).abort();
         }
 
-        // Execute the data query, calling the function defined in 'done' or 'fail' as
-        // needed.
-        this.outstandingDataQuery[database][table] = connection.executeQuery(query, null);
+        this.outstandingDataQueriesByLayer.get(options._id).set(databaseTableKey,
+            this.connectionService.getActiveConnection().executeQuery(query, null));
 
-        // Visualizations that do not execute data queries will not return a query
-        // object.
-        if (!this.outstandingDataQuery[database][table]) {
-            // TODO do something
-            console.error('execute query did not return an object');
-        }
-
-        this.outstandingDataQuery[database][table].always(() => {
-            this.outstandingDataQuery[database][table] = undefined;
+        this.outstandingDataQueriesByLayer.get(options._id).get(databaseTableKey).always(() => {
+            this.outstandingDataQueriesByLayer.get(options._id).delete(databaseTableKey);
         });
-        this.outstandingDataQuery[database][table].done(this.baseOnQuerySuccess.bind(this));
 
-        this.outstandingDataQuery[database][table].fail((response) => {
-            if (response.statusText === 'abort') {
-                // query was aborted so we don't care.  We assume we aborted it on purpose.
-            } else {
-                this.isLoading = false;
-                console.error('Query failed: ', response);
+        this.outstandingDataQueriesByLayer.get(options._id).get(databaseTableKey).done(this.baseOnQuerySuccess.bind(this, options));
+
+        this.outstandingDataQueriesByLayer.get(options._id).get(databaseTableKey).fail((response) => {
+            this.isLoading--;
+            if (response.statusText !== 'abort') {
+                this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+                    error: response,
+                    message: options.title + ' visualization data query failed on ' + databaseTableKey
+                });
                 this.changeDetection.detectChanges();
             }
         });
     }
 
     /**
-     * Called after the filters in the filter service have changed.
-     * Defaults to calling setupFilters() then executeQueryChain()
+     * Returns whether this visualization cannot execute its query right now.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    cannotExecuteQuery(options: any): boolean {
+        return (!this.connectionService.getActiveConnection() || (options.hideUnfiltered &&
+            !this.filterService.getFiltersForFields(options.database.name, options.table.name).length));
+    }
+
+    /**
+     * Runs a visualization data query and handles any other behavior needed whenever the filters are changed.
      */
     handleFiltersChangedEvent(): void {
         this.setupFilters();
-        this.executeQueryChain();
+        this.executeAllQueryChain();
     }
 
     /**
@@ -513,75 +583,82 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
     /**
      * Updates tables, fields, and filters whenenver the database is changed and reruns the visualization query.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
      */
-    handleChangeDatabase() {
-        this.updateTablesInOptions(this.options);
-        this.initializeFieldsInOptions(this.options);
-        this.removeAllFilters(this.getCloseableFilters(), () => {
+    handleChangeDatabase(options: any) {
+        this.updateTablesInOptions(options);
+        this.initializeFieldsInOptions(options, this.createLayerFieldOptions());
+        this.removeAllFilters(options, this.getCloseableFilters(), () => {
             this.setupFilters();
-            this.handleChangeData();
+            this.handleChangeData(options);
         });
     }
 
     /**
      * Updates fields and filters whenever the table is changed and reruns the visualization query.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
      */
-    handleChangeTable() {
-        this.updateFieldsInOptions(this.options);
-        this.initializeFieldsInOptions(this.options);
-        this.removeAllFilters(this.getCloseableFilters(), () => {
+    handleChangeTable(options: any) {
+        this.updateFieldsInOptions(options);
+        this.initializeFieldsInOptions(options, this.createLayerFieldOptions());
+        this.removeAllFilters(options, this.getCloseableFilters(), () => {
             this.setupFilters();
-            this.handleChangeData();
+            this.handleChangeData(options);
         });
     }
 
     /**
      * Updates filters whenever a filter field is changed and reruns the visualization query.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
      */
-    handleChangeFilterField() {
-        this.removeAllFilters(this.getCloseableFilters(), () => {
+    handleChangeFilterField(options: any) {
+        this.removeAllFilters(options, this.getCloseableFilters(), () => {
             this.setupFilters();
-            this.handleChangeData();
+            this.handleChangeData(options);
         });
     }
 
     /**
-     * Reruns the visualization query.  Override to update properties and/or sub-components.
+     * Runs the visualization data query.  Override to update properties and/or sub-components.
+     *
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
-    handleChangeData() {
-        this.logChangeAndStartQueryChain();
+    handleChangeData(options?: any) {
+        this.executeQueryChain(options || this.options);
     }
 
     /**
      * Updates properties and/or sub-components whenever the limit is changed and reruns the visualization query.
+     *
+     * @arg {any} [options] A WidgetOptionCollection object.
      */
-    subHandleChangeLimit() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    /**
-     * Updates the limit and the visualization.
-     */
-    handleChangeLimit() {
-        if (this.isNumber(this.newLimit)) {
-            let newLimit = parseFloat('' + this.newLimit);
-            if (newLimit > 0) {
-                this.options.limit = newLimit;
-                this.subHandleChangeLimit();
-            } else {
-                this.newLimit = this.options.limit;
-            }
+    subHandleChangeLimit(options?: any) {
+        if (!options) {
+            this.executeAllQueryChain();
         } else {
-            this.newLimit = this.options.limit;
+            this.executeQueryChain(options);
         }
     }
 
     /**
-     * If not initializing, calls executeQueryChain();
+     * Updates the limit and the visualization.
+     *
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
-    logChangeAndStartQueryChain() {
-        if (!this.initializing) {
-            this.executeQueryChain();
+    handleChangeLimit(options?: any) {
+        if (this.isNumber(this.newLimit)) {
+            let newLimit = parseFloat('' + this.newLimit);
+            if (newLimit > 0) {
+                (options || this.options).limit = newLimit;
+                this.subHandleChangeLimit(options);
+            } else {
+                this.newLimit = (options || this.options).limit;
+            }
+        } else {
+            this.newLimit = (options || this.options).limit;
         }
     }
 
@@ -593,23 +670,28 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
     /**
      * Check that the local filter column name and value are not null/empty
+     *
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      * @return {boolean}
      */
-    hasUnsharedFilter(): boolean {
-        return !!(this.options.unsharedFilterField && this.options.unsharedFilterField.columnName &&
-            this.options.unsharedFilterValue && this.options.unsharedFilterValue.trim());
+    hasUnsharedFilter(options?: any): boolean {
+        return !!((options || this.options).unsharedFilterField && (options || this.options).unsharedFilterField.columnName &&
+            (options || this.options).unsharedFilterValue && (options || this.options).unsharedFilterValue.trim());
     }
 
     /**
      * Remove a filter from neon, and optionally requery and/or refresh
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @arg {object} filter
      * @arg {boolean} requery
      * @arg {boolean} refresh
      * @arg {function} [callback]
      */
-    removeLocalFilterFromLocalAndNeon(filter: any, requery: boolean, refresh: boolean, callback?: Function) {
+    removeLocalFilterFromLocalAndNeon(options: any, filter: any, requery: boolean, refresh: boolean, callback?: Function) {
         // If we are removing a filter, assume its both local and neon so it should be removed in both
+        let database = options.database.name;
+        let table = options.table.name;
         this.filterService.removeFilters(
             this.messenger,
             [filter.id],
@@ -621,7 +703,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                     this.removeFilter(filter);
                 }
                 if (requery) {
-                    this.executeQueryChain();
+                    this.executeQueryChain(options);
                 } else {
                     if (refresh) {
                         this.refreshVisualization();
@@ -632,11 +714,12 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                     callback();
                 }
             },
-            () => {
-                console.error('error removing filter');
-                if (callback) {
-                    callback();
-                }
+            (response: any) => {
+                this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+                    error: response,
+                    message: 'Remove filter failed on visualization ' + options.title + ' database ' + options.database.name + ' table ' +
+                        options.table.name
+                });
             });
         this.changeDetection.detectChanges();
     }
@@ -644,10 +727,11 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     /**
      * Removes all the given filters from this component and neon with an optional callback.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @arg {array} filters
      * @arg {function} [callback]
      */
-    removeAllFilters(filters: any[], callback?: Function) {
+    removeAllFilters(options: any, filters: any[], callback?: Function) {
         if (!filters.length) {
             if (callback) {
                 callback();
@@ -655,18 +739,20 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             return;
         }
 
-        this.removeLocalFilterFromLocalAndNeon(filters[0], false, false, () => {
-            this.removeAllFilters(filters.slice(1), callback);
+        this.removeLocalFilterFromLocalAndNeon(options, filters[0], false, false, () => {
+            this.removeAllFilters(options, filters.slice(1), callback);
         });
     }
 
     /**
-     * Creates and returns the text for the settings button.
+     * Creates and returns the text for the settings button using the given options.
      *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {number} queryLimit
      * @return {string}
      */
-    public getButtonText(): string {
-        let shownDataArray = this.getShownDataArray();
+    public createButtonText(options: any, queryLimit: number): string {
+        let shownDataArray = this.getShownDataArray(options);
 
         // If the query was not yet run, show no text unless waiting on an event.
         if (!shownDataArray) {
@@ -683,18 +769,18 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                 ('0' + (elementLabel ? (' ' + elementLabel) : ''));
         }
 
-        let totalDataCount = this.getTotalDataCount();
+        let totalDataCount = this.getTotalDataCount(options);
 
         // If the query was not limited, show the total count.
-        if (totalDataCount <= this.options.limit) {
+        if (totalDataCount <= queryLimit) {
             return this.prettifyInteger(shownDataCount) + (elementLabel ? (' ' + elementLabel) : '');
         }
 
         // If the query was limited and the widget uses pagination, show the pagination text.
         if (this.isPaginationWidget) {
             elementLabel = this.getVisualizationElementLabel(totalDataCount);
-            let begin = this.prettifyInteger((this.page - 1) * this.options.limit + 1);
-            let end = this.prettifyInteger(Math.min(this.page * this.options.limit, totalDataCount));
+            let begin = this.prettifyInteger((this.page - 1) * queryLimit + 1);
+            let end = this.prettifyInteger(Math.min(this.page * queryLimit, totalDataCount));
             return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + this.prettifyInteger(totalDataCount) +
                 (elementLabel ? (' ' + elementLabel) : '');
         }
@@ -703,13 +789,38 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         return this.prettifyInteger(shownDataCount) + (elementLabel ? (' ' + elementLabel) : '') + ' (Limited)';
     }
 
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     */
+    public getButtonText(): string {
+        if (!this.isMultiLayerWidget) {
+            return this.createButtonText(this.options, this.options.limit);
+        }
+
+        if (this.options.layers.length === 1) {
+            return this.createButtonText(this.options.layers[0], this.options.limit);
+        }
+
+        if (this.options.layers.length) {
+            return this.options.layers.map((layer) => {
+                let text = this.createButtonText(layer, this.options.limit);
+                return text ? (layer.title + ' (' + text + ')') : '';
+            }).filter((text) => !!text).join(', ');
+        }
+
+        return '';
+    }
+
     // TODO THOR-971 Replace this function with a new local variable.
     /**
      * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {any[]}
      */
-    public getShownDataArray(): any[] {
+    public getShownDataArray(options: any): any[] {
         return undefined;
     }
 
@@ -727,10 +838,11 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     /**
      * Returns the count of data items that an unlimited query for the visualization would contain.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {number}
      */
-    public getTotalDataCount(): number {
-        let shownDataArray = this.getShownDataArray();
+    public getTotalDataCount(options: any): number {
+        let shownDataArray = this.getShownDataArray(options);
         return (shownDataArray || []).length;
     }
 
@@ -816,11 +928,14 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Returns the result of converting labels in the response query data
-     * into pretty labels specified in the config.
+     * Returns the result of converting labels in the response query data into pretty labels specified in the config.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {{data:any[]}} response
+     * @return {{data:any[]}}
      */
-    private prettifyLabels(response) {
-        let labelOptions = this.getLabelOptions();
+    private prettifyLabels(options: any, response: { data: any[] }): { data: any[] } {
+        let labelOptions = this.getLabelOptions(options);
         let labelKeys = Object.keys(labelOptions);
         let itemKeys;
         //Go through each item in the response data
@@ -857,47 +972,58 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Converts data elements that are specified to have a pretty name back to their original data label so that the database can
      * correctly query. When it comes back in onQuerySuccess, the response will be converted back to their "pretty" form
      * Will probably skew the data if the config specifies a data label to have a pretty name that is the same as another data label
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {neon.query.WherePredicate} wherePredicate
      */
-    private datifyWherePredicates(whereClause) {
-        let labelOptions = this.getLabelOptions();
-        switch (whereClause.type) {
+    private datifyWherePredicates(options: any, wherePredicate: neon.query.WherePredicate) {
+        let labelOptions = this.getLabelOptions(options);
+        switch (wherePredicate.type) {
             case 'or':
             case 'and':
-                let newFilters = [];
-                for (let clause of whereClause.whereClauses) {
+                for (let clause of (wherePredicate as neon.query.BooleanClause).whereClauses) {
                     //recursively edit where clauses that contain multiple whereClauses
-                    newFilters.push(this.datifyWherePredicates(clause));
+                    this.datifyWherePredicates(options, clause);
                 }
-                return newFilters;
+                break;
             case 'where':
-                return this.datifyWherePredicate(whereClause, labelOptions);
+                this.datifyWherePredicate((wherePredicate as neon.query.WhereClause), labelOptions);
+                break;
         }
     }
 
-    //Base case of datifyWherePredicates() when there is a single where clause
-    private datifyWherePredicate(predicate, labelOptions) {
+    /**
+     * Base case of datifyWherePredicates() when there is a single where clause
+     *
+     * @arg {neon.query.WhereClause} wherePredicate
+     * @arg {any} labelOptions
+     */
+    private datifyWherePredicate(wherePredicate: neon.query.WhereClause, labelOptions: any) {
         let labelKeys = Object.keys(labelOptions);
 
-        let key = predicate.lhs;
+        let key = wherePredicate.lhs;
         if (labelKeys.includes(key)) {
             let prettyLabels = labelOptions[key];
             let labels = Object.keys(prettyLabels);
             for (let label of labels) {
-                let possiblePrettyLabel = predicate.rhs;
+                let possiblePrettyLabel = wherePredicate.rhs;
                 if (prettyLabels[label] === possiblePrettyLabel) {
-                    predicate.rhs = label;
+                    wherePredicate.rhs = label;
                 }
             }
         }
     }
 
-    //Grabs labelOptions specified in the config
-    private getLabelOptions() {
+    /**
+     * Returns the labelOptions from the config for the database and table in the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     */
+    private getLabelOptions(options: any) {
         let dataset = this.datasetService.getDataset();
-        let database = _.find(dataset.databases, (db) => db.name === this.options.database.name);
-        let tableName = _.find(database.tables, (table) => table.name === this.options.table.name);
-        let labelOptions = tableName.labelOptions;
-        return labelOptions;
+        let matchingDatabase = _.find(dataset.databases, (database) => database.name === options.database.name);
+        let matchingTable = _.find(matchingDatabase.tables, (table) => table.name === options.table.name);
+        return matchingTable.labelOptions;
     }
 
     protected createEmptyField(): FieldMetaData {
@@ -911,6 +1037,24 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @abstract
      */
     protected abstract createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[];
+
+    /**
+     * Creates and returns an array of field options for a layer for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     */
+    protected createLayerFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [];
+    }
+
+    /**
+     * Creates and returns an array of non-field options for a layer for the visualization.
+     *
+     * @return {WidgetOption[]}
+     */
+    protected createLayerNonFieldOptions(): WidgetOption[] {
+        return [];
+    }
 
     /**
      * Creates and returns an array of non-field options for the visualization.
@@ -930,6 +1074,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
         let options: any = new WidgetOptionCollection(injector);
+        this.outstandingDataQueriesByLayer.set(options._id, new Map<string, any>());
 
         options.inject(new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', []));
         options.inject(new WidgetNonPrimitiveOption('customEventsToReceive', 'Custom Events To Receive', []));
@@ -950,6 +1095,15 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
         this.updateDatabasesInOptions(options);
         this.initializeFieldsInOptions(options);
+
+        this.injector.get('layers', []).forEach((layerBindings) => {
+            this.addLayer(options, layerBindings);
+        });
+
+        // Add a new empty layer if needed.
+        if (this.isMultiLayerWidget && !options.layers.length) {
+            this.addLayer(options);
+        }
 
         return options;
     }
@@ -1004,20 +1158,22 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     /**
      * Returns the bindings object with the current options for the visualization.
      *
-     * @arg {any} [options]
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      * @return {any}
      */
     public getBindings(options?: any): any {
         return (options || this.options).list().reduce((bindings, option) => {
             bindings[option.bindingKey] = option.getValueToSaveInBindings();
             return bindings;
-        }, {});
+        }, {
+            layers: this.isMultiLayerWidget ? (options || this.options).layers.map((layer) => this.getBindings(layer)) : undefined
+        });
     }
 
     /**
      * Returns the list of fields to export.
      *
-     * @arg {any} [options]
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      * @return {{ columnName: string, prettyName: string }[]}
      */
     public getExportFields(options?: any): { columnName: string, prettyName: string }[] {
