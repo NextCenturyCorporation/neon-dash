@@ -478,6 +478,26 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
+     * Publishes the component's option object to the gear component
+     */
+    publishOptions() {
+        this.messenger.publish('options', {
+            options: this.options,
+            changeCallback: this.handleChangeFilterField,
+            changeLimitCallback: this.logChangeAndStartQueryChain
+        });
+    }
+
+    /**
+     * Publishes the toggleGear so the app component can toggle the gear panel
+     */
+    publishToggleGear() {
+        this.messenger.publish('toggleGear', {
+            toggleGear: true
+        });
+    }
+
+    /**
      * Returns whether to show the select button.
      *
      * @return {boolean}
@@ -493,5 +513,13 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     showSourceButton(): boolean {
         return !this.options.showText && !this.options.hideSource;
+    }
+
+    /**
+     * Publishes the toggleGear so the app component can toggle the gear panel
+     */
+    toggleGear() {
+        this.publishOptions();
+        this.publishToggleGear();
     }
 }

@@ -1070,6 +1070,26 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Publishes the component's option object to the gear component
+     */
+    publishOptions() {
+        this.messenger.publish('options', {
+            options: this.options,
+            changeCallback: this.handleChangeFilterField,
+            changeLimitCallback: this.logChangeAndStartQueryChain
+        });
+    }
+
+    /**
+     * Publishes the toggleGear so the app component can toggle the gear panel
+     */
+    publishToggleGear() {
+        this.messenger.publish('toggleGear', {
+            toggleGear: true
+        });
+    }
+
+    /**
      * Redraws the subcomponents.
      */
     redrawSubcomponents() {
@@ -1467,6 +1487,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         this.createOrRemoveNeonFilter();
+    }
+
+    /**
+     * Publishes the option collection to the gear component and toggles to show the gear panel
+     */
+    toggleGear() {
+        this.publishOptions();
+        this.publishToggleGear();
     }
 
     /**

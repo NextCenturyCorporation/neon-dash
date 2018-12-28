@@ -299,7 +299,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.messenger.publish('options', {
             options: this.options,
             changeCallback: this.handleChangeFilterField(),
-            changeLimitCallback: this.handleChangeLimit()
+            changeLimitCallback: this.subHandleChangeLimit()
         });
     }
 
