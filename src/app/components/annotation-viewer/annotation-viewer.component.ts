@@ -1104,4 +1104,27 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     checkFooter() {
         return (this.docCount > this.options.limit) && (this.showFooterContainer());
     }
+
+    /**
+     * Publishes the component's option object to the gear component
+     */
+    publishOptions() {
+        this.messenger.publish('options', {
+            options: this.options,
+            changeCallback: this.handleChangeFilterField(),
+            changeLimitCallback: this.subHandleChangeLimit()
+        });
+    }
+
+    publishToggleGear() {
+        this.messenger.publish('toggleGear', {
+            toggleGear: true
+        });
+    }
+
+    toggleGear() {
+        //console.log(this.options);
+        this.publishOptions();
+        this.publishToggleGear();
+    }
 }

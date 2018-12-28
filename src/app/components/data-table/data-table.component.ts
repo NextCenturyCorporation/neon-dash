@@ -592,22 +592,38 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
     }
 
+    /**
+     * Publishes the component's option object to the gear component
+     */
     publishOptions() {
+        //console.log(this.handleChangeFilterField);
+        //console.log(this.handleChangeCallback);
         this.messenger.publish('options', {
             options: this.options,
-            changeCallback: this.handleChangeFilterField(),
-            changeLimitCallback: this.handleChangeLimit()
+            changeCallback: this.handleChangeFilterField,
+            changeLimitCallback: this.logChangeAndStartQueryChain,
+            handleChangeCallback: this.handleChangeCallback
         });
     }
 
+    /**
+     * Publishes the toggleGear so the app component can toggle the gear panel
+     */
     publishToggleGear() {
         this.messenger.publish('toggleGear', {
             toggleGear: true
         });
     }
 
+    handleChangeCallback() {
+        this.handleChangeFilterField();
+        //this.logChangeAndStartQueryChain();
+    }
+
+    /**
+     * Publishes the toggleGear so the app component can toggle the gear panel
+     */
     toggleGear() {
-        //console.log(this.options);
         this.publishOptions();
         this.publishToggleGear();
     }

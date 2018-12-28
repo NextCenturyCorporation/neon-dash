@@ -18,8 +18,6 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy
 import { URLSearchParams } from '@angular/http';
 import { FormsModule } from '@angular/forms';
 
-import { ConfigEditorComponent } from '../config-editor/config-editor.component';
-import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { DatasetOptions, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -46,6 +44,7 @@ export class GearComponent implements OnInit, OnDestroy {
     public changeList: any[];
     public changeCallback: Function; //{(): => void; };
     public changeLimitCallback: Function;
+    public handleChangeCallback: Function;
     //public toggleGear: boolean;
 
     constructor(
@@ -114,12 +113,24 @@ export class GearComponent implements OnInit, OnDestroy {
             this.options[change.widgetOption.bindingkey] = change.newValue;
         });
         this.changeList = [];
+        //this.changeCallback();
+        //this.handleChangeCallback();
+        //this.changeCallback();
+        /*
         if (typeof this.changeCallback === 'function') {
             this.changeCallback();
+            console.log('change');
         }
+        if (typeof this.changeLimitCallback === 'function') {
+            this.changeLimitCallback();
+            console.log('limit');
+        }
+        this.handleChangeCallback();*/
+        //this.changeCallback();
+        //this.changeLimitCallback();
     }
 
-    handleDataChange(widgetOption, newValue) {
+    handleDataChange(widgetOption, newValue, callback: () => void) {
         this.overrideExistingChange(widgetOption);
         this.changeList.push({widgetOption, newValue});
         //console.log(this.changeList);
@@ -131,6 +142,7 @@ export class GearComponent implements OnInit, OnDestroy {
         //this.optionsList.access
         //console.log(this.options.get[widgetOption.bindingkey]);
         //this.options[widgetOption.bindingKey](newValue);
+        callback();
     }
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
@@ -174,9 +186,17 @@ export class GearComponent implements OnInit, OnDestroy {
     }
 
     updateOptions(message) {
+        //console.log(message);
         this.options = message.options;
         this.changeCallback = message.changeCallback;
         this.changeLimitCallback = message.changeLimitCallback;
+        this.handleChangeCallback = message.handleChangeCallback;
+        //console.log(this.handleChangeCallback);
+        //console.log(this.changeLimitCallback);
+        //this.handleChangeCallback = this.handleChangeCallback.bind(message.handleChangeCallback);
+        //this.changeCallback = this.changeCallback.bind(message.changeCallback);
+        //this.changeLimitCallback = this.changeLimitCallback.bind(message.changeLimitCallback);
+
         this.optionsList = this.options.list();
         this.cleanShowOptions();
         this.constructOptionsLists();
