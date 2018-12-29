@@ -46,6 +46,8 @@ export class GearComponent implements OnInit, OnDestroy {
     public changeLimitCallback: Function;
     public handleChangeCallback: Function;
     //public toggleGear: boolean;
+    public newLimit: string;
+    public limitChanged: boolean;
 
     constructor(
         private changeDetection: ChangeDetectorRef,
@@ -113,37 +115,57 @@ export class GearComponent implements OnInit, OnDestroy {
             this.options[change.widgetOption.bindingkey] = change.newValue;
         });
         this.changeList = [];
-        //this.changeCallback();
-        //this.handleChangeCallback();
-        //this.changeCallback();
-        /*
-        if (typeof this.changeCallback === 'function') {
-            this.changeCallback();
-            console.log('change');
-        }
-        if (typeof this.changeLimitCallback === 'function') {
+
+        if (this.limitChanged) {
             this.changeLimitCallback();
-            console.log('limit');
         }
-        this.handleChangeCallback();*/
-        //this.changeCallback();
-        //this.changeLimitCallback();
+
+        this.changeCallback();
     }
 
-    handleDataChange(widgetOption, newValue, callback: () => void) {
-        this.overrideExistingChange(widgetOption);
-        this.changeList.push({widgetOption, newValue});
+    handleChangeLimit(widgetOption, newValue) {
+        this.newLimit = newValue;
+        if (this.isNumber(this.newLimit)) {
+            let newLimit = parseFloat('' + this.newLimit);
+            if (newLimit > 0) {
+                this.limitChanged = true;
+                this.changeList.push(widgetOption, newValue);
+            } else {
+                this.limitChanged = false;
+                this.newLimit = this.options.limit;
+            }
+        } else {
+            this.limitChanged = false;
+            this.newLimit = this.options.limit;
+        }
+    }
+
+    handleDataChange(widgetOption, newValue) {
+
         //console.log(this.changeList);
         //console.log('widget option');
         //console.log(widgetOption);
         //console.log('New value"');
         //console.log(newValue);
+        if (widgetOption.bindingkey === 'limit') {
+            this.handleChangeLimit(widgetOption, newValue);
+        } else {
+            this.overrideExistingChange(widgetOption);
+            this.changeList.push({ widgetOption, newValue });
+        }
         this.options[widgetOption.bindingKey] = newValue;
-        //this.optionsList.access
-        //console.log(this.options.get[widgetOption.bindingkey]);
-        //this.options[widgetOption.bindingKey](newValue);
-        callback();
     }
+
+    /**
+     * Returns whether the given item is a number.
+     *
+     * @arg {any} item
+     * @return {boolean}
+     */
+    isNumber(item: any): boolean {
+        return !isNaN(parseFloat(item)) && isFinite(item);
+    }
+
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
     }
@@ -190,12 +212,6 @@ export class GearComponent implements OnInit, OnDestroy {
         this.options = message.options;
         this.changeCallback = message.changeCallback;
         this.changeLimitCallback = message.changeLimitCallback;
-        this.handleChangeCallback = message.handleChangeCallback;
-        //console.log(this.handleChangeCallback);
-        //console.log(this.changeLimitCallback);
-        //this.handleChangeCallback = this.handleChangeCallback.bind(message.handleChangeCallback);
-        //this.changeCallback = this.changeCallback.bind(message.changeCallback);
-        //this.changeLimitCallback = this.changeLimitCallback.bind(message.changeLimitCallback);
 
         this.optionsList = this.options.list();
         this.cleanShowOptions();

@@ -25,7 +25,7 @@
         <!-- Select Option Type-->
         <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(requiredOption.optionType, 'SELECT')">
             <mat-select requiredOption.prettyName placeholder={{requiredOption.prettyName}} [ngModel]="requiredOption.valueCurrent"
-                name="requiredOptionSelect" (ngModelChange)="handleDataChange(requiredOption, $event, handleChangeCallback)">
+                name="requiredOptionSelect" (ngModelChange)="handleDataChange(requiredOption, $event)">
                 <mat-option *ngFor="let choice of requiredOption.valueChoices" [value]="choice.variable">
                     {{ choice.prettyName }}
                 </mat-option>
@@ -34,7 +34,7 @@
         <!-- Field Option Type-->
         <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(requiredOption.optionType, 'FIELD')">
             <mat-select requiredOption.prettyName placeholder={{requiredOption.prettyName}} [ngModel]="requiredOption.valueCurrent"
-                name="requiredOptionField" (ngModelChange)="handleDataChange(requiredOption, $event, handleChangeCallback)">
+                name="requiredOptionField" (ngModelChange)="handleDataChange(requiredOption, $event)">
                 <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
             </mat-select>
         </mat-form-field>
@@ -42,14 +42,14 @@
         <div mat-fill class="flex center" *ngIf="checkOptionType(requiredOption.optionType, 'FREE_TEXT')">
             <mat-form-field class='widgetOption-container' requiredOption.prettyName>
                 <input matInput placeholder={{requiredOption.prettyName}} [ngModel]="requiredOption.valueCurrent" name="requiredOptionFree"
-                    (ngModelChange)="handleDataChange(requiredOption, $event, handleChangeCallback)" required="true">
+                    (ngModelChange)="handleDataChange(requiredOption, $event)" required="true">
             </mat-form-field>
         </div>
         <!-- Field Array Option Type-->
         <div mat-fill class="flex center" *ngIf="checkOptionType(requiredOption.optionType, 'FIELD_ARRAY')">
             <mat-form-field class='widgetOption-container'>
                 <mat-select placeholder={{requiredOption.prettyName}} [(ngModel)]="requiredOption.valueCurrent" name="requiredOptionFieldArray"
-                    (ngModelChange)="handleDataChange(requiredOption, $event, handleChangeCallback)" [disabled]="!options.filterable" multiple>
+                    (ngModelChange)="handleDataChange(requiredOption, $event)" [disabled]="!options.filterable" multiple>
                     <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                 </mat-select>
             </mat-form-field>
@@ -69,7 +69,7 @@
         <!-- Select Option Type-->
         <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(optionalOption.optionType, 'SELECT')">
             <mat-select optionalOption.prettyName placeholder={{optionalOption.prettyName}} [ngModel]="optionalOption.valueCurrent"
-                name="optionalOptionSelect" (ngModelChange)="handleDataChange(optionalOption, $event, handleChangeCallback)">
+                name="optionalOptionSelect" (ngModelChange)="handleDataChange(optionalOption, $event)">
                 <mat-option *ngFor="let choice of optionalOption.valueChoices" [value]="choice.variable">
                     {{ choice.prettyName }}
                 </mat-option>
@@ -78,7 +78,7 @@
         <!-- Field Option Type-->
         <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(optionalOption.optionType, 'FIELD')">
             <mat-select optionalOption.prettyName placeholder={{optionalOption.prettyName}} [ngModel]="optionalOption.valueCurrent"
-                name="optionalOptionField" (ngModelChange)="handleDataChange(optionalOption, $event, handleChangeCallback)">
+                name="optionalOptionField" (ngModelChange)="handleDataChange(optionalOption, $event)">
                 <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
             </mat-select>
         </mat-form-field>
@@ -86,14 +86,14 @@
         <div mat-fill class="flex center" *ngIf="checkOptionType(optionalOption.optionType, 'FREE_TEXT')">
             <mat-form-field class='widgetOption-container'>
                 <input matInput placeholder={{optionalOption.prettyName}} [ngModel]="optionalOption.valueCurrent" name="optionalOptionFree"
-                    (ngModelChange)="handleDataChange(optionalOption, $event, handleChangeCallback)">
+                    (ngModelChange)="handleDataChange(optionalOption, $event)">
             </mat-form-field>
         </div>
         <!-- Field Array Option Type-->
         <div mat-fill class="flex center" *ngIf="checkOptionType(optionalOption.optionType, 'FIELD_ARRAY')">
             <mat-form-field class='widgetOption-container'>
                 <mat-select placeholder={{optionalOption.prettyName}} [(ngModel)]="optionalOption.valueCurrent" name="optionalOptionFieldArray"
-                    (ngModelChange)="handleDataChange(optionalOption, $event, handleChangeCallback)" [disabled]="!options.filterable" multiple>
+                    (ngModelChange)="handleDataChange(optionalOption, $event)" [disabled]="!options.filterable" multiple>
                     <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                 </mat-select>
             </mat-form-field>
