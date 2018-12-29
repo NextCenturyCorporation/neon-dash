@@ -596,12 +596,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * Publishes the component's option object to the gear component
      */
     publishOptions() {
-        //console.log(this.handleChangeFilterField);
-        //console.log(this.handleChangeCallback);
+        let  handleChangeFilterField: () => void;
+        let handleChangeLimit: () => void;
+        handleChangeFilterField = this.handleChangeFilterField.bind(this);
+        handleChangeLimit = this.logChangeAndStartQueryChain.bind(this); //handleChangeLimit.bind(this.logChangeAndStartQueryChain);
         this.messenger.publish('options', {
             options: this.options,
-            changeCallback: this.handleChangeFilterField,
-            changeLimitCallback: this.logChangeAndStartQueryChain,
+            changeCallback: handleChangeFilterField,
+            changeLimitCallback: handleChangeLimit,
             handleChangeCallback: this.handleChangeCallback
         });
     }
