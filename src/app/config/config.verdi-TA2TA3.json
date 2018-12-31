@@ -510,11 +510,7 @@
                     "granularity": "day",
                     "filterFields": ["id"],
                     "showOnlyFiltered": true
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 6,
-                "minSizey": 3
+                }
             }
         ]
     }
