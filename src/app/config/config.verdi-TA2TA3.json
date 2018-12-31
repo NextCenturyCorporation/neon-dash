@@ -260,9 +260,7 @@
                 "col": 0
             },
             {
-                "name": "Network Graph",
                 "type": "networkGraph",
-                "icon": "Graph",
                 "sizex": 7,
                 "sizey": 16,
                 "bindings": {
@@ -307,7 +305,6 @@
             },
             {
                 "type": "thumbnailGrid",
-                "icon": "ThumbnailGrid",
                 "sizex": 2,
                 "sizey": 16,
                 "bindings": {
@@ -453,9 +450,7 @@
                 "col": 4
             },
             {
-                "name": "Thumbnail Grid",
                 "type": "thumbnailGrid",
-                "icon": "ThumbnailGrid",
                 "sizex": 2,
                 "sizey": 16,
                 "selected": true,
