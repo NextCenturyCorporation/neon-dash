@@ -766,17 +766,12 @@ describe('BaseNeon', () => {
     it('handleChangeLimit does update limit and does call logChangeAndStartQueryChain', () => {
         let spy = spyOn(component, 'logChangeAndStartQueryChain');
 
-        component.newLimit = 1234;
-
         component.handleChangeLimit();
         expect(component.options.limit).toBe(1234);
         expect(spy.calls.count()).toBe(1);
 
-        component.newLimit = 0;
-
         component.handleChangeLimit();
         expect(component.options.limit).toBe(1234);
-        expect(component.newLimit).toBe(1234);
         expect(spy.calls.count()).toBe(1);
     });
 
