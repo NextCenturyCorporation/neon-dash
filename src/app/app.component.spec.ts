@@ -31,6 +31,7 @@ import { DataTableComponent } from './components/data-table/data-table.component
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
 import { ExportControlComponent } from './components/export-control/export-control.component';
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
+import { GearComponent } from './components/gear/gear.component';
 import { LegendComponent } from './components/legend/legend.component';
 import { MapComponent } from './components//map/map.component';
 import { SampleComponent } from './components/sample/sample.component';
@@ -97,6 +98,7 @@ describe('App', () => {
                 DocumentViewerComponent,
                 ExportControlComponent,
                 FilterBuilderComponent,
+                GearComponent,
                 LegendComponent,
                 MapComponent,
                 MediaViewerComponent,

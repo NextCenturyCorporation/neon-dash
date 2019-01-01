@@ -23,7 +23,7 @@ import { DatasetOptions, FieldMetaData, SimpleFilter, TableMetaData } from '../.
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 
-import * as _ from 'lodash';
+//import * as _ from 'lodash';
 import * as neon from 'neon-framework';
 import { WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../widget-option';
 import { isNgTemplate } from '@angular/compiler';
@@ -42,9 +42,12 @@ export class GearComponent implements OnInit, OnDestroy {
     public requiredList: WidgetOption[];
     public optionalList: WidgetOption[];
     public changeList: any[];
-    public changeCallback: Function; //{(): => void; };
-    public changeLimitCallback: Function;
-    public handleChangeCallback: Function;
+
+    public handleChangeData: Function; //{(): => void; };
+    public handleChangeDatabase: Function;
+    public handleChangeLimit: Function;
+    public handleChangeFilterField: Function;
+    public handleChangeTable: Function;
     //public toggleGear: boolean;
     public newLimit: string;
     public limitChanged: boolean;
@@ -117,13 +120,13 @@ export class GearComponent implements OnInit, OnDestroy {
         this.changeList = [];
 
         if (this.limitChanged) {
-            this.changeLimitCallback();
+            this.handleChangeLimit();
         }
 
-        this.changeCallback();
+        this.handleChangeData();
     }
 
-    handleChangeLimit(widgetOption, newValue) {
+    changeFilterFIeldLimit(widgetOption, newValue) {
         this.newLimit = newValue;
         if (this.isNumber(this.newLimit)) {
             let newLimit = parseFloat('' + this.newLimit);
@@ -148,7 +151,7 @@ export class GearComponent implements OnInit, OnDestroy {
         //console.log('New value"');
         //console.log(newValue);
         if (widgetOption.bindingkey === 'limit') {
-            this.handleChangeLimit(widgetOption, newValue);
+            this.changeFilterFIeldLimit(widgetOption, newValue);
         } else {
             this.overrideExistingChange(widgetOption);
             this.changeList.push({ widgetOption, newValue });
@@ -210,8 +213,11 @@ export class GearComponent implements OnInit, OnDestroy {
     updateOptions(message) {
         //console.log(message);
         this.options = message.options;
-        this.changeCallback = message.changeCallback;
-        this.changeLimitCallback = message.changeLimitCallback;
+        this.handleChangeData = message.changeData;
+        this.handleChangeDatabase = message.changeDatabase;
+        this.handleChangeFilterField = message.changeFilterField;
+        this.handleChangeLimit = message.changeLimitCallback;
+        this.handleChangeTable = message.changeTable;
 
         this.optionsList = this.options.list();
         this.cleanShowOptions();

@@ -295,20 +295,42 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return options.aggregation !== neonVariables.COUNT;
     }
 
+    /**
+     * Publishes the component's option object and handle change callbacks to the gear component
+     */
     publishOptions() {
+        let handleChangeData: () => void;
+        let handleChangeDatabase: () => void;
+        let handleChangeFilterField: () => void;
+        let handleChangeLimit: () => void;
+        let handleChangeTable: () => void;
+        handleChangeData = this.handleChangeData.bind(this);
+        handleChangeDatabase = this.handleChangeDatabase.bind(this);
+        handleChangeFilterField = this.handleChangeFilterField.bind(this);
+        handleChangeLimit = this.subHandleChangeLimit.bind(this);
+        handleChangeTable = this.handleChangeTable.bind(this);
         this.messenger.publish('options', {
             options: this.options,
-            changeCallback: this.handleChangeFilterField(),
-            changeLimitCallback: this.subHandleChangeLimit()
+            changeData: handleChangeData,
+            changeDatabase: handleChangeDatabase,
+            changeFilterFIeld: handleChangeFilterField,
+            changeLimitCallback: handleChangeLimit,
+            changeTable: handleChangeTable
         });
     }
 
+    /**
+     * Publishes the toggleGear so the app component can toggle the gear panel
+     */
     publishToggleGear() {
         this.messenger.publish('toggleGear', {
             toggleGear: true
         });
     }
 
+    /**
+     * Publishes the toggleGear so the app component can toggle the gear panel
+     */
     toggleGear() {
         this.publishOptions();
         this.publishToggleGear();
