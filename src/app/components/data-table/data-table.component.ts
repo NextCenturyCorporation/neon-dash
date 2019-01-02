@@ -494,7 +494,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
         let wheres: neon.query.WherePredicate[] = wherePredicates.concat(neon.query.where(options.sortField.columnName, '!=', null));
-        return query.where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
+
+        // Override the default query fields because we want to find all fields.
+        return query.withFields('*').where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
             .sortBy(options.sortField.columnName, options.sortDescending ? neonVariables.DESCENDING : neonVariables.ASCENDING);
     }
 

@@ -562,7 +562,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         }
 
         let wheres: neon.query.WherePredicate[] = wherePredicates.concat(where);
-        return query.where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0]);
+
+        // Override the default query fields because we want to find all fields.
+        return query.withFields('*').where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0]);
     }
 
     /**

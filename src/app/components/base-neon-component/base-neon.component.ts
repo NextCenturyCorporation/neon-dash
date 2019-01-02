@@ -832,7 +832,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public handleChangeDatabase(options: any): void {
         this.updateTablesInOptions(options);
-        // TODO FIXME How to do this without the direct comparison
+        // Change behavior depending on if the given options are the top-level options or layer options.
+        // TODO THOR-1002 How to do this nicely
         if (options === this.options) {
             this.initializeFieldsInOptions(options, this.createFieldOptions().concat(
                 new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false)
@@ -853,7 +854,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public handleChangeTable(options: any): void {
         this.updateFieldsInOptions(options);
-        // TODO FIXME How to do this without the direct comparison
+        // Change behavior depending on if the given options are the top-level options or layer options.
+        // TODO THOR-1002 How to do this nicely
         if (options === this.options) {
             this.initializeFieldsInOptions(options, this.createFieldOptions().concat(
                 new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false)
