@@ -276,7 +276,7 @@
         <div class="thumbnail-grid-container" *ngIf="showGrid">
             <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid" [matTooltip]="getThumbnailTitle(item)"
                 [class.with-text]="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
-                <app-subcomponent-title-thumbnail *ngIf="options.viewType === view.TITLE" [item]="item" [options]="options">
+                <app-subcomponent-title-thumbnail *ngIf="!options.viewType || options.viewType === view.TITLE" [item]="item" [options]="options">
                 </app-subcomponent-title-thumbnail>
                 <app-subcomponent-details-thumbnail class="flex-grow" *ngIf="options.viewType === view.DETAILS" [item]="item" [options]="options">
                 </app-subcomponent-details-thumbnail>
