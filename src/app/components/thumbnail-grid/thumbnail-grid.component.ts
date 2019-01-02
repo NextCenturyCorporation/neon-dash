@@ -207,7 +207,17 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new WidgetSelectOption('showLabelName', 'Label Names', false, OptionChoices.HideFalseShowTrue),
             new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue),
             new WidgetNonPrimitiveOption('textMap', 'Text Map', {}),
-            new WidgetNonPrimitiveOption('typeMap', 'Type Map', {})
+            new WidgetNonPrimitiveOption('typeMap', 'Type Map', {}),
+            new WidgetSelectOption('viewType', 'View', '', [{
+                prettyName: 'Title',
+                variable: ViewType.TITLE
+            }, {
+                prettyName: 'Details',
+                variable: ViewType.DETAILS
+            }, {
+                prettyName: 'Card',
+                variable: ViewType.CARD
+            }])
         ];
     }
 
