@@ -30,14 +30,9 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -86,14 +81,9 @@ describe('Component: ThumbnailGrid', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ExportService,
-            ErrorNotificationService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -113,7 +103,6 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('does have expected class options properties', () => {
-        expect(component.options.ascending).toEqual(false);
         expect(component.options.border).toEqual('');
         expect(component.options.borderCompareValue).toEqual('');
         expect(component.options.borderPercentThreshold).toEqual(0.5);
@@ -124,6 +113,7 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.options.ignoreSelf).toEqual(false);
         expect(component.options.linkPrefix).toEqual('');
         expect(component.options.openOnMouseClick).toEqual(true);
+        expect(component.options.sortDescending).toEqual(false);
         expect(component.options.textMap).toEqual({});
         expect(component.options.typeMap).toEqual({});
 
@@ -181,7 +171,7 @@ describe('Component: ThumbnailGrid', () => {
     it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', () => {
         let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
         expect(dataInfoTextInToolbar).not.toBeNull();
-        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('No Data');
+        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('0 Files');
 
         let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
         expect(dataInfoIconInSidenav).not.toBeNull();
@@ -189,7 +179,7 @@ describe('Component: ThumbnailGrid', () => {
 
         let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
         expect(dataInfoTextInSidenav).not.toBeNull();
-        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('No Data');
+        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Files');
 
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
@@ -218,7 +208,7 @@ describe('Component: ThumbnailGrid', () => {
 
             let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
             expect(dataInfoTextInSidenav).not.toBeNull();
-            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('No Data');
+            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Files');
 
             let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
             expect(errorMessageInToolbar).not.toBeNull();
@@ -249,95 +239,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(content).not.toBeNull();
     });
 
-    it('does show elements in sidenav options menu that have expected options', async(() => {
-        // Force the component to update all its selected elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let inputs = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(4);
-
-            expect(inputs[0].attributes.placeholder).toBe('Title');
-            expect(inputs[0].nativeElement.value).toContain('Thumbnail Grid');
-
-            expect(inputs[1].attributes.placeholder).toBe('Thumbnail Limit');
-            expect(inputs[1].nativeElement.value).toContain('30');
-
-            expect(inputs[2].attributes.placeholder).toBe('Link Prefix');
-            expect(inputs[2].nativeElement.value).toEqual('');
-
-            let selects = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toEqual(14);
-
-            validateSelect(selects[0], 'Database', true);
-            let databaseOptions = selects[0].componentInstance.options.toArray();
-            expect(databaseOptions.length).toEqual(2);
-            expect(databaseOptions[0].getLabel()).toEqual('Test Database 1');
-            expect(databaseOptions[0].selected).toEqual(true);
-            expect(databaseOptions[1].getLabel()).toEqual('Test Database 2');
-            expect(databaseOptions[1].selected).toEqual(false);
-
-            validateSelect(selects[1], 'Table', true);
-            let tableOptions = selects[1].componentInstance.options.toArray();
-            expect(tableOptions.length).toEqual(2);
-            expect(tableOptions[0].getLabel()).toEqual('Test Table 1');
-            expect(tableOptions[0].selected).toEqual(true);
-            expect(tableOptions[1].getLabel()).toEqual('Test Table 2');
-            expect(tableOptions[1].selected).toEqual(false);
-
-            validateSelect(selects[2], 'Name Field', false);
-            validateSelectFields(selects[2], false);
-
-            validateSelect(selects[3], 'Actual Name Field', false);
-            validateSelectFields(selects[3], false);
-
-            validateSelect(selects[4], 'Predicted Name Field', false);
-            validateSelectFields(selects[4], false);
-
-            validateSelect(selects[5], 'Predicted Probability Field', false);
-            validateSelectFields(selects[5], false);
-
-            validateSelect(selects[6], 'Category Field', false);
-            validateSelectFields(selects[6], false);
-
-            validateSelect(selects[7], 'Comparison Field', false);
-            validateSelectFields(selects[7], false);
-
-            validateSelect(selects[8], 'Filter Field', false);
-            validateSelectFields(selects[8], false);
-
-            validateSelect(selects[9], 'ID Field', false);
-            validateSelectFields(selects[9], false);
-
-            validateSelect(selects[10], 'Link Field', true);
-            validateSelectFields(selects[10], true);
-
-            validateSelect(selects[11], 'Sort Field', true);
-            validateSelectFields(selects[11], true);
-
-            validateSelect(selects[12], 'Type Field', false);
-            validateSelectFields(selects[12], false);
-
-            let toggles = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(10);
-
-            validateToggle(toggles[0], '', 'None', true);
-            validateToggle(toggles[1], 'scale', 'Scale', false);
-            validateToggle(toggles[2], 'crop', 'Crop', false);
-            validateToggle(toggles[3], 'both', 'Both', false);
-            validateToggle(toggles[4], true, 'Yes', false);
-            validateToggle(toggles[5], false, 'No', true);
-            validateToggle(toggles[6], true, 'Yes', true);
-            validateToggle(toggles[7], false, 'No', false);
-            validateToggle(toggles[8], true, 'Ascending', false);
-            validateToggle(toggles[9], false, 'Descending', true);
-        });
-    }));
-
     it('does show unshared filter in sidenav options menu', () => {
         let unsharedFilter = fixture.debugElement.query(By.css(
             'mat-sidenav-container mat-sidenav mat-card mat-card-content app-unshared-filter'));
@@ -351,7 +252,6 @@ describe('Component: ThumbnailGrid', () => {
         let exportControl = fixture.debugElement.query(By.css(
             'mat-sidenav-container mat-sidenav mat-card mat-card-content app-export-control'));
         expect(exportControl).not.toBeNull();
-        expect(exportControl.componentInstance.exportId).toEqual(component.exportId);
     });
 
     it('does hide loading overlay by default', () => {
@@ -478,27 +378,8 @@ describe('Component: ThumbnailGrid', () => {
             expect(elements[1].nativeElement.classList.contains('with-text')).toEqual(true);
             expect(elements[1].nativeElement.classList.contains('selected')).toEqual(false);
 
-            let detailElements = fixture.debugElement.queryAll(By.css(
-                'mat-sidenav-container .body-container .thumbnail-grid-div .thumbnail-details'));
-            expect(detailElements.length).toEqual(2);
-
-            let ellipsesElements = fixture.debugElement.queryAll(By.css(
-                'mat-sidenav-container .body-container .thumbnail-grid-div .thumbnail-details .detail-ellipses'));
-            expect(ellipsesElements.length).toEqual(2);
-
-            expect(ellipsesElements[0].nativeElement.textContent).toEqual('predictedName1');
-            expect(ellipsesElements[1].nativeElement.textContent).toEqual('predictedName2');
-
-            let percentageElements = fixture.debugElement.queryAll(By.css(
-                'mat-sidenav-container .body-container .thumbnail-grid-div .thumbnail-details .detail-percentage'));
-            expect(percentageElements.length).toEqual(2);
-
-            expect(percentageElements[0].nativeElement.textContent).toEqual('10%');
-            expect(percentageElements[1].nativeElement.textContent).toEqual('20%');
-
-            let canvasElements = fixture.debugElement.queryAll(By.css(
-                'mat-sidenav-container .body-container .thumbnail-grid-div .thumbnail-view'));
-            expect(canvasElements.length).toEqual(2);
+            let divElements = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .thumbnail-grid-div'));
+            expect(divElements.length).toEqual(2);
         });
     }));
 
@@ -868,7 +749,7 @@ describe('Component: ThumbnailGrid', () => {
             .selectFrom(component.options.database.name, component.options.table.name)
             .withFields(fields)
             .where(wherePredicate)
-            .sortBy('testSortField', neonVariables.DESCENDING));
+            .sortBy('testSortField', neonVariables.ASCENDING));
 
         component.options.categoryField = new FieldMetaData('testCategoryField', 'Test Category Field');
         component.options.compareField = new FieldMetaData('testCompareField', 'Test Compare Field');
@@ -880,7 +761,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.percentField = new FieldMetaData('testPercentField', 'Test Percent Field');
         component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
         component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
-        component.options.ascending = true;
+        component.options.sortDescending = true;
 
         fields = ['testLinkField', 'testSortField', 'testCategoryField', 'testCompareField', 'testFilterField', 'testIdField',
             'testNameField', 'testObjectIdField', 'testObjectNameField', 'testPercentField', 'testPredictedNameField', 'testTypeField'];
@@ -889,7 +770,7 @@ describe('Component: ThumbnailGrid', () => {
             .selectFrom(component.options.database.name, component.options.table.name)
             .withFields(fields)
             .where(wherePredicate)
-            .sortBy('testSortField', neonVariables.ASCENDING));
+            .sortBy('testSortField', neonVariables.DESCENDING));
     });
 
     it('filterExists does return expected boolean', () => {
@@ -955,23 +836,23 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toEqual('No Data');
+        expect(component.getButtonText()).toEqual('0 Files');
 
         component.options.limit = 1;
         component.gridArray = [{}];
-        expect(component.getButtonText()).toEqual('Total 1');
+        expect(component.getButtonText()).toEqual('1 File');
 
         component.gridArray = [{}, {}, {}, {}];
-        expect(component.getButtonText()).toEqual('1 of 4');
+        expect(component.getButtonText()).toEqual('1 of 4 Files');
 
         component.options.limit = 2;
-        expect(component.getButtonText()).toEqual('1 - 2 of 4');
+        expect(component.getButtonText()).toEqual('1 - 2 of 4 Files');
 
         component.page = 2;
-        expect(component.getButtonText()).toEqual('3 - 4 of 4');
+        expect(component.getButtonText()).toEqual('3 - 4 of 4 Files');
 
         component.options.limit = 4;
-        expect(component.getButtonText()).toEqual('Total 4');
+        expect(component.getButtonText()).toEqual('4 Files');
     });
 
     it('getCloseableFilters does return expected array of filters', () => {
@@ -1142,10 +1023,6 @@ describe('Component: ThumbnailGrid', () => {
             prettyField: 'prettyField1',
             value: 'value1'
         })).toEqual('prettyField1 = value1');
-    });
-
-    it('getOptions does return options', () => {
-        expect(component.getOptions()).toEqual(component.options);
     });
 
     it('getThumbnailLabel does return expected string', () => {
@@ -1989,141 +1866,6 @@ describe('Component: ThumbnailGrid', () => {
         }));
     });
 
-    it('options.createBindings does set expected properties in bindings', () => {
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 30,
-            table: 'testTable1',
-            title: 'Thumbnail Grid',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            categoryField: '',
-            compareField: '',
-            dateField: '',
-            filterField: '',
-            flagLabel: '',
-            flagSubLabel1: '',
-            flagSubLabel2: '',
-            flagSubLabel3: '',
-            idField: '',
-            linkField: '',
-            nameField: '',
-            objectIdField: '',
-            objectNameField: '',
-            percentField: '',
-            predictedNameField: '',
-            sortField: '',
-            typeField: '',
-            ascending: false,
-            border: '',
-            borderCompareValue: '',
-            borderPercentThreshold: 0.5,
-            cropAndScale: '',
-            defaultLabel: '',
-            defaultPercent: '',
-            viewType: 'title',
-            ignoreSelf: false,
-            linkPrefix: '',
-            openOnMouseClick: true,
-            showLabelName: false,
-            textMap: {},
-            typeMap: {}
-        });
-
-        component.options.categoryField = new FieldMetaData('testCategoryField', 'Test Category Field');
-        component.options.compareField = new FieldMetaData('testCompareField', 'Test Compare Field');
-        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.flagLabel = new FieldMetaData('testFlagLabelField', 'Test Flag Label Field');
-        component.options.flagSubLabel1 = new FieldMetaData('testFlagSubLabel1Field', 'Test Flag Sub Label 1 Field');
-        component.options.flagSubLabel2 = new FieldMetaData('testFlagSubLabel2Field', 'Test Flag Sub Label 2 Field');
-        component.options.flagSubLabel3 = new FieldMetaData('testFlagSubLabel3Field', 'Test Flag Sub Label 3 Field');
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
-        component.options.objectIdField = new FieldMetaData('testObjectIdField', 'Test Object ID Field');
-        component.options.objectNameField = new FieldMetaData('testObjectNameField', 'Test Object Name Field');
-        component.options.percentField = new FieldMetaData('testPercentField', 'Test Percent Field');
-        component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
-        component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
-        component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
-
-        component.options.ascending = true;
-        component.options.border = 'grey';
-        component.options.borderCompareValue = 'Test Compare Value';
-        component.options.borderPercentThreshold = 0.25;
-        component.options.cropAndScale = 'both';
-        component.options.defaultLabel = 'testDefaultLabel';
-        component.options.defaultPercent = 'testDefaultPercent';
-        component.options.ignoreSelf = true;
-        component.options.linkPrefix = 'prefix/';
-        component.options.openOnMouseClick = false;
-        component.options.showLabelName = true;
-        component.options.textMap = {
-            actual: 'Truth',
-            percentage: 'Score'
-        };
-        component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
-        component.options.typeMap = {
-            jpg: 'img',
-            mov: 'vid'
-        };
-
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 30,
-            table: 'testTable1',
-            title: 'Thumbnail Grid',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            categoryField: 'testCategoryField',
-            compareField: 'testCompareField',
-            dateField: 'testDateField',
-            filterField: 'testFilterField',
-            flagLabel: 'testFlagLabelField',
-            flagSubLabel1: 'testFlagSubLabel1Field',
-            flagSubLabel2: 'testFlagSubLabel2Field',
-            flagSubLabel3: 'testFlagSubLabel3Field',
-            idField: 'testIdField',
-            linkField: 'testLinkField',
-            nameField: 'testNameField',
-            objectIdField: 'testObjectIdField',
-            objectNameField: 'testObjectNameField',
-            percentField: 'testPercentField',
-            predictedNameField: 'testPredictedNameField',
-            sortField: 'testSortField',
-            typeField: 'testTypeField',
-            ascending: true,
-            border: 'grey',
-            borderCompareValue: 'Test Compare Value',
-            borderPercentThreshold: 0.25,
-            cropAndScale: 'both',
-            defaultLabel: 'testDefaultLabel',
-            defaultPercent: 'testDefaultPercent',
-            viewType: 'title',
-            ignoreSelf: true,
-            linkPrefix: 'prefix/',
-            openOnMouseClick: false,
-            showLabelName: true,
-            textMap: {
-                actual: 'Truth',
-                percentage: 'Score'
-            },
-            typeMap: {
-                jpg: 'img',
-                mov: 'vid'
-            }
-        });
-    });
-
     it('subNgOnDestroy does exist', () => {
         expect(component.subNgOnDestroy).toBeDefined();
     });
@@ -2176,21 +1918,15 @@ describe('Component: ThumbnailGrid with config', () => {
         ],
 
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ExportService,
-            ErrorNotificationService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase2' },
             { provide: 'table', useValue: 'testTable2' },
-            { provide: 'configFilter', useValue: {lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
+            { provide: 'filter', useValue: {lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 10 },
-            { provide: 'ascending', useValue: true },
             { provide: 'border', useValue: 'percentCompare' },
             { provide: 'borderCompareValue', useValue: 'Test Compare Value' },
             { provide: 'borderPercentThreshold', useValue: 0.25 },
@@ -2212,6 +1948,7 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'openOnMouseClick', useValue: false },
             { provide: 'percentField', useValue: 'testSizeField' },
             { provide: 'predictedNameField', useValue: 'testNameField' },
+            { provide: 'sortDescending', useValue: false },
             { provide: 'sortField', useValue: 'testSortField' },
             { provide: 'textMap', useValue: { actual: 'Truth', percentage: 'Score' } },
             { provide: 'typeField', useValue: 'testTypeField' },
@@ -2247,7 +1984,6 @@ describe('Component: ThumbnailGrid with config', () => {
     });
 
     it('does have expected class options properties', () => {
-        expect(component.options.ascending).toEqual(true);
         expect(component.options.border).toEqual('percentCompare');
         expect(component.options.borderCompareValue).toEqual('Test Compare Value');
         expect(component.options.borderPercentThreshold).toEqual(0.25);
@@ -2258,6 +1994,7 @@ describe('Component: ThumbnailGrid with config', () => {
         expect(component.options.ignoreSelf).toEqual(true);
         expect(component.options.linkPrefix).toEqual('prefix/');
         expect(component.options.openOnMouseClick).toEqual(false);
+        expect(component.options.sortDescending).toEqual(false);
 
         expect(component.options.textMap).toEqual({
             actual: 'Truth',
@@ -2288,99 +2025,4 @@ describe('Component: ThumbnailGrid with config', () => {
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Test Title');
     });
-
-    it('does show elements in sidenav options menu that have expected options', async(() => {
-        // Force the component to update all its selected elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let inputs = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(6);
-
-            expect(inputs[0].attributes.placeholder).toBe('Title');
-            expect(inputs[0].nativeElement.value).toContain('Test Title');
-
-            expect(inputs[1].attributes.placeholder).toBe('Thumbnail Limit');
-            expect(inputs[1].nativeElement.value).toContain('10');
-
-            expect(inputs[2].attributes.placeholder).toBe('Border Comparison Field Equals...');
-            expect(inputs[2].nativeElement.value).toEqual('Test Compare Value');
-
-            expect(inputs[3].attributes.placeholder).toBe('Border Probability Greater Than...');
-            expect(inputs[3].nativeElement.value).toEqual('0.25');
-
-            expect(inputs[4].attributes.placeholder).toBe('Link Prefix');
-            expect(inputs[4].nativeElement.value).toEqual('prefix/');
-
-            let selects = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toEqual(14);
-
-            validateSelect(selects[0], 'Database', true);
-            let databaseOptions = selects[0].componentInstance.options.toArray();
-            expect(databaseOptions.length).toEqual(2);
-            expect(databaseOptions[0].getLabel()).toEqual('Test Database 1');
-            expect(databaseOptions[0].selected).toEqual(false);
-            expect(databaseOptions[1].getLabel()).toEqual('Test Database 2');
-            expect(databaseOptions[1].selected).toEqual(true);
-
-            validateSelect(selects[1], 'Table', true);
-            let tableOptions = selects[1].componentInstance.options.toArray();
-            expect(tableOptions.length).toEqual(2);
-            expect(tableOptions[0].getLabel()).toEqual('Test Table 1');
-            expect(tableOptions[0].selected).toEqual(false);
-            expect(tableOptions[1].getLabel()).toEqual('Test Table 2');
-            expect(tableOptions[1].selected).toEqual(true);
-
-            validateSelect(selects[2], 'Name Field', false);
-            validateSelectFields(selects[2], false, 'testNameField');
-
-            validateSelect(selects[3], 'Actual Name Field', false);
-            validateSelectFields(selects[3], false, 'testNameField');
-
-            validateSelect(selects[4], 'Predicted Name Field', false);
-            validateSelectFields(selects[4], false, 'testNameField');
-
-            validateSelect(selects[5], 'Predicted Probability Field', false);
-            validateSelectFields(selects[5], false, 'testSizeField');
-
-            validateSelect(selects[6], 'Category Field', false);
-            validateSelectFields(selects[6], false, 'testCategoryField');
-
-            validateSelect(selects[7], 'Comparison Field', false);
-            validateSelectFields(selects[7], false, 'testCategoryField');
-
-            validateSelect(selects[8], 'Filter Field', false);
-            validateSelectFields(selects[8], false, 'testFilterField');
-
-            validateSelect(selects[9], 'ID Field', false);
-            validateSelectFields(selects[9], false, 'testIdField');
-
-            validateSelect(selects[10], 'Link Field', true);
-            validateSelectFields(selects[10], true, 'testLinkField');
-
-            validateSelect(selects[11], 'Sort Field', true);
-            validateSelectFields(selects[11], true, 'testSortField');
-
-            validateSelect(selects[12], 'Type Field', false);
-            validateSelectFields(selects[12], false, 'testTypeField');
-
-            let toggles = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(10);
-
-            validateToggle(toggles[0], '', 'None', false);
-            validateToggle(toggles[1], 'scale', 'Scale', false);
-            validateToggle(toggles[2], 'crop', 'Crop', false);
-            validateToggle(toggles[3], 'both', 'Both', true);
-            validateToggle(toggles[4], true, 'Yes', true);
-            validateToggle(toggles[5], false, 'No', false);
-            validateToggle(toggles[6], true, 'Yes', false);
-            validateToggle(toggles[7], false, 'No', true);
-            validateToggle(toggles[8], true, 'Ascending', true);
-            validateToggle(toggles[9], false, 'Descending', false);
-        });
-    }));
 });

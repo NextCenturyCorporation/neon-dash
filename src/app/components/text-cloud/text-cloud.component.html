@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -62,29 +62,29 @@
                 </mat-form-field>
                 <p></p>
 
-                <mat-form-field>
+                <mat-form-field *ngIf="options.aggregation != 'count'">
                     <mat-select placeholder="Size Field" [(ngModel)]="options.sizeField"
                                (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
                         <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <p></p>
+                <p *ngIf="options.aggregation != 'count'"></p>
 
-                <mat-form-field *ngIf="options.sizeField.columnName != ''">
+                <mat-form-field>
                     <mat-select placeholder="Size Aggregation" [(ngModel)]="options.aggregation" required="true"
                                (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
-                        <mat-option value="SUM">Sum</mat-option>
-                        <mat-option value="AVG">Average</mat-option>
-                        <mat-option value="MIN">Min</mat-option>
-                        <mat-option value="MAX">Max</mat-option>
+                        <mat-option value="sum">Sum</mat-option>
+                        <mat-option value="avg">Average</mat-option>
+                        <mat-option value="min">Min</mat-option>
+                        <mat-option value="max">Max</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Term Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                        <input matInput placeholder="Term Limit" [(ngModel)]="newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
@@ -103,7 +103,7 @@
                 <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
-                <app-export-control [exportId]="exportId"></app-export-control>
+                <app-export-control [widgets]="this"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>

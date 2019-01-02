@@ -27,15 +27,11 @@ import { DocumentViewerComponent } from './document-viewer.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 
 import { neonVariables } from '../../neon-namespaces';
-import { ActiveGridService } from '../../services/active-grid.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { TranslationService } from '../../services/translation.service';
-import { VisualizationService } from '../../services/visualization.service';
+import { WidgetService } from '../../services/widget.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -58,19 +54,14 @@ describe('Component: DocumentViewer', () => {
             ExportControlComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
             {
                 provide: DatasetService,
                 useClass: DatasetServiceMock
             },
-            ErrorNotificationService,
-            ExportService,
             FilterService,
-            ThemesService,
-            TranslationService,
-            VisualizationService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -117,68 +108,6 @@ describe('Component: DocumentViewer', () => {
 
     it('has a subNgOnDestroy method that does nothing', () => {
         expect(component.subNgOnDestroy).toBeDefined();
-    });
-
-    it('has options.createBindings method that works as expected', () => {
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 50,
-            table: 'testTable1',
-            title: 'Document Viewer',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            dataField: '',
-            dateField: '',
-            idField: '',
-            sortField: '',
-            hideSource: false,
-            metadataFields: [],
-            nameWidthCss: '',
-            popoutFields: [],
-            showSelect: false,
-            showText: false,
-            sortOrder: 'DESCENDING'
-        });
-
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        component.options.dateField = DatasetServiceMock.DATE_FIELD;
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.sortField = DatasetServiceMock.SORT_FIELD;
-        component.options.hideSource = true;
-        component.options.metadataFields = ['A', 'B'];
-        component.options.nameWidthCss = '50%';
-        component.options.popoutFields = ['C', 'D'];
-        component.options.showSelect = true;
-        component.options.showText = true;
-        component.options.sortOrder = 'ASCENDING';
-
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 50,
-            table: 'testTable1',
-            title: 'Document Viewer',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            dataField: 'testTextField',
-            dateField: 'testDateField',
-            idField: 'testIdField',
-            sortField: 'testSortField',
-            hideSource: true,
-            metadataFields: ['A', 'B'],
-            nameWidthCss: '50%',
-            popoutFields: ['C', 'D'],
-            showSelect: true,
-            showText: true,
-            sortOrder: 'ASCENDING'
-        });
     });
 
     it('returns an empty string from getFilterText', () => {
@@ -399,20 +328,20 @@ describe('Component: DocumentViewer', () => {
     it('returns the expected value from getButtonText', () => {
         // When activeData.length == 0
         component.activeData = [];
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Documents');
 
         // When activeData.langth < docCount
         component.activeData = ['value1', 'value2'];
-        component.docCount = 50;
-        expect(component.getButtonText()).toBe('1 - 50 of 50');
+        component.docCount = 100;
+        expect(component.getButtonText()).toBe('1 - 50 of 100 Documents');
 
         // When limit changes
         component.options.limit = 10;
-        expect(component.getButtonText()).toBe('1 - 10 of 50');
+        expect(component.getButtonText()).toBe('1 - 10 of 100 Documents');
 
         // When activeData.length >= docCount
         component.docCount = 2;
-        expect(component.getButtonText()).toBe('Total 2');
+        expect(component.getButtonText()).toBe('2 Documents');
     });
 
     it('has setupFilters method that does nothing of substance', () => {
@@ -572,10 +501,6 @@ describe('Component: DocumentViewer', () => {
         expect(refs.headerText).toBeDefined();
         expect(refs.infoText).toBeDefined();
         expect(refs.visualization).toBeDefined();
-    });
-
-    it('getOptions does return options object', () => {
-        expect(component.getOptions()).toEqual(component.options);
     });
 
     it('populateActiveItem does update item data and rows as expected', () => {
@@ -1081,18 +1006,10 @@ describe('Component: Document Viewer with Config', () => {
             ExportControlComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
-            {
-                provide: DatasetService,
-                useClass: DatasetServiceMock
-            },
-            ErrorNotificationService,
-            ExportService,
+            { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
-            ThemesService,
-            TranslationService,
-            VisualizationService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'title', useValue: 'Document Viewer Title' },
@@ -1115,7 +1032,7 @@ describe('Component: Document Viewer with Config', () => {
                     field: 'secondOfMultipleItemMetadataRow'
                 }]
             ]},
-            { provide: 'popoutFields', useValue: null },
+            { provide: 'popoutFields', useValue: [] },
             { provide: 'limit', useValue: 25 }
         ],
         imports: [
@@ -1136,18 +1053,18 @@ describe('Component: Document Viewer with Config', () => {
         expect(component.options.dateField).toEqual(DatasetServiceMock.DATE_FIELD);
         expect(component.options.idField).toEqual(DatasetServiceMock.ID_FIELD);
         expect(component.options.metadataFields).toEqual([
-            {
+            [{
                 name: 'Single Item Metadata Row',
                 field: 'singleItemMetadataRow'
-            },
-            {
+            }],
+            [{
                 name: 'First of Multiple Item Metadata Row',
                 field: 'firstOfMultipleItemMetadataRow'
             },
             {
                 name: 'Second of Multiple Item Metadata Row',
                 field: 'secondOfMultipleItemMetadataRow'
-            }
+            }]
         ]);
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);

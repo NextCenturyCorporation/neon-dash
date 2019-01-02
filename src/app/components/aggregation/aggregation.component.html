@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -41,7 +41,7 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Subcomponent Type" [(ngModel)]="options.newType" required="true"
+                    <mat-select placeholder="Subcomponent Type" [(ngModel)]="newType" required="true"
                         (ngModelChange)="handleChangeSubcomponentType()">
                         <mat-option *ngFor="let item of subcomponentTypes" [value]="item.type">{{ item.name }}</mat-option>
                     </mat-select>
@@ -77,39 +77,49 @@
                 </mat-form-field>
                 <p></p>
 
-                <mat-form-field *ngIf="isXYSubcomponent(options.type)">
+                <mat-form-field *ngIf="optionsTypeIsXY(options)">
                     <mat-select placeholder="Y Field" [(ngModel)]="options.yField" required="true"
                         (ngModelChange)="handleChangeFilterField()" [disabled]="options.fields.length == 0">
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <p *ngIf="isXYSubcomponent(options.type)"></p>
+                <p *ngIf="optionsTypeIsXY(options)"></p>
 
                 <mat-toolbar color="primary">
                     <span>Optional</span>
                 </mat-toolbar>
                 <p></p>
 
-                <mat-form-field *ngIf="!isXYSubcomponent(options.type)">
+                <mat-form-field *ngIf="!optionsTypeIsXY(options)">
                     <mat-select placeholder="Aggregation" [(ngModel)]="options.aggregation" required="true"
                         (ngModelChange)="handleChangeData()">
                         <mat-option value="count">Count</mat-option>
-                        <mat-option value="average">Average</mat-option>
+                        <mat-option value="avg">Average</mat-option>
                         <mat-option value="max">Max</mat-option>
                         <mat-option value="min">Min</mat-option>
                         <mat-option value="sum">Sum</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <p *ngIf="!isXYSubcomponent(options.type)"></p>
+                <p *ngIf="!optionsTypeIsXY(options)"></p>
 
-                <mat-form-field *ngIf="!isXYSubcomponent(options.type)">
-                    <mat-select placeholder="Aggregation Field" [(ngModel)]="options.aggregationField" required="options.aggregation != 'count'"
+                <mat-form-field *ngIf="!optionsTypeIsXY(options)">
+                    <mat-select placeholder="Aggregation Field" [(ngModel)]="options.aggregationField" required="options.aggregation != 'COUNT'"
                         (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
                         <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <p *ngIf="!isXYSubcomponent(options.type)"></p>
+                <p *ngIf="!optionsTypeIsXY(options)"></p>
+
+                <div *ngIf="!optionsTypeIsContinuous(options)">
+                    <span class="toggle-text">Show Legend</span>
+                    <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showLegend"
+                                             (ngModelChange)="handleChangeData()">
+                        <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                        <mat-button-toggle [value]="false">No</mat-button-toggle>
+                    </mat-button-toggle-group>
+                    <p></p>
+                </div>
 
                 <span class="toggle-text" *ngIf="options.xField.type == 'date'">Date Fill</span>
                 <mat-button-toggle-group *ngIf="options.xField.type == 'date'" class="neon-button-toggle-group-small"
@@ -131,7 +141,7 @@
                 </mat-form-field>
                 <p *ngIf="options.xField.type == 'date'"></p>
 
-                <mat-form-field *ngIf="allowDualView(options.type)">
+                <mat-form-field *ngIf="optionsTypeIsDualViewCompatible(options)">
                     <mat-select placeholder="Dual View" [(ngModel)]="options.dualView" required="false"
                         (ngModelChange)="redrawSubcomponents()">
                         <mat-option [value]="''">Always Off</mat-option>
@@ -139,7 +149,7 @@
                         <mat-option [value]="'filter'">Only On Filter</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <p *ngIf="allowDualView(options.type)"></p>
+                <p *ngIf="optionsTypeIsDualViewCompatible(options)"></p>
 
                 <span class="toggle-text">Filterable</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.notFilterable"
@@ -165,21 +175,21 @@
                 </mat-button-toggle-group>
                 <p></p>
 
-                <span class="toggle-text" *ngIf="isScaled(options.type)">Grid Lines</span>
-                <mat-button-toggle-group *ngIf="isScaled(options.type)" class="neon-button-toggle-group-small"
+                <span class="toggle-text" *ngIf="optionsTypeUsesGrid(options)">Grid Lines</span>
+                <mat-button-toggle-group *ngIf="optionsTypeUsesGrid(options)" class="neon-button-toggle-group-small"
                     [(ngModel)]="options.hideGridLines" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">Show</mat-button-toggle>
                     <mat-button-toggle [value]="true">Hide</mat-button-toggle>
                 </mat-button-toggle-group>
-                <p *ngIf="isScaled(options.type)"></p>
+                <p *ngIf="optionsTypeUsesGrid(options)"></p>
 
-                <span class="toggle-text" *ngIf="isScaled(options.type)">Grid Ticks</span>
-                <mat-button-toggle-group *ngIf="isScaled(options.type)" class="neon-button-toggle-group-small"
+                <span class="toggle-text" *ngIf="optionsTypeUsesGrid(options)">Grid Ticks</span>
+                <mat-button-toggle-group *ngIf="optionsTypeUsesGrid(options)" class="neon-button-toggle-group-small"
                     [(ngModel)]="options.hideGridTicks" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">Show</mat-button-toggle>
                     <mat-button-toggle [value]="true">Hide</mat-button-toggle>
                 </mat-button-toggle-group>
-                <p *ngIf="isScaled(options.type)"></p>
+                <p *ngIf="optionsTypeUsesGrid(options)"></p>
 
                 <mat-form-field>
                     <mat-select placeholder="Group Field" [(ngModel)]="options.groupField" required="false"
@@ -192,7 +202,7 @@
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Limit" [(ngModel)]="options.newLimit" required="true"
+                        <input matInput placeholder="Limit" [(ngModel)]="newLimit" required="true"
                             (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
@@ -228,21 +238,35 @@
                 </mat-button-toggle-group>
                 <p *ngIf="options.type == 'line' || options.type == 'line-xy'"></p>
 
-                <span class="toggle-text" *ngIf="isScaled(options.type)">Log X Scale</span>
-                <mat-button-toggle-group *ngIf="isScaled(options.type)" class="neon-button-toggle-group-small"
+                <div mat-fill *ngIf="optionsTypeUsesGrid(options)">
+                    <mat-form-field>
+                        <input matInput placeholder="Label of X-Axis" [(ngModel)]="options.axisLabelX" required="false"
+                               (keyup.enter)="refreshVisualization()">
+                    </mat-form-field>
+                    <p></p>
+
+                    <mat-form-field>
+                        <input matInput placeholder="Label of Y-Axis" [(ngModel)]="options.axisLabelY" required="false"
+                               (keyup.enter)="refreshVisualization()">
+                    </mat-form-field>
+                    <p></p>
+                </div>
+
+                <span class="toggle-text" *ngIf="optionsTypeUsesGrid(options)">Log X-Axis Scale</span>
+                <mat-button-toggle-group *ngIf="optionsTypeUsesGrid(options)" class="neon-button-toggle-group-small"
                     [(ngModel)]="options.logScaleX" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
                 </mat-button-toggle-group>
-                <p *ngIf="isScaled(options.type)"></p>
+                <p *ngIf="optionsTypeUsesGrid(options)"></p>
 
-                <span class="toggle-text" *ngIf="isScaled(options.type)">Log Y Scale</span>
-                <mat-button-toggle-group *ngIf="isScaled(options.type)" class="neon-button-toggle-group-small"
+                <span class="toggle-text" *ngIf="optionsTypeUsesGrid(options)">Log Y-Axis Scale</span>
+                <mat-button-toggle-group *ngIf="optionsTypeUsesGrid(options)" class="neon-button-toggle-group-small"
                     [(ngModel)]="options.logScaleY" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
                 </mat-button-toggle-group>
-                <p *ngIf="isScaled(options.type)"></p>
+                <p *ngIf="optionsTypeUsesGrid(options)"></p>
 
                 <span class="toggle-text">Save Previously Seen</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.savePrevious"
@@ -252,15 +276,15 @@
                 </mat-button-toggle-group>
                 <p></p>
 
-                <span class="toggle-text" *ngIf="isScaled(options.type)">Manual Scales</span>
-                <div mat-fill class="flex center" *ngIf="isScaled(options.type)">
+                <span class="toggle-text" *ngIf="optionsTypeUsesGrid(options)">Manual Scales</span>
+                <div mat-fill class="flex center" *ngIf="optionsTypeUsesGrid(options)">
                     <mat-form-field>
-                        <input matInput placeholder="X Scale Min" [(ngModel)]="options.scaleMinX" required="false"
+                        <input matInput placeholder="X-Axis Scale Min" [(ngModel)]="options.scaleMinX" required="false"
                             (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
 
                     <mat-form-field>
-                        <input matInput placeholder="X Scale Max" [(ngModel)]="options.scaleMaxX" required="false"
+                        <input matInput placeholder="X-Axis Scale Max" [(ngModel)]="options.scaleMaxX" required="false"
                             (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
 
@@ -269,14 +293,14 @@
                         <mat-icon>refresh</mat-icon>
                     </button>
                 </div>
-                <div mat-fill class="flex center" *ngIf="isScaled(options.type)">
+                <div mat-fill class="flex center" *ngIf="optionsTypeUsesGrid(options)">
                     <mat-form-field>
-                        <input matInput placeholder="Y Scale Min" [(ngModel)]="options.scaleMinY" required="false"
+                        <input matInput placeholder="Y-Axis Scale Min" [(ngModel)]="options.scaleMinY" required="false"
                             (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
 
                     <mat-form-field>
-                        <input matInput placeholder="Y Scale Max" [(ngModel)]="options.scaleMaxY" required="false"
+                        <input matInput placeholder="Y-Axis Scale Max" [(ngModel)]="options.scaleMaxY" required="false"
                             (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
 
@@ -314,15 +338,15 @@
                 </div>
                 <p *ngIf="options.type === 'list' && options.sortByAggregation"></p>
 
-                <span class="toggle-text" *ngIf="!isContinuous(options.type)">Sort By</span>
-                <mat-button-toggle-group *ngIf="!isContinuous(options.type)" class="neon-button-toggle-group-small"
+                <span class="toggle-text" *ngIf="!optionsTypeIsContinuous(options)">Sort By</span>
+                <mat-button-toggle-group *ngIf="!optionsTypeIsContinuous(options)" class="neon-button-toggle-group-small"
                     [(ngModel)]="options.sortByAggregation" (ngModelChange)="handleChangeData()">
                     <mat-button-toggle [value]="false">Label</mat-button-toggle>
                     <mat-button-toggle [value]="true">Aggregation</mat-button-toggle>
                 </mat-button-toggle-group>
-                <p *ngIf="!isContinuous(options.type)"></p>
+                <p *ngIf="!optionsTypeIsContinuous(options)"></p>
 
-                <mat-form-field *ngIf="isScaled(options.type)">
+                <mat-form-field *ngIf="optionsTypeUsesGrid(options)">
                     <mat-select placeholder="Y-Axis Max Width" [(ngModel)]="options.yPercentage" required="false"
                         (ngModelChange)="refreshVisualization()">
                         <mat-option [value]="0.1">10%</mat-option>
@@ -332,13 +356,13 @@
                         <mat-option [value]="0.5">50%</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <p *ngIf="isScaled(options.type)"></p>
+                <p *ngIf="optionsTypeUsesGrid(options)"></p>
 
                 <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()"
                     (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
-                <app-export-control [exportId]="exportId"></app-export-control>
+                <app-export-control [widgets]="this"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
@@ -348,8 +372,8 @@
     </div>
 
     <div class="filter-container" *ngIf="showHeaderContainer()">
-        <app-legend *ngIf="showLegend()" [activeList]="legendActiveGroups" [fieldNames]="legendFields"
-            (itemSelected)="handleLegendItemSelected($event)"></app-legend>
+        <app-legend *ngIf="showLegend()" [activeList]="legendActiveGroups" [colorKeys]="colorKeys"
+                (itemSelected)="handleLegendItemSelected($event)"></app-legend>
 
         <div class="filter-reset" *ngFor="let filter of groupFilters">
             <span class="filter-label" [matTooltip]="createFilterPrettyText(filter)" tooltip-position="below">

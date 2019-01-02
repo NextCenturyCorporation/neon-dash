@@ -53,7 +53,7 @@
 .thumbnail-details{
     height:1.6em;
     width:92%;
-    background-color: #fafafa;
+    background-color: var(--color-background, white);
     word-wrap: break-word;
     display: flex;
     flex-direction: column;

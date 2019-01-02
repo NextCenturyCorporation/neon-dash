@@ -15,17 +15,17 @@
  */
 import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { Dataset, DatabaseMetaData, TableMetaData, FieldMetaData, Relation } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ParameterService } from '../../services/parameter.service';
-import { neonVisualizationMinPixel } from '../../neon-namespaces';
-import * as neon from 'neon-framework';
 
+import { NeonGridItem } from '../../neon-grid-item';
+import { neonEvents, neonVisualizationMinPixel } from '../../neon-namespaces';
+
+import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-import * as uuid from 'node-uuid';
 
 export interface CustomTable {
     table: TableMetaData;
@@ -65,6 +65,7 @@ export interface CustomDatabase {
 export class DatasetSelectorComponent implements OnInit, OnDestroy {
     public static HIDE_INFO_POPOVER: string = 'sr-only';
 
+    public connectOnLoad: boolean = false;
     public datasets: Dataset[] = [];
     private datasetName: string = '';
     private datastoreType: string = 'mongo';
@@ -99,9 +100,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      * This is the array of custom visualization objects configured by the user through the popup.  Each custom visualization contains:
      *     {String} type The visualization type
      *     {Number} sizex The width of the visualization
-     *     {Number} minSizeX The minimum width of the visualization
      *     {Number} sizey The height of the visualization
-     *     {Number} minSizeY The minimum height of the visualization
      *     {String} database The database name to connect to it
      *     {String} table The table name to connect to it
      *     {Array} availableTables An array of table names that are available in the database selected
@@ -122,9 +121,9 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         private connectionService: ConnectionService,
         private datasetService: DatasetService,
         private filterService: FilterService,
-        private parameterService: ParameterService,
-        private activeGridService: ActiveGridService
+        private parameterService: ParameterService
     ) {
+        this.messenger = new neon.eventing.Messenger();
     }
 
     getDatasets(): Dataset[] {
@@ -134,7 +133,6 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         let dashboardStateId: string = this.parameterService.findDashboardStateIdInUrl();
 
-        this.messenger = new neon.eventing.Messenger();
         this.datasets = this.datasetService.getDatasets();
         this.layouts = this.datasetService.getLayouts();
 
@@ -143,6 +141,9 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         } else {
             let activeDataset: string = (this.parameterService.findActiveDatasetInUrl() || '').toLowerCase();
             this.datasets.some((dataset, index) => {
+                if (dataset.connectOnLoad) {
+                    this.connectOnLoad = true;
+                }
                 if ((activeDataset && activeDataset === dataset.name.toLowerCase()) || (!activeDataset && dataset.connectOnLoad)) {
                     this.connectToPreset(index, true);
                     this.activeDatasetChanged.emit(); // Close the sidenav opened by connectToPreset.
@@ -152,7 +153,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             });
         }
 
-        this.messenger.subscribe(ParameterService.STATE_CHANGED_CHANNEL, (message) => {
+        this.messenger.subscribe(neonEvents.DASHBOARD_STATE, (message) => {
             if (message && message.dataset) {
                 if (message.dataset) {
                     this.datasetService.setActiveDataset(message.dataset);
@@ -173,15 +174,21 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                         this.datasetService.setLayout(layoutName);
                     }
 
-                    for (let dashboard of message.dashboard) {
-                        dashboard.id = uuid.v4();
-                    }
-                    this.activeGridService.setGridItems(message.dashboard);
+                    this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});
+                    message.dashboard.forEach((widgetGridItem) => {
+                        this.messenger.publish(neonEvents.WIDGET_ADD, {
+                            widgetGridItem: widgetGridItem
+                        });
+                    });
                     this.activeDatasetChanged.emit(this.activeDataset);
                     this.gridItemsChanged.emit(message.dashboard.length);
                 }
             }
         });
+
+        if (!this.connectOnLoad) {
+            this.activeDatasetChanged.emit(this.activeDataset);
+        }
     }
 
     ngOnDestroy(): void {
@@ -242,171 +249,18 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         // Clear any old filters prior to loading the new layout and dataset.
         this.messenger.clearFiltersSilently();
 
-        // Clear the old grid items;
-        this.activeGridService.clear();
+        this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});
 
         // Recreate the layout each time to ensure all visualizations are using the new dataset.
         // Use an empty array of visualizations if the new dataset has no defined layout.
-        for (let layoutItem of layout) {
-            let item = _.cloneDeep(layoutItem);
-            item.gridItemConfig = {
-                row: item.row,
-                col: item.col,
-                sizex: item.sizex,
-                sizey: item.sizey,
-                dragHandle: '.drag-handle',
-                borderSize: 10
-            };
-            item.id = uuid.v4();
-            this.activeGridService.addItem(item);
+        for (let widgetGridItem of layout) {
+            this.messenger.publish(neonEvents.WIDGET_ADD, {
+                widgetGridItem: _.cloneDeep(widgetGridItem)
+            });
         }
 
         this.gridItemsChanged.emit(layout.length);
         this.activeDatasetChanged.emit(this.activeDataset);
         this.parameterService.addFiltersFromUrl(!loadDashboardState);
-    }
-
-    /**
-     * Updates the layout of visualizations in the dashboard for the custom visualizations set.
-     * @method updateCustomLayout
-     * @private
-     */
-    updateCustomLayout() {
-        // Clear the old grid items;
-        this.activeGridService.clear();
-
-        // Clear any old filters prior to loading the new layout and dataset.
-        this.messenger.clearFilters();
-
-        _.each(this.customVisualizations, (visualization) => {
-            let id: string = uuid.v4();
-            let layout: any = {
-                id: id,
-                bindings: {},
-                bordersize: 5,
-                dragHandle: '.drag-handle',
-                gridConfig: {
-                    row: visualization.row,
-                    col: visualization.col,
-                    sizex: visualization.sizex,
-                    sizey: visualization.sizey
-                },
-                payload: id,
-                minSizeX: visualization.minSizeX,
-                minSizeY: visualization.minSizeY,
-                minPixelX: neonVisualizationMinPixel.x, // jshint ignore:line
-                minPixelY: neonVisualizationMinPixel.y, // jshint ignore:line
-                sizex: visualization.sizex,
-                sizey: visualization.sizey,
-                title: visualization.title,
-                type: visualization.type
-            };
-
-            if (visualization.database && visualization.table) {
-                layout.bindings = {
-                    'bind-database': '\'' + visualization.database + '\'',
-                    'bind-table': '\'' + visualization.table + '\''
-                };
-            }
-
-            _.each(visualization.bindings, (value, key) => {
-                layout.bindings[key] = '\'' + value + '\'';
-            });
-
-            this.activeGridService.addItem(layout);
-        });
-
-        this.parameterService.removeStateParameters();
-
-        this.gridItemsChanged.emit(this.customVisualizations.length);
-        this.parameterService.addFiltersFromUrl();
-    }
-
-    /**
-     * Selection event for the custom dataset popup.
-     */
-    selectCustom() {
-        // Removed call to xdata logger library
-        // Custom connection dialog is not yet implemented.
-    }
-
-    /**
-     * Creates and returns a new custom dataset object using the user configuration saved in the global variables.
-     * @return {Object}
-     */
-    createCustomDataset(): Dataset {
-        let dataset: Dataset = new Dataset(this.datasetName, this.datastoreType, this.datastoreHost);
-
-        this.customDatabases.forEach((customDatabase: CustomDatabase) => {
-            let database: DatabaseMetaData = new DatabaseMetaData(customDatabase.database.name, customDatabase.database.prettyName);
-
-            customDatabase.customTables.forEach((customTable: CustomTable) => {
-                let tableObject: TableMetaData = new TableMetaData(customTable.table.name,
-                    customTable.table.prettyName, customTable.table.fields, customTable.table.mappings);
-                database.tables.push(tableObject);
-            });
-
-            dataset.databases.push(database);
-        });
-
-        this.customRelations.forEach((customRelation) => {
-            let relation = new Relation();
-
-            customRelation.customRelationDatabases.forEach((customRelationDatabase) => {
-                customRelationDatabase.customRelationTables.forEach((customRelationTable) => {
-                    if (relation.members.find((mem) =>
-                            mem.database === customRelationDatabase.database.name &&
-                            mem.table === customRelationTable.table.name &&
-                            mem.field === customRelationTable.field.columnName
-                        ) === undefined) {
-
-                            relation.members.push({
-                            database: customRelationDatabase.database.name,
-                            table: customRelationTable.table.name,
-                            field: customRelationTable.field.columnName
-                        });
-                    }
-                });
-            });
-            dataset.relations.push(relation);
-        });
-
-        return dataset;
-    }
-
-    /**
-     * Sets the active dataset to the databases and tables in the list of custom databases
-     * in the given config and saves it in the Dataset Service.
-     * @param {Object} config
-     * @param {Array} config.customDatabases
-     * @param {Array} config.customRelations
-     * @param {Array} config.customVisualizations
-     * @param {String} config.datastoreType
-     * @param {String} config.datastoreHost
-     * @param {String} config.datasetName
-     * @method setDataset
-     */
-    setDataset(config: any) {
-        this.customDatabases = config.customDatabases;
-        this.customRelations = config.customRelations;
-        this.customVisualizations = config.customVisualizations;
-        this.datastoreType = config.datastoreType;
-        this.datastoreHost = config.datastoreHost;
-        this.datasetName = config.datasetName;
-
-        let dataset = this.createCustomDataset();
-
-        this.activeDataset = {
-            name: dataset.name,
-            info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
-            data: true
-        };
-        this.activeDatasetChanged.emit(this.activeDataset);
-        this.datasets = this.datasetService.addDataset(dataset);
-        this.datasetService.setActiveDataset(dataset);
-        this.updateCustomLayout();
-
-        // TODO: Manage the custom connection modal.
-        // $element.find(".modal").modal("hide");
     }
 }

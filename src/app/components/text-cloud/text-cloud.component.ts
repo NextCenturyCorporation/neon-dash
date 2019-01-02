@@ -25,103 +25,23 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonVariables } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import { TextCloud, SizeOptions, ColorOptions } from './text-cloud-namespace';
 import * as neon from 'neon-framework';
-
-/**
- * Manages configurable options for the specific visualization.
- */
-export class TextCloudOptions extends BaseNeonOptions {
-    public aggregation: string;
-    public andFilters: boolean;
-    public dataField: FieldMetaData;
-    public ignoreSelf: boolean;
-    public paragraphs: boolean;
-    public showCounts: boolean;
-    public sizeField: FieldMetaData;
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        bindings.andFilters = this.andFilters;
-        bindings.ignoreSelf = this.ignoreSelf;
-        bindings.paragraphs = this.paragraphs;
-        bindings.showCounts = this.showCounts;
-        bindings.sizeAggregation = this.aggregation;
-
-        return bindings;
-    }
-
-    /**
-     * Returns the list of fields to export.
-     *
-     * @return {{ columnName: string, prettyName: string }[]}
-     * @override
-     */
-    getExportFields() {
-        // TODO Do we really need this behavior for the sizeField or can we just simplify it and use the superclass getExportFields?
-        return [{
-            columnName: this.dataField.columnName,
-            prettyName: this.dataField.prettyName
-        }, {
-            columnName: 'value',
-            prettyName: this.sizeField.prettyName || 'Count'
-        }];
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'dataField',
-            'sizeField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.aggregation = this.injector.get('sizeAggregation', 'AVG');
-        this.andFilters = this.injector.get('andFilters', true);
-        this.ignoreSelf = this.injector.get('ignoreSelf', false);
-        this.paragraphs = this.injector.get('paragraphs', false);
-        this.showCounts = this.injector.get('showCounts', false);
-    }
-}
 
 @Component({
     selector: 'app-text-cloud',
@@ -145,37 +65,30 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         prettyField: string
     }[] = [];
 
-    public options: TextCloudOptions;
-
     public activeData: any[] = [];
     public termsCount: number = 0;
     public textColor: string = '#111';
 
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
         ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        protected widgetService: AbstractWidgetService
     ) {
-
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
-            themesService,
-            ref,
-            visualizationService
+            ref
         );
 
-        this.options = new TextCloudOptions(this.injector, this.datasetService, 'Text Cloud', 40);
+        this.isPaginationWidget = true;
+
+        // Backwards compatibility (sizeAggregation deprecated and replaced by aggregation).
+        this.options.aggregation = (this.options.aggregation || this.injector.get('sizeAggregation', neonVariables.COUNT)).toLowerCase();
     }
 
     subNgOnInit() {
@@ -184,7 +97,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     postInit() {
         // This should happen before execute query as #refreshVisualization() depends on this.textCloud
-        this.textColor = this.getPrimaryThemeColor().toHexString();
+        this.textColor = this.widgetService.getThemeAccentColorHex();
         this.updateTextCloudSettings();
 
         this.executeQueryChain();
@@ -203,7 +116,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getFilterText(filter) {
-        //console.log(filter);
         return filter.prettyField + ' = ' + filter.value;
     }
 
@@ -212,11 +124,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     isValidQuery() {
-        let valid = true;
-        valid = (this.options.database && this.options.database.name && valid);
-        valid = (this.options.table && this.options.table.name && valid);
-        valid = (this.options.dataField && this.options.dataField.columnName && valid);
-        return valid;
+        return this.options.database.name && this.options.table.name && this.options.dataField.columnName &&
+            (this.options.aggregation !== neonVariables.COUNT ? this.options.sizeField.columnName : true);
     }
 
     /**
@@ -238,12 +147,41 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return clauses.length > 1 ? neon.query.and.apply(neon.query, clauses) : clauses[0];
     }
 
+    /**
+     * Creates and returns an array of field options for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('dataField', 'Term Field', true),
+            new WidgetFieldOption('sizeField', 'Size Field', false, this.optionsAggregationIsNotCount)
+        ];
+    }
+
+    /**
+     * Creates and returns an array of non-field options for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetSelectOption('aggregation', 'Aggregation', neonVariables.COUNT, OptionChoices.AggregationType),
+            new WidgetSelectOption('andFilters', 'Filter Operator', true, OptionChoices.OrFalseAndTrue),
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue),
+            new WidgetSelectOption('paragraphs', 'Show as Paragraphs', false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('showCounts', 'Show Counts', false, OptionChoices.NoFalseYesTrue)
+        ];
+    }
+
     createQuery(): neon.query.Query {
         let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
         let whereClause = this.createClause();
         let dataField = this.options.dataField.columnName;
 
-        if (this.options.sizeField.columnName === '') {
+        if (this.options.aggregation === neonVariables.COUNT) {
             // Normal aggregation query
             return query.where(whereClause).groupBy(dataField).aggregate(neonVariables.COUNT, '*', 'value')
                 .sortBy('value', neonVariables.DESCENDING).limit(this.options.limit);
@@ -251,9 +189,26 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             // Query for data with the size field and sort by it
             let sizeColumn = this.options.sizeField.columnName;
             return query.where(neon.query.and(whereClause, neon.query.where(sizeColumn, '!=', null)))
-                .groupBy(dataField).aggregate(neon.query[this.options.aggregation], sizeColumn, sizeColumn)
+                .groupBy(dataField).aggregate(this.options.aggregation, sizeColumn, sizeColumn)
                 .sortBy(sizeColumn, neonVariables.DESCENDING).limit(this.options.limit);
         }
+    }
+
+    /**
+     * Returns the list of fields to export.
+     *
+     * @return {{ columnName: string, prettyName: string }[]}
+     * @override
+     */
+    getExportFields(): { columnName: string, prettyName: string }[] {
+        // TODO Do we really need this behavior for the sizeField or can we just simplify it and use the superclass getExportFields?
+        return [{
+            columnName: this.options.dataField.columnName,
+            prettyName: this.options.dataField.prettyName
+        }, {
+            columnName: 'value',
+            prettyName: this.options.sizeField.prettyName || 'Count'
+        }];
     }
 
     /**
@@ -285,19 +240,38 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.executeQuery(countQuery);
     }
 
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultLimit(): number {
+        return 40;
+    }
+
+    /**
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'Text Cloud';
+    }
+
     onQuerySuccess(response): void {
         try {
             if (response && response.data && response.data.length && response.data[0]._termsCount !== undefined) {
                 this.termsCount = response.data.length;
             } else {
                 let cloudData = response.data || [];
-                let useSizeField: boolean = this.options.sizeField.columnName !== '';
 
                 this.activeData = cloudData.map((item) => {
                     item.key = item[this.options.dataField.columnName];
                     item.keyTranslated = item.key;
                     // If we have a size field, asign the value to the value field
-                    if (useSizeField) {
+                    if (this.options.sizeField.columnName) {
                         item.value = item[this.options.sizeField.columnName];
                     }
                     return item;
@@ -314,18 +288,25 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         }
     }
 
+    /**
+     * Returns whether the aggregation type is not count.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsAggregationIsNotCount(options: any): boolean {
+        return options.aggregation !== neonVariables.COUNT;
+    }
+
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             [this.options.dataField.columnName]);
         this.filters = [];
-        //console.log("Filters");
-        //console.log(neonFilters);
         for (let neonFilter of neonFilters) {
-            //console.log(neonFilter);
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
+                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 let filter = {
                     id: neonFilter.id,
@@ -358,10 +339,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         if (!this.filters.length) {
             this.filters.push(filter);
             let whereClause = neon.query.where(filter.field, '=', filter.value);
-            //console.log("Text Cloud");
-            //console.log(filter);
-            //console.log(whereClause);
-            //console.log(this.filters);
             this.addNeonFilter(true, filter, whereClause);
         } else if (this.filterIsUnique(filter)) {
             filter.id = this.filters[0].id;
@@ -389,25 +366,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Creates and returns the text for the settings button.
-     *
-     * @return {string}
-     * @override
-     */
-    getButtonText() {
-        if (!this.filters.length && !this.termsCount) {
-            if (this.options.hideUnfiltered) {
-                return 'Please Filter';
-            }
-            return 'No Data';
-        }
-        if (this.termsCount <= this.activeData.length) {
-            return 'Total ' + super.prettifyInteger(this.termsCount);
-        }
-        return super.prettifyInteger(this.activeData.length) + ' of ' + super.prettifyInteger(this.termsCount);
-    }
-
-    /**
      * Returns the list of filter objects.
      *
      * @return {array}
@@ -415,6 +373,38 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getCloseableFilters() {
         return this.filters;
+    }
+
+    /**
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
+     *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        return this.activeData;
+    }
+
+    /**
+     * Returns the count of data items that an unlimited query for the visualization would contain.
+     *
+     * @return {number}
+     * @override
+     */
+    public getTotalDataCount(): number {
+        return this.termsCount;
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Term' + (count === 1 ? '' : 's');
     }
 
     // filter is a filter from the filter service that the filter to remove corresponds to.
@@ -447,15 +437,5 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             headerText: this.headerText,
             infoText: this.infoText
         };
-    }
-
-    /**
-     * Returns the options for the specific visualization.
-     *
-     * @return {BaseNeonOptions}
-     * @override
-     */
-    getOptions(): BaseNeonOptions {
-        return this.options;
     }
 }

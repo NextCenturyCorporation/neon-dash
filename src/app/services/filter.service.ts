@@ -14,12 +14,14 @@
  *
  */
 import { Injectable } from '@angular/core';
-import * as neon from 'neon-framework';
 
-import { ErrorNotificationService } from './error-notification.service';
 import { DatasetService } from './dataset.service';
+
+import { neonEvents } from '../neon-namespaces';
+
 import * as uuid from 'node-uuid';
 import * as _ from 'lodash';
+import * as neon from 'neon-framework';
 
 export class ServiceFilter {
     id: string;
@@ -44,10 +46,7 @@ export class FilterService {
     protected filters: ServiceFilter[] = [];
     protected messenger: neon.eventing.Messenger = new neon.eventing.Messenger();
 
-    constructor(
-        protected errorNotificationService: ErrorNotificationService,
-        protected datasetService: DatasetService
-    ) { }
+    constructor(protected datasetService: DatasetService) {}
 
     protected getDatabaseFilterState(onSuccess: (filterList: any[]) => any, onError: (response: any) => any) {
         neon.query.Filter.getFilterState('*', '*', onSuccess, onError);
@@ -82,7 +81,10 @@ export class FilterService {
             if (onError) {
                 onError(response);
             } else if (response.responseJSON) {
-                this.errorNotificationService.showErrorMessage(null, response.responseJSON);
+                this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+                    error: null,
+                    message: response.responseJSON
+                });
             }
         });
     }

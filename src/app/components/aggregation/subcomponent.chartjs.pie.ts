@@ -15,9 +15,8 @@
  */
 import { ElementRef } from '@angular/core';
 import { AbstractChartJsDataset, AbstractChartJsSubcomponent, ChartJsData } from './subcomponent.chartjs.abstract';
-import { AggregationOptions } from './aggregation.component';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { Color } from '../../services/color-scheme.service';
+import { Color } from '../../color';
 
 import * as _ from 'lodash';
 
@@ -31,8 +30,8 @@ export class ChartJsPieDataset extends AbstractChartJsDataset {
     public hoverBorderWidth: number = 3;
     public slices: any[] = [];
 
-    constructor(color: Color, label: string, xList: any[], public xSelected: any[]) {
-        super(color, label, xList);
+    constructor(elementRef: ElementRef, color: Color, label: string, xList: any[], public xSelected: any[]) {
+        super(elementRef, color, label, xList);
         this.borderColor = this.getColorSelected();
         this.hoverBackgroundColor = this.getColorSelected();
         this.hoverBorderColor = this.getColorSelected();
@@ -60,14 +59,12 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
 
     /**
      * @constructor
-     * @arg {AggregationOptions} options
+     * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
      * @arg {boolean} [cannotSelect=false]
      */
-    constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef,
-        cannotSelect: boolean = false) {
-
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef, cannotSelect: boolean = false) {
         super(options, listener, elementRef, cannotSelect);
     }
 
@@ -81,7 +78,7 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
      * @override
      */
     protected createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset {
-        return new ChartJsPieDataset(color, label, xList, this.selectedLabels);
+        return new ChartJsPieDataset(this.elementRef, color, label, xList, this.selectedLabels);
     }
 
     /**
@@ -142,6 +139,17 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
      */
     protected getChartType(): string {
         return 'pie';
+    }
+
+    /**
+     * Returns the label for a visualization element using the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Slice' + (count === 1 ? '' : 's');
     }
 
     /**

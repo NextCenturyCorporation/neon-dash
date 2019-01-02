@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
 
@@ -22,7 +22,7 @@
 
     <div class="body-container">
         <div class="main-container">
-            <div class="clause-container" *ngFor="let clause of options.clauses">
+            <div class="clause-container" *ngFor="let clause of clauses">
                 <div class="clause-form-container">
                     <mat-form-field class="neon-form-field-flex-5 neon-form-field">
                         <mat-select placeholder="Database" [(ngModel)]="clause.changeDatabase"

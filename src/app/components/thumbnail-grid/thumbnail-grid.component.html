@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -184,7 +184,7 @@
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Thumbnail Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                        <input matInput placeholder="Thumbnail Limit" [(ngModel)]="newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
@@ -244,16 +244,16 @@
                 <p></p>
 
                 <span class="toggle-text">Sort:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.ascending" (ngModelChange)="handleChangeData()">
-                    <mat-button-toggle [value]="true">Ascending</mat-button-toggle>
-                    <mat-button-toggle [value]="false">Descending</mat-button-toggle>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.sortDescending" (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="false">Ascending</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Descending</mat-button-toggle>
                 </mat-button-toggle-group>
                 <p></p>
 
                 <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
-                <app-export-control [exportId]="exportId"></app-export-control>
+                <app-export-control [widgets]="this"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
@@ -276,7 +276,7 @@
         <div class="thumbnail-grid-container" *ngIf="showGrid">
             <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid" [matTooltip]="getThumbnailTitle(item)"
                 [class.with-text]="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
-                <app-subcomponent-title-thumbnail *ngIf="options.viewType === view.TITLE" [item]="item" [options]="options">
+                <app-subcomponent-title-thumbnail *ngIf="!options.viewType || options.viewType === view.TITLE" [item]="item" [options]="options">
                 </app-subcomponent-title-thumbnail>
                 <app-subcomponent-details-thumbnail class="flex-grow" *ngIf="options.viewType === view.DETAILS" [item]="item" [options]="options">
                 </app-subcomponent-details-thumbnail>

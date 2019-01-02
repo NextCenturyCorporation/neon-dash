@@ -30,14 +30,9 @@ import * as neon from 'neon-framework';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { WikiViewerComponent } from './wiki-viewer.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -51,14 +46,9 @@ describe('Component: WikiViewer', () => {
             ExportControlComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
-            ExportService,
-            ErrorNotificationService,
             FilterService,
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -114,13 +104,13 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Pages');
         component.wikiName = ['a'];
-        expect(component.getButtonText()).toBe('Total 1');
+        expect(component.getButtonText()).toBe('1 Page');
         component.wikiName = ['a', 'b', 'c', 'd'];
-        expect(component.getButtonText()).toBe('Total 4');
+        expect(component.getButtonText()).toBe('4 Pages');
         component.wikiName = ['a', 'b'];
-        expect(component.getButtonText()).toBe('Total 2');
+        expect(component.getButtonText()).toBe('2 Pages');
     });
 
     it('getElementRefs does return expected object', () => {
@@ -312,26 +302,6 @@ describe('Component: WikiViewer', () => {
         expect(component.setupFilters).toBeDefined();
     }));
 
-    it('options.createBindings does set expected bindings', (() => {
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.linkField = new FieldMetaData('testLinkField');
-
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: '',
-            hideUnfiltered: false,
-            limit: 10,
-            table: '',
-            title: 'Wiki Viewer',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            idField: 'testIdField',
-            linkField: 'testLinkField'
-        });
-    }));
-
     it('subNgOnDestroy function does exist', (() => {
         expect(component.subNgOnDestroy).toBeDefined();
     }));
@@ -439,7 +409,6 @@ describe('Component: WikiViewer', () => {
         let exportControl = fixture.debugElement.query(By.css(
             'mat-sidenav-container mat-sidenav mat-card mat-card-content app-export-control'));
         expect(exportControl).not.toBeNull();
-        expect(exportControl.componentInstance.exportId).toBeDefined();
     }));
 
     it('does hide loading overlay by default', (() => {
@@ -514,14 +483,9 @@ describe('Component: WikiViewer with config', () => {
             ExportControlComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ExportService,
-            ErrorNotificationService,
             FilterService,
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase1' },

@@ -25,22 +25,16 @@ import { FieldMetaData } from '../../dataset';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { AppMaterialModule } from '../../app.material.module';
-import { ChartComponent } from '../chart/chart.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { TimelineComponent } from './timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { TranslationService } from '../../services/translation.service';
-import { VisualizationService } from '../../services/visualization.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { WidgetService } from '../../services/widget.service';
 
 let d3 = require('../../../assets/d3.min.js');
 
@@ -51,22 +45,15 @@ describe('Component: Timeline', () => {
 
     initializeTestBed({
         declarations: [
-            ChartComponent,
             TimelineComponent,
             ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             DatasetService,
             FilterService,
-            ExportService,
-            TranslationService,
-            ErrorNotificationService,
-            VisualizationService,
-            ThemesService,
-            ColorSchemeService,
             Injector,
             { provide: 'config', useValue: testConfig }
         ],
@@ -98,15 +85,20 @@ describe('Component: Timeline', () => {
     });
 
     it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Results');
 
         component.activeData = [{
             date: new Date(),
             value: 0
         }];
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Results');
 
-        component.docCount = 2;
+        component.activeData = [{
+            date: new Date(),
+            value: 1
+        }];
+        expect(component.getButtonText()).toBe('1 Result');
+
         component.activeData = [{
             date: new Date(),
             value: 1
@@ -114,10 +106,7 @@ describe('Component: Timeline', () => {
             date: new Date(),
             value: 1
         }];
-        expect(component.getButtonText()).toBe('Total 2');
-
-        component.docCount = 6;
-        expect(component.getButtonText()).toBe('2 of 6');
+        expect(component.getButtonText()).toBe('2 Results');
 
         component.activeData = [{
             date: new Date(),
@@ -132,7 +121,10 @@ describe('Component: Timeline', () => {
             date: new Date(),
             value: 0
         }];
-        expect(component.getButtonText()).toBe('Total 6');
+        expect(component.getButtonText()).toBe('6 Results');
+
+        component.options.limit = 2;
+        expect(component.getButtonText()).toBe('6 Results (Limited)');
     });
 
     it('getElementRefs does return expected object', () => {
