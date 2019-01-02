@@ -46,6 +46,12 @@ import {
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 
+export const ViewType = {
+    CARD: 'card',
+    DETAILS: 'details',
+    TITLE: 'title'
+};
+
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
  */
@@ -76,6 +82,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     public gridArray: any[] = [];
 
     public mediaTypes: any = MediaTypes;
+    public view: any = ViewType;
 
     constructor(
         connectionService: ConnectionService,
@@ -492,8 +499,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @return {boolean}
      */
     isSelected(item) {
-        return (!!this.options.filterField.columnName && this.filterExists(this.options.filterField.columnName,
-            item[this.options.filterField.columnName]));
+        return (!!this.options.filterField.columnName &&
+            this.filterExists(this.options.filterField.columnName, item[this.options.filterField.columnName]));
     }
 
     /**
@@ -742,9 +749,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         }
         if (this.options.filterField.columnName) {
             this.createFilter(item[this.options.filterField.columnName]);
-        }
-        if (this.options.openOnMouseClick) {
-            window.open(item[this.options.linkField.columnName]);
         }
         this.publishAnyCustomEvents(item, this.options.idField.columnName);
     }

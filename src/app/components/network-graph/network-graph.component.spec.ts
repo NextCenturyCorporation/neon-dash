@@ -416,6 +416,7 @@ describe('Component: NetworkGraph', () => {
         component.options.isReified = false;
         component.options.filterFields = ['testTypeField'];
         component.options.limit = Infinity;
+        component.options.multiFilterOperator = 'and';
 
         component.transformVisualizationQueryResults(component.options, [{
             testLinkField: 'testLinkValue',
@@ -438,16 +439,16 @@ describe('Component: NetworkGraph', () => {
             testYPositionField: 495
         }]);
 
-        /*TODO:Broken in code so test is also broken
-        component.onSelect({nodes: ["testNodeValue2"]});
+        component.onSelect({nodes: ['testNodeValue2']});
 
         let filters = getService(FilterService).getFiltersForFields(component.options.database.name, component.options.table.name,
-        component.options.filterFields);
+            component.options.filterFields);
         expect(filters.length).toEqual(1);
 
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
-        }));*/
+        }));
+
     }));
 
 });

@@ -210,10 +210,9 @@ describe('Component: Filter Builder', () => {
         expect(component.getFilterText(null)).toEqual('2 Filters');
     });
 
-    it('getElementRefs does return expected object', () => {
+    it('getElementRefs returns empty object', () => {
         let refs = component.getElementRefs();
-        expect(refs.headerText).toBeDefined();
-        expect(refs.visualization).toBeDefined();
+        expect(refs).toEqual({});
     });
 
     it('handleChangeDatabaseOfClause does deactivate clause, update database/tables/fields, and call updateFiltersOfKey', () => {

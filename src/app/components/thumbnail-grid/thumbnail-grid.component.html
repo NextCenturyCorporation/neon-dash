@@ -53,7 +53,7 @@
                 </mat-form-field>
                 <p></p>
 
-                <div *ngIf="options.detailedThumbnails">
+                <div *ngIf="options.viewType === view.DETAILS">
                     <span class="toggle-text">Label Names:</span>
                     <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showLabelName" (ngModelChange)="refreshVisualization()">
                         <mat-button-toggle [value]="true">On</mat-button-toggle>
@@ -94,7 +94,7 @@
                     <p></p>
                 </div>
 
-                <div *ngIf="!options.detailedThumbnails">
+                <div *ngIf="options.viewType === view.TITLE">
                     <mat-form-field>
                         <mat-select placeholder="Name Field" [(ngModel)]="options.nameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                             <mat-option [value]="createEmptyField()">(None)</mat-option>
@@ -276,10 +276,12 @@
         <div class="thumbnail-grid-container" *ngIf="gridArray.length">
             <div class="thumbnail-grid-div" *ngFor="let item of gridArray" [matTooltip]="getThumbnailTitle(item)"
                 [class.with-text]="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
-                <app-thumbnail-details-contracted *ngIf="!options.detailedThumbnails" [item]="item" [options]="options">
-                </app-thumbnail-details-contracted>
-                <app-thumbnail-details-expanded class="flex-grow" *ngIf="options.detailedThumbnails" [item]="item" [options]="options">
-                </app-thumbnail-details-expanded>
+                <app-subcomponent-title-thumbnail *ngIf="options.viewType === view.TITLE" [item]="item" [options]="options">
+                </app-subcomponent-title-thumbnail>
+                <app-subcomponent-details-thumbnail class="flex-grow" *ngIf="options.viewType === view.DETAILS" [item]="item" [options]="options">
+                </app-subcomponent-details-thumbnail>
+                <app-subcomponent-card-thumbnail class="flex-grow" *ngIf="options.viewType === view.CARD" [item]="item" [options]="options">
+                </app-subcomponent-card-thumbnail>
             </div>
         </div>
     </div>
