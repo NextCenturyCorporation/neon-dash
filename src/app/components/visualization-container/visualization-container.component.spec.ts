@@ -29,14 +29,18 @@ import { NewsFeedComponent } from '../news-feed/news-feed.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
 import { QueryBarComponent } from '../query-bar/query-bar.component';
 import { SampleComponent } from '../sample/sample.component';
+import { TaxonomyViewerComponent } from '../taxonomy-viewer/taxonomy-viewer.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
-import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from '../thumbnail-grid/thumbnail-details.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { VisualizationContainerComponent } from './visualization-container.component';
 import { VisualizationInjectorComponent } from '../visualization-injector/visualization-injector.component';
 import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
+
+import { DetailsThumbnailSubComponent } from '../thumbnail-grid/subcomponent.details-view';
+import { TitleThumbnailSubComponent } from '../thumbnail-grid/subcomponent.title-view';
+import { CardThumbnailSubComponent } from '../thumbnail-grid/subcomponent.card-view';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
@@ -45,6 +49,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatAutocompleteModule } from '@angular/material';
+import { TreeModule } from 'angular-tree-component';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -55,7 +60,9 @@ describe('Component: VisualizationContainer', () => {
         declarations: [
             AnnotationViewerComponent,
             AggregationComponent,
+            CardThumbnailSubComponent,
             DataTableComponent,
+            DetailsThumbnailSubComponent,
             DocumentViewerComponent,
             ExportControlComponent,
             FilterBuilderComponent,
@@ -66,13 +73,11 @@ describe('Component: VisualizationContainer', () => {
             NewsFeedComponent,
             QueryBarComponent,
             SampleComponent,
+            TaxonomyViewerComponent,
             TextCloudComponent,
-            ThumbnailDetailsContractedComponent,
-            ThumbnailDetailsExpandedComponent,
             ThumbnailGridComponent,
-            ThumbnailDetailsContractedComponent,
-            ThumbnailDetailsExpandedComponent,
             TimelineComponent,
+            TitleThumbnailSubComponent,
             UnsharedFilterComponent,
             VisualizationContainerComponent,
             VisualizationInjectorComponent,
@@ -88,7 +93,8 @@ describe('Component: VisualizationContainer', () => {
             NgxDatatableModule,
             NgxGraphModule,
             BrowserAnimationsModule,
-            ReactiveFormsModule
+            ReactiveFormsModule,
+            TreeModule.forRoot()
         ]
     });
 

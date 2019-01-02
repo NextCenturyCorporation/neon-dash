@@ -30,7 +30,7 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import {
@@ -68,10 +68,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         value: string,
         prettyField: string
     }[] = [];
-
-    public activeData: any[] = [];
-    public docCount: number = 0;
-    public responseData: any[] = [];
 
     public activeHeaders: { prop: string, name: string, active: boolean, style: Object, cellClass: any }[] = [];
     public headerWidths: Map<string, number> = new Map<string, number>();
@@ -114,9 +110,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             ref
         );
 
-        this.isPaginationWidget = true;
-
-        this.enableRedrawAfterResize(true);
+        this.redrawOnResize = true;
+        this.visualizationQueryPaginates = true;
 
         let style = document.createElement('style');
         style.appendChild(document.createTextNode(''));
@@ -326,7 +321,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return options.heatmapField.columnName;
     }
 
-    subNgOnInit() {
+    /**
+     * Initilizes any visualization properties when the widget is created.
+     *
+     * @override
+     */
+    initializeProperties() {
         if (this.options.fieldsConfig.length) {
             this.initializeHeadersFromFieldsConfig();
         } else {
@@ -334,14 +334,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
 
         this.recalculateActiveHeaders();
-    }
-
-    postInit() {
-        this.executeQueryChain();
-    }
-
-    subNgOnDestroy() {
-        // Do nothing
     }
 
     headerIsInExceptions(header) {
@@ -462,6 +454,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return filter.prettyField + ' = ' + filter.value;
     }
 
+    /**
+     * Updates and redraws the elements and properties for the visualization.
+     *
+     * @override
+     */
     refreshVisualization() {
         // Must recalculate headers/table and detectChanges within setTimeout so angular templates (like ngIf) are updated first.
         setTimeout(() => {
@@ -476,46 +473,31 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Returns whether the visualization data query created using the given options is valid.
+     * Returns whether the visualization query created using the given options is valid.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(options: any): boolean {
+    validateVisualizationQuery(options: any): boolean {
         return !!(options.database.name && options.table.name && options.sortField.columnName);
     }
 
     /**
-     * Creates and returns the Neon where clause for the visualization.
-     *
-     * @return {any}
-     */
-    createClause(): any {
-        let clause = neon.query.where(this.options.sortField.columnName, '!=', null);
-
-        if (this.hasUnsharedFilter()) {
-            clause = neon.query.and(clause, neon.query.where(this.options.unsharedFilterField.columnName, '=',
-                this.options.unsharedFilterValue));
-        }
-
-        return clause;
-    }
-
-    /**
-     * Creates and returns the visualization data query using the given options.
+     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
+     * @arg {neon.query.Query} query
+     * @arg {neon.query.WherePredicate[]} wherePredicates
      * @return {neon.query.Query}
      * @override
      */
-    createQuery(options: any): neon.query.Query {
-        let whereClause = this.createClause();
-        return new neon.query.Query().selectFrom(options.database.name, options.table.name)
-            .where(whereClause)
-            .sortBy(options.sortField.columnName, options.sortDescending ? neonVariables.DESCENDING : neonVariables.ASCENDING)
-            .limit(options.limit)
-            .offset((this.page - 1) * options.limit);
+    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
+        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(neon.query.where(options.sortField.columnName, '!=', null));
+
+        // Override the default query fields because we want to find all fields.
+        return query.withFields('*').where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
+            .sortBy(options.sortField.columnName, options.sortDescending ? neonVariables.DESCENDING : neonVariables.ASCENDING);
     }
 
     /**
@@ -533,15 +515,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
                 [filterField.columnName]);
 
-            let fieldFilterIds = neonFilters.filter((neonFilter) => {
-                return !neonFilter.filter.whereClause.whereClauses;
-            }).map((neonFilter) => {
+            let fieldFilterIds = neonFilters.map((neonFilter) => {
                 return neonFilter.id;
             });
 
             return filterIds.concat(fieldFilterIds);
         }, []);
-
         return ignoredFilterIds.length ? ignoredFilterIds : null;
     }
 
@@ -579,47 +558,24 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Handles the given response data for a successful visualization data query created using the given options.
+     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {any} response
+     * @arg {any[]} results
+     * @return {TransformedVisualizationData} results
      * @override
      */
-    onQuerySuccess(options: any, response: any): void {
-        if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
-            this.docCount = response.data[0]._docCount - this.duplicateNumber;
-        } else {
-            let responses = response.data;
-            let data = responses.map((d) => {
-                let row = {};
-                for (let field of options.fields) {
-                    if (field.type || field.columnName === '_id') {
-                        row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
-                    }
+    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+        let data = results.map((d) => {
+            let row = {};
+            for (let field of options.fields) {
+                if (field.type || field.columnName === '_id') {
+                    row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
                 }
-                return row;
-            });
-            this.activeData = data;
-            // The query response is being stringified and stored in activeData
-            // Store the response in responseData to preserve the data in its raw form for querying and filtering purposes
-            this.responseData = response.data;
-            this.getDocCount();
-            this.refreshVisualization();
-        }
-    }
-
-    getDocCount() {
-        if (!this.cannotExecuteQuery(this.options)) {
-            let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
-                .where(this.createClause()).aggregate(neonVariables.COUNT, '*', '_docCount');
-
-            let ignoreFilters = this.getFiltersToIgnore();
-            if (ignoreFilters && ignoreFilters.length) {
-                countQuery.ignoreFilters(ignoreFilters);
             }
-
-            this.executeQuery(this.options, countQuery);
-        }
+            return row;
+        });
+        return new TransformedVisualizationData(data);
     }
 
     setupFilters() {
@@ -640,11 +596,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 });
             }
         }
-    }
-
-    handleFiltersChangedEvent() {
-        this.page = 1;
-        this.executeQueryChain();
     }
 
     isDragging(): boolean {
@@ -742,36 +693,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.filters = this.filters.filter((element) => element.id !== filter.id);
     }
 
-    nextPage() {
-        this.page += 1;
-        this.executeQueryChain();
-    }
-
-    previousPage() {
-        this.page -= 1;
-        this.executeQueryChain();
-    }
-
-    /**
-     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
-     *
-     * @return {any[]}
-     * @override
-     */
-    public getShownDataArray(): any[] {
-        return this.activeData;
-    }
-
-    /**
-     * Returns the count of data items that an unlimited query for the visualization would contain.
-     *
-     * @return {number}
-     * @override
-     */
-    public getTotalDataCount(): number {
-        return this.docCount;
-    }
-
     /**
      * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
      * Uses the given count to determine plurality.
@@ -800,7 +721,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.selected.push(...selected);
 
         if (this.options.filterable) {
-            let dataObject = this.responseData.filter((obj) =>
+            let dataObject = this.getActiveData(this.options).data.filter((obj) =>
                 obj[this.options.idField.columnName] === selected[0][this.options.idField.columnName])[0];
 
             this.options.filterFields.forEach((filterField: any) => {
@@ -813,7 +734,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     if (this.options.arrayFilterOperator === 'and') {
                         value.forEach((element) => {
                             let arrayFilter = this.createFilterObject(filterFieldObject.columnName, element, filterFieldObject.prettyName);
-                            let whereClause = neon.query.where(arrayFilter.filterFieldObject.columnName, '=', arrayFilter.value);
+                            let whereClause = neon.query.where(filterFieldObject.columnName, '=', arrayFilter.value);
                             this.addFilter(arrayFilter, whereClause);
                         });
                     } else {
@@ -978,5 +899,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     getTableRowHeight() {
         return this.options.skinny ? 20 : 25;
+    }
+
+    public getTableRowData(): any {
+        let activeData: TransformedVisualizationData = this.getActiveData(this.options);
+        return activeData ? activeData.data : [];
     }
 }

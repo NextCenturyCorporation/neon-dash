@@ -94,7 +94,7 @@
                 <p></p>
 
                 <span class="toggle-text">Show Data Matching:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.andFilters" (ngModelChange)="handleFiltersChangedEvent()">
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.andFilters" (ngModelChange)="handleChangeFilterField()">
                     <mat-button-toggle [value]="true">All Filters</mat-button-toggle>
                     <mat-button-toggle [value]="false">Any Filters</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -108,7 +108,7 @@
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading > 0" [class.not-loading-overlay]="isLoading == 0">
+    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
         <mat-spinner></mat-spinner>
     </div>
 
@@ -123,7 +123,7 @@
     </div>
 
     <div class="text-cloud body-container" [class.with-filter]="getCloseableFilters().length" mat-fill layout="col">
-        <a (click)="onClick(item)" class="text" [class.paragraphs]="options.paragraphs" *ngFor="let item of activeData"
+        <a (click)="onClick(item)" class="text" [class.paragraphs]="options.paragraphs" *ngFor="let item of textCloudData"
             [matTooltip]="item.key + ': ' + item.value" tooltip-position="below" [rel]="item.value"
             [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
             <span [class.filter]="isFiltered(item.key)">{{ item.key }}</span>

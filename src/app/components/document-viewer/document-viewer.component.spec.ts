@@ -32,18 +32,11 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
+
+import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
-/*
- * First, a note about sending queries to neon:
- *
- * Sending queries to neon is done asynchronously, via XHR and more specifically via jQuery.ajax.
- * because we use jQuery.ajax instead of Angular's http functionality, Angular's hhtp mocking doesn't
- * work to mock the calls we make. As such, where we need to test methods that involve sending out queries
- * I've replaced the executeQuery method of our component object with a dummy that simply calls onQuerySuccess
- * with the data we should get back.
- */
 describe('Component: DocumentViewer', () => {
     let component: DocumentViewerComponent;
     let fixture: ComponentFixture<DocumentViewerComponent>;
@@ -92,24 +85,6 @@ describe('Component: DocumentViewer', () => {
         expect(component.options.showText).toBe(false);
     });
 
-    it('has expected class properties', () => {
-        expect(component.activeData).toEqual([]);
-        expect(component.docCount).toBe(0);
-        expect(component.page).toBe(1);
-    });
-
-    it('has a subNgOnInit method that does nothing', () => {
-        expect(component.subNgOnInit).toBeDefined();
-    });
-
-    it('has a postInit method that does nothing', () => {
-        expect(component.postInit).toBeDefined();
-    });
-
-    it('has a subNgOnDestroy method that does nothing', () => {
-        expect(component.subNgOnDestroy).toBeDefined();
-    });
-
     it('returns an empty string from getFilterText', () => {
         expect(component.getFilterText({})).toBe('');
         expect(component.getFilterText({
@@ -121,114 +96,66 @@ describe('Component: DocumentViewer', () => {
         expect(component.getFiltersToIgnore()).toBeNull();
     });
 
-    it('returns the expectedvalue from isValidQuery', () => {
-        expect(component.isValidQuery(component.options)).toBe(false);
+    it('returns the expectedvalue from validateVisualizationQuery', () => {
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
         component.options.database = new DatabaseMetaData('testDatabase1');
-        expect(component.isValidQuery(component.options)).toBe(false);
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
         component.options.table = new TableMetaData('testTable1');
-        expect(component.isValidQuery(component.options)).toBe(false);
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        expect(component.isValidQuery(component.options)).toBe(true);
+        expect(component.validateVisualizationQuery(component.options)).toBe(true);
     });
 
-    it('returns expected query from createQuery with no sort', () => {
+    it('returns expected query from finalizeVisualizationQuery with no sort', () => {
         component.options.database = new DatabaseMetaData('testDatabase1');
         component.options.table = new TableMetaData('testTable1');
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
+        let inputQuery = new neon.query.Query()
+            .selectFrom('testDatabase1', 'testTable1')
+            .withFields(['testTextField', 'testDateField', 'testIdField']);
         let query = new neon.query.Query()
             .selectFrom('testDatabase1', 'testTable1')
             .where(new neon.query.WhereClause('testTextField', '!=', null))
-            .withFields(['testTextField', 'testDateField', 'testIdField'])
-            .limit(50)
-            .offset(0);
-        expect(component.createQuery(component.options)).toEqual(query);
+            .withFields(['testTextField', 'testDateField', 'testIdField']);
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
     });
 
-    it('returns expected query from createQuery with sort', () => {
+    it('returns expected query from finalizeVisualizationQuery with sort', () => {
         component.options.database = new DatabaseMetaData('testDatabase1');
         component.options.table = new TableMetaData('testTable1');
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.sortField = DatasetServiceMock.SORT_FIELD;
+        let inputQuery = new neon.query.Query()
+            .selectFrom('testDatabase1', 'testTable1')
+            .withFields(['testTextField', 'testDateField', 'testIdField']);
         let query = new neon.query.Query()
             .selectFrom('testDatabase1', 'testTable1')
             .where(new neon.query.WhereClause('testTextField', '!=', null))
-            .withFields([
-                'testTextField',
-                'testDateField',
-                'testIdField'
-            ])
-            .sortBy('testSortField', neonVariables.DESCENDING)
-            .limit(50)
-            .offset(0);
-        expect(component.createQuery(component.options)).toEqual(query);
+            .withFields(['testTextField', 'testDateField', 'testIdField'])
+            .sortBy('testSortField', neonVariables.DESCENDING);
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
     });
 
-    it('sets expected properties and calls getDocCount if onQuerySuccess returns no data', () => {
-
+    it('sets expected properties if transformVisualizationQueryResults returns no data', () => {
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.docCount = 50;
-        let response = {
-            data: []
-        };
-        let docCountResponse = {
-            data: [{
-                _docCount: 0
-            }]
-        };
 
-        /*
-        Here lies spyOn, along with all my hopes and dreams for doing this in a non-hacky manner.
-        (spyOn should have worked for this but didn't. To investigate?)
+        let actual = component.transformVisualizationQueryResults(component.options, []);
 
-        spyOn(component, 'getDocCount');
-        spyOn(component, 'executeQuery').and.callFake((query: neon.query.Query) => {
-            // Check that we got here by calling getDocCount.
-            expect(component.getDocCount).toHaveBeenCalled();
-            component.onQuerySuccess(docCountResponse);
-        });*/
-
-        let calledExecuteQuery = false;
-        // The XHR is done via jQuery which makes it astoundingly difficult to test, so we're going to bypass it.
-        // If we get to executeQuery after calling onQuerySuccess, that means we went through getDocCount.
-        component.executeQuery = () => {
-            calledExecuteQuery = true;
-            component.onQuerySuccess(component.options, docCountResponse);
-        };
-        component.cannotExecuteQuery = () => {
-            return false;
-        };
-
-        component.onQuerySuccess(component.options, response);
-
-        expect(calledExecuteQuery).toBeTruthy();
-        expect(component.docCount).toBe(0);
-        expect(component.activeData).toEqual([]);
+        expect(actual.data).toEqual([]);
     });
 
-    it('sets expected properties and calls getDocCount if onQuerySuccess returns data', () => {
-
+    it('sets expected properties if transformVisualizationQueryResults returns data', () => {
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.docCount = 50;
         let response = {
             data: [
-                {
-                    testTextField: 'text1',
-                    testDateField: 'date1',
-                    testIdField: 'id1'
-                },
-                {
-                    testTextField: 'text2',
-                    testDateField: 'date2',
-                    testIdField: 'id2'
-                }
             ]
         };
         let docCountResponse = {
@@ -237,22 +164,17 @@ describe('Component: DocumentViewer', () => {
             }]
         };
 
-        let calledExecuteQuery = false;
-        // The XHR is done via jQuery which makes it astoundingly difficult to test, so we're going to bypass it.
-        // If we get to executeQuery after calling onQuerySuccess, that means we went through getDocCount.
-        component.executeQuery = () => {
-            calledExecuteQuery = true;
-            component.onQuerySuccess(component.options, docCountResponse);
-        };
-        component.cannotExecuteQuery = () => {
-            return false;
-        };
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            testTextField: 'text1',
+            testDateField: 'date1',
+            testIdField: 'id1'
+        }, {
+            testTextField: 'text2',
+            testDateField: 'date2',
+            testIdField: 'id2'
+        }]);
 
-        component.onQuerySuccess(component.options, response);
-
-        expect(calledExecuteQuery).toBeTruthy();
-        expect(component.docCount).toBe(2);
-        expect(component.activeData).toEqual([{
+        expect(actual.data).toEqual([{
             data: {
                 testTextField: 'text1',
                 testDateField: 'date1',
@@ -287,30 +209,6 @@ describe('Component: DocumentViewer', () => {
         }]);
     });
 
-    it('sets the expected value when getDocCount is called', () => {
-        component.docCount = 50;
-        let docCountResponse = {
-            data: [{
-                _docCount: 9999
-            }]
-        };
-
-        let calledExecuteQuery = false;
-        // The XHR is done via jQuery which makes it astoundingly difficult to test, so we're going to bypass it.
-        component.executeQuery = () => {
-            calledExecuteQuery = true;
-            component.onQuerySuccess(component.options, docCountResponse);
-        };
-        component.cannotExecuteQuery = () => {
-            return false;
-        };
-
-        component.getDocCount();
-
-        expect(calledExecuteQuery).toBeTruthy();
-        expect(component.docCount).toBe(9999);
-    });
-
     it('doesn\'t do anything in refreshVisualization', () => {
         expect(component.refreshVisualization()).toBeUndefined();
         expect(component.options.dataField).toEqual(new FieldMetaData());
@@ -320,28 +218,6 @@ describe('Component: DocumentViewer', () => {
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
         expect(component.options.showText).toBe(false);
-        expect(component.activeData).toEqual([]);
-        expect(component.docCount).toBe(0);
-        expect(component.page).toBe(1);
-    });
-
-    it('returns the expected value from getButtonText', () => {
-        // When activeData.length == 0
-        component.activeData = [];
-        expect(component.getButtonText()).toBe('0 Documents');
-
-        // When activeData.langth < docCount
-        component.activeData = ['value1', 'value2'];
-        component.docCount = 100;
-        expect(component.getButtonText()).toBe('1 - 50 of 100 Documents');
-
-        // When limit changes
-        component.options.limit = 10;
-        expect(component.getButtonText()).toBe('1 - 10 of 100 Documents');
-
-        // When activeData.length >= docCount
-        component.docCount = 2;
-        expect(component.getButtonText()).toBe('2 Documents');
     });
 
     it('has setupFilters method that does nothing of substance', () => {
@@ -441,7 +317,7 @@ describe('Component: DocumentViewer', () => {
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.activeData = [{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
             data: {
                 testTextField: 'This is a string.',
                 testDateField: '12:34:56 7/8/90',
@@ -463,7 +339,7 @@ describe('Component: DocumentViewer', () => {
                 name: 'Test Metadata Field',
                 text: 'Second'
             }]
-        }];
+        }]));
         component.options.metadataFields = [{
             name: 'Test Metadata Field',
             field: 'testMetadataField'
@@ -485,16 +361,6 @@ describe('Component: DocumentViewer', () => {
             expect(texts[1].nativeElement.textContent).toEqual('Second');
         });
     }));
-
-    it('createClause does return expected object', () => {
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        expect(component.createClause()).toEqual(neon.query.where('testTextField', '!=', null));
-
-        component.options.unsharedFilterField = DatasetServiceMock.FILTER_FIELD;
-        component.options.unsharedFilterValue = 'testFilterValue';
-        expect(component.createClause()).toEqual(neon.query.and(neon.query.where('testTextField', '!=', null),
-            neon.query.where('testFilterField', '=', 'testFilterValue')));
-    });
 
     it('getElementRefs does return expected object', () => {
         let refs = component.getElementRefs();
@@ -1069,11 +935,5 @@ describe('Component: Document Viewer with Config', () => {
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
         expect(component.options.showText).toBe(false);
-    });
-
-    it('has expected class properties', () => {
-        expect(component.activeData).toEqual([]);
-        expect(component.docCount).toBe(0);
-        expect(component.page).toBe(1);
     });
 });
