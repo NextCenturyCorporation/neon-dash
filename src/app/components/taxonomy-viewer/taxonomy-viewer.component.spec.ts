@@ -125,7 +125,7 @@ describe('Component: TaxonomyViewer', () => {
         expect(component.testOptions).toBeDefined();
     });
 
-    it('createQuery does return expected query', (() => {
+    it('finalizeVisualizationQuery does return expected query', (() => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.idField = DatasetServiceMock.ID_FIELD;
@@ -135,18 +135,19 @@ describe('Component: TaxonomyViewer', () => {
         component.options.filterFields = ['testFilter1', 'testFilter2'];
         component.options.ascending = true;
 
-        let query = new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name)
-            .withFields(['testIdField', 'testCategoryField', 'testFilter1', 'testFilter2',  'testTypeField',
-                'testSubTypeField']);
+        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name)
+            .withFields(['testIdField', 'testCategoryField', 'testFilter1', 'testFilter2',  'testTypeField', 'testSubTypeField']);
 
         let whereClauses = [
             neon.query.where(component.options.idField.columnName, '!=', null),
             neon.query.where(component.options.idField.columnName, '!=', '')
         ];
 
-        query.where(neon.query.and.apply(query, whereClauses)).sortBy('testCategoryField', neonVariables.ASCENDING);
-        expect(component.createQuery()).toEqual(query);
+        let query = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name)
+            .withFields(['testIdField', 'testCategoryField', 'testFilter1', 'testFilter2',  'testTypeField', 'testSubTypeField'])
+            .where(neon.query.and.apply(neon.query, whereClauses)).sortBy('testCategoryField', neonVariables.ASCENDING);
+
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
     }));
 
     it('getCloseableFilters does return null', (() => {
@@ -159,32 +160,6 @@ describe('Component: TaxonomyViewer', () => {
         expect(refs.infoText).toBeDefined();
         expect(refs.treeRoot).toBeDefined();
     });
-
-    it('getExportFields does return expected array', (() => {
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.options.subTypeField = new FieldMetaData('testSubTypeField', 'Test SubType Field');
-        component.options.sourceIdField = new FieldMetaData('sourceIdField', 'Source ID Field');
-
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testCategoryField',
-            prettyName: 'Test Category Field'
-        }, {
-            columnName: 'testTypeField',
-            prettyName: 'Test Type Field'
-        }, {
-            columnName: 'testIdField',
-            prettyName: 'Test ID Field'
-        }, {
-            columnName: 'sourceIdField',
-            prettyName: 'Source ID Field'
-        }, {
-            columnName: 'testSubTypeField',
-            prettyName: 'Test SubType Field'
-        }
-        ]);
-    }));
 
     it('getFiltersToIgnore does return null', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
@@ -224,23 +199,23 @@ describe('Component: TaxonomyViewer', () => {
         expect(component.filterExists('field1', 'value2')).toEqual(false);
     });
 
-    it('isValidQuery does return expected result', (() => {
-        expect(component.isValidQuery()).toBe(false);
+    it('validateVisualizationQuery does return expected result', (() => {
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.database = new DatabaseMetaData('testDatabase');
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.table = new TableMetaData('testTable');
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.idField = DatasetServiceMock.ID_FIELD;
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        expect(component.isValidQuery()).toBe(true);
+        expect(component.validateVisualizationQuery(component.options)).toBe(true);
     }));
 
-    it('onQuerySuccess does load the Taxonomy', (() => {
+    it('transformVisualizationQueryResults does load the Taxonomy', (() => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
@@ -248,9 +223,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.ascending  = true;
 
-        component.onQuerySuccess({
-            data: responseData
-        });
+        component.transformVisualizationQueryResults(component.options, responseData);
 
         expect(component.taxonomyGroups.length).toEqual(4);
         expect(component.taxonomyGroups[0].name).toEqual('testCategoryI');
@@ -271,9 +244,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
-        component.onQuerySuccess({
-            data: responseData
-        });
+        component.transformVisualizationQueryResults(component.options, responseData);
 
         fixture.detectChanges();
 
@@ -296,9 +267,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
-        component.onQuerySuccess({
-            data: responseData
-        });
+        component.transformVisualizationQueryResults(component.options, responseData);
 
         fixture.detectChanges();
 
@@ -323,9 +292,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
-        component.onQuerySuccess({
-            data: responseData
-        });
+        component.transformVisualizationQueryResults(component.options, responseData);
 
         fixture.detectChanges();
 
@@ -349,9 +316,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
-        component.onQuerySuccess({
-            data: responseData
-        });
+        component.transformVisualizationQueryResults(component.options, responseData);
 
         fixture.detectChanges();
 
@@ -370,9 +335,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
-        component.onQuerySuccess({
-            data: responseData
-        });
+        component.transformVisualizationQueryResults(component.options, responseData);
 
         fixture.detectChanges();
 
@@ -382,12 +345,6 @@ describe('Component: TaxonomyViewer', () => {
             expect(component.taxonomyGroups[2].children[1].checked).toEqual(true);
             expect(component.getElementRefs().treeRoot.treeModel.nodes[2].parent.data.indeterminate).toEqual(true);
         });
-    }));
-
-    it('postInit does call executeQueryChain', (() => {
-        let spy = spyOn(component, 'executeQueryChain');
-        component.postInit();
-        expect(spy.calls.count()).toBe(1);
     }));
 
     it('removeFilter function does exist', (() => {
@@ -408,38 +365,5 @@ describe('Component: TaxonomyViewer', () => {
             component.getElementRefs().treeRoot.treeModel.nodes[0].ondblclick();
             expect(spy.calls.count()).toBe(1);
         });
-    }));
-
-    it('subGetBindings does set expected bindings', (() => {
-        let bindings = {};
-
-        component.subGetBindings(bindings);
-        expect(bindings).toEqual({
-            idField: '',
-            categoryField: '',
-            typeField: '',
-            subTypeField: ''
-        });
-
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.options.subTypeField = new FieldMetaData('testSubTypeField');
-
-        component.subGetBindings(bindings);
-        expect(bindings).toEqual({
-            idField: 'testIdField',
-            categoryField: 'testCategoryField',
-            typeField: 'testTypeField',
-            subTypeField: 'testSubTypeField'
-        });
-    }));
-
-    it('subNgOnDestroy function does exist', (() => {
-        expect(component.subNgOnDestroy).toBeDefined();
-    }));
-
-    it('subNgOnInit function does exist', (() => {
-        expect(component.subNgOnInit).toBeDefined();
     }));
 });

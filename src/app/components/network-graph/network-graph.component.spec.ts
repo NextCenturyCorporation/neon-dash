@@ -107,7 +107,7 @@ describe('Component: NetworkGraph', () => {
         expect(component.options.yTargetPositionField).toEqual(new FieldMetaData());
     });
 
-    it('createQuery does return expected query', (() => {
+    it('finalizeVisualizationQuery does return expected query', (() => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.linkField = new FieldMetaData('testLinkField');
@@ -123,52 +123,56 @@ describe('Component: NetworkGraph', () => {
         component.options.yTargetPositionField = new FieldMetaData('testYTargetPositionField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
-        let query = new neon.query.Query()
+        let inputQuery = new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
             .withFields(['testNodeField', 'testLinkField', 'testNodeColorField', 'testEdgeColorField', 'testNodeNameField',
                 'testLinkNameField', 'testTypeField', 'testXPositionField', 'testYPositionField', 'testXTargetPositionField',
                 'testYTargetPositionField', 'testFilter1', 'testFilter2']);
 
-        query.where(neon.query.and.apply(query, [])).sortBy('testNodeColorField', neonVariables.ASCENDING);
-        expect(component.createQuery(component.options)).toEqual(query);
+        let query = new neon.query.Query()
+            .selectFrom(component.options.database.name, component.options.table.name)
+            .withFields(['testNodeField', 'testLinkField', 'testNodeColorField', 'testEdgeColorField', 'testNodeNameField',
+                'testLinkNameField', 'testTypeField', 'testXPositionField', 'testYPositionField', 'testXTargetPositionField',
+                'testYTargetPositionField', 'testFilter1', 'testFilter2'])
+            .sortBy('testNodeColorField', neonVariables.ASCENDING);
+
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
     }));
 
-    it('onQuerySuccess does load the Network Graph with reified data', (() => {
+    it('transformVisualizationQueryResults does load the Network Graph with reified data', (() => {
         component.options.isReified = true;
         component.options.limit = 8;
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                object : 'testObject',
-                predicate : 'testPredicate',
-                provenance : ['testProvenance'],
-                subject : 'testSubject'
-            },
-            {
-                object : 'testObject2',
-                predicate : 'testPredicate',
-                provenance : ['testProvenance2'],
-                subject : ['testSubject2a', 'testSubject2b']
-            },
-            {
-                object : 'testObject3',
-                predicate : 'testPredicate3',
-                provenance : 'testProvenance3',
-                subject : ['testSubject3']
-            },
-            {
-                object : 'testObject',
-                predicate : 'testPredicate5',
-                provenance : 'testProvenance4',
-                subject : ['testSubject4']
-            },
-            {
-                object : 'testObject4',
-                predicate : 'testPredicate3',
-                provenance : 'testProvenance4',
-                subject : ['testSubject4']
-            }]
-        });
+        component.transformVisualizationQueryResults(component.options, [{
+            object : 'testObject',
+            predicate : 'testPredicate',
+            provenance : ['testProvenance'],
+            subject : 'testSubject'
+        },
+        {
+            object : 'testObject2',
+            predicate : 'testPredicate',
+            provenance : ['testProvenance2'],
+            subject : ['testSubject2a', 'testSubject2b']
+        },
+        {
+            object : 'testObject3',
+            predicate : 'testPredicate3',
+            provenance : 'testProvenance3',
+            subject : ['testSubject3']
+        },
+        {
+            object : 'testObject',
+            predicate : 'testPredicate5',
+            provenance : 'testProvenance4',
+            subject : ['testSubject4']
+        },
+        {
+            object : 'testObject4',
+            predicate : 'testPredicate3',
+            provenance : 'testProvenance4',
+            subject : ['testSubject4']
+        }]);
 
         expect(component.totalNodes).toEqual(8); //Total based on allowed limit
         expect(component.displayGraph).toEqual(true);
@@ -177,7 +181,7 @@ describe('Component: NetworkGraph', () => {
 
     }));
 
-    it('onQuerySuccess does load the Network Graph with tabular data', (() => {
+    it('transformVisualizationQueryResults does load the Network Graph with tabular data', (() => {
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.linkNameField = new FieldMetaData('testLinkNameField');
         component.options.typeField = new FieldMetaData('testTypeField');
@@ -192,48 +196,46 @@ describe('Component: NetworkGraph', () => {
         component.options.isReified = false;
         component.options.limit = 3;
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                testLinkField: 'testLinkValue',
-                testLinkNameField: 'testLinkNameValue',
-                testNodeField: 'testNodeValue',
-                testNodeNameField: 'testNodeNameValue',
-                testTypeField: 'testTypeValue',
-                testEdgeColorField: '#5f9365',
-                testXPositionField: 100,
-                testYPositionField: 215
-            },
-            {
-                testLinkField: 'testLinkValue2',
-                testLinkNameField: 'testLinkNameValue2',
-                testNodeField: 'testNodeValue2',
-                testNodeNameField: 'testNodeNameValue2',
-                testTypeField: 'testTypeValue2',
-                testEdgeColorField: '#5f9365',
-                testXPositionField: -858,
-                testYPositionField: 495
-            },
-            {
-                testLinkField: 'testLinkValue3',
-                testLinkNameField: 'testLinkNameValue3',
-                testNodeField: 'testNodeValue3',
-                testNodeNameField: 'testNodeNameValue3',
-                testTypeField: 'testTypeValue3',
-                testEdgeColorField: '#5f9365',
-                testXPositionField: -549,
-                testYPositionField: -656
-            },
-            {
-                testLinkField: 'testLinkValue4',
-                testLinkNameField: 'testLinkNameValue4',
-                testNodeField: 'testNodeValue4',
-                testNodeNameField: 'testNodeNameValue4',
-                testTypeField: 'testTypeValue4',
-                testEdgeColorField: '#5f9365',
-                testXPositionField: 191,
-                testYPositionField: -525
-            }]
-        });
+        component.transformVisualizationQueryResults(component.options, [{
+            testLinkField: 'testLinkValue',
+            testLinkNameField: 'testLinkNameValue',
+            testNodeField: 'testNodeValue',
+            testNodeNameField: 'testNodeNameValue',
+            testTypeField: 'testTypeValue',
+            testEdgeColorField: '#5f9365',
+            testXPositionField: 100,
+            testYPositionField: 215
+        },
+        {
+            testLinkField: 'testLinkValue2',
+            testLinkNameField: 'testLinkNameValue2',
+            testNodeField: 'testNodeValue2',
+            testNodeNameField: 'testNodeNameValue2',
+            testTypeField: 'testTypeValue2',
+            testEdgeColorField: '#5f9365',
+            testXPositionField: -858,
+            testYPositionField: 495
+        },
+        {
+            testLinkField: 'testLinkValue3',
+            testLinkNameField: 'testLinkNameValue3',
+            testNodeField: 'testNodeValue3',
+            testNodeNameField: 'testNodeNameValue3',
+            testTypeField: 'testTypeValue3',
+            testEdgeColorField: '#5f9365',
+            testXPositionField: -549,
+            testYPositionField: -656
+        },
+        {
+            testLinkField: 'testLinkValue4',
+            testLinkNameField: 'testLinkNameValue4',
+            testNodeField: 'testNodeValue4',
+            testNodeNameField: 'testNodeNameValue4',
+            testTypeField: 'testTypeValue4',
+            testEdgeColorField: '#5f9365',
+            testXPositionField: 191,
+            testYPositionField: -525
+        }]);
 
         expect(component.totalNodes).toEqual(3); //Total based on allowed limit
         expect(component.displayGraph).toEqual(true);
@@ -300,48 +302,46 @@ describe('Component: NetworkGraph', () => {
 
         let spy = spyOn(component, 'resetGraphData');
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                    testLinkField: 'testLinkValue',
-                    testLinkNameField: 'testLinkNameValue',
-                    testNodeField: 'testNodeValue',
-                    testNodeNameField: 'testNodeNameValue',
-                    testTypeField: 'testTypeValue',
-                    testEdgeColorField: '#5f9365',
-                    testXPositionField: 100,
-                    testYPositionField: 215
-                },
-                {
-                    testLinkField: 'testLinkValue2',
-                    testLinkNameField: 'testLinkNameValue2',
-                    testNodeField: 'testNodeValue2',
-                    testNodeNameField: 'testNodeNameValue2',
-                    testTypeField: 'testTypeValue2',
-                    testEdgeColorField: '#5f9365',
-                    testXPositionField: -858,
-                    testYPositionField: 495
-                },
-                {
-                    testLinkField: 'testLinkValue3',
-                    testLinkNameField: 'testLinkNameValue3',
-                    testNodeField: 'testNodeValue3',
-                    testNodeNameField: 'testNodeNameValue3',
-                    testTypeField: 'testTypeValue3',
-                    testEdgeColorField: '#5f9365',
-                    testXPositionField: -549,
-                    testYPositionField: -656
-                },
-                {
-                    testLinkField: 'testLinkValue4',
-                    testLinkNameField: 'testLinkNameValue4',
-                    testNodeField: 'testNodeValue4',
-                    testNodeNameField: 'testNodeNameValue4',
-                    testTypeField: 'testTypeValue4',
-                    testEdgeColorField: '#5f9365',
-                    testXPositionField: 191,
-                    testYPositionField: -525
-                }]
-        });
+        component.transformVisualizationQueryResults(component.options, [{
+            testLinkField: 'testLinkValue',
+            testLinkNameField: 'testLinkNameValue',
+            testNodeField: 'testNodeValue',
+            testNodeNameField: 'testNodeNameValue',
+            testTypeField: 'testTypeValue',
+            testEdgeColorField: '#5f9365',
+            testXPositionField: 100,
+            testYPositionField: 215
+        },
+        {
+            testLinkField: 'testLinkValue2',
+            testLinkNameField: 'testLinkNameValue2',
+            testNodeField: 'testNodeValue2',
+            testNodeNameField: 'testNodeNameValue2',
+            testTypeField: 'testTypeValue2',
+            testEdgeColorField: '#5f9365',
+            testXPositionField: -858,
+            testYPositionField: 495
+        },
+        {
+            testLinkField: 'testLinkValue3',
+            testLinkNameField: 'testLinkNameValue3',
+            testNodeField: 'testNodeValue3',
+            testNodeNameField: 'testNodeNameValue3',
+            testTypeField: 'testTypeValue3',
+            testEdgeColorField: '#5f9365',
+            testXPositionField: -549,
+            testYPositionField: -656
+        },
+        {
+            testLinkField: 'testLinkValue4',
+            testLinkNameField: 'testLinkNameValue4',
+            testNodeField: 'testNodeValue4',
+            testNodeNameField: 'testNodeNameValue4',
+            testTypeField: 'testTypeValue4',
+            testEdgeColorField: '#5f9365',
+            testXPositionField: 191,
+            testYPositionField: -525
+        }]);
 
         expect(component.neonFilters.length).toEqual(2);
         expect(spy.calls.count()).toEqual(1);
@@ -368,28 +368,26 @@ describe('Component: NetworkGraph', () => {
         component.options.isReified = false;
         component.options.limit = Infinity;
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                testLinkField: 'testLinkValue',
-                testLinkNameField: 'testLinkNameValue',
-                testNodeField: 'testNodeValue',
-                testNodeNameField: 'testNodeNameValue',
-                testTypeField: 'testTypeValue',
-                testEdgeColorField: '#5f9365',
-                testXPositionField: 100,
-                testYPositionField: 215
-            },
-            {
-                testLinkField: 'testLinkValue2',
-                testLinkNameField: 'testLinkNameValue2',
-                testNodeField: 'testNodeValue2',
-                testNodeNameField: 'testNodeNameValue2',
-                testTypeField: 'testTypeValue2',
-                testEdgeColorField: '#5f9365',
-                testXPositionField: -858,
-                testYPositionField: 495
-            }]
-        });
+        component.transformVisualizationQueryResults(component.options, [{
+            testLinkField: 'testLinkValue',
+            testLinkNameField: 'testLinkNameValue',
+            testNodeField: 'testNodeValue',
+            testNodeNameField: 'testNodeNameValue',
+            testTypeField: 'testTypeValue',
+            testEdgeColorField: '#5f9365',
+            testXPositionField: 100,
+            testYPositionField: 215
+        },
+        {
+            testLinkField: 'testLinkValue2',
+            testLinkNameField: 'testLinkNameValue2',
+            testNodeField: 'testNodeValue2',
+            testNodeNameField: 'testNodeNameValue2',
+            testTypeField: 'testTypeValue2',
+            testEdgeColorField: '#5f9365',
+            testXPositionField: -858,
+            testYPositionField: 495
+        }]);
 
         component.legendItemSelected({currentlyActive: true, fieldName: 'testTypeField', value: 'testTypeValue2'});
 
@@ -420,28 +418,26 @@ describe('Component: NetworkGraph', () => {
         component.options.limit = Infinity;
         component.options.multiFilterOperator = 'and';
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                testLinkField: 'testLinkValue',
-                testLinkNameField: 'testLinkNameValue',
-                testNodeField: 'testNodeValue',
-                testNodeNameField: 'testNodeNameValue',
-                testTypeField: 'testTypeValue',
-                testEdgeColorField: '#5f9365',
-                testXPositionField: 100,
-                testYPositionField: 215
-            },
-            {
-                testLinkField: 'testLinkValue2',
-                testLinkNameField: 'testLinkNameValue2',
-                testNodeField: 'testNodeValue2',
-                testNodeNameField: 'testNodeNameValue2',
-                testTypeField: 'testTypeValue2',
-                testEdgeColorField: '#5f9365',
-                testXPositionField: -858,
-                testYPositionField: 495
-            }]
-        });
+        component.transformVisualizationQueryResults(component.options, [{
+            testLinkField: 'testLinkValue',
+            testLinkNameField: 'testLinkNameValue',
+            testNodeField: 'testNodeValue',
+            testNodeNameField: 'testNodeNameValue',
+            testTypeField: 'testTypeValue',
+            testEdgeColorField: '#5f9365',
+            testXPositionField: 100,
+            testYPositionField: 215
+        },
+        {
+            testLinkField: 'testLinkValue2',
+            testLinkNameField: 'testLinkNameValue2',
+            testNodeField: 'testNodeValue2',
+            testNodeNameField: 'testNodeNameValue2',
+            testTypeField: 'testTypeValue2',
+            testEdgeColorField: '#5f9365',
+            testXPositionField: -858,
+            testYPositionField: 495
+        }]);
 
         component.onSelect({nodes: ['testNodeValue2']});
 
