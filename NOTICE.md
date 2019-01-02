@@ -17,7 +17,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | @angular/upgrade@7.1.0 | [MIT](https://github.com/angular/angular) |
 | @swimlane/ngx-charts@10.0.0 | [MIT](https://github.com/swimlane/ngx-charts/raw/master/LICENSE.md) |
 | @swimlane/ngx-datatable@14.0.0 | [MIT](https://github.com/swimlane/ngx-datatable/raw/master/LICENSE) |
-| @swimlane/ngx-graph@5.1.1 | [MIT](https://github.com/swimlane/ngx-graph/raw/master/LICENSE) |
+| @swimlane/ngx-graph@5.2.1 | [MIT](https://github.com/swimlane/ngx-graph/raw/master/LICENSE) |
 | ajv-keywords@1.5.1 | [MIT](https://github.com/epoberezkin/ajv-keywords/raw/master/LICENSE) |
 | ajv@5.2.0 | [MIT](https://github.com/epoberezkin/ajv/raw/master/LICENSE) |
 | angular-core@0.0.5 | [ISC](undefined) |
