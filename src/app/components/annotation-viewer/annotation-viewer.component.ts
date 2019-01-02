@@ -1109,11 +1109,13 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * Publishes the component's option object and handle change callbacks to the gear component
      */
     publishOptions() {
+        let componentThis: any;
         let handleChangeData: () => void;
         let handleChangeDatabase: () => void;
         let handleChangeFilterField: () => void;
         let handleChangeLimit: () => void;
         let handleChangeTable: () => void;
+        componentThis = this;
         handleChangeData = this.handleChangeData.bind(this);
         handleChangeDatabase = this.handleChangeDatabase.bind(this);
         handleChangeFilterField = this.handleChangeFilterField.bind(this);
@@ -1125,7 +1127,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             changeDatabase: handleChangeDatabase,
             changeFilterFIeld: handleChangeFilterField,
             changeLimitCallback: handleChangeLimit,
-            changeTable: handleChangeTable
+            changeTable: handleChangeTable,
+            componentThis: componentThis
         });
     }
 

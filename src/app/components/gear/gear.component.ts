@@ -38,10 +38,11 @@ export class GearComponent implements OnInit, OnDestroy {
 
     public options: any = new WidgetOptionCollection();
     public messenger: neon.eventing.Messenger;
-    public optionsList: WidgetOption[];
-    public requiredList: WidgetOption[];
-    public optionalList: WidgetOption[];
-    public changeList: any[];
+    private optionsList: WidgetOption[];
+    private requiredList: WidgetOption[];
+    private optionalList: WidgetOption[];
+    private changeList: any[];
+    public componentThis: any;
 
     public handleChangeData: Function; //{(): => void; };
     public handleChangeDatabase: Function;
@@ -63,70 +64,9 @@ export class GearComponent implements OnInit, OnDestroy {
         this.optionalList = [];
         this.changeList = [];
         this.messenger = new neon.eventing.Messenger();
-        //this.messenger.subscribe('options', (message) => this.updateOptions(message));
     }
 
-    overrideExistingChange(option: WidgetOption) {
-        //let exists = false;
-        this.changeList = this.changeList.filter((change) =>
-            change.widgetOption.bindingKey !== option.bindingKey
-        );
-    }
-
-    checkOptionType(currentType: string, checkType) {
-        if (currentType === checkType) {
-            return true;
-        }
-        return false;
-    }
-
-    cleanShowOptions() {
-        let list = this.optionsList;
-        list = this.removeOptionsByEnableInMenu(list, false);
-        list = this.removeOptionsByBindingKey(list, 'title');
-        list = this.removeOptionsByType(list, 'DATABASE');
-        list = this.removeOptionsByType(list, 'TABLE');
-        this.optionsList = list;
-    }
-
-    constructOptionsLists() {
-        let list = this.optionsList;
-        let requiredList = [];
-        list.forEach(function(element) {
-            if (element.isRequired && element instanceof WidgetFieldOption) {
-                requiredList.push(element);
-                list.splice(list.indexOf(element), 1);
-            }
-        });
-        this.requiredList = requiredList;
-        this.optionalList = list;
-        //console.log(this.requiredList);
-        //console.log(this.optionalList);
-    }
-
-    getApplyButtonText() {
-        return 'Apply Field Changes';
-    }
-
-    getTitle() {
-        let titleOption = this.options.access('title');
-        return titleOption.valueCurrent;
-    }
-
-    handleApplyClick() {
-        this.changeList.forEach((change) => {
-            this.options[change.widgetOption.bindingkey] = change.newValue;
-        });
-        this.changeList = [];
-
-        if (this.limitChanged) {
-            this.handleChangeLimit();
-        }
-
-        this.handleChangeData();
-    }
-
-    changeFilterFIeldLimit(widgetOption, newValue) {
+    changeFilterFieldLimit(widgetOption, newValue) {
         this.newLimit = newValue;
         if (this.isNumber(this.newLimit)) {
             let newLimit = parseFloat('' + this.newLimit);
@@ -143,15 +83,80 @@ export class GearComponent implements OnInit, OnDestroy {
         }
     }
 
-    handleDataChange(widgetOption, newValue) {
+    checkOptionType(currentType: string, checkType) {
+        if (currentType === checkType) {
+            return true;
+        }
+        return false;
+    }
 
+    /**
+     * Removes database and table options
+     */
+    cleanShowOptions() {
+        let list = this.optionsList;
+        list = this.removeOptionsByEnableInMenu(list, false);
+        list = this.removeOptionsByBindingKey(list, 'title');
+        list = this.removeOptionsByType(list, 'DATABASE');
+        list = this.removeOptionsByType(list, 'TABLE');
+        this.optionsList = list;
+    }
+
+    /**
+     * Constructs requiredList & optionalList at the same time
+     */
+    constructOptionsLists() {
+        let list = this.optionsList;
+        let requiredList = [];
+        list.forEach(function(element) {
+            if (element.isRequired && element instanceof WidgetFieldOption) {
+                requiredList.push(element);
+                list.splice(list.indexOf(element), 1);
+            }
+        });
+        this.requiredList = requiredList;
+        this.optionalList = list;
+        //console.log(this.requiredList);
+        //console.log(this.optionalList);
+    }
+
+    /**
+     * Gets the text for the Apply button
+     */
+    getApplyButtonText() {
+        return 'Apply Field Changes';
+    }
+
+    getTitle() {
+        let titleOption = this.options.access('title');
+        return titleOption.valueCurrent;
+    }
+
+    /**
+     * Applys the list of changes in the changeList and calls the
+     * handleChange functions accordingly.
+     */
+    handleApplyClick() {
+        this.changeList.forEach((change) => {
+            this.options[change.widgetOption.bindingkey] = change.newValue;
+        });
+        this.changeList = [];
+
+        if (this.limitChanged) {
+            this.handleChangeLimit();
+        }
+
+        this.handleChangeData();
+    }
+
+    handleDataChange(widgetOption, newValue) {
         //console.log(this.changeList);
         //console.log('widget option');
         //console.log(widgetOption);
         //console.log('New value"');
         //console.log(newValue);
         if (widgetOption.bindingkey === 'limit') {
-            this.changeFilterFIeldLimit(widgetOption, newValue);
+            this.changeFilterFieldLimit(widgetOption, newValue);
         } else {
             this.overrideExistingChange(widgetOption);
             this.changeList.push({ widgetOption, newValue });
@@ -176,6 +181,13 @@ export class GearComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.messenger.subscribe('options', (message) => this.updateOptions(message));
         this.changeDetection.detectChanges();
+    }
+
+    overrideExistingChange(option: WidgetOption) {
+        //let exists = false;
+        this.changeList = this.changeList.filter((change) =>
+            change.widgetOption.bindingKey !== option.bindingKey
+        );
     }
 
     removeOptionsByBindingKey(list: any[], bindingKey: string): any[] {
@@ -218,6 +230,7 @@ export class GearComponent implements OnInit, OnDestroy {
         this.handleChangeFilterField = message.changeFilterField;
         this.handleChangeLimit = message.changeLimitCallback;
         this.handleChangeTable = message.changeTable;
+        this.componentThis = message.componentThis;
 
         this.optionsList = this.options.list();
         this.cleanShowOptions();
