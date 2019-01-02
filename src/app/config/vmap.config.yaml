@@ -1771,7 +1771,7 @@ layouts:
         compareField: NeonReasoningLabel
         cropAndScale:
         defaultPercent: N/A
-        detailedThumbnails: true
+        viewType: details
         filterField: ProbeFileID
         flagLabel: NeonReasoningLabel
         flagSubLabel1: Exif.ImageSize

@@ -21,6 +21,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | ajv-keywords@1.5.1 | [MIT](https://github.com/epoberezkin/ajv-keywords/raw/master/LICENSE) |
 | ajv@5.2.0 | [MIT](https://github.com/epoberezkin/ajv/raw/master/LICENSE) |
 | angular-core@0.0.5 | [ISC](undefined) |
+| angular-tree-component@8.0.3 | [MIT](https://github.com/500tech/angular-tree-component/raw/master/LICENSE) |
 | angular2-chartjs@0.4.1 | [MIT](https://github.com/emn178/angular2-chartjs/raw/master/LICENSE.txt) |
 | angular2-grid@2.3.1 | [MIT](https://github.com/BTMorton/angular2-grid/raw/master/LICENSE) |
 | brace@0.10.0 | [MIT](https://github.com/thlorenz/brace/raw/master/LICENSE) |

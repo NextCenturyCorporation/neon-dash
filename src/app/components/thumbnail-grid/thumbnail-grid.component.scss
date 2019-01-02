@@ -169,3 +169,47 @@ canvas.border-mat-yellow {
 .text-highlight{
     color:#027276; /*#4dbec2;*/
 }
+
+.thumbnail-card{
+    display:flex;
+    background-color: #e8e8e8;
+    padding: 0em 0em .6em .4em;
+    flex: 1 1;
+    width: 250px;
+    flex-flow: column nowrap;
+}
+
+.thumbnail-card-title{
+    max-width:80%;
+    flex: auto;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-self: center;
+
+    p{
+        font-size: .9em;
+        @extend .title-bold;
+        color: #000000;
+    }
+}
+
+.thumbnail-card-details{
+    height: 80px;
+    width: 98%;
+    flex: auto;
+    overflow-y: scroll;
+    overflow: auto;
+
+    p{
+        font-size: .8em;
+        margin: 4px;
+    }
+}
+
+.thumbnail-card-canvas{
+    align-self: center;
+    margin-bottom: 1em;
+}
