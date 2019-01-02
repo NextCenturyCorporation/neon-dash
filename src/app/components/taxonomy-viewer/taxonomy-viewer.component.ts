@@ -28,91 +28,24 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldOption,
+    WidgetFieldArrayOption,
+    WidgetFreeTextOption,
+    WidgetNonPrimitiveOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import * as neon from 'neon-framework';
 import { current } from 'codelyzer/util/syntaxKind';
-
-/**
- * Manages configurable options for the specific visualization.
- */
-export class TaxonomyViewerOptions extends BaseNeonOptions {
-    public ascending: boolean;
-    public id: string;
-    public categoryField: FieldMetaData;
-    public idField: FieldMetaData;
-    public sourceIdField: FieldMetaData;
-    public typeField: FieldMetaData;
-    public subTypeField: FieldMetaData;
-    public filterFields: string[];
-    public ignoreSelf: boolean;
-    public extendedFilter: boolean;
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        bindings.ascending = this.ascending;
-        bindings.id = this.id;
-        bindings.filterFields = this.filterFields;
-        bindings.ignoreSelf = this.ignoreSelf;
-
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'categoryField',
-            'idField',
-            'sourceIdField',
-            'linkField',
-            'typeField',
-            'subTypeField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field options for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.ascending = this.injector.get('ascending', false);
-        this.id = this.injector.get('id', '');
-        this.ignoreSelf = this.injector.get('ignoreSelf', false);
-        this.filterFields = this.injector.get('filterFields', []);
-        this.extendedFilter = this.injector.get('extendedFilter', false);
-    }
-}
 
 @Component({
     selector: 'app-taxonomy-viewer',
@@ -137,7 +70,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         value: string
     }[] = [];
 
-    public options: TaxonomyViewerOptions;
     public taxonomyGroups: any[] = [];
     public deletedFilter: any;
 
@@ -159,17 +91,53 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     };
 
     constructor(
-        activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
-        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-        ref: ChangeDetectorRef, visualizationService: VisualizationService
+        connectionService: ConnectionService,
+        datasetService: DatasetService,
+        filterService: FilterService,
+        injector: Injector,
+        ref: ChangeDetectorRef
     ) {
 
         super(
-            activeGridService, connectionService, datasetService, filterService,
-            exportService, injector, themesService, ref, visualizationService
+            connectionService,
+            datasetService,
+            filterService,
+            injector,
+            ref
         );
+    }
 
-        this.options = new TaxonomyViewerOptions(this.injector, this.datasetService, 'Taxonomy Viewer');
+    /**
+     * Creates and returns an array of field options for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('categoryField', 'Category Field', true),
+            new WidgetFieldOption('idField', 'ID Field', true),
+            new WidgetFieldOption('sourceIdField', 'Source ID Field', false),
+            new WidgetFieldOption('linkField', 'Link Field', false),
+            new WidgetFieldOption('typeField', 'Type Field', false),
+            new WidgetFieldOption('subTypeField', 'Sub Type Field', false)
+        ];
+    }
+
+    /**
+     * Creates and returns an array of non-field options for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetSelectOption('ascending', 'Sort Ascending', false, OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('id', 'ID', ''),
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.NoFalseYesTrue),
+            new WidgetNonPrimitiveOption('filterFields', 'Filter Fields', []),
+            new WidgetSelectOption('extendedFilter', 'Extended Filter', false, OptionChoices.NoFalseYesTrue)
+        ];
     }
 
     /**
@@ -205,16 +173,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Creates and returns the text for the settings button and menu.
-     *
-     * @return {string}
-     * @override
-     */
-    getButtonText(): string {
-        return null;
-    }
-
-    /**
      * The taxonomy is a filter so no filters need to be returned
      *
      * @return {array}
@@ -237,16 +195,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             infoText: this.infoText,
             treeRoot: this.treeRoot
         };
-    }
-
-    /**
-     * Returns the options for the specific visualization.
-     *
-     * @return {BaseNeonOptions}
-     * @override
-     */
-    getOptions(): BaseNeonOptions {
-        return this.options;
     }
 
     /**
@@ -294,6 +242,26 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     getFilterText(filter: any): string {
         return filter.prettyField + ' = ' + filter.value;
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultLimit(): number {
+        return 100;
+    }
+
+    /**
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'Taxonomy Viewer';
     }
 
     /**

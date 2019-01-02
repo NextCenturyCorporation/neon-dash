@@ -24,14 +24,9 @@ import {} from 'jasmine-core';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -88,14 +83,9 @@ describe('Component: TaxonomyViewer', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             {provide: DatasetService, useClass: DatasetServiceMock},
-            ExportService,
-            ErrorNotificationService,
             {provide: FilterService, useClass: FilterServiceMock},
-            ThemesService,
-            VisualizationService,
             Injector,
             {provide: 'config', useValue: new NeonGTDConfig()}
         ],
@@ -157,10 +147,6 @@ describe('Component: TaxonomyViewer', () => {
 
         query.where(neon.query.and.apply(query, whereClauses)).sortBy('testCategoryField', neonVariables.ASCENDING);
         expect(component.createQuery()).toEqual(query);
-    }));
-
-    it('getButtonText does return null', (() => {
-        expect(component.getButtonText()).toEqual(null);
     }));
 
     it('getCloseableFilters does return null', (() => {

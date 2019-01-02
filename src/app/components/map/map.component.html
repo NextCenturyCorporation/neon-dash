@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -116,31 +116,22 @@
                         </mat-form-field>
                         <p></p>
 
-                        <span class="toggle-text">Hover Popup Enabled:</span>
-                        <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.hoverPopupEnabled" 
+                        <span class="toggle-text">Coordinates on Point Hover:</span>
+                        <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showPointDataOnHover"
                         (ngModelChange)="handleChangeData()">
-                            <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-                            <mat-button-toggle [value]="false">No</mat-button-toggle>
+                            <mat-button-toggle [value]="true">Show</mat-button-toggle>
+                            <mat-button-toggle [value]="false">Hide</mat-button-toggle>
                         </mat-button-toggle-group>
                         <p></p>
 
-                        <div *ngIf="options.hoverPopupEnabled">
-                            <mat-form-field>
-                                <mat-select placeholder="Hover Popup Field" [(ngModel)]="options.layers[i].hoverPopupField"
-                                            (ngModelChange)="handleChangeDataAtLayerIndex(i)" [disabled]="options.layers[i].fields.length == 0">
-                                    <mat-option [value]="emptyField">(None)</mat-option>
-                                    <mat-option *ngFor="let field of options.layers[i].fields"
-                                                [value]="field">{{ field.prettyName }}</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                            <p></p>
-                        </div>
-
-                        <span class="toggle-text">Type:</span>
-                        <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.clustering" (ngModelChange)="handleChangeData()">
-                            <mat-button-toggle [value]="true">Points</mat-button-toggle>
-                            <mat-button-toggle [value]="false">Clusters</mat-button-toggle>
-                        </mat-button-toggle-group>
+                        <mat-form-field>
+                            <mat-select placeholder="Hover Popup Field" [(ngModel)]="options.layers[i].hoverPopupField"
+                                        (ngModelChange)="handleChangeDataAtLayerIndex(i)" [disabled]="options.layers[i].fields.length == 0">
+                                <mat-option [value]="createEmptyField">(None)</mat-option>
+                                <mat-option *ngFor="let field of options.layers[i].fields"
+                                            [value]="field">{{ field.prettyName }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
                         <p></p>
                     </div>
                     <p></p>
@@ -155,7 +146,7 @@
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Point Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                        <input matInput placeholder="Point Limit" [(ngModel)]="newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
@@ -164,7 +155,7 @@
                 </div>
                 <p></p>
 
-                <app-export-control [exportId]="exportId"></app-export-control>
+                <app-export-control [widgets]="this"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
@@ -178,9 +169,7 @@
 
         <div class=" legend-container ">
             <div *ngIf="!options.singleColor">
-                <app-legend [fieldNames]="colorByFields"
-                    [disabledSets]="disabledSet"
-                    (itemSelected)="legendItemSelected($event)"></app-legend>
+                <app-legend [colorKeys]="colorKeys" [disabledSets]="disabledSet" (itemSelected)="legendItemSelected($event)"></app-legend>
             </div>
 
             <div class="filter-reset" *ngFor="let filter of getCloseableFilters() ">

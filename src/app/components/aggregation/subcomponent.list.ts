@@ -15,7 +15,6 @@
  */
 import { ElementRef } from '@angular/core';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { AggregationOptions } from './aggregation.component';
 
 import * as _ from 'lodash';
 
@@ -36,14 +35,12 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
 
     /**
      * @constructor
-     * @arg {AggregationOptions} options
+     * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
      * @arg {boolean} [cannotSelect=false]
      */
-    constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef,
-        protected cannotSelect: boolean = false) {
-
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef, protected cannotSelect: boolean = false) {
         super(options, listener, elementRef);
     }
 
@@ -100,7 +97,7 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
             if (groups.length > 1) {
                 let groupElement = document.createElement('td');
                 groupElement.setAttribute('class', 'list-text');
-                groupElement.setAttribute('style', 'color: ' + item.color.toRgb());
+                groupElement.setAttribute('style', 'color: ' + item.color.getComputedCss(this.elementRef));
                 groupElement.innerHTML = item.group;
                 rowTitle = item.group + ' - ' + rowTitle;
                 rowElement.appendChild(groupElement);
@@ -178,6 +175,17 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
     }
 
     /**
+     * Returns the label for a visualization element using the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Result' + (count === 1 ? '' : 's');
+    }
+
+    /**
      * Handles the given click event by filtering on the clicked value.
      *
      * @arg {event} event
@@ -219,6 +227,16 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
         this.elementContainer = document.createElement('table');
         this.elementContainer.setAttribute('class', 'list-subcomponent');
         this.elementRef.nativeElement.appendChild(this.elementContainer);
+    }
+
+    /**
+     * Returns whether the chart is horizontal.
+     *
+     * @return {boolean}
+     * @override
+     */
+    public isHorizontal(): boolean {
+        return false;
     }
 
     /**

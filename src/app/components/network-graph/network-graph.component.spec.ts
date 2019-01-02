@@ -19,23 +19,17 @@ import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
 import * as neon from 'neon-framework';
 import { NetworkGraphComponent } from './network-graph.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FieldMetaData } from '../../dataset';
-import { TranslationService } from '../../services/translation.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
-import { VisualizationService } from '../../services/visualization.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { WidgetService } from '../../services/widget.service';
 import { LegendComponent } from '../legend/legend.component';
-import { ChartComponent } from '@swimlane/ngx-charts';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
@@ -50,24 +44,17 @@ describe('Component: NetworkGraph', () => {
 
     initializeTestBed({
         declarations: [
-            ChartComponent,
             LegendComponent,
             NetworkGraphComponent,
             ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
-            ExportService,
-            TranslationService,
-            ErrorNotificationService,
-            VisualizationService,
-            ThemesService,
             Injector,
-            ColorSchemeService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: 'config', useValue: testConfig },
             { provide: 'limit', useValue: 'testLimit' }
         ],
@@ -98,9 +85,8 @@ describe('Component: NetworkGraph', () => {
         expect(component.options.linkColor).toEqual('#96c1fc');
         expect(component.options.edgeColor).toEqual('#2b7ce9');
         expect(component.options.fontColor).toEqual('#343434');
-        expect(component.options.edgeWidth).toEqual(1);
+        expect(component.options.edgeWidth).toEqual('1');
         expect(component.options.limit).toEqual('testLimit');
-        expect(component.options.showOnlyFiltered).toEqual(false);
         expect(component.options.filterFields).toEqual([]);
         expect(component.options.physics).toEqual(true);
         expect(component.options.filterable).toEqual(false);

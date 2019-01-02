@@ -14,10 +14,9 @@
  *
  */
 import { ElementRef } from '@angular/core';
-import { AggregationOptions } from './aggregation.component';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { ChartJsBarSubcomponent, ChartJsBarDataset } from './subcomponent.chartjs.bar';
-import { Color } from '../../services/color-scheme.service';
+import { Color } from '../../color';
 
 export class ChartJsHistogramSubcomponent extends ChartJsBarSubcomponent {
     /**
@@ -45,6 +44,17 @@ export class ChartJsHistogramSubcomponent extends ChartJsBarSubcomponent {
         superclassOptions.scales.xAxes[0].categoryPercentage = 1.0;
         superclassOptions.scales.yAxes[0].categoryPercentage = 1.0;
         return chartOptions;
+    }
+
+    /**
+     * Returns the label for a visualization element using the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Bin' + (count === 1 ? '' : 's');
     }
 
     /**

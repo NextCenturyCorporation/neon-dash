@@ -28,14 +28,9 @@ import * as neon from 'neon-framework';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { MediaViewerComponent } from './media-viewer.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -51,14 +46,9 @@ describe('Component: MediaViewer', () => {
             ExportControlComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
-            ExportService,
-            ErrorNotificationService,
             { provide: FilterService, useClass: FilterServiceMock },
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -126,7 +116,7 @@ describe('Component: MediaViewer', () => {
     it('getButtonText does return expected string', () => {
         expect(component.getButtonText()).toBe('Please Select');
         component.options.url = 'https://test.com';
-        expect(component.getButtonText()).toBe('No Data');
+        expect(component.getButtonText()).toBe('0 Files');
         component.tabsAndMedia = [{
             loaded: false,
             slider: 0,
@@ -147,7 +137,7 @@ describe('Component: MediaViewer', () => {
             }]
         }];
         component.options.url = '';
-        expect(component.getButtonText()).toBe('Total Files 1');
+        expect(component.getButtonText()).toBe('1 File');
         component.tabsAndMedia = [{
             loaded: false,
             slider: 0,
@@ -185,7 +175,7 @@ describe('Component: MediaViewer', () => {
                 type: ''
             }]
         }];
-        expect(component.getButtonText()).toBe('Total Files 4');
+        expect(component.getButtonText()).toBe('4 Files');
     });
 
     it('getElementRefs does return expected object', () => {
@@ -920,84 +910,6 @@ describe('Component: MediaViewer', () => {
         expect(component.setupFilters).toBeDefined();
     }));
 
-    it('options.createBindings does set expected bindings', (() => {
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: '',
-            hideUnfiltered: false,
-            limit: 10,
-            table: '',
-            title: 'Media Viewer',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            idField: '',
-            linkField: '',
-            linkFields: [],
-            maskField: '',
-            nameField: '',
-            typeField: '',
-            autoplay: false,
-            border: '',
-            clearMedia: false,
-            delimiter: ',',
-            linkPrefix: '',
-            oneTabPerArray: false,
-            resize: true,
-            sliderValue: 0,
-            typeMap: {}
-        });
-
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.linkField = DatasetServiceMock.LINK_FIELD;
-        component.options.linkFields = [new FieldMetaData('testLinkField1'), new FieldMetaData('testLinkField2')];
-        component.options.maskField = new FieldMetaData('testMaskField');
-        component.options.nameField = DatasetServiceMock.NAME_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.options.autoplay = true;
-        component.options.border = 'grey';
-        component.options.clearMedia = true;
-        component.options.delimiter = ';';
-        component.options.linkPrefix = '/prefix';
-        component.options.oneTabPerArray = true;
-        component.options.resize = false;
-        component.options.sliderValue = 0.5;
-        component.options.typeMap = {
-            jpg: 'img'
-        };
-
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: '',
-            hideUnfiltered: false,
-            limit: 10,
-            table: '',
-            title: 'Media Viewer',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            idField: 'testIdField',
-            linkField: 'testLinkField',
-            linkFields: ['testLinkField1', 'testLinkField2'],
-            maskField: 'testMaskField',
-            nameField: 'testNameField',
-            typeField: 'testTypeField',
-            autoplay: true,
-            border: 'grey',
-            clearMedia: true,
-            delimiter: ';',
-            linkPrefix: '/prefix',
-            oneTabPerArray: true,
-            resize: false,
-            sliderValue: 0.5,
-            typeMap: {
-                jpg: 'img'
-            }
-        });
-    }));
-
     it('subNgOnDestroy function does exist', (() => {
         expect(component.subNgOnDestroy).toBeDefined();
     }));
@@ -1688,14 +1600,9 @@ describe('Component: MediaViewer with config', () => {
             ExportControlComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            ExportService,
-            ErrorNotificationService,
             FilterService,
-            ThemesService,
-            VisualizationService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'title', useValue: 'Test Title' },

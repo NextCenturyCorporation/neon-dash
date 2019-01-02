@@ -16,7 +16,6 @@
 import { inject } from '@angular/core/testing';
 import { ConnectionService } from './connection.service';
 import { DatasetService } from './dataset.service';
-import { ErrorNotificationService } from './error-notification.service';
 import { FilterService } from './filter.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { ParameterService } from './parameter.service';
@@ -30,7 +29,6 @@ describe('Service: Parameter', () => {
             ParameterService,
             ConnectionService,
             DatasetService,
-            ErrorNotificationService,
             FilterService,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ]

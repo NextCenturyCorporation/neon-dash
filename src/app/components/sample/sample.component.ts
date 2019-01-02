@@ -25,89 +25,24 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { AbstractSubcomponent, SubcomponentListener } from './subcomponent.abstract';
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonVariables } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
 import * as neon from 'neon-framework';
-
-// TODO Rename your visualization options!
-/**
- * Manages configurable options for the specific visualization.
- */
-export class SampleOptions extends BaseNeonOptions {
-    // TODO Add and remove properties as needed.  Do NOT assign defaults to fields or else they will override the bindings.
-    public sampleOptionalField: FieldMetaData;
-    public sampleRequiredField: FieldMetaData;
-    public sortDescending: boolean;
-    public subcomponentType: string;
-    public subcomponentTypes: string[] = ['Impl1', 'Impl2'];
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        // Set the non-field config bindings for the visualization.
-        bindings.sortDescending = this.sortDescending;
-        bindings.subcomponentType = this.subcomponentType;
-        // TODO Add or remove non-field bindings as needed.
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        // Add the names of the field properties in the bindings for the visualization.
-        return [
-            'sampleOptionalField',
-            'sampleRequiredField'
-        ];
-        // TODO Add or remove field names as needed.
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        // Add the names of the field array properties in the bindings for the visualization.
-        return [];
-        // TODO Add or remove field array names as needed.
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        // Set the non-field config bindings for the visualization.
-        this.sortDescending = this.injector.get('sortDescending', false);
-        this.subcomponentType = this.injector.get('subcomponentType', 'Impl1');
-        // TODO Add or remove non-field bindings as needed.
-    }
-}
 
 // TODO Name your visualization!
 @Component({
@@ -136,12 +71,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         value: string
     }[] = [];
 
-    public options: SampleOptions;
-
-    // The data pagination properties.
-    public lastPage: boolean = true;
-    public page: number = 1;
-
     // The data shown in the visualization (limited).
     public activeData: any[] = [];
 
@@ -155,32 +84,24 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     // The properties for the subcomponent.
     public subcomponentObject: AbstractSubcomponent;
 
+    public subcomponentTypes: string[] = ['Impl1', 'Impl2'];
+
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
-        ref: ChangeDetectorRef,
-        visualizationService: VisualizationService
+        ref: ChangeDetectorRef
     ) {
-
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
-            themesService,
-            ref,
-            visualizationService
+            ref
         );
 
-        // TODO Update the title and default limit for the visualization.
-        this.options = new SampleOptions(this.injector, this.datasetService, 'Sample', 10);
+        this.isPaginationWidget = true;
     }
 
     // TODO Change arguments as needed.
@@ -193,6 +114,38 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         this.filters = this.filters.filter((existingFilter) => {
             return existingFilter.id !== filter.id;
         }).concat(filter);
+    }
+
+    /**
+     * Creates and returns an array of field options for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('sampleRequiredField', 'Sample Required Field', true),
+            new WidgetFieldOption('sampleOptionalField', 'Sample Optional Field', false)
+        ];
+    }
+
+    /**
+     * Creates and returns an array of non-field options for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetSelectOption('subcomponentType', 'Subcomponent Type', 'Impl1', [{
+                prettyName: 'Implementation 1',
+                variable: 'Impl1'
+            }, {
+                prettyName: 'Implementation 2',
+                variable: 'Impl2'
+            }]),
+            new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue)
+        ];
     }
 
     /**
@@ -314,24 +267,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Creates and returns the text for the settings button and menu.
-     *
-     * @return {string}
-     * @override
-     */
-    getButtonText(): string {
-        if (!this.responseData.length || !this.activeData.length) {
-            return 'No Data';
-        }
-        if (this.activeData.length === this.responseData.length) {
-            return 'Total ' + super.prettifyInteger(this.activeData.length);
-        }
-        let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.responseData.length));
-        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.responseData.length);
-    }
-
-    /**
      * Returns the filter list for the visualization.
      *
      * @return {array}
@@ -353,16 +288,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             headerText: this.headerText,
             infoText: this.infoText
         };
-    }
-
-    /**
-     * Returns the options for the specific visualization.
-     *
-     * @return {BaseNeonOptions}
-     * @override
-     */
-    getOptions(): BaseNeonOptions {
-        return this.options;
     }
 
     /**
@@ -399,6 +324,46 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     getFilterText(filter: any): string {
         // TODO Update as needed.  Do you want to use an equals sign?
         return filter.prettyField + ' = ' + filter.value;
+    }
+
+    /**
+     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
+     *
+     * @return {any[]}
+     * @override
+     */
+    public getShownDataArray(): any[] {
+        return this.activeData;
+    }
+
+    /**
+     * Returns the count of data items that an unlimited query for the visualization would contain.
+     *
+     * @return {number}
+     * @override
+     */
+    public getTotalDataCount(): number {
+        return this.docCount;
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultLimit(): number {
+        return 10;
+    }
+
+    /**
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'Sample';
     }
 
     // TODO Remove this function if you don't need pagination.
@@ -605,7 +570,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
 
             // This will ignore a filter with multiple clauses.
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
+                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 if (this.isVisualizationFilterUnique(field.columnName, value)) {
                     this.addVisualizationFilter(this.createVisualizationFilter(neonFilter.id, field.columnName, field.prettyName, value));
