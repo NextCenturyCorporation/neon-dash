@@ -231,10 +231,6 @@ describe('Component: Filter Builder', () => {
         // TODO
     });
 
-    it('handleFiltersChangedEvent does nothing', () => {
-        // TODO
-    });
-
     it('validateVisualizationQuery does return false always', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
     });

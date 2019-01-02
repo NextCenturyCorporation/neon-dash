@@ -94,7 +94,7 @@
                 <p></p>
 
                 <span class="toggle-text">Show Data Matching:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.andFilters" (ngModelChange)="handleFiltersChangedEvent()">
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.andFilters" (ngModelChange)="handleChangeFilterField()">
                     <mat-button-toggle [value]="true">All Filters</mat-button-toggle>
                     <mat-button-toggle [value]="false">Any Filters</mat-button-toggle>
                 </mat-button-toggle-group>
