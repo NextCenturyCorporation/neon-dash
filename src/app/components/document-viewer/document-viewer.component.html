@@ -138,50 +138,51 @@
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading > 0" [class.not-loading-overlay]="isLoading == 0">
+    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
         <mat-spinner></mat-spinner>
     </div>
 
-    <mat-list class="document-viewer-list-container body-container" [class.with-footer]="docCount > options.limit">
-        <div class="mat-list-item-text document-viewer-list-item" *ngFor="let activeItem of activeData">
-            <table class="document-viewer-table" *ngIf="activeItem.rows.length > 0">
-                <tr class="document-viewer-row" [ngClass]="{'document-viewer-even': i % 2 === 1}" *ngFor="let item of activeItem.rows; index as i">
-                    <td class="document-viewer-name" [style.width]="options.nameWidthCss || '50%'">{{ item.name }}: </td>
-                    <td class="document-viewer-text">{{ item.text }}</td>
-                </tr>
-            </table>
+    <mat-list class="document-viewer-list-container body-container" [class.with-footer]="showPagination()">
+        <div *ngIf="getActiveData(options) != null">
+            <div class="mat-list-item-text document-viewer-list-item" *ngFor="let activeItem of getActiveData(options).data">
+                <table class="document-viewer-table" *ngIf="activeItem.rows.length > 0">
+                    <tr class="document-viewer-row" [ngClass]="{'document-viewer-even': i % 2 === 1}" *ngFor="let item of activeItem.rows; index as i">
+                        <td class="document-viewer-name" [style.width]="options.nameWidthCss || '50%'">{{ item.name }}: </td>
+                        <td class="document-viewer-text">{{ item.text }}</td>
+                    </tr>
+                </table>
 
-            <table class="document-viewer-table" *ngIf="options.showText">
-                <tr class="document-viewer-row">
-                    <td class="document-viewer-text">{{ activeItem.data[options.dataField.columnName] }}</td>
-                </tr>
-            </table>
+                <table class="document-viewer-table" *ngIf="options.showText">
+                    <tr class="document-viewer-row">
+                        <td class="document-viewer-text">{{ activeItem.data[options.dataField.columnName] }}</td>
+                    </tr>
+                </table>
 
-            <table class="document-viewer-table" *ngIf="showSourceButton() || showSelectButton()">
-                <tr class="document-viewer-row">
-                    <td class="document-viewer-button" *ngIf="showSourceButton()">
-                        <button mat-raised-button class="neon-button-small" color="primary" (click)="openSingleRecord(activeItem.data)">
-                            View Source Text
-                        </button>
-                    </td>
-                    <td class="document-viewer-button" *ngIf="showSelectButton()">
-                        <button mat-raised-button class="neon-button-small" color="primary" (click)="selectSingleRecord(activeItem.data)">
-                            Select
-                        </button>
-                    </td>
-                </tr>
-            </table>
+                <table class="document-viewer-table" *ngIf="showSourceButton() || showSelectButton()">
+                    <tr class="document-viewer-row">
+                        <td class="document-viewer-button" *ngIf="showSourceButton()">
+                            <button mat-raised-button class="neon-button-small" color="primary" (click)="openSingleRecord(activeItem.data)">
+                                View Source Text
+                            </button>
+                        </td>
+                        <td class="document-viewer-button" *ngIf="showSelectButton()">
+                            <button mat-raised-button class="neon-button-small" color="primary" (click)="selectSingleRecord(activeItem.data)">
+                                Select
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </mat-list>
 
-    <div class="footer" *ngIf="docCount > options.limit">
+    <div class="footer" *ngIf="showPagination()">
         <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button" color="primary" (click)="previousPage()">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button" color="primary" (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="page*options.limit >= docCount" class="pagination-button" color="primary"
-                    (click)="nextPage()">
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button" color="primary" (click)="goToNextPage()">
                 Next
             </button>
         </div>
