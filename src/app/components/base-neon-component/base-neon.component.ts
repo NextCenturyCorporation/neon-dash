@@ -156,6 +156,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                         let eventMessageId = Array.isArray(eventMessage.id) ? eventMessage.id[0] : eventMessage.id;
                         if (eventMessageId !== this.selectedDataId) {
                             this.onSelectId(layer, eventMessageId);
+                            this.selectedDataId = eventMessageId;
                             this.handleChangeData(layer);
                         }
                     }
