@@ -338,7 +338,7 @@ export class FilterService {
     }
 
     protected createChildrenFromRelations(filter: neon.query.Filter,
-        filterName: string | { visName: string, text: string}): neon.query.Filter[] {
+        filterName: string | { visName: string, text: string }): neon.query.Filter[] {
 
         let mentionedFields = this.datasetService.findMentionedFields(filter);
         let relatedFieldMapping: any = new Map<string, any>();
@@ -411,7 +411,9 @@ export class FilterService {
             } else {
                 Object.keys(object).forEach((key) => {
                     if (typeof object[key] === 'string') {
-                        object[key] = object[key].replace(oldDb, newDb).replace(oldTable, newTable).replace(oldField, newField);
+                        //TODO: why replacing all fields with all new values?!
+                        let val = object[key];
+                        object[key] = val === oldDb ? newDb : val === oldTable ? newTable : val === oldField ? newField : val;
                     } else if (object[key] instanceof Array) {
                         for (let i = object[key].length - 1; i >= 0; i--) {
                             replaceValues(object[key][i], oldDb, oldTable, oldField, newDb, newTable, newField);

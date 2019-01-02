@@ -85,6 +85,36 @@ export namespace neonUtilities {
         }
         return itemToReturn;
     }
+
+    /**
+     * Dynamic sorting over an array of objects
+     * https://www.sitepoint.com/sort-an-array-of-objects-in-javascript/
+     *
+     * @arg {array} array
+     * @arg {string} key
+     * @arg {number} key
+     * @return {array}
+     */
+
+    export function sortArrayOfObjects(array: any[], key: string, order: number = neonVariables.ASCENDING) {
+        return array.sort((a, b) => {
+            if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
+                // property doesn't exist on either object
+                return 0;
+            }
+
+            const varA = (typeof a[key] === 'string') ? a[key].toUpperCase() : a[key];
+            const varB = (typeof b[key] === 'string') ? b[key].toUpperCase() : b[key];
+
+            let comparison = 0;
+            if (varA > varB) {
+                comparison = 1;
+            } else if (varA < varB) {
+                comparison = -1;
+            }
+            return ((order === neonVariables.DESCENDING) ? (comparison * -1) : comparison);
+        });
+    }
 }
 
 // Mappings used in the JSON configuration file.
@@ -100,22 +130,22 @@ export const neonCustomConnectionMappings: { name: string, prettyName: string }[
     name: 'date',
     prettyName: 'Date'
 },
-{
-    name: 'id',
-    prettyName: 'ID'
-},
-{
-    name: 'latitude',
-    prettyName: 'Latitude'
-},
-{
-    name: 'longitude',
-    prettyName: 'Longitude'
-},
-{
-    name: 'url',
-    prettyName: 'URL'
-}];
+    {
+        name: 'id',
+        prettyName: 'ID'
+    },
+    {
+        name: 'latitude',
+        prettyName: 'Latitude'
+    },
+    {
+        name: 'longitude',
+        prettyName: 'Longitude'
+    },
+    {
+        name: 'url',
+        prettyName: 'URL'
+    }];
 
 export namespace neonVisualizationMinPixel { // jshint ignore:line
     export const x = 320;
@@ -224,6 +254,10 @@ export const neonVisualizations: any[] = [{
         type: 'scatter-xy'
     },
     config: {}
+}, {
+    name: 'Taxonomy Viewer',
+    type: 'taxonomyViewer',
+    icon: 'taxonomy_viewer'
 }, {
     name: 'Text Cloud',
     type: 'textCloud',
