@@ -48,7 +48,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
     public options;
     public searchField: FieldMetaData;
-    public showFilterBuilderIcon: boolean = true;
+    public showFiltersComponentIcon: boolean = true;
     public showSimpleSearch: boolean;
     public showVisShortcut: boolean = true;
     public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
@@ -90,8 +90,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.checkSimpleFilter();
         this.validateDatasetService();
 
-        this.messenger.subscribe('showFilterBuilderIcon', (message) => {
-            this.showFilterBuilderIcon = message.showFilterBuilderIcon;
+        this.messenger.subscribe('showFiltersComponentIcon', (message) => {
+            this.showFiltersComponentIcon = message.showFiltersComponentIcon;
         });
         this.messenger.subscribe('showSimpleSearch', (message) => {
             this.showSimpleSearch = message.showSimpleSearch;
@@ -113,15 +113,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
             height: '80%',
             width: '80%',
             hasBackdrop: true,
-            disableClose: true
+            disableClose: true,
+            panelClass: this.widgetService.getTheme()
         };
         let dialogRef = this.dialog.open(ConfigEditorComponent, dConfig);
     }
 
-    publishShowFilterBuilderIcon() {
-        this.showFilterBuilderIcon = !this.showFilterBuilderIcon;
-        this.messenger.publish('showFilterBuilderIcon', {
-            showFilterBuilderIcon: this.showFilterBuilderIcon
+    publishShowFiltersComponentIcon() {
+        this.showFiltersComponentIcon = !this.showFiltersComponentIcon;
+        this.messenger.publish('showFiltersComponentIcon', {
+            showFiltersComponentIcon: this.showFiltersComponentIcon
         });
     }
 

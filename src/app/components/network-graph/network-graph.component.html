@@ -224,7 +224,7 @@
         </div>
     </div>
 
-    <div class="filter-container">
+    <div class="filter-container" *ngIf="options.filterable">
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
             <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">{{ filter.value }}</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
