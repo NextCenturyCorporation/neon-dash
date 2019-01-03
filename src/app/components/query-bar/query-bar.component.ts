@@ -134,7 +134,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
      * @override
      */
     getVisualizationDefaultLimit(): number {
-        return 10;
+        return 10000;
     }
 
     /**
