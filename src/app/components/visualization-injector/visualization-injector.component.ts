@@ -13,61 +13,54 @@
  * limitations under the License.
  *
  */
-import { Component, Input, ViewContainerRef, ViewChild, ReflectiveInjector, ComponentFactoryResolver } from '@angular/core';
+import { Component, ComponentFactoryResolver, Input, ReflectiveInjector, ViewChild, ViewContainerRef } from '@angular/core';
 
 import { AggregationComponent } from '../aggregation/aggregation.component';
 import { AnnotationViewerComponent } from '../annotation-viewer/annotation-viewer.component';
-import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
-import { LineChartComponent } from '../line-chart/line-chart.component';
 import { MapComponent } from '../map/map.component';
 import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
+import { NewsFeedComponent } from '../news-feed/news-feed.component';
+import { QueryBarComponent } from '../query-bar/query-bar.component';
 import { SampleComponent } from '../sample/sample.component';
-import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
+import { TaxonomyViewerComponent } from '../taxonomy-viewer/taxonomy-viewer.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
+import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
 
 import { NeonGridItem } from '../../neon-grid-item';
-import { VisualizationService } from '../../services/visualization.service';
-import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
-import { NewsFeedComponent } from '../news-feed/news-feed.component';
-import { QueryBarComponent } from '../query-bar/query-bar.component';
-import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from '../thumbnail-grid/thumbnail-details.component';
 
 @Component({
     selector: 'app-visualization-injector',
     entryComponents: [
         AggregationComponent,
         AnnotationViewerComponent,
-        BarChartComponent,
         DataTableComponent,
         DocumentViewerComponent,
         FilterBuilderComponent,
-        LineChartComponent,
         MapComponent,
         MediaViewerComponent,
         NetworkGraphComponent,
         NewsFeedComponent,
         QueryBarComponent,
         SampleComponent,
-        ScatterPlotComponent,
+        TaxonomyViewerComponent,
         TextCloudComponent,
-        ThumbnailDetailsContractedComponent,
-        ThumbnailDetailsExpandedComponent,
         ThumbnailGridComponent,
         TimelineComponent,
         WikiViewerComponent
     ],
-    template: `<div #dynamicComponentContainer></div>`
+    template: `
+        <div #dynamicComponentContainer></div>`
 })
 export class VisualizationInjectorComponent {
     currentComponent = null;
 
-    @ViewChild('dynamicComponentContainer', { read: ViewContainerRef }) dynamicComponentContainer: ViewContainerRef;
+    @ViewChild('dynamicComponentContainer', {read: ViewContainerRef}) dynamicComponentContainer: ViewContainerRef;
 
     // component: Class for the component you want to create
     // inputs: An object with key/value pairs mapped to input name/input value
@@ -84,8 +77,11 @@ export class VisualizationInjectorComponent {
         let visualizationComponent = this.findVisualizationComponent(data.type);
 
         if (visualizationComponent) {
+            data.bindings = data.bindings || {};
+            data.bindings._id = data.id;
+
             // Inputs need to be in the following format to be resolved properly
-            let inputProviders = Object.keys(data.bindings || {}).map((bindingKey) => {
+            let inputProviders = Object.keys(data.bindings).map((bindingKey) => {
                 return {
                     provide: bindingKey,
                     useValue: data.bindings[bindingKey]
@@ -104,38 +100,46 @@ export class VisualizationInjectorComponent {
 
             // We insert the component into the dom container
             this.dynamicComponentContainer.insert(this.currentComponent.hostView);
-
-            // Try and get the ID of the child component
-            if (this.currentComponent._component && this.currentComponent._component.id) {
-                this.visualizationService.registerGridData(this.currentComponent._component.id, data);
-            }
         }
     }
 
-    constructor(private resolver: ComponentFactoryResolver, private visualizationService: VisualizationService) { }
+    constructor(private resolver: ComponentFactoryResolver) {}
 
     findVisualizationComponent(type: string): any {
         switch (type) {
-            case 'aggregation': return AggregationComponent;
-            case 'annotationViewer': return AnnotationViewerComponent;
-            case 'barChart': return BarChartComponent;
-            case 'dataTable': return DataTableComponent;
-            case 'documentViewer': return DocumentViewerComponent;
-            case 'filterBuilder': return FilterBuilderComponent;
-            case 'lineChart': return LineChartComponent;
-            case 'map': return MapComponent;
-            case 'mediaViewer': return MediaViewerComponent;
-            case 'networkGraph' : return NetworkGraphComponent;
-            case 'newsFeed' : return NewsFeedComponent;
-            case 'queryBar' : return QueryBarComponent;
-            case 'sample': return SampleComponent;
-            case 'scatterPlot': return ScatterPlotComponent;
-            case 'textCloud': return TextCloudComponent;
-            case 'thumbnailGrid': return ThumbnailGridComponent;
-            case 'timeline': return TimelineComponent;
-            case 'wikiViewer': return WikiViewerComponent;
+            case 'aggregation':
+                return AggregationComponent;
+            case 'annotationViewer':
+                return AnnotationViewerComponent;
+            case 'dataTable':
+                return DataTableComponent;
+            case 'documentViewer':
+                return DocumentViewerComponent;
+            case 'map':
+                return MapComponent;
+            case 'mediaViewer':
+                return MediaViewerComponent;
+            case 'networkGraph' :
+                return NetworkGraphComponent;
+            case 'newsFeed' :
+                return NewsFeedComponent;
+            case 'queryBar' :
+                return QueryBarComponent;
+            case 'sample':
+                return SampleComponent;
+            case 'taxonomyViewer':
+                return TaxonomyViewerComponent;
+            case 'textCloud':
+                return TextCloudComponent;
+            case 'thumbnailGrid':
+                return ThumbnailGridComponent;
+            case 'timeline':
+                return TimelineComponent;
+            case 'wikiViewer':
+                return WikiViewerComponent;
 
-            default: return null;
+            default:
+                return null;
         }
     }
 

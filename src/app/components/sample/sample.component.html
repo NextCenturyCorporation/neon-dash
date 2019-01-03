@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -77,7 +77,7 @@
                 <!-- TODO Do you need a limit? -->
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Sample Limit" [(ngModel)]="options.newLimit" required="true"
+                        <input matInput placeholder="Sample Limit" [(ngModel)]="newLimit" required="true"
                             (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
@@ -92,7 +92,7 @@
                 <mat-form-field>
                     <mat-select placeholder="Subcomponent Type" [(ngModel)]="options.subcomponentType" required="true"
                         (ngModelChange)="handleChangeSubcomponentType($event)">
-                        <mat-option *ngFor="let type of options.subcomponentTypes" [value]="type">{{ type }}</mat-option>
+                        <mat-option *ngFor="let type of subcomponentTypes" [value]="type">{{ type }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
@@ -109,12 +109,12 @@
                     (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
-                <app-export-control [exportId]="exportId"></app-export-control>
+                <app-export-control [widgets]="this"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
         <mat-spinner></mat-spinner>
     </div>
 
@@ -124,48 +124,34 @@
             <span class="filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.value }}</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close"
                 [matTooltip]="'Delete Filter ' + getFilterText(filter)" tooltip-position="below"
-                (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
+                (click)="removeLocalFilterFromLocalAndNeon(options, filter, true, true)">
                 <mat-icon class="neon-icon-small">close</mat-icon>
             </button>
         </div>
     </div>
 
     <!-- TODO Remove the with-filter and/or with-footer classes if you don't need them. -->
-    <div class="body-container" [class.with-filter]="showFilterContainer()" [class.with-footer]="showFooterContainer()">
+    <div class="body-container" [class.with-filter]="showFilterContainer()">
 
         <!-- TODO Replace with your visualization components! -->
-        <div class="doc-count"><strong>Total Document Count: {{ docCount }}</strong></div>
-        <div class="data-item" *ngFor="let item of activeData">
-            <span class="text" [matTooltip]="item.label + ': ' + item.count" tooltip-position="below">
-                {{ item.label }}: {{ item.count }}
-            </span>
-            <button mat-icon-button class="neon-icon-button-small" aria-label="Add Filter"
-                [matTooltip]="'Add Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, false)">
-                <mat-icon class="neon-icon-small">search</mat-icon>
-            </button>
-            <button mat-icon-button class="neon-icon-button-small" aria-label="Replace Filter"
-                [matTooltip]="'Replace Filters with Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, true)">
-                <mat-icon class="neon-icon-small">find_replace</mat-icon>
-            </button>
-        </div>
+        <div *ngIf="getActiveData(options) != null">
+            <div class="data-item" *ngFor="let item of getActiveData(options).data">
+                <span class="text" [matTooltip]="item.label + ': ' + item.count" tooltip-position="below">
+                    {{ item.label }}: {{ item.count }}
+                </span>
+                <button mat-icon-button class="neon-icon-button-small" aria-label="Add Filter"
+                    [matTooltip]="'Add Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, false)">
+                    <mat-icon class="neon-icon-small">search</mat-icon>
+                </button>
+                <button mat-icon-button class="neon-icon-button-small" aria-label="Replace Filter"
+                    [matTooltip]="'Replace Filters with Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, true)">
+                    <mat-icon class="neon-icon-small">find_replace</mat-icon>
+                </button>
+            </div>
 
-        <!-- TODO Remove if you don't need a chart container element. -->
-        <div #subcomponent class="chart-container" style="display: none;">
-        </div>
-    </div>
-
-    <!-- TODO Do you need a footer for pagination or other components? -->
-    <div class="footer" *ngIf="showFooterContainer()">
-        <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
-                (click)="goToPreviousPage()">
-                Previous
-            </button>
-            <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary"
-                (click)="goToNextPage()">
-                Next
-            </button>
+            <!-- TODO Remove if you don't need a chart container element. -->
+            <div #subcomponent class="chart-container" style="display: none;">
+            </div>
         </div>
     </div>
 </mat-sidenav-container>

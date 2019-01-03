@@ -1,0 +1,18 @@
+<div>
+    <div mat-fill>
+        <mat-list>
+            <mat-list-item *ngFor="let filter of filters.formatted" class="current-filters-item">
+                <button mat-icon-button matTooltip="Remove filter" matTooltipPosition="below" (click)="removeFilter(filter.ids)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+                <div>{{ filter.name }}</div>
+            </mat-list-item>
+            <mat-list-item *ngIf="!filters.formatted.length">No Filters Set</mat-list-item>
+        </mat-list>
+    </div>
+
+    <div mat-fill class="flex">
+        <span class="fill-remaining"></span>
+        <!--<button mat-raised-button color="primary" (click)="dialogRef.close('close')"> Close </button>-->
+    </div>
+</div>
