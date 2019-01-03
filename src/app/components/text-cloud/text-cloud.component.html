@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -62,29 +62,29 @@
                 </mat-form-field>
                 <p></p>
 
-                <mat-form-field>
+                <mat-form-field *ngIf="options.aggregation != 'count'">
                     <mat-select placeholder="Size Field" [(ngModel)]="options.sizeField"
                                (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
                         <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <p></p>
+                <p *ngIf="options.aggregation != 'count'"></p>
 
-                <mat-form-field *ngIf="options.sizeField.columnName != ''">
+                <mat-form-field>
                     <mat-select placeholder="Size Aggregation" [(ngModel)]="options.aggregation" required="true"
                                (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
-                        <mat-option value="SUM">Sum</mat-option>
-                        <mat-option value="AVG">Average</mat-option>
-                        <mat-option value="MIN">Min</mat-option>
-                        <mat-option value="MAX">Max</mat-option>
+                        <mat-option value="sum">Sum</mat-option>
+                        <mat-option value="avg">Average</mat-option>
+                        <mat-option value="min">Min</mat-option>
+                        <mat-option value="max">Max</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Term Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                        <input matInput placeholder="Term Limit" [(ngModel)]="newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below" (click)="handleChangeLimit()">
@@ -94,7 +94,7 @@
                 <p></p>
 
                 <span class="toggle-text">Show Data Matching:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.andFilters" (ngModelChange)="handleFiltersChangedEvent()">
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.andFilters" (ngModelChange)="handleChangeFilterField()">
                     <mat-button-toggle [value]="true">All Filters</mat-button-toggle>
                     <mat-button-toggle [value]="false">Any Filters</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -103,12 +103,12 @@
                 <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
-                <app-export-control [exportId]="exportId"></app-export-control>
+                <app-export-control [widgets]="this"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
         <mat-spinner></mat-spinner>
     </div>
 
@@ -116,14 +116,14 @@
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
             <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter) + getFilterDetail(filter)">{{ filter.value }}</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
+                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(options, filter, true, true)">
                 <mat-icon class="neon-icon-small">close</mat-icon>
             </button>
         </div>
     </div>
 
     <div class="text-cloud body-container" [class.with-filter]="getCloseableFilters().length" mat-fill layout="col">
-        <a (click)="onClick(item)" class="text" [class.paragraphs]="options.paragraphs" *ngFor="let item of activeData"
+        <a (click)="onClick(item)" class="text" [class.paragraphs]="options.paragraphs" *ngFor="let item of textCloudData"
             [matTooltip]="item.key + ': ' + item.value" tooltip-position="below" [rel]="item.value"
             [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
             <span [class.filter]="isFiltered(item.key)">{{ item.key }}</span>

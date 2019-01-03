@@ -5,7 +5,7 @@
     <mat-form-field class="full-width" *ngIf="autoComplete">
         <input #queryBar matInput [placeholder]="options.placeHolder" class="query-bar-input" [matAutocomplete]="auto" [formControl]="filterFormControl"
                (keyup)="createFilter(queryBar.value)" (keyup.enter)="createFilter(queryBar.value)" autofocus>
-        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="createFilter(queryBar.value)">
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="createFilter(queryBar.value)" [class]="widgetService.getTheme()">
             <mat-option *ngFor="let option of queryOptions | async" [value]="option">
                 <span [matTooltip]="option">{{ option }}</span>
             </mat-option>

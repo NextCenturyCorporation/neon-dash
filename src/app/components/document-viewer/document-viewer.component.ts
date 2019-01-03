@@ -26,99 +26,29 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetNonPrimitiveOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
 
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
-
-/**
- * Manages configurable options for the specific visualization.
- */
-export class DocumentViewerOptions extends BaseNeonOptions {
-    public dataField: FieldMetaData;
-    public dateField: FieldMetaData;
-    public hideSource: boolean;
-    public idField: FieldMetaData;
-    public metadataFields: any[];
-    public nameWidthCss: string;
-    public popoutFields: any[];
-    public showSelect: boolean;
-    public showText: boolean;
-    public sortField: FieldMetaData;
-    public sortOrder: string;
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        bindings.hideSource = this.hideSource;
-        bindings.metadataFields = this.metadataFields;
-        bindings.nameWidthCss = this.nameWidthCss;
-        bindings.popoutFields = this.popoutFields;
-        bindings.showSelect = this.showSelect;
-        bindings.showText = this.showText;
-        bindings.sortOrder = this.sortOrder;
-
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'dataField',
-            'dateField',
-            'idField',
-            'sortField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.hideSource = this.injector.get('hideSource', false);
-        this.metadataFields = neonUtilities.flatten(this.injector.get('metadataFields', []));
-        this.nameWidthCss = this.injector.get('nameWidthCss', '');
-        this.popoutFields = neonUtilities.flatten(this.injector.get('popoutFields', []));
-        this.showSelect = this.injector.get('showSelect', false);
-        this.showText = this.injector.get('showText', false);
-        this.sortOrder = this.injector.get('sortOrder', 'DESCENDING');
-    }
-}
 
 @Component({
     selector: 'app-document-viewer',
@@ -134,51 +64,36 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     private singleItemRef: MatDialogRef<DocumentViewerSingleItemComponent>;
 
-    public options: DocumentViewerOptions;
-
-    public activeData: any[] = [];
-    public docCount: number = 0;
-    public page: number = 1;
-
     constructor(
-        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
         injector: Injector,
-        themesService: ThemesService,
+        protected widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
         ref: ChangeDetectorRef,
-        visualizationService: VisualizationService,
         public dialog: MatDialog
     ) {
-
         super(
-            activeGridService,
             connectionService,
             datasetService,
             filterService,
-            exportService,
             injector,
-            themesService,
-            ref,
-            visualizationService
+            ref
         );
 
-        this.options = new DocumentViewerOptions(this.injector, this.datasetService, 'Document Viewer', 50);
+        this.visualizationQueryPaginates = true;
     }
 
-    subNgOnInit() {
-        this.executeQueryChain();
-    }
-
-    postInit() {
-        // Do nothing.
-    }
-
-    subNgOnDestroy() {
-        // Do nothing.
+    /**
+     * Initializes any visualization properties when the widget is created.
+     *
+     * @override
+     */
+    initializeProperties() {
+        // Backwards compatibility (sortOrder deprecated and replaced by sortDescending).
+        let sortOrder = this.injector.get('sortOrder', null);
+        this.options.sortDescending = sortOrder ? (sortOrder === 'DESCENDING') : this.options.sortDescending;
     }
 
     getFilterText(filter) {
@@ -189,101 +104,153 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         return null;
     }
 
-    isValidQuery(): boolean {
-        let valid = true;
-        valid = (this.options.database && this.options.database.name && valid);
-        valid = (this.options.table && this.options.table.name && valid);
-        valid = (this.options.dataField && this.options.dataField.columnName && valid);
-        // We intentionally don't include dateField or idField in the validity check, because we're allowed to leave it null.
-        return !!(valid);
+    /**
+     * Returns whether the visualization query created using the given options is valid.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     * @override
+     */
+    validateVisualizationQuery(options: any): boolean {
+        return !!(options.database.name && options.table.name && options.dataField.columnName);
     }
 
     /**
-     * Creates and returns the Neon where clause for the visualization.
+     * Creates and returns an array of field options for the visualization.
      *
-     * @return {any}
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
      */
-    createClause(): any {
-        let clause = neon.query.where(this.options.dataField.columnName, '!=', null);
-
-        if (this.hasUnsharedFilter()) {
-            clause = neon.query.and(clause, neon.query.where(this.options.unsharedFilterField.columnName, '=',
-                this.options.unsharedFilterValue));
-        }
-
-        return clause;
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('dataField', 'Text Field', true),
+            new WidgetFieldOption('dateField', 'Date Field', false),
+            new WidgetFieldOption('idField', 'ID Field', false),
+            new WidgetFieldOption('sortField', 'Sort Field', false)
+        ];
     }
 
-    createQuery() {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
-        let whereClause = this.createClause();
-        let fields = [this.options.dataField.columnName].concat(this.options.metadataFields.map((item) => {
+    /**
+     * Creates and returns an array of non-field options for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetSelectOption('showText', 'Main Document Text', false, OptionChoices.HideFalseShowTrue),
+            new WidgetFreeTextOption('nameWidthCss', 'Name (Left Column) Width CSS', ''),
+            new WidgetSelectOption('showSelect', 'Select Button', false, OptionChoices.HideFalseShowTrue),
+            new WidgetSelectOption('sortDescending', 'Sort', true, OptionChoices.AscendingFalseDescendingTrue),
+            new WidgetSelectOption('hideSource', 'Source Button', false, OptionChoices.ShowFalseHideTrue),
+            // TODO THOR-950 Change metadataFields and popoutFields to arrays of FieldMetaData objects!
+            new WidgetNonPrimitiveOption('metadataFields', 'Metadata Fields', []),
+            new WidgetNonPrimitiveOption('popoutFields', 'Popout Fields', [])
+        ];
+    }
+
+    /**
+     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {neon.query.Query} query
+     * @return {neon.query.Query}
+     * @override
+     */
+    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
+        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(neon.query.where(this.options.dataField.columnName, '!=', null));
+
+        // TODO THOR-950 Don't overwrite the fields once metadataFields and popoutFields are arrays of FieldMetaData objects
+        let fields = [options.dataField.columnName].concat(neonUtilities.flatten(options.metadataFields).map((item) => {
             return item.field;
-        })).concat(this.options.popoutFields.map((item) => {
+        })).concat(neonUtilities.flatten(options.popoutFields).map((item) => {
             return item.field;
         }));
-        if (this.options.dateField.columnName) {
-            fields = fields.concat(this.options.dateField.columnName);
+        if (options.dateField.columnName) {
+            fields = fields.concat(options.dateField.columnName);
         }
-        if (this.options.sortField.columnName) {
-            query = query.sortBy(this.options.sortField.columnName,
-                (this.options.sortOrder === 'DESCENDING') ? neonVariables.DESCENDING : neonVariables.ASCENDING);
+        if (options.sortField.columnName) {
+            query.sortBy(options.sortField.columnName, options.sortDescending ? neonVariables.DESCENDING : neonVariables.ASCENDING);
         }
-        if (this.options.idField.columnName) {
-            fields = fields.concat(this.options.idField.columnName);
+        if (options.idField.columnName) {
+            fields = fields.concat(options.idField.columnName);
         }
-        return query.where(whereClause).withFields(fields).limit(this.options.limit).offset((this.page - 1) * this.options.limit);
+
+        return query.where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0]).withFields(fields);
     }
 
-    onQuerySuccess(response) {
-        if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
-            this.docCount = response.data[0]._docCount;
-            return;
-        }
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultLimit(): number {
+        return 50;
+    }
 
-        let configFields: { name?: string, field: string, arrayFilter?: any }[] = this.options.metadataFields.concat(
-            this.options.popoutFields);
+    /**
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'Document Viewer';
+    }
+
+    /**
+     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any[]} results
+     * @return {TransformedVisualizationData}
+     * @override
+     */
+    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+        let configFields: { name?: string, field: string, arrayFilter?: any }[] = neonUtilities.flatten(options.metadataFields).concat(
+            neonUtilities.flatten(options.popoutFields));
 
         if (!configFields.some((configField) => {
-            return configField.field === this.options.dataField.columnName;
+            return configField.field === options.dataField.columnName;
         })) {
             configFields.splice(0, 0, {
-                field: this.options.dataField.columnName,
-                name: this.options.dataField.prettyName
+                field: options.dataField.columnName,
+                name: options.dataField.prettyName
             });
         }
 
-        if (this.options.dateField.columnName && !configFields.some((configField) => {
-            return configField.field === this.options.dateField.columnName;
+        if (options.dateField.columnName && !configFields.some((configField) => {
+            return configField.field === options.dateField.columnName;
         })) {
             configFields.push({
-                field: this.options.dateField.columnName,
-                name: this.options.dateField.prettyName
+                field: options.dateField.columnName,
+                name: options.dateField.prettyName
             });
         }
 
-        if (this.options.idField.columnName && !configFields.some((configField) => {
-            return configField.field === this.options.idField.columnName;
+        if (options.idField.columnName && !configFields.some((configField) => {
+            return configField.field === options.idField.columnName;
         })) {
             configFields.push({
-                field: this.options.idField.columnName,
-                name: this.options.idField.prettyName
+                field: options.idField.columnName,
+                name: options.idField.prettyName
             });
         }
 
-        this.activeData = response.data.map((responseItem) => {
+        let data = results.map((result) => {
             let activeItem = {
                 data: {},
                 rows: []
             };
             configFields.forEach((configField) => {
-                this.populateActiveItem(activeItem, responseItem, configFields, configField.field, configField.name,
+                this.populateActiveItem(activeItem, result, configFields, configField.field, configField.name,
                     configField.arrayFilter);
             });
             return activeItem;
         });
 
-        this.getDocCount();
+        return new TransformedVisualizationData(data);
     }
 
     /**
@@ -309,7 +276,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let activeItemText = this.createTableRowText(activeItemData, arrayFilter);
         if (activeItemText) {
             activeItem.rows.push({
-                name: name || (this.options.findField(field) || this.createEmptyField()).prettyName || field,
+                name: name || (this.findField(this.options.fields, field) || this.createEmptyField()).prettyName || field,
                 text: activeItemText
             });
         }
@@ -332,42 +299,24 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         }
     }
 
-    getDocCount() {
-        if (!this.cannotExecuteQuery()) {
-            let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
-                .where(this.createClause()).aggregate(neonVariables.COUNT, '*', '_docCount');
-            this.executeQuery(countQuery);
-        }
-    }
-
     refreshVisualization() {
         // TODO STUB
     }
 
     /**
-     * Creates and returns the text for the settings button.
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
      *
+     * @arg {number} count
      * @return {string}
      * @override
      */
-    getButtonText() {
-        if (!this.docCount) {
-            if (this.options.hideUnfiltered) {
-                return 'Please Filter';
-            }
-            return 'No Data';
-        }
-        if (this.docCount <= this.activeData.length) {
-            return 'Total ' + super.prettifyInteger(this.docCount);
-        }
-        let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.docCount));
-        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.docCount);
+    public getVisualizationElementLabel(count: number): string {
+        return 'Document' + (count === 1 ? '' : 's');
     }
 
     setupFilters() {
-        this.page = 1;
-        this.executeQueryChain();
+        // Do nothing.
     }
 
     removeFilter() {
@@ -439,11 +388,12 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     private openSingleRecord(activeItemData: any) {
         let config = new MatDialogConfig();
+        config.panelClass = this.widgetService.getTheme();
         config.data = {
             item: activeItemData,
             showText: this.options.showText,
             textField: this.options.dataField.columnName,
-            metadataFields: this.options.metadataFields.concat(this.options.popoutFields)
+            metadataFields: neonUtilities.flatten(this.options.metadataFields).concat(neonUtilities.flatten(this.options.popoutFields))
         };
 
         this.singleItemRef = this.dialog.open(DocumentViewerSingleItemComponent, config);
@@ -463,16 +413,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         if (this.options.idField.columnName && activeItemData[this.options.idField.columnName]) {
             this.publishSelectId(activeItemData[this.options.idField.columnName]);
         }
-    }
-
-    nextPage() {
-        this.page += 1;
-        this.executeQueryChain();
-    }
-
-    previousPage() {
-        this.page -= 1;
-        this.executeQueryChain();
     }
 
     /**
@@ -497,16 +437,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             headerText: this.headerText,
             infoText: this.infoText
         };
-    }
-
-    /**
-     * Returns the options for the specific visualization.
-     *
-     * @return {BaseNeonOptions}
-     * @override
-     */
-    getOptions(): BaseNeonOptions {
-        return this.options;
     }
 
     /**

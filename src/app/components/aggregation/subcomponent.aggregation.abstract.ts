@@ -18,22 +18,6 @@ import { ElementRef } from '@angular/core';
 import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
 
-export interface AggregationSubcomponentOptions {
-    granularity: string;
-    hideGridLines: boolean;
-    hideGridTicks: boolean;
-    lineCurveTension: number;
-    lineFillArea: boolean;
-    logScaleX: boolean;
-    logScaleY: boolean;
-    scaleMaxX: string;
-    scaleMaxY: string;
-    scaleMinX: string;
-    scaleMinY: string;
-    showHeat: boolean;
-    yPercentage: number;
-}
-
 export interface AggregationSubcomponentListener {
     /**
      * Returns the hidden canvas element reference for the subcomponent.
@@ -105,12 +89,12 @@ export interface AggregationSubcomponentListener {
 export abstract class AbstractAggregationSubcomponent {
     /**
      * @constructor
-     * @arg {AggregationSubcomponentOptions} options
+     * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
      */
     constructor(
-        protected options: AggregationSubcomponentOptions,
+        protected options: any,
         protected listener: AggregationSubcomponentListener,
         protected elementRef: ElementRef
     ) {}
@@ -148,11 +132,29 @@ export abstract class AbstractAggregationSubcomponent {
     public abstract getMinimumDimensions(): { height: number, width: number };
 
     /**
+     * Returns the label for a visualization element using the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @abstract
+     */
+    public abstract getVisualizationElementLabel(count: number): string;
+
+    /**
      * Initializes all the subcomponent elements.
      *
+     * @return {boolean}
      * @abstract
      */
     public abstract initialize();
+
+    /**
+     * Returns whether the chart is horizontal.
+     *
+     * @return {boolean}
+     * @abstract
+     */
+    public abstract isHorizontal(): boolean;
 
     /**
      * Returns whether the given text is a date string.

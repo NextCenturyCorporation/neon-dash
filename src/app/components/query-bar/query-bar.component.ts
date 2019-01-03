@@ -13,81 +13,31 @@
  * limitations under the License.
  *
  */
+import { BehaviorSubject, Observable } from 'rxjs';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewChild } from '@angular/core';
-import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { DatasetService } from '../../services/dataset.service';
-import { FieldMetaData, SimpleFilter } from '../../dataset';
-import { BehaviorSubject ,  Observable } from 'rxjs';
-import * as neon from 'neon-framework';
-import * as uuid from 'node-uuid';
 import { FormControl } from '@angular/forms';
 import { map, startWith } from 'rxjs/operators';
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
-import { ExportService } from '../../services/export.service';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
-import { VisualizationService } from '../../services/visualization.service';
-import { ActiveGridService } from '../../services/active-grid.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+
+import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { FieldMetaData, SimpleFilter } from '../../dataset';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetNonPrimitiveOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import WherePredicate = neon.query.WherePredicate;
 
-/**
- * Manages configurable options for the specific visualization.
- */
-export class QueryBarOptions extends BaseNeonOptions {
-    public id: string;
-    public placeHolder: string;
-    public idField: FieldMetaData;
-    public filterField: FieldMetaData;
-    public extendedFilter: boolean;
-    public extensionFields: any[];
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'filterField',
-            'idField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.id = this.injector.get('id', '');
-        this.placeHolder = this.injector.get('placeHolder', 'Query');
-        this.extendedFilter = this.injector.get('extendedFilter', false);
-        this.extensionFields = this.injector.get('extensionFields', []);
-    }
-}
+import * as neon from 'neon-framework';
 
 @Component({
     selector: 'app-query-bar',
@@ -96,8 +46,6 @@ export class QueryBarOptions extends BaseNeonOptions {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QueryBarComponent  extends BaseNeonComponent {
-    public idField: FieldMetaData;
-    public filterField: FieldMetaData;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('queryBar') queryBar: ElementRef;
@@ -111,46 +59,113 @@ export class QueryBarComponent  extends BaseNeonComponent {
     public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
     public filterId = new BehaviorSubject<string>(undefined);
     public queryOptions: Observable<void | string[]>;
-    public options: QueryBarOptions;
 
-    public id = uuid.v4();
-    public messenger = new neon.eventing.Messenger();
     private filterFormControl: FormControl;
 
-    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
-                filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-                ref: ChangeDetectorRef, visualizationService: VisualizationService) {
+    constructor(
+        connectionService: ConnectionService,
+        datasetService: DatasetService,
+        filterService: FilterService,
+        injector: Injector,
+        protected widgetService: AbstractWidgetService,
+        ref: ChangeDetectorRef
+    ) {
 
-        super(activeGridService, connectionService, datasetService,
-            filterService, exportService, injector, themesService, ref, visualizationService);
+        super(
+            connectionService,
+            datasetService,
+            filterService,
+            injector,
+            ref
+        );
 
         this.filterFormControl = new FormControl();
-        this.options = new QueryBarOptions(this.injector, this.datasetService, 'Query Bar');
     }
 
-    createQuery(): neon.query.Query  {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
-
-        let fields = [this.options.idField.columnName, this.options.filterField.columnName];
-        let whereClauses = [
-            neon.query.where(this.options.filterField.columnName, '!=', null)
-        ];
-
-        return query.withFields(fields).where(neon.query.and.apply(query, whereClauses))
-            .sortBy(this.options.filterField.columnName, neonVariables.ASCENDING);
-    }
     /**
-     * Returns whether the query bar using the active data config is valid.
+     * Creates and returns an array of field options for the visualization.
      *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('filterField', 'Filter Field', true),
+            new WidgetFieldOption('idField', 'ID Field', true)
+        ];
+    }
+
+    /**
+     * Creates and returns an array of non-field options for the visualization.
+     *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetSelectOption('extendedFilter', 'Extended Filter', false, OptionChoices.NoFalseYesTrue),
+            // TODO THOR-950 Rename extensionFields because it is not an array of FieldMetaData objects!
+            new WidgetNonPrimitiveOption('extensionFields', 'Extension Fields', []),
+            new WidgetFreeTextOption('id', 'ID', ''),
+            new WidgetFreeTextOption('placeHolder', 'Place Holder', 'Query')
+        ];
+    }
+
+    /**
+     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {neon.query.Query} query
+     * @arg {neon.query.WherePredicate[]} wherePredicates
+     * @return {neon.query.Query}
+     * @override
+     */
+    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
+        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(neon.query.where(options.filterField.columnName, '!=', null));
+        return query.where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
+            .sortBy(options.filterField.columnName, neonVariables.ASCENDING);
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultLimit(): number {
+        return 10;
+    }
+
+    /**
+     * Returns the default title for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'Query Bar';
+    }
+
+    /**
+     * Returns whether the visualization query created using the given options is valid.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(): boolean {
-        return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name &&
-            this.options.idField && this.options.idField.columnName && this.options.filterField && this.options.filterField.columnName);
+    validateVisualizationQuery(options: any): boolean {
+        return !!(options.database.name && options.table.name && options.idField.columnName && options.filterField.columnName);
     }
 
-    onQuerySuccess(response) {
+    /**
+     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any[]} results
+     * @return {TransformedVisualizationData}
+     * @override
+     */
+    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
         this.queryArray = [];
 
         let setValues = true;
@@ -158,40 +173,30 @@ export class QueryBarComponent  extends BaseNeonComponent {
             setValues = false;
         }
 
-        try {
-            if (response && response.data && response.data.length) {
-                this.errorMessage = '';
-
-                response.data.forEach((d) => {
-                    let item = {};
-                    for (let field of this.options.fields) {
-                        if (field.columnName === this.options.filterField.columnName && setValues) {
-                            this.queryValues.push(neonUtilities.deepFind(d, this.options.filterField.columnName));
-                        }
-                        if (field.type || field.columnName === '_id') {
-                            let value = neonUtilities.deepFind(d, field.columnName);
-                            if (typeof value !== 'undefined') {
-                                item[field.columnName] = value;
-                            }
-                        }
-                    }
-                    this.queryArray.push(item);
-                });
-
-                if (setValues) {
-                    this.queryValues = this.queryValues.filter((value, index, array) => array.indexOf(value) === index).sort();
+        results.forEach((d) => {
+            let item = {};
+            for (let field of options.fields) {
+                if (field.columnName === options.filterField.columnName && setValues) {
+                    this.queryValues.push(neonUtilities.deepFind(d, options.filterField.columnName));
                 }
-
-                this.queryBarSetup();
-
-            } else {
-                this.errorMessage = 'No Data';
-                this.refreshVisualization();
+                if (field.type || field.columnName === '_id') {
+                    let value = neonUtilities.deepFind(d, field.columnName);
+                    if (typeof value !== 'undefined') {
+                        item[field.columnName] = value;
+                    }
+                }
             }
-        } catch (e) {
-            this.errorMessage = 'Error';
-            this.refreshVisualization();
+            this.queryArray.push(item);
+        });
+
+        if (setValues) {
+            this.queryValues = this.queryValues.filter((value, index, array) => array.indexOf(value) === index).sort();
         }
+
+        this.queryBarSetup();
+
+        // TODO THOR-985
+        return new TransformedVisualizationData();
     }
 
     private queryBarSetup() {
@@ -222,17 +227,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
     }
 
     /**
-     * Returns the options for the specific visualization.
-     *
-     * @return {BaseNeonOptions}
-     * @override
-     */
-    getOptions(): BaseNeonOptions {
-        return this.options;
-    }
-
-    /**
-     * Refreshes the Query Bar.
+     * Updates and redraws the elements and properties for the visualization.
      *
      * @override
      */
@@ -301,7 +296,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
                 clause = neon.query.where(this.options.filterField.columnName, '=', text);
 
                 if (this.currentFilter && this.filterIds) {
-                    this.removeAllFilters(this.filterService.getFilters());
+                    this.removeAllFilters(this.options, this.filterService.getFilters());
                 }
 
                 this.addFilter(text, clause, this.options.filterField.columnName);
@@ -313,7 +308,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
                     }
                 }
             } else {
-                this.removeAllFilters(this.filterService.getFilters());
+                this.removeAllFilters(this.options, this.filterService.getFilters());
             }
         }
     }
@@ -438,12 +433,10 @@ export class QueryBarComponent  extends BaseNeonComponent {
      */
     removeFilter() {
         if (this.filterIds) {
-            this.removeAllFilters(this.filterService.getFilters());
+            this.removeAllFilters(this.options, this.filterService.getFilters());
             this.filterIds = [];
             this.currentFilter = '';
         }
-
-        this.executeQueryChain();
     }
 
     /**
@@ -454,31 +447,4 @@ export class QueryBarComponent  extends BaseNeonComponent {
     setupFilters() {
         //
     }
-
-    /**
-     * Initializes the Query Bar.
-     *
-     * @override
-     */
-    postInit() {
-        this.removeFilter();
-    }
-
-    /**
-     * Initializes any Query Bar sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnInit() {
-        //
-    }
-    /**
-     * Destroys any Query Bar sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnDestroy() {
-        // Do nothing.
-    }
-
 }

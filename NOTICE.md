@@ -21,6 +21,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | ajv-keywords@1.5.1 | [MIT](https://github.com/epoberezkin/ajv-keywords/raw/master/LICENSE) |
 | ajv@5.2.0 | [MIT](https://github.com/epoberezkin/ajv/raw/master/LICENSE) |
 | angular-core@0.0.5 | [ISC](undefined) |
+| angular-tree-component@8.2.0 | [MIT](https://github.com/500tech/angular-tree-component/raw/master/LICENSE) |
 | angular2-chartjs@0.4.1 | [MIT](https://github.com/emn178/angular2-chartjs/raw/master/LICENSE.txt) |
 | angular2-grid@3.0.0 | [MIT](https://github.com/BTMorton/angular2-grid/raw/master/LICENSE) |
 | brace@0.10.0 | [MIT](https://github.com/thlorenz/brace/raw/master/LICENSE) |
@@ -41,7 +42,8 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | jquery@2.2.4 | [MIT](https://github.com/jquery/jquery/raw/master/LICENSE.txt) |
 | js-yaml@3.9.1 | [MIT](https://github.com/nodeca/js-yaml/raw/master/LICENSE) |
 | jsoneditor@5.9.6 | [Apache-2.0](https://github.com/josdejong/jsoneditor/raw/master/LICENSE) |
-| leaflet@1.2.0 | [BSD-2-Clause](https://github.com/Leaflet/Leaflet/raw/master/LICENSE) |
+| leaflet.markercluster@1.4.1 | [MIT](https://github.com/Leaflet/Leaflet.markercluster/raw/master/MIT-LICENCE.txt) |
+| leaflet@1.3.4 | [BSD-2-Clause](https://github.com/Leaflet/Leaflet/raw/master/LICENSE) |
 | less@2.7.2 | [Apache-2.0](https://github.com/less/less.js/raw/master/LICENSE) |
 | license-crawler@0.0.5 | [MIT](https://github.com/marcelwinh/license-crawler/raw/master/LICENSE) |
 | lodash@4.15.0 | [MIT](https://github.com/lodash/lodash/raw/master/LICENSE) |

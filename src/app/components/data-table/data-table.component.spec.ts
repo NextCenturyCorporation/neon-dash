@@ -27,16 +27,11 @@ import { DataTableComponent } from './data-table.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { FilterService } from '../../services/filter.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { ThemesService } from '../../services/themes.service';
-import { TranslationService } from '../../services/translation.service';
-import { VisualizationService } from '../../services/visualization.service';
+import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { By } from '@angular/platform-browser';
@@ -56,15 +51,9 @@ describe('Component: DataTable', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
-            ExportService,
-            TranslationService,
-            ErrorNotificationService,
-            VisualizationService,
-            ThemesService,
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -195,7 +184,7 @@ describe('Component: DataTable', () => {
         expect(component.getColumnWidth(new FieldMetaData('anotherColumn', 'Another Column'))).toEqual(150);
     });
 
-    it('subNgOnInit does call expected methods if options.fieldsConfig exists', () => {
+    it('initializeProperties does call expected methods if options.fieldsConfig exists', () => {
         component.options.fieldsConfig = [
             { name: 'testField' }
         ];
@@ -203,32 +192,22 @@ describe('Component: DataTable', () => {
         let initHeadersFromExceptionsSpy = spyOn(component, 'initializeHeadersFromExceptionsToStatus');
         let recalcActiveHeadersSpy = spyOn(component, 'recalculateActiveHeaders');
 
-        component.subNgOnInit();
+        component.initializeProperties();
         expect(initHeadersFromFieldsConfigSpy).toHaveBeenCalled();
         expect(initHeadersFromExceptionsSpy).toHaveBeenCalledTimes(0);
         expect(recalcActiveHeadersSpy).toHaveBeenCalled();
     });
 
-    it('subNgOnInit does call expected methods if options.fieldsConfig does not exist', () => {
+    it('initializeProperties does call expected methods if options.fieldsConfig does not exist', () => {
         let initHeadersFromFieldsConfigSpy = spyOn(component, 'initializeHeadersFromFieldsConfig');
         let initHeadersFromExceptionsSpy = spyOn(component, 'initializeHeadersFromExceptionsToStatus');
         let recalcActiveHeadersSpy = spyOn(component, 'recalculateActiveHeaders');
 
-        component.subNgOnInit();
+        component.initializeProperties();
         expect(initHeadersFromFieldsConfigSpy).toHaveBeenCalledTimes(0);
         expect(initHeadersFromExceptionsSpy).toHaveBeenCalled();
         expect(recalcActiveHeadersSpy).toHaveBeenCalled();
     });
-
-    it('postInit does call executeQueryChain', () => {
-        let spy = spyOn(component, 'executeQueryChain');
-        component.postInit();
-        expect(spy).toHaveBeenCalled();
-    });
-
-    it('subNgOnDestroy function does exist', (() => {
-        expect(component.subNgOnDestroy).toBeDefined();
-    }));
 
     it('recalculateActiveHeaders does update activeHeaders and call detectChanges', () => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
@@ -597,162 +576,36 @@ describe('Component: DataTable', () => {
         }, 300);
     }));
 
-    it('isValidQuery does return false if no options exist', (() => {
-        expect(component.isValidQuery()).toBeFalsy();
+    it('validateVisualizationQuery does return false if no options exist', (() => {
+        expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
     }));
 
-    it('isValidQuery does return false if not all specified options exist', (() => {
+    it('validateVisualizationQuery does return false if not all specified options exist', (() => {
         component.options.database = new DatabaseMetaData(undefined);
         component.options.table = new TableMetaData('documents');
         component.options.sortField = new FieldMetaData('sortField');
 
-        expect(component.isValidQuery()).toBeFalsy();
+        expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
 
         component.options.database = new DatabaseMetaData('someDatastore');
         component.options.table = new TableMetaData(undefined);
         component.options.sortField = new FieldMetaData('sortField');
 
-        expect(component.isValidQuery()).toBeFalsy();
+        expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
 
         component.options.database = new DatabaseMetaData('someDatastore');
         component.options.table = new TableMetaData('documents');
         component.options.sortField = new FieldMetaData(undefined);
 
-        expect(component.isValidQuery()).toBeFalsy();
+        expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
     }));
 
-    it('isValidQuery does return true if all specified options exist', (() => {
+    it('validateVisualizationQuery does return true if all specified options exist', (() => {
         component.options.database = new DatabaseMetaData('someDatastore');
         component.options.table = new TableMetaData('documents');
         component.options.sortField = new FieldMetaData('sortField');
 
-        expect(component.isValidQuery()).toBeTruthy();
-    }));
-
-    it('options.createBindings does set expected bindings', (() => {
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 100,
-            table: 'testTable1',
-            title: 'Data Table',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            colorField: '',
-            heatmapField: '',
-            idField: '',
-            sortField: '',
-            filterFields: [],
-            arrayFilterOperator: 'and',
-            exceptionsToStatus: [],
-            filterable: false,
-            heatmapDivisor: 0,
-            ignoreSelf: false,
-            reorderable: true,
-            singleFilter: false,
-            skinny: false,
-            sortDescending: true,
-            fieldsConfig: [({
-                name: 'Test Category Field',
-                hide: false
-            }), ({
-                name: 'Test Date Field',
-                hide: false
-            }), ({
-                name: 'Test Filter Field',
-                hide: false
-            }), ({
-                name: 'Test ID Field',
-                hide: false
-            }), ({
-                name: 'Test Link Field',
-                hide: false
-            }), ({
-                name: 'Test Name Field',
-                hide: false
-            }), ({
-                name: 'Test Relation Field A',
-                hide: false
-            }), ({
-                name: 'Test Relation Field B',
-                hide: false
-            }), ({
-                name: 'Test Size Field',
-                hide: false
-            }), ({
-                name: 'Test Sort Field',
-                hide: false
-            }), ({
-                name: 'Test Text Field',
-                hide: false
-            }), ({
-                name: 'Test Type Field',
-                hide: false
-            }), ({
-                name: 'Test X Field',
-                hide: false
-            }), ({
-                name: 'Test Y Field',
-                hide: false
-            }), ({
-                name: '_id',
-                hide: false
-            })]
-        });
-
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.sortField = new FieldMetaData('testSortField');
-        component.options.filterFields = [new FieldMetaData('filterField')];
-        component.options.arrayFilterOperator = 'or';
-        component.options.exceptionsToStatus = ['exception1', 'exception2'];
-        component.options.filterable = true;
-        component.options.ignoreSelf = true;
-        component.options.reorderable = false;
-        component.options.singleFilter = true;
-        component.options.skinny = true;
-        component.options.sortDescending = false;
-        component.options.headers = [{
-            cellClass: function() { /* No-op */ },
-            prop: 'name',
-            name: 'Name',
-            active: false,
-            style: {},
-            width: 100
-        }];
-
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 100,
-            table: 'testTable1',
-            title: 'Data Table',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            colorField: '',
-            heatmapField: '',
-            idField: 'testIdField',
-            sortField: 'testSortField',
-            filterFields: ['filterField'],
-            arrayFilterOperator: 'or',
-            exceptionsToStatus: ['exception1', 'exception2'],
-            filterable: true,
-            heatmapDivisor: 0,
-            ignoreSelf: true,
-            reorderable: false,
-            singleFilter: true,
-            skinny: true,
-            sortDescending: false,
-            fieldsConfig: [{
-                name: 'Name',
-                hide: true
-            }]
-        });
+        expect(component.validateVisualizationQuery(component.options)).toBeTruthy();
     }));
 
     it('headerIsInExceptions does return whether or not header is in options.exceptionsToStatus', (() => {
@@ -798,28 +651,19 @@ describe('Component: DataTable', () => {
         }]);
     }));
 
-    it('createClause does return expected object', () => {
-        component.options.sortField = new FieldMetaData('testSortField');
-        expect(component.createClause()).toEqual(neon.query.where('testSortField', '!=', null));
-
-        component.options.unsharedFilterField = new FieldMetaData('testFilterField');
-        component.options.unsharedFilterValue = 'testFilterValue';
-        expect(component.createClause()).toEqual(neon.query.and(neon.query.where('testSortField', '!=', null),
-            neon.query.where('testFilterField', '=', 'testFilterValue')));
-    });
-
-    it('createQuery does return expected object', () => {
+    it('finalizeVisualizationQuery does return expected object', () => {
         component.options.database = new DatabaseMetaData('someDatastore');
         component.options.table = new TableMetaData('documents');
         component.options.sortField = new FieldMetaData('testSortField');
         component.options.limit = 25;
-        component.page = 1;
+        (component as any).page = 1;
 
-        let expectedQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name)
-            .where('testSortField', '!=', null).sortBy('testSortField', -1).limit(25)
-            .offset(0);
+        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
 
-        expect(component.createQuery()).toEqual(expectedQuery);
+        let query = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name)
+            .where('testSortField', '!=', null).sortBy('testSortField', -1);
+
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
     });
 
     it('getFiltersToIgnore does return null', () => {
@@ -859,73 +703,38 @@ describe('Component: DataTable', () => {
         expect(component.toCellString(4, 'number')).toEqual(4);
     });
 
-    it('onQuerySuccess does update properties as expected when response.data.length is 1', () => {
-        let getDocCountSpy = spyOn(component, 'getDocCount');
-        let refreshVisSpy = spyOn(component, 'refreshVisualization');
+    it('transformVisualizationQueryResults does update properties as expected when response.data.length is 1', () => {
         component.options.fields = component.options.fields = [
             new FieldMetaData('_id', 'id', false, 'number'),
             new FieldMetaData('category', 'Category', false, 'string'),
             new FieldMetaData('testField', 'Test Field', false, 'string')
         ];
 
-        component.onQuerySuccess({data: [
+        let actual = component.transformVisualizationQueryResults(component.options, [
             {_id: 1, category: 'books', testField: 'test', ignore: 'ignore', _docCount: 1}
-        ]});
+        ]);
 
-        expect(component.activeData).toEqual([]);
-        expect(component.responseData).toEqual([]);
-        expect(component.docCount).toEqual(1);
-        expect(getDocCountSpy).toHaveBeenCalledTimes(0);
-        expect(refreshVisSpy).toHaveBeenCalledTimes(0);
+        expect(actual.data).toEqual([
+            {_id: 1, category: 'books', testField: 'test'}
+        ]);
     });
 
-    it('onQuerySuccess does update properties as expected when response.data.length is not equal to 1', () => {
-        let getDocCountSpy = spyOn(component, 'getDocCount');
-        let refreshVisSpy = spyOn(component, 'refreshVisualization');
+    it('transformVisualizationQueryResults does update properties as expected when response.data.length is not equal to 1', () => {
         component.options.fields = component.options.fields = [
             new FieldMetaData('_id', 'id', false, 'number'),
             new FieldMetaData('category', 'Category', false, 'string'),
             new FieldMetaData('testField', 'Test Field', false, 'string')
         ];
 
-        component.onQuerySuccess({data: [
+        let actual = component.transformVisualizationQueryResults(component.options, [
             {_id: 1, category: 'books', testField: 'test', ignore: 'ignore', _docCount: 1},
             {_id: 2, category: 'books', testField: 'some other value', ignore: 'ignoring'}
-        ]});
+        ]);
 
-        expect(component.activeData).toEqual([
+        expect(actual.data).toEqual([
             {_id: 1, category: 'books', testField: 'test'},
             {_id: 2, category: 'books', testField: 'some other value'}
         ]);
-        expect(component.responseData).toEqual([
-            {_id: 1, category: 'books', testField: 'test', ignore: 'ignore', _docCount: 1},
-            {_id: 2, category: 'books', testField: 'some other value', ignore: 'ignoring'}
-        ]);
-        expect(component.docCount).toEqual(0);
-        expect(getDocCountSpy).toHaveBeenCalled();
-        expect(refreshVisSpy).toHaveBeenCalled();
-    });
-
-    it('getDocCount does call expected functions if cannotExecuteQuery returns false', () => {
-        spyOn(component, 'cannotExecuteQuery').and.returnValue(false);
-        let getFiltersSpy = spyOn(component, 'getFiltersToIgnore');
-        let exQuerySpy = spyOn(component, 'executeQuery');
-
-        component.getDocCount();
-
-        expect(getFiltersSpy).toHaveBeenCalled();
-        expect(exQuerySpy).toHaveBeenCalled();
-    });
-
-    it('getDocCount does not call executeQuery if cannotExecuteQuery returns true', () => {
-        spyOn(component, 'cannotExecuteQuery').and.returnValue(true);
-        let getFiltersSpy = spyOn(component, 'getFiltersToIgnore');
-        let exQuerySpy = spyOn(component, 'executeQuery');
-
-        component.getDocCount();
-
-        expect(getFiltersSpy).toHaveBeenCalledTimes(0);
-        expect(exQuerySpy).toHaveBeenCalledTimes(0);
     });
 
     it('setupFilters does not do anything if no filter exists', () => {
@@ -1036,15 +845,6 @@ describe('Component: DataTable', () => {
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
         }));
-    });
-
-    it('handleFiltersChangedEvent does set page and call expected function', () => {
-        let spy = spyOn(component, 'executeQueryChain');
-        component.page = 5;
-        component.handleFiltersChangedEvent();
-
-        expect(component.page).toEqual(1);
-        expect(spy).toHaveBeenCalled();
     });
 
     it('isDragging does return expected boolean', () => {
@@ -1378,41 +1178,6 @@ describe('Component: DataTable', () => {
         }]);
     });
 
-    it('nextPage does add 1 to page and call expected function', () => {
-        component.page = 1;
-        let spy = spyOn(component, 'executeQueryChain');
-        component.nextPage();
-
-        expect(component.page).toEqual(2);
-        expect(spy).toHaveBeenCalled();
-    });
-
-    it('previousPage does subtract 1 from page and call expected function', () => {
-        component.page = 5;
-        let spy = spyOn(component, 'executeQueryChain');
-        component.previousPage();
-
-        expect(component.page).toEqual(4);
-        expect(spy).toHaveBeenCalled();
-    });
-
-    it('getButtonText does return expected string', () => {
-        component.options.limit = 10;
-        expect(component.getButtonText()).toBe('No Data');
-        component.options.hideUnfiltered = true;
-        expect(component.getButtonText()).toBe('Please Filter');
-        component.docCount = 10;
-        expect(component.getButtonText()).toBe('Total 10');
-        component.docCount = 20;
-        expect(component.getButtonText()).toBe('1 - 10 of 20');
-        component.page = 2;
-        expect(component.getButtonText()).toBe('11 - 20 of 20');
-        component.options.limit = 5;
-        expect(component.getButtonText()).toBe('6 - 10 of 20');
-        component.docCount = 5;
-        expect(component.getButtonText()).toBe('Total 5');
-    });
-
     it('onSelect does update selected array and calls publishAnyCustomEvents, but not publishSelectId', () => {
         let publishIdSpy = spyOn(component, 'publishSelectId');
         let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
@@ -1460,13 +1225,13 @@ describe('Component: DataTable', () => {
         component.options.fields = [new FieldMetaData('category')];
         component.options.filterFields = [new FieldMetaData('category')];
         component.options.filterable = true;
-        component.responseData = [{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
             category: 'books',
             title: 'Test'
         }, {
             category: 'test',
             title: 'Test 2'
-        }];
+        }]));
 
         component.onSelect({selected: selected});
 
@@ -1554,7 +1319,7 @@ describe('Component: DataTable', () => {
         component.addFilter(filter1, neon.query.where('testDataField', '=', 'Test Value'));
 
         expect(getService(FilterService).getFilters().length).toBe(1);
-        component.removeLocalFilterFromLocalAndNeon(filter1, true, true);
+        component.removeLocalFilterFromLocalAndNeon(component.options, filter1, true, true);
         expect(getService(FilterService).getFilters().length).toBe(0);
 
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {

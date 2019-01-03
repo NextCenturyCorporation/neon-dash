@@ -24,10 +24,10 @@
             ],
             "styles": [
               "src/styles.scss",
-              "src/themes/neon-green-theme.scss",
               "node_modules/cesium/Build/Cesium/Widgets/widgets.css",
               "node_modules/jsoneditor/dist/jsoneditor.css",
               "node_modules/leaflet/dist/leaflet.css",
+              "node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css",
               "node_modules/vis/dist/vis-network.min.css"
             ],
             "scripts": [

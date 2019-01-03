@@ -1,7 +1,10 @@
 <div class='radio-container' layout="row" mat-margin>
-    <mat-radio-group *ngIf="!hideFormats" [(ngModel)]="exportFormat" (change)="setExportFormat(exportFormat)">
-        <mat-radio-button *ngFor="let format of exportService.getFileFormats()" [value]="format.value">{{ (format.name) ? format.name.toUpperCase() : 'Invalid Type' }}</mat-radio-button>
+    <mat-radio-group [(ngModel)]="exportFormat">
+        <mat-radio-button *ngFor="let format of exportFormatList" [value]="format.value">
+            {{ (format.name) ? format.name.toUpperCase() : 'Invalid Type' }}
+        </mat-radio-button>
     </mat-radio-group>
-    <p></p>
-    <button mat-raised-button class="neon-button-small" (click)="handleExportClick()">{{ buttonText }}</button>
+    <button mat-raised-button class="neon-button-small" color="primary" (click)="handleExportClick()">
+        {{ getExportButtonText() }}
+    </button>
 </div>

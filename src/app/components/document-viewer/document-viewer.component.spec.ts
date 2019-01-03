@@ -27,27 +27,16 @@ import { DocumentViewerComponent } from './document-viewer.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 
 import { neonVariables } from '../../neon-namespaces';
-import { ActiveGridService } from '../../services/active-grid.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { TranslationService } from '../../services/translation.service';
-import { VisualizationService } from '../../services/visualization.service';
+import { WidgetService } from '../../services/widget.service';
+
+import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
-/*
- * First, a note about sending queries to neon:
- *
- * Sending queries to neon is done asynchronously, via XHR and more specifically via jQuery.ajax.
- * because we use jQuery.ajax instead of Angular's http functionality, Angular's hhtp mocking doesn't
- * work to mock the calls we make. As such, where we need to test methods that involve sending out queries
- * I've replaced the executeQuery method of our component object with a dummy that simply calls onQuerySuccess
- * with the data we should get back.
- */
 describe('Component: DocumentViewer', () => {
     let component: DocumentViewerComponent;
     let fixture: ComponentFixture<DocumentViewerComponent>;
@@ -58,19 +47,14 @@ describe('Component: DocumentViewer', () => {
             ExportControlComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
             DatasetService,
             {
                 provide: DatasetService,
                 useClass: DatasetServiceMock
             },
-            ErrorNotificationService,
-            ExportService,
             FilterService,
-            ThemesService,
-            TranslationService,
-            VisualizationService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -101,86 +85,6 @@ describe('Component: DocumentViewer', () => {
         expect(component.options.showText).toBe(false);
     });
 
-    it('has expected class properties', () => {
-        expect(component.activeData).toEqual([]);
-        expect(component.docCount).toBe(0);
-        expect(component.page).toBe(1);
-    });
-
-    it('has a subNgOnInit method that does nothing', () => {
-        expect(component.subNgOnInit).toBeDefined();
-    });
-
-    it('has a postInit method that does nothing', () => {
-        expect(component.postInit).toBeDefined();
-    });
-
-    it('has a subNgOnDestroy method that does nothing', () => {
-        expect(component.subNgOnDestroy).toBeDefined();
-    });
-
-    it('has options.createBindings method that works as expected', () => {
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 50,
-            table: 'testTable1',
-            title: 'Document Viewer',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            dataField: '',
-            dateField: '',
-            idField: '',
-            sortField: '',
-            hideSource: false,
-            metadataFields: [],
-            nameWidthCss: '',
-            popoutFields: [],
-            showSelect: false,
-            showText: false,
-            sortOrder: 'DESCENDING'
-        });
-
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        component.options.dateField = DatasetServiceMock.DATE_FIELD;
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.sortField = DatasetServiceMock.SORT_FIELD;
-        component.options.hideSource = true;
-        component.options.metadataFields = ['A', 'B'];
-        component.options.nameWidthCss = '50%';
-        component.options.popoutFields = ['C', 'D'];
-        component.options.showSelect = true;
-        component.options.showText = true;
-        component.options.sortOrder = 'ASCENDING';
-
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 50,
-            table: 'testTable1',
-            title: 'Document Viewer',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            dataField: 'testTextField',
-            dateField: 'testDateField',
-            idField: 'testIdField',
-            sortField: 'testSortField',
-            hideSource: true,
-            metadataFields: ['A', 'B'],
-            nameWidthCss: '50%',
-            popoutFields: ['C', 'D'],
-            showSelect: true,
-            showText: true,
-            sortOrder: 'ASCENDING'
-        });
-    });
-
     it('returns an empty string from getFilterText', () => {
         expect(component.getFilterText({})).toBe('');
         expect(component.getFilterText({
@@ -192,114 +96,66 @@ describe('Component: DocumentViewer', () => {
         expect(component.getFiltersToIgnore()).toBeNull();
     });
 
-    it('returns the expectedvalue from isValidQuery', () => {
-        expect(component.isValidQuery()).toBe(false);
+    it('returns the expectedvalue from validateVisualizationQuery', () => {
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
         component.options.database = new DatabaseMetaData('testDatabase1');
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
         component.options.table = new TableMetaData('testTable1');
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        expect(component.isValidQuery()).toBe(true);
+        expect(component.validateVisualizationQuery(component.options)).toBe(true);
     });
 
-    it('returns expected query from createQuery with no sort', () => {
+    it('returns expected query from finalizeVisualizationQuery with no sort', () => {
         component.options.database = new DatabaseMetaData('testDatabase1');
         component.options.table = new TableMetaData('testTable1');
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
+        let inputQuery = new neon.query.Query()
+            .selectFrom('testDatabase1', 'testTable1')
+            .withFields(['testTextField', 'testDateField', 'testIdField']);
         let query = new neon.query.Query()
             .selectFrom('testDatabase1', 'testTable1')
             .where(new neon.query.WhereClause('testTextField', '!=', null))
-            .withFields(['testTextField', 'testDateField', 'testIdField'])
-            .limit(50)
-            .offset(0);
-        expect(component.createQuery()).toEqual(query);
+            .withFields(['testTextField', 'testDateField', 'testIdField']);
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
     });
 
-    it('returns expected query from createQuery with sort', () => {
+    it('returns expected query from finalizeVisualizationQuery with sort', () => {
         component.options.database = new DatabaseMetaData('testDatabase1');
         component.options.table = new TableMetaData('testTable1');
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.sortField = DatasetServiceMock.SORT_FIELD;
+        let inputQuery = new neon.query.Query()
+            .selectFrom('testDatabase1', 'testTable1')
+            .withFields(['testTextField', 'testDateField', 'testIdField']);
         let query = new neon.query.Query()
             .selectFrom('testDatabase1', 'testTable1')
             .where(new neon.query.WhereClause('testTextField', '!=', null))
-            .withFields([
-                'testTextField',
-                'testDateField',
-                'testIdField'
-            ])
-            .sortBy('testSortField', neonVariables.DESCENDING)
-            .limit(50)
-            .offset(0);
-        expect(component.createQuery()).toEqual(query);
+            .withFields(['testTextField', 'testDateField', 'testIdField'])
+            .sortBy('testSortField', neonVariables.DESCENDING);
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
     });
 
-    it('sets expected properties and calls getDocCount if onQuerySuccess returns no data', () => {
-
+    it('sets expected properties if transformVisualizationQueryResults returns no data', () => {
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.docCount = 50;
-        let response = {
-            data: []
-        };
-        let docCountResponse = {
-            data: [{
-                _docCount: 0
-            }]
-        };
 
-        /*
-        Here lies spyOn, along with all my hopes and dreams for doing this in a non-hacky manner.
-        (spyOn should have worked for this but didn't. To investigate?)
+        let actual = component.transformVisualizationQueryResults(component.options, []);
 
-        spyOn(component, 'getDocCount');
-        spyOn(component, 'executeQuery').and.callFake((query: neon.query.Query) => {
-            // Check that we got here by calling getDocCount.
-            expect(component.getDocCount).toHaveBeenCalled();
-            component.onQuerySuccess(docCountResponse);
-        });*/
-
-        let calledExecuteQuery = false;
-        // The XHR is done via jQuery which makes it astoundingly difficult to test, so we're going to bypass it.
-        // If we get to executeQuery after calling onQuerySuccess, that means we went through getDocCount.
-        component.executeQuery = () => {
-            calledExecuteQuery = true;
-            component.onQuerySuccess(docCountResponse);
-        };
-        component.cannotExecuteQuery = () => {
-            return false;
-        };
-
-        component.onQuerySuccess(response);
-
-        expect(calledExecuteQuery).toBeTruthy();
-        expect(component.docCount).toBe(0);
-        expect(component.activeData).toEqual([]);
+        expect(actual.data).toEqual([]);
     });
 
-    it('sets expected properties and calls getDocCount if onQuerySuccess returns data', () => {
-
+    it('sets expected properties if transformVisualizationQueryResults returns data', () => {
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.docCount = 50;
         let response = {
             data: [
-                {
-                    testTextField: 'text1',
-                    testDateField: 'date1',
-                    testIdField: 'id1'
-                },
-                {
-                    testTextField: 'text2',
-                    testDateField: 'date2',
-                    testIdField: 'id2'
-                }
             ]
         };
         let docCountResponse = {
@@ -308,22 +164,17 @@ describe('Component: DocumentViewer', () => {
             }]
         };
 
-        let calledExecuteQuery = false;
-        // The XHR is done via jQuery which makes it astoundingly difficult to test, so we're going to bypass it.
-        // If we get to executeQuery after calling onQuerySuccess, that means we went through getDocCount.
-        component.executeQuery = () => {
-            calledExecuteQuery = true;
-            component.onQuerySuccess(docCountResponse);
-        };
-        component.cannotExecuteQuery = () => {
-            return false;
-        };
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            testTextField: 'text1',
+            testDateField: 'date1',
+            testIdField: 'id1'
+        }, {
+            testTextField: 'text2',
+            testDateField: 'date2',
+            testIdField: 'id2'
+        }]);
 
-        component.onQuerySuccess(response);
-
-        expect(calledExecuteQuery).toBeTruthy();
-        expect(component.docCount).toBe(2);
-        expect(component.activeData).toEqual([{
+        expect(actual.data).toEqual([{
             data: {
                 testTextField: 'text1',
                 testDateField: 'date1',
@@ -358,30 +209,6 @@ describe('Component: DocumentViewer', () => {
         }]);
     });
 
-    it('sets the expected value when getDocCount is called', () => {
-        component.docCount = 50;
-        let docCountResponse = {
-            data: [{
-                _docCount: 9999
-            }]
-        };
-
-        let calledExecuteQuery = false;
-        // The XHR is done via jQuery which makes it astoundingly difficult to test, so we're going to bypass it.
-        component.executeQuery = () => {
-            calledExecuteQuery = true;
-            component.onQuerySuccess(docCountResponse);
-        };
-        component.cannotExecuteQuery = () => {
-            return false;
-        };
-
-        component.getDocCount();
-
-        expect(calledExecuteQuery).toBeTruthy();
-        expect(component.docCount).toBe(9999);
-    });
-
     it('doesn\'t do anything in refreshVisualization', () => {
         expect(component.refreshVisualization()).toBeUndefined();
         expect(component.options.dataField).toEqual(new FieldMetaData());
@@ -391,28 +218,6 @@ describe('Component: DocumentViewer', () => {
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
         expect(component.options.showText).toBe(false);
-        expect(component.activeData).toEqual([]);
-        expect(component.docCount).toBe(0);
-        expect(component.page).toBe(1);
-    });
-
-    it('returns the expected value from getButtonText', () => {
-        // When activeData.length == 0
-        component.activeData = [];
-        expect(component.getButtonText()).toBe('No Data');
-
-        // When activeData.langth < docCount
-        component.activeData = ['value1', 'value2'];
-        component.docCount = 50;
-        expect(component.getButtonText()).toBe('1 - 50 of 50');
-
-        // When limit changes
-        component.options.limit = 10;
-        expect(component.getButtonText()).toBe('1 - 10 of 50');
-
-        // When activeData.length >= docCount
-        component.docCount = 2;
-        expect(component.getButtonText()).toBe('Total 2');
     });
 
     it('has setupFilters method that does nothing of substance', () => {
@@ -512,7 +317,7 @@ describe('Component: DocumentViewer', () => {
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.activeData = [{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
             data: {
                 testTextField: 'This is a string.',
                 testDateField: '12:34:56 7/8/90',
@@ -534,7 +339,7 @@ describe('Component: DocumentViewer', () => {
                 name: 'Test Metadata Field',
                 text: 'Second'
             }]
-        }];
+        }]));
         component.options.metadataFields = [{
             name: 'Test Metadata Field',
             field: 'testMetadataField'
@@ -557,25 +362,11 @@ describe('Component: DocumentViewer', () => {
         });
     }));
 
-    it('createClause does return expected object', () => {
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        expect(component.createClause()).toEqual(neon.query.where('testTextField', '!=', null));
-
-        component.options.unsharedFilterField = DatasetServiceMock.FILTER_FIELD;
-        component.options.unsharedFilterValue = 'testFilterValue';
-        expect(component.createClause()).toEqual(neon.query.and(neon.query.where('testTextField', '!=', null),
-            neon.query.where('testFilterField', '=', 'testFilterValue')));
-    });
-
     it('getElementRefs does return expected object', () => {
         let refs = component.getElementRefs();
         expect(refs.headerText).toBeDefined();
         expect(refs.infoText).toBeDefined();
         expect(refs.visualization).toBeDefined();
-    });
-
-    it('getOptions does return options object', () => {
-        expect(component.getOptions()).toEqual(component.options);
     });
 
     it('populateActiveItem does update item data and rows as expected', () => {
@@ -1081,18 +872,10 @@ describe('Component: Document Viewer with Config', () => {
             ExportControlComponent
         ],
         providers: [
-            ActiveGridService,
             ConnectionService,
-            {
-                provide: DatasetService,
-                useClass: DatasetServiceMock
-            },
-            ErrorNotificationService,
-            ExportService,
+            { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
-            ThemesService,
-            TranslationService,
-            VisualizationService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'title', useValue: 'Document Viewer Title' },
@@ -1115,7 +898,7 @@ describe('Component: Document Viewer with Config', () => {
                     field: 'secondOfMultipleItemMetadataRow'
                 }]
             ]},
-            { provide: 'popoutFields', useValue: null },
+            { provide: 'popoutFields', useValue: [] },
             { provide: 'limit', useValue: 25 }
         ],
         imports: [
@@ -1136,27 +919,21 @@ describe('Component: Document Viewer with Config', () => {
         expect(component.options.dateField).toEqual(DatasetServiceMock.DATE_FIELD);
         expect(component.options.idField).toEqual(DatasetServiceMock.ID_FIELD);
         expect(component.options.metadataFields).toEqual([
-            {
+            [{
                 name: 'Single Item Metadata Row',
                 field: 'singleItemMetadataRow'
-            },
-            {
+            }],
+            [{
                 name: 'First of Multiple Item Metadata Row',
                 field: 'firstOfMultipleItemMetadataRow'
             },
             {
                 name: 'Second of Multiple Item Metadata Row',
                 field: 'secondOfMultipleItemMetadataRow'
-            }
+            }]
         ]);
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
         expect(component.options.showText).toBe(false);
-    });
-
-    it('has expected class properties', () => {
-        expect(component.activeData).toEqual([]);
-        expect(component.docCount).toBe(0);
-        expect(component.page).toBe(1);
     });
 });

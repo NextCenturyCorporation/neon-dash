@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -86,7 +86,7 @@
                  <p></p>
 
                  <mat-form-field>
-                     <mat-select placeholder="PrimaryTitleField Field" [(ngModel)]="options.primaryTitleField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                     <mat-select placeholder="Primary Title Field" [(ngModel)]="options.primaryTitleField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                          <mat-option [value]="createEmptyField()">(None)</mat-option>
                          <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                      </mat-select>
@@ -117,7 +117,7 @@
 
                  <div mat-fill class="flex center">
                      <mat-form-field>
-                         <input matInput placeholder="Thumbnail Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                         <input matInput placeholder="News Feed Limit" [(ngModel)]="newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                      </mat-form-field>
 
                      <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below" (click)="handleChangeLimit()">
@@ -126,45 +126,26 @@
                  </div>
                  <p></p>
 
-                 <mat-form-field>
-                     <input matInput placeholder="Border" [(ngModel)]="options.border" required="false">
-                 </mat-form-field>
-                 <p></p>
-
-                 <mat-form-field>
-                     <input matInput placeholder="Link Prefix" [(ngModel)]="options.linkPrefix" required="false">
-                 </mat-form-field>
-                 <p></p>
-
-                 <span class="toggle-text">Crop or Scale:</span>
-                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.cropAndScale" (ngModelChange)="updatePageData()">
-                     <mat-button-toggle value="">None</mat-button-toggle>
-                     <mat-button-toggle value="scale">Scale</mat-button-toggle>
-                     <mat-button-toggle value="crop">Crop</mat-button-toggle>
-                     <mat-button-toggle value="both">Both</mat-button-toggle>
-                 </mat-button-toggle-group>
-                 <p></p>
-
                  <span class="toggle-text">Ignore Own Filters:</span>
-                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.ignoreSelf" (ngModelChange)="handleFiltersChangedEvent()">
+                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.ignoreSelf" (ngModelChange)="handleChangeData()">
                      <mat-button-toggle [value]="true">Yes</mat-button-toggle>
                      <mat-button-toggle [value]="false">No</mat-button-toggle>
                  </mat-button-toggle-group>
                  <p></p>
 
                  <span class="toggle-text">Sort:</span>
-                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.ascending" (ngModelChange)="handleChangeData()">
-                     <mat-button-toggle [value]="true">Ascending</mat-button-toggle>
-                     <mat-button-toggle [value]="false">Descending</mat-button-toggle>
+                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.sortDescending" (ngModelChange)="handleChangeData()">
+                     <mat-button-toggle [value]="false">Ascending</mat-button-toggle>
+                     <mat-button-toggle [value]="true">Descending</mat-button-toggle>
                  </mat-button-toggle-group>
                  <p></p>
 
-                <app-export-control [exportId]="exportId"></app-export-control>
+                <app-export-control [widgets]="this"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
         <mat-spinner></mat-spinner>
     </div>
 
@@ -172,29 +153,29 @@
             <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
                 <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">{{ filter.value }}</span>
                 <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                        [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
+                        [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(options, filter, true, true)">
                     <mat-icon class="neon-icon-small">close</mat-icon>
                 </button>
             </div>
         </div>
 
-        <div #newsFeed class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="gridArray.length > pagingGrid.length">
-           <div class="news-feed-container" [hidden]="!showGrid">
-               <div class="news-feed-div" *ngFor="let item of pagingGrid"
-                   (click)="selectGridItem(item)" [class.selectable]="isSelectable()" [class.selected]="isSelected(item)">
-                   <div class="content-details">
-                       <div class="content-header">{{ item[options.primaryTitleField.columnName] }}</div>
-                       <div class="content-ellipses" [matTooltip]="item[options.contentField.columnName]">{{ item[options.contentField.columnName] }}</div>
-                       <div class="content-footer">
-                           <p class="text-highlight">{{ item[options.dateField.columnName] }}</p>
-                           <p [hidden]="!item[options.secondaryTitleField.columnName]">{{ item[options.secondaryTitleField.columnName] }}</p>
-                       </div>
-                   </div>
-               </div>
-           </div>
+        <div #newsFeed class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="showPagination()">
+            <div class="news-feed-container" *ngIf="getActiveData(options) != null" [hidden]="!getActiveData(options).count()">
+                <div class="news-feed-div" *ngFor="let item of getActiveData(options).data"
+                     (click)="selectGridItem(item)" [class.selectable]="isSelectable()" [class.selected]="isSelected(item)">
+                    <div class="content-details">
+                        <div class="content-header">{{ item[options.primaryTitleField.columnName] }}</div>
+                        <div class="content-ellipses" [matTooltip]="item[options.contentField.columnName]">{{ item[options.contentField.columnName] }}</div>
+                        <div class="content-footer">
+                            <p class="text-highlight">{{ item[options.dateField.columnName] }}</p>
+                            <p [hidden]="!item[options.secondaryTitleField.columnName]">{{ item[options.secondaryTitleField.columnName] }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
        </div>
 
-    <div class="footer" *ngIf="gridArray.length > pagingGrid.length">
+    <div class="footer" *ngIf="showPagination()">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
                     (click)="goToPreviousPage()">
