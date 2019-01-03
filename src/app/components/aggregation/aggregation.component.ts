@@ -660,16 +660,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * Updates the sub-component and reruns the visualization query.
      */
     handleChangeSubcomponentType() {
-        if (this.options.type !== this.newType) {
-            this.options.type = this.newType;
-            if (!this.optionsTypeIsDualViewCompatible(this.options)) {
-                this.options.dualView = '';
-            }
-            if (this.optionsTypeIsContinuous(this.options)) {
-                this.options.sortByAggregation = false;
-            }
-            this.redrawSubcomponents();
+        if (!this.optionsTypeIsDualViewCompatible(this.options)) {
+            this.options.dualView = '';
         }
+        if (this.optionsTypeIsContinuous(this.options)) {
+            this.options.sortByAggregation = false;
+        }
+        this.redrawSubcomponents();
     }
 
     /**
@@ -1071,6 +1068,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     /**
      * Publishes the component's option object and handle change callbacks to the gear component
+     *
+     * @override
      */
     publishOptions() {
         let componentThis: any;
@@ -1078,12 +1077,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let handleChangeDatabase: () => void;
         let handleChangeFilterField: () => void;
         let handleChangeLimit: () => void;
+        let handleChangeSubcomponentType: () => void;
         let handleChangeTable: () => void;
         componentThis = this;
         handleChangeData = this.handleChangeData.bind(this);
         handleChangeDatabase = this.handleChangeDatabase.bind(this);
         handleChangeFilterField = this.handleChangeFilterField.bind(this);
         handleChangeLimit = this.subHandleChangeLimit.bind(this);
+        handleChangeSubcomponentType = this.handleChangeSubcomponentType.bind(this);
         handleChangeTable = this.handleChangeTable.bind(this);
         this.messenger.publish('options', {
             options: this.options,
@@ -1091,6 +1092,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             changeDatabase: handleChangeDatabase,
             changeFilterFIeld: handleChangeFilterField,
             changeLimitCallback: handleChangeLimit,
+            changeHandleSubcomponentType: handleChangeSubcomponentType,
             changeTable: handleChangeTable,
             componentThis: componentThis
         });
