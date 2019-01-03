@@ -31,8 +31,7 @@
               "node_modules/vis/dist/vis-network.min.css"
             ],
             "scripts": [
-              "node_modules/jsoneditor/dist/jsoneditor.js",
-              "node_modules/jquery/dist/jquery.min.js"
+              "node_modules/jsoneditor/dist/jsoneditor.js"
             ]
           },
           "configurations": {
@@ -80,8 +79,7 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
             "scripts": [
-              "node_modules/jsoneditor/dist/jsoneditor.js",
-              "node_modules/jquery/dist/jquery.min.js"
+              "node_modules/jsoneditor/dist/jsoneditor.js"
             ],
             "styles": [
               "src/styles.scss",
