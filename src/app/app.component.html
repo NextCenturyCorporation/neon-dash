@@ -41,13 +41,9 @@
         <div class="simple-search-container">
             <app-simple-filter #simpleFilter></app-simple-filter>
         </div>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filter Builder" tooltip-position="below" id="showFilterBuilderIcon"
-            matTooltip="Show Filter Builder" (click)="openFilterBuilderDialog()" *ngIf="showFilterBuilderIcon">
-            <mat-icon class="neon-icon-large" *ngIf="changeFilterBuilderIcon()" svgIcon="{{filterBuilderIcon}}"></mat-icon>
-        </button>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" tooltip-position="below"
-            matTooltip="Show Filters" (click)="openFilterTrayDialog()" *ngIf="showFilterTrayButton">
-            <mat-icon class="neon-icon-large">filter_list</mat-icon>
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" tooltip-position="below" id="showFiltersComponentIcon"
+            matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFiltersComponentIcon">
+            <mat-icon class="neon-icon-large" *ngIf="changeFiltersComponentIcon()" svgIcon="{{filtersIcon}}"></mat-icon>
         </button>
 
         <mat-menu #appMenu="matMenu" yPosition="below" [overlapTrigger]="false">
@@ -72,9 +68,9 @@
     </mat-toolbar>
 
     <div class="header-toggle-container">
-        <div class="filter-builder-container" id="filter.builder" *ngIf="createFilterBuilder">
-            <app-filter-builder></app-filter-builder>
-            <div class="filter-builder-footer">
+        <div class="filters-container" id="filters" *ngIf="createFiltersComponent">
+            <app-filters [widgets]="widgets" (closeDialog)="toggleFiltersDialog()"></app-filters>
+            <div class="header-toggle-footer">
             </div>
         </div>
     </div>

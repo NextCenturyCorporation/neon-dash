@@ -32,6 +32,7 @@ import { FilterService } from '../../services/filter.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import * as neon from 'neon-framework';
 
 describe('Component: Filter Builder', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -176,8 +177,8 @@ describe('Component: Filter Builder', () => {
         // TODO
     });
 
-    it('createQuery does return null always', () => {
-        expect(component.createQuery()).toEqual(null);
+    it('finalizeVisualizationQuery does return null always', () => {
+        expect(component.finalizeVisualizationQuery(component.options, new neon.query.Query(), [])).toEqual(null);
     });
 
     it('getCloseableFilters does return empty array always', () => {
@@ -209,10 +210,9 @@ describe('Component: Filter Builder', () => {
         expect(component.getFilterText(null)).toEqual('2 Filters');
     });
 
-    it('getElementRefs does return expected object', () => {
+    it('getElementRefs returns empty object', () => {
         let refs = component.getElementRefs();
-        expect(refs.headerText).toBeDefined();
-        expect(refs.visualization).toBeDefined();
+        expect(refs).toEqual({});
     });
 
     it('handleChangeDatabaseOfClause does deactivate clause, update database/tables/fields, and call updateFiltersOfKey', () => {
@@ -231,19 +231,15 @@ describe('Component: Filter Builder', () => {
         // TODO
     });
 
-    it('handleFiltersChangedEvent does nothing', () => {
+    it('validateVisualizationQuery does return false always', () => {
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
+    });
+
+    it('transformVisualizationQueryResults does nothing', () => {
         // TODO
     });
 
-    it('isValidQuery does return false always', () => {
-        expect(component.isValidQuery()).toEqual(false);
-    });
-
-    it('onQuerySuccess does nothing', () => {
-        // TODO
-    });
-
-    it('postInit does initialize clauses from clauseConfig', () => {
+    it('initializeProperties does initialize clauses from clauseConfig', () => {
         component.clauses = [];
         component.options.clauseConfig = [{
             database: 'testDatabase2',
@@ -254,7 +250,7 @@ describe('Component: Filter Builder', () => {
             id: 'testFilterId'
         }];
 
-        component.postInit();
+        component.initializeProperties();
 
         expect(component.clauses.length).toEqual(1);
         expect(component.clauses[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
@@ -291,10 +287,6 @@ describe('Component: Filter Builder', () => {
     });
 
     it('setupFilters does nothing', () => {
-        // TODO
-    });
-
-    it('subNgOnInit does nothing', () => {
         // TODO
     });
 

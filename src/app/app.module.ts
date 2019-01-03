@@ -46,7 +46,8 @@ import { DocumentViewerComponent } from './components/document-viewer/document-v
 import { DocumentViewerSingleItemComponent } from './components/document-viewer-single-item/document-viewer-single-item.component';
 import { ExportControlComponent } from './components/export-control/export-control.component';
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
-import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
+import { FiltersComponent } from './components/filters/filters.component';
+import { CurrentFiltersComponent } from './components/current-filters/current-filters.component';
 import { LegendComponent } from './components/legend/legend.component';
 import { MapComponent } from './components/map/map.component';
 import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
@@ -105,7 +106,8 @@ export function getAppConfig() {
         DocumentViewerSingleItemComponent,
         ExportControlComponent,
         FilterBuilderComponent,
-        FilterTrayComponent,
+        FiltersComponent,
+        CurrentFiltersComponent,
         LegendComponent,
         MapComponent,
         MediaViewerComponent,
@@ -165,7 +167,7 @@ export function getAppConfig() {
         ConfirmationDialogComponent,
         CustomConnectionComponent,
         DocumentViewerSingleItemComponent,
-        FilterTrayComponent,
+        CurrentFiltersComponent,
         SaveStateComponent,
         SettingsComponent,
         SnackBarComponent

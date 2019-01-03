@@ -31,7 +31,7 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import {
@@ -78,12 +78,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         value: string
     }[] = [];
 
+    // TODO THOR-985
     public gridArray: any[] = [];
-    public pagingGrid: any[] = [];
 
-    public neonFilters: any[] = [];
-    public isLoading: boolean = false;
-    public showGrid: boolean;
     public mediaTypes: any = MediaTypes;
     public view: any = ViewType;
 
@@ -103,22 +100,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             ref
         );
 
-        this.isPaginationWidget = true;
-
-        if (!this.options.sortField.columnName) {
-            this.options.sortField = this.options.percentField;
-        }
-
-        if (!this.options.flagLabel.columnName) {
-            this.options.flagLabel = this.options.idField;
-        }
-
-        // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
-        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
-        // Backwards compatibility (ascending deprecated and replaced by sortDescending).
-        this.options.sortDescending = !(this.injector.get('ascending', !this.options.sortDescending));
-
-        this.showGrid = !this.options.hideUnfiltered;
+        this.visualizationQueryPaginates = true;
     }
 
     /**
@@ -171,17 +153,17 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         if (!this.filters.length) {
             this.filters = [filter];
-            this.addNeonFilter(runQuery, filter, clause);
+            this.addNeonFilter(this.options, runQuery, filter, clause);
         } else if (this.filters.length === 1) {
             if (!this.filterExists(filter.field, filter.value)) {
                 filter.id = this.filters[0].id;
                 this.filters = [filter];
-                this.replaceNeonFilter(runQuery, filter, clause);
+                this.replaceNeonFilter(this.options, runQuery, filter, clause);
             }
         } else {
-            this.removeAllFilters([].concat(this.filters), () => {
+            this.removeAllFilters(this.options, [].concat(this.filters), () => {
                 this.filters = [filter];
-                this.addNeonFilter(runQuery, filter, clause);
+                this.addNeonFilter(this.options, runQuery, filter, clause);
             });
         }
     }
@@ -238,97 +220,22 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Creates and returns the query for the thumbnail grid.
+     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
      *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {neon.query.Query} query
+     * @arg {neon.query.WherePredicate[]} wherePredicates
      * @return {neon.query.Query}
      * @override
      */
-    createQuery(): neon.query.Query {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
+    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
+        let wheres: neon.query.WherePredicate[] = wherePredicates.concat([
+            neon.query.where(options.linkField.columnName, '!=', null),
+            neon.query.where(options.linkField.columnName, '!=', '')
+        ]);
 
-        let fields = [this.options.linkField.columnName, this.options.sortField.columnName];
-
-        if (this.options.categoryField.columnName) {
-            fields.push(this.options.categoryField.columnName);
-        }
-
-        if (this.options.compareField.columnName) {
-            fields.push(this.options.compareField.columnName);
-        }
-
-        if (this.options.filterField.columnName) {
-            fields.push(this.options.filterField.columnName);
-        }
-
-        if (this.options.idField.columnName) {
-            fields.push(this.options.idField.columnName);
-        }
-
-        if (this.options.nameField.columnName) {
-            fields.push(this.options.nameField.columnName);
-        }
-
-        if (this.options.objectIdField.columnName) {
-            fields.push(this.options.objectIdField.columnName);
-        }
-
-        if (this.options.objectNameField.columnName) {
-            fields.push(this.options.objectNameField.columnName);
-        }
-
-        if (this.options.percentField.columnName) {
-            fields.push(this.options.percentField.columnName);
-        }
-
-        if (this.options.predictedNameField.columnName) {
-            fields.push(this.options.predictedNameField.columnName);
-        }
-
-        if (this.options.typeField.columnName) {
-            fields.push(this.options.typeField.columnName);
-        }
-
-        if (this.options.dateField.columnName) {
-            fields.push(this.options.dateField.columnName);
-        }
-
-        if (this.options.flagLabel.columnName) {
-            fields.push(this.options.flagLabel.columnName);
-        }
-
-        if (this.options.flagSubLabel1.columnName) {
-            fields.push(this.options.flagSubLabel1.columnName);
-        }
-
-        if (this.options.flagSubLabel2.columnName) {
-            fields.push(this.options.flagSubLabel2.columnName);
-        }
-
-        if (this.options.flagSubLabel3.columnName) {
-            fields.push(this.options.flagSubLabel3.columnName);
-        }
-
-        let wheres: neon.query.WherePredicate[] = [neon.query.where(this.options.linkField.columnName, '!=', null),
-            neon.query.where(this.options.linkField.columnName, '!=', '')];
-
-        if (this.options.filter) {
-            wheres.push(neon.query.where(this.options.filter.lhs, this.options.filter.operator, this.options.filter.rhs));
-        }
-
-        if (this.hasUnsharedFilter()) {
-            wheres.push(neon.query.where(this.options.unsharedFilterField.columnName, '=', this.options.unsharedFilterValue));
-        }
-
-        this.options.customEventsToPublish.forEach((config) => {
-            (config.fields || []).forEach((fieldsConfig) => {
-                if (fields.indexOf(fieldsConfig.columnName) < 0) {
-                    fields.push(fieldsConfig.columnName);
-                }
-            });
-        });
-
-        return query.withFields(fields).where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
-            .sortBy(this.options.sortField.columnName, this.options.sortDescending ? neonVariables.DESCENDING : neonVariables.ASCENDING);
+        return query.where(neon.query.and.apply(neon.query, wheres))
+            .sortBy(options.sortField.columnName, options.sortDescending ? neonVariables.DESCENDING : neonVariables.ASCENDING);
     }
 
     /**
@@ -343,16 +250,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         return this.filters.some((existingFilter) => {
             return field === existingFilter.field && value === existingFilter.value;
         });
-    }
-
-    /**
-     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
-     *
-     * @return {any[]}
-     * @override
-     */
-    public getShownDataArray(): any[] {
-        return this.gridArray;
     }
 
     /**
@@ -385,40 +282,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     getVisualizationDefaultTitle(): string {
         return 'Thumbnail Grid';
-    }
-
-    /**
-     * Increases the page and updates the bar chart data.
-     */
-    goToNextPage() {
-        if (!this.lastPage) {
-            this.page++;
-            this.updatePageData();
-        }
-    }
-
-    /**
-     * Decreases the page and updates the bar chart data.
-     */
-    goToPreviousPage() {
-        if (this.page !== 1) {
-            this.page--;
-            this.updatePageData();
-        }
-    }
-
-    /**
-     * Updates lastPage and the bar chart data using the page and limit.
-     */
-    updatePageData() {
-        let offset = (this.page - 1) * this.options.limit;
-        this.lastPage = (this.gridArray.length <= (offset + this.options.limit));
-        this.pagingGrid = this.gridArray.slice(offset,
-            Math.min(this.page * this.options.limit, this.gridArray.length));
-        this.showGrid = true;
-        this.refreshVisualization();
-        this.createMediaThumbnail();
-        this.thumbnailGrid.nativeElement.scrollTop = 0;
     }
 
     /**
@@ -517,130 +380,97 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Returns whether the thumbnail grid query using the active data config is valid.
+     * Returns whether the visualization query created using the given options is valid.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(): boolean {
-        return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name &&
-            this.options.linkField && this.options.linkField.columnName && this.options.sortField && this.options.sortField.columnName);
+    validateVisualizationQuery(options: any): boolean {
+        return !!(options.database.name && options.table.name && options.linkField.columnName && options.sortField.columnName);
     }
 
     /**
-     * Handles the thumbnail grid query results and show/hide event for selecting/filtering and unfiltering documents.
+     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
      *
-     *  @arg {object} response
-     *  @override
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any[]} results
+     * @return {TransformedVisualizationData}
+     * @override
      */
-    onQuerySuccess(response) {
+    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
         this.gridArray = [];
-        this.errorMessage = '';
-        this.lastPage = true;
 
-        try {
-            if (response && response.data && response.data.length && response.data[0]) {
-                this.isLoading = true;
+        results.forEach((d) => {
+            let item = {},
+                 links = [];
 
-                response.data.forEach((d) => {
-                    let item = {},
-                        links = [];
-
-                    if (this.options.linkField.columnName) {
-                        links = this.getArrayValues(neonUtilities.deepFind(d, this.options.linkField.columnName) || '');
-                    }
-                    if (this.options.categoryField.columnName) {
-                        item[this.options.categoryField.columnName] = neonUtilities.deepFind(d, this.options.categoryField.columnName);
-                    }
-                    if (this.options.compareField.columnName) {
-                        item[this.options.compareField.columnName] = neonUtilities.deepFind(d, this.options.compareField.columnName);
-                    }
-                    if (this.options.filterField.columnName) {
-                        item[this.options.filterField.columnName] = neonUtilities.deepFind(d, this.options.filterField.columnName);
-                    }
-                    if (this.options.idField.columnName) {
-                        item[this.options.idField.columnName] = neonUtilities.deepFind(d, this.options.idField.columnName);
-                    }
-                    if (this.options.nameField.columnName) {
-                        item[this.options.nameField.columnName] = neonUtilities.deepFind(d, this.options.nameField.columnName);
-                    }
-                    if (this.options.objectIdField.columnName) {
-                        item[this.options.objectIdField.columnName] = neonUtilities.deepFind(d, this.options.objectIdField.columnName);
-                    }
-                    if (this.options.objectNameField.columnName) {
-                        item[this.options.objectNameField.columnName] = neonUtilities.deepFind(d, this.options.objectNameField.columnName);
-                    }
-                    if (this.options.percentField.columnName) {
-                        item[this.options.percentField.columnName] = neonUtilities.deepFind(d, this.options.percentField.columnName);
-                    }
-                    if (this.options.predictedNameField.columnName) {
-                        item[this.options.predictedNameField.columnName] = neonUtilities.deepFind(d,
-                            this.options.predictedNameField.columnName);
-                    }
-                    if (this.options.sortField.columnName) {
-                        item[this.options.sortField.columnName] = neonUtilities.deepFind(d, this.options.sortField.columnName);
-                    }
-                    if (this.options.typeField.columnName) {
-                        item[this.options.typeField.columnName] = neonUtilities.deepFind(d, this.options.typeField.columnName);
-                    }
-                    if (this.options.dateField.columnName) {
-                        item[this.options.dateField.columnName] = neonUtilities.deepFind(d, this.options.dateField.columnName);
-                    }
-                    if (this.options.flagLabel.columnName) {
-                        item[this.options.flagLabel.columnName] = neonUtilities.deepFind(d, this.options.flagLabel.columnName);
-                    }
-                    if (this.options.flagSubLabel1.columnName) {
-                        item[this.options.flagSubLabel1.columnName] = neonUtilities.deepFind(d, this.options.flagSubLabel1.columnName);
-                    }
-                    if (this.options.flagSubLabel2.columnName) {
-                        item[this.options.flagSubLabel2.columnName] = neonUtilities.deepFind(d, this.options.flagSubLabel2.columnName);
-                    }
-                    if (this.options.flagSubLabel3.columnName) {
-                        item[this.options.flagSubLabel3.columnName] = neonUtilities.deepFind(d, this.options.flagSubLabel3.columnName);
-                    }
-
-                    this.options.customEventsToPublish.forEach((config) => {
-                        (config.fields || []).forEach((fieldsConfig) => {
-                            item[fieldsConfig.columnName] = neonUtilities.deepFind(d, fieldsConfig.columnName);
-                        });
-                    });
-
-                    for (let link of links) {
-                        this.retreiveMedia(item, link);
-                    }
-                });
-
-                this.neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
-                    this.options.table.name, [this.options.filterField.columnName]);
-
-                if (this.options.hideUnfiltered && this.neonFilters.length || !this.options.hideUnfiltered) {
-                    this.lastPage = (this.gridArray.length <= this.options.limit);
-                    if (this.page > 1 && !this.lastPage) {
-                        let offset = (this.page - 1) * this.options.limit;
-                        this.pagingGrid = this.gridArray.slice(offset,
-                            Math.min(this.page * this.options.limit, this.gridArray.length));
-                    } else {
-                        this.pagingGrid = this.gridArray.slice(0, this.options.limit);
-                    }
-                    this.showGrid = true;
-                } else {
-                    this.pagingGrid = [];
-                    this.showGrid = false;
-                }
-
-                this.refreshVisualization();
-                this.createMediaThumbnail();
-                this.isLoading = false;
-
-            } else {
-                this.errorMessage = 'No Data';
-                this.refreshVisualization();
+            if (options.linkField.columnName) {
+                links = this.getArrayValues(neonUtilities.deepFind(d, options.linkField.columnName) || '');
             }
-        } catch (e) {
-            console.error(this.options.title + ' Error:', e);
-            this.errorMessage = 'Error';
-            this.refreshVisualization();
-        }
+            if (options.categoryField.columnName) {
+                item[options.categoryField.columnName] = neonUtilities.deepFind(d, options.categoryField.columnName);
+            }
+            if (options.compareField.columnName) {
+                item[options.compareField.columnName] = neonUtilities.deepFind(d, options.compareField.columnName);
+            }
+            if (options.filterField.columnName) {
+                item[options.filterField.columnName] = neonUtilities.deepFind(d, options.filterField.columnName);
+            }
+            if (options.idField.columnName) {
+                item[options.idField.columnName] = neonUtilities.deepFind(d, options.idField.columnName);
+            }
+            if (options.nameField.columnName) {
+                item[options.nameField.columnName] = neonUtilities.deepFind(d, options.nameField.columnName);
+            }
+            if (options.objectIdField.columnName) {
+                item[options.objectIdField.columnName] = neonUtilities.deepFind(d, options.objectIdField.columnName);
+            }
+            if (options.objectNameField.columnName) {
+                item[options.objectNameField.columnName] = neonUtilities.deepFind(d, options.objectNameField.columnName);
+            }
+            if (options.percentField.columnName) {
+                item[options.percentField.columnName] = neonUtilities.deepFind(d, options.percentField.columnName);
+            }
+            if (options.predictedNameField.columnName) {
+                item[options.predictedNameField.columnName] = neonUtilities.deepFind(d, options.predictedNameField.columnName);
+            }
+            if (options.sortField.columnName) {
+                item[options.sortField.columnName] = neonUtilities.deepFind(d, options.sortField.columnName);
+            }
+            if (options.typeField.columnName) {
+                item[options.typeField.columnName] = neonUtilities.deepFind(d, options.typeField.columnName);
+            }
+            if (options.dateField.columnName) {
+                item[options.dateField.columnName] = neonUtilities.deepFind(d, options.dateField.columnName);
+            }
+            if (options.flagLabel.columnName) {
+                item[options.flagLabel.columnName] = neonUtilities.deepFind(d, options.flagLabel.columnName);
+            }
+            if (options.flagSubLabel1.columnName) {
+                item[options.flagSubLabel1.columnName] = neonUtilities.deepFind(d, options.flagSubLabel1.columnName);
+            }
+            if (options.flagSubLabel2.columnName) {
+                item[options.flagSubLabel2.columnName] = neonUtilities.deepFind(d, options.flagSubLabel2.columnName);
+            }
+            if (options.flagSubLabel3.columnName) {
+                item[options.flagSubLabel3.columnName] = neonUtilities.deepFind(d, options.flagSubLabel3.columnName);
+            }
+
+            options.customEventsToPublish.forEach((config) => {
+                (config.fields || []).forEach((fieldsConfig) => {
+                    item[fieldsConfig.columnName] = neonUtilities.deepFind(d, fieldsConfig.columnName);
+                });
+            });
+
+            for (let link of links) {
+                this.retreiveMedia(item, link);
+            }
+
+            this.showingZeroOrMultipleElementsPerResult = this.showingZeroOrMultipleElementsPerResult || (links.length !== 1);
+        });
+
+        return new TransformedVisualizationData(this.gridArray);
     }
 
     /**
@@ -684,16 +514,27 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Initializes the thumbnail grid by running its query.
+     * Initializes any visualization properties when the widget is created.
      *
      * @override
      */
-    postInit() {
-        this.executeQueryChain();
+    initializeProperties() {
+        if (!this.options.sortField.columnName) {
+            this.options.sortField = this.options.percentField;
+        }
+
+        if (!this.options.flagLabel.columnName) {
+            this.options.flagLabel = this.options.idField;
+        }
+
+        // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
+        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+        // Backwards compatibility (ascending deprecated and replaced by sortDescending).
+        this.options.sortDescending = !(this.injector.get('ascending', !this.options.sortDescending));
     }
 
     /**
-     * Refreshes the thumbnail grid.
+     * Updates and redraws the elements and properties for the visualization.
      *
      * @override
      */
@@ -703,6 +544,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             this.changeDetection.detectChanges();
         }
         /* tslint:enable:no-string-literal */
+
+        this.createMediaThumbnail();
+        this.thumbnailGrid.nativeElement.scrollTop = 0;
     }
 
     /**
@@ -749,7 +593,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         //todo: when canvases lose focus the images disappear. May need to go back to div
         let canvases = this.thumbnailGrid.nativeElement.querySelectorAll('.thumbnail-view');
 
-        this.pagingGrid.map((grid, index) => {
+        this.gridArray.map((grid, index) => {
             let link = grid[this.options.linkField.columnName],
                 fileType = link.substring(link.lastIndexOf('.') + 1).toLowerCase(),
                 type = this.getMediaType(grid),
@@ -981,24 +825,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 }
             }
         }
-    }
-
-    /**
-     * Destroys any thumbnail grid sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnDestroy() {
-        // Do nothing.
-    }
-
-    /**
-     * Initializes any thumbnail grid sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnInit() {
-        // Do nothing.
     }
 
     sanitize(url) {

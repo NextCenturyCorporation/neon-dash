@@ -43,7 +43,7 @@ import {
     MapTypePairs,
     whiteString
 } from './map.type.abstract';
-import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
+import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { CesiumNeonMap } from './map.type.cesium';
 import { FieldMetaData } from '../../dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
@@ -73,15 +73,13 @@ class UniqueLocationPoint {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MapComponent extends BaseLayeredNeonComponent implements OnInit, OnDestroy, AfterViewInit, FilterListener {
+export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit, FilterListener {
     @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
     @ViewChild('mapElement') mapElement: ElementRef;
     @ViewChild('mapOverlay') mapOverlayRef: ElementRef;
-
-    protected FIELD_ID: string = '_id';
 
     protected filters: {
         id: string,
@@ -97,9 +95,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     protected filterHistory = new Array();
 
     public colorKeys: string[] = [];
-    public docCount: number[] = [];
-    public filterVisible: boolean[] = [];
-    public mapPoints: any[] = [];
+
+    public filterVisible: Map<string, boolean> = new Map<string, boolean>();
 
     public mapTypes = MapTypePairs;
 
@@ -124,9 +121,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             ref
         );
 
+        this.isMultiLayerWidget = true;
+
         (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
 
-        this.subscribeToSelectId(this.getSelectIdCallback());
+        this.updateOnSelectId = true;
     }
 
     /**
@@ -148,41 +147,21 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     /**
-     * Initializes any map sub-components needed.
+     * Initializes any visualization properties when the widget is created.
      *
      * @override
      */
-    subNgOnInit() {
-        // Do nothing.
-    }
-
-    /**
-     * Handles any map component post-initialization behavior needed.
-     *
-     * @override
-     */
-    postInit() {
+    initializeProperties() {
         // Backwards compatibility (mapType deprecated and replaced by type).
         this.options.type = this.injector.get('mapType', this.options.type);
     }
 
     /**
-     * Removes the map layer at the given index and redraws the map.
+     * Creates any visualization elements when the widget is drawn.
      *
-     * @arg {number} layerIndex
      * @override
      */
-    subRemoveLayer(layerIndex: number) {
-        this.options.layers.splice(layerIndex, 1);
-
-        // Update the map
-        this.handleChangeData();
-    }
-
-    /**
-     * Initializes and draws the map.
-     */
-    ngAfterViewInit() {
+    constructVisualization() {
         if (!super.isNumber(this.options.type)) {
             this.options.type = MapType[this.options.type] || MapType.Leaflet;
         }
@@ -200,17 +179,14 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         }
 
         this.mapObject.initialize(this.mapElement, this.options, this);
-
-        // Draw everything
-        this.handleChangeData();
     }
 
     /**
-     * Deletes any map sub-components needed.
+     * Removes any visualization elements when the widget is deleted.
      *
      * @override
      */
-    subNgOnDestroy() {
+    destroyVisualization() {
         return this.mapObject && this.mapObject.destroy();
     }
 
@@ -221,9 +197,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @override
      */
     postAddLayer(options: any) {
-        this.docCount[options.layers.length - 1] = 0;
-        this.filterVisible[options.layers.length - 1] = true;
-        this.mapPoints[options.layers.length - 1] = [];
+        this.filterVisible.set(options._id, true);
     }
 
     /**
@@ -266,9 +240,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             if (neonFilters && neonFilters.length) {
                 this.filterHistory.push(neonFilters[0]);
                 localFilters.id = neonFilters[0].id;
-                this.replaceNeonFilter(i, true, localFilters, neonFilter);
+                this.replaceNeonFilter(this.options.layers[i], true, localFilters, neonFilter);
             } else {
-                this.addNeonFilter(i, true, localFilters, neonFilter);
+                this.addNeonFilter(this.options.layers[i], true, localFilters, neonFilter);
             }
         }
     }
@@ -293,9 +267,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             if (neonFilters && neonFilters.length) {
                 this.filterHistory.push(neonFilters[0]);
                 localFilters.id = neonFilters[0].id;
-                this.replaceNeonFilter(i, true, localFilters, neonFilter);
+                this.replaceNeonFilter(this.options.layers[i], true, localFilters, neonFilter);
             } else {
-                this.addNeonFilter(i, true, localFilters, neonFilter);
+                this.addNeonFilter(this.options.layers[i], true, localFilters, neonFilter);
             }
         }
     }
@@ -407,56 +381,32 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     /**
-     * Returns whether the fields for the map layer at the given index are valid.
+     * Returns whether the visualization query created using the given options is valid.
      *
-     * @arg {number} layerIndex
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(layerIndex: number): boolean {
-        let valid = true;
-        valid = (this.options.layers[layerIndex].database && this.options.layers[layerIndex].database.name && valid);
-        valid = (this.options.layers[layerIndex].table && this.options.layers[layerIndex].table.name && valid);
-        valid = (this.options.layers[layerIndex].longitudeField && this.options.layers[layerIndex].longitudeField.columnName && valid);
-        valid = (this.options.layers[layerIndex].latitudeField && this.options.layers[layerIndex].latitudeField.columnName && valid);
-        return !!valid;
+    validateVisualizationQuery(options: any): boolean {
+        return !!(options.database.name && options.table.name && options.latitudeField.columnName && options.longitudeField.columnName);
     }
 
     /**
-     * Creates and returns the query for the map layer at the given index.
+     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
      *
-     * @arg {number} layerIndex
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {neon.query.Query} query
+     * @arg {neon.query.WherePredicate[]} wherePredicates
      * @return {neon.query.Query}
      * @override
      */
-    createQuery(layerIndex: number): neon.query.Query {
-        let idField = this.options.layers[layerIndex].idField.columnName;
-        let latitudeField = this.options.layers[layerIndex].latitudeField.columnName;
-        let longitudeField = this.options.layers[layerIndex].longitudeField.columnName;
-        let colorField = this.options.layers[layerIndex].colorField.columnName;
-        let sizeField = this.options.layers[layerIndex].sizeField.columnName;
-        let dateField = this.options.layers[layerIndex].dateField.columnName;
-        let hoverPopupField = this.options.layers[layerIndex].hoverPopupField.columnName;
+    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
+        let wheres: neon.query.WherePredicate[] = wherePredicates.concat([
+            neon.query.where(options.latitudeField.columnName, '!=', null),
+            neon.query.where(options.longitudeField.columnName, '!=', null)
+        ]);
 
-        let fields = [this.FIELD_ID, latitudeField, longitudeField];
-
-        if (idField) {
-            fields.push(idField);
-        }
-        if (colorField) {
-            fields.push(colorField);
-        }
-        if (sizeField) {
-            fields.push(sizeField);
-        }
-        if (dateField) {
-            fields.push(dateField);
-        }
-        if (hoverPopupField) {
-            fields.push(hoverPopupField);
-        }
-
-        return this.createBasicQuery(layerIndex).withFields(fields).limit(this.options.limit);
+        return query.where(neon.query.and.apply(neon.query, wheres));
     }
 
     legendItemSelected(event: any) {
@@ -476,7 +426,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         } else {
             for (let layer of this.options.layers) {
                 if (layer.colorField.columnName === fieldName) {
-                    this.mapObject.unhidePoints(layer, value);
+                    this.mapObject.unhidePoints(layer._id, value);
                 }
             }
 
@@ -556,18 +506,14 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     /**
-     * Handles the query results for the map layer at the given index and draws the map.
+     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
      *
-     * @arg {number} layerIndex
-     * @arg {any} response
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any[]} results
+     * @return {TransformedVisualizationData}
      * @override
      */
-    onQuerySuccess(layerIndex: number, response: any) {
-        if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
-            this.docCount[layerIndex] = response.data[0]._docCount;
-            return;
-        }
-
+    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
         // TODO Need to either preprocess data to get color, size scales OR see if neon aggregations can give ranges.
         // TODO break this function into smaller bits so it is more understandable.
 
@@ -575,36 +521,34 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             return;
         }
 
+        // TODO Move singleColor to layer options.
         //check if colorField was not defines or (None)
-        if (this.options.layers[layerIndex].colorField.columnName === '') {
+        if (options.colorField.columnName === '') {
             this.options.singleColor = true;
         } else {
             this.options.singleColor = false;
         }
 
-        let layer = this.options.layers[layerIndex];
-        this.mapPoints[layerIndex] = this.getMapPoints(
-            layer.database.name,
-            layer.table.name,
-            layer.idField.columnName,
-            layer.longitudeField.columnName,
-            layer.latitudeField.columnName,
-            layer.colorField.columnName,
-            layer.hoverPopupField.columnName,
-            response.data
+        let mapPoints: MapPoint[] = this.getMapPoints(
+            options.database.name,
+            options.table.name,
+            options.idField.columnName,
+            options.longitudeField.columnName,
+            options.latitudeField.columnName,
+            options.colorField.columnName,
+            options.hoverPopupField,
+            results
         );
 
-        // Unhide all points
-        for (let currentLayer of this.options.layers) {
-            this.mapObject.unhideAllPoints(currentLayer);
-        }
+        this.mapObject.unhideAllPoints(options._id);
 
-        this.mapObject.clearLayer(layer);
-        this.mapObject.addPoints(this.mapPoints[layerIndex], layer, true);
+        this.mapObject.clearLayer(options._id);
+        this.mapObject.addPoints(mapPoints, options._id, true);
 
         this.filterMapForLegend();
         this.updateLegend();
-        this.runDocumentCountQuery(layerIndex);
+
+        return new TransformedVisualizationData(mapPoints);
     }
 
     /**
@@ -629,7 +573,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             let value = disabledField[1];
             for (let layer of this.options.layers) {
                 if (layer.colorField.columnName === fieldName) {
-                    this.mapObject.hidePoints(layer, value);
+                    this.mapObject.hidePoints(layer._id, value);
                 }
             }
         }
@@ -674,7 +618,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     /**
-     * Refreshes the map.
+     * Updates and redraws the elements and properties for the visualization.
      *
      * @override
      */
@@ -683,16 +627,14 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     /**
-     * Returns whether the map layer at the given index has a filter.
+     * Returns whether the layer with the given options is filtered.
      *
-     * @arg {number} layerIndex
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    doesLayerStillHaveFilter(layerIndex: number): boolean {
-        let fields = [this.options.layers[layerIndex].latitudeField.columnName,
-        this.options.layers[layerIndex].longitudeField.columnName];
-        let neonFilters = this.filterService.getFiltersForFields(this.options.layers[layerIndex].database.name,
-            this.options.layers[layerIndex].table.name, fields);
+    doesLayerStillHaveFilter(options: any): boolean {
+        let fields = [options.latitudeField.columnName, options.longitudeField.columnName];
+        let neonFilters = this.filterService.getFiltersForFields(options.database.name, options.table.name, fields);
         return neonFilters && neonFilters.length > 0;
     }
 
@@ -722,15 +664,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         return null;
     }
 
-    hasLayerFilterChanged(layerIndex: number): boolean {
+    hasLayerFilterChanged(options: any): boolean {
         let filterChanged = true;
-        let fields = [this.options.layers[layerIndex].latitudeField.columnName,
-        this.options.layers[layerIndex].longitudeField.columnName];
-        let neonFilters = this.filterService.getFiltersForFields(this.options.layers[layerIndex].database.name,
-            this.options.layers[layerIndex].table.name, fields);
+        let fields = [options.latitudeField.columnName, options.longitudeField.columnName];
+        let neonFilters = this.filterService.getFiltersForFields(options.database.name, options.table.name, fields);
         let clauses = this.getClausesFromFilterWithIdenticalArguments(neonFilters, [
-            this.options.layers[layerIndex].latitudeField.columnName,
-            this.options.layers[layerIndex].longitudeField.columnName
+            options.latitudeField.columnName,
+            options.longitudeField.columnName
         ]);
         if (clauses && this.filterBoundingBox) {
             let values = [this.filterBoundingBox.north, this.filterBoundingBox.south, this.filterBoundingBox.east,
@@ -755,13 +695,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         let allLayersHaveFilters = true;
         let oneOrMoreLayersHaveFilters = false;
         let oneOrMoreFiltersHaveChanged = false;
-        for (let i = 0; i < this.options.layers.length; i++) {
-            let layerHasFilter: boolean = this.doesLayerStillHaveFilter(i);
+        this.options.layers.forEach((layer) => {
+            let layerHasFilter: boolean = this.doesLayerStillHaveFilter(layer);
             oneOrMoreLayersHaveFilters = oneOrMoreLayersHaveFilters || layerHasFilter;
             allLayersHaveFilters = allLayersHaveFilters && layerHasFilter;
-            let filterHasChanged = this.hasLayerFilterChanged(i);
+            let filterHasChanged = this.hasLayerFilterChanged(layer);
             oneOrMoreFiltersHaveChanged = oneOrMoreFiltersHaveChanged || filterHasChanged;
-        }
+        });
         if (!oneOrMoreLayersHaveFilters) {
             // aka no layers have filters
             this.filters = [];
@@ -810,29 +750,29 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     handleRemoveFilter(filter: any): void {
         let neonFilters = this.filterService.getFiltersByOwner(this.id);
         this.filterHistory.push(neonFilters[0]);
-        for (let i = 0; i < this.options.layers.length; i++) {
-            this.removeLocalFilterFromLocalAndNeon(i, filter, true, false);
-        }
+        this.options.layers.forEach((layer) => {
+            this.removeLocalFilterFromLocalAndNeon(layer, filter, true, false);
+        });
         this.removeFilter();
     }
 
     /**
-     * Toggles the visibility of the filter at the given index.
+     * Toggles the visibility of the filter for the layer with the given options.
      *
-     * @arg {number} index
+     * @arg {any} options A WidgetOptionCollection object.
      */
-    toggleFilter(index: number): void {
-        this.filterVisible[index] = !(this.filterVisible[index]);
+    toggleFilter(options: any): void {
+        this.filterVisible.set(options._id, !(this.filterVisible.get(options._id)));
     }
 
     /**
-     * Returns the icon for the filter at the given index.
+     * Returns the icon for the filter for the layer with the given options.
      *
-     * @arg {number} index
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {string}
      */
-    getIconForFilter(index: number): string {
-        return this.filterVisible[index] ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
+    getIconForFilter(options: any): string {
+        return this.filterVisible.get(options._id) ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
     }
 
     /**
@@ -843,48 +783,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         if (this.mapObject) {
             this.mapObject.sizeChanged();
         }
-    }
-
-    /**
-     * Creates and returns the basic query for the data aggregation query or the document count query for the layer at the given index.
-     *
-     * @arg {number} layerIndex
-     * @return {neon.query.Query}
-     */
-    createBasicQuery(layerIndex: number): neon.query.Query {
-        let databaseName = this.options.layers[layerIndex].database.name;
-        let tableName = this.options.layers[layerIndex].table.name;
-
-        let latitudeField = this.options.layers[layerIndex].latitudeField.columnName;
-        let longitudeField = this.options.layers[layerIndex].longitudeField.columnName;
-
-        let whereClauses = [];
-        whereClauses.push(neon.query.where(latitudeField, '!=', null));
-        whereClauses.push(neon.query.where(longitudeField, '!=', null));
-        let whereClause = neon.query.and.apply(neon.query, whereClauses);
-
-        return new neon.query.Query().selectFrom(databaseName, tableName).where(whereClause);
-    }
-
-    /**
-     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
-     *
-     * @arg {number} layerIndex
-     * @return {any[]}
-     * @override
-     */
-    public getShownDataArray(layerIndex: number): any[] {
-        return this.mapPoints[layerIndex];
-    }
-
-    /**
-     * Returns the count of data items that an unlimited query for the visualization would contain.
-     *
-     * @arg {number} layerIndex
-     * @return {number}
-     */
-    public getTotalDataCount(layerIndex: number): number {
-        return this.docCount[layerIndex];
     }
 
     /**
@@ -900,16 +798,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     /**
-     * Creates and executes the document count query for the layer at the given index.
-     *
-     * @arg {number} layerIndex
-     */
-    runDocumentCountQuery(layerIndex: number): void {
-        let query = this.createBasicQuery(layerIndex).aggregate(neonVariables.COUNT, '*', '_docCount');
-        this.executeQuery(layerIndex, query);
-    }
-
-    /**
      * Returns an object containing the ElementRef objects for the visualization.
      *
      * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
@@ -920,39 +808,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             visualization: this.visualization,
             headerText: this.headerText,
             infoText: this.infoText
-        };
-    }
-
-    /**
-     * Creates and returns the callback function for a select_id event.
-     *
-     * @arg {number}
-     * @return {function}
-     * @private
-     */
-    private getSelectIdCallback() {
-        return (eventMessage) => {
-
-            //get the message id and set it
-            let eventMessageId = Array.isArray(eventMessage.id) ? eventMessage.id[0] : eventMessage.id;
-
-            let previousId = '';
-
-            //loop through all of the layers
-            this.options.layers.forEach((elem, index) => {
-
-                //check if database and table exists in the current layer
-                if ((eventMessage.database === elem.database.name) && (eventMessage.table === elem.table.name)) {
-
-                    if (eventMessageId !== previousId) {
-                        previousId = eventMessageId;
-                        this.executeQueryChain(index);
-                    }
-                }
-
-                //reset previousId for next layer
-                previousId = '';
-            });
         };
     }
 
