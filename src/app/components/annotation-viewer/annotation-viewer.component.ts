@@ -162,7 +162,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      */
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [
-            new WidgetFieldOption('documentTextField', 'Document Text Field', false),
+            new WidgetFieldOption('documentTextField', 'Document Text Field', true),
             new WidgetFieldOption('endCharacterField', 'End Character Field', false),
             new WidgetFieldOption('idField', 'ID Field', false),
             new WidgetFieldOption('linkField', 'Link Field', false),
@@ -1103,44 +1103,5 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      */
     checkFooter() {
         return (this.docCount > this.options.limit) && (this.showFooterContainer());
-    }
-
-    /**
-     * Publishes the component's option object and handle change callbacks to the gear component
-     */
-    publishOptions() {
-        let componentThis: any;
-        let handleChangeData: () => void;
-        let handleChangeDatabase: () => void;
-        let handleChangeFilterField: () => void;
-        let handleChangeLimit: () => void;
-        let handleChangeTable: () => void;
-        componentThis = this;
-        handleChangeData = this.handleChangeData.bind(this);
-        handleChangeDatabase = this.handleChangeDatabase.bind(this);
-        handleChangeFilterField = this.handleChangeFilterField.bind(this);
-        handleChangeLimit = this.subHandleChangeLimit.bind(this);
-        handleChangeTable = this.handleChangeTable.bind(this);
-        this.messenger.publish('options', {
-            options: this.options,
-            changeData: handleChangeData,
-            changeDatabase: handleChangeDatabase,
-            changeFilterFIeld: handleChangeFilterField,
-            changeLimitCallback: handleChangeLimit,
-            changeTable: handleChangeTable,
-            componentThis: componentThis
-        });
-    }
-
-    publishToggleGear() {
-        this.messenger.publish('toggleGear', {
-            toggleGear: true
-        });
-    }
-
-    toggleGear() {
-        //console.log(this.options);
-        this.publishOptions();
-        this.publishToggleGear();
     }
 }

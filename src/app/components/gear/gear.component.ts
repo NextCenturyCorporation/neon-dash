@@ -37,21 +37,23 @@ import { isNgTemplate } from '@angular/compiler';
 export class GearComponent implements OnInit, OnDestroy {
 
     public options: any = new WidgetOptionCollection();
-    public messenger: neon.eventing.Messenger;
+    private messenger: neon.eventing.Messenger;
     private optionsList: WidgetOption[];
     private requiredList: WidgetOption[];
     private optionalList: WidgetOption[];
     private changeList: any[];
-    public componentThis: any;
+    private componentThis: any;
 
-    public handleChangeData: Function; //{(): => void; };
-    public handleChangeDatabase: Function;
-    public handleChangeLimit: Function;
-    public handleChangeFilterField: Function;
-    public handleChangeTable: Function;
+    private handleChangeData: Function; //{(): => void; };
+    private handleChangeDatabase: Function;
+    private handleChangeLimit: Function;
+    private handleChangeFilterField: Function;
+    private handleChangeSubcomponentType: Function;
+    private handleChangeTable: Function;
     //public toggleGear: boolean;
-    public newLimit: string;
-    public limitChanged: boolean;
+    private newLimit: string;
+    private changeSubcomponentType: boolean;
+    private limitChanged: boolean;
 
     constructor(
         private changeDetection: ChangeDetectorRef,
@@ -142,6 +144,11 @@ export class GearComponent implements OnInit, OnDestroy {
         });
         this.changeList = [];
 
+        if (this.changeSubcomponentType) {
+            this.handleChangeSubcomponentType();
+            this.changeSubcomponentType = false;
+        }
+
         if (this.limitChanged) {
             this.handleChangeLimit();
         }
@@ -160,6 +167,10 @@ export class GearComponent implements OnInit, OnDestroy {
         } else {
             this.overrideExistingChange(widgetOption);
             this.changeList.push({ widgetOption, newValue });
+        }
+
+        if (widgetOption.bindingKey === 'type') {
+            this.changeSubcomponentType = true;
         }
         this.options[widgetOption.bindingKey] = newValue;
     }
@@ -231,6 +242,12 @@ export class GearComponent implements OnInit, OnDestroy {
         this.handleChangeLimit = message.changeLimitCallback;
         this.handleChangeTable = message.changeTable;
         this.componentThis = message.componentThis;
+
+        if (message.changeHandleSubcomponentType) {
+            this.handleChangeSubcomponentType = message.changeHandleSubcomponentType;
+        } else {
+            this.handleChangeSubcomponentType = Function;
+        }
 
         this.optionsList = this.options.list();
         this.cleanShowOptions();

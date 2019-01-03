@@ -478,42 +478,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Publishes the component's option object and handle change callbacks to the gear component
-     */
-    publishOptions() {
-        let componentThis: any;
-        let handleChangeData: () => void;
-        let handleChangeDatabase: () => void;
-        let handleChangeFilterField: () => void;
-        let handleChangeLimit: () => void;
-        let handleChangeTable: () => void;
-        componentThis = this;
-        handleChangeData = this.handleChangeData.bind(this);
-        handleChangeDatabase = this.handleChangeDatabase.bind(this);
-        handleChangeFilterField = this.handleChangeFilterField.bind(this);
-        handleChangeLimit = this.subHandleChangeLimit.bind(this);
-        handleChangeTable = this.handleChangeTable.bind(this);
-        this.messenger.publish('options', {
-            options: this.options,
-            changeData: handleChangeData,
-            changeDatabase: handleChangeDatabase,
-            changeFilterFIeld: handleChangeFilterField,
-            changeLimitCallback: handleChangeLimit,
-            changeTable: handleChangeTable,
-            componentThis: componentThis
-        });
-    }
-
-    /**
-     * Publishes the toggleGear so the app component can toggle the gear panel
-     */
-    publishToggleGear() {
-        this.messenger.publish('toggleGear', {
-            toggleGear: true
-        });
-    }
-
-    /**
      * Returns whether to show the select button.
      *
      * @return {boolean}
@@ -529,13 +493,5 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     showSourceButton(): boolean {
         return !this.options.showText && !this.options.hideSource;
-    }
-
-    /**
-     * Publishes the toggleGear so the app component can toggle the gear panel
-     */
-    toggleGear() {
-        this.publishOptions();
-        this.publishToggleGear();
     }
 }
