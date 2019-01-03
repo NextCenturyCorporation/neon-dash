@@ -473,14 +473,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * @override
      */
     finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
+        let where: neon.query.WherePredicate = neon.query.or.apply(neon.query, [
+            neon.query.where(options.nodeField.columnName, '!=', null),
+            neon.query.where(options.linkField.columnName, '!=', null)
+        ]);
+
         let sortFieldName: string = (options.nodeColorField.columnName || options.edgeColorField.columnName ||
             options.nodeField.columnName);
 
-        if (wherePredicates.length) {
-            query.where(wherePredicates.length > 1 ? neon.query.and.apply(neon.query, wherePredicates) : wherePredicates[0]);
-        }
-
-        return query.sortBy(sortFieldName, neonVariables.ASCENDING);
+        return query.where(wherePredicates.length ? neon.query.and.apply(neon.query, [wherePredicates, where]) : where)
+            .sortBy(sortFieldName, neonVariables.ASCENDING);
     }
 
     getFiltersToIgnore() {
