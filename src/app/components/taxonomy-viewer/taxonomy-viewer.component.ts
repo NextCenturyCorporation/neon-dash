@@ -32,7 +32,7 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import {
@@ -70,7 +70,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         value: string
     }[] = [];
 
+    // TODO THOR-985
     public taxonomyGroups: any[] = [];
+
     public deletedFilter: any;
 
     public testOptions = {
@@ -120,7 +122,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             new WidgetFieldOption('sourceIdField', 'Source ID Field', false),
             new WidgetFieldOption('linkField', 'Link Field', false),
             new WidgetFieldOption('typeField', 'Type Field', false),
-            new WidgetFieldOption('subTypeField', 'Sub Type Field', false)
+            new WidgetFieldOption('subTypeField', 'Sub Type Field', false),
+            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
         ];
     }
 
@@ -135,41 +138,27 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             new WidgetSelectOption('ascending', 'Sort Ascending', false, OptionChoices.NoFalseYesTrue),
             new WidgetFreeTextOption('id', 'ID', ''),
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.NoFalseYesTrue),
-            new WidgetNonPrimitiveOption('filterFields', 'Filter Fields', []),
             new WidgetSelectOption('extendedFilter', 'Extended Filter', false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
     /**
-     * Creates and returns the query for the taxonomy viewer
+     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
      *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {neon.query.Query} query
+     * @arg {neon.query.WherePredicate[]} wherePredicates
      * @return {neon.query.Query}
      * @override
      */
-    createQuery(): neon.query.Query {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
-
-        let fields = [this.options.idField.columnName, this.options.categoryField.columnName].concat(this.options.filterFields);
-
-        if (this.options.sourceIdField.columnName) {
-            fields.push(this.options.sourceIdField.columnName);
-        }
-
-        if (this.options.typeField.columnName) {
-            fields.push(this.options.typeField.columnName);
-        }
-
-        if (this.options.subTypeField.columnName) {
-            fields.push(this.options.subTypeField.columnName);
-        }
-
-        let whereClauses = [
+    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
+        let wheres = wherePredicates.concat([
             neon.query.where(this.options.idField.columnName, '!=', null),
             neon.query.where(this.options.idField.columnName, '!=', '')
-        ];
+        ]);
 
-        return query.withFields(fields).where(neon.query.and.apply(query, whereClauses)).sortBy(
-            this.options.categoryField.columnName, this.options.ascending ? neonVariables.ASCENDING : neonVariables.DESCENDING);
+        return query.where(neon.query.and.apply(query, wheres))
+            .sortBy(this.options.categoryField.columnName, this.options.ascending ? neonVariables.ASCENDING : neonVariables.DESCENDING);
     }
 
     /**
@@ -195,32 +184,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             infoText: this.infoText,
             treeRoot: this.treeRoot
         };
-    }
-
-    /**
-     * Returns the export fields for the visualization.
-     *
-     * @return {array}
-     * @override
-     */
-    getExportFields(): any[] {
-        // TODO Add or remove fields and properties as needed.
-        return [{
-            columnName: this.options.categoryField.columnName,
-            prettyName: this.options.categoryField.prettyName
-        }, {
-            columnName: this.options.typeField.columnName,
-            prettyName: this.options.typeField.prettyName
-        }, {
-            columnName: this.options.idField.columnName,
-            prettyName: this.options.idField.prettyName
-        }, {
-            columnName: this.options.sourceIdField.columnName,
-            prettyName: this.options.sourceIdField.prettyName
-        }, {
-            columnName: this.options.subTypeField.columnName,
-            prettyName: this.options.subTypeField.prettyName
-        }];
     }
 
     /**
@@ -342,154 +305,134 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     addFilter(filter: any, runQuery: boolean, clause: any) {
         this.filters.push(filter);
-        this.addNeonFilter(runQuery, filter, clause);
+        this.addNeonFilter(this.options, runQuery, filter, clause);
     }
 
     /**
-     * Returns whether the data and fields for the visualization are valid.
+     * Returns whether the visualization query created using the given options is valid.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(): boolean {
-        return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name &&
-            this.options.idField && this.options.idField.columnName && this.options.categoryField &&
+    validateVisualizationQuery(options: any): boolean {
+        return !!(this.options.database.name && this.options.table.name && this.options.idField.columnName &&
             this.options.categoryField.columnName);
     }
 
     /**
-     * Handles the query results for the visualization; updates and/or redraws any properties as needed.
+     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
      *
-     * @arg {object} response
+     * @arg {any} options
+     * @arg {any[]} results
+     * @return {TransformedVisualizationData}
      * @override
      */
-    onQuerySuccess(response: any) {
+    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
         let counter = 0;
+
+        // TODO THOR-985
         this.taxonomyGroups = [];
 
-        try {
-            if (response && response.data && response.data.length && response.data[0]) {
-                this.isLoading = true;
+        results.forEach((d) => {
+            let categories: string[],
+                types: string[],
+                subTypes: string[];
 
-                response.data.forEach((d) => {
+            categories = neonUtilities.deepFind(d, this.options.categoryField.columnName);
 
-                    let categories: string[],
-                        types: string[],
-                        subTypes: string[];
-
-                    categories = neonUtilities.deepFind(d, this.options.categoryField.columnName);
-
-                    if (this.options.typeField.columnName) {
-                        types = neonUtilities.deepFind(d, this.options.typeField.columnName);
-                    }
-
-                    //TODO: Not fully implemented because subTypes do not currently exist, but might need to be in the future THOR-908
-                    if (this.options.subTypeField.columnName) {
-                        subTypes = neonUtilities.deepFind(d, this.options.typeField.columnName);
-                    }
-
-                    for (let category of categories) {
-                        //checks if there are any parent(category) nodes in the tree
-                        let foundCategory = this.getTaxonomyObject(this.taxonomyGroups, category);
-
-                        //If the parent(category) node does not exist in the tree, add it
-                        if (!foundCategory.object) {
-                            let parent = {
-                                id: counter++, name: category, lineage: category, children: [],
-                                description: this.options.categoryField.columnName, checked: true
-                            };
-
-                            this.taxonomyGroups.push(parent);
-                            foundCategory.object = this.taxonomyGroups[this.taxonomyGroups.length - 1];
-                            foundCategory.index = this.taxonomyGroups.length - 1;
-                        }
-
-                        if (types) {
-                            for (let type of types) {
-                                //checks if a subChild node will be needed based on if dot notation exists
-                                // within the child node string
-                                let subTypeNeeded = type.includes('.') || (subTypes && types !== subTypes),
-                                    foundType = null;
-
-                                //checks if child(type) node exists in the tree and if not, adds it
-                                if (foundCategory.object.children) {
-                                    foundType = this.getTaxonomyObject(foundCategory.object.children,
-                                        type.includes('.') ? type.split('.')[0] : type);
-                                }
-
-                                if (foundType && foundType.object) {
-                                    if (subTypeNeeded) {
-                                        let foundSubType = this.getTaxonomyObject(foundType.object.children, type);
-
-                                        if (!foundSubType.object) {
-                                            let subTypeObject = {
-                                                id: counter++, name: type, lineage: category,
-                                                description: this.options.subTypeField.columnName, checked: true
-                                            };
-
-                                            this.taxonomyGroups[foundCategory.index].children[foundType.index]
-                                                .children.push(subTypeObject);
-                                        }
-                                    }
-                                } else {
-                                    let setType = type.includes('.') ? type.split('.')[0] : type,
-                                        typeObject = {
-                                            id: counter++, name: setType, children: [], lineage: category,
-                                            description: this.options.typeField.columnName, checked: true
-                                        };
-
-                                    foundType.index = 0;
-                                    this.taxonomyGroups[foundCategory.index].children.push(typeObject);
-
-                                    if (this.taxonomyGroups[foundCategory.index].children &&
-                                        this.taxonomyGroups[foundCategory.index].children.length > 1) {
-                                        for (let i = 0; i < this.taxonomyGroups[foundCategory.index].children.length; i++) {
-                                            if (type.includes(this.taxonomyGroups[foundCategory.index].children[i].name)) {
-                                                foundType.index = i;
-                                            }
-                                        }
-                                    }
-
-                                    if (subTypeNeeded) {
-                                        let subTypeObject = {
-                                            id: counter++, name: type, lineage: category,
-                                            description: this.options.subTypeField.columnName, checked: true
-                                        };
-
-                                        this.taxonomyGroups[foundCategory.index].children[foundType.index].children.push(subTypeObject);
-                                    }
-                                }
-                                this.sortTaxonomyArrays(this.taxonomyGroups[foundCategory.index].children[foundType.index].children);
-                            }//end types loop
-                        }
-                        this.sortTaxonomyArrays(this.taxonomyGroups[foundCategory.index].children);
-                    }   //end categories loop
-
-                });
-
-                this.addCountsToTaxonomy(response.data, this.taxonomyGroups);
-                this.sortTaxonomyArrays(this.taxonomyGroups);
-                this.refreshVisualization();
-
-            } else {
-                this.errorMessage = 'No Data';
-                this.refreshVisualization();
+            if (this.options.typeField.columnName) {
+                types = neonUtilities.deepFind(d, this.options.typeField.columnName);
             }
-        } catch (e) {
-            console.error(this.options.title + ' Error: ' + e);
-            this.errorMessage = 'Error';
-            this.refreshVisualization();
-        }
 
-    }
+            //TODO: Not fully implemented because subTypes do not currently exist, but might need to be in the future THOR-908
+            if (this.options.subTypeField.columnName) {
+                subTypes = neonUtilities.deepFind(d, this.options.typeField.columnName);
+            }
 
-    /**
-     * Handles any post-initialization behavior needed with properties for the visualization.
-     *
-     * @override
-     */
-    postInit() {
-        this.executeQueryChain();
+            for (let category of categories) {
+                //checks if there are any parent(category) nodes in the tree
+                let foundCategory = this.getTaxonomyObject(this.taxonomyGroups, category);
+
+                //If the parent(category) node does not exist in the tree, add it
+                if (!foundCategory.object) {
+                    let parent = {
+                        id: counter++, name: category, lineage: category, children: [],
+                        description: this.options.categoryField.columnName, checked: true
+                    };
+
+                    this.taxonomyGroups.push(parent);
+                    foundCategory.object = this.taxonomyGroups[this.taxonomyGroups.length - 1];
+                    foundCategory.index = this.taxonomyGroups.length - 1;
+                }
+
+                if (types) {
+                    for (let type of types) {
+                        //checks if a subChild node will be needed based on if dot notation exists
+                        // within the child node string
+                        let subTypeNeeded = type.includes('.') || (subTypes && types !== subTypes),
+                            foundType = null;
+
+                        //checks if child(type) node exists in the tree and if not, adds it
+                        if (foundCategory.object.children) {
+                            foundType = this.getTaxonomyObject(foundCategory.object.children,
+                                type.includes('.') ? type.split('.')[0] : type);
+                        }
+
+                        if (foundType && foundType.object) {
+                            if (subTypeNeeded) {
+                                let foundSubType = this.getTaxonomyObject(foundType.object.children, type);
+
+                                if (!foundSubType.object) {
+                                    let subTypeObject = {
+                                        id: counter++, name: type, lineage: category,
+                                        description: this.options.subTypeField.columnName, checked: true
+                                    };
+
+                                    this.taxonomyGroups[foundCategory.index].children[foundType.index]
+                                        .children.push(subTypeObject);
+                                }
+                            }
+                        } else {
+                            let setType = type.includes('.') ? type.split('.')[0] : type,
+                                typeObject = {
+                                    id: counter++, name: setType, children: [], lineage: category,
+                                    description: this.options.typeField.columnName, checked: true
+                                };
+
+                            foundType.index = 0;
+                            this.taxonomyGroups[foundCategory.index].children.push(typeObject);
+
+                            if (this.taxonomyGroups[foundCategory.index].children &&
+                                this.taxonomyGroups[foundCategory.index].children.length > 1) {
+                                for (let i = 0; i < this.taxonomyGroups[foundCategory.index].children.length; i++) {
+                                    if (type.includes(this.taxonomyGroups[foundCategory.index].children[i].name)) {
+                                        foundType.index = i;
+                                    }
+                                }
+                            }
+
+                            if (subTypeNeeded) {
+                                let subTypeObject = {
+                                    id: counter++, name: type, lineage: category,
+                                    description: this.options.subTypeField.columnName, checked: true
+                                };
+
+                                this.taxonomyGroups[foundCategory.index].children[foundType.index].children.push(subTypeObject);
+                            }
+                        }
+                        this.sortTaxonomyArrays(this.taxonomyGroups[foundCategory.index].children[foundType.index].children);
+                    }//end types loop
+                }
+                this.sortTaxonomyArrays(this.taxonomyGroups[foundCategory.index].children);
+            }   //end categories loop
+
+        });
+
+        this.addCountsToTaxonomy(results, this.taxonomyGroups);
+        this.sortTaxonomyArrays(this.taxonomyGroups);
+
+        return new TransformedVisualizationData(this.taxonomyGroups);
     }
 
     /**
@@ -573,7 +516,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         for (let filter of tempFilters) {
             //If the filter value includes this node data and if the filter has a valid filter field
             if (filter.value.includes(node.data.lineage) || filter.value.includes(node.data.name)) {
-                this.removeLocalFilterFromLocalAndNeon(filter, false, true);
+                this.removeLocalFilterFromLocalAndNeon(this.options, filter, false, true);
                 this.removeFilter(filter);
             }
         }
@@ -665,6 +608,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     refreshVisualization() {
+        this.updateFilteredNodes();
         this.getElementRefs().treeRoot.treeModel.update();
     }
 
@@ -692,7 +636,17 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     setupFilters() {
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
             this.options.table.name, this.options.filterFields);
+
+        this.filters.forEach((filter) => {
+            if (!(neonFilters.some((neonFilter) => neonFilter.id === filter.id))) {
+                this.deletedFilter = filter;
+                this.updateFilteredNodes();
+            }
+        });
+
+        this.deletedFilter = null;
         this.filters = [];
+
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
                 let field = this.options.findField(neonFilter.filter.whereClause.lhs);
@@ -712,60 +666,16 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Called after the filters in the filter service have changed.
-     * Defaults to calling setupFilters() then executeQueryChain()
+     * Updates the filtered nodes if deletedFilter exists.
      */
-    handleFiltersChangedEvent($event): void {
-        if ($event[0].whereClause) {
-            for (let filter of this.filters) {
-                if (filter.value === $event[0].whereClause.rhs) {
-                    this.removeFilter(filter);
-                    break;
-                }
-            }
-        }
-
+    updateFilteredNodes() {
         for (let node of this.getElementRefs().treeRoot.treeModel.nodes) {
-            if (this.deletedFilter && (this.deletedFilter.lineage === node.name ||
-                this.deletedFilter.value.includes(node.name))) {
+            if (this.deletedFilter && (this.deletedFilter.lineage === node.name || this.deletedFilter.value.includes(node.name))) {
                 node.checked = true;
                 node.indeterminate = false;
                 this.updateChildNodesCheckBox(node, true);
                 this.updateParentNodesCheckBox(node.parent);
             }
         }
-
-        this.refreshVisualization();
-    }
-
-    /**
-     * Sets the visualization fields and properties in the given bindings object needed to save layout states.
-     *
-     * @arg {object} bindings
-     * @override
-     */
-    subGetBindings(bindings: any) {
-        bindings.idField = this.options.idField.columnName;
-        bindings.categoryField = this.options.categoryField.columnName;
-        bindings.typeField = this.options.typeField.columnName;
-        bindings.subTypeField = this.options.subTypeField.columnName;
-    }
-
-    /**
-     * Destroys any taxonomy sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnDestroy() {
-        // Do nothing.
-    }
-
-    /**
-     * Initializes any taxonomy sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnInit() {
-        //
     }
 }

@@ -40,6 +40,7 @@ import { MatAutocompleteModule } from '@angular/material';
 import { DetailsThumbnailSubComponent } from './subcomponent.details-view';
 import { TitleThumbnailSubComponent } from './subcomponent.title-view';
 import { CardThumbnailSubComponent } from './subcomponent.card-view';
+import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 
 let validateSelect = (element: any, name: string, required: boolean = false, disabled: boolean = false) => {
     expect(element.componentInstance.disabled).toEqual(disabled);
@@ -139,8 +140,6 @@ describe('Component: ThumbnailGrid', () => {
     it('does have expected class properties', () => {
         expect(component.gridArray).toEqual([]);
         expect(component.filters).toEqual([]);
-        expect(component.isLoading).toEqual(false);
-        expect(component.lastPage).toEqual(true);
         expect(component.mediaTypes).toEqual({
             image: 'img',
             video: 'vid',
@@ -149,8 +148,6 @@ describe('Component: ThumbnailGrid', () => {
             audio: 'aud',
             maskImage: 'mask'
         });
-        expect(component.page).toEqual(1);
-        expect(component.pagingGrid).toEqual([]);
     });
 
     it('does show toolbar and sidenav', () => {
@@ -168,31 +165,39 @@ describe('Component: ThumbnailGrid', () => {
         expect(header.nativeElement.textContent).toContain('Thumbnail Grid');
     });
 
-    it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', () => {
-        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
-        expect(dataInfoTextInToolbar).not.toBeNull();
-        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('0 Files');
+    it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', async(() => {
+        (component as any).layerIdToElementCount.set(component.options._id, 10);
 
-        let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
-        expect(dataInfoIconInSidenav).not.toBeNull();
-        expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
+        // Force the component to update all its ngFor and ngIf elements.
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
 
-        let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
-        expect(dataInfoTextInSidenav).not.toBeNull();
-        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Files');
+            let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
+            expect(dataInfoTextInToolbar).not.toBeNull();
+            expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Files');
 
-        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
-        expect(errorMessageInToolbar).toBeNull();
+            let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
+            expect(dataInfoIconInSidenav).not.toBeNull();
+            expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
 
-        let errorIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
-        expect(errorIconInSidenav).toBeNull();
+            let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
+            expect(dataInfoTextInSidenav).not.toBeNull();
+            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('10 Files');
 
-        let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
-        expect(errorMessageInSidenav).toBeNull();
-    });
+            let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
+            expect(errorMessageInToolbar).toBeNull();
+
+            let errorIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
+            expect(errorIconInSidenav).toBeNull();
+
+            let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
+            expect(errorMessageInSidenav).toBeNull();
+        });
+    }));
 
     it('does show error-message in toolbar and sidenav if errorMessage is defined', async(() => {
-        component.errorMessage = 'Test Error Message';
+        (component as any).errorMessage = 'Test Error Message';
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -203,12 +208,10 @@ describe('Component: ThumbnailGrid', () => {
             expect(dataInfoTextInToolbar).toBeNull();
 
             let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
-            expect(dataInfoIconInSidenav).not.toBeNull();
-            expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
+            expect(dataInfoIconInSidenav).toBeNull();
 
             let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
-            expect(dataInfoTextInSidenav).not.toBeNull();
-            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Files');
+            expect(dataInfoTextInSidenav).toBeNull();
 
             let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
             expect(errorMessageInToolbar).not.toBeNull();
@@ -262,8 +265,8 @@ describe('Component: ThumbnailGrid', () => {
         expect(hiddenSpinner).not.toBeNull();
     });
 
-    it('does show loading overlay if isLoading is true', async(() => {
-        component.isLoading = true;
+    it('does show loading overlay if loadingCount is positive', async(() => {
+        (component as any).loadingCount = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -335,12 +338,12 @@ describe('Component: ThumbnailGrid', () => {
         expect(bodyContainer).not.toBeNull();
     });
 
-    it('does not show thumbnail-grid-div elements if pagingGrid is empty array', () => {
+    it('does not show thumbnail-grid-div elements if gridArray is empty array', () => {
         let elements = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .thumbnail-grid-div'));
         expect(elements.length).toEqual(0);
     });
 
-    it('does show thumbnail-grid-div elements if pagingGrid is non-empty array', async(() => {
+    it('does show thumbnail-grid-div elements if gridArray is non-empty array', async(() => {
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
         component.options.objectIdField = new FieldMetaData('testObjectIdField', 'Test Object ID Field');
@@ -348,7 +351,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.percentField = new FieldMetaData('testPercentField', 'Test Percent Field');
         component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
 
-        component.pagingGrid = [{
+        component.gridArray = [{
             testLinkField: 'link1',
             testNameField: 'name1',
             testObjectIdField: 'objectId1',
@@ -383,7 +386,7 @@ describe('Component: ThumbnailGrid', () => {
         });
     }));
 
-    it('does not show footer-container or pagination-button elements if pagingGrid.length === gridArray.length', () => {
+    it('does not show footer-container or pagination-button elements by default', () => {
         let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
         expect(footerContainer).toBeNull();
 
@@ -391,11 +394,12 @@ describe('Component: ThumbnailGrid', () => {
         expect(bodyContainer).toBeNull();
     });
 
-    it('does show footer-container and pagination-button elements if pagingGrid.length < gridArray.length (first page)', async(() => {
-        component.pagingGrid = [{}];
-        component.gridArray = [{}, {}, {}];
-        component.lastPage = false;
-        component.page = 1;
+    it('does show footer-container and pagination-button elements if on first page', async(() => {
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}]));
+        (component as any).layerIdToElementCount.set(component.options._id, 3);
+        (component as any).lastPage = false;
+        (component as any).page = 1;
+        component.options.limit = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -420,11 +424,12 @@ describe('Component: ThumbnailGrid', () => {
         });
     }));
 
-    it('does show footer-container and pagination-button elements if pagingGrid.length < gridArray.length (middle page)', async(() => {
-        component.pagingGrid = [{}];
-        component.gridArray = [{}, {}, {}];
-        component.lastPage = false;
-        component.page = 2;
+    it('does show footer-container and pagination-button elements if on middle page', async(() => {
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}]));
+        (component as any).layerIdToElementCount.set(component.options._id, 3);
+        (component as any).lastPage = false;
+        (component as any).page = 2;
+        component.options.limit = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -449,11 +454,12 @@ describe('Component: ThumbnailGrid', () => {
         });
     }));
 
-    it('does show footer-container and pagination-button elements if pagingGrid.length < gridArray.length (last page)', async(() => {
-        component.pagingGrid = [{}];
-        component.gridArray = [{}, {}, {}];
-        component.lastPage = true;
-        component.page = 3;
+    it('does show footer-container and pagination-button elements if on last page', async(() => {
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}]));
+        (component as any).layerIdToElementCount.set(component.options._id, 3);
+        (component as any).lastPage = true;
+        (component as any).page = 3;
+        component.options.limit = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -508,7 +514,7 @@ describe('Component: ThumbnailGrid', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([true, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -536,7 +542,7 @@ describe('Component: ThumbnailGrid', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([false, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, false, {
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -571,7 +577,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([true, {
+        expect(spy2.calls.argsFor(0)).toEqual([component.options, true, {
             id: 'idA',
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -605,7 +611,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([false, {
+        expect(spy2.calls.argsFor(0)).toEqual([component.options, false, {
             id: 'idA',
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -639,7 +645,8 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(1);
         let args = spy3.calls.argsFor(0);
-        expect(args[0]).toEqual([{
+        expect(args[0]).toEqual(component.options);
+        expect(args[1]).toEqual([{
             id: 'idA',
             field: 'field1',
             prettyField: 'prettyField1',
@@ -652,8 +659,8 @@ describe('Component: ThumbnailGrid', () => {
         }]);
 
         // Run the callback.
-        expect(typeof args[1]).toEqual('function');
-        args[1]();
+        expect(typeof args[2]).toEqual('function');
+        args[2]();
 
         expect(component.filters).toEqual([{
             id: undefined,
@@ -663,7 +670,7 @@ describe('Component: ThumbnailGrid', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([true, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -698,7 +705,8 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(1);
         let args = spy3.calls.argsFor(0);
-        expect(args[0]).toEqual([{
+        expect(args[0]).toEqual(component.options);
+        expect(args[1]).toEqual([{
             id: 'idA',
             field: 'field1',
             prettyField: 'prettyField1',
@@ -711,8 +719,8 @@ describe('Component: ThumbnailGrid', () => {
         }]);
 
         // Run the callback.
-        expect(typeof args[1]).toEqual('function');
-        args[1]();
+        expect(typeof args[2]).toEqual('function');
+        args[2]();
 
         expect(component.filters).toEqual([{
             id: undefined,
@@ -722,7 +730,7 @@ describe('Component: ThumbnailGrid', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([false, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, false, {
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -732,7 +740,7 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy3.calls.count()).toEqual(1);
     });
 
-    it('createQuery does return expected query', () => {
+    it('finalizeVisualizationQuery does return expected query', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
@@ -745,7 +753,10 @@ describe('Component: ThumbnailGrid', () => {
             neon.query.where('testLinkField', '!=', '')
         ]);
 
-        expect(component.createQuery()).toEqual(new neon.query.Query()
+        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name)
+            .withFields(fields);
+
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
             .withFields(fields)
             .where(wherePredicate)
@@ -766,7 +777,9 @@ describe('Component: ThumbnailGrid', () => {
         fields = ['testLinkField', 'testSortField', 'testCategoryField', 'testCompareField', 'testFilterField', 'testIdField',
             'testNameField', 'testObjectIdField', 'testObjectNameField', 'testPercentField', 'testPredictedNameField', 'testTypeField'];
 
-        expect(component.createQuery()).toEqual(new neon.query.Query()
+        inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name).withFields(fields);
+
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
             .withFields(fields)
             .where(wherePredicate)
@@ -833,26 +846,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.filterExists('field1', 'value2')).toEqual(false);
         expect(component.filterExists('field2', 'value1')).toEqual(false);
         expect(component.filterExists('field2', 'value2')).toEqual(false);
-    });
-
-    it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toEqual('0 Files');
-
-        component.options.limit = 1;
-        component.gridArray = [{}];
-        expect(component.getButtonText()).toEqual('1 File');
-
-        component.gridArray = [{}, {}, {}, {}];
-        expect(component.getButtonText()).toEqual('1 of 4 Files');
-
-        component.options.limit = 2;
-        expect(component.getButtonText()).toEqual('1 - 2 of 4 Files');
-
-        component.page = 2;
-        expect(component.getButtonText()).toEqual('3 - 4 of 4 Files');
-
-        component.options.limit = 4;
-        expect(component.getButtonText()).toEqual('4 Files');
     });
 
     it('getCloseableFilters does return expected array of filters', () => {
@@ -1131,48 +1124,6 @@ describe('Component: ThumbnailGrid', () => {
         })).toEqual('MyNameText : myName, MyPredictionText : myPredictedName, MyActualText : myObjectName');
     });
 
-    it('goToNextPage does not update page or call updatePageData if lastPage is true', () => {
-        let spy = spyOn(component, 'updatePageData');
-        component.goToNextPage();
-
-        expect(component.page).toEqual(1);
-        expect(spy.calls.count()).toEqual(0);
-    });
-
-    it('goToNextPage does update page and call updatePageData if lastPage is false', () => {
-        let spy = spyOn(component, 'updatePageData');
-        component.lastPage = false;
-
-        component.goToNextPage();
-        expect(component.page).toEqual(2);
-        expect(spy.calls.count()).toEqual(1);
-
-        component.goToNextPage();
-        expect(component.page).toEqual(3);
-        expect(spy.calls.count()).toEqual(2);
-    });
-
-    it('goToPreviousPage does not update page or call updatePageData if page is 1', () => {
-        let spy = spyOn(component, 'updatePageData');
-        component.goToPreviousPage();
-
-        expect(component.page).toEqual(1);
-        expect(spy.calls.count()).toEqual(0);
-    });
-
-    it('goToPreviousPage does update page and call updatePageData if page is not 1', () => {
-        let spy = spyOn(component, 'updatePageData');
-        component.page = 3;
-
-        component.goToPreviousPage();
-        expect(component.page).toEqual(2);
-        expect(spy.calls.count()).toEqual(1);
-
-        component.goToPreviousPage();
-        expect(component.page).toEqual(1);
-        expect(spy.calls.count()).toEqual(2);
-    });
-
     it('isSelectable does return expected boolean', () => {
         component.options.openOnMouseClick = false;
         expect(component.isSelectable()).toEqual(false);
@@ -1220,23 +1171,23 @@ describe('Component: ThumbnailGrid', () => {
         })).toEqual(false);
     });
 
-    it('isValidQuery does return expected boolean', () => {
-        expect(component.isValidQuery()).toEqual(false);
+    it('validateVisualizationQuery does return expected boolean', () => {
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.database = DatasetServiceMock.DATABASES[0];
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.table = DatasetServiceMock.TABLES[0];
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
-        expect(component.isValidQuery()).toEqual(true);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
-    it('onQuerySuccess with aggregation query data does update expected properties and call expected functions', () => {
+    it('transformVisualizationQueryResults with aggregation query data does return expected data', () => {
         component.options.categoryField = new FieldMetaData('testCategoryField', 'Test Category Field');
         component.options.compareField = new FieldMetaData('testCompareField', 'Test Compare Field');
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
@@ -1249,76 +1200,8 @@ describe('Component: ThumbnailGrid', () => {
         component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
         component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
         component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
-        component.errorMessage = 'Previous Error Message';
-        component.lastPage = true;
-        component.page = 2;
-        component.showGrid = false;
-        let spy1 = spyOn(component, 'refreshVisualization');
-        let spy2 = spyOn(component, 'createMediaThumbnail');
 
-        component.onQuerySuccess({
-            data: [{
-                _id: 'id1',
-                testCategoryField: 'category1',
-                testCompareField: 'compare1',
-                testFilterField: 'filter1',
-                testLinkField: 'link1',
-                testNameField: 'name1',
-                testObjectIdField: 'objectId1',
-                testObjectNameField: 'objectName1',
-                testPercentField: 0.1,
-                testPredictedNameField: 'predictedName1',
-                testSortField: 'sort1',
-                testTypeField: 'type1'
-            }, {
-                _id: 'id2',
-                testCategoryField: 'category2',
-                testCompareField: 'compare2',
-                testFilterField: 'filter2',
-                testLinkField: 'link2',
-                testNameField: 'name2',
-                testObjectIdField: 'objectId2',
-                testObjectNameField: 'objectName2',
-                testPercentField: 0.2,
-                testPredictedNameField: 'predictedName2',
-                testSortField: 'sort2',
-                testTypeField: 'type2'
-            }]
-        });
-
-        expect(component.errorMessage).toEqual('');
-        expect(component.lastPage).toEqual(true);
-        expect(component.page).toEqual(2);
-        expect(component.showGrid).toEqual(true);
-
-        expect(component.gridArray).toEqual([{
-            _id: 'id1',
-            testCategoryField: 'category1',
-            testCompareField: 'compare1',
-            testFilterField: 'filter1',
-            testLinkField: 'link1',
-            testNameField: 'name1',
-            testObjectIdField: 'objectId1',
-            testObjectNameField: 'objectName1',
-            testPercentField: 0.1,
-            testPredictedNameField: 'predictedName1',
-            testSortField: 'sort1',
-            testTypeField: 'type1'
-        }, {
-            _id: 'id2',
-            testCategoryField: 'category2',
-            testCompareField: 'compare2',
-            testFilterField: 'filter2',
-            testLinkField: 'link2',
-            testNameField: 'name2',
-            testObjectIdField: 'objectId2',
-            testObjectNameField: 'objectName2',
-            testPercentField: 0.2,
-            testPredictedNameField: 'predictedName2',
-            testSortField: 'sort2',
-            testTypeField: 'type2'
-        }]);
-        expect(component.pagingGrid).toEqual([{
+        let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
             testCategoryField: 'category1',
             testCompareField: 'compare1',
@@ -1346,231 +1229,45 @@ describe('Component: ThumbnailGrid', () => {
             testTypeField: 'type2'
         }]);
 
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
-    });
-
-    it('onQuerySuccess with empty aggregation query data does update expected properties and call expected functions', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        component.errorMessage = 'Previous Error Message';
-        component.lastPage = true;
-        component.page = 2;
-        component.showGrid = false;
-        let spy1 = spyOn(component, 'refreshVisualization');
-        let spy2 = spyOn(component, 'createMediaThumbnail');
-
-        component.onQuerySuccess({
-            data: []
-        });
-
-        expect(component.errorMessage).toEqual('No Data');
-        expect(component.lastPage).toEqual(true);
-        expect(component.page).toEqual(2);
-        expect(component.showGrid).toEqual(false);
-
-        expect(component.gridArray).toEqual([]);
-        expect(component.pagingGrid).toEqual([]);
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(0);
-    });
-
-    it('onQuerySuccess with limited aggregation query data does update expected properties and call expected functions', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.limit = 2;
-        component.options.idField = new FieldMetaData('_id', 'Test ID Field');
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
-        component.options.percentField = new FieldMetaData('testSizeField', 'Test Size Field');
-        component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
-        component.errorMessage = 'Previous Error Message';
-        component.lastPage = true;
-        component.page = 2;
-        component.showGrid = false;
-        let spy1 = spyOn(component, 'refreshVisualization');
-        let spy2 = spyOn(component, 'createMediaThumbnail');
-
-        component.onQuerySuccess({
-            data: [{
-                _id: 'id1',
-                testLinkField: 'link1',
-                testNameField: 'name1',
-                testSizeField: 0.1,
-                testTypeField: 'type1'
-            }, {
-                _id: 'id2',
-                testLinkField: 'link2',
-                testNameField: 'name2',
-                testSizeField: 0.2,
-                testTypeField: 'type2'
-            }, {
-                _id: 'id3',
-                testLinkField: 'link3',
-                testNameField: 'name3',
-                testSizeField: 0.3,
-                testTypeField: 'type3'
-            }, {
-                _id: 'id4',
-                testLinkField: 'link4',
-                testNameField: 'name4',
-                testSizeField: 0.4,
-                testTypeField: 'type4'
-            }]
-        });
-
-        expect(component.errorMessage).toEqual('');
-        expect(component.lastPage).toEqual(false);
-        expect(component.page).toEqual(2);
-        expect(component.showGrid).toEqual(true);
-
-        expect(component.gridArray).toEqual([{
-                _id: 'id1',
-                testLinkField: 'link1',
-                testNameField: 'name1',
-                testSizeField: 0.1,
-                testTypeField: 'type1'
-            }, {
-                _id: 'id2',
-                testLinkField: 'link2',
-                testNameField: 'name2',
-                testSizeField: 0.2,
-                testTypeField: 'type2'
-            }, {
-                _id: 'id3',
-                testLinkField: 'link3',
-                testNameField: 'name3',
-                testSizeField: 0.3,
-                testTypeField: 'type3'
-            }, {
-                _id: 'id4',
-                testLinkField: 'link4',
-                testNameField: 'name4',
-                testSizeField: 0.4,
-                testTypeField: 'type4'
-        }]);
-        expect(component.pagingGrid).toEqual([{
-                _id: 'id3',
-                testLinkField: 'link3',
-                testNameField: 'name3',
-                testSizeField: 0.3,
-                testTypeField: 'type3'
-            }, {
-                _id: 'id4',
-                testLinkField: 'link4',
-                testNameField: 'name4',
-                testSizeField: 0.4,
-                testTypeField: 'type4'
-        }]);
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
-    });
-
-    it('onQuerySuccess with data set to the last page does update expected properties and call expected functions', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.limit = 4;
-        component.options.idField = new FieldMetaData('_id', 'Test ID Field');
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
-        component.options.percentField = new FieldMetaData('testSizeField', 'Test Size Field');
-        component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
-        component.errorMessage = 'Previous Error Message';
-        component.lastPage = true;
-        component.page = 1;
-        component.showGrid = false;
-        let spy1 = spyOn(component, 'refreshVisualization');
-        let spy2 = spyOn(component, 'createMediaThumbnail');
-
-        component.onQuerySuccess({
-            data: [{
-                _id: 'id1',
-                testLinkField: 'link1',
-                testNameField: 'name1',
-                testSizeField: 0.1,
-                testTypeField: 'type1'
-            }, {
-                _id: 'id2',
-                testLinkField: 'link2',
-                testNameField: 'name2',
-                testSizeField: 0.2,
-                testTypeField: 'type2'
-            }, {
-                _id: 'id3',
-                testLinkField: 'link3',
-                testNameField: 'name3',
-                testSizeField: 0.3,
-                testTypeField: 'type3'
-            }, {
-                _id: 'id4',
-                testLinkField: 'link4',
-                testNameField: 'name4',
-                testSizeField: 0.4,
-                testTypeField: 'type4'
-            }]
-        });
-
-        expect(component.errorMessage).toEqual('');
-        expect(component.lastPage).toEqual(true);
-        expect(component.page).toEqual(1);
-        expect(component.showGrid).toEqual(true);
-
-        expect(component.gridArray).toEqual([{
-                _id: 'id1',
-                testLinkField: 'link1',
-                testNameField: 'name1',
-                testSizeField: 0.1,
-                testTypeField: 'type1'
-            }, {
-                _id: 'id2',
-                testLinkField: 'link2',
-                testNameField: 'name2',
-                testSizeField: 0.2,
-                testTypeField: 'type2'
-            }, {
-                _id: 'id3',
-                testLinkField: 'link3',
-                testNameField: 'name3',
-                testSizeField: 0.3,
-                testTypeField: 'type3'
-            }, {
-                _id: 'id4',
-                testLinkField: 'link4',
-                testNameField: 'name4',
-                testSizeField: 0.4,
-                testTypeField: 'type4'
-        }]);
-        expect(component.pagingGrid).toEqual([{
+        expect(actual.data).toEqual([{
             _id: 'id1',
+            testCategoryField: 'category1',
+            testCompareField: 'compare1',
+            testFilterField: 'filter1',
             testLinkField: 'link1',
             testNameField: 'name1',
-            testSizeField: 0.1,
+            testObjectIdField: 'objectId1',
+            testObjectNameField: 'objectName1',
+            testPercentField: 0.1,
+            testPredictedNameField: 'predictedName1',
+            testSortField: 'sort1',
             testTypeField: 'type1'
         }, {
             _id: 'id2',
+            testCategoryField: 'category2',
+            testCompareField: 'compare2',
+            testFilterField: 'filter2',
             testLinkField: 'link2',
             testNameField: 'name2',
-            testSizeField: 0.2,
+            testObjectIdField: 'objectId2',
+            testObjectNameField: 'objectName2',
+            testPercentField: 0.2,
+            testPredictedNameField: 'predictedName2',
+            testSortField: 'sort2',
             testTypeField: 'type2'
-        }, {
-            _id: 'id3',
-            testLinkField: 'link3',
-            testNameField: 'name3',
-            testSizeField: 0.3,
-            testTypeField: 'type3'
-        }, {
-            _id: 'id4',
-            testLinkField: 'link4',
-            testNameField: 'name4',
-            testSizeField: 0.4,
-            testTypeField: 'type4'
         }]);
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with link prefix does update expected properties and call expected functions', () => {
+    it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
+
+        let actual = component.transformVisualizationQueryResults(component.options, []);
+
+        expect(actual.data).toEqual([]);
+    });
+
+    it('transformVisualizationQueryResults with link prefix does return expected data', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.idField = new FieldMetaData('_id', 'Test ID Field');
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
@@ -1578,26 +1275,22 @@ describe('Component: ThumbnailGrid', () => {
         component.options.percentField = new FieldMetaData('testSizeField', 'Test Size Field');
         component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
         component.options.linkPrefix = 'prefix/';
-        let spy1 = spyOn(component, 'refreshVisualization');
-        let spy2 = spyOn(component, 'createMediaThumbnail');
 
-        component.onQuerySuccess({
-            data: [{
-                _id: 'id1',
-                testLinkField: 'link1',
-                testNameField: 'name1',
-                testSizeField: 0.1,
-                testTypeField: 'type1'
-            }, {
-                _id: 'id2',
-                testLinkField: 'link2',
-                testNameField: 'name2',
-                testSizeField: 0.2,
-                testTypeField: 'type2'
-            }]
-        });
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            _id: 'id1',
+            testLinkField: 'link1',
+            testNameField: 'name1',
+            testSizeField: 0.1,
+            testTypeField: 'type1'
+        }, {
+            _id: 'id2',
+            testLinkField: 'link2',
+            testNameField: 'name2',
+            testSizeField: 0.2,
+            testTypeField: 'type2'
+        }]);
 
-        expect(component.gridArray).toEqual([{
+        expect(actual.data).toEqual([{
             _id: 'id1',
             testLinkField: 'prefix/link1',
             testNameField: 'name1',
@@ -1610,28 +1303,6 @@ describe('Component: ThumbnailGrid', () => {
             testSizeField: 0.2,
             testTypeField: 'type2'
         }]);
-        expect(component.pagingGrid).toEqual([{
-            _id: 'id1',
-            testLinkField: 'prefix/link1',
-            testNameField: 'name1',
-            testSizeField: 0.1,
-            testTypeField: 'type1'
-        }, {
-            _id: 'id2',
-            testLinkField: 'prefix/link2',
-            testNameField: 'name2',
-            testSizeField: 0.2,
-            testTypeField: 'type2'
-        }]);
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
-    });
-
-    it('postInit does work as expected', () => {
-        let spy = spyOn(component, 'executeQueryChain');
-        component.postInit();
-        expect(spy.calls.count()).toEqual(1);
     });
 
     it('refreshVisualization does call changeDetection.detectChanges', () => {
@@ -1864,42 +1535,6 @@ describe('Component: ThumbnailGrid', () => {
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
         }));
-    });
-
-    it('subNgOnDestroy does exist', () => {
-        expect(component.subNgOnDestroy).toBeDefined();
-    });
-
-    it('subNgOnInit does exist', () => {
-        expect(component.subNgOnInit).toBeDefined();
-    });
-
-    it('updatePageData does update pagingGrid and lastPage from gridArray, page, and limit and call expected functions', () => {
-        component.options.limit = 2;
-        component.page = 1;
-        component.gridArray = [{}, {}, {}];
-        let spy1 = spyOn(component, 'refreshVisualization');
-        let spy2 = spyOn(component, 'createMediaThumbnail');
-
-        component.updatePageData();
-        expect(component.pagingGrid).toEqual([{}, {}]);
-        expect(component.lastPage).toEqual(false);
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
-    });
-
-    it('updatePageData does set lastPage to true if on last page', () => {
-        component.options.limit = 2;
-        component.page = 2;
-        component.gridArray = [{}, {}, {}];
-        let spy1 = spyOn(component, 'refreshVisualization');
-        let spy2 = spyOn(component, 'createMediaThumbnail');
-
-        component.updatePageData();
-        expect(component.pagingGrid).toEqual([{}]);
-        expect(component.lastPage).toEqual(true);
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
     });
 });
 

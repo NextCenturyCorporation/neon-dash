@@ -33,6 +33,8 @@ import { WikiViewerComponent } from './wiki-viewer.component';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
+
+import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -77,19 +79,14 @@ describe('Component: WikiViewer', () => {
         expect(component.options.id).toEqual('');
     });
 
-    it('does set expected class properties', () => {
-        expect(component.wikiName).toEqual([]);
-        expect(component.wikiText).toEqual([]);
-    });
-
-    it('createQuery does return expected query', (() => {
+    it('finalizeVisualizationQuery does return expected query', (() => {
         component.options.database = new DatabaseMetaData('testDatabase');
         component.options.table = new TableMetaData('testTable');
         component.options.id = 'testId';
         component.options.idField = new FieldMetaData('testIdField');
         component.options.linkField = new FieldMetaData('testLinkField');
 
-        let query = new neon.query.Query()
+        let inputQuery = new neon.query.Query()
             .selectFrom('testDatabase', 'testTable')
             .withFields(['testLinkField']);
 
@@ -98,20 +95,13 @@ describe('Component: WikiViewer', () => {
             neon.query.where('testLinkField', '!=', null)
         ];
 
-        query.where(neon.query.and.apply(query, whereClauses));
+        let query = new neon.query.Query()
+            .selectFrom('testDatabase', 'testTable')
+            .withFields(['testLinkField'])
+            .where(neon.query.and.apply(neon.query, whereClauses));
 
-        expect(component.createQuery()).toEqual(query);
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
     }));
-
-    it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toBe('0 Pages');
-        component.wikiName = ['a'];
-        expect(component.getButtonText()).toBe('1 Page');
-        component.wikiName = ['a', 'b', 'c', 'd'];
-        expect(component.getButtonText()).toBe('4 Pages');
-        component.wikiName = ['a', 'b'];
-        expect(component.getButtonText()).toBe('2 Pages');
-    });
 
     it('getElementRefs does return expected object', () => {
         let refs = component.getElementRefs();
@@ -131,161 +121,25 @@ describe('Component: WikiViewer', () => {
         })).toBe('');
     }));
 
-    it('isValidQuery does return expected result', (() => {
-        expect(component.isValidQuery()).toBe(false);
+    it('validateVisualizationQuery does return expected result', (() => {
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.database = new DatabaseMetaData('testDatabase');
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.table = new TableMetaData('testTable');
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.id = 'testId';
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
         expect(component.options.idField).toEqual(new FieldMetaData());
         expect(component.options.linkField).toEqual(new FieldMetaData());
 
         component.options.idField = new FieldMetaData('testIdField');
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.linkField = new FieldMetaData('testLinkField');
-        expect(component.isValidQuery()).toBe(true);
-    }));
-
-    it('onQuerySuccess does set expected properties if response returns no data', (() => {
-        component.errorMessage = 'testErrorMessage';
-        component.options.linkField.columnName = 'testLinkField';
-        component.wikiName = ['testName'];
-        component.wikiText = ['testText'];
-
-        component.onQuerySuccess({
-            data: []
-        });
-
-        expect(component.errorMessage).toBe('No Data');
-        expect(component.wikiName).toEqual([]);
-        expect(component.wikiText).toEqual([]);
-    }));
-
-    it('onQuerySuccess does call http.get and does set expected properties if response returns data',
-        (inject([HttpTestingController], (backend) => {
-
-        component.errorMessage = 'testErrorMessage';
-        component.options.linkField.columnName = 'testLinkField';
-
-        component.onQuerySuccess({
-            data: [{
-                testLinkField: 'testLinkValue'
-            }]
-        });
-
-        let request = backend.expectOne({
-            url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue',
-            method: 'GET'
-        });
-        request.flush({
-            body: JSON.stringify({
-                parse: {
-                    text: {
-                        '*': '<p>Test Content</p>'
-                    },
-                    title: 'Test Title'
-                }
-            })
-        });
-
-        expect(component.errorMessage).toBe('');
-        expect(component.wikiName).toEqual(['Test Title']);
-        expect(component.wikiText.length).toBe(1);
-        expect(component.wikiText[0].toString()).toBe(
-            'SafeValue must use [property]=binding: <p>Test Content</p> (see http://g.co/ng/security#xss)');
-    })));
-
-    it('onQuerySuccess does call http.get and does set expected properties if response failed',
-        (inject([HttpTestingController], (backend) => {
-
-        component.options.linkField.columnName = 'testLinkField';
-        component.wikiName = ['testName'];
-        component.wikiText = ['testText'];
-
-        component.onQuerySuccess({
-            data: [{
-                testLinkField: 'testLinkValue'
-            }]
-        });
-
-        let request = backend.expectOne({
-            url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue',
-            method: 'GET'
-        });
-        request.flush({
-            error: {
-                code: 'Missing Title',
-                info: 'The page you specified doesn\'t exist.'
-            }
-        });
-
-        expect(component.errorMessage).toBe('');
-        expect(component.wikiName).toEqual(['testLinkValue']);
-        expect(component.wikiText.length).toBe(1);
-        expect(component.wikiText[0]).toEqual('Missing Title: The page you specified doesn\'t exist.');
-    })));
-
-    it('onQuerySuccess does call http.get multiple times and does set expected properties if response returns data with multiple links',
-        (inject([HttpTestingController], (backend) => {
-
-        component.errorMessage = 'testErrorMessage';
-        component.options.linkField.columnName = 'testLinkField';
-
-        component.onQuerySuccess({
-            data: [{
-                testLinkField: ['testLinkValue1', 'testLinkValue2']
-            }]
-        });
-
-        let request1 = backend.expectOne({
-            url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue1',
-            method: 'GET'
-        });
-        request1.flush({
-            body: JSON.stringify({
-                parse: {
-                    text: {
-                        '*': '<p>Test Content 1</p>'
-                    },
-                    title: 'Test Title 1'
-                }
-            })
-        });
-
-        let request2 = backend.expectOne({
-            url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue2',
-            method: 'GET'
-        });
-        request2.flush({
-            body: JSON.stringify({
-                parse: {
-                    text: {
-                        '*': '<p>Test Content 2</p>'
-                    },
-                    title: 'Test Title 2'
-                }
-            })
-        });
-
-        expect(component.errorMessage).toBe('');
-        expect(component.wikiName).toEqual(['Test Title 1', 'Test Title 2']);
-        expect(component.wikiText.length).toBe(2);
-        expect(component.wikiText[0].toString()).toBe(
-            'SafeValue must use [property]=binding: <p>Test Content 1</p> (see http://g.co/ng/security#xss)');
-        expect(component.wikiText[1].toString()).toBe(
-            'SafeValue must use [property]=binding: <p>Test Content 2</p> (see http://g.co/ng/security#xss)');
-    })));
-
-    it('postInit does call executeQueryChain', (() => {
-        let spy = spyOn(component, 'executeQueryChain');
-        component.postInit();
-        expect(spy.calls.count()).toBe(1);
+        expect(component.validateVisualizationQuery(component.options)).toBe(true);
     }));
 
     it('refreshVisualization does call changeDetection.detectChanges', (() => {
@@ -300,14 +154,6 @@ describe('Component: WikiViewer', () => {
 
     it('setupFilters function does exist', (() => {
         expect(component.setupFilters).toBeDefined();
-    }));
-
-    it('subNgOnDestroy function does exist', (() => {
-        expect(component.subNgOnDestroy).toBeDefined();
-    }));
-
-    it('subNgOnInit function does exist', (() => {
-        expect(component.subNgOnInit).toBeDefined();
     }));
 
     it('does show toolbar and sidenav', (() => {
@@ -340,7 +186,7 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('does show error-message in toolbar and sidenav if errorMessage is defined', async(() => {
-        component.errorMessage = 'Test Error Message';
+        (component as any).errorMessage = 'Test Error Message';
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {
@@ -421,8 +267,8 @@ describe('Component: WikiViewer', () => {
         expect(hiddenSpinner).not.toBeNull();
     }));
 
-    it('does show loading overlay if isLoading is true', async(() => {
-        component.isLoading = true;
+    it('does show loading overlay if loadingCount is positive', async(() => {
+        (component as any).loadingCount = 1;
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {
@@ -436,7 +282,7 @@ describe('Component: WikiViewer', () => {
         });
     }));
 
-    it('does hide wiki-text tabs if wikiText is empty', inject([DomSanitizer], (sanitizer) => {
+    it('does hide wiki-text tabs if active data is empty', inject([DomSanitizer], (sanitizer) => {
         fixture.detectChanges();
         let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
         expect(tabs.length).toBe(0);
@@ -445,25 +291,30 @@ describe('Component: WikiViewer', () => {
         expect(text.length).toBe(0);
     }));
 
-    it('does show wiki-text tabs if wikiText is not empty', async(inject([DomSanitizer], (sanitizer) => {
-        component.wikiName = ['Tab One', 'Tab Two'];
-        component.wikiText = [sanitizer.bypassSecurityTrustHtml('<p>one</p>'), sanitizer.bypassSecurityTrustHtml('<p>two</p>')];
+    it('does show wiki-text tabs if active data is not empty', async(inject([DomSanitizer], (sanitizer) => {
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+            name: 'Tab 1',
+            text: sanitizer.bypassSecurityTrustHtml('<p>one</p>')
+        }, {
+            name: 'Tab 2',
+            text: sanitizer.bypassSecurityTrustHtml('<p>two</p>')
+        }]));
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {
             fixture.detectChanges();
 
-            expect(component.wikiText.length).toBe(2);
-            expect(component.wikiText[0].toString()).toBe(
+            expect(component.getActiveData().data.length).toBe(2);
+            expect(component.getActiveData().data[0].text.toString()).toBe(
                 'SafeValue must use [property]=binding: <p>one</p> (see http://g.co/ng/security#xss)');
-            expect(component.wikiText[1].toString()).toBe(
+            expect(component.getActiveData().data[1].text.toString()).toBe(
                 'SafeValue must use [property]=binding: <p>two</p> (see http://g.co/ng/security#xss)');
 
             let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
             expect(tabs.length).toBe(2);
-            expect(tabs[0].nativeElement.textContent).toBe('Tab One');
+            expect(tabs[0].nativeElement.textContent).toBe('Tab 1');
             expect(tabs[0].nativeElement.classList.contains('mat-tab-label-active')).toBe(true);
-            expect(tabs[1].nativeElement.textContent).toBe('Tab Two');
+            expect(tabs[1].nativeElement.textContent).toBe('Tab 2');
             expect(tabs[1].nativeElement.classList.contains('mat-tab-label-active')).toBe(false);
 
             let text = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .wiki-text'));
@@ -471,6 +322,180 @@ describe('Component: WikiViewer', () => {
             expect(text[0].nativeElement.innerHTML).toBe('<p>one</p>');
         });
     })));
+});
+
+describe('Component: WikiViewer with mock HTTP', () => {
+    let component: WikiViewerComponent;
+    let fixture: ComponentFixture<WikiViewerComponent>;
+    let backend;
+
+    initializeTestBed({
+        declarations: [
+            WikiViewerComponent,
+            ExportControlComponent
+        ],
+        providers: [
+            ConnectionService,
+            DatasetService,
+            FilterService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() }
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule,
+            HttpClientModule,
+            HttpClientTestingModule
+        ]
+    });
+
+    beforeEach(() => {
+        fixture = TestBed.createComponent(WikiViewerComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
+
+    beforeEach(inject([HttpTestingController], (injectedBackend) => {
+        backend = injectedBackend;
+    }));
+
+    it('handleTransformVisualizationQueryResults with no data does call callback function with expected data', (done) => {
+        (component as any).errorMessage = 'testErrorMessage';
+
+        let successCallback = (data) => {
+            expect(data.data).toEqual([]);
+            done();
+        };
+
+        let failureCallback = (data) => {
+            fail();
+            done();
+        };
+
+        component.handleTransformVisualizationQueryResults(component.options, [], successCallback, failureCallback);
+    });
+
+    it('handleTransformVisualizationQueryResults with data does call http.get', (done) => {
+        component.options.linkField.columnName = 'testLinkField';
+
+        let successCallback = (data) => {
+            expect(data.data.length).toEqual(1);
+            expect(data.data[0].name).toEqual('Test Title');
+            expect(data.data[0].text.toString()).toBe(
+                'SafeValue must use [property]=binding: <p>Test Content</p> (see http://g.co/ng/security#xss)');
+            done();
+        };
+
+        let failureCallback = (data) => {
+            fail();
+            done();
+        };
+
+        component.handleTransformVisualizationQueryResults(component.options, [{
+            testLinkField: 'testLinkValue'
+        }], successCallback, failureCallback);
+
+        let request = backend.expectOne({
+            url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue',
+            method: 'GET'
+        });
+        request.flush({
+            body: JSON.stringify({
+                parse: {
+                    text: {
+                        '*': '<p>Test Content</p>'
+                    },
+                    title: 'Test Title'
+                }
+            })
+        });
+    });
+
+    it('handleTransformVisualizationQueryResults on fail does call http.get', (done) => {
+        component.options.linkField.columnName = 'testLinkField';
+
+        let successCallback = (data) => {
+            expect(data.data.length).toEqual(1);
+            expect(data.data[0].name).toEqual('testLinkValue');
+            expect(data.data[0].text.toString()).toBe('Missing Title: The page you specified doesn\'t exist.');
+            done();
+        };
+
+        let failureCallback = (data) => {
+            fail();
+            done();
+        };
+
+        component.handleTransformVisualizationQueryResults(component.options, [{
+            testLinkField: 'testLinkValue'
+        }], successCallback, failureCallback);
+
+        let request = backend.expectOne({
+            url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue',
+            method: 'GET'
+        });
+        request.flush({
+            error: {
+                code: 'Missing Title',
+                info: 'The page you specified doesn\'t exist.'
+            }
+        });
+    });
+
+    it('handleTransformVisualizationQueryResults with multiple links does call http.get multiple times', (done) => {
+        component.options.linkField.columnName = 'testLinkField';
+
+        let successCallback = (data) => {
+            expect(data.data.length).toEqual(2);
+            expect(data.data[0].name).toEqual('Test Title 1');
+            expect(data.data[1].name).toEqual('Test Title 2');
+            expect(data.data[0].text.toString()).toBe(
+                'SafeValue must use [property]=binding: <p>Test Content 1</p> (see http://g.co/ng/security#xss)');
+            expect(data.data[1].text.toString()).toBe(
+                'SafeValue must use [property]=binding: <p>Test Content 2</p> (see http://g.co/ng/security#xss)');
+            done();
+        };
+
+        let failureCallback = (data) => {
+            fail();
+            done();
+        };
+
+        component.handleTransformVisualizationQueryResults(component.options, [{
+            testLinkField: ['testLinkValue1', 'testLinkValue2']
+        }], successCallback, failureCallback);
+
+        let request1 = backend.expectOne({
+            url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue1',
+            method: 'GET'
+        });
+        request1.flush({
+            body: JSON.stringify({
+                parse: {
+                    text: {
+                        '*': '<p>Test Content 1</p>'
+                    },
+                    title: 'Test Title 1'
+                }
+            })
+        });
+
+        let request2 = backend.expectOne({
+            url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue2',
+            method: 'GET'
+        });
+        request2.flush({
+            body: JSON.stringify({
+                parse: {
+                    text: {
+                        '*': '<p>Test Content 2</p>'
+                    },
+                    title: 'Test Title 2'
+                }
+            })
+        });
+    });
 });
 
 describe('Component: WikiViewer with config', () => {
@@ -522,11 +547,6 @@ describe('Component: WikiViewer with config', () => {
         expect(component.options.idField).toEqual(new FieldMetaData('testIdField', 'Test ID Field', false, 'string'));
         expect(component.options.linkField).toEqual(new FieldMetaData('testLinkField', 'Test Link Field', false, 'string'));
         expect(component.options.id).toEqual('testId');
-    });
-
-    it('does set expected class properties', () => {
-        expect(component.wikiName).toEqual([]);
-        expect(component.wikiText).toEqual([]);
     });
 
     it('does show header in toolbar with title from config', (() => {

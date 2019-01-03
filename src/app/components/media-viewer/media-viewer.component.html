@@ -103,14 +103,14 @@
                 <p></p>
 
                 <span class="toggle-text">One Tab Per Array:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.oneTabPerArray" (ngModelChange)="subOnResizeStop()">
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.oneTabPerArray" (ngModelChange)="updateOnResize()">
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
                 </mat-button-toggle-group>
                 <p></p>
 
                 <span class="toggle-text">Resize:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.resize" (ngModelChange)="subOnResizeStop()">
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.resize" (ngModelChange)="updateOnResize()">
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -121,14 +121,14 @@
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading || isLoadingMedia" [class.not-loading-overlay]="!isLoading && !isLoadingMedia">
+    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
         <mat-spinner></mat-spinner>
     </div>
 
     <div *ngIf="options.url == ''">
         <div *ngIf="noDataId && tabsAndMedia.length == 0" class="viewer-text">No Data: {{ noDataId }}</div>
 
-        <mat-tab-group *ngIf="tabsAndMedia.length > 1" [selectedIndex]="selectedTabIndex" (selectedTabChange)="subOnResizeStop($event)">
+        <mat-tab-group *ngIf="tabsAndMedia.length > 1" [selectedIndex]="selectedTabIndex" (selectedTabChange)="updateOnResize($event)">
             <mat-tab class="tab" *ngFor="let tab of tabsAndMedia" [label]="tab.name">
                 <div [ngSwitch]="tab.selected.type">
                     <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">

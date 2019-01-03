@@ -115,8 +115,6 @@ export class VisualizationInjectorComponent {
                 return DataTableComponent;
             case 'documentViewer':
                 return DocumentViewerComponent;
-            case 'filterBuilder':
-                return FilterBuilderComponent;
             case 'map':
                 return MapComponent;
             case 'mediaViewer':

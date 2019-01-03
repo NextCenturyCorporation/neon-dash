@@ -43,74 +43,74 @@
                 </a>
                 <p></p>
 
-                <div *ngFor="let layer of options.layers; let i = index">
-                    <mat-toolbar style="cursor: pointer;" (click)="toggleFilter(i)">
+                <div *ngFor="let layer of options.layers">
+                    <mat-toolbar style="cursor: pointer;" (click)="toggleFilter(layer)">
                         <span>{{ layer.title }}</span>
                         <span class="toolbar-spacer"></span>
-                        <mat-icon class="neon-icon-small" *ngIf="options.layers.length > 1" (click)="removeLayer(i)">delete</mat-icon>
-                        <mat-icon class="neon-icon-small">{{ getIconForFilter(i) }}</mat-icon>
+                        <mat-icon class="neon-icon-small" *ngIf="options.layers.length > 1" (click)="removeLayer(layer)">delete</mat-icon>
+                        <mat-icon class="neon-icon-small">{{ getIconForFilter(layer) }}</mat-icon>
                     </mat-toolbar>
                     <p></p>
 
-                    <div [hidden]="!filterVisible[i]" >
+                    <div [hidden]="!filterVisible.get(layer._id)">
                         <mat-form-field>
                             <input matInput placeholder="Layer Name" [(ngModel)]="layer.title" required="true">
                         </mat-form-field>
                         <p></p>
 
                         <mat-form-field>
-                            <mat-select placeholder="Database" [(ngModel)]="options.layers[i].database" required="true"
-                                        (ngModelChange)="handleChangeDatabase(i)" [disabled]="options.layers[i].databases.length < 2">
-                                <mat-option *ngFor="let database of options.layers[i].databases"
+                            <mat-select placeholder="Database" [(ngModel)]="layer.database" required="true"
+                                        (ngModelChange)="handleChangeDatabase(layer)" [disabled]="layer.databases.length < 2">
+                                <mat-option *ngFor="let database of layer.databases"
                                             [value]="database">{{ database.prettyName }}</mat-option>
                             </mat-select>
                         </mat-form-field>
                         <p></p>
 
                         <mat-form-field>
-                            <mat-select placeholder="Table" [(ngModel)]="options.layers[i].table" required="true"
-                                        (ngModelChange)="handleChangeTable(i)" [disabled]="options.layers[i].tables.length < 2">
-                                <mat-option *ngFor="let table of options.layers[i].tables"
+                            <mat-select placeholder="Table" [(ngModel)]="layer.table" required="true"
+                                        (ngModelChange)="handleChangeTable(layer)" [disabled]="layer.tables.length < 2">
+                                <mat-option *ngFor="let table of layer.tables"
                                             [value]="table">{{ table.prettyName }}</mat-option>
                             </mat-select>
                         </mat-form-field>
                         <p></p>
 
                         <mat-form-field>
-                            <mat-select placeholder="ID Field" [(ngModel)]="options.layers[i].idField"
-                                        required="true" (ngModelChange)="handleChangeFilterField(i)"
-                                        [disabled]="options.layers[i].fields.length == 0">
-                                <mat-option *ngFor="let field of options.layers[i].fields"
+                            <mat-select placeholder="ID Field" [(ngModel)]="layer.idField"
+                                        required="true" (ngModelChange)="handleChangeFilterField(layer)"
+                                        [disabled]="layer.fields.length == 0">
+                                <mat-option *ngFor="let field of layer.fields"
                                             [value]="field">{{ field.prettyName }}</mat-option>
                             </mat-select>
                         </mat-form-field>
                         <p></p>
 
                         <mat-form-field>
-                            <mat-select placeholder="Latitude Field" [(ngModel)]="options.layers[i].latitudeField"
-                                        required="true" (ngModelChange)="handleChangeFilterField(i)"
-                                        [disabled]="options.layers[i].fields.length == 0">
-                                <mat-option *ngFor="let field of options.layers[i].fields"
+                            <mat-select placeholder="Latitude Field" [(ngModel)]="layer.latitudeField"
+                                        required="true" (ngModelChange)="handleChangeFilterField(layer)"
+                                        [disabled]="layer.fields.length == 0">
+                                <mat-option *ngFor="let field of layer.fields"
                                             [value]="field">{{ field.prettyName }}</mat-option>
                             </mat-select>
                         </mat-form-field>
                         <p></p>
 
                         <mat-form-field>
-                            <mat-select placeholder="Longitude Field" [(ngModel)]="options.layers[i].longitudeField"
-                                        required="true" (ngModelChange)="handleChangeFilterField(i)"
-                                        [disabled]="options.layers[i].fields.length == 0">
-                                <mat-option *ngFor="let field of options.layers[i].fields"
+                            <mat-select placeholder="Longitude Field" [(ngModel)]="layer.longitudeField"
+                                        required="true" (ngModelChange)="handleChangeFilterField(layer)"
+                                        [disabled]="layer.fields.length == 0">
+                                <mat-option *ngFor="let field of layer.fields"
                                             [value]="field">{{ field.prettyName }}</mat-option>
                             </mat-select>
                         </mat-form-field>
                         <p></p>
 
                         <mat-form-field>
-                            <mat-select placeholder="Color Field" [(ngModel)]="options.layers[i].colorField"
-                                        (ngModelChange)="handleChangeDataAtLayerIndex(i)" [disabled]="options.layers[i].fields.length == 0">
+                            <mat-select placeholder="Color Field" [(ngModel)]="layer.colorField"
+                                        (ngModelChange)="handleChangeData(layer)" [disabled]="layer.fields.length == 0">
                                 <mat-option [value]="createEmptyField()">(None)</mat-option>
-                                <mat-option *ngFor="let field of options.layers[i].fields"
+                                <mat-option *ngFor="let field of layer.fields"
                                             [value]="field">{{ field.prettyName }}</mat-option>
                             </mat-select>
                         </mat-form-field>
@@ -125,10 +125,10 @@
                         <p></p>
 
                         <mat-form-field>
-                            <mat-select placeholder="Hover Popup Field" [(ngModel)]="options.layers[i].hoverPopupField"
-                                        (ngModelChange)="handleChangeDataAtLayerIndex(i)" [disabled]="options.layers[i].fields.length == 0">
+                            <mat-select placeholder="Hover Popup Field" [(ngModel)]="layer.hoverPopupField"
+                                        (ngModelChange)="handleChangeData(layer)" [disabled]="layer.fields.length == 0">
                                 <mat-option [value]="createEmptyField">(None)</mat-option>
-                                <mat-option *ngFor="let field of options.layers[i].fields"
+                                <mat-option *ngFor="let field of layer.fields"
                                             [value]="field">{{ field.prettyName }}</mat-option>
                             </mat-select>
                         </mat-form-field>
@@ -159,6 +159,10 @@
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
+
+    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
+        <mat-spinner></mat-spinner>
+    </div>
 
     <div class="body-container" (click)="stopEventPropagation($event)">
         <div class="map-container" (click)="stopEventPropagation($event)" mouseWheel (mouseWheelUp)="mouseWheelUp($event)" (mouseWheelDown)="mouseWheelDown($event)">
