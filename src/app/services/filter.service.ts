@@ -19,7 +19,7 @@ import { DatasetService } from './dataset.service';
 
 import { neonEvents } from '../neon-namespaces';
 
-import * as uuid from 'node-uuid';
+import * as uuidv4 from 'uuid/v4';
 import * as _ from 'lodash';
 import * as neon from 'neon-framework';
 
@@ -334,7 +334,7 @@ export class FilterService {
     }
 
     public createFilterId(database: string, table: string) {
-        return database + '-' + table + '-' + uuid.v4();
+        return database + '-' + table + '-' + uuidv4();
     }
 
     protected createChildrenFromRelations(filter: neon.query.Filter,
