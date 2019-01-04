@@ -10,13 +10,13 @@
                 {{ getButtonText() }}
             </span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below"
             (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
 
-    <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+    <mat-sidenav #optionsMenu position="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
                 <div *ngIf="errorMessage">
@@ -206,7 +206,7 @@
                             (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
-                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below"
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below"
                         (click)="handleChangeLimit()">
                         <mat-icon>refresh</mat-icon>
                     </button>
@@ -288,7 +288,7 @@
                             (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
 
-                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below"
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below"
                         (click)="refreshVisualization()">
                         <mat-icon>refresh</mat-icon>
                     </button>
@@ -304,7 +304,7 @@
                             (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
 
-                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below"
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below"
                         (click)="refreshVisualization()">
                         <mat-icon>refresh</mat-icon>
                     </button>
@@ -331,7 +331,7 @@
                             (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
 
-                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below"
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below"
                         (click)="refreshVisualization()">
                         <mat-icon>refresh</mat-icon>
                     </button>

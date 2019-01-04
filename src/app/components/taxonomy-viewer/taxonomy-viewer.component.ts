@@ -45,7 +45,6 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
-import { current } from 'codelyzer/util/syntaxKind';
 
 @Component({
     selector: 'app-taxonomy-viewer',
