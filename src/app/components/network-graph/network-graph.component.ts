@@ -204,7 +204,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     schemeType: string = 'ordinal';
     selectedColorScheme: string;
     public colorKeys: string[] = [];
-    public disabledSet: [string[]] = [] as [string[]];
+    public disabledSet: [string[]] = [] as any;
 
     private defaultActiveColor;
     private graph: vis.Network;
@@ -500,7 +500,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     removeFilter(myFilter: any) {
         this.filters = this.filters.filter((element) => element.id !== myFilter.id);
         //EDIT: meaning that you also have to reset the legend
-        this.disabledSet = [] as [string[]];
+        this.disabledSet = [] as any;
         this.updateLegend();
     }
 
