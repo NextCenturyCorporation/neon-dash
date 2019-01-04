@@ -19,6 +19,7 @@ import * as neon from 'neon-framework';
 import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData, Relation, SimpleFilter } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';
 import { NeonGTDConfig } from '../neon-gtd-config';
+import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
 
 @Injectable()
@@ -174,6 +175,8 @@ export class DatasetService {
                 this.publishUpdateData();
             });
         }
+
+        this.messenger.publish(neonEvents.NEW_DATASET, {});
     }
 
     /**
