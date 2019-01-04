@@ -32,7 +32,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | d3-selection@1.3.2 | [BSD-3-Clause](https://github.com/d3/d3-selection/raw/master/LICENSE) |
 | d3-shape@1.2.2 | [BSD-3-Clause](https://github.com/d3/d3-shape/raw/master/LICENSE) |
 | d3-transition@1.1.3 | [BSD-3-Clause](https://github.com/d3/d3-transition/raw/master/LICENSE) |
-| dagre@0.8.2 | [MIT](https://github.com/dagrejs/dagre/raw/master/LICENSE) |
+| dagre@0.8.4 | [MIT](https://github.com/dagrejs/dagre/raw/master/LICENSE) |
 | fast-deep-equal@1.0.0 | [MIT](https://github.com/epoberezkin/fast-deep-equal/raw/master/LICENSE) |
 | geo-hash@0.0.2 | [MIT](https://github.com/Wayla/geo-hash) |
 | glob@7.1.3 | [ISC](https://github.com/isaacs/node-glob/raw/master/LICENSE) |
