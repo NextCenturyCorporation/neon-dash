@@ -231,7 +231,7 @@ describe('Component: WikiViewer', () => {
         let selects = fixture.debugElement.queryAll(
             By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-select'));
         let placeholders = fixture.debugElement.queryAll(
-            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-form-field-placeholder-wrapper'));
+            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-form-field-label-wrapper'));
         expect(inputs.length).toBe(1);
         expect(selects.length).toBe(4);
         expect(placeholders.length).toBe(5);
@@ -564,7 +564,7 @@ describe('Component: WikiViewer with config', () => {
         let selects = fixture.debugElement.queryAll(
             By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-select'));
         let placeholders = fixture.debugElement.queryAll(
-            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-form-field-placeholder-wrapper'));
+            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-form-field-label-wrapper'));
         expect(inputs.length).toBe(1);
         expect(selects.length).toBe(4);
         expect(placeholders.length).toBe(5);

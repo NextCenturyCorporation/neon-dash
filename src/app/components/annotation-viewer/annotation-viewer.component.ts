@@ -117,7 +117,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     public displayField: string;
 
     public seenTypes: string[] = [];
-    public disabledSet: [string[]] = [] as [string[]];
+    public disabledSet: [string[]] = [] as any;
     public colorKeys: string[] = [];
     public indexInclusive: boolean;
     public offset = 0;
@@ -791,7 +791,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
         this.displayField = options.respondMode ? options.linkField.columnName : options.documentTextField.columnName;
 
-        this.disabledSet = [] as [string[]];
+        this.disabledSet = [] as any;
         this.colorKeys = [];
 
         this.data = this.processResults(options, results);

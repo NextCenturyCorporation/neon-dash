@@ -204,7 +204,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     schemeType: string = 'ordinal';
     selectedColorScheme: string;
     public colorKeys: string[] = [];
-    public disabledSet: [string[]] = [] as [string[]];
+    public disabledSet: [string[]] = [] as any;
 
     private defaultActiveColor;
     private graph: vis.Network;
@@ -473,14 +473,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * @override
      */
     finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
+        let where: neon.query.WherePredicate = neon.query.or.apply(neon.query, [
+            neon.query.where(options.nodeField.columnName, '!=', null),
+            neon.query.where(options.linkField.columnName, '!=', null)
+        ]);
+
         let sortFieldName: string = (options.nodeColorField.columnName || options.edgeColorField.columnName ||
             options.nodeField.columnName);
 
-        if (wherePredicates.length) {
-            query.where(wherePredicates.length > 1 ? neon.query.and.apply(neon.query, wherePredicates) : wherePredicates[0]);
-        }
-
-        return query.sortBy(sortFieldName, neonVariables.ASCENDING);
+        return query.where(wherePredicates.length ? neon.query.and.apply(neon.query, [wherePredicates, where]) : where)
+            .sortBy(sortFieldName, neonVariables.ASCENDING);
     }
 
     getFiltersToIgnore() {
@@ -498,7 +500,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     removeFilter(myFilter: any) {
         this.filters = this.filters.filter((element) => element.id !== myFilter.id);
         //EDIT: meaning that you also have to reset the legend
-        this.disabledSet = [] as [string[]];
+        this.disabledSet = [] as any;
         this.updateLegend();
     }
 
