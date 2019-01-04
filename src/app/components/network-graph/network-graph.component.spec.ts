@@ -134,6 +134,9 @@ describe('Component: NetworkGraph', () => {
             .withFields(['testNodeField', 'testLinkField', 'testNodeColorField', 'testEdgeColorField', 'testNodeNameField',
                 'testLinkNameField', 'testTypeField', 'testXPositionField', 'testYPositionField', 'testXTargetPositionField',
                 'testYTargetPositionField', 'testFilter1', 'testFilter2'])
+            .where(neon.query.or.apply(neon.query, [
+                neon.query.where('testNodeField', '!=', null), neon.query.where('testLinkField', '!=', null)
+            ]))
             .sortBy('testNodeColorField', neonVariables.ASCENDING);
 
         expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);

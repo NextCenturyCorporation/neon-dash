@@ -16,7 +16,7 @@
 import { Injector } from '@angular/core';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from './dataset';
 import { neonVariables } from './neon-namespaces';
-import * as uuid from 'node-uuid';
+import * as uuidv4 from 'uuid/v4';
 
 type OptionCallback = (options: any) => boolean;
 interface OptionChoice { prettyName: string; variable: any; }
@@ -249,7 +249,7 @@ export class WidgetOptionCollection {
      */
     constructor(protected injector?: Injector, protected config?: any) {
         // TODO Do not use a default _id.  Throw an error if undefined!
-        this._id = (this.injector ? this.injector.get('_id', uuid.v4()) : ((this.config || {})._id || uuid.v4()));
+        this._id = (this.injector ? this.injector.get('_id', uuidv4()) : ((this.config || {})._id || uuidv4()));
     }
 
     /**
