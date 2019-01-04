@@ -3,7 +3,7 @@
       <span class="legend-text">Legend</span><mat-icon class="neon-icon-small legend-text">{{ menuIcon }}</mat-icon>
     </button>
 
-    <mat-menu #menu="matMenu" [overlapTrigger]="false">
+    <mat-menu #menu="matMenu" [backdropClass]="widgetService.getTheme()" [overlapTrigger]="false">
         <div *ngFor="let colorSet of colorSets">
             <div *ngIf="filteringOn">
             <button mat-menu-item *ngFor="let key of colorSet.getAllKeys()" (click)="keySelected($event, colorSet.getColorField(), key)">
