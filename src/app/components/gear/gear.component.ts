@@ -122,6 +122,10 @@ export class GearComponent implements OnInit, OnDestroy {
         //console.log(this.optionalList);
     }
 
+    createEmptyField(): FieldMetaData {
+        return new FieldMetaData();
+    }
+
     /**
      * Gets the text for the Apply button
      */
