@@ -662,6 +662,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
 
         let successCallback = (data: TransformedVisualizationData) => {
+            this.errorMessage = '';
             this.layerIdToActiveData.set(options._id, data);
 
             if (this.visualizationQueryPaginates && !this.showingZeroOrMultipleElementsPerResult) {
