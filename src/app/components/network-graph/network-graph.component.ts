@@ -606,43 +606,41 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
         this.neonFilters = this.filterService.getFiltersForFields(options.database.name, options.table.name, options.filterFields);
 
-        if (!this.responseData.length) {
-            // TODO THOR-985
-            this.responseData = results;
+        // TODO THOR-985
+        this.responseData = results;
 
-            this.responseData.forEach((d) => {
-                for (let field of options.fields) {
-                    if ([options.nodeColorField.columnName, options.targetColorField.columnName].includes(field.columnName)
-                        && options.cleanLegendLabels && options.displayLegend) {
-                        let types = neonUtilities.deepFind(d, field.columnName);
-                        if (types instanceof Array) {
-                            for (let value of types) {
-                                this.prettifiedNodeLabels.push(this.labelCleanUp(value));
-                            }
-                        } else {
-                            this.prettifiedNodeLabels.push(types);
+        this.responseData.forEach((d) => {
+            for (let field of options.fields) {
+                if ([options.nodeColorField.columnName, options.targetColorField.columnName].includes(field.columnName)
+                    && options.cleanLegendLabels && options.displayLegend) {
+                    let types = neonUtilities.deepFind(d, field.columnName);
+                    if (types instanceof Array) {
+                        for (let value of types) {
+                            this.prettifiedNodeLabels.push(this.labelCleanUp(value));
                         }
-                    }
-                    if (field.columnName === options.edgeColorField.columnName && options.cleanLegendLabels
-                        && options.displayLegend) {
-                        let types = neonUtilities.deepFind(d, options.edgeColorField.columnName);
-                        if (types instanceof Array) {
-                            for (let value of types) {
-                                this.prettifiedEdgeLabels.push(this.labelCleanUp(value));
-                            }
-                        } else {
-                            this.prettifiedEdgeLabels.push(types);
-                        }
+                    } else {
+                        this.prettifiedNodeLabels.push(types);
                     }
                 }
-            });
+                if (field.columnName === options.edgeColorField.columnName && options.cleanLegendLabels
+                    && options.displayLegend) {
+                    let types = neonUtilities.deepFind(d, options.edgeColorField.columnName);
+                    if (types instanceof Array) {
+                        for (let value of types) {
+                            this.prettifiedEdgeLabels.push(this.labelCleanUp(value));
+                        }
+                    } else {
+                        this.prettifiedEdgeLabels.push(types);
+                    }
+                }
+            }
+        });
 
-            //Flattens multi-level arrays, removes duplicates, and sorts alphabetically
-            this.prettifiedNodeLabels = this.prettifiedNodeLabels.reduce(this.flattenArray, [])
-                .filter((value, index, array) => array.indexOf(value) === index).sort();
-            this.prettifiedEdgeLabels = this.prettifiedEdgeLabels.reduce(this.flattenArray, [])
-                .filter((value, index, array) => array.indexOf(value) === index).sort();
-        }
+        //Flattens multi-level arrays, removes duplicates, and sorts alphabetically
+        this.prettifiedNodeLabels = this.prettifiedNodeLabels.reduce(this.flattenArray, [])
+            .filter((value, index, array) => array.indexOf(value) === index).sort();
+        this.prettifiedEdgeLabels = this.prettifiedEdgeLabels.reduce(this.flattenArray, [])
+            .filter((value, index, array) => array.indexOf(value) === index).sort();
 
         this.existingNodeNames = [];
         this.resetGraphData();
