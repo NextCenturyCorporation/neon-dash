@@ -13,63 +13,6 @@
         </button>
     </mat-toolbar>
 
-    <mat-sidenav #optionsMenu position="end" class="visualization-sidenav-options">
-        <mat-card align="left">
-            <mat-card-content>
-                <div *ngIf="errorMessage">
-                    <label class="icon-with-text error-message" [matTooltip]="errorMessage" tooltip-position="below">
-                        <mat-icon class="neon-icon-small">error</mat-icon>
-                        <span>{{ errorMessage }}</span>
-                    </label>
-                    <p></p>
-                </div>
-
-                <div *ngIf="getButtonText()">
-                    <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
-                        <mat-icon class="neon-icon-small">info</mat-icon>
-                        <span>{{ getButtonText() }}</span>
-                    </label>
-                    <p></p>
-                </div>
-
-                <mat-form-field>
-                    <input matInput placeholder="Title" [(ngModel)]="options.title" required="false">
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Database" [(ngModel)]="options.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="options.databases.length < 2">
-                        <mat-option *ngFor="let database of options.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Table" [(ngModel)]="options.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="options.tables.length < 2">
-                        <mat-option *ngFor="let table of options.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="ID Field" [(ngModel)]="options.idField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Link Field" [(ngModel)]="options.linkField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <app-export-control [widgets]="this"></app-export-control>
-            </mat-card-content>
-        </mat-card>
-    </mat-sidenav>
-
     <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
         <mat-spinner></mat-spinner>
     </div>
