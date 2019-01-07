@@ -102,6 +102,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.initializing = true;
 
         this.options = this.createWidgetOptions(this.injector, this.getVisualizationDefaultTitle(), this.getVisualizationDefaultLimit());
+        this.options.title = this.getVisualizationTitle(this.options.title);
         this.newLimit = this.options.limit;
         this.id = this.options._id;
 
@@ -1138,7 +1139,43 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @return {FieldMetaData}
      */
     public findFieldObject(fields: FieldMetaData[], bindingKey: string, config?: any): FieldMetaData {
-        return this.findField(fields, (config ? config[bindingKey] : this.injector.get(bindingKey, ''))) || new FieldMetaData();
+        let configValue = (config ? config[bindingKey] : this.injector.get(bindingKey, ''));
+        return this.findField(fields, this.translateFieldKeyToValue(configValue)
+            ) || new FieldMetaData();
+    }
+
+    /**
+     * If field key is referenced in config file, find field value using current dashboard.
+     *
+     * @arg {any} configValue
+     * @return {any}
+     */
+    public translateFieldKeyToValue(configValue: any): string {
+        let currentDashboard = this.datasetService.getCurrentDashboard();
+
+        if (currentDashboard && currentDashboard.fields && currentDashboard.fields[configValue]) {
+            return this.datasetService.getFieldNameFromCurrentDashboardByKey(configValue);
+        } else {
+            // for backwards compatibility/if no field key reference exists in dashboard
+            return configValue;
+        }
+    }
+
+    /**
+     * If visualization title is a key referenced in config file, find value using current dashboard.
+     *
+     * @arg {any} configValue
+     * @return {any}
+     */
+    public getVisualizationTitle(configValue: any): string {
+        let currentDashboard = this.datasetService.getCurrentDashboard();
+
+        if (currentDashboard && currentDashboard.visualizationTitles && currentDashboard.visualizationTitles[configValue]) {
+            return currentDashboard.visualizationTitles[configValue];
+        } else {
+            // otherwise, just return value from layouts section of config
+            return configValue;
+        }
     }
 
     /**
@@ -1151,8 +1188,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     public findFieldObjects(fields: FieldMetaData[], bindingKey: string, config?: any): FieldMetaData[] {
         let bindings = (config ? config[bindingKey] : this.injector.get(bindingKey, null)) || [];
-        return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.findField(fields, columnName))
-            .filter((fieldsObject) => !!fieldsObject);
+        return (Array.isArray(bindings) ? bindings : []).map((configValue) =>
+            this.findField(fields, this.translateFieldKeyToValue(configValue))).filter((fieldsObject) => !!fieldsObject);
     }
 
     /**
@@ -1305,6 +1342,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {any} [config]
      * @return {any}
      */
+    // TODO: 873: need to test with datastore with multiple tables
     public updateTablesInOptions(options: any, config?: any): any {
         options.tables = options.database ? this.datasetService.getTables(options.database.name) : [];
         options.table = options.tables[0] || options.table;
@@ -1347,6 +1385,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             }*/
         }
 
+        // TODO: 873
         return this.updateFieldsInOptions(options);
     }
 }

@@ -222,7 +222,18 @@ export class DatasetService {
      * @return {String}
      */
     static getFieldNameByKey(dashboard: Dashboard, key: string) {
-        return dashboard.fields[key].split('.')[3];
+        let length = dashboard.fields[key].length;
+        let index = -1;
+        let whereToSplit = 3; // field key should start after third occurance of '.'
+
+        while (whereToSplit-- && index++ < length) {
+            index = dashboard.fields[key].indexOf('.', index);
+            if (index < 0) {
+                break;
+            }
+        }
+
+        return dashboard.fields[key].substring(index + 1, dashboard.fields[key].length);
     }
 
     constructor(@Inject('config') private config: NeonGTDConfig) {
