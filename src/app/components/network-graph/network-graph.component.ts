@@ -263,7 +263,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             new WidgetFieldOption('xPositionField', 'X Position Field', false, this.optionsNotReified),
             new WidgetFieldOption('yPositionField', 'Y Position Field', false, this.optionsNotReified),
             new WidgetFieldOption('xTargetPositionField', 'X Target Position Field', false, this.optionsNotReified),
-            new WidgetFieldOption('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified)
+            new WidgetFieldOption('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified),
+            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
         ];
     }
 
@@ -301,9 +302,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             new WidgetFreeTextOption('fontColor', 'Font Color', '#343434', this.optionsNotReified),
             new WidgetFreeTextOption('linkColor', 'Link Color', '#96c1fc', this.optionsNotReified),
             new WidgetFreeTextOption('nodeColor', 'Node Color', '#96c1fc', this.optionsNotReified),
-            new WidgetFreeTextOption('nodeShape', 'Node Shape', 'box'),
-            // TODO THOR-950 Rename filterFields because it is not an array of FieldMetaData objects!
-            new WidgetNonPrimitiveOption('filterFields', 'Filter Fields', [])
+            new WidgetFreeTextOption('nodeShape', 'Node Shape', 'box')
         ];
     }
 
@@ -539,7 +538,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     setupFilters() {
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
-            this.options.table.name, this.options.filterFields);
+            this.options.table.name, this.options.filterFields.map((fieldsObject) => fieldsObject.columnName));
         this.filters = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
@@ -604,7 +603,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
-        this.neonFilters = this.filterService.getFiltersForFields(options.database.name, options.table.name, options.filterFields);
+        this.neonFilters = this.filterService.getFiltersForFields(options.database.name, options.table.name,
+            options.filterFields.map((fieldsObject) => fieldsObject.columnName));
 
         // TODO THOR-985
         this.responseData = results;
@@ -794,7 +794,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             yPositionField = this.options.yPositionField.columnName,
             xTargetPositionField = this.options.xTargetPositionField.columnName,
             yTargetPositionField = this.options.yTargetPositionField.columnName,
-            fFields = this.options.filterFields;
+            fFields = this.options.filterFields.map((fieldsObject) => fieldsObject.columnName);
 
         // assume nodes will take precedence over edges so create nodes first
         for (let entry of this.responseData) {
