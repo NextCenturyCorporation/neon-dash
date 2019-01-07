@@ -34,6 +34,7 @@ import { NewsFeedComponent } from './news-feed.component';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { neonVariables } from '../../neon-namespaces';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 
 describe('Component: NewsFeed', () => {
     let component: NewsFeedComponent;
@@ -83,13 +84,6 @@ describe('Component: NewsFeed', () => {
 
     it('does have expected class properties', () => {
          expect(component.filters).toEqual([]);
-        // expect(component.options).toEqual(NewsFeedOptions);
-         expect(component.gridArray).toEqual([]);
-         expect(component.queryArray).toEqual([]);
-         expect(component.pagingGrid).toEqual([]);
-         expect(component.lastPage).toEqual(true);
-         expect(component.page).toEqual(1);
-         expect(component.showGrid).toEqual(true);
     });
 
     //checks if component exists
@@ -127,7 +121,7 @@ describe('Component: NewsFeed', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([true, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -155,7 +149,7 @@ describe('Component: NewsFeed', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([false, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, false, {
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -189,7 +183,7 @@ describe('Component: NewsFeed', () => {
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([true, {
+        expect(spy2.calls.argsFor(0)).toEqual([component.options, true, {
             id: 'idA',
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -223,7 +217,7 @@ describe('Component: NewsFeed', () => {
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([false, {
+        expect(spy2.calls.argsFor(0)).toEqual([component.options, false, {
             id: 'idA',
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -232,7 +226,7 @@ describe('Component: NewsFeed', () => {
         expect(spy3.calls.count()).toEqual(0);
     });
 
-   it('createFilter with multiple existing filters does remove all filters and then add a new filter', () => {
+    it('createFilter with multiple existing filters does remove all filters and then add a new filter', () => {
         let spy1 = spyOn(component, 'addNeonFilter');
         let spy2 = spyOn(component, 'replaceNeonFilter');
         let spy3 = spyOn(component, 'removeAllFilters');
@@ -256,7 +250,8 @@ describe('Component: NewsFeed', () => {
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(1);
         let args = spy3.calls.argsFor(0);
-        expect(args[0]).toEqual([{
+        expect(args[0]).toEqual(component.options);
+        expect(args[1]).toEqual([{
             id: 'idA',
             field: 'field1',
             prettyField: 'prettyField1',
@@ -269,8 +264,8 @@ describe('Component: NewsFeed', () => {
         }]);
 
         // Run the callback.
-        expect(typeof args[1]).toEqual('function');
-        args[1]();
+        expect(typeof args[2]).toEqual('function');
+        args[2]();
 
         expect(component.filters).toEqual([{
             id: undefined,
@@ -280,7 +275,7 @@ describe('Component: NewsFeed', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([true, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -315,7 +310,8 @@ describe('Component: NewsFeed', () => {
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(1);
         let args = spy3.calls.argsFor(0);
-        expect(args[0]).toEqual([{
+        expect(args[0]).toEqual(component.options);
+        expect(args[1]).toEqual([{
             id: 'idA',
             field: 'field1',
             prettyField: 'prettyField1',
@@ -328,8 +324,8 @@ describe('Component: NewsFeed', () => {
         }]);
 
         // Run the callback.
-        expect(typeof args[1]).toEqual('function');
-        args[1]();
+        expect(typeof args[2]).toEqual('function');
+        args[2]();
 
         expect(component.filters).toEqual([{
             id: undefined,
@@ -339,7 +335,7 @@ describe('Component: NewsFeed', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([false, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, false, {
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -349,8 +345,7 @@ describe('Component: NewsFeed', () => {
         expect(spy3.calls.count()).toEqual(1);
     });
 
-    //for create query method
-    it('createQuery does return expected query', (() => {
+    it('finalizeVisualizationQuery does return expected query', (() => {
         component.options.database = new DatabaseMetaData('testDatabase');
         component.options.table = new TableMetaData('testTable');
         component.options.id = 'testId';
@@ -361,6 +356,11 @@ describe('Component: NewsFeed', () => {
         component.options.filterField = new FieldMetaData('testFilterField');
         component.options.contentField = new FieldMetaData('testContentField');
         component.options.dateField = new FieldMetaData('testDateField');
+
+        let inputQuery = new neon.query.Query()
+            .selectFrom('testDatabase', 'testTable')
+            .withFields(['testIdField', 'testSortField', 'testPrimaryTitleField', 'testSecondaryTitleField',
+            'testFilterField', 'testContentField', 'testDateField']);
 
         let query = new neon.query.Query()
             .selectFrom('testDatabase', 'testTable')
@@ -375,7 +375,7 @@ describe('Component: NewsFeed', () => {
 
         query.where(neon.query.and.apply(query, whereClauses));
 
-        expect(component.createQuery()).toEqual(query);
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
     }));
 
     // //for filter exists method
@@ -439,115 +439,6 @@ describe('Component: NewsFeed', () => {
         expect(component.filterExists('field1', 'value2')).toEqual(false);
         expect(component.filterExists('field2', 'value1')).toEqual(false);
         expect(component.filterExists('field2', 'value2')).toEqual(false);
-    });
-
-    //for get button text method
-    it('getButton does return the expected string', () => {
-        expect(component.getButtonText()).toBe('No Data');
-        component.gridArray = [{
-            border: '',
-            link: '1',
-            name: '1',
-            type: ''
-        }];
-        expect(component.getButtonText()).toBe('Total Items 1');
-        for (let i = 2; i <= 11; i++) {
-            component.gridArray.push({
-                border: '',
-                link: '' + i,
-                name: '' + i,
-                type: ''
-            });
-        }
-        expect(component.getButtonText()).toBe('1 - 10 of 11');
-    });
-
-    //for go to next page method
-    it('goToNextPage only increases the page if not on last page', () => {
-
-        expect(component.page).toBe(1);
-        component.goToNextPage();
-        expect(component.page).toBe(1);
-        component.lastPage = false;
-        component.goToNextPage();
-        expect(component.page).toBe(2);
-    });
-
-    it('goToNextPage does not update page or call updatePageData if lastPage is true', () => {
-        let spy = spyOn(component, 'updatePageData');
-        component.goToNextPage();
-
-        expect(component.page).toEqual(1);
-        expect(spy.calls.count()).toEqual(0);
-    });
-
-    it('goToNextPage does update page and call updatePageData if lastPage is false', () => {
-        let spy = spyOn(component, 'updatePageData');
-        component.lastPage = false;
-
-        component.goToNextPage();
-        expect(component.page).toEqual(2);
-        expect(spy.calls.count()).toEqual(1);
-
-        component.goToNextPage();
-        expect(component.page).toEqual(3);
-        expect(spy.calls.count()).toEqual(2);
-    });
-
-    //for go to previous page method
-    it('goToPreviousPage only decreases the page if not on first page', () => {
-        component.page = 2;
-        expect(component.page).toBe(2);
-        component.goToPreviousPage();
-        expect(component.page).toBe(1);
-        component.goToPreviousPage();
-        expect(component.page).toBe(1);
-    });
-
-    it('goToPreviousPage does not update page or call updatePageData if page is 1', () => {
-        let spy = spyOn(component, 'updatePageData');
-        component.goToPreviousPage();
-
-        expect(component.page).toEqual(1);
-        expect(spy.calls.count()).toEqual(0);
-    });
-
-    it('goToPreviousPage does update page and call updatePageData if page is not 1', () => {
-        let spy = spyOn(component, 'updatePageData');
-        component.page = 3;
-
-        component.goToPreviousPage();
-        expect(component.page).toEqual(2);
-        expect(spy.calls.count()).toEqual(1);
-
-        component.goToPreviousPage();
-        expect(component.page).toEqual(1);
-        expect(spy.calls.count()).toEqual(2);
-    });
-
-    // //for update page data method
-    it('updatePageData does update pagingGrid and lastPage from gridArray, page, and limit and call expected functions', () => {
-        component.options.limit = 2;
-        component.page = 1;
-        component.gridArray = [{}, {}, {}];
-        let spy1 = spyOn(component, 'refreshVisualization');
-
-        component.updatePageData();
-        expect(component.pagingGrid).toEqual([{}, {}]);
-        expect(component.lastPage).toEqual(false);
-        expect(spy1.calls.count()).toEqual(1);
-    });
-
-    it('updatePageData does set lastPage to true if on last page', () => {
-        component.options.limit = 2;
-        component.page = 2;
-        component.gridArray = [{}, {}, {}];
-        let spy1 = spyOn(component, 'refreshVisualization');
-
-        component.updatePageData();
-        expect(component.pagingGrid).toEqual([{}]);
-        expect(component.lastPage).toEqual(true);
-        expect(spy1.calls.count()).toEqual(1);
     });
 
     //for getCloseableFilters method
@@ -703,55 +594,27 @@ describe('Component: NewsFeed', () => {
         })).toEqual('prettyField1 = value1');
     });
 
-    //for isValidQuery method
-    it('isValidQuery does return expected boolean', () => {
-        expect(component.isValidQuery()).toEqual(false);
+    it('validateVisualizationQuery does return expected boolean', () => {
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.database = DatasetServiceMock.DATABASES[0];
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.table = DatasetServiceMock.TABLES[0];
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.idField = new FieldMetaData('tesIdField', 'Test Id Field');
-        expect(component.isValidQuery()).toEqual(false);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
-        expect(component.isValidQuery()).toEqual(true);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
-    //for on Query success method
-    it('onQuerySuccess with aggregation query data does update expected properties and call expected functions', () => {
+    it('transformVisualizationQueryResults with aggregation query data does return expected data', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        component.errorMessage = 'Previous Error Message';
-        component.lastPage = false;
-        component.page = 2;
-        component.showGrid = false;
-        let spy1 = spyOn(component, 'refreshVisualization');
 
-        component.onQuerySuccess({
-            data: [{
-                _id: 'id1',
-                testLinkField: 'link1',
-                testNameField: 'name1',
-                testSizeField: 0.1,
-                testTypeField: 'type1'
-            }, {
-                _id: 'id2',
-                testLinkField: 'link2',
-                testNameField: 'name2',
-                testSizeField: 0.2,
-                testTypeField: 'type2'
-            }]
-        });
-
-        expect(component.errorMessage).toEqual('');
-        expect(component.lastPage).toEqual(true);
-        expect(component.page).toEqual(1);
-        expect(component.showGrid).toEqual(true);
-
-        expect(component.gridArray).toEqual([{
+        let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
             testLinkField: 'link1',
             testNameField: 'name1',
@@ -764,7 +627,8 @@ describe('Component: NewsFeed', () => {
             testSizeField: 0.2,
             testTypeField: 'type2'
         }]);
-        expect(component.pagingGrid).toEqual([{
+
+        expect(actual.data).toEqual([{
             _id: 'id1',
             testLinkField: 'link1',
             testNameField: 'name1',
@@ -779,62 +643,21 @@ describe('Component: NewsFeed', () => {
         }]);
     });
 
-    it('onQuerySuccess with empty aggregation query data does update expected properties and call expected functions', () => {
+    it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        component.errorMessage = 'Previous Error Message';
-        component.lastPage = false;
-        component.page = 2;
-        component.showGrid = false;
-        let spy1 = spyOn(component, 'refreshVisualization');
 
-        component.onQuerySuccess({
-            data: []
-        });
+        let actual = component.transformVisualizationQueryResults(component.options, []);
 
-        expect(component.errorMessage).toEqual('No Data');
-        expect(component.lastPage).toEqual(true);
-        expect(component.page).toEqual(1);
-        expect(component.showGrid).toEqual(false);
-
-        expect(component.gridArray).toEqual([]);
-        expect(component.pagingGrid).toEqual([]);
-
-        expect(spy1.calls.count()).toEqual(1);
+        expect(actual.data).toEqual([]);
     });
 
-    it('onQuerySuccess with limited aggregation query data does update expected properties and call expected functions', () => {
+    it('transformVisualizationQueryResults with limited aggregation query data does return expected data', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.limit = 1;
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        component.errorMessage = 'Previous Error Message';
-        component.lastPage = true;
-        component.page = 2;
-        component.showGrid = false;
-        let spy1 = spyOn(component, 'refreshVisualization');
 
-        component.onQuerySuccess({
-            data: [{
-                _id: 'id1',
-                testLinkField: 'link1',
-                testNameField: 'name1',
-                testSizeField: 0.1,
-                testTypeField: 'type1'
-            }, {
-                _id: 'id2',
-                testLinkField: 'link2',
-                testNameField: 'name2',
-                testSizeField: 0.2,
-                testTypeField: 'type2'
-            }]
-        });
-
-        expect(component.errorMessage).toEqual('');
-        expect(component.lastPage).toEqual(false);
-        expect(component.page).toEqual(1);
-        expect(component.showGrid).toEqual(true);
-
-        expect(component.gridArray).toEqual([{
+        let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
             testLinkField: 'link1',
             testNameField: 'name1',
@@ -847,52 +670,27 @@ describe('Component: NewsFeed', () => {
             testSizeField: 0.2,
             testTypeField: 'type2'
         }]);
-        expect(component.pagingGrid).toEqual([{
+
+        expect(actual.data).toEqual([{
             _id: 'id1',
             testLinkField: 'link1',
             testNameField: 'name1',
             testSizeField: 0.1,
             testTypeField: 'type1'
+        }, {
+            _id: 'id2',
+            testLinkField: 'link2',
+            testNameField: 'name2',
+            testSizeField: 0.2,
+            testTypeField: 'type2'
         }]);
-
-        expect(spy1.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with link prefix does update expected properties and call expected functions', () => {
+    it('transformVisualizationQueryResults with link prefix does return expected data', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        let spy1 = spyOn(component, 'refreshVisualization');
 
-        component.onQuerySuccess({
-            data: [{
-                _id: 'id1',
-                testLinkField: 'link1',
-                testNameField: 'name1',
-                testSizeField: 0.1,
-                testTypeField: 'type1'
-            }, {
-                _id: 'id2',
-                testLinkField: 'link2',
-                testNameField: 'name2',
-                testSizeField: 0.2,
-                testTypeField: 'type2'
-            }]
-        });
-
-        expect(component.gridArray).toEqual([{
-            _id: 'id1',
-            testLinkField: 'link1',
-            testNameField: 'name1',
-            testSizeField: 0.1,
-            testTypeField: 'type1'
-        }, {
-            _id: 'id2',
-            testLinkField: 'link2',
-            testNameField: 'name2',
-            testSizeField: 0.2,
-            testTypeField: 'type2'
-        }]);
-        expect(component.pagingGrid).toEqual([{
+        let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
             testLinkField: 'link1',
             testNameField: 'name1',
@@ -906,7 +704,19 @@ describe('Component: NewsFeed', () => {
             testTypeField: 'type2'
         }]);
 
-        expect(spy1.calls.count()).toEqual(1);
+        expect(actual.data).toEqual([{
+            _id: 'id1',
+            testLinkField: 'link1',
+            testNameField: 'name1',
+            testSizeField: 0.1,
+            testTypeField: 'type1'
+        }, {
+            _id: 'id2',
+            testLinkField: 'link2',
+            testNameField: 'name2',
+            testSizeField: 0.2,
+            testTypeField: 'type2'
+        }]);
     });
 
     //for isSelectable method
@@ -950,13 +760,6 @@ describe('Component: NewsFeed', () => {
         expect(component.isSelected({
             testFilterField: 'testFilterValue'
         })).toEqual(false);
-    });
-
-    //for postInit method
-    it('postInit does work as expected', () => {
-        let spy = spyOn(component, 'executeQueryChain');
-        component.postInit();
-        expect(spy.calls.count()).toEqual(1);
     });
 
     //for refreshVisualization method
@@ -1183,15 +986,5 @@ describe('Component: NewsFeed', () => {
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
         }));
-    });
-
-    //for subNgOnDestroy and subNgOnInit methods
-
-    it('subNgOnDestroy does exist', () => {
-        expect(component.subNgOnDestroy).toBeDefined();
-    });
-
-    it('subNgOnInit does exist', () => {
-        expect(component.subNgOnInit).toBeDefined();
     });
 });

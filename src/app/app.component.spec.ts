@@ -31,12 +31,15 @@ import { DataTableComponent } from './components/data-table/data-table.component
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
 import { ExportControlComponent } from './components/export-control/export-control.component';
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
+import { FiltersComponent } from './components/filters/filters.component';
+import { CurrentFiltersComponent } from './components/current-filters/current-filters.component';
 import { GearComponent } from './components/gear/gear.component';
 import { LegendComponent } from './components/legend/legend.component';
 import { MapComponent } from './components//map/map.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { SaveStateComponent } from './components/save-state/save-state.component';
 import { SettingsComponent } from './components/settings/settings.component';
+import { TaxonomyViewerComponent } from './components/taxonomy-viewer/taxonomy-viewer.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
@@ -70,10 +73,10 @@ import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-gr
 import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 import { MatAutocompleteModule } from '@angular/material';
 import { QueryBarComponent } from './components/query-bar/query-bar.component';
-import {
-    ThumbnailDetailsContractedComponent,
-    ThumbnailDetailsExpandedComponent
-} from './components/thumbnail-grid/thumbnail-details.component';
+import { DetailsThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.details-view';
+import { TitleThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.title-view';
+import { CardThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.card-view';
+import { TreeModule } from 'angular-tree-component';
 import { DatasetServiceMock } from '../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../testUtils/MockServices/FilterServiceMock';
 import * as neon from 'neon-framework';
@@ -93,11 +96,15 @@ describe('App', () => {
                 AboutNeonComponent,
                 AggregationComponent,
                 AnnotationViewerComponent,
+                CardThumbnailSubComponent,
                 DatasetSelectorComponent,
                 DataTableComponent,
+                DetailsThumbnailSubComponent,
                 DocumentViewerComponent,
                 ExportControlComponent,
                 FilterBuilderComponent,
+                FiltersComponent,
+                CurrentFiltersComponent,
                 GearComponent,
                 LegendComponent,
                 MapComponent,
@@ -109,11 +116,11 @@ describe('App', () => {
                 SaveStateComponent,
                 SettingsComponent,
                 SimpleFilterComponent,
+                TaxonomyViewerComponent,
                 TextCloudComponent,
-                ThumbnailDetailsContractedComponent,
-                ThumbnailDetailsExpandedComponent,
                 ThumbnailGridComponent,
                 TimelineComponent,
+                TitleThumbnailSubComponent,
                 UnsharedFilterComponent,
                 VisualizationContainerComponent,
                 VisualizationInjectorComponent,
@@ -130,7 +137,8 @@ describe('App', () => {
                 HttpModule,
                 HttpClientModule,
                 BrowserAnimationsModule,
-                ReactiveFormsModule
+                ReactiveFormsModule,
+                TreeModule.forRoot()
             ],
             providers: [
                 { provide: 'config', useValue: new NeonGTDConfig() },
@@ -167,19 +175,18 @@ describe('App', () => {
         expect(component.rightPanelTitle).toEqual('Dashboard Layouts');
 
         expect(component.showCustomConnectionButton).toEqual(true);
-        expect(component.showFilterBuilderIcon).toEqual(true);
-        expect(component.showFilterTrayButton).toEqual(true);
+        expect(component.showFiltersComponentIcon).toEqual(true);
         expect(component.showVisShortcut).toEqual(true);
 
-        expect(component.createFilterBuilder).toEqual(false);
+        expect(component.createFiltersComponent).toEqual(false);
     }));
 
-    it('should be showing correct filter builder icons', async(() => {
-        expect(component.filterBuilderIcon).toEqual('filter_builder');
+    it('should be showing correct filter icons', async(() => {
+        expect(component.filtersIcon).toEqual('filters');
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '=', 'value1'), 'testFilterField');
         fixture.detectChanges();
-        expect(component.filterBuilderIcon).toEqual('filter_builder_active');
+        expect(component.filtersIcon).toEqual('filters_active');
     }));
 
     it('should correctly toggle the panels', async(() => {
@@ -205,20 +212,20 @@ describe('App', () => {
 
     }));
 
-    it('toggle filter builder', async(() => {
-        component.showFilterBuilderIcon = false;
-        expect(debugElement.nativeElement.querySelectorAll('app-filter-builder').length === 0).toBeTruthy();
-        component.showFilterBuilderIcon = true;
-        component.createFilterBuilder = true;
-        component.openFilterBuilderDialog();
-        expect(debugElement.nativeElement.querySelectorAll('app-filter-builder')).toBeTruthy();
+    it('toggle filters component', async(() => {
+        component.showFiltersComponentIcon = false;
+        expect(debugElement.nativeElement.querySelectorAll('app-filters').length === 0).toBeTruthy();
+        component.showFiltersComponentIcon = true;
+        component.createFiltersComponent = true;
+        component.toggleFiltersDialog();
+        expect(debugElement.nativeElement.querySelectorAll('app-filters')).toBeTruthy();
     }));
 
     it('check that the messagenger subscribes to the correct channels and that the callbacks update the correct booleans', async(() => {
-        let spyOnShowFilterBuilderIcon = spyOn(component, 'updateShowFilterBuilderIcon');
+        let spyOnShowFiltersComponentIcon = spyOn(component, 'updateShowFiltersComponentIcon');
         let spyOnShowVisualShortcut = spyOn(component, 'updateShowVisShortcut');
         let message = {
-            showFilterBuilderIcon: false,
+            showFiltersComponentIcon: false,
             showVisShortcut: false
         };
 
@@ -226,19 +233,19 @@ describe('App', () => {
         component.ngOnInit();
         expect(spyOnInit.calls.count()).toEqual(2);
         component.updateShowVisShortcut(message);
-        component.updateShowFilterBuilderIcon(message);
+        component.updateShowFiltersComponentIcon(message);
 
-        expect(spyOnShowFilterBuilderIcon.calls.argsFor(0)).toEqual([{
-            showFilterBuilderIcon: false,
+        expect(spyOnShowFiltersComponentIcon.calls.argsFor(0)).toEqual([{
+            showFiltersComponentIcon: false,
             showVisShortcut: false
         }]);
 
         expect(spyOnShowVisualShortcut.calls.argsFor(0)).toEqual([{
-            showFilterBuilderIcon: false,
+            showFiltersComponentIcon: false,
             showVisShortcut: false
         }]);
 
-        expect(spyOnShowFilterBuilderIcon.calls.count()).toEqual(1);
+        expect(spyOnShowFiltersComponentIcon.calls.count()).toEqual(1);
         expect(spyOnShowVisualShortcut.calls.count()).toEqual(1);
     }));
 
@@ -260,21 +267,21 @@ describe('App', () => {
         });
     }));
 
-    it('getShowFilterBuilderIcon does update showFilterBuilder', async(() => {
-        component.updateShowFilterBuilderIcon({
-            showFilterBuilderIcon: false
+    it('updateShowFiltersComponentIcon does update showFiltersComponent', async(() => {
+        component.updateShowFiltersComponentIcon({
+            showFiltersComponentIcon: false
         });
         fixture.detectChanges();
-        expect(component.showFilterBuilderIcon).toEqual(false);
-        expect(debugElement.query(By.css('#showFilterBuilderIcon'))).toBeNull();
-        component.updateShowFilterBuilderIcon({
-            showFilterBuilderIcon: true
+        expect(component.showFiltersComponentIcon).toEqual(false);
+        expect(debugElement.query(By.css('#showFiltersComponentIcon'))).toBeNull();
+        component.updateShowFiltersComponentIcon({
+            showFiltersComponentIcon: true
         });
         fixture.detectChanges();
-        expect(component.showFilterBuilderIcon).toEqual(true);
+        expect(component.showFiltersComponentIcon).toEqual(true);
         fixture.whenStable().then(() => {
             fixture.detectChanges();
-            expect(debugElement.query(By.css('#showFilterBuilderIcon'))).not.toBeNull();
+            expect(debugElement.query(By.css('#showFiltersComponentIcon'))).not.toBeNull();
         });
     }));
 

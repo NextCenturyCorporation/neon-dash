@@ -84,11 +84,28 @@ export class LeafletNeonMap extends AbstractMap {
     }
 
     addPoints(points: MapPoint[], layer?: any, cluster?: boolean) {
-        let group = this.getGroup(layer);
-        let clusterGroup: L.MarkerClusterGroup = null;
-
-        if (cluster) {
-            clusterGroup = L.markerClusterGroup();
+        let layerGroup = this.layerGroups.get(layer);
+        if (!layerGroup) {
+            layerGroup = !cluster ? new L.LayerGroup() : L.markerClusterGroup({
+                // Override default function to add neon-cluster class to cluster icons.
+                iconCreateFunction: (clusterPoint) => {
+                    return new L.DivIcon({
+                        html: '<div><span>' + clusterPoint.getChildCount() + '</span></div>',
+                        className: 'marker-cluster neon-cluster',
+                        iconSize: new L.Point(40, 40)
+                    });
+                },
+                maxClusterRadius: 20,
+                spiderLegPolylineOptions: {
+                    // TODO Use theme color (color-text-main)
+                    color: '#333',
+                    opacity: 1,
+                    weight: 2
+                }
+            });
+            this.layerGroups.set(layer, layerGroup);
+            this.layerControl.addOverlay(layerGroup, layer.title);
+            this.map.addLayer(layerGroup);
         }
 
         for (let point of points) {
@@ -96,45 +113,40 @@ export class LeafletNeonMap extends AbstractMap {
             let pointIsSelected = point.idList.includes(this.mapOptions.id);  //check if point is in list
 
             let circleOptions = {
-                        color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
-                        fillColor: point.cssColorString,
-                        colorByField: point.colorByField,
-                        colorByValue: point.colorByValue,
-                        weight: 1,
-                        stroke: mapIsSelected && pointIsSelected ? false : true,
-                        opacity: mapIsSelected ? (pointIsSelected ? 0 : .2) : 1,
-                        fillOpacity: mapIsSelected ? (pointIsSelected ? 1 : .1) : .3,
-                        radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30) // Default is 10
+                // TODO Use theme color (color-text-main)
+                color: '#333',
+                colorByField: point.colorByField,
+                colorByValue: point.colorByValue,
+                fillColor: point.cssColorString,
+                fillOpacity: mapIsSelected ? (pointIsSelected ? 1 : .1) : 1,
+                opacity: mapIsSelected ? (pointIsSelected ? 0 : .2) : 1,
+                radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30), // Default is 10
+                stroke: mapIsSelected && pointIsSelected ? false : true,
+                weight: 1
             };
 
             let circle = new L.CircleMarker([point.lat, point.lng], circleOptions)/*.setRadius(6)*/;
             circle = this.addClickEventListener(circle);
-            if (this.mapOptions.hoverPopupEnabled) {
 
-                //check if popup value has been set in the map layer config, if no use default
-                if (point.hoverPopupMap.size > 0) {
+            let tooltip = this.mapOptions.showPointDataOnHover ? `<span>${point.name}</span><br/><span>${point.description}</span>` : '';
 
-                    //build hover value and add to tooltip
-                    circle.bindTooltip(`<span>${this.createHoverPopupString(point.hoverPopupMap)}</span>`);
-                } else {
-                    circle.bindTooltip(`<span>${point.name}</span><br/><span>${point.description}</span>`);
-                }
+            if (point.hoverPopupMap.size > 0) {
+                //build hover value and add to tooltip
+                tooltip += (tooltip ? '<br/>' : '') + `<span>${this.createHoverPopupString(point.hoverPopupMap)}</span>`;
             }
 
-            if (cluster) {
-                clusterGroup.addLayer(circle);
-            } else {
-                group.addLayer(circle);
+            if (tooltip) {
+                circle.bindTooltip(tooltip);
             }
-        }
 
-        if (cluster) {
-            this.map.addLayer(clusterGroup);
+            layerGroup.addLayer(circle);
         }
     }
 
     clearLayer(layer: any) {
-        this.getGroup(layer).clearLayers();
+        if (this.layerGroups.has(layer)) {
+            this.layerGroups.get(layer).clearLayers();
+        }
 
         // Remove any hidden points too
         this.hiddenPoints.set(layer, null);
@@ -152,33 +164,17 @@ export class LeafletNeonMap extends AbstractMap {
         this.map.invalidateSize();
     }
 
-    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    // Drawing support
-    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    private getGroup(layer: any) {
-        let group = this.layerGroups.get(layer);
-
-        if (!group) {
-            group = new L.LayerGroup().addTo(this.map);
-            this.layerGroups.set(layer, group);
-            this.layerControl.addOverlay(group, layer.title);
-        }
-
-        return group;
-    }
-
     hidePoints(layer: any, value: string) {
-        let group = this.getGroup(layer);
-
         let hiddenPoints: any[] = this.hiddenPoints.get(layer);
         if (!hiddenPoints) {
             hiddenPoints = [];
         }
 
-        group.eachLayer((circle: any) => {
+        let layerGroup = this.layerGroups.get(layer);
+        layerGroup.eachLayer((circle: any) => {
             if (circle.options.colorByValue === value) {
                 hiddenPoints.push(circle);
-                group.removeLayer(circle);
+                layerGroup.removeLayer(circle);
             }
         });
 
@@ -186,17 +182,16 @@ export class LeafletNeonMap extends AbstractMap {
     }
 
     unhidePoints(layer: any, value: string) {
-        let group = this.getGroup(layer);
-
         let hiddenPoints: any[] = this.hiddenPoints.get(layer);
 
         if (hiddenPoints) {
+            let layerGroup = this.layerGroups.get(layer);
             hiddenPoints = hiddenPoints.filter((circle) => {
                 let matches = circle.options.colorByField === layer.colorField.columnName &&
                         circle.options.colorByValue === value;
 
                 if (matches) {
-                    group.addLayer(circle);
+                    layerGroup.addLayer(circle);
                 }
                 return !matches;
             });
@@ -205,13 +200,12 @@ export class LeafletNeonMap extends AbstractMap {
     }
 
     unhideAllPoints(layer: any) {
-        let group = this.getGroup(layer);
-
         let hiddenPoints: any[] = this.hiddenPoints.get(layer);
 
         if (hiddenPoints) {
+            let layerGroup = this.layerGroups.get(layer);
             for (let point of hiddenPoints) {
-                group.addLayer(point);
+                layerGroup.addLayer(point);
             }
         }
 

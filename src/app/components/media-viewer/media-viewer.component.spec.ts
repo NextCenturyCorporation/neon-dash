@@ -85,12 +85,10 @@ describe('Component: MediaViewer', () => {
 
     it('does have expected class properties', () => {
         expect(component.tabsAndMedia).toEqual([]);
-        expect(component.isLoadingMedia).toEqual(false);
-        expect(component.previousId).toEqual('');
         expect(component.mediaTypes).toEqual(MediaTypes);
     });
 
-    it('createQuery does return expected query', (() => {
+    it('finalizeVisualizationQuery does return expected query', (() => {
         component.options.database = new DatabaseMetaData('testDatabase');
         component.options.table = new TableMetaData('testTable');
         component.options.id = 'testId';
@@ -98,6 +96,10 @@ describe('Component: MediaViewer', () => {
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.nameField = DatasetServiceMock.NAME_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+
+        let inputQuery = new neon.query.Query()
+            .selectFrom('testDatabase', 'testTable')
+            .withFields(['testIdField', 'testLinkField', 'testNameField', 'testTypeField']);
 
         let query = new neon.query.Query()
             .selectFrom('testDatabase', 'testTable')
@@ -110,73 +112,8 @@ describe('Component: MediaViewer', () => {
 
         query.where(neon.query.and.apply(query, whereClauses));
 
-        expect(component.createQuery()).toEqual(query);
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
     }));
-
-    it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toBe('Please Select');
-        component.options.url = 'https://test.com';
-        expect(component.getButtonText()).toBe('No Data');
-        component.tabsAndMedia = [{
-            loaded: false,
-            slider: 0,
-            name: 'https://test.com',
-            selected: {
-                border: '',
-                link: 'a',
-                mask: '',
-                name: 'a',
-                type: ''
-            },
-            list: [{
-                border: '',
-                link: 'a',
-                mask: '',
-                name: 'a',
-                type: ''
-            }]
-        }];
-        component.options.url = '';
-        expect(component.getButtonText()).toBe('Total Files 1');
-        component.tabsAndMedia = [{
-            loaded: false,
-            slider: 0,
-            name: 'https://test.com',
-            selected: {
-                border: '',
-                link: 'a',
-                mask: '',
-                name: 'a',
-                type: ''
-            },
-            list: [{
-                border: '',
-                link: 'a',
-                mask: '',
-                name: 'a',
-                type: ''
-            }, {
-                border: '',
-                link: 'b',
-                mask: '',
-                name: 'b',
-                type: ''
-            }, {
-                border: '',
-                link: 'c',
-                mask: '',
-                name: 'c',
-                type: ''
-            }, {
-                border: '',
-                link: 'd',
-                mask: '',
-                name: 'd',
-                type: ''
-            }]
-        }];
-        expect(component.getButtonText()).toBe('Total Files 4');
-    });
 
     it('getElementRefs does return expected object', () => {
         let refs = component.getElementRefs();
@@ -248,27 +185,26 @@ describe('Component: MediaViewer', () => {
 
     }));
 
-    it('isValidQuery does return expected result', (() => {
-        expect(component.isValidQuery()).toBe(false);
+    it('validateVisualizationQuery does return expected result', (() => {
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.database = new DatabaseMetaData('testDatabase');
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.table = new TableMetaData('testTable');
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.id = 'testId';
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.idField = DatasetServiceMock.ID_FIELD;
-        expect(component.isValidQuery()).toBe(false);
+        expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
-        expect(component.isValidQuery()).toBe(true);
+        expect(component.validateVisualizationQuery(component.options)).toBe(true);
     }));
 
-    it('onQuerySuccess does set expected properties if response returns no data', (() => {
-        component.errorMessage = 'testErrorMessage';
+    it('transformVisualizationQueryResults does set expected properties with no data', (() => {
         component.tabsAndMedia = [{
             loaded: false,
             slider: 0,
@@ -289,16 +225,12 @@ describe('Component: MediaViewer', () => {
             }]
         }];
 
-        component.onQuerySuccess({
-            data: []
-        });
+        component.transformVisualizationQueryResults(component.options, []);
 
-        expect(component.errorMessage).toBe('No Data');
         expect(component.tabsAndMedia).toEqual([]);
     }));
 
-    it('onQuerySuccess does reset options.id and return correct error if filter is selected but rhs is empty,', (() => {
-        component.errorMessage = 'testErrorMessage';
+    it('transformVisualizationQueryResults does reset options.id and return correct error if filter is selected but rhs is empty,', (() => {
         component.options.idField = new FieldMetaData('testIdField');
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.nameField = new FieldMetaData('testNameField');
@@ -311,21 +243,17 @@ describe('Component: MediaViewer', () => {
         getService(FilterService).addFilter(null, 'testName2', DatasetServiceMock.DATABASES[1].name, DatasetServiceMock.TABLES[1].name,
             neon.query.where('testIdField', '==', ''), 'testFilterName');
 
-        component.onQuerySuccess({
-            data: [{
-                testIdField: 'testIdValue',
-                testLinkField: 'testLinkValue',
-                testNameField: 'testNameValue',
-                testTypeField: 'testTypeValue'
-            }]
-        });
+        component.transformVisualizationQueryResults(component.options, [{
+            testIdField: 'testIdValue',
+            testLinkField: 'testLinkValue',
+            testNameField: 'testNameValue',
+            testTypeField: 'testTypeValue'
+        }]);
 
-        expect(component.errorMessage).toBe('No Data');
         expect(component.options.id).toBe('_id');
     }));
 
-    it('onQuerySuccess does set expected properties if filter selected and response returns no data', (() => {
-        component.errorMessage = 'testErrorMessage';
+    it('transformVisualizationQueryResults does set expected properties with selected filter and no data', (() => {
         component.tabsAndMedia = [{
             loaded: false,
             slider: 0,
@@ -353,16 +281,12 @@ describe('Component: MediaViewer', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
-        component.onQuerySuccess({
-            data: []
-        });
+        component.transformVisualizationQueryResults(component.options, []);
 
-        expect(component.errorMessage).toBe('No Data');
         expect(component.tabsAndMedia).toEqual([]);
     }));
 
-    it('onQuerySuccess does set expected properties if filter selected and response returns data', () => {
-        component.errorMessage = 'testErrorMessage';
+    it('transformVisualizationQueryResults does set expected properties with selected filter and data', () => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.nameField = DatasetServiceMock.NAME_FIELD;
@@ -374,16 +298,13 @@ describe('Component: MediaViewer', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
-        component.onQuerySuccess({
-            data: [{
-                testIdField: 'testIdValue',
-                testLinkField: 'testLinkValue',
-                testNameField: 'testNameValue',
-                testTypeField: 'testTypeValue'
-            }]
-        });
+        component.transformVisualizationQueryResults(component.options, [{
+            testIdField: 'testIdValue',
+            testLinkField: 'testLinkValue',
+            testNameField: 'testNameValue',
+            testTypeField: 'testTypeValue'
+        }]);
 
-        expect(component.errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
             slider: 0,
@@ -405,8 +326,7 @@ describe('Component: MediaViewer', () => {
         }]);
     });
 
-    it('onQuerySuccess does update expected properties', () => {
-        component.errorMessage = 'testErrorMessage';
+    it('transformVisualizationQueryResults does update expected properties', () => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.nameField = DatasetServiceMock.NAME_FIELD;
@@ -438,16 +358,13 @@ describe('Component: MediaViewer', () => {
             }]
         }];
 
-        component.onQuerySuccess({
-            data: [{
-                testIdField: 'testIdValue2',
-                testLinkField: 'testLinkValue2',
-                testNameField: 'testNameValue2',
-                testTypeField: 'testTypeValue2'
-            }]
-        });
+        component.transformVisualizationQueryResults(component.options, [{
+            testIdField: 'testIdValue2',
+            testLinkField: 'testLinkValue2',
+            testNameField: 'testNameValue2',
+            testTypeField: 'testTypeValue2'
+        }]);
 
-        expect(component.errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
             slider: 0,
@@ -469,8 +386,7 @@ describe('Component: MediaViewer', () => {
         }]);
     });
 
-    it('onQuerySuccess does set expected properties if filter selected and response returns data with multiple links', () => {
-        component.errorMessage = 'testErrorMessage';
+    it('transformVisualizationQueryResults does set expected properties with selected filter and data with multiple links', () => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.nameField = DatasetServiceMock.NAME_FIELD;
@@ -482,16 +398,13 @@ describe('Component: MediaViewer', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
-        component.onQuerySuccess({
-            data: [{
-                testIdField: 'testIdValue',
-                testLinkField: ['testLinkValue1', 'testLinkValue2'],
-                testNameField: 'testNameValue',
-                testTypeField: 'testTypeValue'
-            }]
-        });
+        component.transformVisualizationQueryResults(component.options, [{
+            testIdField: 'testIdValue',
+            testLinkField: ['testLinkValue1', 'testLinkValue2'],
+            testNameField: 'testNameValue',
+            testTypeField: 'testTypeValue'
+        }]);
 
-        expect(component.errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
             slider: 0,
@@ -531,8 +444,7 @@ describe('Component: MediaViewer', () => {
         }]);
     });
 
-    it('onQuerySuccess does set expected properties if filter selected and response returns data with multiple links/names/types', () => {
-        component.errorMessage = 'testErrorMessage';
+    it('transformVisualizationQueryResults does set expected properties with selected filter and data with many multiples', () => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.nameField = DatasetServiceMock.NAME_FIELD;
@@ -544,16 +456,13 @@ describe('Component: MediaViewer', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
-        component.onQuerySuccess({
-            data: [{
-                testIdField: 'testIdValue',
-                testLinkField: ['testLinkValue1', 'testLinkValue2'],
-                testNameField: ['testNameValue1', 'testNameValue2'],
-                testTypeField: ['testTypeValue1', 'testTypeValue2']
-            }]
-        });
+        component.transformVisualizationQueryResults(component.options, [{
+            testIdField: 'testIdValue',
+            testLinkField: ['testLinkValue1', 'testLinkValue2'],
+            testNameField: ['testNameValue1', 'testNameValue2'],
+            testTypeField: ['testTypeValue1', 'testTypeValue2']
+        }]);
 
-        expect(component.errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
             slider: 0,
@@ -593,8 +502,7 @@ describe('Component: MediaViewer', () => {
         }]);
     });
 
-    it('onQuerySuccess does ignore empty links', () => {
-        component.errorMessage = 'testErrorMessage';
+    it('transformVisualizationQueryResults does ignore empty links', () => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.database = DatasetServiceMock.DATABASES[0];
@@ -604,19 +512,15 @@ describe('Component: MediaViewer', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
-        component.onQuerySuccess({
-            data: [{
-                testIdField: 'testIdValue',
-                testLinkField: ''
-            }]
-        });
+        component.transformVisualizationQueryResults(component.options, [{
+            testIdField: 'testIdValue',
+            testLinkField: ''
+        }]);
 
-        expect(component.errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([]);
     });
 
-    it('onQuerySuccess does add border if filter selected', () => {
-        component.errorMessage = 'testErrorMessage';
+    it('transformVisualizationQueryResults does add border if filter selected', () => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.border = 'grey';
@@ -627,14 +531,11 @@ describe('Component: MediaViewer', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
-        component.onQuerySuccess({
-            data: [{
-                testIdField: 'testIdValue',
-                testLinkField: 'testLinkValue'
-            }]
-        });
+        component.transformVisualizationQueryResults(component.options, [{
+            testIdField: 'testIdValue',
+            testLinkField: 'testLinkValue'
+        }]);
 
-        expect(component.errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
             slider: 0,
@@ -656,8 +557,7 @@ describe('Component: MediaViewer', () => {
         }]);
     });
 
-    it('onQuerySuccess does use linkPrefix if filter selected', () => {
-        component.errorMessage = 'testErrorMessage';
+    it('transformVisualizationQueryResults does use linkPrefix if filter selected', () => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.linkPrefix = 'linkPrefix/';
@@ -668,14 +568,11 @@ describe('Component: MediaViewer', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
-        component.onQuerySuccess({
-            data: [{
-                testIdField: 'testIdValue',
-                testLinkField: 'testLinkValue'
-            }]
-        });
+        component.transformVisualizationQueryResults(component.options, [{
+            testIdField: 'testIdValue',
+            testLinkField: 'testLinkValue'
+        }]);
 
-        expect(component.errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
             slider: 0,
@@ -697,21 +594,17 @@ describe('Component: MediaViewer', () => {
         }]);
     });
 
-    it('onQuerySuccess does ignore existing linkPrefix', () => {
-        component.errorMessage = 'testErrorMessage';
+    it('transformVisualizationQueryResults does ignore existing linkPrefix', () => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.linkPrefix = 'linkPrefix/';
         component.options.id = 'testId';
 
-        component.onQuerySuccess({
-            data: [{
-                testIdField: 'testIdValue',
-                testLinkField: 'linkPrefix/testLinkValue'
-            }]
-        });
+        component.transformVisualizationQueryResults(component.options, [{
+            testIdField: 'testIdValue',
+            testLinkField: 'linkPrefix/testLinkValue'
+        }]);
 
-        expect(component.errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
             slider: 0,
@@ -733,20 +626,16 @@ describe('Component: MediaViewer', () => {
         }]);
     });
 
-    it('onQuerySuccess does remove existing prefix from name', () => {
-        component.errorMessage = 'testErrorMessage';
+    it('transformVisualizationQueryResults does remove existing prefix from name', () => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.id = 'testId';
 
-        component.onQuerySuccess({
-            data: [{
-                testIdField: 'testIdValue',
-                testLinkField: 'prefix/testLinkValue'
-            }]
-        });
+        component.transformVisualizationQueryResults(component.options, [{
+            testIdField: 'testIdValue',
+            testLinkField: 'prefix/testLinkValue'
+        }]);
 
-        expect(component.errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
             slider: 0,
@@ -768,8 +657,7 @@ describe('Component: MediaViewer', () => {
         }]);
     });
 
-    it('onQuerySuccess does use typeMap if filter selected', () => {
-        component.errorMessage = 'testErrorMessage';
+    it('transformVisualizationQueryResults does use typeMap if filter selected', () => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.typeMap = {
@@ -785,14 +673,12 @@ describe('Component: MediaViewer', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
-        component.onQuerySuccess({
-            data: [{
-                testIdField: 'testIdValue',
-                testLinkField: ['video.avi', 'image.jpg', 'alpha.txt', 'audio.wav', 'other.xyz']
-            }]
-        });
+        component.transformVisualizationQueryResults(component.options, [{
+            testIdField: 'testIdValue',
+            testLinkField: ['video.avi', 'image.jpg', 'alpha.txt', 'audio.wav', 'other.xyz']
+        }]);
 
-        expect(component.errorMessage).toBe('');
+        expect((component as any).errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
             slider: 0,
@@ -887,14 +773,8 @@ describe('Component: MediaViewer', () => {
     });
 
     /************************************************************/
-    /**** TODO Test onQuerySuccess if oneTabPerArray is true ****/
+    /**** TODO Test transformVisualizationQueryResults if oneTabPerArray is true ****/
     /************************************************************/
-
-    it('postInit does call executeQueryChain', (() => {
-        let spy = spyOn(component, 'executeQueryChain');
-        component.postInit();
-        expect(spy.calls.count()).toBe(1);
-    }));
 
     it('refreshVisualization does call changeDetection.detectChanges', (() => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
@@ -908,14 +788,6 @@ describe('Component: MediaViewer', () => {
 
     it('setupFilters function does exist', (() => {
         expect(component.setupFilters).toBeDefined();
-    }));
-
-    it('subNgOnDestroy function does exist', (() => {
-        expect(component.subNgOnDestroy).toBeDefined();
-    }));
-
-    it('subNgOnInit function does exist', (() => {
-        expect(component.subNgOnInit).toBeDefined();
     }));
 
     it('sanitize function cleans url', (() => {
@@ -954,7 +826,7 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('does show error-message in toolbar and sidenav if errorMessage is defined', async(() => {
-        component.errorMessage = 'Test Error Message';
+        (component as any).errorMessage = 'Test Error Message';
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {
@@ -1070,8 +942,8 @@ describe('Component: MediaViewer', () => {
         expect(hiddenSpinner).not.toBeNull();
     }));
 
-    it('does show loading overlay if isLoading is true', async(() => {
-        component.isLoading = true;
+    it('does show loading overlay if loadingCount is positive', async(() => {
+        (component as any).loadingCount = 1;
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {
@@ -1644,7 +1516,7 @@ describe('Component: MediaViewer with config', () => {
 
     it('does have expected class options properties', () => {
         expect(component.options.border).toEqual('grey');
-        expect(component.options.id).toEqual(undefined);
+        expect(component.options.id).toEqual('testId');
         expect(component.options.linkPrefix).toEqual('prefix/');
         expect(component.options.resize).toEqual(false);
         expect(component.options.typeMap).toEqual({
@@ -1681,7 +1553,7 @@ describe('Component: MediaViewer with config', () => {
             expect(inputs[1].nativeElement.value).toEqual('grey');
 
             expect(inputs[2].attributes.placeholder).toEqual('ID');
-            expect(inputs[2].nativeElement.value).toEqual('');
+            expect(inputs[2].nativeElement.value).toEqual('testId');
 
             expect(inputs[3].attributes.placeholder).toEqual('Link Prefix');
             expect(inputs[3].nativeElement.value).toEqual('prefix/');

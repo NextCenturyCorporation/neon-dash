@@ -17,19 +17,17 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    ElementRef,
     Injector,
     OnDestroy,
     OnInit,
-    ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService, ServiceFilter } from '../../services/filter.service';
+import { FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import {
     OptionChoices,
@@ -49,9 +47,6 @@ import * as neon from 'neon-framework';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FilterBuilderComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
-    @ViewChild('headerText') headerText: ElementRef;
-
     public clauses: FilterClauseMetaData[] = [];
     public databaseTableFieldKeysToFilterIds: Map<string, string> = new Map<string, string>();
     public operators: OperatorMetaData[] = [
@@ -82,11 +77,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             injector,
             ref
         );
-
-        this.isExportable = false;
-
-        // Backwards compatibility (initialFilters deprecated due to its redundancy with clauseConfig).
-        this.options.clauseConfig = this.options.clauseConfig || this.injector.get('initialFilters', []);
     }
 
     /**
@@ -242,12 +232,16 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Creates and returns the query for the visualization.
+     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
      *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {neon.query.Query} query
+     * @arg {neon.query.WherePredicate[]} wherePredicates
      * @return {neon.query.Query}
      * @override
      */
-    createQuery(): neon.query.Query {
+    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
+        // Does not run a visualization query.
         return null;
     }
 
@@ -280,10 +274,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     getElementRefs(): any {
-        return {
-            visualization: this.visualization,
-            headerText: this.headerText
-        };
+        return {};
     }
 
     /**
@@ -400,40 +391,14 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Handles behavior following a change in the filter state.
+     * Initializes any visualization properties when the widget is created.
      *
      * @override
      */
-    handleFiltersChangedEvent() {
-        // Do nothing.  No query.
-    }
+    initializeProperties() {
+        // Backwards compatibility (initialFilters deprecated due to its redundancy with clauseConfig).
+        this.options.clauseConfig = this.options.clauseConfig || this.injector.get('initialFilters', []);
 
-    /**
-     * Returns whether the query for the visualization is valid.
-     *
-     * @return {boolean}
-     * @override
-     */
-    isValidQuery(): boolean {
-        return false;
-    }
-
-    /**
-     * Handles the query results for the visualization.
-     *
-     * @arg {any} response
-     * @override
-     */
-    onQuerySuccess(response: any) {
-        // Do nothing.  No query.
-    }
-
-    /**
-     * Handles any post-initialization behavior needed.
-     *
-     * @override
-     */
-    postInit() {
         this.options.databases.forEach((database) => {
             database.tables.forEach((table) => {
                 table.fields.forEach((field) => {
@@ -481,7 +446,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Redraws the visualization.
+     * Updates and redraws the elements and properties for the visualization.
      *
      * @override
      */
@@ -579,21 +544,16 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Deletes any properties and/or sub-components as needed.
+     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
      *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any[]} results
+     * @return {TransformedVisualizationData}
      * @override
      */
-    subNgOnDestroy() {
-        // Do nothing.
-    }
-
-    /**
-     * Initializes any properties and/or sub-components needed once databases, tables, fields, and other options properties are set.
-     *
-     * @override
-     */
-    subNgOnInit() {
-        // Do nothing.
+    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+        // Does not run a visualization query.
+        return null;
     }
 
     /**
@@ -648,6 +608,18 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     validateClause(clause: FilterClauseMetaData) {
         return clause.database && clause.table && clause.field && clause.field.columnName;
+    }
+
+    /**
+     * Returns whether the visualization query created using the given options is valid.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     * @override
+     */
+    validateVisualizationQuery(options: any): boolean {
+        // Does not run a visualization query.
+        return false;
     }
 }
 

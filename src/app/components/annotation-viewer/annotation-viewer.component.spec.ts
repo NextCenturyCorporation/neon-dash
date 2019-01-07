@@ -53,42 +53,9 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 
-// Must define the test component.
-@Component({
-        selector: 'app-annotation-viewer',
-        templateUrl: './annotation-viewer.component.html',
-        styleUrls: ['./annotation-viewer.component.scss'],
-        encapsulation: ViewEncapsulation.Emulated,
-        changeDetection: ChangeDetectionStrategy.OnPush
-})
-
-class TestAnnotationViewerComponent extends AnnotationViewerComponent {
-    constructor(
-        widgetService: AbstractWidgetService,
-        connectionService: ConnectionService,
-        datasetService: DatasetService,
-        filterService: FilterService,
-        injector: Injector,
-        ref: ChangeDetectorRef
-    ) {
-        super(
-            widgetService,
-            connectionService,
-            datasetService,
-            filterService,
-            injector,
-            ref
-        );
-    }
-
-    // TODO Add any needed custom functions here.
-}
-
-/* tslint:enable:component-class-suffix */
-
 describe('Component: AnnotationViewer', () => {
-    let component: TestAnnotationViewerComponent;
-    let fixture: ComponentFixture<TestAnnotationViewerComponent>;
+    let component: AnnotationViewerComponent;
+    let fixture: ComponentFixture<AnnotationViewerComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     beforeEach(() => {
@@ -96,7 +63,7 @@ describe('Component: AnnotationViewer', () => {
             declarations: [
                 ExportControlComponent,
                 LegendComponent,
-                TestAnnotationViewerComponent,
+                AnnotationViewerComponent,
                 UnsharedFilterComponent
             ],
             providers: [
@@ -113,7 +80,7 @@ describe('Component: AnnotationViewer', () => {
                 FormsModule
             ]
         });
-        fixture = TestBed.createComponent(TestAnnotationViewerComponent);
+        fixture = TestBed.createComponent(AnnotationViewerComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
@@ -123,12 +90,7 @@ describe('Component: AnnotationViewer', () => {
     });
 
     it('properties are set to expected defaults', () => {
-        expect(component.activeData).toEqual([]);
-        expect(component.docCount).toBeUndefined();
         expect(component.filters).toEqual([]);
-        expect(component.lastPage).toEqual(true);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([]);
 
         // Element Refs
         expect(component.headerText).toBeDefined();
@@ -146,7 +108,6 @@ describe('Component: AnnotationViewer', () => {
         expect(component.options.textField).toEqual(new FieldMetaData());
         expect(component.options.typeField).toEqual(new FieldMetaData());
 
-        expect(component.docCount).toBeUndefined();
         expect(component.options.documentTextField).toEqual(new FieldMetaData());
         expect(component.data).toEqual([]);
         expect(component.options.singleColor).toEqual(false);
@@ -219,13 +180,6 @@ describe('Component: AnnotationViewer', () => {
         });
     });
 
-    it('createWhere does return expected where predicate', () => {
-        component.options.documentTextField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
-        component.displayField = 'testRequiredField1';
-
-        expect(component.createWhere()).toEqual(neon.query.where('testRequiredField1', '!=', null));
-    });
-
     it('filterOnItem does add new filter to empty array and call addNeonFilter', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
@@ -238,35 +192,14 @@ describe('Component: AnnotationViewer', () => {
         });
         expect(component.filters).toEqual([]);
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([true, {
+        expect(spy.calls.argsFor(0)).toEqual([component.options, true, {
             id: undefined,
             field: 'field1',
             prettyField: 'prettyField1',
             value: 'value1'
         }, neon.query.where('field1', '=', 'value1')]);
     });
-/*
-    it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toEqual('No Data');
 
-        component.options.limit = 1;
-        component.activeData = [{}];
-        component.responseData = [{}, {}];
-        expect(component.getButtonText()).toEqual('1 - 2 of 2');
-
-        component.activeData = [{}, {}];
-        expect(component.getButtonText()).toEqual('Total 2');
-
-        component.responseData = [{}, {}, {}, {}];
-        expect(component.getButtonText()).toEqual('1 - 4 of 4');
-
-        component.options.limit = 2;
-        expect(component.getButtonText()).toEqual('1 - 4 of 4');
-
-        component.page = 2;
-        expect(component.getButtonText()).toEqual('51 - 4 of 4'); //Interesting behavior
-    });
-*/
     it('getCloseableFilters does return expected array of filters', () => {
         expect(component.getCloseableFilters()).toEqual([]);
 
@@ -284,13 +217,4 @@ describe('Component: AnnotationViewer', () => {
             value: 'value1'
         }]);
     });
-
-    it('goToNextPage does not update page or call updateActiveData if lastPage is true', () => {
-        let spy = spyOn(component, 'updateActiveData');
-        component.goToNextPage();
-
-        expect(component.page).toEqual(1);
-        expect(spy.calls.count()).toEqual(0);
-    });
-
 });
