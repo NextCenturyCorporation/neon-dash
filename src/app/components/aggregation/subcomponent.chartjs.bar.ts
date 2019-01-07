@@ -29,8 +29,10 @@ export class ChartJsBarDataset extends AbstractChartJsDataset {
     public hoverBorderColor: string;
     public hoverBorderWidth: number = 3;
 
-    constructor(color: Color, label: string, xList: any[], public xSelected: any[], public horizontal: boolean = false) {
-        super(color, label, xList);
+    constructor(elementRef: ElementRef, color: Color, label: string, xList: any[], public xSelected: any[],
+        public horizontal: boolean = false) {
+
+        super(elementRef, color, label, xList);
         this.borderColor = this.getColorSelected();
         this.hoverBackgroundColor = this.getColorSelected();
         this.hoverBorderColor = this.getColorSelected();
@@ -78,7 +80,7 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
      * @override
      */
     protected createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset {
-        return new ChartJsBarDataset(color, label, xList, this.selectedLabels, this.horizontal);
+        return new ChartJsBarDataset(this.elementRef, color, label, xList, this.selectedLabels, this.horizontal);
     }
 
     /**
@@ -203,6 +205,17 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
      */
     protected getMinimumTickWidth(axisType: string): number {
         return axisType === 'string' ? super.getMinimumTickWidth(axisType) : 10;
+    }
+
+    /**
+     * Returns the label for a visualization element using the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Bar' + (count === 1 ? '' : 's');
     }
 
     /**

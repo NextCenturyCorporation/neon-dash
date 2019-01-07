@@ -26,13 +26,15 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { ExportControlComponent } from '../export-control/export-control.component';
-import { TimelineComponent } from './timeline.component';
+import { TimelineComponent, TransformedTimelineAggregationData } from './timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { WidgetService } from '../../services/widget.service';
 
 let d3 = require('../../../assets/d3.min.js');
 
@@ -48,6 +50,7 @@ describe('Component: Timeline', () => {
             UnsharedFilterComponent
         ],
         providers: [
+            { provide: AbstractWidgetService, useClass: WidgetService },
             ConnectionService,
             DatasetService,
             FilterService,
@@ -69,54 +72,6 @@ describe('Component: Timeline', () => {
 
     it('should create an instance', () => {
         expect(component).toBeTruthy();
-    });
-
-    it('createClause does return expected object', () => {
-        component.options.dateField = new FieldMetaData('testDateField');
-        expect(component.createClause()).toEqual(neon.query.where('testDateField', '!=', null));
-
-        component.options.unsharedFilterField = new FieldMetaData('testFilterField');
-        component.options.unsharedFilterValue = 'testFilterValue';
-        expect(component.createClause()).toEqual(neon.query.and(neon.query.where('testDateField', '!=', null),
-            neon.query.where('testFilterField', '=', 'testFilterValue')));
-    });
-
-    it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toBe('No Data');
-
-        component.activeData = [{
-            date: new Date(),
-            value: 0
-        }];
-        expect(component.getButtonText()).toBe('No Data');
-
-        component.docCount = 2;
-        component.activeData = [{
-            date: new Date(),
-            value: 1
-        }, {
-            date: new Date(),
-            value: 1
-        }];
-        expect(component.getButtonText()).toBe('Total 2');
-
-        component.docCount = 6;
-        expect(component.getButtonText()).toBe('2 of 6');
-
-        component.activeData = [{
-            date: new Date(),
-            value: 3
-        }, {
-            date: new Date(),
-            value: 2
-        }, {
-            date: new Date(),
-            value: 1
-        }, {
-            date: new Date(),
-            value: 0
-        }];
-        expect(component.getButtonText()).toBe('Total 6');
     });
 
     it('getElementRefs does return expected object', () => {

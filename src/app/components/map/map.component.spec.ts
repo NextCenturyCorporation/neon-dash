@@ -40,6 +40,7 @@ import { AppMaterialModule } from '../../app.material.module';
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { WidgetOptionCollection } from '../../widget-option';
 
 import * as neon from 'neon-framework';
@@ -161,9 +162,12 @@ class TestMap extends AbstractMap {
 /* tslint:enable:component-class-suffix */
 
 function updateMapLayer1(component: TestMapComponent) {
-    component.docCount[0] = 1234;
+    component.filterVisible.set('testLayer1', true);
+    (component as any).layerIdToActiveData.set('testLayer1', new TransformedVisualizationData([{}]));
+    (component as any).layerIdToElementCount.set('testLayer1', 1);
 
     component.options.layers[0] = new WidgetOptionCollection(undefined, {});
+    component.options.layers[0]._id = 'testLayer1';
     component.options.layers[0].databases = [];
     component.options.layers[0].database = new DatabaseMetaData('testDatabase1');
     component.options.layers[0].fields = [];
@@ -183,9 +187,12 @@ function updateMapLayer1(component: TestMapComponent) {
 }
 
 function updateMapLayer2(component: TestMapComponent) {
-    component.docCount[1] = 5678;
+    component.filterVisible.set('testLayer2', true);
+    (component as any).layerIdToActiveData.set('testLayer2', new TransformedVisualizationData([{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]));
+    (component as any).layerIdToElementCount.set('testLayer2', 10);
 
     component.options.layers[1] = new WidgetOptionCollection(undefined, {});
+    component.options.layers[1]._id = 'testLayer2';
     component.options.layers[1].databases = [];
     component.options.layers[1].database = new DatabaseMetaData('testDatabase2');
     component.options.layers[1].fields = [];
@@ -280,8 +287,8 @@ describe('Component: Map', () => {
     it('does have expected public properties', () => {
         expect(component.colorKeys).toEqual([]);
         expect(component.disabledSet).toEqual([]);
-        expect(component.docCount).toEqual([0]);
-        expect(component.filterVisible).toEqual([true]);
+        expect(Array.from(component.filterVisible.keys())).toEqual([component.options.layers[0]._id]);
+        expect(component.filterVisible.get(component.options.layers[0]._id)).toEqual(true);
     });
 
     it('does have expected layers', () => {
@@ -316,89 +323,94 @@ describe('Component: Map', () => {
     });
 
     it('should create uncollapsed map points, largest first', () => {
+        let aHoverMap = new Map<string, number>().set('a', 1);
+        let bHoverMap = new Map<string, number>().set('b', 1);
+        let cHoverMap = new Map<string, number>().set('c', 1);
+        let dHoverMap = new Map<string, number>().set('d', 1);
 
-        //define maps for all test cases
-        let aHoverMap = new Map<string, number>().set('a', 1),
-            bHoverMap = new Map<string, number>().set('b', 1),
-            cHoverMap = new Map<string, number>().set('c', 1),
-            dHoverMap = new Map<string, number>().set('d', 1);
+        let widgetService = getService(AbstractWidgetService);
 
-        let widgetService = getService(AbstractWidgetService),
-            dataset1 = {
-                data: [
-                    { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'A'},
-                    { id: 'testId2', lat: 0, lng: 0, category: 'b', hoverPopupField: 'B' },
-                    { id: 'testId3', lat: 0, lng: 0, category: 'c', hoverPopupField: 'C'},
-                    { id: 'testId4', lat: 0, lng: 0, category: 'd', hoverPopupField: 'D'},
-                    { id: 'testId5', lat: 0, lng: 0, category: 'd', hoverPopupField: 'D'}
-                ],
-                expected: [
-                    new MapPoint('testId4', ['testId4', 'testId5'], '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'd').toRgb(), 'Count: 2', 'category', 'd', dHoverMap),
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
-                    new MapPoint('testId3', ['testId3'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'c').toRgb(), 'Count: 1', 'category', 'c', cHoverMap)
-                ]
-            },
-            dataset2 = {
-                data: [
-                    { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'A' },
-                    { id: 'testId2', lat: 0, lng: 1, category: 'b', hoverPopupField: 'B'},
-                    { id: 'testId3', lat: 0, lng: 2, category: 'c', hoverPopupField: 'C' },
-                    { id: 'testId4', lat: 0, lng: 3, category: 'd', hoverPopupField: 'D'}
-                ],
-                expected: [
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
-                    new MapPoint('testId3', ['testId3'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'c').toRgb(), 'Count: 1', 'category', 'c', cHoverMap),
-                    new MapPoint('testId4', ['testId4'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'd').toRgb(), 'Count: 1', 'category', 'd', dHoverMap)
-                ]
-            },
-            dataset3 = {
-                data: [
-                    { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a', hoverPopupField: 'A'},
-                    { id: 'testId2', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b', hoverPopupField: 'B' }
-                ],
-                expected: [
-                    new MapPoint('testId1', ['testId1', 'testId1', 'testId1', 'testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 4', 'category', 'a', aHoverMap),
-                    new MapPoint('testId2', ['testId2', 'testId2', 'testId2', 'testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 4', 'category', 'b', bHoverMap)
-                ]
-            },
-            dataset4 = {
-                data: [
-                    { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a', hoverPopupField: 'A' },
-                    { id: 'testId2', lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b', hoverPopupField: 'B' }
-                ],
-                expected: [
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'a').toRgb(), 'Count: 1', 'category', 'a', aHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap),
-                    new MapPoint('testId2', ['testId2'], '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
-                        widgetService.getColor('myDatabase', 'myTable', 'category', 'b').toRgb(), 'Count: 1', 'category', 'b', bHoverMap)
-                ]
-            };
+        let aColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'a').getComputedCss(component.visualization);
+        let bColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'b').getComputedCss(component.visualization);
+        let cColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'c').getComputedCss(component.visualization);
+        let dColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'd').getComputedCss(component.visualization);
 
-        let mapPoints1 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category', 'hoverPopupField', dataset1.data);
+        let dataset1 = {
+            data: [
+                { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'Hover Popup Field:  A'},
+                { id: 'testId2', lat: 0, lng: 0, category: 'b', hoverPopupField: 'Hover Popup Field:  B' },
+                { id: 'testId3', lat: 0, lng: 0, category: 'c', hoverPopupField: 'Hover Popup Field:  C'},
+                { id: 'testId4', lat: 0, lng: 0, category: 'd', hoverPopupField: 'Hover Popup Field:  D'},
+                { id: 'testId5', lat: 0, lng: 0, category: 'd', hoverPopupField: 'Hover Popup Field:  D'}
+            ],
+            expected: [
+                new MapPoint('testId4', ['testId4', 'testId5'], '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
+                    dColor, 'Count: 2', 'category', 'd', dHoverMap),
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap),
+                new MapPoint('testId3', ['testId3'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                    cColor, 'Count: 1', 'category', 'c', cHoverMap)
+            ]
+        };
+        let dataset2 = {
+            data: [
+                { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'Hover Popup Field:  A' },
+                { id: 'testId2', lat: 0, lng: 1, category: 'b', hoverPopupField: 'Hover Popup Field:  B'},
+                { id: 'testId3', lat: 0, lng: 2, category: 'c', hoverPopupField: 'Hover Popup Field:  C' },
+                { id: 'testId4', lat: 0, lng: 3, category: 'd', hoverPopupField: 'Hover Popup Field:  D'}
+            ],
+            expected: [
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap),
+                new MapPoint('testId3', ['testId3'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                    cColor, 'Count: 1', 'category', 'c', cHoverMap),
+                new MapPoint('testId4', ['testId4'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
+                    dColor, 'Count: 1', 'category', 'd', dHoverMap)
+            ]
+        };
+        let dataset3 = {
+            data: [
+                { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a', hoverPopupField: 'Hover Popup Field:  A'},
+                { id: 'testId2', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b', hoverPopupField: 'Hover Popup Field:  B' }
+            ],
+            expected: [
+                new MapPoint('testId1', ['testId1', 'testId1', 'testId1', 'testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                    aColor, 'Count: 4', 'category', 'a', aHoverMap),
+                new MapPoint('testId2', ['testId2', 'testId2', 'testId2', 'testId2'], '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                    bColor, 'Count: 4', 'category', 'b', bHoverMap)
+            ]
+        };
+        let dataset4 = {
+            data: [
+                { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a', hoverPopupField: 'Hover Popup Field:  A' },
+                { id: 'testId2', lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b', hoverPopupField: 'Hover Popup Field:  B' }
+            ],
+            expected: [
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                    aColor, 'Count: 1', 'category', 'a', aHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap),
+                new MapPoint('testId2', ['testId2'], '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
+                    bColor, 'Count: 1', 'category', 'b', bHoverMap)
+            ]
+        };
+
+        let mapPoints1 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category',
+            new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset1.data);
         expect(mapPoints1).toEqual(dataset1.expected);
         let mapPoints2 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category', 'hoverPopupField', dataset2.data);
         expect(mapPoints2).toEqual(dataset2.expected);
@@ -458,52 +470,37 @@ describe('Component: Map', () => {
         expect(component.options.layers.length).toBe(2);
     });
 
-    it('subRemoveLayer does remove the layer at the given index and does call handleChangeData', () => {
-        updateMapLayer1(component);
-        updateMapLayer2(component);
-
-        let spy = spyOn(component, 'handleChangeData');
-
-        component.subRemoveLayer(1);
-
-        expect(component.options.layers[0].title).toEqual('Layer A');
-        expect(component.options.layers[0].idField).toEqual(new FieldMetaData('testId1', 'Test ID 1'));
-        expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testColor1', 'Test Color 1'));
-        expect(component.options.layers[0].hoverPopupField).toEqual(new FieldMetaData('testHover1', 'Test Hover 1'));
-        expect(component.options.layers[0].dateField).toEqual(new FieldMetaData('testDate1', 'Test Date 1'));
-        expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData('testLatitude1', 'Test Latitude 1'));
-        expect(component.options.layers[0].longitudeField).toEqual(new FieldMetaData('testLongitude1', 'Test Longitude 1'));
-        expect(component.options.layers[0].sizeField).toEqual(new FieldMetaData('testSize1', 'Test Size 1'));
-        expect(spy.calls.count()).toBe(1);
-
-        component.subRemoveLayer(0);
-        expect(component.options.layers).toEqual([]);
-        expect(spy.calls.count()).toBe(2);
-    });
-
-    it('ngAfterViewInit does call mapObject.initialize and handleChangeData', () => {
+    it('constructVisualization does call mapObject.initialize', () => {
         component.assignTestMap();
-        let spy = spyOn(component, 'handleChangeData');
         let mapSpy = component.spyOnTestMap('initialize');
-        component.ngAfterViewInit();
-        expect(spy.calls.count()).toBe(1);
+        component.constructVisualization();
         expect(mapSpy.calls.count()).toBe(1);
     });
 
-    it('subNgOnDestroy does call mapObject.destroy', () => {
+    it('destroyVisualization does call mapObject.destroy', () => {
         component.assignTestMap();
         let mapSpy = component.spyOnTestMap('destroy');
-        component.subNgOnDestroy();
+        component.destroyVisualization();
         expect(mapSpy.calls.count()).toBe(1);
     });
 
-    it('postAddLayer updates docCount and filterVisible', () => {
+    it('postAddLayer does update filterVisible', () => {
         component.postAddLayer({
-            layers: [{}, {}]
+            _id: 'testId1'
         });
 
-        expect(component.docCount).toEqual([0, 0]);
-        expect(component.filterVisible).toEqual([true, true]);
+        expect(Array.from(component.filterVisible.keys())).toEqual([component.options.layers[0]._id, 'testId1']);
+        expect(component.filterVisible.get(component.options.layers[0]._id)).toEqual(true);
+        expect(component.filterVisible.get('testId1')).toEqual(true);
+
+        component.postAddLayer({
+            _id: 'testId2'
+        });
+
+        expect(Array.from(component.filterVisible.keys())).toEqual([component.options.layers[0]._id, 'testId1', 'testId2']);
+        expect(component.filterVisible.get(component.options.layers[0]._id)).toEqual(true);
+        expect(component.filterVisible.get('testId1')).toEqual(true);
+        expect(component.filterVisible.get('testId2')).toEqual(true);
     });
 
     it('getElementRefs does return expected object', () => {
@@ -523,7 +520,7 @@ describe('Component: Map', () => {
 
         expect(component.getFilterBoundingBox()).toEqual(box1);
         expect(spy.calls.count()).toBe(1);
-        expect(spy.calls.argsFor(0)).toEqual([0, true, {
+        expect(spy.calls.argsFor(0)).toEqual([component.options.layers[0], true, {
             id: undefined,
             fieldsByLayer: [{
                 latitude: 'testLatitude1',
@@ -546,7 +543,7 @@ describe('Component: Map', () => {
 
         expect(component.getFilterBoundingBox()).toEqual(box2);
         expect(spy.calls.count()).toBe(3);
-        expect(spy.calls.argsFor(1)).toEqual([0, true, {
+        expect(spy.calls.argsFor(1)).toEqual([component.options.layers[0], true, {
             id: undefined,
             fieldsByLayer: [{
                 latitude: 'testLatitude1',
@@ -566,7 +563,7 @@ describe('Component: Map', () => {
             neon.query.where('testLongitude1', '>=', 7),
             neon.query.where('testLongitude1', '<=', 8)
         ])]);
-        expect(spy.calls.argsFor(2)).toEqual([1, true, {
+        expect(spy.calls.argsFor(2)).toEqual([component.options.layers[1], true, {
             id: undefined,
             fieldsByLayer: [{
                 latitude: 'testLatitude1',
@@ -681,99 +678,36 @@ describe('Component: Map', () => {
         expect(component.getFiltersToIgnore()).toEqual(null);
     });
 
-    it('isValidQuery does return expected boolean', () => {
-        expect(component.isValidQuery(0)).toBe(false);
+    it('validateVisualizationQuery does return expected boolean', () => {
+        expect(component.validateVisualizationQuery(component.options.layers[0])).toBe(false);
 
         updateMapLayer1(component);
 
-        expect(component.isValidQuery(0)).toBe(true);
+        expect(component.validateVisualizationQuery(component.options.layers[0])).toBe(true);
     });
 
-    it('createQuery does return expected object', () => {
+    it('finalizeVisualizationQuery does return expected object', () => {
         updateMapLayer1(component);
 
         component.options.limit = 5678;
 
         let where1 = [neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)];
         let query1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1').where(neon.query.and.apply(neon.query, where1))
-            .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testId1', 'testColor1', 'testSize1',
-            'testDate1', 'testHover1']).limit(5678);
+            .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testId1', 'testColor1', 'testSize1', 'testDate1', 'testHover1']);
+        let input1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1')
+            .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testId1', 'testColor1', 'testSize1', 'testDate1', 'testHover1']);
 
-        expect(component.createQuery(0)).toEqual(query1);
+        expect(component.finalizeVisualizationQuery(component.options.layers[0], input1, [])).toEqual(query1);
 
         updateMapLayer2(component);
 
         let where2 = [neon.query.where('testLatitude2', '!=', null), neon.query.where('testLongitude2', '!=', null)];
         let query2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2').where(neon.query.and.apply(neon.query, where2))
-            .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testId2', 'testColor2', 'testSize2',
-            'testDate2', 'testHover2']).limit(5678);
+            .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testId2', 'testColor2', 'testSize2', 'testDate2', 'testHover2']);
+        let input2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2')
+            .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testId2', 'testColor2', 'testSize2', 'testDate2', 'testHover2']);
 
-        expect(component.createQuery(1)).toEqual(query2);
-    });
-
-    it('onQuerySuccess does call runDocumentCountQuery if response is not a docCount', () => {
-        component.assignTestMap();
-
-        let spy = spyOn(component, 'runDocumentCountQuery');
-
-        updateMapLayer1(component);
-
-        component.onQuerySuccess(0, {
-            data: [{
-                testId1: 'testId1',
-                testColor1: 'testValue',
-                testDate1: '2018-01-01T00:00:00',
-                testLatitude1: 0,
-                testLongitude1: 0,
-                testSize1: 1
-            }]
-        });
-
-        expect(spy.calls.count()).toBe(1);
-        expect(spy.calls.argsFor(0)).toEqual([0]);
-
-        updateMapLayer2(component);
-
-        component.onQuerySuccess(1, {
-            data: [{
-                testId2: 'testId2',
-                testColor2: 'testValue',
-                testDate2: '2018-01-01T00:00:00',
-                testLatitude2: 0,
-                testLongitude2: 0,
-                testSize2: 1
-            }]
-        });
-
-        expect(spy.calls.count()).toBe(2);
-        expect(spy.calls.argsFor(1)).toEqual([1]);
-    });
-
-    it('onQuerySuccess does set layer docCount and does not call runDocumentCountQuery if response is a docCount', () => {
-        let spy = spyOn(component, 'runDocumentCountQuery');
-
-        updateMapLayer1(component);
-
-        component.onQuerySuccess(0, {
-            data: [{
-                _docCount: 1111
-            }]
-        });
-
-        expect(spy.calls.count()).toBe(0);
-        expect(component.docCount[0]).toEqual(1111);
-
-        updateMapLayer2(component);
-
-        component.onQuerySuccess(1, {
-            data: [{
-                _docCount: 2222
-            }]
-        });
-
-        expect(spy.calls.count()).toBe(0);
-        expect(component.docCount[0]).toEqual(1111);
-        expect(component.docCount[1]).toEqual(2222);
+        expect(component.finalizeVisualizationQuery(component.options.layers[1], input2, [])).toEqual(query2);
     });
 
     it('updateLegend does update colorKeys', () => {
@@ -806,17 +740,17 @@ describe('Component: Map', () => {
 
     it('doesLayerStillHaveFilter does return expected boolean', () => {
         updateMapLayer1(component);
-        expect(component.doesLayerStillHaveFilter(0)).toBe(false);
+        expect(component.doesLayerStillHaveFilter(component.options.layers[0])).toBe(false);
 
         getService(FilterService).addFilter(null, 'testName', 'testDatabase1', 'testTable1', neon.query.and.apply(neon.query, [
             neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)]), 'testFilterName1');
-        expect(component.doesLayerStillHaveFilter(0)).toBe(true);
+        expect(component.doesLayerStillHaveFilter(component.options.layers[0])).toBe(true);
 
         updateMapLayer2(component);
-        expect(component.doesLayerStillHaveFilter(1)).toBe(false);
+        expect(component.doesLayerStillHaveFilter(component.options.layers[1])).toBe(false);
 
         getService(FilterService).removeFilter(null, getService(FilterService).getLatestFilterId());
-        expect(component.doesLayerStillHaveFilter(0)).toBe(false);
+        expect(component.doesLayerStillHaveFilter(component.options.layers[0])).toBe(false);
     });
 
     it('getClausesFromFilterWithIdenticalArguments', () => {
@@ -882,7 +816,7 @@ describe('Component: Map', () => {
         });
 
         expect(spy1.calls.count()).toBe(1);
-        expect(spy1.calls.argsFor(0)).toEqual([0, {
+        expect(spy1.calls.argsFor(0)).toEqual([component.options.layers[0], {
             id: 'testId1'
         }, true, false]);
         expect(spy2.calls.count()).toBe(1);
@@ -894,31 +828,40 @@ describe('Component: Map', () => {
         });
 
         expect(spy1.calls.count()).toBe(3);
-        expect(spy1.calls.argsFor(1)).toEqual([0, {
+        expect(spy1.calls.argsFor(1)).toEqual([component.options.layers[0], {
             id: 'testId2'
         }, true, false]);
-        expect(spy1.calls.argsFor(2)).toEqual([1, {
+        expect(spy1.calls.argsFor(2)).toEqual([component.options.layers[1], {
             id: 'testId2'
         }, true, false]);
         expect(spy2.calls.count()).toBe(2);
     });
 
     it('toggleFilter does update filterVisible', () => {
-        component.toggleFilter(0);
-        expect(component.filterVisible).toEqual([false]);
-        component.toggleFilter(0);
-        expect(component.filterVisible).toEqual([true]);
+        component.toggleFilter(component.options.layers[0]);
+        expect(component.filterVisible.get(component.options.layers[0]._id)).toEqual(false);
+        component.toggleFilter(component.options.layers[0]);
+        expect(component.filterVisible.get(component.options.layers[0]._id)).toEqual(true);
     });
 
     it('getIconForFilter does return expected string', () => {
-        component.filterVisible = [true];
-        expect(component.getIconForFilter(0)).toBe('keyboard_arrow_up');
-        component.filterVisible = [false];
-        expect(component.getIconForFilter(0)).toBe('keyboard_arrow_down');
-        component.filterVisible = [false, true];
-        expect(component.getIconForFilter(1)).toBe('keyboard_arrow_up');
-        component.filterVisible = [true, false];
-        expect(component.getIconForFilter(1)).toBe('keyboard_arrow_down');
+        component.filterVisible.set('testId1', true);
+        expect(component.getIconForFilter({
+            _id: 'testId1'
+        })).toBe('keyboard_arrow_up');
+        component.filterVisible.set('testId1', false);
+        expect(component.getIconForFilter({
+            _id: 'testId1'
+        })).toBe('keyboard_arrow_down');
+        component.filterVisible.set('testId2', true);
+        expect(component.getIconForFilter({
+        _id: 'testId2'
+        })).toBe('keyboard_arrow_up');
+        component.filterVisible.set('testId1', true);
+        component.filterVisible.set('testId2', false);
+        expect(component.getIconForFilter({
+        _id: 'testId2'
+        })).toBe('keyboard_arrow_down');
     });
 
     it('onResizeStop does call mapObject.sizeChanged', () => {
@@ -926,62 +869,6 @@ describe('Component: Map', () => {
         let mapSpy = component.spyOnTestMap('sizeChanged');
         component.onResizeStop();
         expect(mapSpy.calls.count()).toBe(1);
-    });
-
-    it('createBasicQuery does return expected object', () => {
-        updateMapLayer1(component);
-
-        let where1 = [neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)];
-        let query1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1').where(neon.query.and.apply(neon.query, where1));
-
-        expect(component.createBasicQuery(0)).toEqual(query1);
-
-        updateMapLayer2(component);
-
-        let where2 = [neon.query.where('testLatitude2', '!=', null), neon.query.where('testLongitude2', '!=', null)];
-        let query2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2').where(neon.query.and.apply(neon.query, where2));
-
-        expect(component.createBasicQuery(1)).toEqual(query2);
-    });
-
-    it('getButtonText does return expected string', () => {
-        updateMapLayer1(component);
-
-        expect(component.getButtonText()).toEqual('1,000 of 1,234');
-
-        component.options.limit = 2000;
-
-        expect(component.getButtonText()).toEqual('Total 1,234');
-
-        updateMapLayer2(component);
-
-        expect(component.getButtonText()).toEqual('Layer A (Total 1,234), Layer B (2,000 of 5,678)');
-    });
-
-    it('runDocumentCountQuery does call executeQuery', () => {
-        let spy = spyOn(component, 'executeQuery');
-
-        updateMapLayer1(component);
-
-        component.runDocumentCountQuery(0);
-
-        let where1 = [neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)];
-        let query1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1').where(neon.query.and.apply(neon.query, where1))
-            .aggregate('count', '*', '_docCount');
-
-        expect(spy.calls.count()).toBe(1);
-        expect(spy.calls.argsFor(0)).toEqual([0, query1]);
-
-        updateMapLayer2(component);
-
-        component.runDocumentCountQuery(1);
-
-        let where2 = [neon.query.where('testLatitude2', '!=', null), neon.query.where('testLongitude2', '!=', null)];
-        let query2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2').where(neon.query.and.apply(neon.query, where2))
-            .aggregate('count', '*', '_docCount');
-
-        expect(spy.calls.count()).toBe(2);
-        expect(spy.calls.argsFor(1)).toEqual([1, query2]);
     });
 });
 

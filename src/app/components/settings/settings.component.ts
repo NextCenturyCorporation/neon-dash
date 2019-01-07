@@ -18,10 +18,9 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy
 import { URLSearchParams } from '@angular/http';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { BehaviorSubject } from 'rxjs';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { DatasetOptions, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
@@ -40,7 +39,7 @@ import * as neon from 'neon-framework';
 })
 export class SettingsComponent implements OnInit, OnDestroy {
 
-    @Input() public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent> = new Map();
+    @Input() public widgets: Map<string, BaseNeonComponent> = new Map();
 
     public formData: any = {
         currentTheme: 'neon-green-theme'
@@ -49,7 +48,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
     public options;
     public searchField: FieldMetaData;
-    public showFilterBuilderIcon: boolean = true;
+    public showFiltersComponentIcon: boolean = true;
     public showSimpleSearch: boolean;
     public showVisShortcut: boolean = true;
     public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
@@ -91,8 +90,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.checkSimpleFilter();
         this.validateDatasetService();
 
-        this.messenger.subscribe('showFilterBuilderIcon', (message) => {
-            this.showFilterBuilderIcon = message.showFilterBuilderIcon;
+        this.messenger.subscribe('showFiltersComponentIcon', (message) => {
+            this.showFiltersComponentIcon = message.showFiltersComponentIcon;
         });
         this.messenger.subscribe('showSimpleSearch', (message) => {
             this.showSimpleSearch = message.showSimpleSearch;
@@ -114,15 +113,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
             height: '80%',
             width: '80%',
             hasBackdrop: true,
-            disableClose: true
+            disableClose: true,
+            panelClass: this.widgetService.getTheme()
         };
         let dialogRef = this.dialog.open(ConfigEditorComponent, dConfig);
     }
 
-    publishShowFilterBuilderIcon() {
-        this.showFilterBuilderIcon = !this.showFilterBuilderIcon;
-        this.messenger.publish('showFilterBuilderIcon', {
-            showFilterBuilderIcon: this.showFilterBuilderIcon
+    publishShowFiltersComponentIcon() {
+        this.showFiltersComponentIcon = !this.showFiltersComponentIcon;
+        this.messenger.publish('showFiltersComponentIcon', {
+            showFiltersComponentIcon: this.showFiltersComponentIcon
         });
     }
 

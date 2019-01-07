@@ -13,24 +13,23 @@
  * limitations under the License.
  *
  */
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { NeonGridItem } from '../../neon-grid-item';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { neonEvents } from '../../neon-namespaces';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { FilterService } from '../../services/filter.service';
 
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 
 @Component({
-    selector: 'app-filter-tray',
-    templateUrl: './filter-tray.component.html',
-    styleUrls: ['./filter-tray.component.scss']
+    selector: 'app-current-filters',
+    templateUrl: './current-filters.component.html',
+    styleUrls: ['./current-filters.component.scss']
 })
-export class FilterTrayComponent implements OnInit, OnDestroy {
+export class CurrentFiltersComponent implements OnInit, OnDestroy {
+
+    @Input() widgets: Map<string, BaseNeonComponent>;
 
     private messenger: neon.eventing.Messenger;
     public filters: {
@@ -38,8 +37,7 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
         formatted: any[]
     };
 
-    constructor(@Inject(MAT_DIALOG_DATA) public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent>,
-        protected filterService: FilterService, public dialogRef: MatDialogRef<FilterTrayComponent>) {
+    constructor(protected filterService: FilterService) {
         this.messenger = new neon.eventing.Messenger();
         this.filters = {
             raw: [],
@@ -76,10 +74,10 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
     }
 
     onEventChanged() {
-        this.updateFilterTray(this.filterService.getFilters());
+        this.updateCurrentFilters(this.filterService.getFilters());
     }
 
-    updateFilterTray(rawState: any[]) {
+    updateCurrentFilters(rawState: any[]) {
         this.filters.raw = rawState;
         let filters = this.formatFilters(rawState);
         this.filters.formatted = filters;

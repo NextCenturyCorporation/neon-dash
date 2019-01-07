@@ -24,7 +24,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { ParameterService } from '../../services/parameter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 
@@ -44,7 +43,7 @@ export class SaveStateComponent implements OnInit {
     @Input() sidenav: MatSidenav;
 
     @Input() public widgetGridItems: NeonGridItem[] = [];
-    @Input() public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent> = new Map();
+    @Input() public widgets: Map<string, BaseNeonComponent> = new Map();
 
     public formData: any = {
         newStateName: '',

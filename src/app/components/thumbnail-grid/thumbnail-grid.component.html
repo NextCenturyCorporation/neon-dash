@@ -15,7 +15,7 @@
         </button>
     </mat-toolbar>
 
-    <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+    <mat-sidenav #optionsMenu position="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
                 <div *ngIf="errorMessage">
@@ -53,9 +53,9 @@
                 </mat-form-field>
                 <p></p>
 
-                <div *ngIf="options.detailedThumbnails">
+                <div *ngIf="options.viewType === view.DETAILS">
                     <span class="toggle-text">Label Names:</span>
-                    <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showLabelName" (ngModelChange)="updatePageData()">
+                    <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showLabelName" (ngModelChange)="refreshVisualization()">
                         <mat-button-toggle [value]="true">On</mat-button-toggle>
                         <mat-button-toggle [value]="false">Off</mat-button-toggle>
                     </mat-button-toggle-group>
@@ -94,7 +94,7 @@
                     <p></p>
                 </div>
 
-                <div *ngIf="!options.detailedThumbnails">
+                <div *ngIf="options.viewType === view.TITLE">
                     <mat-form-field>
                         <mat-select placeholder="Name Field" [(ngModel)]="options.nameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                             <mat-option [value]="createEmptyField()">(None)</mat-option>
@@ -187,13 +187,13 @@
                         <input matInput placeholder="Thumbnail Limit" [(ngModel)]="newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
-                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below" (click)="handleChangeLimit()">
                         <mat-icon>refresh</mat-icon>
                     </button>
                 </div>
                 <p></p>
 
-                <mat-select placeholder="Border" [(ngModel)]="options.border" required="true" (ngModelChange)="updatePageData()">
+                <mat-select placeholder="Border" [(ngModel)]="options.border" required="true" (ngModelChange)="refreshVisualization()">
                     <mat-option [value]="''">Off</mat-option>
                     <mat-option [value]="'valueCompare'">Comparison Field (Blue / Red)</mat-option>
                     <mat-option [value]="'percentCompare'">Comparison and Probability Fields (Blue / Red)</mat-option>
@@ -221,7 +221,7 @@
                 <p></p>
 
                 <span class="toggle-text">Crop or Scale:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.cropAndScale" (ngModelChange)="updatePageData()">
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.cropAndScale" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle value="">None</mat-button-toggle>
                     <mat-button-toggle value="scale">Scale</mat-button-toggle>
                     <mat-button-toggle value="crop">Crop</mat-button-toggle>
@@ -230,7 +230,7 @@
                 <p></p>
 
                 <span class="toggle-text">Ignore Own Filters:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.ignoreSelf" (ngModelChange)="handleFiltersChangedEvent()">
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.ignoreSelf" (ngModelChange)="handleChangeData()">
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -258,7 +258,7 @@
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+    <div [class.loading-overlay]="loadingCount" [class.not-loading-overlay]="!loadingCount">
         <mat-spinner></mat-spinner>
     </div>
 
@@ -266,25 +266,27 @@
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
             <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">{{ filter.value }}</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
+                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(options, filter, true, true)">
                 <mat-icon class="neon-icon-small">close</mat-icon>
             </button>
         </div>
     </div>
 
-    <div #thumbnailGrid class="body-container thumbnail-grid" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="gridArray.length > pagingGrid.length">
-        <div class="thumbnail-grid-container" *ngIf="showGrid">
-            <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid" [matTooltip]="getThumbnailTitle(item)"
+    <div #thumbnailGrid class="body-container thumbnail-grid" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="showPagination()">
+        <div class="thumbnail-grid-container" *ngIf="gridArray.length">
+            <div class="thumbnail-grid-div" *ngFor="let item of gridArray" [matTooltip]="getThumbnailTitle(item)"
                 [class.with-text]="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
-                <app-thumbnail-details-contracted *ngIf="!options.detailedThumbnails" [item]="item" [options]="options">
-                </app-thumbnail-details-contracted>
-                <app-thumbnail-details-expanded class="flex-grow" *ngIf="options.detailedThumbnails" [item]="item" [options]="options">
-                </app-thumbnail-details-expanded>
+                <app-subcomponent-title-thumbnail *ngIf="!options.viewType || options.viewType === view.TITLE" [item]="item" [options]="options">
+                </app-subcomponent-title-thumbnail>
+                <app-subcomponent-details-thumbnail class="flex-grow" *ngIf="options.viewType === view.DETAILS" [item]="item" [options]="options">
+                </app-subcomponent-details-thumbnail>
+                <app-subcomponent-card-thumbnail class="flex-grow" *ngIf="options.viewType === view.CARD" [item]="item" [options]="options">
+                </app-subcomponent-card-thumbnail>
             </div>
         </div>
     </div>
 
-    <div class="footer" *ngIf="gridArray.length > pagingGrid.length">
+    <div class="footer" *ngIf="showPagination()">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
                     (click)="goToPreviousPage()">

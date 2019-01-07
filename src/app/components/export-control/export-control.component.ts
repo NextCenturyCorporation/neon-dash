@@ -22,7 +22,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { ParameterService } from '../../services/parameter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 
 import { neonEvents } from '../../neon-namespaces';
@@ -35,7 +34,7 @@ import * as neon from 'neon-framework';
   styleUrls: ['./export-control.component.scss']
 })
 export class ExportControlComponent {
-    @Input() widgets: BaseNeonComponent | BaseLayeredNeonComponent | Map<string, BaseNeonComponent | BaseLayeredNeonComponent>;
+    @Input() widgets: BaseNeonComponent | Map<string, BaseNeonComponent>;
 
     public exportFormatList: any[] = [{
         name: 'csv',
@@ -100,24 +99,16 @@ export class ExportControlComponent {
             return;
         }
 
-        let widgetObjects = ((this.widgets instanceof Map) ? Array.from(this.widgets.values()) : [this.widgets])
-            .map((widget) => widget.doExport());
+        let widgetExportDataList: ({ name: string, data: any }[])[] = ((this.widgets instanceof Map) ? Array.from(this.widgets.values()) :
+            [this.widgets]).map((widget) => widget.createExportData());
 
-        for (let widgetObject of widgetObjects) {
-            if (Array.isArray(widgetObject)) {
-                for (let widgetObjectIndx of widgetObject) {
-                     for (let widgetObjectItem of widgetObjectIndx.data) {
-                            data.data.push(widgetObjectItem);
-                        }
-                }
-            } else {
-                for (let widgetObjectItem of widgetObject.data) {
-                    data.data.push(widgetObjectItem);
-                }
+        for (let widgetExportData of widgetExportDataList) {
+            for (let widgetExportItem of widgetExportData) {
+                data.data.push(widgetExportItem.data);
             }
         }
 
-        if (!widgetObjects.length) {
+        if (!widgetExportDataList.length) {
             this.matSnackBar.open('There are no visualizations to export.', 'OK', config);
             return;
         }
