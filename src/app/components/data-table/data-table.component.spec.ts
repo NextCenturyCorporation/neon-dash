@@ -385,8 +385,8 @@ describe('Component: DataTable', () => {
         expect(component.getHeaderByName('notFound', headers)).toEqual(null);
     }));
 
-    it('closeColumnSelector does hide column selector and call detectChanges', (() => {
-        let spy = spyOn(component.changeDetection, 'detectChanges');
+    it('closeColumnSelector does hide column selector and call refreshVisualization', (() => {
+        let spy = spyOn(component.changeDetection, 'refreshVisualization');
         component.showColumnSelector = 'show';
 
         component.closeColumnSelector();

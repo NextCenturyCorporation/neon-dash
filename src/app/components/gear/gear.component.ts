@@ -14,25 +14,28 @@
  *
  */
 
-import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, Injector } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
-import { FormsModule } from '@angular/forms';
+import {
+    ChangeDetectorRef,
+    ChangeDetectionStrategy,
+    Component,
+    Injector,
+    OnDestroy,
+    OnInit,
+    ViewEncapsulation
+} from '@angular/core';
 
 import { DatasetOptions, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
-
-//import * as _ from 'lodash';
 import * as neon from 'neon-framework';
 import { WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../widget-option';
-import { isNgTemplate } from '@angular/compiler';
 
 @Component({
     selector: 'app-gear',
-    templateUrl: 'gear.component.html',
-    styleUrls: ['gear.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    templateUrl: './gear.component.html',
+    styleUrls: ['./gear.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    encapsulation: ViewEncapsulation.Emulated
 })
 export class GearComponent implements OnInit, OnDestroy {
 
@@ -44,13 +47,12 @@ export class GearComponent implements OnInit, OnDestroy {
     private changeList: any[];
     private componentThis: any;
 
-    private handleChangeData: Function; //{(): => void; };
+    private handleChangeData: Function;
     private handleChangeDatabase: Function;
     private handleChangeLimit: Function;
     private handleChangeFilterField: Function;
     private handleChangeSubcomponentType: Function;
     private handleChangeTable: Function;
-    //public toggleGear: boolean;
     private newLimit: string;
     private changeSubcomponentType: boolean;
     private limitChanged: boolean;
@@ -118,8 +120,6 @@ export class GearComponent implements OnInit, OnDestroy {
         });
         this.requiredList = requiredList;
         this.optionalList = list;
-        //console.log(this.requiredList);
-        //console.log(this.optionalList);
     }
 
     createEmptyField(): FieldMetaData {
@@ -161,11 +161,6 @@ export class GearComponent implements OnInit, OnDestroy {
     }
 
     handleDataChange(widgetOption, newValue) {
-        //console.log(this.changeList);
-        //console.log('widget option');
-        //console.log(widgetOption);
-        //console.log('New value"');
-        //console.log(newValue);
         if (widgetOption.bindingkey === 'limit') {
             this.changeFilterFieldLimit(widgetOption, newValue);
         } else {
@@ -199,7 +194,6 @@ export class GearComponent implements OnInit, OnDestroy {
     }
 
     overrideExistingChange(option: WidgetOption) {
-        //let exists = false;
         this.changeList = this.changeList.filter((change) =>
             change.widgetOption.bindingKey !== option.bindingKey
         );
@@ -238,7 +232,6 @@ export class GearComponent implements OnInit, OnDestroy {
     }
 
     updateOptions(message) {
-        //console.log(message);
         this.options = message.options;
         this.handleChangeData = message.changeData;
         this.handleChangeDatabase = message.changeDatabase;

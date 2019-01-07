@@ -115,17 +115,6 @@
             </mat-form-field>
         </div>
     </div>
-
-    <!--    
-    <h4>Local Filter</h4>
-    <div class="option-container">
-        <mat-form-field class="widgetOption-container">
-            <mat-select [(ngModel)]="modelName" placeholder="">
-                <mat-option [value]=""></mat-option>
-            </mat-select>
-            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettName }}</mat-option>
-        </mat-form-field>
-    </div> -->
     <app-export-control [widgets]="componentThis"></app-export-control>
 </form>
 <div class="button-footer" align="right">
