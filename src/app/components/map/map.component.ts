@@ -103,7 +103,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     protected mapObject: AbstractMap;
     protected filterBoundingBox: BoundingBoxByDegrees;
 
-    public disabledSet: [string[]] = [] as [string[]];
+    public disabledSet: [string[]] = [] as any;
 
     constructor(
         connectionService: ConnectionService,
