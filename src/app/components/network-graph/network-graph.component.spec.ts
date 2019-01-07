@@ -130,14 +130,14 @@ describe('Component: NetworkGraph', () => {
                 'testYTargetPositionField', 'testFilter1', 'testFilter2']);
 
         query.where(neon.query.and.apply(query, [])).sortBy('testNodeColorField', neonVariables.ASCENDING);
-        expect(component.createQuery()).toEqual(query);
+        expect(component.createQuery(component.options)).toEqual(query);
     }));
 
     it('onQuerySuccess does load the Network Graph with reified data', (() => {
         component.options.isReified = true;
         component.options.limit = 8;
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 object : 'testObject',
                 predicate : 'testPredicate',
@@ -192,7 +192,7 @@ describe('Component: NetworkGraph', () => {
         component.options.isReified = false;
         component.options.limit = 3;
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 testLinkField: 'testLinkValue',
                 testLinkNameField: 'testLinkNameValue',
@@ -300,17 +300,17 @@ describe('Component: NetworkGraph', () => {
 
         let spy = spyOn(component, 'resetGraphData');
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
-                testLinkField: 'testLinkValue',
-                testLinkNameField: 'testLinkNameValue',
-                testNodeField: 'testNodeValue',
-                testNodeNameField: 'testNodeNameValue',
-                testTypeField: 'testTypeValue',
-                testEdgeColorField: '#5f9365',
-                testXPositionField: 100,
-                testYPositionField: 215
-            },
+                    testLinkField: 'testLinkValue',
+                    testLinkNameField: 'testLinkNameValue',
+                    testNodeField: 'testNodeValue',
+                    testNodeNameField: 'testNodeNameValue',
+                    testTypeField: 'testTypeValue',
+                    testEdgeColorField: '#5f9365',
+                    testXPositionField: 100,
+                    testYPositionField: 215
+                },
                 {
                     testLinkField: 'testLinkValue2',
                     testLinkNameField: 'testLinkNameValue2',
@@ -368,7 +368,7 @@ describe('Component: NetworkGraph', () => {
         component.options.isReified = false;
         component.options.limit = Infinity;
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 testLinkField: 'testLinkValue',
                 testLinkNameField: 'testLinkNameValue',
@@ -418,8 +418,9 @@ describe('Component: NetworkGraph', () => {
         component.options.isReified = false;
         component.options.filterFields = ['testTypeField'];
         component.options.limit = Infinity;
+        component.options.multiFilterOperator = 'and';
 
-        component.onQuerySuccess({
+        component.onQuerySuccess(component.options, {
             data: [{
                 testLinkField: 'testLinkValue',
                 testLinkNameField: 'testLinkNameValue',
@@ -442,16 +443,16 @@ describe('Component: NetworkGraph', () => {
             }]
         });
 
-        /*TODO:Broken in code so test is also broken
-        component.onSelect({nodes: ["testNodeValue2"]});
+        component.onSelect({nodes: ['testNodeValue2']});
 
         let filters = getService(FilterService).getFiltersForFields(component.options.database.name, component.options.table.name,
-        component.options.filterFields);
+            component.options.filterFields);
         expect(filters.length).toEqual(1);
 
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
-        }));*/
+        }));
+
     }));
 
 });

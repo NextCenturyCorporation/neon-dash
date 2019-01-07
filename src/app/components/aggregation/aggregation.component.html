@@ -367,7 +367,7 @@
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+    <div [class.loading-overlay]="isLoading > 0" [class.not-loading-overlay]="isLoading == 0">
         <mat-spinner></mat-spinner>
     </div>
 
