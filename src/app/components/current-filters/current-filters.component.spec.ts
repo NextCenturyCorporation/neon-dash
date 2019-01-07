@@ -13,13 +13,12 @@
  * limitations under the License.
  *
  */
-import { TestBed, inject } from '@angular/core/testing';
+import { ComponentFixture, TestBed, inject } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
-import { FilterTrayComponent } from './filter-tray.component';
+import { CurrentFiltersComponent } from './current-filters.component';
 import { FilterService } from '../../services/filter.service';
 import { DatasetService } from '../../services/dataset.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
@@ -27,12 +26,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
-describe('Component: FilterTray', () => {
+describe('Component: CurrentFiltersComponent', () => {
+    let fixture: ComponentFixture<CurrentFiltersComponent>;
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let component: CurrentFiltersComponent;
 
     initializeTestBed({
         declarations: [
-            FilterTrayComponent
+            CurrentFiltersComponent
         ],
         providers: [
             FilterService,
@@ -46,10 +47,9 @@ describe('Component: FilterTray', () => {
         ]
     });
 
-    it('should create an instance', inject([FilterService], (filterService: FilterService, matDialogRef: MatDialogRef<FilterTrayComponent>
-    ) => {
-        let component = new FilterTrayComponent(new Map<string, BaseNeonComponent | BaseLayeredNeonComponent>(), filterService,
-            matDialogRef);
+    it('should create an instance', (() => {
+        fixture = TestBed.createComponent(CurrentFiltersComponent);
+        component = fixture.componentInstance;
         expect(component).toBeTruthy();
     }));
 });

@@ -34,13 +34,11 @@ import * as uuid from 'node-uuid';
 import { AbstractWidgetService } from './services/abstract.widget.service';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { BaseNeonComponent } from './components/base-neon-component/base-neon.component';
-import { BaseLayeredNeonComponent } from './components/base-neon-component/base-layered-neon.component';
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
 import { Datastore } from './dataset';
 import { DatasetService } from './services/dataset.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../app/services/filter.service';
-import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatSidenav, MatMenuTrigger } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from './neon-grid-item';
@@ -71,19 +69,18 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public currentPanel: string = 'dashboardLayouts';
     public showCustomConnectionButton: boolean = false;
-    public showFilterBuilder: boolean = false;
-    public showFilterBuilderIcon: boolean = false;
-    public showFilterTrayButton: boolean = false;
+    public showFiltersComponent: boolean = false;
+    public showFiltersComponentIcon: boolean = false;
     //Toolbar
     public showVisShortcut: boolean = true;
     public showDashboardSelector: boolean = false;
 
     public rightPanelTitle: string = 'Dashboard Layouts';
 
-    public createFilterBuilder: boolean = false; //This is used to create the Filter Builder later
+    public createFiltersComponent: boolean = false; //This is used to create the Filters Component later
 
     public widgetGridItems: NeonGridItem[] = [];
-    public widgets: Map<string, BaseNeonComponent | BaseLayeredNeonComponent> = new Map();
+    public widgets: Map<string, BaseNeonComponent> = new Map();
 
     public datasets: Datastore[] = [];
 
@@ -112,13 +109,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     /* A reference to the dialog for adding visualizations. */
     private addVisDialogRef: MatDialogRef<AddVisualizationComponent>;
 
-    /* A reference to the dialog for the filter tray. */
-    private filterTrayDialogRef: MatDialogRef<FilterTrayComponent>;
-
     /* A reference to the dialog for the custom connection dialog. */
     private customConnectionDialogRef: MatDialogRef<CustomConnectionComponent>;
 
-    public filterBuilderIcon;
+    public filtersIcon;
 
     public messenger: neon.eventing.Messenger;
 
@@ -136,8 +130,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messenger = new neon.eventing.Messenger();
 
         // TODO: Default to false and set to true only after a dataset has been selected.
-        this.showFilterBuilderIcon = true;
-        this.showFilterTrayButton = true;
+        this.showFiltersComponentIcon = true;
         this.showCustomConnectionButton = true;
         this.datasets = this.datasetService.getDatasets();
         this.neonConfig = neonConfig;
@@ -158,13 +151,13 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         }
 
         this.matIconRegistry.addSvgIcon(
-            'filter_builder',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filter_builder.svg')
+            'filters',
+            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filters.svg')
         );
 
         this.matIconRegistry.addSvgIcon(
-            'filter_builder_active',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filter_builder_active.svg')
+            'filters_active',
+            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filters_active.svg')
         );
 
         this.matIconRegistry.addSvgIcon(
@@ -173,7 +166,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         );
 
         this.changeFavicon();
-        this.filterBuilderIcon = 'filter_builder';
+        this.filtersIcon = 'filters';
 
         this.messenger.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearDashboard.bind(this));
         this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, this.refreshDashboard.bind(this));
@@ -261,12 +254,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         head.appendChild(title);
     }
 
-    changeFilterBuilderIcon() {
+    changeFiltersComponentIcon() {
         let filters = this.filterService.getFilters();
         if (filters.length > 0) {
-            this.filterBuilderIcon = 'filter_builder_active';
+            this.filtersIcon = 'filters_active';
         } else {
-            this.filterBuilderIcon = 'filter_builder';
+            this.filtersIcon = 'filters';
         }
         return true;
     }
@@ -427,7 +420,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.messenger.subscribe('showVisShortcut', (message) => this.updateShowVisShortcut(message));
-        this.messenger.subscribe('showFilterBuilderIcon', (message) => this.updateShowFilterBuilderIcon(message));
+        this.messenger.subscribe('showFiltersComponentIcon', (message) => this.updateShowFiltersComponentIcon(message));
     }
 
     onDragStop(i, event) {
@@ -450,21 +443,21 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.customConnectionDialogRef = this.dialog.open(CustomConnectionComponent, config);
         this.customConnectionDialogRef.afterClosed().subscribe(() => {
-            this.filterTrayDialogRef = null;
+            this.customConnectionDialogRef = null;
         });
     }
 
-    openFilterBuilderDialog() {
-        //Added this to create the filter builder at first click so it's after dataset initialization
-        if (!this.createFilterBuilder) {
-            this.createFilterBuilder = true;
+    toggleFiltersDialog() {
+        // Added this to create the filters component at first click so it's after dataset initialization
+        if (!this.createFiltersComponent) {
+            this.createFiltersComponent = true;
         }
-        this.showFilterBuilder = !this.showFilterBuilder;
-        let filterBuilderContainer: HTMLElement = document.getElementById('filter.builder');
-        if (this.showFilterBuilder && filterBuilderContainer) {
-            filterBuilderContainer.setAttribute('style', 'display: show');
-        } else if (filterBuilderContainer) {
-            filterBuilderContainer.setAttribute('style', 'display: none');
+        this.showFiltersComponent = !this.showFiltersComponent;
+        let filtersContainer: HTMLElement = document.getElementById('filters');
+        if (this.showFiltersComponent && filtersContainer) {
+            filtersContainer.setAttribute('style', 'display: show');
+        } else if (filtersContainer) {
+            filtersContainer.setAttribute('style', 'display: none');
         }
     }
 
@@ -478,18 +471,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         }
     }
 
-    openFilterTrayDialog() {
-        let config = new MatDialogConfig();
-        config.panelClass = this.widgetService.getTheme();
-        config.viewContainerRef = this.viewContainerRef;
-        config.data = this.widgets;
-
-        this.filterTrayDialogRef = this.dialog.open(FilterTrayComponent, config);
-        this.filterTrayDialogRef.afterClosed().subscribe(() => {
-            this.filterTrayDialogRef = null;
-        });
-    }
-
     /**
      * Refreshes the grid.
      */
@@ -500,9 +481,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     /**
      * Registers the given widget with the given ID.
      *
-     * @arg {{id:string,widget:BaseNeonComponent|BaseLayeredNeonComponent}} eventMessage
+     * @arg {{id:string,widget:BaseNeonComponent}} eventMessage
      */
-    registerWidget(eventMessage: { id: string, widget: BaseNeonComponent | BaseLayeredNeonComponent }) {
+    registerWidget(eventMessage: { id: string, widget: BaseNeonComponent }) {
         if (this.widgets.get(eventMessage.id) === undefined) {
             this.widgets.set(eventMessage.id, eventMessage.widget);
         }
@@ -543,11 +524,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
-     * Updates the showFilterBuilderIcon boolean value from the messenger channel
+     * Updates the showFiltersComponentIcon boolean value from the messenger channel
      * @param message
      */
-    updateShowFilterBuilderIcon(message) {
-        this.showFilterBuilderIcon = message.showFilterBuilderIcon;
+    updateShowFiltersComponentIcon(message) {
+        this.showFiltersComponentIcon = message.showFiltersComponentIcon;
     }
 
     /**

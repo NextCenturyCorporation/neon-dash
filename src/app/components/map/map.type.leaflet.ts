@@ -94,6 +94,13 @@ export class LeafletNeonMap extends AbstractMap {
                         className: 'marker-cluster neon-cluster',
                         iconSize: new L.Point(40, 40)
                     });
+                },
+                maxClusterRadius: 20,
+                spiderLegPolylineOptions: {
+                    // TODO Use theme color (color-text-main)
+                    color: '#333',
+                    opacity: 1,
+                    weight: 2
                 }
             });
             this.layerGroups.set(layer, layerGroup);
@@ -106,15 +113,16 @@ export class LeafletNeonMap extends AbstractMap {
             let pointIsSelected = point.idList.includes(this.mapOptions.id);  //check if point is in list
 
             let circleOptions = {
-                        color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
-                        fillColor: point.cssColorString,
-                        colorByField: point.colorByField,
-                        colorByValue: point.colorByValue,
-                        weight: 1,
-                        stroke: mapIsSelected && pointIsSelected ? false : true,
-                        opacity: mapIsSelected ? (pointIsSelected ? 0 : .2) : 1,
-                        fillOpacity: mapIsSelected ? (pointIsSelected ? 1 : .1) : .3,
-                        radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30) // Default is 10
+                // TODO Use theme color (color-text-main)
+                color: '#333',
+                colorByField: point.colorByField,
+                colorByValue: point.colorByValue,
+                fillColor: point.cssColorString,
+                fillOpacity: mapIsSelected ? (pointIsSelected ? 1 : .1) : 1,
+                opacity: mapIsSelected ? (pointIsSelected ? 0 : .2) : 1,
+                radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30), // Default is 10
+                stroke: mapIsSelected && pointIsSelected ? false : true,
+                weight: 1
             };
 
             let circle = new L.CircleMarker([point.lat, point.lng], circleOptions)/*.setRadius(6)*/;

@@ -149,20 +149,21 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Creates and returns the query for the visualization.
+     * Creates and returns the visualization data query using the given options.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {neon.query.Query}
      * @override
      */
-    createQuery(): neon.query.Query {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createWhere());
+    createQuery(options: any): neon.query.Query {
+        let query = new neon.query.Query().selectFrom(options.database.name, options.table.name).where(this.createWhere());
 
         // TODO Change this behavior as needed to create your visualization query.  Here is a sample of a count aggregation query.
 
-        let aggregationFields = [this.options.sampleRequiredField.columnName];
+        let aggregationFields = [options.sampleRequiredField.columnName];
 
-        if (this.options.sampleOptionalField.columnName) {
-            aggregationFields.push(this.options.sampleOptionalField.columnName);
+        if (options.sampleOptionalField.columnName) {
+            aggregationFields.push(options.sampleOptionalField.columnName);
         }
 
         return query.groupBy(aggregationFields).aggregate(neonVariables.COUNT, '*', 'count').sortBy('count', neonVariables.DESCENDING);
@@ -244,24 +245,24 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
                 // If we have a single existing filter, keep the ID and replace the old filter with the new filter.
                 filter.id = this.filters[0].id;
                 this.filters = [filter];
-                this.replaceNeonFilter(true, filter, neonFilter);
+                this.replaceNeonFilter(this.options, true, filter, neonFilter);
             } else if (this.filters.length > 1) {
                 // If we have multiple existing filters, remove all the old filters and add the new filter once done.
                 // Use concat to copy the filter list.
-                this.removeAllFilters([].concat(this.filters), () => {
+                this.removeAllFilters(this.options, [].concat(this.filters), () => {
                     this.filters = [filter];
-                    this.addNeonFilter(true, filter, neonFilter);
+                    this.addNeonFilter(this.options, true, filter, neonFilter);
                 });
             } else {
                 // If we don't have an existing filter, add the new filter.
                 this.filters = [filter];
-                this.addNeonFilter(true, filter, neonFilter);
+                this.addNeonFilter(this.options, true, filter, neonFilter);
             }
         } else {
             // If the new filter is unique, add the filter to the existing filters in both neon and the visualization.
             if (this.isVisualizationFilterUnique(item.field, item.value)) {
                 this.addVisualizationFilter(filter);
-                this.addNeonFilter(true, filter, neonFilter);
+                this.addNeonFilter(this.options, true, filter, neonFilter);
             }
         }
     }
@@ -433,14 +434,15 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Returns whether the data and fields for the visualization are valid.
+     * Returns whether the visualization data query created using the given options is valid.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(): boolean {
+    isValidQuery(options: any): boolean {
         // TODO Add or remove fields and properties as needed.
-        return !!(this.options.database.name && this.options.table.name && this.options.sampleRequiredField.columnName);
+        return !!(options.database.name && options.table.name && options.sampleRequiredField.columnName);
     }
 
     // TODO Change arguments as needed.
@@ -459,12 +461,13 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Handles the query results for the visualization; updates and/or redraws any properties and/or sub-components as needed.
+     * Handles the given response data for a successful visualization data query created using the given options.
      *
+     * @arg {any} options A WidgetOptionCollection object.
      * @arg {object} response
      * @override
      */
-    onQuerySuccess(response: any) {
+    onQuerySuccess(options: any, response: any) {
         // TODO Remove this part if you don't need a document count query.
         // Check for undefined because the count may be zero.
         if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
@@ -472,21 +475,21 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             return;
         }
 
-        // TODO If you need to show an error message, set this.options.errorMessage as needed.
+        // TODO If you need to show an error message, set this.errorMessage as needed.
 
-        // TODO Change this behavior as needed to handle your query results.
+        // TODO Change this behavior as needed to handle your query results:  update and/or redraw and properties and/or subcomponents.
 
         // The aggregation query response data will have a count field and all visualization fields.
         this.responseData = response.data.map((item) => {
-            let label = item[this.options.sampleRequiredField.columnName] + (this.options.sampleOptionalField.columnName ? ' - ' +
-                item[this.options.sampleOptionalField.columnName] : '');
+            let label = item[options.sampleRequiredField.columnName] + (options.sampleOptionalField.columnName ? ' - ' +
+                item[options.sampleOptionalField.columnName] : '');
 
             return {
                 count: item.count,
-                field: this.options.sampleRequiredField.columnName,
+                field: options.sampleRequiredField.columnName,
                 label: label,
-                prettyField: this.options.sampleRequiredField.prettyName,
-                value: item[this.options.sampleRequiredField.columnName]
+                prettyField: options.sampleRequiredField.prettyName,
+                value: item[options.sampleRequiredField.columnName]
             };
         });
 
@@ -548,7 +551,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         // The document count query is a count aggregation for all the documents.
         query.aggregate(neonVariables.COUNT, '*', '_docCount');
 
-        this.executeQuery(query);
+        this.executeQuery(this.options, query);
     }
 
     /**

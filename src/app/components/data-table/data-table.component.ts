@@ -475,12 +475,15 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }, 300);
     }
 
-    isValidQuery() {
-        let valid = true;
-        valid = (this.options.database && this.options.database.name && valid);
-        valid = (this.options.table && this.options.table.name && valid);
-        valid = (this.options.sortField && this.options.sortField.columnName && valid);
-        return valid;
+    /**
+     * Returns whether the visualization data query created using the given options is valid.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     * @override
+     */
+    isValidQuery(options: any): boolean {
+        return !!(options.database.name && options.table.name && options.sortField.columnName);
     }
 
     /**
@@ -499,13 +502,20 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return clause;
     }
 
-    createQuery(): neon.query.Query {
+    /**
+     * Creates and returns the visualization data query using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {neon.query.Query}
+     * @override
+     */
+    createQuery(options: any): neon.query.Query {
         let whereClause = this.createClause();
-        return new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
+        return new neon.query.Query().selectFrom(options.database.name, options.table.name)
             .where(whereClause)
-            .sortBy(this.options.sortField.columnName, this.options.sortDescending ? neonVariables.DESCENDING : neonVariables.ASCENDING)
-            .limit(this.options.limit)
-            .offset((this.page - 1) * this.options.limit);
+            .sortBy(options.sortField.columnName, options.sortDescending ? neonVariables.DESCENDING : neonVariables.ASCENDING)
+            .limit(options.limit)
+            .offset((this.page - 1) * options.limit);
     }
 
     /**
@@ -523,15 +533,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
                 [filterField.columnName]);
 
-            let fieldFilterIds = neonFilters.filter((neonFilter) => {
-                return !neonFilter.filter.whereClause.whereClauses;
-            }).map((neonFilter) => {
+            let fieldFilterIds = neonFilters.map((neonFilter) => {
                 return neonFilter.id;
             });
 
             return filterIds.concat(fieldFilterIds);
         }, []);
-
         return ignoredFilterIds.length ? ignoredFilterIds : null;
     }
 
@@ -568,14 +575,21 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
     }
 
-    onQuerySuccess(response): void {
+    /**
+     * Handles the given response data for a successful visualization data query created using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} response
+     * @override
+     */
+    onQuerySuccess(options: any, response: any): void {
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.docCount = response.data[0]._docCount - this.duplicateNumber;
         } else {
             let responses = response.data;
             let data = responses.map((d) => {
                 let row = {};
-                for (let field of this.options.fields) {
+                for (let field of options.fields) {
                     if (field.type || field.columnName === '_id') {
                         row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
                     }
@@ -592,7 +606,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getDocCount() {
-        if (!this.cannotExecuteQuery()) {
+        if (!this.cannotExecuteQuery(this.options)) {
             let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
                 .where(this.createClause()).aggregate(neonVariables.COUNT, '*', '_docCount');
 
@@ -601,7 +615,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 countQuery.ignoreFilters(ignoreFilters);
             }
 
-            this.executeQuery(countQuery);
+            this.executeQuery(this.options, countQuery);
         }
     }
 
@@ -796,7 +810,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     if (this.options.arrayFilterOperator === 'and') {
                         value.forEach((element) => {
                             let arrayFilter = this.createFilterObject(filterFieldObject.columnName, element, filterFieldObject.prettyName);
-                            let whereClause = neon.query.where(arrayFilter.filterFieldObject.columnName, '=', arrayFilter.value);
+                            let whereClause = neon.query.where(filterFieldObject.columnName, '=', arrayFilter.value);
                             this.addFilter(arrayFilter, whereClause);
                         });
                     } else {
@@ -829,10 +843,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             if (this.filters.length && this.options.singleFilter) {
                 filter.id = this.filters[0].id;
                 this.filters = [filter];
-                this.replaceNeonFilter(true, filter, clause);
+                this.replaceNeonFilter(this.options, true, filter, clause);
             } else {
                 this.addLocalFilter(filter);
-                this.addNeonFilter(true, filter, clause);
+                this.addNeonFilter(this.options, true, filter, clause);
             }
         }
     }
