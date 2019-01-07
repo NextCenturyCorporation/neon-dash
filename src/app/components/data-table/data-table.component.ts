@@ -333,7 +333,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         } else {
             this.initializeHeadersFromExceptionsToStatus();
         }
-        //console.log(this.options);
         this.recalculateActiveHeaders();
     }
 
@@ -427,6 +426,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     closeColumnSelector() {
         this.options.showColumnSelector = 'hide';
+        this.refreshVisualization();
         this.changeDetection.detectChanges();
     }
 
@@ -590,11 +590,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.getDocCount();
             this.refreshVisualization();
         }
-    }
-
-    handleChangeCallback() {
-        this.handleChangeFilterField();
-        //this.logChangeAndStartQueryChain();
     }
 
     getDocCount() {

@@ -772,7 +772,7 @@ describe('BaseNeon', () => {
 
         component.handleChangeLimit();
         expect(component.options.limit).toBe(1234);
-        expect(spy.calls.count()).toBe(1);
+        expect(spy.calls.count()).toBe(2);
     });
 
     it('Handle Filters Changed Event method calls the correct functions', (() => {
