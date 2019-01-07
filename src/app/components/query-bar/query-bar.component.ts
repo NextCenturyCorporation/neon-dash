@@ -13,10 +13,9 @@
  * limitations under the License.
  *
  */
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Observable } from 'rxjs/Observable';
 import { map, startWith } from 'rxjs/operators';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';

@@ -14,8 +14,7 @@
  *
  */
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
-
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AboutNeonComponent } from './about-neon.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
@@ -46,7 +45,7 @@ describe('Component: AboutNeonComponent', () => {
             AboutNeonComponent
         ],
         imports: [
-            HttpModule,
+            HttpClientModule,
             AppMaterialModule
         ],
         providers: [
