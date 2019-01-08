@@ -7,7 +7,7 @@
 
     <mat-form-field class="widgetOption-container">
         <mat-select placeholder="Database" [(ngModel)]="options.database" required="true" name="database"
-        (ngModelChange)="handleChangeDatabase()" [disabled]="options.databases.length < 2">
+        (ngModelChange)="handleChangeDatabase(options)" [disabled]="options.databases.length < 2">
             <mat-option *ngFor="let database of options.databases" [value]="database">{{ database.prettyName }}</mat-option>
         </mat-select>
     </mat-form-field>
@@ -15,7 +15,7 @@
 
     <mat-form-field class="widgetOption-container">
         <mat-select placeholder="Table" [(ngModel)]="options.table" required="true" name="table"
-        (ngModelChange)="handleChangeTable()" [disabled]="options.tables.length < 2">
+        (ngModelChange)="handleChangeTable(options)" [disabled]="options.tables.length < 2">
             <mat-option *ngFor="let table of options.tables" [value]="table">{{ table.prettyName }}</mat-option>
         </mat-select>
     </mat-form-field>

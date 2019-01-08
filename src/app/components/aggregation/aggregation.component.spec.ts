@@ -113,7 +113,7 @@ describe('Component: Aggregation', () => {
         expect(component.options.timeFill).toEqual(false);
         expect(component.options.type).toEqual('line');
         expect(component.options.yPercentage).toEqual(0.3);
-        expect(component.newType).toEqual('line');
+        expect(component.options.type).toEqual('line');
     });
 
     it('class properties are set to expected defaults', () => {
@@ -1165,7 +1165,7 @@ describe('Component: Aggregation', () => {
 
     it('handleChangeSubcomponentType does update subcomponent type and call expected functions', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.newType = 'line-xy';
+        component.options.type = 'line-xy';
 
         component.handleChangeSubcomponentType();
 
@@ -1176,7 +1176,7 @@ describe('Component: Aggregation', () => {
 
     it('handleChangeSubcomponentType does not call expected functions if new type equals subcomponent type', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.newType = 'line';
+        component.options.type = 'line';
         component.options.sortByAggregation = true;
 
         component.handleChangeSubcomponentType();
@@ -1188,7 +1188,7 @@ describe('Component: Aggregation', () => {
 
     it('handleChangeSubcomponentType does not update dualView if new type is allowed to have dual views', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.newType = 'line-xy';
+        component.options.type = 'line-xy';
         component.options.dualView = 'on';
 
         component.handleChangeSubcomponentType();
@@ -1200,7 +1200,7 @@ describe('Component: Aggregation', () => {
 
     it('handleChangeSubcomponentType does update dualView if new type is not allowed to have dual views', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.newType = 'bar-h';
+        component.options.type = 'bar-h';
         component.options.dualView = 'on';
 
         component.handleChangeSubcomponentType();
@@ -1212,7 +1212,7 @@ describe('Component: Aggregation', () => {
 
     it('handleChangeSubcomponentType does update sortByAggregation if new type is not sortable by aggregation', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.newType = 'line-xy';
+        component.options.type = 'line-xy';
         component.options.sortByAggregation = true;
 
         component.handleChangeSubcomponentType();
@@ -1224,7 +1224,7 @@ describe('Component: Aggregation', () => {
 
     it('handleChangeSubcomponentType does not update sortByAggregation if new type is sortable by aggregation', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.newType = 'bar-h';
+        component.options.type = 'bar-h';
         component.options.sortByAggregation = true;
 
         component.handleChangeSubcomponentType();
@@ -4106,7 +4106,7 @@ describe('Component: Aggregation with config', () => {
         expect(component.options.scaleMinY).toEqual('11');
         expect(component.options.showHeat).toEqual(true);
         expect(component.options.showLegend).toEqual(true);
-        expect(component.newType).toEqual('scatter');
+        expect(component.options.type).toEqual('scatter');
         expect(component.options.sortByAggregation).toEqual(true);
         expect(component.options.timeFill).toEqual(true);
         expect(component.options.type).toEqual('scatter');

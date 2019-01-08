@@ -109,7 +109,7 @@ class TestMapComponent extends MapComponent {
     }
 
     getMapPoints(databaseName: string, tableName: string, idField: string, lngField: string, latField: string, colorField: string,
-        hoverPopupField: string, data: any[]
+        hoverPopupField: FieldMetaData, data: any[]
     ) {
         return super.getMapPoints(databaseName, tableName, idField, lngField, latField, colorField, hoverPopupField, data);
     }
@@ -412,11 +412,14 @@ describe('Component: Map', () => {
         let mapPoints1 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category',
             new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset1.data);
         expect(mapPoints1).toEqual(dataset1.expected);
-        let mapPoints2 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category', 'hoverPopupField', dataset2.data);
+        let mapPoints2 = component.getMapPoints(
+            'myDatabase', 'myTable', 'id', 'lng', 'lat', 'category', new FieldMetaData(), dataset2.data);
         expect(mapPoints2).toEqual(dataset2.expected);
-        let mapPoints3 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category', 'hoverPopupField', dataset3.data);
+        let mapPoints3 = component.getMapPoints(
+            'myDatabase', 'myTable', 'id', 'lng', 'lat', 'category', new FieldMetaData(), dataset3.data);
         expect(mapPoints3).toEqual(dataset3.expected);
-        let mapPoints4 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category', 'hoverPopupField', dataset4.data);
+        let mapPoints4 = component.getMapPoints(
+            'myDatabase', 'myTable', 'id', 'lng', 'lat', 'category', new FieldMetaData(), dataset4.data);
         expect(mapPoints4).toEqual(dataset4.expected);
     });
 

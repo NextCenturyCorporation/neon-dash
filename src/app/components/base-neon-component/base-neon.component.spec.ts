@@ -1087,17 +1087,16 @@ describe('BaseNeonComponent', () => {
     it('handleChangeLimit does update limit', () => {
         let spy = spyOn(component, 'handleChangeData');
 
-        component.newLimit = 1234;
+        component.options.limit = 1234;
 
         component.handleChangeLimit(component.options);
         expect(component.options.limit).toEqual(1234);
         expect(spy.calls.count()).toEqual(1);
 
-        component.newLimit = 0;
+        component.options.limit = 0;
 
         component.handleChangeLimit(component.options);
         expect(component.options.limit).toEqual(1234);
-        expect(component.newLimit).toEqual(1234);
         expect(spy.calls.count()).toEqual(1);
     });
 
