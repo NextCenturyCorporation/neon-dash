@@ -239,7 +239,9 @@ describe('BaseNeonComponent Options', () => {
             { provide: 'testFake', useValue: 'testFakeField' },
             { provide: 'testList', useValue: ['testDateField', 'testFakeField', 'testNameField', 'testSizeField'] },
             { provide: 'testName', useValue: 'testNameField' },
-            { provide: 'testSize', useValue: 'testSizeField' }
+            { provide: 'testSize', useValue: 'testSizeField' },
+            { provide: 'testFieldKey1', useValue: 'field_key_1'},
+            { provide: 'testListWithFieldKey', useValue: ['field_key_1', 'testNameField']}
         ]
     });
 
@@ -294,8 +296,19 @@ describe('BaseNeonComponent Options', () => {
         expect(component.findFieldObject(component.options.fields, 'testDate')).toEqual(DatasetServiceMock.DATE_FIELD);
         expect(component.findFieldObject(component.options.fields, 'testName')).toEqual(DatasetServiceMock.NAME_FIELD);
         expect(component.findFieldObject(component.options.fields, 'testSize')).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(component.findFieldObject(component.options.fields, 'testFieldKey1')).toEqual(DatasetServiceMock.FIELD_KEY_FIELD);
         expect(component.findFieldObject(component.options.fields, 'testFake')).toEqual(new FieldMetaData());
         expect(component.findFieldObject(component.options.fields, 'fakeBind')).toEqual(new FieldMetaData());
+    });
+
+    it('translateFieldKeyToValue does return expected string', () => {
+        expect(component.translateFieldKeyToValue('field_key_1')).toEqual('testFieldKeyField');
+        expect(component.translateFieldKeyToValue(DatasetServiceMock.DATE_FIELD)).toEqual(DatasetServiceMock.DATE_FIELD);
+    });
+
+    it('getVisualizationTitle does return expected string', () => {
+        expect(component.getVisualizationTitle('dataTableTitle')).toEqual('Documents');
+        expect(component.getVisualizationTitle('News Feed')).toEqual('News Feed');
     });
 
     it('findFieldObjects does return expected array', () => {
@@ -303,6 +316,10 @@ describe('BaseNeonComponent Options', () => {
             DatasetServiceMock.DATE_FIELD,
             DatasetServiceMock.NAME_FIELD,
             DatasetServiceMock.SIZE_FIELD
+        ]);
+        expect(component.findFieldObjects(component.options.fields, 'testListWithFieldKey')).toEqual([
+            DatasetServiceMock.FIELD_KEY_FIELD,
+            DatasetServiceMock.NAME_FIELD
         ]);
         expect(component.findFieldObjects(component.options.fields, 'testName')).toEqual([]);
         expect(component.findFieldObjects(component.options.fields, 'fakeBind')).toEqual([]);

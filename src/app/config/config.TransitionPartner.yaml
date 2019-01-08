@@ -215,7 +215,7 @@ dashboards:
                                 connectOnLoad: false
                                 simpleFilter:
                                     tableKey: table_key_1
-                                    fieldKey: original_text_key
+                                    fieldKey: translated_text_key
                                     placeHolder: Search
                         car_elisa_discovery:
                             name: Central African Republic ELISA
