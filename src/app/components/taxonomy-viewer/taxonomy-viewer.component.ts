@@ -28,13 +28,13 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService, NeonFilterClause, NeonQueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldOption,
@@ -92,17 +92,17 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     };
 
     constructor(
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
+        searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef
     ) {
 
         super(
-            connectionService,
             datasetService,
             filterService,
+            searchService,
             injector,
             ref
         );
@@ -142,22 +142,24 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
+     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} query
-     * @arg {neon.query.WherePredicate[]} wherePredicates
-     * @return {neon.query.Query}
+     * @arg {NeonQueryPayload} queryPayload
+     * @arg {NeonFilterClause[]} sharedFilters
+     * @return {NeonQueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
-        let wheres = wherePredicates.concat([
-            neon.query.where(this.options.idField.columnName, '!=', null),
-            neon.query.where(this.options.idField.columnName, '!=', '')
-        ]);
+    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
+        let filters: NeonFilterClause[] = [
+            this.searchService.buildFilterClause(options.idField.columnName, '!=', null),
+            this.searchService.buildFilterClause(options.idField.columnName, '!=', '')
+        ];
 
-        return query.where(neon.query.and.apply(query, wheres))
-            .sortBy(this.options.categoryField.columnName, this.options.ascending ? neonVariables.ASCENDING : neonVariables.DESCENDING);
+        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filters)))
+            .updateSort(query, options.categoryField.columnName, !options.ascending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+
+        return query;
     }
 
     /**
@@ -485,9 +487,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     sortTaxonomyArrays(array: any[]) {
         if (this.options.ascending) {
-            neonUtilities.sortArrayOfObjects(array, 'name');
+            neonUtilities.sortArrayOfObjects(array, 'name', 1);
         } else {
-            neonUtilities.sortArrayOfObjects(array, 'name', neonVariables.DESCENDING);
+            neonUtilities.sortArrayOfObjects(array, 'name', -1);
         }
     }
 

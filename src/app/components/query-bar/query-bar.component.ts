@@ -18,14 +18,14 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Inje
 import { FormControl } from '@angular/forms';
 import { map, startWith } from 'rxjs/operators';
 
+import { AbstractSearchService, NeonFilterClause, NeonQueryPayload } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, SimpleFilter } from '../../dataset';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -63,18 +63,18 @@ export class QueryBarComponent  extends BaseNeonComponent {
     private filterFormControl: FormControl;
 
     constructor(
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
+        searchService: AbstractSearchService,
         injector: Injector,
         protected widgetService: AbstractWidgetService,
         ref: ChangeDetectorRef
     ) {
 
         super(
-            connectionService,
             datasetService,
             filterService,
+            searchService,
             injector,
             ref
         );
@@ -112,18 +112,19 @@ export class QueryBarComponent  extends BaseNeonComponent {
     }
 
     /**
-     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
+     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} query
-     * @arg {neon.query.WherePredicate[]} wherePredicates
-     * @return {neon.query.Query}
+     * @arg {NeonQueryPayload} queryPayload
+     * @arg {NeonFilterClause[]} sharedFilters
+     * @return {NeonQueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
-        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(neon.query.where(options.filterField.columnName, '!=', null));
-        return query.where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
-            .sortBy(options.filterField.columnName, neonVariables.ASCENDING);
+    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
+        let filter: NeonFilterClause = this.searchService.buildFilterClause(options.filterField.columnName, '!=', null);
+        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filter)))
+            .updateSort(query, options.filterField.columnName);
+        return query;
     }
 
     /**
@@ -326,8 +327,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
         if (fields.database !== this.options.database.name && fields.table !== this.options.table.name) {
             let query = new neon.query.Query().selectFrom(fields.database, fields.table),
                 queryFields = [fields.idField, fields.filterField],
-                connection = this.connectionService.getActiveConnection(),
-                execute = connection.executeQuery(query, null),
+                execute = this.searchService.runSearch(this.datasetService.getDatastore(), this.datasetService.getHostname(), query),
                 tempArray = [],
                 queryClauses = [];
             for (let value of array) {

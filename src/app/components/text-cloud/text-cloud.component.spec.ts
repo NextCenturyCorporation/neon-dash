@@ -23,8 +23,8 @@ import { TextCloudComponent } from './text-cloud.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
+import { AbstractSearchService, AggregationType } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
@@ -32,13 +32,12 @@ import { WidgetService } from '../../services/widget.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
-import { neonVariables } from '../../neon-namespaces';
 import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 
-import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 describe('Component: TextCloud', () => {
     let component: TextCloudComponent;
@@ -53,12 +52,12 @@ describe('Component: TextCloud', () => {
         ],
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
-            ConnectionService,
             {
                 provide: DatasetService,
                 useClass: DatasetServiceMock
             },
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -80,7 +79,7 @@ describe('Component: TextCloud', () => {
     });
 
     it('has expected options properties', () => {
-        expect(component.options.aggregation).toBe(neonVariables.COUNT);
+        expect(component.options.aggregation).toBe(AggregationType.COUNT);
         expect(component.options.andFilters).toBe(true);
         expect(component.options.dataField).toEqual(new FieldMetaData());
         expect(component.options.sizeField).toEqual(new FieldMetaData());
@@ -161,29 +160,45 @@ describe('Component: TextCloud', () => {
         component.options.table = new TableMetaData('testTable1');
         component.options.dataField = new FieldMetaData('testTextField');
 
-        let whereClause = neon.query.where('testTextField', '!=', null);
-        let inputQuery = new neon.query.Query().selectFrom('testDatabase1', 'testTable1');
-        let query = new neon.query.Query().selectFrom('testDatabase1', 'testTable1')
-            .where(whereClause)
-            .groupBy('testTextField')
-            .aggregate(neonVariables.COUNT, '*', 'value')
-            .sortBy('value', neonVariables.DESCENDING);
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            aggregation: [{
+                field: '*',
+                name: '_aggregation',
+                type: 'count'
+            }],
+            groups: ['testTextField'],
+            filter: {
+                field: 'testTextField',
+                operator: '!=',
+                value: null
+            },
+            sort: {
+                field: '_aggregation',
+                order: -1
+            }
+        });
 
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
-
-        component.options.aggregation = neonVariables.AVG;
+        component.options.aggregation = AggregationType.AVG;
         component.options.sizeField = new FieldMetaData('testSizeField');
         component.options.limit = 25;
-        let whereClauses = neon.query.and(whereClause, neon.query.where('testSizeField', '!=', null));
 
-        inputQuery = new neon.query.Query().selectFrom('testDatabase1', 'testTable1');
-        query = new neon.query.Query().selectFrom('testDatabase1', 'testTable1')
-            .where(whereClauses)
-            .groupBy('testTextField')
-            .aggregate(neonVariables.AVG, 'testSizeField', 'testSizeField')
-            .sortBy('testSizeField', neonVariables.DESCENDING);
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            aggregation: [{
+                field: 'testSizeField',
+                name: '_aggregation',
+                type: 'avg'
+            }],
+            filter: {
+                field: 'testTextField',
+                operator: '!=',
+                value: null
+            },
+            groups: ['testTextField'],
+            sort: {
+                field: '_aggregation',
+                order: -1
+            }
+        });
     });
 
     it('returns null from getFiltersToIgnore', () => {
@@ -207,15 +222,15 @@ describe('Component: TextCloud', () => {
     it('transformVisualizationQueryResults with data does return expected data', () => {
         component.options.dataField = new FieldMetaData('testTextField', 'Test Text Field');
         let data = [{
-            value: 8,
+            _aggregation: 8,
             testTextField: 'First',
             testSizeField: 100
         }, {
-            value: 5,
+            _aggregation: 5,
             testTextField: 'Second',
             testSizeField: 75
         }, {
-            value: 1,
+            _aggregation: 1,
             testTextField: 'Third',
             testSizeField: 50
         }];
@@ -223,6 +238,7 @@ describe('Component: TextCloud', () => {
         let actual1 = component.transformVisualizationQueryResults(component.options, data);
 
         expect(actual1.data).toEqual([{
+            _aggregation: 8,
             value: 8,
             testTextField: 'First',
             testSizeField: 100,
@@ -230,6 +246,7 @@ describe('Component: TextCloud', () => {
             keyTranslated: 'First'
         },
         {
+            _aggregation: 5,
             value: 5,
             testTextField: 'Second',
             testSizeField: 75,
@@ -237,33 +254,8 @@ describe('Component: TextCloud', () => {
             keyTranslated: 'Second'
         },
         {
+            _aggregation: 1,
             value: 1,
-            testTextField: 'Third',
-            testSizeField: 50,
-            key: 'Third',
-            keyTranslated: 'Third'
-        }]);
-
-        component.options.sizeField = new FieldMetaData('testSizeField', 'Test Size Field');
-
-        let actual2 = component.transformVisualizationQueryResults(component.options, data);
-
-        expect(actual2.data).toEqual([{
-            value: 100,
-            testTextField: 'First',
-            testSizeField: 100,
-            key: 'First',
-            keyTranslated: 'First'
-        },
-        {
-            value: 75,
-            testTextField: 'Second',
-            testSizeField: 75,
-            key: 'Second',
-            keyTranslated: 'Second'
-        },
-        {
-            value: 50,
             testTextField: 'Third',
             testSizeField: 50,
             key: 'Third',

@@ -33,18 +33,6 @@ export namespace neonEvents {
     export const WIDGET_UNREGISTER = 'WIDGET_UNREGISTER';
 }
 
-export namespace neonVariables {
-    /* tslint:disable:no-string-literal */
-    export const ASCENDING = neon.query['ASCENDING'];
-    export const AVG = neon.query['AVG'];
-    export const COUNT = neon.query['COUNT'];
-    export const DESCENDING = neon.query['DESCENDING'];
-    export const MAX = neon.query['MAX'];
-    export const MIN = neon.query['MIN'];
-    export const SUM = neon.query['SUM'];
-    /* tslint:enable:no-string-literal */
-}
-
 export namespace neonUtilities {
     /**
      * Flattens and returns the given array.
@@ -92,11 +80,11 @@ export namespace neonUtilities {
      *
      * @arg {array} array
      * @arg {string} key
-     * @arg {number} key
+     * @arg {number} [order=1] 1 if ascending or -1 if descending
      * @return {array}
      */
 
-    export function sortArrayOfObjects(array: any[], key: string, order: number = neonVariables.ASCENDING) {
+    export function sortArrayOfObjects(array: any[], key: string, order: number = 1) {
         return array.sort((a, b) => {
             if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
                 // property doesn't exist on either object
@@ -112,7 +100,7 @@ export namespace neonUtilities {
             } else if (varA < varB) {
                 comparison = -1;
             }
-            return ((order === neonVariables.DESCENDING) ? (comparison * -1) : comparison);
+            return comparison * order;
         });
     }
 }

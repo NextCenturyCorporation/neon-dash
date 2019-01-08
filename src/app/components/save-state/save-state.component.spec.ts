@@ -31,6 +31,7 @@ import { MatSnackBar } from '@angular/material';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: SaveStateComponent', () => {
@@ -49,7 +50,7 @@ describe('Component: SaveStateComponent', () => {
         ],
         providers: [
             ConnectionService,
-            DatasetService,
+            { provide: DatasetService, useClass: DatasetServiceMock },
             MatSnackBar,
             ParameterService,
             { provide: AbstractWidgetService, useClass: WidgetService },
