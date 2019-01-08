@@ -28,11 +28,12 @@ import * as neon from 'neon-framework';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { MediaViewerComponent } from './media-viewer.component';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: MediaViewer', () => {
@@ -46,9 +47,9 @@ describe('Component: MediaViewer', () => {
             ExportControlComponent
         ],
         providers: [
-            ConnectionService,
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -97,22 +98,20 @@ describe('Component: MediaViewer', () => {
         component.options.nameField = DatasetServiceMock.NAME_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
 
-        let inputQuery = new neon.query.Query()
-            .selectFrom('testDatabase', 'testTable')
-            .withFields(['testIdField', 'testLinkField', 'testNameField', 'testTypeField']);
-
-        let query = new neon.query.Query()
-            .selectFrom('testDatabase', 'testTable')
-            .withFields(['testIdField', 'testLinkField', 'testNameField', 'testTypeField']);
-
-        let whereClauses = [
-            neon.query.where('testIdField', '=', 'testId'),
-            neon.query.where('testLinkField', '!=', null)
-        ];
-
-        query.where(neon.query.and.apply(query, whereClauses));
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            filter: {
+                filters: [{
+                    field: 'testLinkField',
+                    operator: '!=',
+                    value: null
+                }, {
+                    field: 'testIdField',
+                    operator: '=',
+                    value: 'testId'
+                }],
+                type: 'and'
+            }
+        });
     }));
 
     it('getElementRefs does return expected object', () => {
@@ -1472,9 +1471,9 @@ describe('Component: MediaViewer with config', () => {
             ExportControlComponent
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'title', useValue: 'Test Title' },

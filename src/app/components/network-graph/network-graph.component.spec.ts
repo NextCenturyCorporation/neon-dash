@@ -19,7 +19,6 @@ import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
 import * as neon from 'neon-framework';
 import { NetworkGraphComponent } from './network-graph.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FieldMetaData } from '../../dataset';
 import { FilterService } from '../../services/filter.service';
@@ -27,6 +26,7 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { WidgetService } from '../../services/widget.service';
 import { LegendComponent } from '../legend/legend.component';
@@ -34,7 +34,7 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
-import { neonVariables } from '../../neon-namespaces';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 describe('Component: NetworkGraph', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -50,10 +50,10 @@ describe('Component: NetworkGraph', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             Injector,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: 'config', useValue: testConfig },
             { provide: 'limit', useValue: 'testLimit' }
@@ -123,23 +123,24 @@ describe('Component: NetworkGraph', () => {
         component.options.yTargetPositionField = new FieldMetaData('testYTargetPositionField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
-        let inputQuery = new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name)
-            .withFields(['testNodeField', 'testLinkField', 'testNodeColorField', 'testEdgeColorField', 'testNodeNameField',
-                'testLinkNameField', 'testTypeField', 'testXPositionField', 'testYPositionField', 'testXTargetPositionField',
-                'testYTargetPositionField', 'testFilter1', 'testFilter2']);
-
-        let query = new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name)
-            .withFields(['testNodeField', 'testLinkField', 'testNodeColorField', 'testEdgeColorField', 'testNodeNameField',
-                'testLinkNameField', 'testTypeField', 'testXPositionField', 'testYPositionField', 'testXTargetPositionField',
-                'testYTargetPositionField', 'testFilter1', 'testFilter2'])
-            .where(neon.query.or.apply(neon.query, [
-                neon.query.where('testNodeField', '!=', null), neon.query.where('testLinkField', '!=', null)
-            ]))
-            .sortBy('testNodeColorField', neonVariables.ASCENDING);
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            filter: {
+                filters: [{
+                    field: 'testNodeField',
+                    operator: '!=',
+                    value: null
+                }, {
+                    field: 'testLinkField',
+                    operator: '!=',
+                    value: null
+                }],
+                type: 'or'
+            },
+            sort: {
+                field: 'testNodeColorField',
+                order: 1
+            }
+        });
     }));
 
     it('transformVisualizationQueryResults does load the Network Graph with reified data', (() => {

@@ -24,7 +24,7 @@ import {} from 'jasmine-core';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
@@ -32,8 +32,8 @@ import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -83,9 +83,9 @@ describe('Component: TaxonomyViewer', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ConnectionService,
             {provide: DatasetService, useClass: DatasetServiceMock},
             {provide: FilterService, useClass: FilterServiceMock},
+            {provide: AbstractSearchService, useClass: SearchServiceMock},
             Injector,
             {provide: 'config', useValue: new NeonGTDConfig()}
         ],
@@ -135,19 +135,24 @@ describe('Component: TaxonomyViewer', () => {
         component.options.filterFields = ['testFilter1', 'testFilter2'];
         component.options.ascending = true;
 
-        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name)
-            .withFields(['testIdField', 'testCategoryField', 'testFilter1', 'testFilter2',  'testTypeField', 'testSubTypeField']);
-
-        let whereClauses = [
-            neon.query.where(component.options.idField.columnName, '!=', null),
-            neon.query.where(component.options.idField.columnName, '!=', '')
-        ];
-
-        let query = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name)
-            .withFields(['testIdField', 'testCategoryField', 'testFilter1', 'testFilter2',  'testTypeField', 'testSubTypeField'])
-            .where(neon.query.and.apply(neon.query, whereClauses)).sortBy('testCategoryField', neonVariables.ASCENDING);
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            filter: {
+                filters: [{
+                    field: 'testIdField',
+                    operator: '!=',
+                    value: null
+                }, {
+                    field: 'testIdField',
+                    operator: '!=',
+                    value: ''
+                }],
+                type: 'and'
+            },
+            sort: {
+                field: 'testCategoryField',
+                order: 1
+            }
+        });
     }));
 
     it('getCloseableFilters does return null', (() => {
