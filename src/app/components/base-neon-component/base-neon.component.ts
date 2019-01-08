@@ -131,11 +131,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public ngAfterViewInit(): void {
         this.constructVisualization();
-        if (this.isMultiLayerWidget) {
-            this.executeAllQueryChain();
-        } else {
-            this.executeQueryChain();
-        }
+        this.executeAllQueryChain();
     }
 
     /**
@@ -387,6 +383,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 callback();
             }
             if (executeQueryChainOnSuccess) {
+                this.page = 1;
                 this.executeQueryChain(options);
             }
         };
@@ -424,6 +421,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             if (callback) {
                 callback();
             }
+            this.page = 1;
             this.executeQueryChain(options);
             return;
         }
@@ -454,6 +452,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 callback();
             }
             if (executeQueryChainOnSuccess) {
+                this.page = 1;
                 this.executeQueryChain(options);
             }
         };
@@ -976,6 +975,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                     this.removeFilter(filter);
                 }
                 if (requery) {
+                    this.page = 1;
                     this.executeQueryChain(options);
                 } else {
                     if (refresh) {
