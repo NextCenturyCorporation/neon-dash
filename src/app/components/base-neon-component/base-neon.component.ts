@@ -102,9 +102,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected lastPage: boolean = true;
     protected page: number = 1;
 
-    // TODO THOR-349 Move into future widget option menu component
-    public newLimit: string;
-
     // A WidgetOptionCollection object.  Must use "any" type to avoid typescript errors.
     public options: any;
 
@@ -145,7 +142,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.initializing = true;
 
         this.options = this.createWidgetOptions(this.injector, this.getVisualizationDefaultTitle(), this.getVisualizationDefaultLimit());
-        this.newLimit = this.options.limit;
         this.id = this.options._id;
 
         this.messenger.subscribe('filters_changed', this.handleFiltersChangedEvent.bind(this));
@@ -918,16 +914,16 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
     public handleChangeLimit(options?: any): void {
-        if (this.isNumber(this.newLimit)) {
-            let newLimit = parseFloat('' + this.newLimit);
+        if (this.isNumber(this.options.Limit)) {
+            let newLimit = parseFloat('' + this.options.Limit);
             if (newLimit > 0) {
                 (options || this.options).limit = newLimit;
                 this.handleChangeData();
             } else {
-                this.newLimit = (options || this.options).limit;
+                this.options.Limit = (options || this.options).limit;
             }
         } else {
-            this.newLimit = (options || this.options).limit;
+            this.options.Limit = (options || this.options).limit;
         }
     }
 

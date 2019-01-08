@@ -378,10 +378,10 @@ describe('Component: DataTable', () => {
 
     it('closeColumnSelector does hide column selector and call refreshVisualization', (() => {
         let spy = spyOn(component.changeDetection, 'refreshVisualization');
-        component.showColumnSelector = 'show';
+        component.options.showColumnSelector = 'show';
 
         component.closeColumnSelector();
-        expect(component.showColumnSelector).toEqual('hide');
+        expect(component.options.showColumnSelector).toEqual('hide');
         expect(spy).toHaveBeenCalled();
     }));
 

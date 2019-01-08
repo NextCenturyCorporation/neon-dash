@@ -192,9 +192,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public xList: any[] = [];
     public yList: any[] = [];
 
-    // TODO THOR-349 Move into future widget option menu component
-    public newType: string = '';
-
     constructor(
         connectionService: ConnectionService,
         datasetService: DatasetService,
@@ -653,8 +650,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     initializeProperties() {
-        this.newType = this.options.type;
-
         // Check for the boolean value true (not just any truthy value) and fix it.
         this.options.dualView = ('' + this.options.dualView) === 'true' ? 'on' : this.options.dualView;
         if (!this.optionsTypeIsDualViewCompatible(this.options)) {
