@@ -101,6 +101,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     // The data pagination properties.
     protected lastPage: boolean = true;
     protected page: number = 1;
+    protected savedPages: Map<string, number> = new Map<string, number>();
 
     // TODO THOR-349 Move into future widget option menu component
     public newLimit: number;
@@ -383,6 +384,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 callback();
             }
             if (executeQueryChainOnSuccess) {
+                this.savedPages.set(subclassFilter.id, this.page);
                 this.page = 1;
                 this.executeQueryChain(options);
             }
@@ -427,6 +429,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
 
         this.addNeonFilter(options, false, filters[0].singleFilter, filters[0].clause, () => {
+            this.savedPages.set(filters[0].singleFilter.id, this.page);
             this.addMultipleFilters(options, filters.slice(1), callback);
         });
     }
@@ -452,6 +455,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 callback();
             }
             if (executeQueryChainOnSuccess) {
+                this.savedPages.set(subclassFilter.id, this.page);
                 this.page = 1;
                 this.executeQueryChain(options);
             }
@@ -666,7 +670,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
             if (this.visualizationQueryPaginates && !this.showingZeroOrMultipleElementsPerResult) {
                 let countQuery: neon.query.Query = this.createCompleteVisualizationQuery(options);
-                if (this.page === 1 && countQuery) {
+                if (countQuery) {
                     // Do not add a limit or an offset!
                     countQuery.aggregate(neonVariables.COUNT, '*', '_count');
                     let filtersToIgnore = this.getFiltersToIgnore();
@@ -975,7 +979,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                     this.removeFilter(filter);
                 }
                 if (requery) {
-                    this.page = 1;
+                    this.page = this.savedPages.get(filter.id) || 1;
+                    this.savedPages.delete(filter.id);
                     this.executeQueryChain(options);
                 } else {
                     if (refresh) {
