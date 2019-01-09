@@ -585,40 +585,59 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     /**
      * Updates tables, fields, and filters whenenver the database is changed and reruns the visualization query.
      *
-     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
-    handleChangeDatabase(options: any) {
-        this.updateTablesInOptions(options);
-        this.initializeFieldsInOptions(options, this.createLayerFieldOptions());
-        this.removeAllFilters(options, this.getCloseableFilters(), () => {
+    public handleChangeDatabase(options?: any): void {
+        let optionsToUpdate = options || this.options;
+        this.updateTablesInOptions(optionsToUpdate);
+        // Change behavior depending on if the given options are the top-level options or layer options.
+        // TODO THOR-1002 How to do this nicely
+        if (optionsToUpdate === this.options) {
+            this.initializeFieldsInOptions(optionsToUpdate, this.createFieldOptions().concat(
+                new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false)
+            ));
+        } else {
+            this.initializeFieldsInOptions(optionsToUpdate, this.createLayerFieldOptions());
+        }
+        this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), () => {
             this.setupFilters();
-            this.handleChangeData(options);
+            this.handleChangeData(optionsToUpdate);
         });
     }
 
     /**
      * Updates fields and filters whenever the table is changed and reruns the visualization query.
      *
-     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
-    handleChangeTable(options: any) {
-        this.updateFieldsInOptions(options);
-        this.initializeFieldsInOptions(options, this.createLayerFieldOptions());
-        this.removeAllFilters(options, this.getCloseableFilters(), () => {
+    public handleChangeTable(options?: any): void {
+        let optionsToUpdate = options || this.options;
+        this.updateFieldsInOptions(optionsToUpdate);
+        // Change behavior depending on if the given options are the top-level options or layer options.
+        // TODO THOR-1002 How to do this nicely
+        if (optionsToUpdate === this.options) {
+            this.initializeFieldsInOptions(optionsToUpdate, this.createFieldOptions().concat(
+                new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false)
+            ));
+        } else {
+            this.initializeFieldsInOptions(optionsToUpdate, this.createLayerFieldOptions());
+        }
+        this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), () => {
             this.setupFilters();
-            this.handleChangeData(options);
+            this.handleChangeData(optionsToUpdate);
         });
     }
 
     /**
      * Updates filters whenever a filter field is changed and reruns the visualization query.
      *
-     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
-    handleChangeFilterField(options: any) {
-        this.removeAllFilters(options, this.getCloseableFilters(), () => {
+    public handleChangeFilterField(options?: any): void {
+        let optionsToUpdate = options || this.options;
+        this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), () => {
             this.setupFilters();
-            this.handleChangeData(options);
+            this.handleChangeData(optionsToUpdate);
         });
     }
 
