@@ -13,34 +13,11 @@
  * limitations under the License.
  *
  */
-@import '../base-neon-component/base-neon.component.scss';
-
-.radio-btn {
-    padding: 10px;
-}
 
 .gear-container {
     width: 400px;
     padding-left: 15px;
     padding-right: 15px;
-}
-
-.fake-dropdown-arrow {
-    right: 25px;
-    position: relative;
-}
-
-.dropdown-menu {
-    padding-left: 30px;
-    width: 200px;
-}
-
-.btn-open-config-edit {
-    margin: 10px;
-}
-
-.radio-container {
-    margin: 5 5px;
 }
 
 .option-row {
@@ -62,28 +39,11 @@ input {
     padding: 5px;
 }
 
-.header {
-    padding: 5px;
-}
-
-.divider {
-    margin: 15px 0;
-}
-
-.option-text {
-    padding: 2px;
-}
-
-.divider {
-    margin: 15px 0;
-}
-
 .button-footer {
     position: -webkit-sticky; /* Safari */
     position: sticky;
     top: 0;
     bottom: 1px;
     z-index: 9999;
-    /*border-top: 1px solid var(--color-primary); */
     background: var(--color-background-white);
 }
