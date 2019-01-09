@@ -732,7 +732,7 @@ layouts:
               latitudeField: latitude_key
               longitudeField: longitude_key
               colorField:
-              colorMapping: # TODO: 873: what about this colorMapping pattern matching?
+              colorMapping:
                   - match: "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))"
                     label: Need
                     color: "rgb(02550)"
