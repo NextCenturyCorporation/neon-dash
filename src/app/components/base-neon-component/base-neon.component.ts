@@ -617,7 +617,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @abstract
      */
     private handleSuccessfulTotalCountQuery(options: any, response: any, callback: () => void): void {
-        if (!response || !response.data || response.data[0]._count === undefined) {
+        if (!response || !response.data || !response.data.length || response.data[0]._count === undefined) {
             this.layerIdToElementCount.set(options._id, 0);
         } else {
             this.layerIdToElementCount.set(options._id, response.data[0]._count);
