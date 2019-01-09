@@ -1297,11 +1297,13 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         options.database = options.databases[0] || options.database;
 
         if (options.databases.length) {
-            // TODO: 873: verify which one of these is correct
-            let key = config ? config.tableKey : this.injector.get('tableKey', null);
+            let tableValue = config ? config.tableKey : this.injector.get('tableKey', null);
+            let currentDashboard = this.datasetService.getCurrentDashboard();
+            let configDatabase: any;
 
-            if (key) {
-                let configDatabase = this.datasetService.getDatabaseNameFromCurrentDashboardByKey(key);
+            if (currentDashboard && currentDashboard.tables && currentDashboard.tables[tableValue]) {
+                configDatabase = this.datasetService.getDatabaseNameFromCurrentDashboardByKey(tableValue);
+
                 if (configDatabase) {
                     for (let database of options.databases) {
                         if (configDatabase === database.name) {
@@ -1311,28 +1313,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                     }
                 }
             }
-
-            /*
-            let configDatabase = config ?
-                this.datasetService.getDatabaseNameFromCurrentDashboardByKey(config.tableKey) :
-                this.injector.get('database', null);
-            if (configDatabase) {
-                let isName = false;
-                for (let database of options.databases) {
-                    if (configDatabase === database.name) {
-                        options.database = database;
-                        isName = true;
-                        break;
-                    }
-                }
-                if (!isName) {
-                    // Check if the config database is actually an array index rather than a name.
-                    let databaseIndex = parseInt(configDatabase, 10);
-                    if (!isNaN(databaseIndex) && databaseIndex < options.databases.length) {
-                        options.database = options.databases[databaseIndex];
-                    }
-                }
-            }*/
         }
 
         return this.updateTablesInOptions(options, config);
@@ -1361,17 +1341,18 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {any} [config]
      * @return {any}
      */
-    // TODO: 873: need to test with datastore with multiple tables
     public updateTablesInOptions(options: any, config?: any): any {
         options.tables = options.database ? this.datasetService.getTables(options.database.name) : [];
         options.table = options.tables[0] || options.table;
 
         if (options.tables.length > 0) {
-            // TODO: 873: verify which one of these is correct
-            let key = config ? config.tableKey : this.injector.get('tableKey', null);
+            let tableValue = config ? config.tableKey : this.injector.get('tableKey', null);
+            let currentDashboard = this.datasetService.getCurrentDashboard();
+            let configTable: any;
 
-            if (key) {
-                let configTable = this.datasetService.getTableNameFromCurrentDashboardByKey(key);
+            if (currentDashboard && currentDashboard.tables && currentDashboard.tables[tableValue]) {
+                configTable = this.datasetService.getTableNameFromCurrentDashboardByKey(tableValue);
+
                 if (configTable) {
                     for (let table of options.tables) {
                         if (configTable === table.name) {
@@ -1381,30 +1362,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                     }
                 }
             }
-            /*
-            let configTable = config ?
-                this.datasetService.getTableNameFromCurrentDashboardByKey(config.tableKey) :
-                this.injector.get('table', null);
-            if (configTable) {
-                let isName = false;
-                for (let table of options.tables) {
-                    if (configTable === table.name) {
-                        options.table = table;
-                        isName = true;
-                        break;
-                    }
-                }
-                if (!isName) {
-                    // Check if the config table is actually an array index rather than a name.
-                    let tableIndex = parseInt(configTable, 10);
-                    if (!isNaN(tableIndex) && tableIndex < options.tables.length) {
-                        options.table = options.tables[tableIndex];
-                    }
-                }
-            }*/
         }
 
-        // TODO: 873
         return this.updateFieldsInOptions(options);
     }
 }

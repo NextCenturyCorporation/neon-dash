@@ -1036,7 +1036,8 @@ layouts:
         bindings:
             title: Documents
             tableKey: table_key_1
-            # TODO: 873: keeping field names here for now to demonstrate backwards compatibility
+            # don't necessarily need to update all fields to keys
+            # keeping field names here for now to demonstrate backwards compatibility
             idField: id
             sortField: createdAt
             limit: 100
