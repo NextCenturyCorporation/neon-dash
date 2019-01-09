@@ -146,7 +146,6 @@ export class DatasetService {
             if (!nestedChoiceKeys.length) {
                 // If no choices are present, then this might be the last level of nested choices,
                 // which should instead have table keys and a layout specified. If not, delete choice.
-                // TODO: 825: Add field keys later.
                 if (!dashboardChoices[choiceKey].layout || !dashboardChoices[choiceKey].tables) {
                     delete dashboardChoices[choiceKey];
                 }
