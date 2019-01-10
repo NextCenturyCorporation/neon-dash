@@ -344,10 +344,10 @@ describe('Component: DocumentViewer', () => {
             name: 'Test Metadata Field',
             field: 'testMetadataField'
         }];
-        fixture.detectChanges();
+        component.changeDetection.detectChanges();
 
         fixture.whenStable().then(() => {
-            fixture.detectChanges();
+            component.changeDetection.detectChanges();
 
             let buttons = fixture.debugElement.queryAll(By.css('.document-viewer-button'));
             expect(buttons.length).toBe(2);
