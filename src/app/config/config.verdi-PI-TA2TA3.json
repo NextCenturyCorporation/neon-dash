@@ -33,11 +33,11 @@
                     ]
                 },
                 {
-                    "name": "verdi-simple-rdf",
+                    "name": "kb-simple",
                     "prettyName": "VERDI SIMPLIFIED",
                     "tables": [
                         {
-                            "name": "kb_simple",
+                            "name": "seedling",
                             "prettyName": "Knowledge Base Simplified"
                         }
                     ]
@@ -62,8 +62,8 @@
                             "field": "identifier"
                         },
                         {
-                            "database": "verdi-simple-rdf",
-                            "table": "kb_simple",
+                            "database": "kb-simple",
+                            "table": "seedling",
                             "field": "docIds"
                         }
                     ]
@@ -83,8 +83,8 @@
                             }
                         }
                     },
-                    "verdi-simple-rdf": {
-                        "kb_simple": {
+                    "kb-simple": {
+                        "seedling": {
                             "categories": {
                                 "ENTITY": "#ADD8E6",
                                 "EVENT": "#D98C8C",
@@ -138,15 +138,21 @@
                     ]
                 },
                 {
-                    "name": "verdi-simple-rdf",
+                    "name": "kb-simple",
                     "prettyName": "VERDI SIMPLIFIED",
                     "tables": [
                         {
-                            "name": "kb_simple",
+                            "name": "seedling",
                             "prettyName": "Knowledge Base Simplified"
-                        },
+                        }
+                    ]
+                },
+                {
+                    "name": "kb-events",
+                    "prettyName": "VERDI EVENTS",
+                    "tables": [
                         {
-                            "name": "kb_events",
+                            "name": "seedling",
                             "prettyName": "Knowledge Base Events"
                         }
                     ]
@@ -166,8 +172,8 @@
                             "field": "hypotheses"
                         },
                         {
-                            "database": "verdi-simple-rdf",
-                            "table": "kb_events",
+                            "database": "kb-events",
+                            "table": "seedling",
                             "field": "hypotheses"
                         },
                         {
@@ -195,40 +201,13 @@
                             "field": "docIds"
                         },
                         {
-                            "database": "verdi-simple-rdf",
-                            "table": "kb_events",
+                            "database": "kb-events",
+                            "table": "seedling",
                             "field": "docIds"
                         }
                     ]
                 }
-            ],
-            "options": {
-                "checkForCoordinateValidation": "null_values",
-                "colorMaps": {
-                    "verdi-rdf": {
-                        "kb": {
-                            "categories": {
-                                "ENTITY": "#ADD8E6",
-                                "EVENT": "#D98C8C",
-                                "RELATION": "#FFE4B5"
-                            },
-                            "types": {
-                            }
-                        }
-                    },
-                    "verdi-simple-rdf": {
-                        "kb_simple": {
-                            "categories": {
-                                "ENTITY": "#ADD8E6",
-                                "EVENT": "#D98C8C",
-                                "RELATION": "#FFE4B5"
-                            },
-                            "types": {
-                            }
-                        }
-                    }
-                }
-            }
+            ]
         },
         {
             "title": "VERDI",
@@ -271,11 +250,11 @@
                     ]
                 },
                 {
-                    "name": "verdi-simple-rdf",
+                    "name": "kb-simple",
                     "prettyName": "VERDI SIMPLIFIED",
                     "tables": [
                         {
-                            "name": "kb_simple",
+                            "name": "seedling",
                             "prettyName": "Knowledge Base Simplified"
                         }
                     ]
@@ -319,8 +298,8 @@
                             "field": "docIds"
                         },
                         {
-                            "database": "verdi-simple-rdf",
-                            "table": "kb_simple",
+                            "database": "kb-simple",
+                            "table": "seedling",
                             "field": "docIds"
                         }
                     ]
@@ -340,8 +319,8 @@
                             }
                         }
                     },
-                    "verdi-simple-rdf": {
-                        "kb_simple": {
+                    "kb-simple": {
+                        "seedling": {
                             "categories": {
                                 "ENTITY": "#ADD8E6",
                                 "EVENT": "#D98C8C",
@@ -365,8 +344,8 @@
                 "bindings": {
                     "id": "_id",
                     "title": "Taxonomy",
-                    "database": "verdi-simple-rdf",
-                    "table": "kb_simple",
+                    "database": "kb-simple",
+                    "table": "seedling",
                     "typeField": "types",
                     "subTypeField": "types",
                     "categoryField": "categories",
@@ -398,8 +377,8 @@
                 "sizey": 16,
                 "bindings": {
                     "title": "Network Graph",
-                    "database": "verdi-simple-rdf",
-                    "table": "kb_simple",
+                    "database": "kb-simple",
+                    "table": "seedling",
                     "unsharedFilterField": "",
                     "unsharedFilterValue": "",
                     "nodeField": "kbid",
@@ -505,8 +484,8 @@
                             "filterField": "hypotheses"
                         },
                         {
-                            "database": "verdi-simple-rdf",
-                            "table": "kb_events",
+                            "database": "kb-events",
+                            "table": "seedling",
                             "idField": "docIds",
                             "filterField": "hypotheses"
                         }
@@ -546,8 +525,8 @@
                 "bindings": {
                     "id": "_id",
                     "title": "Events",
-                    "database": "verdi-simple-rdf",
-                    "table": "kb_events",
+                    "database": "kb-events",
+                    "table": "seedling",
                     "idField": "kbid",
                     "flagLabel": "name",
                     "flagSubLabel1": "docDate",
@@ -635,8 +614,8 @@
                 "col": 4,
                 "bindings": {
                     "title": "Event Timeline",
-                    "database": "verdi-simple-rdf",
-                    "table": "kb_events",
+                    "database": "kb-events",
+                    "table": "seedling",
                     "dateField": "docDate",
                     "granularity": "day",
                     "filterFields": ["id"],
@@ -670,8 +649,8 @@
                             "filterField": "hypotheses"
                         },
                         {
-                            "database": "verdi-simple-rdf",
-                            "table": "kb_simple",
+                            "database": "kb-simple",
+                            "table": "seedling",
                             "idField": "docIds",
                             "filterField": "hypotheses"
                         }
@@ -709,8 +688,8 @@
                 "sizey": 12,
                 "bindings":{
                     "title": "Network Graph",
-                    "database": "verdi-simple-rdf",
-                    "table": "kb_simple",
+                    "database": "kb-simple",
+                    "table": "seedling",
                     "unsharedFilterField": "",
                     "unsharedFilterValue": "",
                     "nodeField": "kbid",
