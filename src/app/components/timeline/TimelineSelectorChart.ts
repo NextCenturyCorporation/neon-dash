@@ -223,11 +223,14 @@ export class TimelineSelectorChart {
     clearBrush(): void {
         this.data.extent = [];
         this.oldExtent = [];
-        this.brush.clear();
-        d3.select(this.element.nativeElement).select('.brush').call(this.brush);
-        if (this.data.data.length && this.data.data[0].data) {
-            this.render();
+        if (this.brush) {
+            this.brush.clear();
+            d3.select(this.element.nativeElement).select('.brush').call(this.brush);
+            if (this.data.data.length && this.data.data[0].data) {
+                this.render();
+            }
         }
+
     }
 
     datesEqual(a, b): boolean {
