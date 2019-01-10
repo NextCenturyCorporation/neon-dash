@@ -755,6 +755,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.loadingCount++;
 
         if (this.cannotExecuteQuery(options)) {
+            if (this.layerIdToQueryIdToQueryObject.get(options._id).has(queryId)) {
+                this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).abort();
+            }
             callback(options, {
                 data: []
             }, this.finishQueryExecution.bind(this));
