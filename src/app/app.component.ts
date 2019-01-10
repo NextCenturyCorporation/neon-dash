@@ -64,8 +64,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChild(NgGrid) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
     @ViewChild('sideNavRight') sideNavRight: MatSidenav;
-    //@Input() sidenav = MatSidenav;
-    // Used to determine which pane is show in the right sidenav
 
     public currentPanel: string = 'dashboardLayouts';
     public showCustomConnectionButton: boolean = false;
@@ -401,8 +399,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     ngAfterViewInit() {
         let gearContainer: HTMLElement = document.getElementById('gear');
+
         gearContainer.setAttribute('style', 'display: none');
-        // child is set
         /* NOTE:
          * The gear component is created when the app component is created because if it is created when
          * a component sends its option object in the messenger channel, it is too late.
@@ -412,8 +410,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
          * Another workaround might be sending the option object in the messenger channel after a feedback
          * from the app component after the toggleGear is received.
          */
-        //this.setPanel('gear', 'Component Settings');
-        //this.sideNavRight.toggle();
         /* NOTE:
          * There was an issue with Angular Material beta 12 and angular2-grid,
          * where the grid would initially be multiple times larger than the rest of the page
@@ -491,11 +487,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     resetAllPanel() {
-        let aboutNeonContainer: HTMLElement = document.getElementById('about.neon');
-        let addVisContainer: HTMLElement = document.getElementById('add.vis');
-        let dashboardLayoutsContainer: HTMLElement = document.getElementById('dashboard.layouts');
+        let aboutNeonContainer: HTMLElement = document.getElementById('aboutNeon');
+        let addVisContainer: HTMLElement = document.getElementById('addVis');
+        let dashboardLayoutsContainer: HTMLElement = document.getElementById('dashboardLayouts');
         let gearContainer: HTMLElement = document.getElementById('gear');
-        let savedStateContainer: HTMLElement = document.getElementById('saved.state');
+        let savedStateContainer: HTMLElement = document.getElementById('savedState');
         let settingsContainer: HTMLElement = document.getElementById('settings');
 
         let containerList = [
@@ -518,11 +514,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.resetAllPanel();
         let rightPanelContainer: HTMLElement = document.getElementById(newPanel);
 
-        if (newPanel === 'about.neon' && !this.createAboutNeon) {
+        if (newPanel === 'aboutNeon' && !this.createAboutNeon) {
             this.createAboutNeon = true;
-        } else if (newPanel === 'add.vis' && !this.createAddVis) {
+        } else if (newPanel === 'addVis' && !this.createAddVis) {
             this.createAddVis = true;
-        } else if (newPanel === 'saved.state' && !this.createSavedState) {
+        } else if (newPanel === 'savedState' && !this.createSavedState) {
             this.createSavedState = true;
         } else if (newPanel === 'settings' && !this.createSettings) {
             this.createSettings = true;

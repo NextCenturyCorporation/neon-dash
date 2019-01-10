@@ -1,11 +1,11 @@
 <form class="gear-container" #optionsFOrm="ngForm">
 
-    <mat-form-field class="widgetOption-container">
+    <mat-form-field class="option-container">
         <input matInput placeholder="Title" [(ngModel)]="options.title" name="Title" required="false">
     </mat-form-field>
     <p></p>
 
-    <mat-form-field class="widgetOption-container">
+    <mat-form-field class="option-container">
         <mat-select placeholder="Database" [(ngModel)]="options.database" required="true" name="database"
         (ngModelChange)="handleChangeDatabase(options)" [disabled]="options.databases.length < 2">
             <mat-option *ngFor="let database of options.databases" [value]="database">{{ database.prettyName }}</mat-option>
@@ -13,7 +13,7 @@
     </mat-form-field>
     <p></p>
 
-    <mat-form-field class="widgetOption-container">
+    <mat-form-field class="option-container">
         <mat-select placeholder="Table" [(ngModel)]="options.table" required="true" name="table"
         (ngModelChange)="handleChangeTable(options)" [disabled]="options.tables.length < 2">
             <mat-option *ngFor="let table of options.tables" [value]="table">{{ table.prettyName }}</mat-option>
@@ -25,7 +25,7 @@
 
     <div class="option-container" *ngFor="let requiredOption of requiredList">
         <!-- Select Option Type-->
-        <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(requiredOption.optionType, 'SELECT')">
+        <mat-form-field class="option-container" *ngIf="checkOptionType(requiredOption.optionType, 'SELECT')">
             <mat-select requiredOption.prettyName placeholder={{requiredOption.prettyName}} [ngModel]="requiredOption.valueCurrent"
                 name="{{requiredOption.prettyName}} Select" (ngModelChange)="handleDataChange(requiredOption, $event)">
                 <mat-option *ngFor="let choice of requiredOption.valueChoices" [value]="choice.variable">
@@ -34,7 +34,7 @@
             </mat-select>
         </mat-form-field>
         <!-- Field Option Type-->
-        <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(requiredOption.optionType, 'FIELD')">
+        <mat-form-field class="option-container" *ngIf="checkOptionType(requiredOption.optionType, 'FIELD')">
             <mat-select requiredOption.prettyName placeholder={{requiredOption.prettyName}} [ngModel]="requiredOption.valueCurrent"
                 name="{{requiredOption.prettyName}} Field" (ngModelChange)="handleDataChange(requiredOption, $event)">
                 <mat-option [value]="createEmptyField()">(None)</mat-option>
@@ -43,14 +43,14 @@
         </mat-form-field>
         <!-- Free Text Option Type-->
         <div mat-fill class="flex center" *ngIf="checkOptionType(requiredOption.optionType, 'FREE_TEXT')">
-            <mat-form-field class='widgetOption-container' requiredOption.prettyName>
+            <mat-form-field class='option-container' requiredOption.prettyName>
                 <input matInput placeholder={{requiredOption.prettyName}} [ngModel]="requiredOption.valueCurrent" name="{{requiredOption.prettyName}} Free"
                     (ngModelChange)="handleDataChange(requiredOption, $event)" required="true">
             </mat-form-field>
         </div>
         <!-- Field Array Option Type-->
         <div mat-fill class="flex center" *ngIf="checkOptionType(requiredOption.optionType, 'FIELD_ARRAY')">
-            <mat-form-field class='widgetOption-container'>
+            <mat-form-field class='option-container'>
                 <mat-select placeholder={{requiredOption.prettyName}} [(ngModel)]="requiredOption.valueCurrent" name="{{requiredOption.prettyName}} Field Array"
                     (ngModelChange)="handleDataChange(requiredOption, $event)" [disabled]="!options.filterable" multiple>
                     <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
@@ -59,7 +59,7 @@
         </div>
         <!-- Multiple Select Option Type-->
         <div mat-fill class="flex center" *ngIf="checkOptionType(requiredOption.optionType, 'MULTIPLE_SELECT')">
-            <mat-form-field class='widgetOption-container'>
+            <mat-form-field class='option-container'>
                 <mat-select placeholder={{requiredOption.prettyName}} [(ngModel)]="requiredOption.valueCurrent" name="{{requiredOption.prettyName}} Multiple Select"
                     (ngModelChange)="handleDataChange(requiredOption, $event)" [disabled]="!options.filterable" multiple>
                     <mat-option *ngFor="let field of options.fields" [value]="field">{{ field }}</mat-option>
@@ -73,7 +73,7 @@
 
     <div class="option-container" *ngFor="let optionalOption of optionalList">
         <!-- Select Option Type-->
-        <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(optionalOption.optionType, 'SELECT')">
+        <mat-form-field class="option-container" *ngIf="checkOptionType(optionalOption.optionType, 'SELECT')">
             <mat-select optionalOption.prettyName placeholder={{optionalOption.prettyName}} [ngModel]="optionalOption.valueCurrent"
                 name="{{optionalOption.prettyName}} Select" (ngModelChange)="handleDataChange(optionalOption, $event)">
                 <mat-option *ngFor="let choice of optionalOption.valueChoices" [value]="choice.variable">
@@ -82,7 +82,7 @@
             </mat-select>
         </mat-form-field>
         <!-- Field Option Type-->
-        <mat-form-field class="widgetOption-container" *ngIf="checkOptionType(optionalOption.optionType, 'FIELD')">
+        <mat-form-field class="option-container" *ngIf="checkOptionType(optionalOption.optionType, 'FIELD')">
             <mat-select optionalOption.prettyName placeholder={{optionalOption.prettyName}} [ngModel]="optionalOption.valueCurrent"
                 name="{{optionalOption.prettyName}} Field" (ngModelChange)="handleDataChange(optionalOption, $event)">
                 <mat-option [value]="createEmptyField()">(None)</mat-option>
@@ -91,14 +91,14 @@
         </mat-form-field>
         <!-- Free Text Option Type-->
         <div mat-fill class="flex center" *ngIf="checkOptionType(optionalOption.optionType, 'FREE_TEXT')">
-            <mat-form-field class='widgetOption-container'>
+            <mat-form-field class='option-container'>
                 <input matInput placeholder={{optionalOption.prettyName}} [ngModel]="optionalOption.valueCurrent" name="{{optionalOption.prettyName}} Free"
                     (ngModelChange)="handleDataChange(optionalOption, $event)">
             </mat-form-field>
         </div>
         <!-- Field Array Option Type-->
         <div mat-fill class="flex center" *ngIf="checkOptionType(optionalOption.optionType, 'FIELD_ARRAY')">
-            <mat-form-field class='widgetOption-container'>
+            <mat-form-field class='option-container'>
                 <mat-select placeholder={{optionalOption.prettyName}} [(ngModel)]="optionalOption.valueCurrent" name="{{optionalOption.prettyName}} Field Array"
                     (ngModelChange)="handleDataChange(optionalOption, $event)" [disabled]="!options.filterable" multiple>
                     <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
@@ -107,7 +107,7 @@
         </div>
         <!-- Multiple Select Option Type-->
         <div mat-fill class="flex center" *ngIf="checkOptionType(optionalOption.optionType, 'MULTIPLE_SELECT')">
-            <mat-form-field class='widgetOption-container'>
+            <mat-form-field class='option-container'>
                 <mat-select placeholder={{optionalOption.prettyName}} [(ngModel)]="optionalOption.valueCurrent" name="{{optionalOption.prettyName}} Multiple Select"
                     (ngModelChange)="handleDataChange(optionalOption, $event)" [disabled]="!options.filterable" multiple>
                     <mat-option *ngFor="let field of options.fields" [value]="field">{{ field }}</mat-option>
@@ -119,9 +119,9 @@
 </form>
 <div class="button-footer" align="right">
     <button mat-raised-button class="neon-button-large" color="primary" (click)="resetChangeList()">
-        {{ 'Cancel' }}
+        Cancel
     </button>
     <button mat-raised-button class="neon-button-large" color="primary" [disabled]="changeList.length == 0" (click)="handleApplyClick()">
-        {{ getApplyButtonText() }}
+        Apply Field Changes
     </button>
 </div>

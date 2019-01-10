@@ -614,6 +614,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     /**
      * Updates the sub-component and reruns the visualization query.
+     * @override
      */
     handleChangeSubcomponentType() {
         if (!this.optionsTypeIsDualViewCompatible(this.options)) {
@@ -1025,20 +1026,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     publishOptions() {
-        let componentThis: any;
-        let handleChangeData: () => void;
-        let handleChangeDatabase: () => void;
-        let handleChangeFilterField: () => void;
-        let handleChangeLimit: () => void;
-        let handleChangeSubcomponentType: () => void;
-        let handleChangeTable: () => void;
-        componentThis = this;
-        handleChangeData = this.handleChangeData.bind(this);
-        handleChangeDatabase = this.handleChangeDatabase.bind(this);
-        handleChangeFilterField = this.handleChangeFilterField.bind(this);
-        handleChangeLimit = this.handleChangeLimit.bind(this);
-        handleChangeSubcomponentType = this.handleChangeSubcomponentType.bind(this);
-        handleChangeTable = this.handleChangeTable.bind(this);
+        let handleChangeData: () => void = this.handleChangeData.bind(this);
+        let handleChangeDatabase: () => void = this.handleChangeDatabase.bind(this);
+        let handleChangeFilterField: () => void = this.handleChangeFilterField.bind(this);
+        let handleChangeLimit: () => void = this.handleChangeLimit.bind(this);
+        let handleChangeSubcomponentType: () => void = this.handleChangeSubcomponentType.bind(this);
+        let handleChangeTable: () => void = this.handleChangeTable.bind(this);
         this.messenger.publish('options', {
             options: this.options,
             changeData: handleChangeData,
@@ -1047,7 +1040,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             changeLimitCallback: handleChangeLimit,
             changeHandleSubcomponentType: handleChangeSubcomponentType,
             changeTable: handleChangeTable,
-            componentThis: componentThis
+            componentThis: this
         });
     }
 

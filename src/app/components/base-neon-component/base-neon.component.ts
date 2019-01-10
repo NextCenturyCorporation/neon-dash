@@ -928,6 +928,16 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
+     * Handles any behavior needed whenever the subcomponent type is changed and
+     * then runs the visualization query.
+     *
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
+     */
+    public handleChangeSubcomponentType(options?: any) {
+        this.handleChangeData(options);
+    }
+
+    /**
      * Called when a filter has been removed
      * @param filter The filter to remove: either a neon filter as stored in the filter service, or a local filter.
      */
@@ -1106,26 +1116,21 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Publishes the component's option object to the gear component
      */
     publishOptions() {
-        let componentThis: any;
-        let handleChangeData: () => void;
-        let handleChangeDatabase: () => void;
-        let handleChangeFilterField: () => void;
-        let handleChangeLimit: () => void;
-        let handleChangeTable: () => void;
-        componentThis = this;
-        handleChangeData = this.handleChangeData.bind(this);
-        handleChangeDatabase = this.handleChangeDatabase.bind(this);
-        handleChangeFilterField = this.handleChangeFilterField.bind(this);
-        handleChangeLimit = this.handleChangeLimit.bind(this);
-        handleChangeTable = this.handleChangeTable.bind(this);
+        let handleChangeData: () => void = this.handleChangeData.bind(this);
+        let handleChangeDatabase: () => void = this.handleChangeDatabase.bind(this);
+        let handleChangeFilterField: () => void = this.handleChangeFilterField.bind(this);
+        let handleChangeLimit: () => void = this.handleChangeLimit.bind(this);
+        let handleChangeSubcomponentType: () => void = this.handleChangeSubcomponentType.bind(this);
+        let handleChangeTable: () => void = this.handleChangeTable.bind(this);
         this.messenger.publish('options', {
             options: this.options,
             changeData: handleChangeData,
             changeDatabase: handleChangeDatabase,
             changeFilterFIeld: handleChangeFilterField,
             changeLimitCallback: handleChangeLimit,
+            handleChangeSubcomponentType: handleChangeSubcomponentType,
             changeTable: handleChangeTable,
-            componentThis: componentThis
+            componentThis: this
         });
     }
 
