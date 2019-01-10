@@ -158,12 +158,8 @@ describe('Component: WikiViewer', () => {
 
     it('does show toolbar and sidenav', (() => {
         fixture.detectChanges();
-        let container = fixture.debugElement.query(By.css('mat-sidenav-container'));
-        expect(container).not.toBeNull();
         let toolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar'));
         expect(toolbar).not.toBeNull();
-        let sidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav'));
-        expect(sidenav).not.toBeNull();
     }));
 
     it('does show header in toolbar with visualization name', (() => {
@@ -177,33 +173,6 @@ describe('Component: WikiViewer', () => {
         fixture.detectChanges();
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
-
-        let iconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
-        expect(iconInSidenav).toBeNull();
-
-        let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
-        expect(errorMessageInSidenav).toBeNull();
-    }));
-
-    it('does show error-message in toolbar and sidenav if errorMessage is defined', async(() => {
-        (component as any).errorMessage = 'Test Error Message';
-        fixture.detectChanges();
-
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
-            expect(errorMessageInToolbar).not.toBeNull();
-            expect(errorMessageInToolbar.nativeElement.textContent).toContain('Test Error Message');
-
-            let iconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
-            expect(iconInSidenav).not.toBeNull();
-            expect(iconInSidenav.nativeElement.textContent).toBe('error');
-
-            let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
-            expect(errorMessageInSidenav).not.toBeNull();
-            expect(errorMessageInSidenav.nativeElement.textContent).toContain('Test Error Message');
-        });
     }));
 
     it('does show settings icon button in toolbar', (() => {
@@ -213,48 +182,6 @@ describe('Component: WikiViewer', () => {
 
         let icon = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button mat-icon'));
         expect(icon.nativeElement.textContent).toBe('settings');
-    }));
-
-    it('does show sidenav options menu', (() => {
-        let menu = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav mat-card'));
-        expect(menu).not.toBeNull();
-
-        let content = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content'));
-        expect(content).not.toBeNull();
-    }));
-
-    it('does show selects in sidenav options menu that have no options', (() => {
-        fixture.detectChanges();
-
-        let inputs = fixture.debugElement.queryAll(
-            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-input-element'));
-        let selects = fixture.debugElement.queryAll(
-            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-select'));
-        let placeholders = fixture.debugElement.queryAll(
-            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-form-field-label-wrapper'));
-        expect(inputs.length).toBe(1);
-        expect(selects.length).toBe(4);
-        expect(placeholders.length).toBe(5);
-
-        expect(placeholders[0].nativeElement.textContent).toContain('Title');
-        expect(selects[0].componentInstance.disabled).toBe(true);
-        expect(placeholders[1].nativeElement.textContent).toContain('Database');
-        expect(selects[1].componentInstance.disabled).toBe(true);
-        expect(placeholders[2].nativeElement.textContent).toContain('Table');
-        expect(selects[2].componentInstance.disabled).toBe(true);
-        expect(placeholders[3].nativeElement.textContent).toContain('ID Field');
-        expect(selects[3].componentInstance.disabled).toBe(true);
-        expect(placeholders[4].nativeElement.textContent).toContain('Link Field');
-
-        // TODO How can we test the input model values?
-    }));
-
-    it('does show export control in sidenav options menu', (() => {
-        fixture.detectChanges();
-
-        let exportControl = fixture.debugElement.query(By.css(
-            'mat-sidenav-container mat-sidenav mat-card mat-card-content app-export-control'));
-        expect(exportControl).not.toBeNull();
     }));
 
     it('does hide loading overlay by default', (() => {
@@ -267,21 +194,6 @@ describe('Component: WikiViewer', () => {
         expect(hiddenSpinner).not.toBeNull();
     }));
 
-    it('does show loading overlay if loadingCount is positive', async(() => {
-        (component as any).loadingCount = 1;
-        fixture.detectChanges();
-
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
-            expect(loadingOverlay).not.toBeNull();
-
-            let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
-            expect(spinner).not.toBeNull();
-        });
-    }));
-
     it('does hide wiki-text tabs if active data is empty', inject([DomSanitizer], (sanitizer) => {
         fixture.detectChanges();
         let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
@@ -290,38 +202,6 @@ describe('Component: WikiViewer', () => {
         let text = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .wiki-text'));
         expect(text.length).toBe(0);
     }));
-
-    it('does show wiki-text tabs if active data is not empty', async(inject([DomSanitizer], (sanitizer) => {
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
-            name: 'Tab 1',
-            text: sanitizer.bypassSecurityTrustHtml('<p>one</p>')
-        }, {
-            name: 'Tab 2',
-            text: sanitizer.bypassSecurityTrustHtml('<p>two</p>')
-        }]));
-        fixture.detectChanges();
-
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            expect(component.getActiveData().data.length).toBe(2);
-            expect(component.getActiveData().data[0].text.toString()).toBe(
-                'SafeValue must use [property]=binding: <p>one</p> (see http://g.co/ng/security#xss)');
-            expect(component.getActiveData().data[1].text.toString()).toBe(
-                'SafeValue must use [property]=binding: <p>two</p> (see http://g.co/ng/security#xss)');
-
-            let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
-            expect(tabs.length).toBe(2);
-            expect(tabs[0].nativeElement.textContent).toBe('Tab 1');
-            expect(tabs[0].nativeElement.classList.contains('mat-tab-label-active')).toBe(true);
-            expect(tabs[1].nativeElement.textContent).toBe('Tab 2');
-            expect(tabs[1].nativeElement.classList.contains('mat-tab-label-active')).toBe(false);
-
-            let text = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .wiki-text'));
-            expect(text.length).toBe(1);
-            expect(text[0].nativeElement.innerHTML).toBe('<p>one</p>');
-        });
-    })));
 });
 
 describe('Component: WikiViewer with mock HTTP', () => {
@@ -554,40 +434,5 @@ describe('Component: WikiViewer with config', () => {
         let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toBe('Test Title');
-    }));
-
-    it('does show selects in sidenav options menu that have expected options', (() => {
-        fixture.detectChanges();
-
-        let inputs = fixture.debugElement.queryAll(
-            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-input-element'));
-        let selects = fixture.debugElement.queryAll(
-            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-select'));
-        let placeholders = fixture.debugElement.queryAll(
-            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-form-field-label-wrapper'));
-        expect(inputs.length).toBe(1);
-        expect(selects.length).toBe(4);
-        expect(placeholders.length).toBe(5);
-
-        expect(placeholders[0].nativeElement.textContent).toContain('Title');
-
-        // Don't directly test the two arrays because it's causing an overflow error!
-        expect(selects[0].componentInstance.options.toArray().length).toEqual(DatasetServiceMock.DATABASES.length);
-        expect(selects[0].componentInstance.disabled).toBe(false);
-        expect(placeholders[1].nativeElement.textContent).toContain('Database');
-
-        expect(selects[1].componentInstance.options.toArray().length).toEqual(DatasetServiceMock.TABLES.length);
-        expect(selects[1].componentInstance.disabled).toBe(false);
-        expect(placeholders[2].nativeElement.textContent).toContain('Table');
-
-        expect(selects[2].componentInstance.options.toArray().length).toEqual(DatasetServiceMock.FIELDS.length);
-        expect(selects[2].componentInstance.disabled).toBe(false);
-        expect(placeholders[3].nativeElement.textContent).toContain('ID Field');
-
-        expect(selects[3].componentInstance.options.toArray().length).toEqual(DatasetServiceMock.FIELDS.length);
-        expect(selects[3].componentInstance.disabled).toBe(false);
-        expect(placeholders[4].nativeElement.textContent).toContain('Link Field');
-
-        // TODO How can we test the input and select model values?
     }));
 });
