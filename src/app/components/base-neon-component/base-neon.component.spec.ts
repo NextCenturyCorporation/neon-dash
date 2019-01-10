@@ -1085,7 +1085,7 @@ describe('BaseNeonComponent', () => {
     });
 
     it('handleChangeLimit does update limit', () => {
-        let spy = spyOn(component, 'handleChangeData');
+        let spy = spyOn(component, 'handleChangeLimit');
 
         component.options.limit = 1234;
 
@@ -1096,8 +1096,8 @@ describe('BaseNeonComponent', () => {
         component.options.limit = 0;
 
         component.handleChangeLimit(component.options);
-        expect(component.options.limit).toEqual(1234);
-        expect(spy.calls.count()).toEqual(1);
+        expect(component.options.limit).toEqual(0);
+        expect(spy.calls.count()).toEqual(2);
     });
 
     it('handleSuccessfulVisualizationQuery with no data does work as expected', (done) => {

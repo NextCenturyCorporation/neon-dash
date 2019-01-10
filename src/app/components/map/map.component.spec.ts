@@ -269,7 +269,6 @@ describe('Component: Map', () => {
         expect(component.options.clusterPixelRange).toEqual(15);
         expect(component.options.customServer).toEqual(null);
         expect(component.options.disableCtrlZoom).toEqual(false);
-        expect(component.options.hoverPopupEnabled).toEqual(false);
         expect(component.options.hoverSelect).toEqual(null);
         expect(component.options.limit).toEqual(1000);
         expect(component.options.minClusterSize).toEqual(5);
@@ -908,7 +907,6 @@ describe('Component: Map with config', () => {
             { provide: 'clusterPixelRange', useValue: 20 },
             { provide: 'customServer', useValue: { mapUrl: 'testUrl', layer: 'testLayer' } },
             { provide: 'disableCtrlZoom', useValue: true },
-            { provide: 'hoverPopupEnabled', useValue: true },
             { provide: 'hoverSelect', useValue: { hoverTime: 5 } },
             { provide: 'minClusterSize', useValue: 10 },
             { provide: 'singleColor', useValue: true },
@@ -938,7 +936,6 @@ describe('Component: Map with config', () => {
             layer: 'testLayer'
         });
         expect(component.options.disableCtrlZoom).toEqual(true);
-        expect(component.options.hoverPopupEnabled).toEqual(true);
         expect(component.options.hoverSelect).toEqual({
             hoverTime: 5
         });
