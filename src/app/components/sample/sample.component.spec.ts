@@ -926,13 +926,11 @@ describe('Component: Sample', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
-    it('does show toolbar and sidenav and body-container', () => {
+    it('does show toolbarand body-container', () => {
         let container = fixture.debugElement.query(By.css('mat-sidenav-container'));
         expect(container).not.toBeNull();
         let toolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar'));
         expect(toolbar).not.toBeNull();
-        let sidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav'));
-        expect(sidenav).not.toBeNull();
         let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container'));
         expect(bodyContainer).not.toBeNull();
     });
@@ -955,22 +953,12 @@ describe('Component: Sample', () => {
             expect(dataInfoTextInToolbar).not.toBeNull();
             expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Results');
 
-            let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
-            expect(dataInfoIconInSidenav).not.toBeNull();
-            expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
-
             let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
             expect(dataInfoTextInSidenav).not.toBeNull();
             expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('10 Results');
 
             let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
             expect(errorMessageInToolbar).toBeNull();
-
-            let errorIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
-            expect(errorIconInSidenav).toBeNull();
-
-            let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
-            expect(errorMessageInSidenav).toBeNull();
         });
     }));
 
@@ -1018,79 +1006,6 @@ describe('Component: Sample', () => {
 
         let content = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content'));
         expect(content).not.toBeNull();
-    });
-
-    it('does show elements in sidenav options menu that have expected options', async(() => {
-        // Force the component to update all its selected elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let inputs = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(3); // The final input is in the unshared filter.
-
-            // Title Input
-            expect(inputs[0].attributes.placeholder).toBe('Title');
-            expect(inputs[0].nativeElement.value).toContain('Sample');
-
-            // Limit Input
-            expect(inputs[1].attributes.placeholder).toBe('Sample Limit');
-            expect(inputs[1].nativeElement.value).toContain('10');
-
-            let selects = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toEqual(6); // The final select is in the unshared filter.
-
-            // Database Dropdown
-            validateSelect(selects[0], 'Database', true);
-            let databaseOptions = selects[0].componentInstance.options.toArray();
-            expect(databaseOptions.length).toEqual(2);
-            expect(databaseOptions[0].getLabel()).toEqual('Test Database 1');
-            expect(databaseOptions[0].selected).toEqual(true);
-            expect(databaseOptions[1].getLabel()).toEqual('Test Database 2');
-            expect(databaseOptions[1].selected).toEqual(false);
-
-            // Table Dropdown
-            validateSelect(selects[1], 'Table', true);
-            let tableOptions = selects[1].componentInstance.options.toArray();
-            expect(tableOptions.length).toEqual(2);
-            expect(tableOptions[0].getLabel()).toEqual('Test Table 1');
-            expect(tableOptions[0].selected).toEqual(true);
-            expect(tableOptions[1].getLabel()).toEqual('Test Table 2');
-            expect(tableOptions[1].selected).toEqual(false);
-
-            // Sample Required Field Dropdown
-            validateSelect(selects[2], 'Sample Required Field', true);
-            validateSelectFields(selects[2], true);
-
-            // Sample Optional Field Dropdown
-            validateSelect(selects[3], 'Sample Optional Field', false);
-            validateSelectFields(selects[3], false);
-
-            // Subcomponent Type Dropdown
-            validateSelect(selects[4], 'Subcomponent Type', true);
-            let subcomponentOptions = selects[4].componentInstance.options.toArray();
-            expect(subcomponentOptions.length).toEqual(2);
-            expect(subcomponentOptions[0].getLabel()).toEqual('Impl1');
-            expect(subcomponentOptions[1].getLabel()).toEqual('Impl2');
-
-            let toggles = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(2);
-
-            validateToggle(toggles[0], false, 'Ascending', true);
-            validateToggle(toggles[1], true, 'Descending', false);
-        });
-    }));
-
-    it('does show unshared filter in sidenav options menu', () => {
-        let unsharedFilter = fixture.debugElement.query(By.css(
-            'mat-sidenav-container mat-sidenav mat-card mat-card-content app-unshared-filter'));
-        expect(unsharedFilter).not.toBeNull();
-        expect(unsharedFilter.componentInstance.meta).toEqual(component.options);
-        expect(unsharedFilter.componentInstance.unsharedFilterChanged).toBeDefined();
-        expect(unsharedFilter.componentInstance.unsharedFilterRemoved).toBeDefined();
     });
 
     it('does show export control in sidenav options menu', () => {
@@ -1314,68 +1229,4 @@ describe('Component: Sample with config', () => {
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Test Title');
     });
-
-    it('does show elements in sidenav options menu that have expected options', async(() => {
-        // Force the component to update all its selected elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let inputs = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(3); // The final input is in the unshared filter.
-
-            // Title Input
-            expect(inputs[0].attributes.placeholder).toBe('Title');
-            expect(inputs[0].nativeElement.value).toContain('Test Title');
-
-            // Limit Input
-            expect(inputs[1].attributes.placeholder).toBe('Sample Limit');
-            expect(inputs[1].nativeElement.value).toContain('1234');
-
-            let selects = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toEqual(6); // The final select is in the unshared filter.
-
-            // Database Dropdown
-            validateSelect(selects[0], 'Database', true);
-            let databaseOptions = selects[0].componentInstance.options.toArray();
-            expect(databaseOptions.length).toEqual(2);
-            expect(databaseOptions[0].getLabel()).toEqual('Test Database 1');
-            expect(databaseOptions[0].selected).toEqual(false);
-            expect(databaseOptions[1].getLabel()).toEqual('Test Database 2');
-            expect(databaseOptions[1].selected).toEqual(true);
-
-            // Table Dropdown
-            validateSelect(selects[1], 'Table', true);
-            let tableOptions = selects[1].componentInstance.options.toArray();
-            expect(tableOptions.length).toEqual(2);
-            expect(tableOptions[0].getLabel()).toEqual('Test Table 1');
-            expect(tableOptions[0].selected).toEqual(false);
-            expect(tableOptions[1].getLabel()).toEqual('Test Table 2');
-            expect(tableOptions[1].selected).toEqual(true);
-
-            // Sample Required Field Dropdown
-            validateSelect(selects[2], 'Sample Required Field', true);
-            validateSelectFields(selects[2], true, 'testCategoryField');
-
-            // Sample Optional Field Dropdown
-            validateSelect(selects[3], 'Sample Optional Field', false);
-            validateSelectFields(selects[3], false, 'testNameField');
-
-            // Subcomponent Type Dropdown
-            validateSelect(selects[4], 'Subcomponent Type', true);
-            let subcomponentOptions = selects[4].componentInstance.options.toArray();
-            expect(subcomponentOptions.length).toEqual(2);
-            expect(subcomponentOptions[0].getLabel()).toEqual('Impl1');
-            expect(subcomponentOptions[1].getLabel()).toEqual('Impl2');
-
-            let toggles = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(2);
-
-            validateToggle(toggles[0], false, 'Ascending', false);
-            validateToggle(toggles[1], true, 'Descending', true);
-        });
-    }));
 });
