@@ -34,16 +34,16 @@ input {
     padding: 5px;
 }
 
-.widgetOption-container {
-    width: 380px;
-    padding: 5px;
-}
-
 .button-footer {
     position: -webkit-sticky; /* Safari */
     position: sticky;
+    padding: 5px;
     top: 0;
     bottom: 1px;
     z-index: 9999;
     background: var(--color-background-white);
+}
+
+.neon-button-large {
+    margin: 5px;
 }

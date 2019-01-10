@@ -6,23 +6,23 @@
             </mat-toolbar>
 
             <div class="right-panel-container">
-                <div class="about-neon-container" id="about.neon" *ngIf="createAboutNeon">
+                <div id="aboutNeon" class="about-neon-container" *ngIf="createAboutNeon">
                     <app-about-neon></app-about-neon>
                 </div>
-                <div class="add-visualization-container" id="add.vis" *ngIf="createAddVis">
+                <div id="addVis" class="add-visualization-container" *ngIf="createAddVis">
                     <app-add-visualization></app-add-visualization>
                 </div>
-                <div class="dataset-selector-container" id="dashboard.layouts" *ngIf="createDashboardLayouts">
+                <div id="dashboardLayouts" class="dataset-selector-container" *ngIf="createDashboardLayouts">
                     <app-dataset-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); sideNavRight.toggle()">
                     </app-dataset-selector>
                 </div>
-                <div class="gear-container" id="gear" *ngIf="createGear">
+                <div id="gear" class="gear-container" *ngIf="createGear">
                     <app-gear></app-gear>
                 </div>
-                <div class="saved-state-container" id="saved.state" *ngIf="createSavedState">
+                <div id="savedStateContainer" class="saved-state-container" *ngIf="createSavedState">
                     <app-save-state [sidenav]="sideNavRight" [widgetGridItems]="widgetGridItems" [widgets]="widgets"></app-save-state>
                 </div>
-                <div class="setting-container" id="settings" *ngIf="createSettings">
+                <div id="settings" class="setting-container" *ngIf="createSettings">
                     <app-settings [widgets]="widgets"></app-settings>
                 </div>
             </div>

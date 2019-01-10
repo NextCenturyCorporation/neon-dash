@@ -126,13 +126,6 @@ export class GearComponent implements OnInit, OnDestroy {
         return new FieldMetaData();
     }
 
-    /**
-     * Gets the text for the Apply button
-     */
-    getApplyButtonText() {
-        return 'Apply Field Changes';
-    }
-
     getTitle() {
         let titleOption = this.options.access('title');
         return titleOption.valueCurrent;
@@ -242,8 +235,6 @@ export class GearComponent implements OnInit, OnDestroy {
 
         if (message.changeHandleSubcomponentType) {
             this.handleChangeSubcomponentType = message.changeHandleSubcomponentType;
-        } else {
-            this.handleChangeSubcomponentType = Function;
         }
 
         this.optionsList = this.options.list();

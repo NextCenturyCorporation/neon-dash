@@ -94,8 +94,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [
-            new WidgetFieldOption('idField', 'ID Field', true, true),
-            new WidgetFieldOption('linkField', 'Link Field', true, true)
+            new WidgetFieldOption('idField', 'ID Field', true),
+            new WidgetFieldOption('linkField', 'Link Field', true)
         ];
     }
 
