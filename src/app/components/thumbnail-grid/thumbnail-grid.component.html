@@ -53,16 +53,23 @@
                 </mat-form-field>
                 <p></p>
 
-                <div *ngIf="options.viewType === view.DETAILS">
+                <div *ngIf="options.viewType !== view.TITLE">
                     <span class="toggle-text">Label Names:</span>
-                    <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showLabelName" (ngModelChange)="updatePageData()">
+                    <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showLabelName" (ngModelChange)="refreshVisualization()">
+                        <mat-button-toggle [value]="true">On</mat-button-toggle>
+                        <mat-button-toggle [value]="false">Off</mat-button-toggle>
+                    </mat-button-toggle-group>
+                    <p></p>
+
+                    <span class="toggle-text">Truncate Title:</span>
+                    <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.truncate.value" (ngModelChange)="refreshVisualization()">
                         <mat-button-toggle [value]="true">On</mat-button-toggle>
                         <mat-button-toggle [value]="false">Off</mat-button-toggle>
                     </mat-button-toggle-group>
                     <p></p>
 
                     <mat-form-field>
-                        <mat-select placeholder="Flag Label" [(ngModel)]="options.flagLabel" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-select placeholder="Title" [(ngModel)]="options.flagLabel" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                             <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
@@ -70,7 +77,7 @@
                     <p></p>
 
                     <mat-form-field>
-                        <mat-select placeholder="Flag Sub-Label 1" [(ngModel)]="options.flagSubLabel1" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-select placeholder="Sub-Label 1" [(ngModel)]="options.flagSubLabel1" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                             <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
@@ -78,7 +85,7 @@
                     <p></p>
 
                     <mat-form-field>
-                        <mat-select placeholder="Flag Sub-Label 2" [(ngModel)]="options.flagSubLabel2" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-select placeholder="Sub-Label 2" [(ngModel)]="options.flagSubLabel2" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                             <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
@@ -86,7 +93,7 @@
                     <p></p>
 
                     <mat-form-field>
-                        <mat-select placeholder="Flag Sub-Label 3" [(ngModel)]="options.flagSubLabel3" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-select placeholder="Sub-Label 3" [(ngModel)]="options.flagSubLabel3" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                             <mat-option [value]="createEmptyField()">(None)</mat-option>
                             <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
@@ -275,7 +282,7 @@
     <div #thumbnailGrid class="body-container thumbnail-grid" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="gridArray.length > pagingGrid.length">
         <div class="thumbnail-grid-container" *ngIf="showGrid">
             <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid" [matTooltip]="getThumbnailTitle(item)"
-                [class.with-text]="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
+                 [class.with-text]="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
                 <app-subcomponent-title-thumbnail *ngIf="options.viewType === view.TITLE" [item]="item" [options]="options">
                 </app-subcomponent-title-thumbnail>
                 <app-subcomponent-details-thumbnail class="flex-grow" *ngIf="options.viewType === view.DETAILS" [item]="item" [options]="options">

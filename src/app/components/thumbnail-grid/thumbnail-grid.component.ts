@@ -83,6 +83,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public flagSubLabel3: FieldMetaData;
     public showLabelName: boolean;
     public canvasSize: number;
+    public truncate: any;
 
     /**
      * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
@@ -107,6 +108,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         bindings.textMap = this.textMap;
         bindings.typeMap = this.typeMap;
         bindings.canvasSize = this.canvasSize;
+        bindings.truncate = this.truncate;
 
         return bindings;
     }
@@ -172,6 +174,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.showLabelName = this.injector.get('showLabelName', false);
         this.viewType = this.injector.get('viewType', ViewType.TITLE);
         this.canvasSize = this.injector.get('canvasSize', 100.00);
+        this.truncate = this.injector.get('truncateTitle', {value: false, length: 0});
     }
 }
 
@@ -405,6 +408,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.gridArray.length));
 
         return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.gridArray.length);
+    }
+
+    getTruncatedTitle(item): string {
+        let title = item[this.options.flagLabel.columnName];
+        if (title.length > this.options.truncate.length) {
+            title = title.substring(0, this.options.truncate.length).concat('...');
+        }
+
+        return title;
     }
 
     /**

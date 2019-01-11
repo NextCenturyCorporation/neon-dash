@@ -1,16 +1,40 @@
 
-<div class="thumbnail-card" (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)" >
-    <div class="thumbnail-card-title">
-        <p>{{ item[options.flagLabel.columnName] }}</p>
+
+<div *ngIf="options.openOnMouseClick">
+    <div class="thumbnail-card">
+        <div class="thumbnail-card-title" (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)">
+            <p *ngIf="options.truncate.value">{{ thumbnailGrid.getTruncatedTitle(item) }}</p>
+            <p *ngIf="!options.truncate.value">{{ item[options.flagLabel.columnName] }}</p>
+        </div>
+
+        <canvas *ngIf="thumbnailGrid.isValidMediaType(item)" class="thumbnail-view thumbnail-card-canvas" [class.with-border]="options.border != ''"
+                [height]="options.canvasSize - 50" [width]="options.canvasSize" (click)="thumbnailGrid.displayMediaTab(item)">
+        </canvas>
+
+        <div class="thumbnail-card-details" (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)">
+            <p *ngIf="item[options.flagSubLabel1.columnName]"><span *ngIf="options.showLabelName">{{ options.flagSubLabel1.prettyName }} : </span>{{ item[options.flagSubLabel1.columnName] }}</p>
+            <p *ngIf="item[options.flagSubLabel2.columnName]"><span *ngIf="options.showLabelName">{{ options.flagSubLabel2.prettyName }} : </span>{{ item[options.flagSubLabel2.columnName] }}</p>
+            <p *ngIf="item[options.flagSubLabel3.columnName]"><span *ngIf="options.showLabelName">{{ options.flagSubLabel3.prettyName }} : </span>{{ item[options.flagSubLabel3.columnName] }}</p>
+        </div>
     </div>
 
-    <canvas *ngIf="thumbnailGrid.isValidMediaType(item)" class="thumbnail-view thumbnail-card-canvas" [class.with-border]="options.border != ''"
-            [height]="options.canvasSize - 50" [width]="options.canvasSize" (click)="thumbnailGrid.displayMediaTab(item)">
-    </canvas>
+</div>
 
-    <div class="thumbnail-card-details">
-        <p *ngIf="item[options.flagSubLabel1.columnName]"><span *ngIf="options.showLabelName">{{ options.flagSubLabel1.prettyName }} : </span>{{ item[options.flagSubLabel1.columnName] }}</p>
-        <p *ngIf="item[options.flagSubLabel2.columnName]"><span *ngIf="options.showLabelName">{{ options.flagSubLabel2.prettyName }} : </span>{{ item[options.flagSubLabel2.columnName] }}</p>
-        <p *ngIf="item[options.flagSubLabel3.columnName]"><span *ngIf="options.showLabelName">{{ options.flagSubLabel3.prettyName }} : </span>{{ item[options.flagSubLabel3.columnName] }}</p>
+<div *ngIf="!options.openOnMouseClick">
+    <div class="thumbnail-card" (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)" >
+        <div class="thumbnail-card-title">
+            <p *ngIf="options.truncate.value">{{ thumbnailGrid.getTruncatedTitle(item) }}</p>
+            <p *ngIf="!options.truncate.value">{{ item[options.flagLabel.columnName] }}</p>
+        </div>
+
+        <canvas *ngIf="thumbnailGrid.isValidMediaType(item)" class="thumbnail-view thumbnail-card-canvas" [class.with-border]="options.border != ''"
+                [height]="options.canvasSize - 50" [width]="options.canvasSize" (click)="thumbnailGrid.displayMediaTab(item)">
+        </canvas>
+
+        <div class="thumbnail-card-details">
+            <p *ngIf="item[options.flagSubLabel1.columnName]"><span *ngIf="options.showLabelName">{{ options.flagSubLabel1.prettyName }} : </span>{{ item[options.flagSubLabel1.columnName] }}</p>
+            <p *ngIf="item[options.flagSubLabel2.columnName]"><span *ngIf="options.showLabelName">{{ options.flagSubLabel2.prettyName }} : </span>{{ item[options.flagSubLabel2.columnName] }}</p>
+            <p *ngIf="item[options.flagSubLabel3.columnName]"><span *ngIf="options.showLabelName">{{ options.flagSubLabel3.prettyName }} : </span>{{ item[options.flagSubLabel3.columnName] }}</p>
+        </div>
     </div>
 </div>
