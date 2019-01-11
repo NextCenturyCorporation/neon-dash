@@ -819,7 +819,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     setupFilters() {
         let neonFilters = this.options.filterField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
-            this.options.table.name, [this.options.filterField.columnName, 'kbid']) : [];
+            this.options.table.name, [this.options.filterField.columnName]) : [];
         this.filters = [];
 
         for (let neonFilter of neonFilters) {
