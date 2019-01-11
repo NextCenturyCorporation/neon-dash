@@ -1109,7 +1109,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         // Update the zoom if dualView is truthy.  It will show both the unfiltered and filtered data.
-        if (this.subcomponentZoom && this.options.dualView) {
+        if (this.options.dualView) {
+            if (!this.subcomponentZoom) {
+                this.subcomponentZoom = this.initializeSubcomponent(this.subcomponentZoomElementRef, true);
+            }
             this.subcomponentZoom.draw(this.getActiveData(this.options).data, meta);
         }
 
