@@ -19,25 +19,26 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector, Input,
+    Injector,
+    Input,
     OnDestroy,
     OnInit,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
-import { ConnectionService } from '../../services/connection.service';
-import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
-import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
+import {ActiveGridService} from '../../services/active-grid.service';
+import {ColorSchemeService} from '../../services/color-scheme.service';
+import {ConnectionService} from '../../services/connection.service';
+import {DatasetService} from '../../services/dataset.service';
+import {ExportService} from '../../services/export.service';
+import {FilterService} from '../../services/filter.service';
+import {ThemesService} from '../../services/themes.service';
+import {VisualizationService} from '../../services/visualization.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import {BaseNeonComponent, BaseNeonOptions} from '../base-neon-component/base-neon.component';
+import {FieldMetaData} from '../../dataset';
+import {neonUtilities, neonVariables} from '../../neon-namespaces';
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';
@@ -656,7 +657,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 this.graph.focus(graphProperties.nodes[Math.floor((this.totalNodes - 1) / 2)].id);
                 this.displayGraph = true;
             }
-
         } else {
             this.displayGraph = false;
         }
@@ -1134,7 +1134,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 });
             }
         }
-    }
+    };
 
     /**
      * Helper function that creates and returns filter object

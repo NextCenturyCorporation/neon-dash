@@ -19,38 +19,28 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    HostListener,
     Injector,
     OnDestroy,
     OnInit,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
-import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
-import { ConnectionService } from '../../services/connection.service';
-import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
-import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
+import {ActiveGridService} from '../../services/active-grid.service';
+import {Color, ColorSchemeService} from '../../services/color-scheme.service';
+import {ConnectionService} from '../../services/connection.service';
+import {DatasetService} from '../../services/dataset.service';
+import {ExportService} from '../../services/export.service';
+import {FilterService} from '../../services/filter.service';
+import {ThemesService} from '../../services/themes.service';
+import {VisualizationService} from '../../services/visualization.service';
 
-import {
-    AbstractMap,
-    BoundingBoxByDegrees,
-    FilterListener,
-    MapPoint,
-    MapType,
-    MapTypePairs,
-    whiteString
-} from './map.type.abstract';
-import { BaseLayeredNeonComponent, BaseNeonLayer, BaseNeonMultiLayerOptions } from '../base-neon-component/base-layered-neon.component';
-import { CesiumNeonMap } from './map.type.cesium';
-import { FieldMetaData } from '../../dataset';
-import { LeafletNeonMap } from './map.type.leaflet';
-import { neonMappings, neonUtilities, neonVariables } from '../../neon-namespaces';
+import {AbstractMap, BoundingBoxByDegrees, FilterListener, MapPoint, MapType, MapTypePairs, whiteString} from './map.type.abstract';
+import {BaseLayeredNeonComponent, BaseNeonLayer, BaseNeonMultiLayerOptions} from '../base-neon-component/base-layered-neon.component';
+import {CesiumNeonMap} from './map.type.cesium';
+import {FieldMetaData} from '../../dataset';
+import {LeafletNeonMap} from './map.type.leaflet';
+import {neonUtilities, neonVariables} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-import * as _ from 'lodash';
 import * as geohash from 'geo-hash';
 
 class UniqueLocationPoint {
@@ -146,6 +136,7 @@ export class MapOptions extends BaseNeonMultiLayerOptions {
     };
 
     public layers: MapLayer[] = [];
+    public showOnlyFiltered: boolean;
 
     /**
      * Returns the layers for the options.
@@ -178,6 +169,7 @@ export class MapOptions extends BaseNeonMultiLayerOptions {
         this.north = this.injector.get('north', null);
         this.south = this.injector.get('south', null);
         this.point = this.injector.get('point', null);
+        this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
     }
 }
 
@@ -209,7 +201,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         filterName: string
     }[] = [];
 
-    protected filterHistory = new Array();
+    protected filterHistory = [];
 
     public options: MapOptions;
 
@@ -228,6 +220,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
     public disabledSet: [string[]] = [] as [string[]];
     protected defaultActiveColor: Color;
+    public showMap: boolean;
 
     constructor(
         activeGridService: ActiveGridService,
@@ -258,6 +251,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         this.options = new MapOptions(this.injector, 'Map', 1000);
 
         this.subscribeToSelectId(this.getSelectIdCallback());
+        this.showMap = !this.options.showOnlyFiltered;
     }
 
     /**
@@ -284,6 +278,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @override
      */
     subNgOnInit() {
+        this.messenger.events({ filtersChanged: this.handleChangedFilter.bind(this) });
         // Do nothing.
     }
 
@@ -483,6 +478,19 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             neon.query.where(latitudeField, '=', lat),
             neon.query.where(longitudeField, '=', lon)
         );
+    }
+
+    handleChangedFilter() {
+        //if there is a filter turn display on else off
+        let neonFilters = this.filterService.getFilters();
+        if (neonFilters.length > 0) {
+            this.showMap = true;
+        } else {
+            this.showMap = false;
+        }
+
+        this.refreshVisualization();
+        this.mapObject.sizeChanged();
     }
 
     /**
@@ -1008,6 +1016,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             return (limit < count ? prettifyInteger(limit) + ' of ' : 'Total ') + prettifyInteger(count);
         };
 
+        if (!this.showMap) {
+            return 'No Filter Selected';
+        }
+
         if (this.options.layers.length === 1) {
             return createButtonText(this.docCount[0], this.options.limit);
         }
@@ -1018,6 +1030,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 return !!text;
             }).join(', ');
         }
+
         return '';
     }
 

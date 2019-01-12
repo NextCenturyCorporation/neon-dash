@@ -25,19 +25,19 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { DomSanitizer } from '@angular/platform-browser';
+import {DomSanitizer} from '@angular/platform-browser';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ConnectionService } from '../../services/connection.service';
-import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
-import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
+import {ActiveGridService} from '../../services/active-grid.service';
+import {ConnectionService} from '../../services/connection.service';
+import {DatasetService} from '../../services/dataset.service';
+import {ExportService} from '../../services/export.service';
+import {FilterService} from '../../services/filter.service';
+import {ThemesService} from '../../services/themes.service';
+import {VisualizationService} from '../../services/visualization.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, MediaTypes } from '../../dataset';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import {BaseNeonComponent, BaseNeonOptions} from '../base-neon-component/base-neon.component';
+import {FieldMetaData, MediaTypes} from '../../dataset';
+import {neonUtilities, neonVariables} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 
 export const ViewType = {
@@ -174,7 +174,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.showLabelName = this.injector.get('showLabelName', false);
         this.viewType = this.injector.get('viewType', ViewType.TITLE);
         this.canvasSize = this.injector.get('canvasSize', 100.00);
-        this.truncate = this.injector.get('truncateTitle', {value: false, length: 0});
+        this.truncate = this.injector.get('truncateLabel', {value: false, length: 0});
     }
 }
 

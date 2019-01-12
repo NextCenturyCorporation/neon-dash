@@ -15,9 +15,9 @@
  */
 /// <reference path="../../../../node_modules/@types/d3/index.d.ts" />
 import * as _ from 'lodash';
-import { ElementRef } from '@angular/core';
-import { TimelineComponent } from './timeline.component';
-import { Bucketizer } from '../bucketizers/Bucketizer';
+import {ElementRef} from '@angular/core';
+import {TimelineComponent} from './timeline.component';
+import {Bucketizer} from '../bucketizers/Bucketizer';
 
 declare let d3;
 
@@ -53,7 +53,7 @@ export class TimelineSeries {
     public data: TimelineItem[] = DEFAULT_DATA;
     public focusData: TimelineItem[] = [];
     public name: string = 'Default';
-    public type: string= 'bar';
+    public type: string = 'bar';
     public options: Object = {};
     public startDate: Date = DEFAULT_DATA[0].date;
     public endDate: Date = DEFAULT_DATA[1].date;
@@ -129,13 +129,13 @@ export class TimelineSelectorChart {
         this.svg = d3.select(this.element.nativeElement);
 
         this.marginFocus = {
-                top: 0,
-                bottom: (this.data.collapsed ? this.determineHeight() : DEFAULT_HEIGHT)
-            };
+            top: 0,
+            bottom: (this.data.collapsed ? this.determineHeight() : DEFAULT_HEIGHT)
+        };
         this.marginContext = {
-                top: DEFAULT_MARGIN,
-                bottom: 0
-            };
+            top: DEFAULT_MARGIN,
+            bottom: 0
+        };
 
         this.redrawChart();
     }
@@ -222,10 +222,16 @@ export class TimelineSelectorChart {
     clearBrush(): void {
         this.data.extent = [];
         this.oldExtent = [];
-        this.brush.clear();
-        d3.select(this.element.nativeElement).select('.brush').call(this.brush);
-        if (this.data.data.length && this.data.data[0].data) {
-            this.render();
+        if (this.brush) {
+            d3.select(this.element.nativeElement).select('.brush').call(this.brush);
+            this.brush.clear();
+            if (this.data.data.length && this.data.data[0].data) {
+                d3.select(this.element.nativeElement).select('.brush').call(this.brush);
+                this.render();
+                if (this.data.data.length && this.data.data[0].data) {
+                    this.render();
+                }
+            }
         }
     }
 
@@ -890,7 +896,7 @@ export class TimelineSelectorChart {
 
         if ((extentWidth === '0') &&
             (this.brush.extent() && this.brush.extent().length >= 2 &&
-            ((this.brush.extent()[1] as number) - (this.brush.extent()[0] as number) > 0))) {
+                ((this.brush.extent()[1] as number) - (this.brush.extent()[0] as number) > 0))) {
             // If brush extent exists, but the width is too small, draw masks with a bigger width
             brushElement.find('.mask-west').attr('x', parseFloat(xPos) - width);
             brushElement.find('.mask-east').attr('x', parseFloat(xPos) + 1);
@@ -933,7 +939,7 @@ export class TimelineSelectorChart {
         // Check if there is focus data, and if the selection is within range
         let focusData = this.data.primarySeries.focusData;
         if (focusData.length > 0 && focusData[0].date <= datum.date &&
-                datum.date <= focusData[focusData.length - 1].date) {
+            datum.date <= focusData[focusData.length - 1].date) {
             if (this.data.focusGranularityDifferent) {
                 let startDate = this.data.bucketizer.roundDownBucket(datum.date);
                 let endDate = d3.time[this.data.bucketizer.getGranularity()]
@@ -965,8 +971,8 @@ export class TimelineSelectorChart {
         this.showHighlight(bucketData,
             this.contextHighlight, this.xContext, this.yContext);
 
-         this.showHighlight(datum,
-             this.focusHighlight, this.xFocus, this.yFocus);
+        this.showHighlight(datum,
+            this.focusHighlight, this.xFocus, this.yFocus);
     }
 
     /**
