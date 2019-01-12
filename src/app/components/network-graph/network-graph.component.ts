@@ -1134,7 +1134,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 });
             }
         }
-    };
+    }
 
     /**
      * Helper function that creates and returns filter object
