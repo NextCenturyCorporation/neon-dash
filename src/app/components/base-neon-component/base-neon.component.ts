@@ -101,6 +101,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     // The data pagination properties.
     protected lastPage: boolean = true;
     protected page: number = 1;
+    protected savedPages: Map<string, number> = new Map<string, number>();
 
     // A WidgetOptionCollection object.  Must use "any" type to avoid typescript errors.
     public options: any;
@@ -128,11 +129,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public ngAfterViewInit(): void {
         this.constructVisualization();
-        if (this.isMultiLayerWidget) {
-            this.executeAllQueryChain();
-        } else {
-            this.executeQueryChain();
-        }
+        this.executeAllQueryChain();
     }
 
     /**
@@ -383,6 +380,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 callback();
             }
             if (executeQueryChainOnSuccess) {
+                this.savedPages.set(subclassFilter.id, this.page);
+                this.page = 1;
                 this.executeQueryChain(options);
             }
         };
@@ -420,11 +419,13 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             if (callback) {
                 callback();
             }
+            this.page = 1;
             this.executeQueryChain(options);
             return;
         }
 
         this.addNeonFilter(options, false, filters[0].singleFilter, filters[0].clause, () => {
+            this.savedPages.set(filters[0].singleFilter.id, this.page);
             this.addMultipleFilters(options, filters.slice(1), callback);
         });
     }
@@ -450,6 +451,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 callback();
             }
             if (executeQueryChainOnSuccess) {
+                this.savedPages.set(subclassFilter.id, this.page);
+                this.page = 1;
                 this.executeQueryChain(options);
             }
         };
@@ -610,7 +613,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @abstract
      */
     private handleSuccessfulTotalCountQuery(options: any, response: any, callback: () => void): void {
-        if (!response || !response.data || response.data[0]._count === undefined) {
+        if (!response || !response.data || !response.data.length || response.data[0]._count === undefined) {
             this.layerIdToElementCount.set(options._id, 0);
         } else {
             this.layerIdToElementCount.set(options._id, response.data[0]._count);
@@ -658,11 +661,12 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
 
         let successCallback = (data: TransformedVisualizationData) => {
+            this.errorMessage = '';
             this.layerIdToActiveData.set(options._id, data);
 
             if (this.visualizationQueryPaginates && !this.showingZeroOrMultipleElementsPerResult) {
                 let countQuery: neon.query.Query = this.createCompleteVisualizationQuery(options);
-                if (this.page === 1 && countQuery) {
+                if (countQuery) {
                     // Do not add a limit or an offset!
                     countQuery.aggregate(neonVariables.COUNT, '*', '_count');
                     let filtersToIgnore = this.getFiltersToIgnore();
@@ -747,6 +751,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.loadingCount++;
 
         if (this.cannotExecuteQuery(options)) {
+            if (this.layerIdToQueryIdToQueryObject.get(options._id).has(queryId)) {
+                this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).abort();
+            }
             callback(options, {
                 data: []
             }, this.finishQueryExecution.bind(this));
@@ -825,56 +832,59 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     /**
      * Updates tables, fields, and filters whenenver the database is changed and then runs the visualization query.
      *
-     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
-    public handleChangeDatabase(options: any): void {
-        this.updateTablesInOptions(options);
+    public handleChangeDatabase(options?: any): void {
+        let optionsToUpdate = options || this.options;
+        this.updateTablesInOptions(optionsToUpdate);
         // Change behavior depending on if the given options are the top-level options or layer options.
         // TODO THOR-1002 How to do this nicely
-        if (options === this.options) {
-            this.initializeFieldsInOptions(options, this.createFieldOptions().concat(
+        if (optionsToUpdate === this.options) {
+            this.initializeFieldsInOptions(optionsToUpdate, this.createFieldOptions().concat(
                 new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false)
             ));
         } else {
-            this.initializeFieldsInOptions(options, this.createLayerFieldOptions());
+            this.initializeFieldsInOptions(optionsToUpdate, this.createLayerFieldOptions());
         }
-        this.removeAllFilters(options, this.getCloseableFilters(), () => {
+        this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), () => {
             this.setupFilters();
-            this.handleChangeData(options);
+            this.handleChangeData(optionsToUpdate);
         });
     }
 
     /**
      * Updates fields and filters whenever the table is changed and then runs the visualization query.
      *
-     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
-    public handleChangeTable(options: any): void {
-        this.updateFieldsInOptions(options);
+    public handleChangeTable(options?: any): void {
+        let optionsToUpdate = options || this.options;
+        this.updateFieldsInOptions(optionsToUpdate);
         // Change behavior depending on if the given options are the top-level options or layer options.
         // TODO THOR-1002 How to do this nicely
-        if (options === this.options) {
-            this.initializeFieldsInOptions(options, this.createFieldOptions().concat(
+        if (optionsToUpdate === this.options) {
+            this.initializeFieldsInOptions(optionsToUpdate, this.createFieldOptions().concat(
                 new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false)
             ));
         } else {
-            this.initializeFieldsInOptions(options, this.createLayerFieldOptions());
+            this.initializeFieldsInOptions(optionsToUpdate, this.createLayerFieldOptions());
         }
-        this.removeAllFilters(options, this.getCloseableFilters(), () => {
+        this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), () => {
             this.setupFilters();
-            this.handleChangeData(options);
+            this.handleChangeData(optionsToUpdate);
         });
     }
 
     /**
      * Updates filters whenever a filter field is changed and then runs the visualization query.
      *
-     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
-    public handleChangeFilterField(options: any): void {
-        this.removeAllFilters(options, this.getCloseableFilters(), () => {
+    public handleChangeFilterField(options?: any): void {
+        let optionsToUpdate = options || this.options;
+        this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), () => {
             this.setupFilters();
-            this.handleChangeData(options);
+            this.handleChangeData(optionsToUpdate);
         });
     }
 
@@ -978,6 +988,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                     this.removeFilter(filter);
                 }
                 if (requery) {
+                    this.page = this.savedPages.get(filter.id) || 1;
+                    this.savedPages.delete(filter.id);
                     this.executeQueryChain(options);
                 } else {
                     if (refresh) {

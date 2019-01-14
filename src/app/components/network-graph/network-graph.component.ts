@@ -263,7 +263,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             new WidgetFieldOption('xPositionField', 'X Position Field', false, this.optionsNotReified),
             new WidgetFieldOption('yPositionField', 'Y Position Field', false, this.optionsNotReified),
             new WidgetFieldOption('xTargetPositionField', 'X Target Position Field', false, this.optionsNotReified),
-            new WidgetFieldOption('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified)
+            new WidgetFieldOption('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified),
+            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
         ];
     }
 
@@ -301,9 +302,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             new WidgetFreeTextOption('fontColor', 'Font Color', '#343434', this.optionsNotReified),
             new WidgetFreeTextOption('linkColor', 'Link Color', '#96c1fc', this.optionsNotReified),
             new WidgetFreeTextOption('nodeColor', 'Node Color', '#96c1fc', this.optionsNotReified),
-            new WidgetFreeTextOption('nodeShape', 'Node Shape', 'box'),
-            // TODO THOR-950 Rename filterFields because it is not an array of FieldMetaData objects!
-            new WidgetNonPrimitiveOption('filterFields', 'Filter Fields', [])
+            new WidgetFreeTextOption('nodeShape', 'Node Shape', 'box')
         ];
     }
 
@@ -539,7 +538,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     setupFilters() {
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
-            this.options.table.name, this.options.filterFields);
+            this.options.table.name, this.options.filterFields.map((fieldsObject) => fieldsObject.columnName));
         this.filters = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
@@ -604,48 +603,46 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
-        this.neonFilters = this.filterService.getFiltersForFields(options.database.name, options.table.name, options.filterFields);
+        this.neonFilters = this.filterService.getFiltersForFields(options.database.name, options.table.name,
+            options.filterFields.map((fieldsObject) => fieldsObject.columnName));
 
-        if (!this.responseData.length) {
-            // TODO THOR-985
-            this.responseData = results;
+        // TODO THOR-985
+        this.responseData = results;
 
-            this.responseData.forEach((d) => {
-                for (let field of options.fields) {
-                    if ([options.nodeColorField.columnName, options.targetColorField.columnName].includes(field.columnName)
-                        && options.cleanLegendLabels && options.displayLegend) {
-                        let types = neonUtilities.deepFind(d, field.columnName);
-                        if (types instanceof Array) {
-                            for (let value of types) {
-                                this.prettifiedNodeLabels.push(this.labelCleanUp(value));
-                            }
-                        } else {
-                            this.prettifiedNodeLabels.push(types);
+        this.responseData.forEach((d) => {
+            for (let field of options.fields) {
+                if ([options.nodeColorField.columnName, options.targetColorField.columnName].includes(field.columnName)
+                    && options.cleanLegendLabels && options.displayLegend) {
+                    let types = neonUtilities.deepFind(d, field.columnName);
+                    if (types instanceof Array) {
+                        for (let value of types) {
+                            this.prettifiedNodeLabels.push(this.labelCleanUp(value));
                         }
-                    }
-                    if (field.columnName === options.edgeColorField.columnName && options.cleanLegendLabels
-                        && options.displayLegend) {
-                        let types = neonUtilities.deepFind(d, options.edgeColorField.columnName);
-                        if (types instanceof Array) {
-                            for (let value of types) {
-                                this.prettifiedEdgeLabels.push(this.labelCleanUp(value));
-                            }
-                        } else {
-                            this.prettifiedEdgeLabels.push(types);
-                        }
+                    } else {
+                        this.prettifiedNodeLabels.push(types);
                     }
                 }
-            });
+                if (field.columnName === options.edgeColorField.columnName && options.cleanLegendLabels
+                    && options.displayLegend) {
+                    let types = neonUtilities.deepFind(d, options.edgeColorField.columnName);
+                    if (types instanceof Array) {
+                        for (let value of types) {
+                            this.prettifiedEdgeLabels.push(this.labelCleanUp(value));
+                        }
+                    } else {
+                        this.prettifiedEdgeLabels.push(types);
+                    }
+                }
+            }
+        });
 
-            //Flattens multi-level arrays, removes duplicates, and sorts alphabetically
-            this.prettifiedNodeLabels = this.prettifiedNodeLabels.reduce(this.flattenArray, [])
-                .filter((value, index, array) => array.indexOf(value) === index).sort();
-            this.prettifiedEdgeLabels = this.prettifiedEdgeLabels.reduce(this.flattenArray, [])
-                .filter((value, index, array) => array.indexOf(value) === index).sort();
-        }
+        //Flattens multi-level arrays, removes duplicates, and sorts alphabetically
+        this.prettifiedNodeLabels = this.prettifiedNodeLabels.reduce(this.flattenArray, [])
+            .filter((value, index, array) => array.indexOf(value) === index).sort();
+        this.prettifiedEdgeLabels = this.prettifiedEdgeLabels.reduce(this.flattenArray, [])
+            .filter((value, index, array) => array.indexOf(value) === index).sort();
 
         this.existingNodeNames = [];
-        this.loadingCount++;
         this.resetGraphData();
         this.updateLegend();
 
@@ -653,6 +650,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private resetGraphData() {
+        this.loadingCount++;
         let graphProperties = this.options.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties();
 
         this.totalNodes = graphProperties.nodes.filter((value, index, array) =>
@@ -664,10 +662,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             this.displayGraph = true;
             this.graphData.nodes.update(graphProperties.nodes);
             this.graphData.edges.update(graphProperties.edges);
-            this.loadingCount--;
         } else {
             this.displayGraph = false;
         }
+        this.loadingCount--;
     }
 
     private clearGraphData() {
@@ -796,7 +794,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             yPositionField = this.options.yPositionField.columnName,
             xTargetPositionField = this.options.xTargetPositionField.columnName,
             yTargetPositionField = this.options.yTargetPositionField.columnName,
-            fFields = this.options.filterFields;
+            fFields = this.options.filterFields.map((fieldsObject) => fieldsObject.columnName);
 
         // assume nodes will take precedence over edges so create nodes first
         for (let entry of this.responseData) {
