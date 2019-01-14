@@ -37,7 +37,6 @@
         <mat-form-field class="option-container" *ngIf="checkOptionType(requiredOption.optionType, 'FIELD')">
             <mat-select requiredOption.prettyName placeholder={{requiredOption.prettyName}} [ngModel]="requiredOption.valueCurrent"
                 name="{{requiredOption.prettyName}} Field" (ngModelChange)="handleDataChange(requiredOption, $event)">
-                <mat-option [value]="createEmptyField()">(None)</mat-option>
                 <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
             </mat-select>
         </mat-form-field>
