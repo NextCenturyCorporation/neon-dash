@@ -271,11 +271,11 @@ describe('Component: DocumentViewer', () => {
             value1: 'not a match',
             value2: 'return when matching (2)'
         }], {
-            filterType: '=',
-            filterFor: ['match'],
-            filterOn: 'value1',
-            show: 'value2'
-        })).toEqual('');
+                filterType: '=',
+                filterFor: ['match'],
+                filterOn: 'value1',
+                show: 'value2'
+            })).toEqual('');
         expect(component.createTableRowText([{
             value1: 'match',
             value2: 'return when matching (1)'
@@ -283,11 +283,11 @@ describe('Component: DocumentViewer', () => {
             value1: 'not a match',
             value2: 'return when matching (2)'
         }], {
-            filterType: '=',
-            filterFor: ['match'],
-            filterOn: 'value1',
-            show: 'value2'
-        })).toEqual('return when matching (1)');
+                filterType: '=',
+                filterFor: ['match'],
+                filterOn: 'value1',
+                show: 'value2'
+            })).toEqual('return when matching (1)');
         expect(component.createTableRowText([{
             value1: 'match',
             value2: 'return when matching (1)'
@@ -295,11 +295,11 @@ describe('Component: DocumentViewer', () => {
             value1: 'match',
             value2: 'return when matching (2)'
         }], {
-            filterType: '=',
-            filterFor: ['match'],
-            filterOn: 'value1',
-            show: 'value2'
-        })).toEqual('return when matching (1), return when matching (2)');
+                filterType: '=',
+                filterFor: ['match'],
+                filterOn: 'value1',
+                show: 'value2'
+            })).toEqual('return when matching (1), return when matching (2)');
     });
 
     it('createTableRowText given an empty string, empty array, any object, or null does return empty string', () => {
@@ -346,20 +346,18 @@ describe('Component: DocumentViewer', () => {
         }];
         component.changeDetection.detectChanges();
 
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
+        component.changeDetection.detectChanges();
 
-            let buttons = fixture.debugElement.queryAll(By.css('.document-viewer-button'));
-            expect(buttons.length).toBe(2);
-            let names = fixture.debugElement.queryAll(By.css('.document-viewer-name'));
-            expect(names.length).toBe(2);
-            let texts = fixture.debugElement.queryAll(By.css('.document-viewer-text'));
-            expect(texts.length).toBe(2);
-            expect(names[0].nativeElement.textContent).toEqual('Test Metadata Field: ');
-            expect(texts[0].nativeElement.textContent).toEqual('First');
-            expect(names[1].nativeElement.textContent).toEqual('Test Metadata Field: ');
-            expect(texts[1].nativeElement.textContent).toEqual('Second');
-        });
+        let buttons = fixture.debugElement.queryAll(By.css('.document-viewer-button'));
+        expect(buttons.length).toBe(2);
+        let names = fixture.debugElement.queryAll(By.css('.document-viewer-name'));
+        expect(names.length).toBe(2);
+        let texts = fixture.debugElement.queryAll(By.css('.document-viewer-text'));
+        expect(texts.length).toBe(2);
+        expect(names[0].nativeElement.textContent).toEqual('Test Metadata Field: ');
+        expect(texts[0].nativeElement.textContent).toEqual('First');
+        expect(names[1].nativeElement.textContent).toEqual('Test Metadata Field: ');
+        expect(texts[1].nativeElement.textContent).toEqual('Second');
     }));
 
     it('getElementRefs does return expected object', () => {
@@ -884,20 +882,22 @@ describe('Component: Document Viewer with Config', () => {
             { provide: 'dataField', useValue: 'testTextField' },
             { provide: 'dateField', useValue: 'testDateField' },
             { provide: 'idField', useValue: 'testIdField' },
-            { provide: 'metadataFields', useValue: [
-                [{
-                    name: 'Single Item Metadata Row',
-                    field: 'singleItemMetadataRow'
-                }],
-                [{
-                    name: 'First of Multiple Item Metadata Row',
-                    field: 'firstOfMultipleItemMetadataRow'
-                },
-                {
-                    name: 'Second of Multiple Item Metadata Row',
-                    field: 'secondOfMultipleItemMetadataRow'
-                }]
-            ]},
+            {
+                provide: 'metadataFields', useValue: [
+                    [{
+                        name: 'Single Item Metadata Row',
+                        field: 'singleItemMetadataRow'
+                    }],
+                    [{
+                        name: 'First of Multiple Item Metadata Row',
+                        field: 'firstOfMultipleItemMetadataRow'
+                    },
+                    {
+                        name: 'Second of Multiple Item Metadata Row',
+                        field: 'secondOfMultipleItemMetadataRow'
+                    }]
+                ]
+            },
             { provide: 'popoutFields', useValue: [] },
             { provide: 'limit', useValue: 25 }
         ],
