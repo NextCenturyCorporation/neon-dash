@@ -261,10 +261,8 @@ describe('App', () => {
         });
         fixture.detectChanges();
         expect(component.showVisShortcut).toEqual(true);
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-            expect(debugElement.query(By.css('#showVisShortcutButton'))).not.toBeNull();
-        });
+        fixture.detectChanges();
+        expect(debugElement.query(By.css('#showVisShortcutButton'))).not.toBeNull();
     }));
 
     it('updateShowFiltersComponentIcon does update showFiltersComponent', async(() => {
@@ -279,10 +277,8 @@ describe('App', () => {
         });
         fixture.detectChanges();
         expect(component.showFiltersComponentIcon).toEqual(true);
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-            expect(debugElement.query(By.css('#showFiltersComponentIcon'))).not.toBeNull();
-        });
+        fixture.detectChanges();
+        expect(debugElement.query(By.css('#showFiltersComponentIcon'))).not.toBeNull();
     }));
 
     it('addWidget does add the given widget with specified position to the grid', async(() => {

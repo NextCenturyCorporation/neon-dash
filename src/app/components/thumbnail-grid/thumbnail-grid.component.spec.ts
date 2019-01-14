@@ -23,7 +23,7 @@ import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { neonVariables } from '../../neon-namespaces';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 import * as neon from 'neon-framework';
 
 import { ExportControlComponent } from '../export-control/export-control.component';
@@ -168,16 +168,13 @@ describe('Component: ThumbnailGrid', () => {
 
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
 
-            let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
-            expect(dataInfoTextInToolbar).not.toBeNull();
-            expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Files');
+        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
+        expect(dataInfoTextInToolbar).not.toBeNull();
+        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Files');
 
-            let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
-            expect(errorMessageInToolbar).toBeNull();
-        });
+        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
+        expect(errorMessageInToolbar).toBeNull();
     }));
 
     it('does show error-message in toolbar if errorMessage is defined', async(() => {
@@ -185,16 +182,13 @@ describe('Component: ThumbnailGrid', () => {
 
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
 
-            let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
-            expect(dataInfoTextInToolbar).toBeNull();
+        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
+        expect(dataInfoTextInToolbar).toBeNull();
 
-            let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
-            expect(errorMessageInToolbar).not.toBeNull();
-            expect(errorMessageInToolbar.nativeElement.textContent).toContain('Test Error Message');
-        });
+        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
+        expect(errorMessageInToolbar).not.toBeNull();
+        expect(errorMessageInToolbar.nativeElement.textContent).toContain('Test Error Message');
     }));
 
     it('does show settings icon button in toolbar', () => {
@@ -218,15 +212,12 @@ describe('Component: ThumbnailGrid', () => {
 
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
 
-            let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
-            expect(loadingOverlay).not.toBeNull();
+        let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
+        expect(loadingOverlay).not.toBeNull();
 
-            let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
-            expect(spinner).not.toBeNull();
-        });
+        let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
+        expect(spinner).not.toBeNull();
     }));
 
     it('does not show filter-container if filters is empty array', () => {
@@ -252,33 +243,30 @@ describe('Component: ThumbnailGrid', () => {
 
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
 
-            let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
-            expect(filterContainer).not.toBeNull();
+        let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
+        expect(filterContainer).not.toBeNull();
 
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
-            expect(bodyContainer).not.toBeNull();
+        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
+        expect(bodyContainer).not.toBeNull();
 
-            let filterResets = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container .filter-reset'));
-            expect(filterResets.length).toEqual(2);
+        let filterResets = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container .filter-reset'));
+        expect(filterResets.length).toEqual(2);
 
-            let filterLabels = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container .filter-label'));
-            expect(filterLabels.length).toEqual(2);
+        let filterLabels = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container .filter-label'));
+        expect(filterLabels.length).toEqual(2);
 
-            expect(filterLabels[0].nativeElement.textContent).toContain('value1');
-            expect(filterLabels[1].nativeElement.textContent).toContain('value2');
+        expect(filterLabels[0].nativeElement.textContent).toContain('value1');
+        expect(filterLabels[1].nativeElement.textContent).toContain('value2');
 
-            let filterButtons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container button'));
-            expect(filterButtons.length).toEqual(2);
+        let filterButtons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container button'));
+        expect(filterButtons.length).toEqual(2);
 
-            let filterIcons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container button mat-icon'));
-            expect(filterIcons.length).toEqual(2);
+        let filterIcons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container button mat-icon'));
+        expect(filterIcons.length).toEqual(2);
 
-            expect(filterIcons[0].nativeElement.textContent).toEqual('close');
-            expect(filterIcons[1].nativeElement.textContent).toEqual('close');
-        });
+        expect(filterIcons[0].nativeElement.textContent).toEqual('close');
+        expect(filterIcons[1].nativeElement.textContent).toEqual('close');
     }));
 
     it('does show body-container', () => {
@@ -317,21 +305,18 @@ describe('Component: ThumbnailGrid', () => {
 
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
 
-            let elements = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .thumbnail-grid-div'));
-            expect(elements.length).toEqual(2);
+        let elements = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .thumbnail-grid-div'));
+        expect(elements.length).toEqual(2);
 
-            expect(elements[0].nativeElement.classList.contains('with-text')).toEqual(true);
-            expect(elements[0].nativeElement.classList.contains('selected')).toEqual(false);
+        expect(elements[0].nativeElement.classList.contains('with-text')).toEqual(true);
+        expect(elements[0].nativeElement.classList.contains('selected')).toEqual(false);
 
-            expect(elements[1].nativeElement.classList.contains('with-text')).toEqual(true);
-            expect(elements[1].nativeElement.classList.contains('selected')).toEqual(false);
+        expect(elements[1].nativeElement.classList.contains('with-text')).toEqual(true);
+        expect(elements[1].nativeElement.classList.contains('selected')).toEqual(false);
 
-            let divElements = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .thumbnail-grid-div'));
-            expect(divElements.length).toEqual(2);
-        });
+        let divElements = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .thumbnail-grid-div'));
+        expect(divElements.length).toEqual(2);
     }));
 
     it('does not show footer-container or pagination-button elements by default', () => {
@@ -352,25 +337,22 @@ describe('Component: ThumbnailGrid', () => {
 
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
 
-            let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
-            expect(footerContainer).not.toBeNull();
+        let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
+        expect(footerContainer).not.toBeNull();
 
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
-            expect(bodyContainer).not.toBeNull();
+        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
+        expect(bodyContainer).not.toBeNull();
 
-            let footerButtons = fixture.debugElement.queryAll(By.css(
-                'mat-sidenav-container .footer .footer-button-container .pagination-button'));
-            expect(footerButtons.length).toEqual(2);
+        let footerButtons = fixture.debugElement.queryAll(By.css(
+            'mat-sidenav-container .footer .footer-button-container .pagination-button'));
+        expect(footerButtons.length).toEqual(2);
 
-            expect(footerButtons[0].componentInstance.disabled).toEqual(true);
-            expect(footerButtons[0].nativeElement.textContent).toContain('Previous');
+        expect(footerButtons[0].componentInstance.disabled).toEqual(true);
+        expect(footerButtons[0].nativeElement.textContent).toContain('Previous');
 
-            expect(footerButtons[1].componentInstance.disabled).toEqual(false);
-            expect(footerButtons[1].nativeElement.textContent).toContain('Next');
-        });
+        expect(footerButtons[1].componentInstance.disabled).toEqual(false);
+        expect(footerButtons[1].nativeElement.textContent).toContain('Next');
     }));
 
     it('does show footer-container and pagination-button elements if on middle page', async(() => {
@@ -382,25 +364,22 @@ describe('Component: ThumbnailGrid', () => {
 
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
 
-            let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
-            expect(footerContainer).not.toBeNull();
+        let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
+        expect(footerContainer).not.toBeNull();
 
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
-            expect(bodyContainer).not.toBeNull();
+        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
+        expect(bodyContainer).not.toBeNull();
 
-            let footerButtons = fixture.debugElement.queryAll(By.css(
-                'mat-sidenav-container .footer .footer-button-container .pagination-button'));
-            expect(footerButtons.length).toEqual(2);
+        let footerButtons = fixture.debugElement.queryAll(By.css(
+            'mat-sidenav-container .footer .footer-button-container .pagination-button'));
+        expect(footerButtons.length).toEqual(2);
 
-            expect(footerButtons[0].componentInstance.disabled).toEqual(false);
-            expect(footerButtons[0].nativeElement.textContent).toContain('Previous');
+        expect(footerButtons[0].componentInstance.disabled).toEqual(false);
+        expect(footerButtons[0].nativeElement.textContent).toContain('Previous');
 
-            expect(footerButtons[1].componentInstance.disabled).toEqual(false);
-            expect(footerButtons[1].nativeElement.textContent).toContain('Next');
-        });
+        expect(footerButtons[1].componentInstance.disabled).toEqual(false);
+        expect(footerButtons[1].nativeElement.textContent).toContain('Next');
     }));
 
     it('does show footer-container and pagination-button elements if on last page', async(() => {
@@ -412,25 +391,22 @@ describe('Component: ThumbnailGrid', () => {
 
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
 
-            let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
-            expect(footerContainer).not.toBeNull();
+        let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
+        expect(footerContainer).not.toBeNull();
 
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
-            expect(bodyContainer).not.toBeNull();
+        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
+        expect(bodyContainer).not.toBeNull();
 
-            let footerButtons = fixture.debugElement.queryAll(By.css(
-                'mat-sidenav-container .footer .footer-button-container .pagination-button'));
-            expect(footerButtons.length).toEqual(2);
+        let footerButtons = fixture.debugElement.queryAll(By.css(
+            'mat-sidenav-container .footer .footer-button-container .pagination-button'));
+        expect(footerButtons.length).toEqual(2);
 
-            expect(footerButtons[0].componentInstance.disabled).toEqual(false);
-            expect(footerButtons[0].nativeElement.textContent).toContain('Previous');
+        expect(footerButtons[0].componentInstance.disabled).toEqual(false);
+        expect(footerButtons[0].nativeElement.textContent).toContain('Previous');
 
-            expect(footerButtons[1].componentInstance.disabled).toEqual(true);
-            expect(footerButtons[1].nativeElement.textContent).toContain('Next');
-        });
+        expect(footerButtons[1].componentInstance.disabled).toEqual(true);
+        expect(footerButtons[1].nativeElement.textContent).toContain('Next');
     }));
 
     it('createFilter does nothing if filterField is empty', () => {
@@ -1509,7 +1485,7 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase2' },
             { provide: 'table', useValue: 'testTable2' },
-            { provide: 'filter', useValue: {lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
+            { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 10 },
             { provide: 'border', useValue: 'percentCompare' },
             { provide: 'borderCompareValue', useValue: 'Test Compare Value' },
@@ -1517,7 +1493,7 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'categoryField', useValue: 'testCategoryField' },
             { provide: 'compareField', useValue: 'testCategoryField' },
             { provide: 'cropAndScale', useValue: 'both' },
-            { provide: 'dateField', useValue: 'testDateField'},
+            { provide: 'dateField', useValue: 'testDateField' },
             { provide: 'defaultLabel', useValue: 'testDefaultLabel' },
             { provide: 'defaultPercent', useValue: 'testDefaultPercent' },
             { provide: 'filterField', useValue: 'testFilterField' },

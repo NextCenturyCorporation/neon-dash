@@ -22,7 +22,7 @@ import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 import * as neon from 'neon-framework';
 
 import { ExportControlComponent } from '../export-control/export-control.component';
@@ -821,13 +821,9 @@ describe('Component: MediaViewer', () => {
         (component as any).errorMessage = 'Test Error Message';
         component.changeDetection.detectChanges();
 
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
-
-            let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
-            expect(errorMessageInToolbar).not.toBeNull();
-            expect(errorMessageInToolbar.nativeElement.textContent.indexOf('Test Error Message') >= 0).toBe(true);
-        });
+        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
+        expect(errorMessageInToolbar).not.toBeNull();
+        expect(errorMessageInToolbar.nativeElement.textContent.indexOf('Test Error Message') >= 0).toBe(true);
     }));
 
     it('does show settings icon button in toolbar', (() => {
@@ -853,15 +849,11 @@ describe('Component: MediaViewer', () => {
         (component as any).loadingCount = 1;
         component.changeDetection.detectChanges();
 
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
+        let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
+        expect(loadingOverlay).not.toBeNull();
 
-            let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
-            expect(loadingOverlay).not.toBeNull();
-
-            let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
-            expect(spinner).not.toBeNull();
-        });
+        let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
+        expect(spinner).not.toBeNull();
     }));
 
     it('does hide tabs if tabsAndMedia is empty', inject([DomSanitizer], (sanitizer) => {
@@ -873,7 +865,7 @@ describe('Component: MediaViewer', () => {
         expect(slider.length).toBe(0);
     }));
 
-    it('does show tabs if tabsAndMedia is not empty', async(inject([DomSanitizer], (sanitizer) =>  {
+    it('does show tabs if tabsAndMedia is not empty', async(inject([DomSanitizer], (sanitizer) => {
         component.tabsAndMedia = [{
             loaded: false,
             slider: 0,
@@ -913,21 +905,17 @@ describe('Component: MediaViewer', () => {
         }];
         component.changeDetection.detectChanges();
 
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
+        expect(component.tabsAndMedia.length).toBe(2);
 
-            expect(component.tabsAndMedia.length).toBe(2);
+        let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+        expect(tabs.length).toBe(2);
+        expect(tabs[0].nativeElement.textContent).toBe('testTabName1');
+        expect(tabs[0].nativeElement.classList.contains('mat-tab-label-active')).toBe(true);
+        expect(tabs[1].nativeElement.textContent).toBe('testTabName2');
+        expect(tabs[1].nativeElement.classList.contains('mat-tab-label-active')).toBe(false);
 
-            let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
-            expect(tabs.length).toBe(2);
-            expect(tabs[0].nativeElement.textContent).toBe('testTabName1');
-            expect(tabs[0].nativeElement.classList.contains('mat-tab-label-active')).toBe(true);
-            expect(tabs[1].nativeElement.textContent).toBe('testTabName2');
-            expect(tabs[1].nativeElement.classList.contains('mat-tab-label-active')).toBe(false);
-
-            let slider = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-slider'));
-            expect(slider.length).toBe(0);
-        });
+        let slider = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-slider'));
+        expect(slider.length).toBe(0);
     })));
 
     it('does show single image tag according to the image type', async(inject([DomSanitizer], (sanitizer) => {
@@ -953,13 +941,10 @@ describe('Component: MediaViewer', () => {
         }];
         component.changeDetection.detectChanges();
 
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
-            expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<img');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
-        });
+        let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
+        expect(media.length).toBe(1);
+        expect(media[0].nativeElement.innerHTML).toContain('<img');
+        expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
     })));
 
     it('does show multiple image tags in tabs according to the image type', async(inject([DomSanitizer], (sanitizer) => {
@@ -1002,15 +987,12 @@ describe('Component: MediaViewer', () => {
             }]
         }];
         component.changeDetection.detectChanges();
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
-            let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
-            expect(tabs.length).toBe(2);
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
-            expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<img');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
-        });
+        let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+        expect(tabs.length).toBe(2);
+        let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
+        expect(media.length).toBe(1);
+        expect(media[0].nativeElement.innerHTML).toContain('<img');
+        expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
     })));
 
     it('does show single video tag according to the video type', async(inject([DomSanitizer], (sanitizer) => {
@@ -1036,13 +1018,10 @@ describe('Component: MediaViewer', () => {
         }];
         component.changeDetection.detectChanges();
 
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
-            expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<video');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
-        });
+        let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
+        expect(media.length).toBe(1);
+        expect(media[0].nativeElement.innerHTML).toContain('<video');
+        expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
     })));
 
     it('does show multiple video tags in tabs according to the video type', async(inject([DomSanitizer], (sanitizer) => {
@@ -1086,15 +1065,12 @@ describe('Component: MediaViewer', () => {
         }];
         component.changeDetection.detectChanges();
 
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
-            let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
-            expect(tabs.length).toBe(2);
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
-            expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<video');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
-        });
+        let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+        expect(tabs.length).toBe(2);
+        let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
+        expect(media.length).toBe(1);
+        expect(media[0].nativeElement.innerHTML).toContain('<video');
+        expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
     })));
 
     it('does show single audio tag according to the audio type', async(inject([DomSanitizer], (sanitizer) => {
@@ -1120,13 +1096,10 @@ describe('Component: MediaViewer', () => {
         }];
         component.changeDetection.detectChanges();
 
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
-            expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<audio');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
-        });
+        let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
+        expect(media.length).toBe(1);
+        expect(media[0].nativeElement.innerHTML).toContain('<audio');
+        expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
     })));
 
     it('does show multiple audio tags in tabs according to the audio type', async(inject([DomSanitizer], (sanitizer) => {
@@ -1170,15 +1143,12 @@ describe('Component: MediaViewer', () => {
         }];
         component.changeDetection.detectChanges();
 
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
-            let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
-            expect(tabs.length).toBe(2);
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
-            expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<audio');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
-        });
+        let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+        expect(tabs.length).toBe(2);
+        let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
+        expect(media.length).toBe(1);
+        expect(media[0].nativeElement.innerHTML).toContain('<audio');
+        expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
     })));
 
     it('does show single iframe tag according to the empty type', async(inject([DomSanitizer], (sanitizer) => {
@@ -1203,13 +1173,10 @@ describe('Component: MediaViewer', () => {
             }]
         }];
         component.changeDetection.detectChanges();
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
-            expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<iframe');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
-        });
+        let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
+        expect(media.length).toBe(1);
+        expect(media[0].nativeElement.innerHTML).toContain('<iframe');
+        expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
     })));
 
     it('does show multiple iframe tags in tabs according to the empty type', async(inject([DomSanitizer], (sanitizer) => {
@@ -1252,18 +1219,15 @@ describe('Component: MediaViewer', () => {
             }]
         }];
         component.changeDetection.detectChanges();
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
-            let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
-            expect(tabs.length).toBe(2);
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
-            expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<iframe');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
-        });
+        let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+        expect(tabs.length).toBe(2);
+        let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
+        expect(media.length).toBe(1);
+        expect(media[0].nativeElement.innerHTML).toContain('<iframe');
+        expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
     })));
 
-    it('does show two images and slider', async(inject([DomSanitizer], (sanitizer) =>  {
+    it('does show two images and slider', async(inject([DomSanitizer], (sanitizer) => {
         let baseSource = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
         let maskSource = 'https://homepages.cae.wisc.edu/~ece533/images/boat.png';
         component.tabsAndMedia = [{
@@ -1286,19 +1250,16 @@ describe('Component: MediaViewer', () => {
             }]
         }];
         component.changeDetection.detectChanges();
-        fixture.whenStable().then(() => {
-            component.changeDetection.detectChanges();
 
-            let medium = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
-            expect(medium.length).toBe(1);
-            let images = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium img'));
-            expect(images.length).toBe(2);
-            expect(images[0].nativeElement.outerHTML).toContain('src="' + baseSource + '" alt="testName"');
-            expect(images[1].nativeElement.outerHTML).toContain('src="' + maskSource + '" alt="testName"');
+        let medium = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
+        expect(medium.length).toBe(1);
+        let images = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium img'));
+        expect(images.length).toBe(2);
+        expect(images[0].nativeElement.outerHTML).toContain('src="' + baseSource + '" alt="testName"');
+        expect(images[1].nativeElement.outerHTML).toContain('src="' + maskSource + '" alt="testName"');
 
-            let slider = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-slider'));
-            expect(slider.length).toBe(1);
-        });
+        let slider = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-slider'));
+        expect(slider.length).toBe(1);
     })));
 });
 
