@@ -24,9 +24,9 @@ $footer-height: 35px;
     border-radius: 5px;
 
     .header.text {
-        font-size: 18px;
-        font-weight: bold;
-        line-height: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        font-style: normal;
         margin: 0 5px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -35,6 +35,9 @@ $footer-height: 35px;
     }
 
     .info.text {
+        font-size: 14px;
+        font-weight: 500;
+        font-style: normal;
         margin: 0 5px;
         overflow: hidden;
         text-align: right;
