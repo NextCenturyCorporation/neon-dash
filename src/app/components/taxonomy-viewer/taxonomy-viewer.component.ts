@@ -213,7 +213,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     getVisualizationDefaultLimit(): number {
-        return 100;
+        return 10000;
     }
 
     /**
@@ -534,7 +534,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             } else {
                 relatives = this.retrieveUnselectedNodes(node.parent.data.children);
             }
-            this.createNodeFilter(node.data, relatives);
+            if (!$event.target.checked) {
+                this.createNodeFilter(node.data, relatives);
+            }
         }
 
     }
