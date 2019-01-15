@@ -241,7 +241,7 @@
     font-size: 14px;
 
     /deep/ .datatable-row-odd {
-        background-color: var(--color-accent, lightgrey);
+        background-color: var(--color-background-contrast, lightgrey);
     }
 
     /deep/ .datatable-header-cell {
