@@ -71,6 +71,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     public activeHeaders: { prop: string, name: string, active: boolean, style: Object, cellClass: any }[] = [];
     public headerWidths: Map<string, number> = new Map<string, number>();
+    public headers: any[] = [];
     public selected: any[] = [];
     public showColumnSelector: string = 'hide';
     public styleRules: string[] = [];
@@ -196,7 +197,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     getExportFields(): { columnName: string, prettyName: string }[] {
-        return this.options.headers.filter((header) => header.active).map((header) => {
+        return this.headers.filter((header) => header.active).map((header) => {
             return {
                 columnName: header.prop,
                 prettyName: header.name
@@ -240,7 +241,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     name: fieldObject.prettyName,
                     active: !show && orderedHeaders.length < initialHeaderLimit,
                     style: {},
-                    width: this.getColumnWidth(fieldObject)
+                    width: this.getColumnWidth(fieldObject.columnName)
                 });
             } else {
                 unorderedHeaders.push({
@@ -249,13 +250,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     name: fieldObject.prettyName,
                     active: show && unorderedHeaders.length < initialHeaderLimit,
                     style: {},
-                    width: this.getColumnWidth(fieldObject)
+                    width: this.getColumnWidth(fieldObject.columnName)
                 });
             }
         }
         // Order fields in exceptions first.
         orderedHeaders = this.sortOrderedHeaders(orderedHeaders);
-        this.options.headers = orderedHeaders.concat(unorderedHeaders);
+        this.headers = orderedHeaders.concat(unorderedHeaders);
     }
 
     initializeHeadersFromFieldsConfig() {
@@ -264,25 +265,25 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             let fieldObject = this.findField(this.options.fields, fieldConfig.name);
             if (fieldObject && fieldObject.columnName) {
                 existingFields.push(fieldObject.columnName);
-                this.options.headers.push({
+                this.headers.push({
                     cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: !fieldConfig.hide,
                     style: {},
-                    width: this.getColumnWidth(fieldConfig)
+                    width: this.getColumnWidth(fieldConfig.name)
                 });
             }
         }
         for (let fieldObject of this.options.fields) {
             if (existingFields.indexOf(fieldObject.columnName) < 0) {
-                this.options.headers.push({
+                this.headers.push({
                     cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: (this.options.allColumnStatus === 'show'),
                     style: {},
-                    width: this.getColumnWidth(fieldObject)
+                    width: this.getColumnWidth(fieldObject.name)
                 });
             }
         }
@@ -292,9 +293,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * Returns the custom width for a column (or default if not specified in the config)
      * @returns width for a specific column
      */
-    getColumnWidth(fieldConfig) {
+    getColumnWidth(fieldName) {
         for (let miniArray of this.options.customColumnWidths) {
-            if (fieldConfig.columnName === miniArray[0]) {
+            if (fieldName === miniArray[0]) {
                 return miniArray[1];
             }
         }
@@ -399,7 +400,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     getActiveHeaders() {
         let active = [];
-        for (let header of this.options.headers) {
+        for (let header of this.headers) {
             if (header.active) {
                 active.push(header);
             }
@@ -423,15 +424,15 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     deactivateAllHeaders() {
         this.activeHeaders = [];
-        for (let header of this.options.headers) {
+        for (let header of this.headers) {
             header.active = false;
         }
         this.changeDetection.detectChanges();
     }
 
     activateAllHeaders() {
-        this.activeHeaders = this.options.headers;
-        for (let header of this.options.headers) {
+        this.activeHeaders = this.headers;
+        for (let header of this.headers) {
             header.active = true;
         }
         this.changeDetection.detectChanges();
@@ -605,11 +606,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     // mouse up in a drag and drop element
     onMouseUp(i) {
         if (this.isDragging && this.drag.downIndex !== this.drag.currentIndex) {
-            let length = this.options.headers.length;
+            let length = this.headers.length;
             if (this.drag.downIndex >= length || i >= length || this.drag.downIndex < 0 || i < 0) {
                 // Do nothing
             } else {
-                let h = this.options.headers;
+                let h = this.headers;
                 let si = this.drag.downIndex; // startIndex
                 let ei = i; // endIndex
                 let dir = (si > ei ? -1 : 1);
@@ -674,7 +675,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     clearHeaderStyles() {
-        for (let header of this.options.headers) {
+        for (let header of this.headers) {
             header.style = {};
         }
     }
@@ -799,7 +800,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @private
      */
     private setStyle(index: number, style: string, value: string) {
-        this.options.headers[index].style[style] = value;
+        this.headers[index].style[style] = value;
     }
 
     /**
@@ -826,12 +827,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                         colorValue = 'rgb(' + regexMatch[1] + ',' + regexMatch[2] + ',' + regexMatch[3] + ')';
                     }
                 }
-                if (self.styleRules.indexOf(colorClass) < 0) {
-                    self.styleSheet.insertRule('.' + colorClass + ':before { background-color: ' + colorValue + '; }');
-                    self.styleRules.push(colorClass);
+                if (colorClass && colorValue) {
+                    if (self.styleRules.indexOf(colorClass) < 0) {
+                        self.styleSheet.insertRule('.' + colorClass + ':before { background-color: ' + colorValue + '; }');
+                        self.styleRules.push(colorClass);
+                    }
+                    cellClass['color-field'] = true;
+                    cellClass[colorClass] = true;
                 }
-                cellClass['color-field'] = true;
-                cellClass[colorClass] = true;
             }
             return cellClass;
         };
