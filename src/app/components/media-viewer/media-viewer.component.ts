@@ -78,7 +78,7 @@ export interface MediaTab {
 })
 export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     protected MEDIA_PADDING: number = 10;
-    protected SLIDER_HEIGHT: number = 60;
+    protected SLIDER_HEIGHT: number = 30;
     protected TAB_HEIGHT: number = 30;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
