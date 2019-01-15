@@ -280,8 +280,7 @@ export class SaveStateComponent implements OnInit {
         let message = 'State "' + stateName + '" has been ' + actionName;
         this.snackBar.open(message, 'x', {
             duration: 5000,
-            verticalPosition: 'top',
-            panelClass: [this.widgetService.getTheme(), 'simpleSnackBar']
+            verticalPosition: 'top'
          });
     }
 }

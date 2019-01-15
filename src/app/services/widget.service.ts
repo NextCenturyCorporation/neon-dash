@@ -55,6 +55,7 @@ export class WidgetService extends AbstractWidgetService {
         super();
         this.messenger = new neon.eventing.Messenger();
         this.messenger.subscribe(neonEvents.NEW_DATASET, this.resetColorMap.bind(this));
+        document.body.className = this.currentThemeId;
     }
 
     /**
@@ -181,5 +182,6 @@ export class WidgetService extends AbstractWidgetService {
      */
     public setTheme(id: string): void {
         this.currentThemeId = id;
+        document.body.className = this.currentThemeId;
     }
 }
