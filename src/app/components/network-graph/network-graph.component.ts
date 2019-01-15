@@ -731,7 +731,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let graph = new GraphProperties(),
             limit = this.options.limit,
             nodeColor = this.options.nodeColor,
-            textColor = {color: this.options.fontColor},
+            textObject = {size: 10, face: 'Roboto, sans-serif', color: this.options.fontColor},
             nodeShape = this.options.nodeShape;
 
         for (const entry of this.responseData) {
@@ -742,7 +742,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
                 for (let sNode of subject) {
                     for (let oNode of object) {
-                        this.addTriple(graph, sNode, predicate, oNode, nodeColor, textColor, nodeShape);
+                        this.addTriple(graph, sNode, predicate, oNode, nodeColor, textObject, nodeShape);
                     }
                 }
             }
@@ -753,10 +753,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private addTriple(graph: GraphProperties, subject: string, predicate: string, object: string, nodeColor?: string,
-                      textColor?: any, nodeShape?: string) {
+                      textObject?: any, nodeShape?: string) {
 
-        graph.addNode(new Node(subject, subject, '', null, nodeColor, false, textColor, nodeShape));
-        graph.addNode(new Node(object, object, '', null, nodeColor, false, textColor, nodeShape));
+        graph.addNode(new Node(subject, subject, '', null, nodeColor, false, textObject, nodeShape));
+        graph.addNode(new Node(object, object, '', null, nodeColor, false, textObject, nodeShape));
         graph.addEdge(new Edge(subject, object, predicate, {to: this.options.isDirected}));
     }
 
@@ -787,7 +787,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             nodeColor = this.options.nodeColor,
             edgeColor = this.options.edgeColor,
             linkColor = this.options.linkColor,
-            textColor = {color: this.options.fontColor},
+            textObject = {size: 10, face: 'Roboto, sans-serif', color: this.options.fontColor},
             limit = this.options.limit,
             nodeShape = this.options.nodeShape,
             xPositionField = this.options.xPositionField.columnName,
@@ -838,7 +838,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                         }
                     }
 
-                    graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor, false, textColor, nodeShape,
+                    graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor, false, textObject, nodeShape,
                         xPosition, yPosition, filterFields));
                 }
             }
@@ -898,7 +898,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                             }
                         }
 
-                        graph.addNode(new Node(linkEntry, linkNodeName, linkName, 1, linkColor, true, textColor, nodeShape,
+                        graph.addNode(new Node(linkEntry, linkNodeName, linkName, 1, linkColor, true, textObject, nodeShape,
                             xPosition, yPosition, filterFields));
                     }
                 }
