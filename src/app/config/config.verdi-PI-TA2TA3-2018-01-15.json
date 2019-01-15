@@ -139,7 +139,7 @@
         {
             "title": "VERDI",
             "name": "Seedling LDC TA3 Map",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "layout": "verdi-ta3-map",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -272,6 +272,11 @@
                         {
                             "database": "verdi-rdf",
                             "table": "kb",
+                            "field": "hypotheses"
+                        },
+                        {
+                            "database": "kb-simple",
+                            "table": "seedling",
                             "field": "hypotheses"
                         },
                         {
