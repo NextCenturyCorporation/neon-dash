@@ -583,7 +583,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.options.sortField.columnName]);
+            this.options.filterFields.map((fieldsObject) => fieldsObject.columnName));
         this.filters = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
@@ -730,6 +730,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 let value = (this.options.idField.columnName.length === 0) ? selected[0][filterFieldObject.columnName] :
                     dataObject[filterFieldObject.columnName];
                 let filter = this.createFilterObject(filterFieldObject.columnName, value, filterFieldObject.prettyName);
+
+                if (typeof value === 'string' && value.indexOf('[') === 0 && value.indexOf(']') === (value.length - 1)) {
+                    value = value.substring(1, value.length - 1).split(',');
+                }
 
                 if (value instanceof Array) {
                     if (this.options.arrayFilterOperator === 'and') {

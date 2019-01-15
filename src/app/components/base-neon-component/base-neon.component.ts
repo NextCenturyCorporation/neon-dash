@@ -956,7 +956,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private hasUnsharedFilter(options?: any): boolean {
         return !!((options || this.options).unsharedFilterField && (options || this.options).unsharedFilterField.columnName &&
-            (options || this.options).unsharedFilterValue && (options || this.options).unsharedFilterValue.trim());
+            typeof (options || this.options).unsharedFilterValue !== 'undefined');
     }
 
     /**
