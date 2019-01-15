@@ -261,7 +261,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     public getVisualizationElementLabel(count: number): string {
-        return 'File' + (count === 1 ? '' : 's');
+        return 'Item' + (count === 1 ? '' : 's');
     }
 
     /**
