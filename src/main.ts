@@ -37,8 +37,11 @@ import { map, catchError } from 'rxjs/operators';
 
 @Injectable()
 export class HttpBasicHandler implements HttpHandler {
+    private backend: HttpBackend;
 
-    constructor(private backend: HttpBackend) {}
+    constructor() {
+        this.backend = new HttpXhrBackend(new BrowserXhr());
+    }
 
     handle(req: HttpRequest<any>): Observable<HttpEvent<any>> {
         return this.backend.handle(req);
