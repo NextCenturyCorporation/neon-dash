@@ -17,7 +17,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | @angular/upgrade@7.1.0 | [MIT](https://github.com/angular/angular) |
 | @swimlane/ngx-charts@10.0.0 | [MIT](https://github.com/swimlane/ngx-charts/raw/master/LICENSE.md) |
 | @swimlane/ngx-datatable@14.0.0 | [MIT](https://github.com/swimlane/ngx-datatable/raw/master/LICENSE) |
-| @swimlane/ngx-graph@5.2.1 | [MIT](https://github.com/swimlane/ngx-graph/raw/master/LICENSE) |
+| @swimlane/ngx-graph@5.3.0 | [MIT](https://github.com/swimlane/ngx-graph/raw/master/LICENSE) |
 | ajv-keywords@1.5.1 | [MIT](https://github.com/epoberezkin/ajv-keywords/raw/master/LICENSE) |
 | ajv@5.2.0 | [MIT](https://github.com/epoberezkin/ajv/raw/master/LICENSE) |
 | angular-core@0.0.5 | [ISC](undefined) |
@@ -32,7 +32,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | d3-selection@1.3.2 | [BSD-3-Clause](https://github.com/d3/d3-selection/raw/master/LICENSE) |
 | d3-shape@1.2.2 | [BSD-3-Clause](https://github.com/d3/d3-shape/raw/master/LICENSE) |
 | d3-transition@1.1.3 | [BSD-3-Clause](https://github.com/d3/d3-transition/raw/master/LICENSE) |
-| dagre@0.8.4 | [MIT](https://github.com/dagrejs/dagre/raw/master/LICENSE) |
+| dagre@0.8.2 | [MIT](https://github.com/dagrejs/dagre/raw/master/LICENSE) |
 | fast-deep-equal@1.0.0 | [MIT](https://github.com/epoberezkin/fast-deep-equal/raw/master/LICENSE) |
 | geo-hash@0.0.2 | [MIT](https://github.com/Wayla/geo-hash) |
 | glob@7.1.3 | [ISC](https://github.com/isaacs/node-glob/raw/master/LICENSE) |

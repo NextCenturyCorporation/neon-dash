@@ -41,23 +41,23 @@ export class HttpBasicHandler implements HttpHandler {
     constructor(private backend: HttpBackend) {}
 
     handle(req: HttpRequest<any>): Observable<HttpEvent<any>> {
-      return this.backend.handle(req);
+        return this.backend.handle(req);
     }
 }
 
 const HTTP_PROVIDERS: any[] = [
     HttpClient,
-        {provide: HttpHandler, useClass: HttpBasicHandler},
+    {provide: HttpHandler, useClass: HttpBasicHandler},
     HttpBasicHandler,
-        {provide: HttpHandler, useExisting: HttpXhrBackend},
+    {provide: HttpHandler, useExisting: HttpXhrBackend},
     HttpXhrBackend,
-        {provide: HttpBackend, useExisting: HttpXhrBackend},
+    {provide: HttpBackend, useExisting: HttpXhrBackend},
     BrowserXhr,
-        {provide: XhrFactory, useExisting: BrowserXhr},
+    {provide: XhrFactory, useExisting: BrowserXhr},
     {provide: Http, useFactory:
-      (xhrBackend: XHRBackend, requestOptions: RequestOptions): Http =>
-          new Http(xhrBackend, requestOptions),
-          deps: [XHRBackend, RequestOptions]},
+        (xhrBackend: XHRBackend, requestOptions: RequestOptions): Http =>
+        new Http(xhrBackend, requestOptions),
+        deps: [XHRBackend, RequestOptions]},
     BrowserXhr,
     {provide: RequestOptions, useClass: BaseRequestOptions},
     {provide: ResponseOptions, useClass: BaseResponseOptions},
@@ -131,10 +131,10 @@ function loadConfigJson(path) {
 }
 
 function loadConfigYaml(path) {
-   return httpClient.get(path)
-       .pipe(map((response: any) => yaml.load(response)))
-       .pipe(catchError(handleConfigFileError))
-       .toPromise();
+    return httpClient.get(path, {responseType: 'text'})
+        .pipe(map((response: any) => yaml.load(response)))
+        .pipe(catchError(handleConfigFileError))
+        .toPromise();
 }
 
 function validateConfig(config) {
