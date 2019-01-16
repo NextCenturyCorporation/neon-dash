@@ -1021,39 +1021,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Publishes the component's option object and handle change callbacks to the gear component
-     *
-     * @override
-     */
-    publishOptions() {
-        let handleChangeData: () => void = this.handleChangeData.bind(this);
-        let handleChangeDatabase: () => void = this.handleChangeDatabase.bind(this);
-        let handleChangeFilterField: () => void = this.handleChangeFilterField.bind(this);
-        let handleChangeLimit: () => void = this.handleChangeLimit.bind(this);
-        let handleChangeSubcomponentType: () => void = this.handleChangeSubcomponentType.bind(this);
-        let handleChangeTable: () => void = this.handleChangeTable.bind(this);
-        this.messenger.publish('options', {
-            options: this.options,
-            changeData: handleChangeData,
-            changeDatabase: handleChangeDatabase,
-            changeFilterFIeld: handleChangeFilterField,
-            changeLimitCallback: handleChangeLimit,
-            changeHandleSubcomponentType: handleChangeSubcomponentType,
-            changeTable: handleChangeTable,
-            componentThis: this
-        });
-    }
-
-    /**
-     * Publishes the toggleGear so the app component can toggle the gear panel
-     */
-    publishToggleGear() {
-        this.messenger.publish('toggleGear', {
-            toggleGear: true
-        });
-    }
-
-    /**
      * Redraws the subcomponents.
      */
     redrawSubcomponents() {
