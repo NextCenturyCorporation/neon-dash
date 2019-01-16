@@ -39,7 +39,7 @@ describe('Component: SaveStateComponent', () => {
     let fixture: ComponentFixture<SaveStateComponent>;
     let component: SaveStateComponent;
 
-    initializeTestBed({
+    initializeTestBed('Save State', {
         declarations: [
             SaveStateComponent
         ],

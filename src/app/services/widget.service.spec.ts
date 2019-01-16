@@ -23,7 +23,7 @@ import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
 
 describe('Service: Widget', () => {
-    initializeTestBed({
+    initializeTestBed('Widget Service', {
         providers: [
             WidgetService,
             DatasetService,
@@ -73,7 +73,7 @@ describe('Service: Widget', () => {
 });
 
 describe('Service: Widget', () => {
-    initializeTestBed({
+    initializeTestBed('Widget Service', {
         providers: [
             WidgetService,
             { provide: DatasetService, useClass: DatasetServiceMock },

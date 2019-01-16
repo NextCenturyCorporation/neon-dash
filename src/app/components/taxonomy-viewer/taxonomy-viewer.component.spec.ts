@@ -76,7 +76,7 @@ describe('Component: TaxonomyViewer', () => {
             testCategoryField: ['testCategoryI', 'testCategoryIIII']
         }];
 
-    initializeTestBed({
+    initializeTestBed('Taxonomy', {
         declarations: [
             TaxonomyViewerComponent,
             ExportControlComponent,

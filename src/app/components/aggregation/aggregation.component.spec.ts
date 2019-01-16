@@ -53,7 +53,7 @@ describe('Component: Aggregation', () => {
     let COLOR_1 = new Color('var(--color-set-1)', 'var(--color-set-1-transparency-medium)', 'var(--color-set-1-transparency-high)');
     let COLOR_2 = new Color('var(--color-set-2)', 'var(--color-set-2-transparency-medium)', 'var(--color-set-2-transparency-high)');
 
-    initializeTestBed({
+    initializeTestBed('Aggregation', {
         declarations: [
             AggregationComponent,
             ExportControlComponent,
@@ -4107,7 +4107,7 @@ describe('Component: Aggregation with config', () => {
     let fixture: ComponentFixture<AggregationComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Aggregation', {
         declarations: [
             AggregationComponent,
             ExportControlComponent,
@@ -4378,7 +4378,7 @@ describe('Component: Aggregation with XY config', () => {
     let fixture: ComponentFixture<AggregationComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Aggregation', {
         declarations: [
             AggregationComponent,
             ExportControlComponent,
@@ -4582,7 +4582,7 @@ describe('Component: Aggregation with date config', () => {
     let fixture: ComponentFixture<AggregationComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Aggregation', {
         declarations: [
             AggregationComponent,
             ExportControlComponent,

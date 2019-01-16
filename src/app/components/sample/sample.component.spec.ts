@@ -125,7 +125,7 @@ describe('Component: Sample', () => {
     let fixture: ComponentFixture<TestSampleComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Sample', {
         declarations: [
             TestSampleComponent,
             ExportControlComponent,
@@ -1247,7 +1247,7 @@ describe('Component: Sample with config', () => {
     let fixture: ComponentFixture<TestSampleComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Sample', {
         declarations: [
             TestSampleComponent,
             ExportControlComponent,

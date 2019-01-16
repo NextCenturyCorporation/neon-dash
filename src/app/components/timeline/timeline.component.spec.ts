@@ -44,7 +44,7 @@ describe('Component: Timeline', () => {
     let component: TimelineComponent;
     let fixture: ComponentFixture<TimelineComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Timeline', {
         declarations: [
             TimelineComponent,
             ExportControlComponent,

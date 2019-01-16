@@ -64,6 +64,7 @@ import * as _ from 'lodash';
 })
 class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     public filters: any[] = [];
+
     constructor(
         datasetService: DatasetService,
         filterService: FilterService,
@@ -214,7 +215,7 @@ describe('BaseNeonComponent', () => {
     let component: BaseNeonComponent;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Base Neon', {
         declarations: [
             TestBaseNeonComponent
         ],
@@ -1190,6 +1191,10 @@ describe('BaseNeonComponent', () => {
     it('handleSuccessfulVisualizationQuery does call handleTransformVisualizationQueryResults with expected failure callback', (done) => {
         let spy = spyOn(component, 'handleTransformVisualizationQueryResults');
         let expectedError = new Error('Test Error');
+        (component as any).messenger.publish = () => {
+            // Override the messenger publish function so it does not print expected error messages to the console during the test.
+        };
+
         (component as any).handleSuccessfulVisualizationQuery(component.options, {
             data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         }, () => {
@@ -1620,7 +1625,7 @@ describe('Advanced BaseNeonComponent with config', () => {
     let component: BaseNeonComponent;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Base Neon', {
         declarations: [
             TestAdvancedNeonComponent
         ],
@@ -1854,7 +1859,7 @@ describe('BaseNeonComponent filter behavior', () => {
     let component: BaseNeonComponent;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Base Neon', {
         declarations: [
             TestBaseNeonComponent
         ],

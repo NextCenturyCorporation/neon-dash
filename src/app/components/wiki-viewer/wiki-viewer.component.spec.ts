@@ -43,7 +43,7 @@ describe('Component: WikiViewer', () => {
     let component: WikiViewerComponent;
     let fixture: ComponentFixture<WikiViewerComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Wiki Viewer', {
         declarations: [
             WikiViewerComponent,
             ExportControlComponent
@@ -329,7 +329,7 @@ describe('Component: WikiViewer with mock HTTP', () => {
     let fixture: ComponentFixture<WikiViewerComponent>;
     let backend;
 
-    initializeTestBed({
+    initializeTestBed('Wiki Viewer', {
         declarations: [
             WikiViewerComponent,
             ExportControlComponent
@@ -502,7 +502,7 @@ describe('Component: WikiViewer with config', () => {
     let component: WikiViewerComponent;
     let fixture: ComponentFixture<WikiViewerComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Wiki Viewer', {
         declarations: [
             WikiViewerComponent,
             ExportControlComponent
