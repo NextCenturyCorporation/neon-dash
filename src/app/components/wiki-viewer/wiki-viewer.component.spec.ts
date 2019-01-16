@@ -157,26 +157,22 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('does show toolbar and sidenav', (() => {
-        fixture.detectChanges();
         let toolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar'));
         expect(toolbar).not.toBeNull();
     }));
 
     it('does show header in toolbar with visualization name', (() => {
-        fixture.detectChanges();
         let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toBe('Wiki Viewer');
     }));
 
     it('does hide error-message in toolbar and sidenav if errorMessage is undefined', (() => {
-        fixture.detectChanges();
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
     }));
 
     it('does show settings icon button in toolbar', (() => {
-        fixture.detectChanges();
         let button = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button'));
         expect(button.attributes.matTooltip).toBe('Open/Close the Options Menu');
 
@@ -185,7 +181,6 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('does hide loading overlay by default', (() => {
-        fixture.detectChanges();
 
         let hiddenLoadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
         expect(hiddenLoadingOverlay).not.toBeNull();
@@ -195,7 +190,6 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('does hide wiki-text tabs if active data is empty', inject([DomSanitizer], (sanitizer) => {
-        fixture.detectChanges();
         let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
         expect(tabs.length).toBe(0);
 

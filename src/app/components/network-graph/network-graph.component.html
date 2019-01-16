@@ -234,12 +234,10 @@
         </div>
     </div>
 
-    <div class=" legend-container ">
-        <div *ngIf="legendIsNeeded()">
-            <app-legend *ngIf="options.legendFiltering" [colorKeys]="colorKeys" [disabledSets]="disabledSet"
-                    [filteringOn]="options.legendFiltering" (itemSelected)="legendItemSelected($event)"></app-legend>
-            <app-legend *ngIf="!options.legendFiltering" [colorKeys]="colorKeys"  [filteringOn]="options.legendFiltering"></app-legend>
-        </div>
+    <div class="legend-container" *ngIf="legendIsNeeded()">
+        <app-legend *ngIf="options.legendFiltering" [colorKeys]="colorKeys" [disabledSets]="disabledSet"
+                [filteringOn]="options.legendFiltering" (itemSelected)="legendItemSelected($event)"></app-legend>
+        <app-legend *ngIf="!options.legendFiltering" [colorKeys]="colorKeys"  [filteringOn]="options.legendFiltering"></app-legend>
     </div>
 
 </mat-sidenav-container>

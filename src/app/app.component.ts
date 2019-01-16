@@ -15,6 +15,7 @@
  */
 import {
     AfterViewInit,
+    ChangeDetectorRef,
     Component,
     Inject,
     OnInit,
@@ -121,6 +122,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public messenger: neon.eventing.Messenger;
 
     constructor(
+        public changeDetection: ChangeDetectorRef,
         public datasetService: DatasetService,
         public dialog: MatDialog,
         private domSanitizer: DomSanitizer,

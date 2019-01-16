@@ -158,10 +158,6 @@ describe('App', () => {
         debugElement = fixture.debugElement;
     });
 
-    afterEach(() => {
-        fixture.detectChanges();
-    });
-
     it('should include top level layout components', async(() => {
         expect(debugElement.nativeElement.querySelectorAll('mat-sidenav-container')).toBeTruthy();
         expect(debugElement.nativeElement.querySelectorAll('app-dataset-selector')).toBeTruthy();
@@ -185,7 +181,7 @@ describe('App', () => {
         expect(component.filtersIcon).toEqual('filters');
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '=', 'value1'), 'testFilterField');
-        fixture.detectChanges();
+        component.changeDetection.detectChanges();
         expect(component.filtersIcon).toEqual('filters_active');
     }));
 
@@ -253,15 +249,15 @@ describe('App', () => {
         component.updateShowVisShortcut({
             showVisShortcut: false
         });
-        fixture.detectChanges();
+        component.changeDetection.detectChanges();
         expect(component.showVisShortcut).toEqual(false);
         expect(debugElement.query(By.css('#showVisShortcutButton'))).toBeNull();
         component.updateShowVisShortcut({
             showVisShortcut: true
         });
-        fixture.detectChanges();
+        component.changeDetection.detectChanges();
         expect(component.showVisShortcut).toEqual(true);
-        fixture.detectChanges();
+        component.changeDetection.detectChanges();
         expect(debugElement.query(By.css('#showVisShortcutButton'))).not.toBeNull();
     }));
 
@@ -269,15 +265,15 @@ describe('App', () => {
         component.updateShowFiltersComponentIcon({
             showFiltersComponentIcon: false
         });
-        fixture.detectChanges();
+        component.changeDetection.detectChanges();
         expect(component.showFiltersComponentIcon).toEqual(false);
         expect(debugElement.query(By.css('#showFiltersComponentIcon'))).toBeNull();
         component.updateShowFiltersComponentIcon({
             showFiltersComponentIcon: true
         });
-        fixture.detectChanges();
+        component.changeDetection.detectChanges();
         expect(component.showFiltersComponentIcon).toEqual(true);
-        fixture.detectChanges();
+        component.changeDetection.detectChanges();
         expect(debugElement.query(By.css('#showFiltersComponentIcon'))).not.toBeNull();
     }));
 
