@@ -18,6 +18,10 @@
     width: 400px;
     padding-left: 15px;
     padding-right: 15px;
+
+    mat-toolbar {
+        margin: 10px 0;
+    }
 }
 
 .option-row {
