@@ -797,7 +797,6 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('does show toolbar', (() => {
-        fixture.detectChanges();
         let container = fixture.debugElement.query(By.css('mat-sidenav-container'));
         expect(container).not.toBeNull();
         let toolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar'));
@@ -805,14 +804,12 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('does show header in toolbar with visualization name', (() => {
-        fixture.detectChanges();
         let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toBe('Media Viewer');
     }));
 
     it('does hide error-message in toolbar if errorMessage is undefined', (() => {
-        fixture.detectChanges();
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
     }));
@@ -827,7 +824,6 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('does show settings icon button in toolbar', (() => {
-        fixture.detectChanges();
         let button = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button'));
         expect(button.attributes.matTooltip).toBe('Open/Close the Options Menu');
 
@@ -836,7 +832,6 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('does hide loading overlay by default', (() => {
-        fixture.detectChanges();
 
         let hiddenLoadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
         expect(hiddenLoadingOverlay).not.toBeNull();
@@ -857,8 +852,6 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('does hide tabs if tabsAndMedia is empty', inject([DomSanitizer], (sanitizer) => {
-        component.tabsAndMedia = [];
-        fixture.detectChanges();
         let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
         expect(tabs.length).toBe(0);
         let slider = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-slider'));
@@ -1332,7 +1325,6 @@ describe('Component: MediaViewer with config', () => {
     });
 
     it('does show header in toolbar with title from config', (() => {
-        fixture.detectChanges();
         let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toBe('Test Title');

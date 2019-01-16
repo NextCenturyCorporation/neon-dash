@@ -346,8 +346,6 @@ describe('Component: DocumentViewer', () => {
         }];
         component.changeDetection.detectChanges();
 
-        component.changeDetection.detectChanges();
-
         let buttons = fixture.debugElement.queryAll(By.css('.document-viewer-button'));
         expect(buttons.length).toBe(2);
         let names = fixture.debugElement.queryAll(By.css('.document-viewer-name'));

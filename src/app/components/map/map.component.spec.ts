@@ -467,7 +467,7 @@ describe('Component: Map', () => {
     it('should add layer when new layer button is clicked', () => {
         let addEl = getDebug('a');
         addEl.triggerEventHandler('click', null);
-        fixture.detectChanges();
+        component.changeDetection.detectChanges();
         expect(component.options.layers.length).toBe(2);
     });
 

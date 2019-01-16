@@ -941,57 +941,51 @@ describe('Component: Sample', () => {
         expect(header.nativeElement.textContent).toContain('Sample');
     });
 
-    it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', async(() => {
+    it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', () => {
         (component as any).layerIdToElementCount.set(component.options._id, 10);
 
         // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        component.changeDetection.detectChanges();
 
-            let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
-            expect(dataInfoTextInToolbar).not.toBeNull();
-            expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Results');
+        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
+        expect(dataInfoTextInToolbar).not.toBeNull();
+        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Results');
 
-            let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
-            expect(dataInfoTextInSidenav).not.toBeNull();
-            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('10 Results');
+        let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
+        expect(dataInfoTextInSidenav).not.toBeNull();
+        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('10 Results');
 
-            let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
-            expect(errorMessageInToolbar).toBeNull();
-        });
-    }));
+        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
+        expect(errorMessageInToolbar).toBeNull();
+    });
 
-    it('does show error-message in toolbar and sidenav if errorMessage is defined', async(() => {
+    it('does show error-message in toolbar and sidenav if errorMessage is defined', () => {
         (component as any).errorMessage = 'Test Error Message';
 
         // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        component.changeDetection.detectChanges();
 
-            let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
-            expect(dataInfoTextInToolbar).toBeNull();
+        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
+        expect(dataInfoTextInToolbar).toBeNull();
 
-            let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
-            expect(dataInfoIconInSidenav).toBeNull();
+        let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
+        expect(dataInfoIconInSidenav).toBeNull();
 
-            let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
-            expect(dataInfoTextInSidenav).toBeNull();
+        let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
+        expect(dataInfoTextInSidenav).toBeNull();
 
-            let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
-            expect(errorMessageInToolbar).not.toBeNull();
-            expect(errorMessageInToolbar.nativeElement.textContent).toContain('Test Error Message');
+        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
+        expect(errorMessageInToolbar).not.toBeNull();
+        expect(errorMessageInToolbar.nativeElement.textContent).toContain('Test Error Message');
 
-            let errorIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
-            expect(errorIconInSidenav).not.toBeNull();
-            expect(errorIconInSidenav.nativeElement.textContent).toEqual('error');
+        let errorIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
+        expect(errorIconInSidenav).not.toBeNull();
+        expect(errorIconInSidenav.nativeElement.textContent).toEqual('error');
 
-            let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
-            expect(errorMessageInSidenav).not.toBeNull();
-            expect(errorMessageInSidenav.nativeElement.textContent).toContain('Test Error Message');
-        });
-    }));
+        let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
+        expect(errorMessageInSidenav).not.toBeNull();
+        expect(errorMessageInSidenav.nativeElement.textContent).toContain('Test Error Message');
+    });
 
     it('does show settings icon button in toolbar', () => {
         let button = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button'));
@@ -1022,21 +1016,18 @@ describe('Component: Sample', () => {
         expect(hiddenSpinner).not.toBeNull();
     });
 
-    it('does show loading overlay if loadingCount is positive', async(() => {
+    it('does show loading overlay if loadingCount is positive', () => {
         (component as any).loadingCount = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        component.changeDetection.detectChanges();
 
-            let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
-            expect(loadingOverlay).not.toBeNull();
+        let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
+        expect(loadingOverlay).not.toBeNull();
 
-            let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
-            expect(spinner).not.toBeNull();
-        });
-    }));
+        let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
+        expect(spinner).not.toBeNull();
+    });
 
     it('does not show filter-container if filters is empty array', () => {
         let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
@@ -1046,7 +1037,7 @@ describe('Component: Sample', () => {
         expect(bodyContainer).toBeNull();
     });
 
-    it('does show filter-container and filter-reset elements if filters is non-empty array', async(() => {
+    it('does show filter-container and filter-reset elements if filters is non-empty array', () => {
         component.filters = [{
             id: 'idA',
             field: 'field1',
@@ -1060,42 +1051,39 @@ describe('Component: Sample', () => {
         }];
 
         // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        component.changeDetection.detectChanges();
 
-            let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
-            expect(filterContainer).not.toBeNull();
+        let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
+        expect(filterContainer).not.toBeNull();
 
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
-            expect(bodyContainer).not.toBeNull();
+        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
+        expect(bodyContainer).not.toBeNull();
 
-            let filterResets = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container .filter-reset'));
-            expect(filterResets.length).toEqual(2);
+        let filterResets = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container .filter-reset'));
+        expect(filterResets.length).toEqual(2);
 
-            let filterLabels = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container .filter-label'));
-            expect(filterLabels.length).toEqual(2);
+        let filterLabels = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container .filter-label'));
+        expect(filterLabels.length).toEqual(2);
 
-            expect(filterLabels[0].nativeElement.textContent).toContain('value1');
-            expect(filterLabels[1].nativeElement.textContent).toContain('value2');
+        expect(filterLabels[0].nativeElement.textContent).toContain('value1');
+        expect(filterLabels[1].nativeElement.textContent).toContain('value2');
 
-            let filterButtons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container button'));
-            expect(filterButtons.length).toEqual(2);
+        let filterButtons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container button'));
+        expect(filterButtons.length).toEqual(2);
 
-            let filterIcons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container button mat-icon'));
-            expect(filterIcons.length).toEqual(2);
+        let filterIcons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container button mat-icon'));
+        expect(filterIcons.length).toEqual(2);
 
-            expect(filterIcons[0].nativeElement.textContent).toEqual('close');
-            expect(filterIcons[1].nativeElement.textContent).toEqual('close');
-        });
-    }));
+        expect(filterIcons[0].nativeElement.textContent).toEqual('close');
+        expect(filterIcons[1].nativeElement.textContent).toEqual('close');
+    });
 
     it('does not show data-item elements if active data is empty array', () => {
         let dataItems = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item'));
         expect(dataItems.length).toEqual(0);
     });
 
-    it('does show data-item elements if active data is non-empty array', async(() => {
+    it('does show data-item elements if active data is non-empty array', () => {
         (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
             count: 2,
             label: 'alpha',
@@ -1107,31 +1095,28 @@ describe('Component: Sample', () => {
         }]));
 
         // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        component.changeDetection.detectChanges();
 
-            let dataItems = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item'));
-            expect(dataItems.length).toEqual(2);
+        let dataItems = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item'));
+        expect(dataItems.length).toEqual(2);
 
-            let dataItemLabels = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item .text'));
-            expect(dataItemLabels.length).toEqual(2);
+        let dataItemLabels = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item .text'));
+        expect(dataItemLabels.length).toEqual(2);
 
-            expect(dataItemLabels[0].nativeElement.textContent).toContain('alpha: 2');
-            expect(dataItemLabels[1].nativeElement.textContent).toContain('omega: 1');
+        expect(dataItemLabels[0].nativeElement.textContent).toContain('alpha: 2');
+        expect(dataItemLabels[1].nativeElement.textContent).toContain('omega: 1');
 
-            let dataItemButtons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item button'));
-            expect(dataItemButtons.length).toEqual(4);
+        let dataItemButtons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item button'));
+        expect(dataItemButtons.length).toEqual(4);
 
-            let dataItemIcons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item mat-icon'));
-            expect(dataItemIcons.length).toEqual(4);
+        let dataItemIcons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item mat-icon'));
+        expect(dataItemIcons.length).toEqual(4);
 
-            expect(dataItemIcons[0].nativeElement.textContent).toEqual('search');
-            expect(dataItemIcons[1].nativeElement.textContent).toEqual('find_replace');
-            expect(dataItemIcons[2].nativeElement.textContent).toEqual('search');
-            expect(dataItemIcons[3].nativeElement.textContent).toEqual('find_replace');
-        });
-    }));
+        expect(dataItemIcons[0].nativeElement.textContent).toEqual('search');
+        expect(dataItemIcons[1].nativeElement.textContent).toEqual('find_replace');
+        expect(dataItemIcons[2].nativeElement.textContent).toEqual('search');
+        expect(dataItemIcons[3].nativeElement.textContent).toEqual('find_replace');
+    });
 });
 
 describe('Component: Sample with config', () => {

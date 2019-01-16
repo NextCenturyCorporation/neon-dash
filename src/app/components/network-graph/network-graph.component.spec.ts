@@ -247,44 +247,38 @@ describe('Component: NetworkGraph', () => {
 
     }));
 
-    it('legendIsNeeded does not display a legend when display boolean is set to false', async(() => {
+    it('legendIsNeeded does not display a legend when display boolean is set to false', () => {
         component.options.edgeColorField = new FieldMetaData('testEdgeColorField');
+        component.options.displayLegend = false;
         component.displayGraph = false;
 
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        component.changeDetection.detectChanges();
 
-            let container = fixture.debugElement.query(By.css('mat-sidenav-container .legend-container'));
-            expect(container).toBeNull();
-        });
-    }));
+        let container = fixture.debugElement.query(By.css('mat-sidenav-container .legend-container'));
+        expect(container).toBeNull();
+    });
 
-    it('legendIsNeeded does not display a legend when edgeColorField is not set', async(() => {
+    it('legendIsNeeded does not display a legend when edgeColorField is not set', () => {
         component.options.edgeColorField = new FieldMetaData('');
+        component.options.displayLegend = true;
         component.displayGraph = true;
 
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        component.changeDetection.detectChanges();
 
-            let container = fixture.debugElement.query(By.css('mat-sidenav-container .legend-container'));
-            expect(container).toBeNull();
-        });
-    }));
+        let container = fixture.debugElement.query(By.css('mat-sidenav-container .legend-container'));
+        expect(container).toBeNull();
+    });
 
-    it('legendIsNeeded displays a legend when display boolean is set to true and edgeColorField is set', async(() => {
+    it('legendIsNeeded displays a legend when display boolean is set to true and edgeColorField is set', () => {
         component.options.edgeColorField = new FieldMetaData('testEdgeColorField');
+        component.options.displayLegend = true;
         component.displayGraph = true;
 
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        component.changeDetection.detectChanges();
 
-            let container = fixture.debugElement.query(By.css('mat-sidenav-container .legend-container'));
-            expect(container).not.toBeNull();
-        });
-    }));
+        let container = fixture.debugElement.query(By.css('mat-sidenav-container .legend-container'));
+        expect(container).not.toBeNull();
+    });
 
     it('does filter graph when filters are set', (() => {
         component.options.database = DatasetServiceMock.DATABASES[0];
