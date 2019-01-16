@@ -14,8 +14,6 @@ body {
 
 @font-face {
     font-family: 'Material Icons';
-    font-style: normal;
-    font-weight: 400;
     src: url(assets/Material/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2); /* For IE6-8 */
     src: local('Material Icons'),
       local('MaterialIcons-Regular'),
@@ -420,14 +418,11 @@ body {
 
     &.titlebar-header-text {
         font-size: 20px;
-        font-weight: 400;
-        font-style: normal;
     }
 
     &.widget-header-text {
         font-size: 14px;
         font-weight: 500;
-        font-style: normal;
     }
 }
 
