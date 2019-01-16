@@ -16,9 +16,9 @@
 /// <reference path="../../../../node_modules/@types/d3/index.d.ts" />
 import * as _ from 'lodash';
 import * as $ from 'jquery';
-import { ElementRef } from '@angular/core';
-import { TimelineComponent } from './timeline.component';
-import { Bucketizer } from '../bucketizers/Bucketizer';
+import {ElementRef} from '@angular/core';
+import {TimelineComponent} from './timeline.component';
+import {Bucketizer} from '../bucketizers/Bucketizer';
 
 declare let d3;
 
@@ -54,7 +54,7 @@ export class TimelineSeries {
     public data: TimelineItem[] = DEFAULT_DATA;
     public focusData: TimelineItem[] = [];
     public name: string = 'Default';
-    public type: string= 'bar';
+    public type: string = 'bar';
     public options: Object = {};
     public startDate: Date = DEFAULT_DATA[0].date;
     public endDate: Date = DEFAULT_DATA[1].date;

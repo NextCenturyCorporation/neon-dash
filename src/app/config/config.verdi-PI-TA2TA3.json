@@ -2,7 +2,7 @@
     "datasets": [
         {
             "name": "Seedling LDC TA2",
-            "connectOnLoad": false,
+            "connectOnLoad": true,
             "icon": "assets/images/verdi-favicon.ico",
             "layout": "verdi-ta2-layout",
             "datastore": "elasticsearch",
@@ -15,20 +15,6 @@
                         {
                             "name": "parent_children",
                             "prettyName": "Parent Children"
-                        }
-                    ]
-                },
-                {
-                    "name": "verdi-rdf",
-                    "prettyName": "VERDI",
-                    "tables": [
-                        {
-                            "name": "kb",
-                            "prettyName": "Knowledge Base"
-                        },
-                        {
-                            "name": "normal",
-                            "prettyName": "Normal"
                         }
                     ]
                 },
@@ -52,16 +38,6 @@
                             "field": "id"
                         },
                         {
-                            "database": "verdi-rdf",
-                            "table": "kb",
-                            "field": "docIds"
-                        },
-                        {
-                            "database": "verdi-rdf",
-                            "table": "normal",
-                            "field": "identifier"
-                        },
-                        {
                             "database": "kb-simple",
                             "table": "seedling",
                             "field": "docIds"
@@ -72,17 +48,6 @@
             "options": {
                 "checkForCoordinateValidation": "null_values",
                 "colorMaps": {
-                    "verdi-rdf": {
-                        "kb": {
-                            "categories": {
-                                "ENTITY": "#ADD8E6",
-                                "EVENT": "#D98C8C",
-                                "RELATION": "#FFE4B5"
-                            },
-                            "types": {
-                            }
-                        }
-                    },
                     "kb-simple": {
                         "seedling": {
                             "categories": {
@@ -100,7 +65,7 @@
         {
             "title": "VERDI",
             "name": "Seedling LDC TA3 Events",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "layout": "verdi-ta3-events",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -116,34 +81,6 @@
                         {
                             "name": "parent_children",
                             "prettyName": "Parent Children"
-                        }
-                    ]
-                },
-                {
-                    "name": "verdi-rdf",
-                    "prettyName": "VERDI",
-                    "tables": [
-                        {
-                            "name": "kb",
-                            "prettyName": "Knowledge Base"
-                        },
-                        {
-                            "name": "normal",
-                            "prettyName": "Normal"
-                        },
-                        {
-                            "name": "reified",
-                            "prettyName": "Reified"
-                        }
-                    ]
-                },
-                {
-                    "name": "kb-simple",
-                    "prettyName": "VERDI SIMPLIFIED",
-                    "tables": [
-                        {
-                            "name": "seedling",
-                            "prettyName": "Knowledge Base Simplified"
                         }
                     ]
                 },
@@ -167,11 +104,6 @@
                             "field": "hypothesis_id"
                         },
                         {
-                            "database": "verdi-rdf",
-                            "table": "kb",
-                            "field": "hypotheses"
-                        },
-                        {
                             "database": "kb-events",
                             "table": "seedling",
                             "field": "hypotheses"
@@ -196,11 +128,6 @@
                             "field": "id"
                         },
                         {
-                            "database": "verdi-rdf",
-                            "table": "kb",
-                            "field": "docIds"
-                        },
-                        {
                             "database": "kb-events",
                             "table": "seedling",
                             "field": "docIds"
@@ -212,7 +139,7 @@
         {
             "title": "VERDI",
             "name": "Seedling LDC TA3 Network",
-            "connectOnLoad": false,
+            "connectOnLoad": true,
             "layout": "verdi-ta3-network",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -274,6 +201,11 @@
                             "field": "hypotheses"
                         },
                         {
+                            "database": "kb-simple",
+                            "table": "seedling",
+                            "field": "hypotheses"
+                        },
+                        {
                             "database": "verdi-support",
                             "table": "parent_children",
                             "field": "hypotheses"
@@ -308,17 +240,6 @@
             "options": {
                 "checkForCoordinateValidation": "null_values",
                 "colorMaps": {
-                    "verdi-rdf": {
-                        "kb": {
-                            "categories": {
-                                "ENTITY": "#ADD8E6",
-                                "EVENT": "#D98C8C",
-                                "RELATION": "#FFE4B5"
-                            },
-                            "types": {
-                            }
-                        }
-                    },
                     "kb-simple": {
                         "seedling": {
                             "categories": {
@@ -478,9 +399,9 @@
                             "filterField": "query"
                         },
                         {
-                            "database": "verdi-rdf",
-                            "table": "kb",
-                            "idField": "docIds",
+                            "database": "kb-events",
+                            "table": "seedling",
+                            "idField": "kbid",
                             "filterField": "hypotheses"
                         },
                         {
@@ -546,7 +467,7 @@
                     "ascending": false,
                     "canvasSize": 180.00,
                     "viewType": "card",
-                    "truncate": {"value":true, "length":35},
+                    "truncateLabel": {"value":true, "length":35},
                     "limit": 12,
                     "typeMap": {
                         "jpg": "img",
@@ -563,12 +484,9 @@
                 "col": 4
             },
             {
-                "name": "Thumbnail Grid",
                 "type": "thumbnailGrid",
-                "icon": "ThumbnailGrid",
                 "sizex": 2,
                 "sizey": 16,
-                "selected": true,
                 "bindings": {
                     "id": "_id",
                     "title": "Documents",
@@ -608,17 +526,17 @@
             },
             {
                 "type": "timeline",
-                "sizex": 7,
-                "sizey": 4,
                 "row": 0,
                 "col": 4,
+                "sizex": 7,
+                "sizey": 4,
                 "bindings": {
                     "title": "Event Timeline",
                     "database": "kb-events",
                     "table": "seedling",
                     "dateField": "docDate",
                     "granularity": "day",
-                    "filterFields": ["id"],
+                    "filterFields": ["kbid"],
                     "hideUnfiltered": true
                 }
             }
