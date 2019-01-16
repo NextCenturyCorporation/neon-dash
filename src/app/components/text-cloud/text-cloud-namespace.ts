@@ -62,7 +62,7 @@ export class TextCloud {
 
         return data.map((item) => {
             let weighting = (item.value === highest ? range : item.value - lowest);
-            item.fontSize = this.size.start + (weighting * fontIncr) + this.size.unit;
+            item.fontSize = (2 * Math.round((this.size.start + (weighting * fontIncr)) / 2)) + this.size.unit;
 
             if (this.color) {
                 item.color = this.tagColor(this.color, colorIncr, weighting);
@@ -116,8 +116,8 @@ export class SizeOptions {
 
     constructor(start?: number, end?: number, unit?: string) {
         this.start = start || 14;
-        this.end = end || 18;
-        this.unit = unit || 'pt';
+        this.end = end || 22;
+        this.unit = unit || 'px';
     }
 }
 
