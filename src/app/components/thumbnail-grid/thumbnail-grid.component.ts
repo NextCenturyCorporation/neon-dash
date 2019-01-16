@@ -25,15 +25,15 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { DomSanitizer } from '@angular/platform-browser';
+import {DomSanitizer} from '@angular/platform-browser';
 
-import { ConnectionService } from '../../services/connection.service';
-import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import {ConnectionService} from '../../services/connection.service';
+import {DatasetService} from '../../services/dataset.service';
+import {FilterService} from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, MediaTypes } from '../../dataset';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import {BaseNeonComponent, TransformedVisualizationData} from '../base-neon-component/base-neon.component';
+import {MediaTypes} from '../../dataset';
+import {neonUtilities, neonVariables} from '../../neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -44,7 +44,6 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
-import * as _ from 'lodash';
 
 export const ViewType = {
     CARD: 'card',
@@ -217,7 +216,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 variable: ViewType.CARD
             }]),
             new WidgetFreeTextOption('canvasSize', 'Canvas Size', this.CANVAS_SIZE),
-            new WidgetNonPrimitiveOption('truncate', 'Truncate Title', {value: false, length: 0})
+            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', {value: false, length: 0})
 
         ];
     }
@@ -384,8 +383,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
     getTruncatedTitle(item): string {
         let title = item[this.options.flagLabel.columnName];
-        if (title.length > this.options.truncate.length) {
-            title = title.substring(0, this.options.truncate.length).concat('...');
+        if (title.length > this.options.truncateLabel.length) {
+            title = title.substring(0, this.options.truncateLabel.length).concat('...');
         }
 
         return title;
