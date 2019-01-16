@@ -18,6 +18,7 @@
 .annotation-viewer-table {
     padding: 5px;
     margin: 0;
+    font-size: 14px;
 }
 
 .document-row {
@@ -46,7 +47,7 @@
     flex-direction: row;
     justify-content: space-between;
     position: absolute;
-    z-index: 1000; 
+    z-index: 1000;
 }
 
 
@@ -54,7 +55,7 @@
     overflow: hidden !important;
 
     .body-container {
-        
+
         top: calc(#{$vis-title-expected-height} - 25px);
         height: calc(100% - 20px);
 

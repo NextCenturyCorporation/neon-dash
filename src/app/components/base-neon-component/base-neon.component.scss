@@ -94,7 +94,7 @@ $footer-height: 35px;
     }
 
     .footer {
-        border-top: 5px solid var(--color-accent, lightgrey);
+        border-top: 2px solid var(--color-accent, lightgrey);
         position: absolute;
         bottom: 0;
         height: #{$footer-height};
