@@ -42,7 +42,7 @@ describe('Component: NewsFeed', () => {
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     //may need to add or remove some initializations (copied from media-viewer.component)
-    initializeTestBed({
+    initializeTestBed('News Feed', {
         declarations: [
             NewsFeedComponent,
             ExportControlComponent

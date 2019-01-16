@@ -72,7 +72,7 @@ describe('Component: ThumbnailGrid', () => {
     let fixture: ComponentFixture<ThumbnailGridComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Thumbnail Grid', {
         declarations: [
             CardThumbnailSubComponent,
             TitleThumbnailSubComponent,
@@ -1550,7 +1550,7 @@ describe('Component: ThumbnailGrid with config', () => {
     let component: ThumbnailGridComponent;
     let fixture: ComponentFixture<ThumbnailGridComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Thumbnail Grid', {
         declarations: [
             CardThumbnailSubComponent,
             TitleThumbnailSubComponent,
