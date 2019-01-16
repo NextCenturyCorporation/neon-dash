@@ -641,7 +641,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     public initialize() {
         Chart.defaults.global.defaultFontFamily = 'Roboto, sans-serif';
         Chart.defaults.global.defaultFontSize = 10;
-        Chart.defaults.global.defaultFontStyle = '400';
 
         this.hiddenCanvas = this.listener.getHiddenCanvas().nativeElement.getContext('2d');
         this.hiddenCanvas.font = '10px Roboto, sans-serif';
