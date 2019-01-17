@@ -16,9 +16,9 @@
 /// <reference path="../../../../node_modules/@types/d3/index.d.ts" />
 import * as _ from 'lodash';
 import * as $ from 'jquery';
-import {ElementRef} from '@angular/core';
-import {TimelineComponent} from './timeline.component';
-import {Bucketizer} from '../bucketizers/Bucketizer';
+import { ElementRef } from '@angular/core';
+import { TimelineComponent } from './timeline.component';
+import { Bucketizer } from '../bucketizers/Bucketizer';
 
 declare let d3;
 
