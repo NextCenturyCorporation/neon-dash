@@ -147,8 +147,8 @@ body {
 .mat-raised-button,
 .mat-stroked-button {
     border-radius: 5px !important;
-    font-size: 18px !important;
-    font-weight: 600 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
     line-height: 20px !important;
     height: 30px !important;
     min-width: unset !important;
@@ -158,14 +158,9 @@ body {
         vertical-align: bottom !important;
     }
 
-    &.neon-button-large {
-        font-size: 24px !important;
-        line-height: 25px !important;
-        height: 35px !important;
-    }
-
     &.neon-button-small {
-        font-size: 12px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
         line-height: 15px !important;
         height: 25px !important;
     }
@@ -184,8 +179,8 @@ body {
 
 .mat-button-toggle-group {
     border-radius: 10px !important;
-    font-size: 18px !important;
-    font-weight: 600 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
 
     .mat-button-toggle {
         &:first-child {
@@ -208,18 +203,9 @@ body {
         padding: 5px 10px !important;
     }
 
-    &.neon-button-toggle-group-large {
-        font-size: 24px !important;
-
-        .mat-button-toggle-label-content {
-            height: 25px !important;
-            line-height: 25px !important;
-            padding: 5px 10px !important;
-        }
-    }
-
     &.neon-button-toggle-group-small {
         font-size: 12px !important;
+        font-weight: 500px !important;
 
         .mat-button-toggle-label-content {
             height: 15px !important;

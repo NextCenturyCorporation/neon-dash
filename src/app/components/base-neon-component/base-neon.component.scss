@@ -109,7 +109,8 @@ $footer-height: 35px;
             .pagination-button {
                 flex: 1 0 0;
                 /* Copied font size, height, and line height from neon-button-small in styles.scss */
-                font-size: 12px !important;
+                font-size: 14px !important;
+                font-weight: 500 !important;
                 height: 25px !important;
                 line-height: 15px !important;
                 margin: 0 5px;
