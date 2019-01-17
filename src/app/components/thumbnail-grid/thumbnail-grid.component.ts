@@ -25,15 +25,15 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import {DomSanitizer} from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {FilterService} from '../../services/filter.service';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
 
-import {BaseNeonComponent, TransformedVisualizationData} from '../base-neon-component/base-neon.component';
-import {MediaTypes} from '../../dataset';
-import {neonUtilities, neonVariables} from '../../neon-namespaces';
+import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { MediaTypes } from '../../dataset';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
