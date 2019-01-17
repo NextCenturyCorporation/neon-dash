@@ -657,6 +657,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private handleSuccessfulVisualizationQuery(options: any, response: any, callback: () => void): void {
         if (!response || !response.data || !response.data.length) {
+            // TODO THOR-985 Don't call transformVisualizationQueryResults
+            this.transformVisualizationQueryResults(options, []);
             this.errorMessage = 'No Data';
             this.layerIdToActiveData.set(options._id, new TransformedVisualizationData());
             this.layerIdToElementCount.set(options._id, 0);
@@ -807,7 +809,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {boolean}
      */
     private cannotExecuteQuery(options: any): boolean {
-        return (!this.connectionService.getActiveConnection() || (options.hideUnfiltered &&
+        return (!this.connectionService.getActiveConnection() || (this.options.hideUnfiltered &&
             !this.filterService.getFiltersForFields(options.database.name, options.table.name).length));
     }
 
