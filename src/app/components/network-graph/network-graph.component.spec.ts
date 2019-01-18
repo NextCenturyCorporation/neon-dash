@@ -121,7 +121,7 @@ describe('Component: NetworkGraph', () => {
         component.options.yPositionField = new FieldMetaData('testYPositionField');
         component.options.xTargetPositionField = new FieldMetaData('testXTargetPositionField');
         component.options.yTargetPositionField = new FieldMetaData('testYTargetPositionField');
-        component.options.filterFields = ['testFilter1', 'testFilter2'];
+        component.options.filterFields = [new FieldMetaData('testFilter1'), new FieldMetaData('testFilter2')];
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
@@ -396,7 +396,7 @@ describe('Component: NetworkGraph', () => {
         component.legendItemSelected({currentlyActive: true, fieldName: 'testTypeField', value: 'testTypeValue2'});
 
         let filters = getService(FilterService).getFiltersForFields(component.options.database.name, component.options.table.name,
-            component.options.filterFields);
+            component.options.filterFields.map((fieldsObject) => fieldsObject.columnName));
         expect(filters.length).toEqual(1);
 
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
@@ -418,7 +418,7 @@ describe('Component: NetworkGraph', () => {
         component.options.linkColor = '#938d8f';
         component.options.nodeShape = 'star';
         component.options.isReified = false;
-        component.options.filterFields = ['testTypeField'];
+        component.options.filterFields = [new FieldMetaData('testTypeField')];
         component.options.limit = Infinity;
         component.options.multiFilterOperator = 'and';
 
@@ -446,7 +446,7 @@ describe('Component: NetworkGraph', () => {
         component.onSelect({nodes: ['testNodeValue2']});
 
         let filters = getService(FilterService).getFiltersForFields(component.options.database.name, component.options.table.name,
-            component.options.filterFields);
+            component.options.filterFields.map((fieldsObject) => fieldsObject.columnName));
         expect(filters.length).toEqual(1);
 
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
