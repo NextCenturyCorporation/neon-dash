@@ -296,7 +296,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     getColumnWidth(fieldConfig) {
         for (let miniArray of this.options.customColumnWidths) {
             let name = this.translateFieldKeyToValue(miniArray[0]);
-            if (fieldConfig.columnName === name) {
+            if (fieldConfig === name) {
                 return miniArray[1];
             }
         }
