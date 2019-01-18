@@ -1,14 +1,14 @@
 {
     "datasets": [
         {
-            "name": "TA0",
+            "name": "Pilot LDC Reconstructed",
             "connectOnLoad": true,
-            "layout": "verdi-ta0-layout",
+            "layout": "Pilot LDC TA0",
             "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases" :[
                 {
-                    "name": "aida-docs",
+                    "name": "aida-docs-tmp",
                     "prettyName": "VERDI",
                     "tables": [
                         {
@@ -26,29 +26,38 @@
                 {
                     "members": [
                         {
-                            "database": "aida-docs",
+                            "database": "aida-docs-tmp",
                             "table": "parent_children",
                             "field": "parent_uid"
                         },
                         {
-                            "database": "aida-docs",
+                            "database": "aida-docs-tmp",
                             "table": "parents",
                             "field": "id"
                         }
                     ]
                 }
-            ]
+            ],
+            "options": {
+                "colorMaps": {
+                    "aida-docs-tmp": {
+                        "parent_children": {
+                            "dtype": "#54C8CD"
+                        }
+                    }
+                }
+            }
         }
     ],
     "layouts": {
-        "verdi-ta0-layout": [
+        "Pilot LDC TA0": [
             {
                  "type": "dataTable",
-                 "sizex": 4,
+                 "sizex": 3,
                  "sizey": 12,
                  "bindings": {
                      "title": "Document",
-                     "database": "aida-docs",
+                     "database": "aida-docs-tmp",
                      "table": "parents",
                      "idField": "id",
                      "sortField": "id",
@@ -69,11 +78,11 @@
             },
             {
                 "type": "dataTable",
-                "sizex": 4,
+                "sizex": 3,
                 "sizey": 6,
                 "bindings": {
                     "title": "Document Elements",
-                    "database": "aida-docs",
+                    "database": "aida-docs-tmp",
                     "table": "parent_children",
                     "idField": "id",
                     "sortField": "id",
@@ -94,25 +103,8 @@
                 "sizex": 3,
                 "sizey": 6,
                 "bindings": {
-                    "title": "Document Element Type",
-                    "database": "aida-docs",
-                    "table": "parent_children",
-                    "type": "bar-h",
-                    "xField": "dtype",
-                    "aggregation": "count",
-                    "logScaleX": true
-                },
-                "row": 1,
-                "col": 5
-                
-            },
-            {
-                "type": "aggregation",
-                "sizex": 3,
-                "sizey": 6,
-                "bindings": {
                     "title": "Source",
-                    "database": "aida-docs",
+                    "database": "aida-docs-tmp",
                     "table": "parents",
                     "type": "list",
                     "xField": "host",
@@ -120,8 +112,26 @@
                     "logScaleX": true,
                     "sortByAggregation": true
                 },
+                "row": 1,
+                "col": 4
+                
+            },
+            {
+                "type": "aggregation",
+                "sizex": 3,
+                "sizey": 6,
+                "bindings": {
+                    "title": "Document Element Type",
+                    "database": "aida-docs-tmp",
+                    "table": "parent_children",
+                    "type": "bar-h",
+                    "xField": "dtype",
+                    "groupField": "dtype",
+                    "aggregation": "count",
+                    "logScaleX": true
+                },
                 "row": 7,
-                "col": 5
+                "col": 4
                 
             },
             {
@@ -130,34 +140,34 @@
                 "sizey": 6,
                 "bindings": {
                     "title": "Document Element Download Date",
-                    "database": "aida-docs",
+                    "database": "aida-docs-tmp",
                     "table": "parent_children",
                     "type": "histogram",
                     "xField": "download_date",
                     "aggregation": "count",
                     "granularity": "month"
                 },
-                "row": 8,
-                "col": 5
+                "row": 14,
+                "col": 4
             },
             {
                 "type": "mediaViewer",
-                "sizex": 5,
+                "sizex": 6,
                 "sizey": 18,
                 "bindings": {
                     "id": "_id",
                     "title": "Media Viewer",
-                    "database": "aida-docs",
+                    "database": "aida-docs-tmp",
                     "table": "parents",
                     "idField": "id",
                     "linkField": "reconstructed",
+                    "linkPrefix": "../Reconstructed/html/",
                     "typeField": "dtype",
                     "clearMedia": true
                 },
                 "row": 1,
-                "col": 8
+                "col": 7
             }
-           
         ]
     }
 }

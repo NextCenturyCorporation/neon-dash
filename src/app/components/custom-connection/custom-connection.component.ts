@@ -104,7 +104,7 @@ export class CustomConnectionComponent implements AfterViewInit {
         }
     }
 
-    getCurrentStepTitle(): string {
+    public getCurrentStepTitle(): string {
         return this.currentStep ? this.currentStep.title : '';
     }
 

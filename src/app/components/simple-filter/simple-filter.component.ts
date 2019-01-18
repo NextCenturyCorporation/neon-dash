@@ -17,9 +17,9 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnIni
 import { FilterService } from '../../services/filter.service';
 import { DatasetService } from '../../services/dataset.service';
 import { SimpleFilter } from '../../dataset';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { BehaviorSubject } from 'rxjs';
 import * as neon from 'neon-framework';
-import * as uuid from 'node-uuid';
+import * as uuidv4 from 'uuid/v4';
 
 @Component({
     selector: 'app-simple-filter',
@@ -32,7 +32,7 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
     public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
     public filterId = new BehaviorSubject<string>(undefined);
 
-    private id = uuid.v4();
+    private id = uuidv4();
     private messenger = new neon.eventing.Messenger();
 
     public showSimpleSearch: boolean;

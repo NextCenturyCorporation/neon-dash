@@ -20,7 +20,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Inje
 import { FormsModule } from '@angular/forms';
 import {} from 'jasmine-core';
 
-import { AggregationComponent } from './aggregation.component';
+import { AggregationComponent, TransformedAggregationData } from './aggregation.component';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { ChartJsData } from './subcomponent.chartjs.abstract';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
@@ -117,19 +117,15 @@ describe('Component: Aggregation', () => {
     });
 
     it('class properties are set to expected defaults', () => {
-        expect(component.activeData).toEqual([]);
         expect(component.colorKeys).toEqual([]);
         expect(component.filterToPassToSuperclass).toEqual({});
         expect(component.groupFilters).toEqual([]);
-        expect(component.lastPage).toEqual(true);
         expect(component.legendActiveGroups).toEqual([]);
         expect(component.legendGroups).toEqual([]);
         expect(component.minimumDimensionsMain.height).toBeDefined();
         expect(component.minimumDimensionsMain.width).toBeDefined();
         expect(component.minimumDimensionsZoom.height).toBeDefined();
         expect(component.minimumDimensionsZoom.width).toBeDefined();
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([]);
         expect(component.selectedArea).toEqual(null);
         expect(component.selectedAreaOffset.x).toBeDefined();
         expect(component.selectedAreaOffset.y).toBeDefined();
@@ -173,6 +169,27 @@ describe('Component: Aggregation', () => {
         expect(component.subcomponentMainElementRef).toBeDefined();
         expect(component.subcomponentZoomElementRef).toBeDefined();
         expect(component.visualization).toBeDefined();
+    });
+
+    it('constructVisualization does initialize main subcomponent', () => {
+        let spy = spyOn(component, 'initializeSubcomponent');
+
+        component.constructVisualization();
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([component.subcomponentMainElementRef]);
+    });
+
+    it('constructVisualization does initialize both main and zoom subcomponents if dualView is truthy', () => {
+        let spy = spyOn(component, 'initializeSubcomponent');
+
+        component.options.dualView = 'on';
+
+        component.constructVisualization();
+
+        expect(spy.calls.count()).toEqual(2);
+        expect(spy.calls.argsFor(0)).toEqual([component.subcomponentMainElementRef]);
+        expect(spy.calls.argsFor(1)).toEqual([component.subcomponentZoomElementRef, true]);
     });
 
     it('createFilterPrettyText does return expected string', () => {
@@ -567,12 +584,14 @@ describe('Component: Aggregation', () => {
         expect(spy3.calls.count()).toEqual(0);
     });
 
-    it('createQuery does return expected aggregation query', () => {
+    it('finalizeVisualizationQuery does return expected aggregation query', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.xField = DatasetServiceMock.X_FIELD;
 
-        expect(component.createQuery(component.options)).toEqual(new neon.query.Query().limit(10000)
+        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
+
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
             .where(neon.query.where('testXField', '!=', null))
             .groupBy(['testXField'])
@@ -580,7 +599,7 @@ describe('Component: Aggregation', () => {
             .sortBy('testXField', neonVariables.ASCENDING));
     });
 
-    it('createQuery does return expected aggregation query with optional fields', () => {
+    it('finalizeVisualizationQuery does return expected aggregation query with optional fields', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.aggregation = neonVariables.SUM;
@@ -590,7 +609,9 @@ describe('Component: Aggregation', () => {
         component.options.sortByAggregation = true;
         component.options.xField = DatasetServiceMock.X_FIELD;
 
-        expect(component.createQuery(component.options)).toEqual(new neon.query.Query().limit(100)
+        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
+
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
             .where(neon.query.where('testXField', '!=', null))
             .groupBy(['testXField', 'testCategoryField'])
@@ -598,7 +619,7 @@ describe('Component: Aggregation', () => {
             .sortBy('_aggregation', neonVariables.DESCENDING));
     });
 
-    it('createQuery does return expected XY query', () => {
+    it('finalizeVisualizationQuery does return expected XY query', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.type = 'line-xy';
@@ -611,35 +632,36 @@ describe('Component: Aggregation', () => {
             neon.query.where('testYField', '!=', null)
         ]);
 
-        expect(component.createQuery(component.options)).toEqual(new neon.query.Query().limit(10000)
+        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
+
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
             .where(wherePredicate)
             .groupBy(['testXField', 'testYField', 'testCategoryField'])
             .sortBy('testXField', neonVariables.ASCENDING));
     });
 
-    it('createQuery does return expected aggregation query with filters', () => {
+    it('finalizeVisualizationQuery does return expected aggregation query with filters', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.aggregation = neonVariables.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
-        component.options.filter = {
-            lhs: 'testConfigFilterField',
-            operator: '=',
-            rhs: 'testConfigFilterValue'
-        };
-        component.options.unsharedFilterField = DatasetServiceMock.FILTER_FIELD;
-        component.options.unsharedFilterValue = 'testFilterValue';
 
         let wherePredicate = neon.query.and.apply(neon.query, [
-            neon.query.where('testXField', '!=', null),
             neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue'),
-            neon.query.where('testFilterField', '=', 'testFilterValue')
+            neon.query.where('testFilterField', '=', 'testFilterValue'),
+            neon.query.where('testXField', '!=', null)
         ]);
 
-        expect(component.createQuery(component.options)).toEqual(new neon.query.Query().limit(10000)
+        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
+        let wherePredicates = [
+            neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue'),
+            neon.query.where('testFilterField', '=', 'testFilterValue')
+        ];
+
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, wherePredicates)).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
             .where(wherePredicate)
             .groupBy(['testXField', 'testCategoryField'])
@@ -647,36 +669,35 @@ describe('Component: Aggregation', () => {
             .sortBy('testXField', neonVariables.ASCENDING));
     });
 
-    it('createQuery does return expected XY query with filters', () => {
+    it('finalizeVisualizationQuery does return expected XY query with filters', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.type = 'line-xy';
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        component.options.filter = {
-            lhs: 'testConfigFilterField',
-            operator: '=',
-            rhs: 'testConfigFilterValue'
-        };
-        component.options.unsharedFilterField = DatasetServiceMock.FILTER_FIELD;
-        component.options.unsharedFilterValue = 'testFilterValue';
 
         let wherePredicate = neon.query.and.apply(neon.query, [
-            neon.query.where('testXField', '!=', null),
-            neon.query.where('testYField', '!=', null),
             neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue'),
-            neon.query.where('testFilterField', '=', 'testFilterValue')
+            neon.query.where('testFilterField', '=', 'testFilterValue'),
+            neon.query.where('testXField', '!=', null),
+            neon.query.where('testYField', '!=', null)
         ]);
 
-        expect(component.createQuery(component.options)).toEqual(new neon.query.Query().limit(10000)
+        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
+        let wherePredicates = [
+            neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue'),
+            neon.query.where('testFilterField', '=', 'testFilterValue')
+        ];
+
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, wherePredicates)).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
             .where(wherePredicate)
             .groupBy(['testXField', 'testYField', 'testCategoryField'])
             .sortBy('testXField', neonVariables.ASCENDING));
     });
 
-    it('createQuery does return expected date aggregation query', () => {
+    it('finalizeVisualizationQuery does return expected date aggregation query', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.aggregation = neonVariables.SUM;
@@ -689,7 +710,9 @@ describe('Component: Aggregation', () => {
             'testCategoryField'
         ];
 
-        expect(component.createQuery(component.options)).toEqual(new neon.query.Query().limit(10000)
+        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
+
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
             .where(neon.query.where('testDateField', '!=', null))
             .groupBy(groups)
@@ -698,7 +721,7 @@ describe('Component: Aggregation', () => {
             .sortBy('_date', neonVariables.ASCENDING));
     });
 
-    it('createQuery does return expected date XY query', () => {
+    it('finalizeVisualizationQuery does return expected date XY query', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.type = 'line-xy';
@@ -717,7 +740,9 @@ describe('Component: Aggregation', () => {
             'testCategoryField'
         ];
 
-        expect(component.createQuery(component.options)).toEqual(new neon.query.Query().limit(10000)
+        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
+
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
             .where(wherePredicate)
             .groupBy(groups)
@@ -725,7 +750,7 @@ describe('Component: Aggregation', () => {
             .sortBy('_date', neonVariables.ASCENDING));
     });
 
-    it('createQuery does add multiple groups to date query if needed', () => {
+    it('finalizeVisualizationQuery does add multiple groups to date query if needed', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.aggregation = neonVariables.SUM;
@@ -743,7 +768,9 @@ describe('Component: Aggregation', () => {
             'testCategoryField'
         ];
 
-        expect(component.createQuery(component.options)).toEqual(new neon.query.Query().limit(10000)
+        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
+
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
             .where(neon.query.where('testDateField', '!=', null))
             .groupBy(groups)
@@ -752,49 +779,14 @@ describe('Component: Aggregation', () => {
             .sortBy('_date', neonVariables.ASCENDING));
     });
 
-    it('getButtonText does return expected string', () => {
-        component.activeData = null;
-        expect(component.getButtonText()).toEqual('');
+    it('destroyVisualization does work as expected', () => {
+        let spy1 = spyOn(component.subcomponentMain, 'destroy');
+        let spy2 = spyOn(component.subcomponentZoom, 'destroy');
 
-        component.options.limit = 1;
-        component.activeData = [{
-            y: 0
-        }];
-        component.responseData = [{
-            y: 0
-        }];
-        expect(component.getButtonText()).toEqual('0 Results');
+        component.destroyVisualization();
 
-        component.activeData = [{
-            y: 1
-        }];
-        component.responseData = [{
-            y: 1
-        }, {
-            y: 10
-        }];
-        expect(component.getButtonText()).toEqual('1 Result (Limited)');
-
-        component.options.limit = 2;
-        component.activeData = [{
-            y: 1
-        }, {
-            y: 10
-        }];
-        expect(component.getButtonText()).toEqual('11 Results');
-
-        component.options.limit = 1;
-        component.responseData = [{
-            y: 1
-        }, {
-            y: 10
-        }, {
-            y: 100
-        }];
-        expect(component.getButtonText()).toEqual('11 Results (Limited)');
-
-        component.options.limit = 2;
-        expect(component.getButtonText()).toEqual('11 Results (Limited)');
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy2.calls.count()).toEqual(1);
     });
 
     it('getCloseableFilters does return expected object', () => {
@@ -1171,48 +1163,6 @@ describe('Component: Aggregation', () => {
         expect(component.getXFieldLabel('list')).toEqual('Row Field');
     });
 
-    it('goToNextPage does not update page or call updateActiveData if lastPage is true', () => {
-        let spy = spyOn(component, 'updateActiveData');
-        component.goToNextPage();
-
-        expect(component.page).toEqual(1);
-        expect(spy.calls.count()).toEqual(0);
-    });
-
-    it('goToNextPage does update page and call updateActiveData if lastPage is false', () => {
-        let spy = spyOn(component, 'updateActiveData');
-        component.lastPage = false;
-
-        component.goToNextPage();
-        expect(component.page).toEqual(2);
-        expect(spy.calls.count()).toEqual(1);
-
-        component.goToNextPage();
-        expect(component.page).toEqual(3);
-        expect(spy.calls.count()).toEqual(2);
-    });
-
-    it('goToPreviousPage does not update page or call updateActiveData if page is 1', () => {
-        let spy = spyOn(component, 'updateActiveData');
-        component.goToPreviousPage();
-
-        expect(component.page).toEqual(1);
-        expect(spy.calls.count()).toEqual(0);
-    });
-
-    it('goToPreviousPage does update page and call updateActiveData if page is not 1', () => {
-        let spy = spyOn(component, 'updateActiveData');
-        component.page = 3;
-
-        component.goToPreviousPage();
-        expect(component.page).toEqual(2);
-        expect(spy.calls.count()).toEqual(1);
-
-        component.goToPreviousPage();
-        expect(component.page).toEqual(1);
-        expect(spy.calls.count()).toEqual(2);
-    });
-
     it('handleChangeSubcomponentType does update subcomponent type and call expected functions', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
         component.newType = 'line-xy';
@@ -1354,65 +1304,59 @@ describe('Component: Aggregation', () => {
         expect(subcomponentObject.constructor.name).toEqual(ChartJsLineSubcomponent.name);
     });
 
-    it('isValidQuery does return expected boolean', () => {
-        expect(component.isValidQuery(component.options)).toEqual(false);
+    it('validateVisualizationQuery does return expected boolean', () => {
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.database = DatasetServiceMock.DATABASES[0];
-        expect(component.isValidQuery(component.options)).toEqual(false);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.table = DatasetServiceMock.TABLES[0];
-        expect(component.isValidQuery(component.options)).toEqual(false);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.xField = DatasetServiceMock.X_FIELD;
-        expect(component.isValidQuery(component.options)).toEqual(true);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(true);
 
         component.options.aggregation = neonVariables.SUM;
-        expect(component.isValidQuery(component.options)).toEqual(false);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
-        expect(component.isValidQuery(component.options)).toEqual(true);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
-    it('isValidQuery with XY subcomponent does return expected boolean', () => {
+    it('validateVisualizationQuery with XY subcomponent does return expected boolean', () => {
         component.options.type = 'line-xy';
 
-        expect(component.isValidQuery(component.options)).toEqual(false);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.database = DatasetServiceMock.DATABASES[0];
-        expect(component.isValidQuery(component.options)).toEqual(false);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.table = DatasetServiceMock.TABLES[0];
-        expect(component.isValidQuery(component.options)).toEqual(false);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.xField = DatasetServiceMock.X_FIELD;
-        expect(component.isValidQuery(component.options)).toEqual(false);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        expect(component.isValidQuery(component.options)).toEqual(true);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
-    it('onQuerySuccess with XY data does update expected properties and call expected functions', () => {
+    it('transformVisualizationQueryResults with XY data does return expected data', () => {
         component.options.type = 'line-xy';
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        component.page = 2;
-        let spy = spyOn(component, 'updateActiveData');
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                testXField: 1,
-                testYField: 2
-            }, {
-                testXField: 3,
-                testYField: 4
-            }]
-        });
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            testXField: 1,
+            testYField: 2
+        }, {
+            testXField: 3,
+            testYField: 4
+        }]);
 
-        expect(component.errorMessage).toEqual('');
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([{
+        expect(actual.data).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: 1,
@@ -1425,29 +1369,22 @@ describe('Component: Aggregation', () => {
         }]);
         expect(component.xList).toEqual([1, 3]);
         expect(component.yList).toEqual([2, 4]);
-        expect(spy.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with aggregated data does update expected properties and call expected functions', () => {
+    it('transformVisualizationQueryResults with aggregated data does return expected data', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
-        component.page = 2;
-        let spy = spyOn(component, 'updateActiveData');
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                _aggregation: 2,
-                testXField: 1
-            }, {
-                _aggregation: 4,
-                testXField: 3
-            }]
-        });
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            _aggregation: 2,
+            testXField: 1
+        }, {
+            _aggregation: 4,
+            testXField: 3
+        }]);
 
-        expect(component.errorMessage).toEqual('');
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([{
+        expect(actual.data).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: 1,
@@ -1460,42 +1397,35 @@ describe('Component: Aggregation', () => {
         }]);
         expect(component.xList).toEqual([1, 3]);
         expect(component.yList).toEqual([2, 4]);
-        expect(spy.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with XY data and groups does create groups', () => {
+    it('transformVisualizationQueryResults with XY data and groups does create groups', () => {
         component.options.type = 'line-xy';
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        component.page = 2;
-        let spy = spyOn(component, 'updateActiveData');
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                testCategoryField: 'a',
-                testXField: 1,
-                testYField: 2
-            }, {
-                testCategoryField: 'a',
-                testXField: 3,
-                testYField: 4
-            }, {
-                testCategoryField: 'b',
-                testXField: 5,
-                testYField: 6
-            }, {
-                testCategoryField: 'b',
-                testXField: 7,
-                testYField: 8
-            }]
-        });
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            testCategoryField: 'a',
+            testXField: 1,
+            testYField: 2
+        }, {
+            testCategoryField: 'a',
+            testXField: 3,
+            testYField: 4
+        }, {
+            testCategoryField: 'b',
+            testXField: 5,
+            testYField: 6
+        }, {
+            testCategoryField: 'b',
+            testXField: 7,
+            testYField: 8
+        }]);
 
-        expect(component.errorMessage).toEqual('');
         expect(component.legendActiveGroups).toEqual(['a', 'b']);
         expect(component.legendGroups).toEqual(['a', 'b']);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([{
+        expect(actual.data).toEqual([{
             color: COLOR_1,
             group: 'a',
             x: 1,
@@ -1518,40 +1448,33 @@ describe('Component: Aggregation', () => {
         }]);
         expect(component.xList).toEqual([1, 3, 5, 7]);
         expect(component.yList).toEqual([2, 4, 6, 8]);
-        expect(spy.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with aggregated data and groups does create groups', () => {
+    it('transformVisualizationQueryResults with aggregated data and groups does create groups', () => {
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
-        component.page = 2;
-        let spy = spyOn(component, 'updateActiveData');
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                _aggregation: 2,
-                testCategoryField: 'a',
-                testXField: 1
-            }, {
-                _aggregation: 4,
-                testCategoryField: 'a',
-                testXField: 3
-            }, {
-                _aggregation: 6,
-                testCategoryField: 'b',
-                testXField: 5
-            }, {
-                _aggregation: 8,
-                testCategoryField: 'b',
-                testXField: 7
-            }]
-        });
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            _aggregation: 2,
+            testCategoryField: 'a',
+            testXField: 1
+        }, {
+            _aggregation: 4,
+            testCategoryField: 'a',
+            testXField: 3
+        }, {
+            _aggregation: 6,
+            testCategoryField: 'b',
+            testXField: 5
+        }, {
+            _aggregation: 8,
+            testCategoryField: 'b',
+            testXField: 7
+        }]);
 
-        expect(component.errorMessage).toEqual('');
         expect(component.legendActiveGroups).toEqual(['a', 'b']);
         expect(component.legendGroups).toEqual(['a', 'b']);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([{
+        expect(actual.data).toEqual([{
             color: COLOR_1,
             group: 'a',
             x: 1,
@@ -1574,32 +1497,25 @@ describe('Component: Aggregation', () => {
         }]);
         expect(component.xList).toEqual([1, 3, 5, 7]);
         expect(component.yList).toEqual([2, 4, 6, 8]);
-        expect(spy.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with XY date data does work as expected', () => {
+    it('transformVisualizationQueryResults with XY date data does return expected data', () => {
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
         component.options.xField = DatasetServiceMock.DATE_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        component.page = 2;
-        let spy = spyOn(component, 'updateActiveData');
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                _date: '2018-01-01T00:00:00.000Z',
-                testYField: 2
-            }, {
-                _date: '2018-01-03T00:00:00.000Z',
-                testYField: 4
-            }]
-        });
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            _date: '2018-01-01T00:00:00.000Z',
+            testYField: 2
+        }, {
+            _date: '2018-01-03T00:00:00.000Z',
+            testYField: 4
+        }]);
 
-        expect(component.errorMessage).toEqual('');
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([{
+        expect(actual.data).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
@@ -1612,30 +1528,23 @@ describe('Component: Aggregation', () => {
         }]);
         expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-03T00:00:00.000Z']);
         expect(component.yList).toEqual([2, 4]);
-        expect(spy.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with aggregated date data does work as expected', () => {
+    it('transformVisualizationQueryResults with aggregated date data does return expected data', () => {
         component.options.granularity = 'day';
         component.options.xField = DatasetServiceMock.DATE_FIELD;
-        component.page = 2;
-        let spy = spyOn(component, 'updateActiveData');
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                _aggregation: 2,
-                _date: '2018-01-01T00:00:00.000Z'
-            }, {
-                _aggregation: 4,
-                _date: '2018-01-03T00:00:00.000Z'
-            }]
-        });
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            _aggregation: 2,
+            _date: '2018-01-01T00:00:00.000Z'
+        }, {
+            _aggregation: 4,
+            _date: '2018-01-03T00:00:00.000Z'
+        }]);
 
-        expect(component.errorMessage).toEqual('');
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([{
+        expect(actual.data).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
@@ -1648,31 +1557,24 @@ describe('Component: Aggregation', () => {
         }]);
         expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-03T00:00:00.000Z']);
         expect(component.yList).toEqual([2, 4]);
-        expect(spy.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with savePrevious=true does keep previous xList string data', () => {
+    it('transformVisualizationQueryResults with savePrevious=true does keep previous xList string data', () => {
         component.options.savePrevious = true;
         component.options.xField = DatasetServiceMock.TEXT_FIELD;
-        component.page = 2;
         component.xList = ['z', 'a', 'b', 'c', 'd'];
-        let spy = spyOn(component, 'updateActiveData');
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                _aggregation: 2,
-                testTextField: 'a'
-            }, {
-                _aggregation: 4,
-                testTextField: 'c'
-            }]
-        });
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            _aggregation: 2,
+            testTextField: 'a'
+        }, {
+            _aggregation: 4,
+            testTextField: 'c'
+        }]);
 
-        expect(component.errorMessage).toEqual('');
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([{
+        expect(actual.data).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: 'a',
@@ -1685,31 +1587,24 @@ describe('Component: Aggregation', () => {
         }]);
         expect(component.xList).toEqual(['z', 'a', 'b', 'c', 'd']);
         expect(component.yList).toEqual([2, 4]);
-        expect(spy.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with savePrevious=true does keep previous xList number data', () => {
+    it('transformVisualizationQueryResults with savePrevious=true does keep previous xList number data', () => {
         component.options.savePrevious = true;
         component.options.xField = DatasetServiceMock.X_FIELD;
-        component.page = 2;
         component.xList = [0, 1, 2, 3, 4];
-        let spy = spyOn(component, 'updateActiveData');
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                _aggregation: 2,
-                testXField: 1
-            }, {
-                _aggregation: 4,
-                testXField: 3
-            }]
-        });
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            _aggregation: 2,
+            testXField: 1
+        }, {
+            _aggregation: 4,
+            testXField: 3
+        }]);
 
-        expect(component.errorMessage).toEqual('');
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([{
+        expect(actual.data).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: 1,
@@ -1722,10 +1617,9 @@ describe('Component: Aggregation', () => {
         }]);
         expect(component.xList).toEqual([0, 1, 2, 3, 4]);
         expect(component.yList).toEqual([2, 4]);
-        expect(spy.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with savePrevious=true does keep previous xList date data', () => {
+    it('transformVisualizationQueryResults with savePrevious=true does keep previous xList date data', () => {
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
         component.options.savePrevious = true;
@@ -1733,24 +1627,18 @@ describe('Component: Aggregation', () => {
         component.options.yField = DatasetServiceMock.Y_FIELD;
         component.xList = ['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z', '2018-01-04T00:00:00.000Z',
             '2018-01-05T00:00:00.000Z'];
-        component.page = 2;
-        let spy = spyOn(component, 'updateActiveData');
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                _date: '2018-01-02T00:00:00.000Z',
-                testYField: 2
-            }, {
-                _date: '2018-01-04T00:00:00.000Z',
-                testYField: 4
-            }]
-        });
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            _date: '2018-01-02T00:00:00.000Z',
+            testYField: 2
+        }, {
+            _date: '2018-01-04T00:00:00.000Z',
+            testYField: 4
+        }]);
 
-        expect(component.errorMessage).toEqual('');
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([{
+        expect(actual.data).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: '2018-01-02T00:00:00.000Z',
@@ -1764,33 +1652,26 @@ describe('Component: Aggregation', () => {
         expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z',
             '2018-01-04T00:00:00.000Z', '2018-01-05T00:00:00.000Z']);
         expect(component.yList).toEqual([2, 4]);
-        expect(spy.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with timeFill=true does add empty dates if needed', () => {
+    it('transformVisualizationQueryResults with timeFill=true does add empty dates if needed', () => {
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
         component.options.timeFill = true;
         component.options.xField = DatasetServiceMock.DATE_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        component.page = 2;
-        let spy = spyOn(component, 'updateActiveData');
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                _date: '2018-01-01T00:00:00.000Z',
-                testYField: 2
-            }, {
-                _date: '2018-01-03T00:00:00.000Z',
-                testYField: 4
-            }]
-        });
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            _date: '2018-01-01T00:00:00.000Z',
+            testYField: 2
+        }, {
+            _date: '2018-01-03T00:00:00.000Z',
+            testYField: 4
+        }]);
 
-        expect(component.errorMessage).toEqual('');
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([{
+        expect(actual.data).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
@@ -1808,39 +1689,32 @@ describe('Component: Aggregation', () => {
         }]);
         expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z']);
         expect(component.yList).toEqual([2, 0, 4]);
-        expect(spy.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with timeFill=true does not add empty dates if not needed', () => {
+    it('transformVisualizationQueryResults with timeFill=true does not add empty dates if not needed', () => {
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
         component.options.timeFill = true;
         component.options.xField = DatasetServiceMock.DATE_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        component.page = 2;
-        let spy = spyOn(component, 'updateActiveData');
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                _date: '2018-01-01T00:00:00.000Z',
-                testYField: 2
-            }, {
-                _date: '2018-01-02T00:00:00.000Z',
-                testYField: 3
-            }, {
-                _date: '2018-01-03T00:00:00.000Z',
-                testYField: 4
-            }, {
-                _date: '2018-01-04T00:00:00.000Z',
-                testYField: 5
-            }]
-        });
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            _date: '2018-01-01T00:00:00.000Z',
+            testYField: 2
+        }, {
+            _date: '2018-01-02T00:00:00.000Z',
+            testYField: 3
+        }, {
+            _date: '2018-01-03T00:00:00.000Z',
+            testYField: 4
+        }, {
+            _date: '2018-01-04T00:00:00.000Z',
+            testYField: 5
+        }]);
 
-        expect(component.errorMessage).toEqual('');
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([{
+        expect(actual.data).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
@@ -1864,44 +1738,37 @@ describe('Component: Aggregation', () => {
         expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z',
             '2018-01-04T00:00:00.000Z']);
         expect(component.yList).toEqual([2, 3, 4, 5]);
-        expect(spy.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with timeFill=true and groups does add empty dates to separate groups if needed', () => {
+    it('transformVisualizationQueryResults with timeFill=true and groups does add empty dates to separate groups if needed', () => {
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
         component.options.timeFill = true;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.DATE_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        component.page = 2;
-        let spy = spyOn(component, 'updateActiveData');
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                _date: '2018-01-01T00:00:00.000Z',
-                testCategoryField: 'a',
-                testYField: 2
-            }, {
-                _date: '2018-01-02T00:00:00.000Z',
-                testCategoryField: 'b',
-                testYField: 3
-            }, {
-                _date: '2018-01-03T00:00:00.000Z',
-                testCategoryField: 'a',
-                testYField: 4
-            }, {
-                _date: '2018-01-04T00:00:00.000Z',
-                testCategoryField: 'b',
-                testYField: 5
-            }]
-        });
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            _date: '2018-01-01T00:00:00.000Z',
+            testCategoryField: 'a',
+            testYField: 2
+        }, {
+            _date: '2018-01-02T00:00:00.000Z',
+            testCategoryField: 'b',
+            testYField: 3
+        }, {
+            _date: '2018-01-03T00:00:00.000Z',
+            testCategoryField: 'a',
+            testYField: 4
+        }, {
+            _date: '2018-01-04T00:00:00.000Z',
+            testCategoryField: 'b',
+            testYField: 5
+        }]);
 
-        expect(component.errorMessage).toEqual('');
         expect(component.legendActiveGroups).toEqual(['a', 'b']);
         expect(component.legendGroups).toEqual(['a', 'b']);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([{
+        expect(actual.data).toEqual([{
             color: COLOR_1,
             group: 'a',
             x: '2018-01-01T00:00:00.000Z',
@@ -1945,10 +1812,9 @@ describe('Component: Aggregation', () => {
         expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z',
             '2018-01-04T00:00:00.000Z']);
         expect(component.yList).toEqual([2, 0, 4, 3, 5]);
-        expect(spy.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with savePrevious=true and timeFill=true does work as expected', () => {
+    it('transformVisualizationQueryResults with savePrevious=true and timeFill=true does work as expected', () => {
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
         component.options.savePrevious = true;
@@ -1957,24 +1823,18 @@ describe('Component: Aggregation', () => {
         component.options.yField = DatasetServiceMock.Y_FIELD;
         component.xList = ['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z', '2018-01-04T00:00:00.000Z',
             '2018-01-05T00:00:00.000Z'];
-        component.page = 2;
-        let spy = spyOn(component, 'updateActiveData');
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                _date: '2018-01-02T00:00:00.000Z',
-                testYField: 2
-            }, {
-                _date: '2018-01-04T00:00:00.000Z',
-                testYField: 4
-            }]
-        });
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            _date: '2018-01-02T00:00:00.000Z',
+            testYField: 2
+        }, {
+            _date: '2018-01-04T00:00:00.000Z',
+            testYField: 4
+        }]);
 
-        expect(component.errorMessage).toEqual('');
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([{
+        expect(actual.data).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
@@ -2003,26 +1863,18 @@ describe('Component: Aggregation', () => {
         expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z',
             '2018-01-04T00:00:00.000Z', '2018-01-05T00:00:00.000Z']);
         expect(component.yList).toEqual([0, 2, 4]);
-        expect(spy.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with no data does update expected properties and call expected functions', () => {
+    it('transformVisualizationQueryResults with no data does work as expected', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        component.page = 2;
-        let spy = spyOn(component, 'updateActiveData');
 
-        component.onQuerySuccess(component.options, {
-            data: []
-        });
-        expect(component.errorMessage).toEqual('No Data');
-        expect(component.legendActiveGroups).toEqual([]);
-        expect(component.legendGroups).toEqual([]);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([]);
+        let actual = component.transformVisualizationQueryResults(component.options, []);
+        expect(component.legendActiveGroups).toEqual(['All']);
+        expect(component.legendGroups).toEqual(['All']);
+        expect(actual.data).toEqual([]);
         expect(component.xList).toEqual([]);
         expect(component.yList).toEqual([]);
-        expect(spy.calls.count()).toEqual(1);
     });
 
     it('optionsAggregationIsNotCount does return expected boolean', () => {
@@ -2164,12 +2016,6 @@ describe('Component: Aggregation', () => {
         expect(component.optionsXFieldIsDate({ xField: { type: 'text' } })).toEqual(false);
     });
 
-    it('postInit does work as expected', () => {
-        let spy = spyOn(component, 'executeQueryChain');
-        component.postInit();
-        expect(spy.calls.count()).toEqual(1);
-    });
-
     it('redrawSubcomponents does recreate main subcomponent and call expected functions', () => {
         let spy1 = spyOn(component, 'initializeSubcomponent');
         let spy2 = spyOn(component, 'refreshVisualization');
@@ -2212,6 +2058,7 @@ describe('Component: Aggregation', () => {
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2228,13 +2075,13 @@ describe('Component: Aggregation', () => {
         }]);
         expect(spy2.calls.count()).toEqual(0);
 
-        component.activeData = [{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
             x: 1,
             y: 2
         }, {
             x: 3,
             y: 4
-        }];
+        }]));
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -2270,6 +2117,7 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2286,13 +2134,13 @@ describe('Component: Aggregation', () => {
         }]);
         expect(spy2.calls.count()).toEqual(0);
 
-        component.activeData = [{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
             x: 1,
             y: 2
         }, {
             x: 3,
             y: 4
-        }];
+        }]));
         component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
@@ -2326,6 +2174,7 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.xField = DatasetServiceMock.DATE_FIELD;
         component.options.yField = DatasetServiceMock.DATE_FIELD;
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2342,13 +2191,13 @@ describe('Component: Aggregation', () => {
         }]);
         expect(spy2.calls.count()).toEqual(0);
 
-        component.activeData = [{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
             x: 1,
             y: 2
         }, {
             x: 3,
             y: 4
-        }];
+        }]));
         component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
@@ -2382,6 +2231,7 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.xField = DatasetServiceMock.TEXT_FIELD;
         component.options.yField = DatasetServiceMock.TEXT_FIELD;
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2398,13 +2248,13 @@ describe('Component: Aggregation', () => {
         }]);
         expect(spy2.calls.count()).toEqual(0);
 
-        component.activeData = [{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
             x: 1,
             y: 2
         }, {
             x: 3,
             y: 4
-        }];
+        }]));
         component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
@@ -2441,13 +2291,13 @@ describe('Component: Aggregation', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.dualView = 'on';
 
-        component.activeData = [{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
             x: 1,
             y: 2
         }, {
             x: 3,
             y: 4
-        }];
+        }]));
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -2544,13 +2394,13 @@ describe('Component: Aggregation', () => {
         component.options.dualView = 'on';
         component.filterToPassToSuperclass.id = 'testId';
 
-        component.activeData = [{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
             x: 1,
             y: 2
         }, {
             x: 3,
             y: 4
-        }];
+        }]));
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -2613,13 +2463,13 @@ describe('Component: Aggregation', () => {
         component.options.dualView = 'on';
         component.filterToPassToSuperclass.id = 'testId';
 
-        component.activeData = [{
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
             x: 1,
             y: 2
         }, {
             x: 3,
             y: 4
-        }];
+        }]));
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -2700,15 +2550,6 @@ describe('Component: Aggregation', () => {
         expect(component.selectedArea).toEqual(null);
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([]);
-    });
-
-    it('showFooterContainer does return expected boolean', () => {
-        expect(component.showFooterContainer()).toEqual(false);
-
-        component.activeData = [{}];
-        component.responseData = [{}, {}];
-
-        expect(component.showFooterContainer()).toEqual(true);
     });
 
     it('showHeaderContainer does return expected boolean', () => {
@@ -3561,57 +3402,6 @@ describe('Component: Aggregation', () => {
         });
     });
 
-    it('subNgOnDestroy does work as expected', () => {
-        let spy1 = spyOn(component.subcomponentMain, 'destroy');
-        let spy2 = spyOn(component.subcomponentZoom, 'destroy');
-
-        component.subNgOnDestroy();
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
-    });
-
-    it('subNgOnInit does initialize main subcomponent', () => {
-        let spy = spyOn(component, 'initializeSubcomponent');
-
-        component.subNgOnInit();
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([component.subcomponentMainElementRef]);
-    });
-
-    it('subNgOnInit does initialize both main and zoom subcomponents if dualView is truthy', () => {
-        let spy = spyOn(component, 'initializeSubcomponent');
-
-        component.options.dualView = 'on';
-
-        component.subNgOnInit();
-
-        expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(0)).toEqual([component.subcomponentMainElementRef]);
-        expect(spy.calls.argsFor(1)).toEqual([component.subcomponentZoomElementRef, true]);
-    });
-
-    it('subOnResizeStop does work as expected', () => {
-        component.minimumDimensionsMain = null;
-        component.minimumDimensionsZoom = null;
-        component.selectedAreaOffset = null;
-
-        let spy1 = spyOn(component.subcomponentMain, 'redraw');
-        let spy2 = spyOn(component.subcomponentZoom, 'redraw');
-
-        component.subOnResizeStop();
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(component.minimumDimensionsMain.height).toBeDefined();
-        expect(component.minimumDimensionsMain.width).toBeDefined();
-        expect(component.minimumDimensionsZoom.height).toBeDefined();
-        expect(component.minimumDimensionsZoom.width).toBeDefined();
-        expect(component.selectedAreaOffset.x).toBeDefined();
-        expect(component.selectedAreaOffset.y).toBeDefined();
-    });
-
     it('toggleFilter does add given filter to given empty array and call createOrRemoveNeonFilter', () => {
         let spy = spyOn(component, 'createOrRemoveNeonFilter');
 
@@ -3722,28 +3512,24 @@ describe('Component: Aggregation', () => {
         expect(spy2.calls.argsFor(0)).toEqual(['value1']);
     });
 
-    it('updateActiveData does update activeData and lastPage from responseData, page, and limit and call refreshVisualization', () => {
-        component.options.limit = 2;
-        component.page = 1;
-        component.responseData = [{}, {}, {}];
-        let spy = spyOn(component, 'refreshVisualization');
+    it('updateOnResize does work as expected', () => {
+        component.minimumDimensionsMain = null;
+        component.minimumDimensionsZoom = null;
+        component.selectedAreaOffset = null;
 
-        component.updateActiveData();
-        expect(component.activeData).toEqual([{}, {}]);
-        expect(component.lastPage).toEqual(false);
-        expect(spy.calls.count()).toEqual(1);
-    });
+        let spy1 = spyOn(component.subcomponentMain, 'redraw');
+        let spy2 = spyOn(component.subcomponentZoom, 'redraw');
 
-    it('updateActiveData does set lastPage to true if on last page', () => {
-        component.options.limit = 2;
-        component.page = 2;
-        component.responseData = [{}, {}, {}];
-        let spy = spyOn(component, 'refreshVisualization');
+        component.updateOnResize();
 
-        component.updateActiveData();
-        expect(component.activeData).toEqual([{}]);
-        expect(component.lastPage).toEqual(true);
-        expect(spy.calls.count()).toEqual(1);
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(component.minimumDimensionsMain.height).toBeDefined();
+        expect(component.minimumDimensionsMain.width).toBeDefined();
+        expect(component.minimumDimensionsZoom.height).toBeDefined();
+        expect(component.minimumDimensionsZoom.width).toBeDefined();
+        expect(component.selectedAreaOffset.x).toBeDefined();
+        expect(component.selectedAreaOffset.y).toBeDefined();
     });
 
     it('does show toolbar and sidenav and body-container', () => {
@@ -3763,31 +3549,39 @@ describe('Component: Aggregation', () => {
         expect(header.nativeElement.textContent).toContain('Aggregation');
     });
 
-    it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', () => {
-        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
-        expect(dataInfoTextInToolbar).not.toBeNull();
-        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('0 Results');
+    it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', async(() => {
+        (component as any).layerIdToElementCount.set(component.options._id, 10);
 
-        let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
-        expect(dataInfoIconInSidenav).not.toBeNull();
-        expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
+        // Force the component to update all its ngFor and ngIf elements.
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
 
-        let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
-        expect(dataInfoTextInSidenav).not.toBeNull();
-        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Results');
+            let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
+            expect(dataInfoTextInToolbar).not.toBeNull();
+            expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Results');
 
-        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
-        expect(errorMessageInToolbar).toBeNull();
+            let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
+            expect(dataInfoIconInSidenav).not.toBeNull();
+            expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
 
-        let errorIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
-        expect(errorIconInSidenav).toBeNull();
+            let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
+            expect(dataInfoTextInSidenav).not.toBeNull();
+            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('10 Results');
 
-        let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
-        expect(errorMessageInSidenav).toBeNull();
-    });
+            let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
+            expect(errorMessageInToolbar).toBeNull();
 
-    it('does show error-message in toolbar and sidenav if errorMessage is defined', async(() => {
-        component.errorMessage = 'Test Error Message';
+            let errorIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
+            expect(errorIconInSidenav).toBeNull();
+
+            let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
+            expect(errorMessageInSidenav).toBeNull();
+        });
+    }));
+
+    it('does show error-message and hide data-info in toolbar and sidenav if errorMessage is defined', async(() => {
+        (component as any).errorMessage = 'Test Error Message';
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -3798,12 +3592,10 @@ describe('Component: Aggregation', () => {
             expect(dataInfoTextInToolbar).toBeNull();
 
             let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
-            expect(dataInfoIconInSidenav).not.toBeNull();
-            expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
+            expect(dataInfoIconInSidenav).toBeNull();
 
             let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
-            expect(dataInfoTextInSidenav).not.toBeNull();
-            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Results');
+            expect(dataInfoTextInSidenav).toBeNull();
 
             let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
             expect(errorMessageInToolbar).not.toBeNull();
@@ -3857,8 +3649,8 @@ describe('Component: Aggregation', () => {
         expect(hiddenSpinner).not.toBeNull();
     });
 
-    it('does show loading overlay if isLoading is positive', async(() => {
-        component.isLoading = 1;
+    it('does show loading overlay if loadingCount is positive', async(() => {
+        (component as any).loadingCount = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -4013,101 +3805,6 @@ describe('Component: Aggregation', () => {
 
             let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
             expect(bodyContainer).not.toBeNull();
-        });
-    }));
-
-    it('does not show footer-container or pagination-button elements if activeData.length === responseData.length', () => {
-        let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
-        expect(footerContainer).toBeNull();
-
-        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
-        expect(bodyContainer).toBeNull();
-    });
-
-    it('does show footer-container and pagination-button elements if activeData.length < responseData.length (first page)', async(() => {
-        component.activeData = [{}];
-        component.responseData = [{}, {}, {}];
-        component.lastPage = false;
-        component.page = 1;
-
-        // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
-            expect(footerContainer).not.toBeNull();
-
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
-            expect(bodyContainer).not.toBeNull();
-
-            let footerButtons = fixture.debugElement.queryAll(By.css(
-                'mat-sidenav-container .footer .footer-button-container .pagination-button'));
-            expect(footerButtons.length).toEqual(2);
-
-            expect(footerButtons[0].componentInstance.disabled).toEqual(true);
-            expect(footerButtons[0].nativeElement.textContent).toContain('Previous');
-
-            expect(footerButtons[1].componentInstance.disabled).toEqual(false);
-            expect(footerButtons[1].nativeElement.textContent).toContain('Next');
-        });
-    }));
-
-    it('does show footer-container and pagination-button elements if activeData.length < responseData.length (middle page)', async(() => {
-        component.activeData = [{}];
-        component.responseData = [{}, {}, {}];
-        component.lastPage = false;
-        component.page = 2;
-
-        // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
-            expect(footerContainer).not.toBeNull();
-
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
-            expect(bodyContainer).not.toBeNull();
-
-            let footerButtons = fixture.debugElement.queryAll(By.css(
-                'mat-sidenav-container .footer .footer-button-container .pagination-button'));
-            expect(footerButtons.length).toEqual(2);
-
-            expect(footerButtons[0].componentInstance.disabled).toEqual(false);
-            expect(footerButtons[0].nativeElement.textContent).toContain('Previous');
-
-            expect(footerButtons[1].componentInstance.disabled).toEqual(false);
-            expect(footerButtons[1].nativeElement.textContent).toContain('Next');
-        });
-    }));
-
-    it('does show footer-container and pagination-button elements if activeData.length < responseData.length (last page)', async(() => {
-        component.activeData = [{}];
-        component.responseData = [{}, {}, {}];
-        component.lastPage = true;
-        component.page = 3;
-
-        // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
-            expect(footerContainer).not.toBeNull();
-
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
-            expect(bodyContainer).not.toBeNull();
-
-            let footerButtons = fixture.debugElement.queryAll(By.css(
-                'mat-sidenav-container .footer .footer-button-container .pagination-button'));
-            expect(footerButtons.length).toEqual(2);
-
-            expect(footerButtons[0].componentInstance.disabled).toEqual(false);
-            expect(footerButtons[0].nativeElement.textContent).toContain('Previous');
-
-            expect(footerButtons[1].componentInstance.disabled).toEqual(true);
-            expect(footerButtons[1].nativeElement.textContent).toContain('Next');
         });
     }));
 
@@ -4440,10 +4137,10 @@ describe('Component: Aggregation with config', () => {
             expect(inputs[n++].nativeElement.value).toContain('1234');
 
             expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('');
+            expect(inputs[n++].nativeElement.value).toEqual('Test X Field');
 
             expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('');
+            expect(inputs[n++].nativeElement.value).toEqual('sum');
 
             expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
             expect(inputs[n++].nativeElement.value).toContain('');
@@ -4660,10 +4357,10 @@ describe('Component: Aggregation with XY config', () => {
             expect(inputs[n++].nativeElement.value).toContain('1234');
 
             expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('');
+            expect(inputs[n++].nativeElement.value).toEqual('Test X Field');
 
             expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('');
+            expect(inputs[n++].nativeElement.value).toEqual('sum');
 
             expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
             expect(inputs[n++].nativeElement.value).toContain('');
@@ -4863,10 +4560,10 @@ describe('Component: Aggregation with date config', () => {
             expect(inputs[n++].nativeElement.value).toContain('1234');
 
             expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('');
+            expect(inputs[n++].nativeElement.value).toEqual('Test Date Field');
 
             expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('');
+            expect(inputs[n++].nativeElement.value).toEqual('sum');
 
             expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
             expect(inputs[n++].nativeElement.value).toContain('');

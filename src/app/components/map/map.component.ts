@@ -43,7 +43,7 @@ import {
     MapTypePairs,
     whiteString
 } from './map.type.abstract';
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { CesiumNeonMap } from './map.type.cesium';
 import { FieldMetaData } from '../../dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
@@ -81,8 +81,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     @ViewChild('mapElement') mapElement: ElementRef;
     @ViewChild('mapOverlay') mapOverlayRef: ElementRef;
 
-    protected FIELD_ID: string = '_id';
-
     protected filters: {
         id: string,
         fieldsByLayer: {
@@ -98,16 +96,14 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
     public colorKeys: string[] = [];
 
-    public docCount: Map<string, number> = new Map<string, number>();
     public filterVisible: Map<string, boolean> = new Map<string, boolean>();
-    public mapPoints: Map<string, any[]> = new Map<string, any[]>();
 
     public mapTypes = MapTypePairs;
 
     protected mapObject: AbstractMap;
     protected filterBoundingBox: BoundingBoxByDegrees;
 
-    public disabledSet: [string[]] = [] as [string[]];
+    public disabledSet: [string[]] = [] as any;
 
     constructor(
         connectionService: ConnectionService,
@@ -129,7 +125,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
         (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
 
-        this.subscribeToSelectId(this.getSelectIdCallback());
+        this.updateOnSelectId = true;
     }
 
     /**
@@ -151,28 +147,21 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     /**
-     * Initializes any map sub-components needed.
+     * Initializes any visualization properties when the widget is created.
      *
      * @override
      */
-    subNgOnInit() {
-        // Do nothing.
-    }
-
-    /**
-     * Handles any map component post-initialization behavior needed.
-     *
-     * @override
-     */
-    postInit() {
+    initializeProperties() {
         // Backwards compatibility (mapType deprecated and replaced by type).
         this.options.type = this.injector.get('mapType', this.options.type);
     }
 
     /**
-     * Initializes and draws the map.
+     * Creates any visualization elements when the widget is drawn.
+     *
+     * @override
      */
-    ngAfterViewInit() {
+    constructVisualization() {
         if (!super.isNumber(this.options.type)) {
             this.options.type = MapType[this.options.type] || MapType.Leaflet;
         }
@@ -190,17 +179,14 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         }
 
         this.mapObject.initialize(this.mapElement, this.options, this);
-
-        // Draw everything
-        this.executeAllQueryChain();
     }
 
     /**
-     * Deletes any map sub-components needed.
+     * Removes any visualization elements when the widget is deleted.
      *
      * @override
      */
-    subNgOnDestroy() {
+    destroyVisualization() {
         return this.mapObject && this.mapObject.destroy();
     }
 
@@ -211,9 +197,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @override
      */
     postAddLayer(options: any) {
-        this.docCount.set(options._id, 0);
         this.filterVisible.set(options._id, true);
-        this.mapPoints.set(options._id, []);
     }
 
     /**
@@ -397,51 +381,32 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     /**
-     * Returns whether the visualization data query created using the given options is valid.
+     * Returns whether the visualization query created using the given options is valid.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(options: any): boolean {
+    validateVisualizationQuery(options: any): boolean {
         return !!(options.database.name && options.table.name && options.latitudeField.columnName && options.longitudeField.columnName);
     }
 
     /**
-     * Creates and returns the visualization data query using the given options.
+     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
+     * @arg {neon.query.Query} query
+     * @arg {neon.query.WherePredicate[]} wherePredicates
      * @return {neon.query.Query}
      * @override
      */
-    createQuery(options: any): neon.query.Query {
-        let idField = options.idField.columnName;
-        let latitudeField = options.latitudeField.columnName;
-        let longitudeField = options.longitudeField.columnName;
-        let colorField = options.colorField.columnName;
-        let sizeField = options.sizeField.columnName;
-        let dateField = options.dateField.columnName;
-        let hoverPopupField = options.hoverPopupField.columnName;
+    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
+        let wheres: neon.query.WherePredicate[] = wherePredicates.concat([
+            neon.query.where(options.latitudeField.columnName, '!=', null),
+            neon.query.where(options.longitudeField.columnName, '!=', null)
+        ]);
 
-        let fields = [this.FIELD_ID, latitudeField, longitudeField];
-
-        if (idField) {
-            fields.push(idField);
-        }
-        if (colorField) {
-            fields.push(colorField);
-        }
-        if (sizeField) {
-            fields.push(sizeField);
-        }
-        if (dateField) {
-            fields.push(dateField);
-        }
-        if (hoverPopupField) {
-            fields.push(hoverPopupField);
-        }
-
-        return this.createBasicQuery(options).withFields(fields).limit(this.options.limit);
+        return query.where(neon.query.and.apply(neon.query, wheres));
     }
 
     legendItemSelected(event: any) {
@@ -541,18 +506,14 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     /**
-     * Handles the given response data for a successful visualization data query created using the given options.
+     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {any} response
+     * @arg {any[]} results
+     * @return {TransformedVisualizationData}
      * @override
      */
-    onQuerySuccess(options: any, response: any) {
-        if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
-            this.docCount.set(options._id, response.data[0]._docCount);
-            return;
-        }
-
+    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
         // TODO Need to either preprocess data to get color, size scales OR see if neon aggregations can give ranges.
         // TODO break this function into smaller bits so it is more understandable.
 
@@ -568,7 +529,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             this.options.singleColor = false;
         }
 
-        let mapPoints = this.getMapPoints(
+        let mapPoints: MapPoint[] = this.getMapPoints(
             options.database.name,
             options.table.name,
             options.idField.columnName,
@@ -576,9 +537,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             options.latitudeField.columnName,
             options.colorField.columnName,
             options.hoverPopupField,
-            response.data
+            results
         );
-        this.mapPoints.set(options._id, mapPoints);
 
         this.mapObject.unhideAllPoints(options._id);
 
@@ -587,7 +547,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
         this.filterMapForLegend();
         this.updateLegend();
-        this.runDocumentCountQuery(options);
+
+        return new TransformedVisualizationData(mapPoints);
     }
 
     /**
@@ -657,7 +618,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     /**
-     * Refreshes the map.
+     * Updates and redraws the elements and properties for the visualization.
      *
      * @override
      */
@@ -825,48 +786,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     /**
-     * Creates and returns the basic query for the data aggregation query or the document count query for the layer with the given options.
-     *
-     * @arg {any} options
-     * @return {neon.query.Query}
-     */
-    createBasicQuery(options: any): neon.query.Query {
-        let databaseName = options.database.name;
-        let tableName = options.table.name;
-
-        let latitudeField = options.latitudeField.columnName;
-        let longitudeField = options.longitudeField.columnName;
-
-        let whereClauses = [];
-        whereClauses.push(neon.query.where(latitudeField, '!=', null));
-        whereClauses.push(neon.query.where(longitudeField, '!=', null));
-        let whereClause = neon.query.and.apply(neon.query, whereClauses);
-
-        return new neon.query.Query().selectFrom(databaseName, tableName).where(whereClause);
-    }
-
-    /**
-     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @return {any[]}
-     * @override
-     */
-    public getShownDataArray(options: any): any[] {
-        return this.mapPoints.get(options._id);
-    }
-
-    /**
-     * Returns the count of data items that an unlimited query for the visualization would contain.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @return {number}
-     */
-    public getTotalDataCount(options: any): number {
-        return this.docCount.get(options._id);
-    }
-
-    /**
      * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
      * Uses the given count to determine plurality.
      *
@@ -876,16 +795,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      */
     public getVisualizationElementLabel(count: number): string {
         return 'Point' + (count === 1 ? '' : 's');
-    }
-
-    /**
-     * Creates and executes the document count query for the layer with the given options.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     */
-    runDocumentCountQuery(options: any): void {
-        let query = this.createBasicQuery(options).aggregate(neonVariables.COUNT, '*', '_docCount');
-        this.executeQuery(options, query);
     }
 
     /**
@@ -899,39 +808,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             visualization: this.visualization,
             headerText: this.headerText,
             infoText: this.infoText
-        };
-    }
-
-    /**
-     * Creates and returns the callback function for a select_id event.
-     *
-     * @arg {number}
-     * @return {function}
-     * @private
-     */
-    private getSelectIdCallback() {
-        return (eventMessage) => {
-
-            //get the message id and set it
-            let eventMessageId = Array.isArray(eventMessage.id) ? eventMessage.id[0] : eventMessage.id;
-
-            let previousId = '';
-
-            //loop through all of the layers
-            this.options.layers.forEach((layer) => {
-
-                //check if database and table exists in the current layer
-                if ((eventMessage.database === layer.database.name) && (eventMessage.table === layer.table.name)) {
-
-                    if (eventMessageId !== previousId) {
-                        previousId = eventMessageId;
-                        this.executeQueryChain(layer);
-                    }
-                }
-
-                //reset previousId for next layer
-                previousId = '';
-            });
         };
     }
 

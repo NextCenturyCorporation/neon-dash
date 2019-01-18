@@ -33,6 +33,8 @@ import { FilterService } from '../../services/filter.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
@@ -156,17 +158,11 @@ describe('Component: Sample', () => {
     });
 
     it('class properties are set to expected defaults', () => {
-        expect(component.activeData).toEqual([]);
-        expect(component.docCount).toEqual(0);
         expect(component.filters).toEqual([]);
-        expect(component.lastPage).toEqual(true);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([]);
 
         // Element Refs
         expect(component.headerText).toBeDefined();
         expect(component.infoText).toBeDefined();
-        expect(component.subcomponentElementRef).toBeDefined();
         expect(component.visualization).toBeDefined();
 
         // Subcomponent
@@ -231,18 +227,28 @@ describe('Component: Sample', () => {
         }]);
     });
 
-    it('createQuery does return expected query', () => {
+    it('constructVisualization does work as expected', () => {
+        let spy = spyOn(component, 'initializeSubcomponent');
+
+        component.constructVisualization();
+        expect(spy.calls.count()).toEqual(1);
+    });
+
+    it('finalizeVisualizationQuery does return expected query', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
-        expect(component.createQuery(component.options)).toEqual(new neon.query.Query()
+        let inputQuery = new neon.query.Query()
+            .selectFrom(component.options.database.name, component.options.table.name);
+
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
             .where(neon.query.where('testRequiredField1', '!=', null)).groupBy(['testRequiredField1'])
             .aggregate(neonVariables.COUNT, '*', 'count').sortBy('count', neonVariables.DESCENDING));
     });
 
-    it('createQuery does return expected query with sampleOptionalField', () => {
+    it('finalizeVisualizationQuery does return expected query with sampleOptionalField', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
@@ -253,7 +259,10 @@ describe('Component: Sample', () => {
             neon.query.where('testOptionalField1', '!=', null)
         ]);
 
-        expect(component.createQuery(component.options)).toEqual(new neon.query.Query()
+        let inputQuery = new neon.query.Query()
+            .selectFrom(component.options.database.name, component.options.table.name);
+
+        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name).where(wherePredicate)
             .groupBy(['testRequiredField1', 'testOptionalField1']).aggregate(neonVariables.COUNT, '*', 'count')
             .sortBy('count', neonVariables.DESCENDING));
@@ -268,29 +277,11 @@ describe('Component: Sample', () => {
         });
     });
 
-    it('createWhere does return expected where predicate', () => {
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
+    it('destroyVisualization does work as expected', () => {
+        let spy = spyOn(component.subcomponentObject, 'destroyElements');
 
-        expect(component.createWhere()).toEqual(neon.query.where('testRequiredField1', '!=', null));
-    });
-
-    it('createWhere does return expected where predicate with sampleOptionalField, config filter, and unshared filter', () => {
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
-        component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
-        component.options.filter = {
-            lhs: 'testConfigFilterField',
-            operator: '=',
-            rhs: 'testConfigFilterValue'
-        };
-        component.options.unsharedFilterField = new FieldMetaData('testUnsharedFilterField', 'Test Unshared Filter Field');
-        component.options.unsharedFilterValue = 'testUnsharedFilterValue';
-
-        expect(component.createWhere()).toEqual(neon.query.and.apply(neon.query, [
-            neon.query.where('testRequiredField1', '!=', null),
-            neon.query.where('testOptionalField1', '!=', null),
-            neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue'),
-            neon.query.where('testUnsharedFilterField', '=', 'testUnsharedFilterValue')
-        ]));
+        component.destroyVisualization();
+        expect(spy.calls.count()).toEqual(1);
     });
 
     it('filterFromSubcomponent does call filterOnItem', () => {
@@ -487,11 +478,13 @@ describe('Component: Sample', () => {
             prettyField: 'prettyField3',
             value: 'value3'
         }]);
+        expect(args[2]).toEqual(false);
+        expect(args[3]).toEqual(false);
 
         // Run the callback.
         spy = spyOn(component, 'addNeonFilter');
-        expect(typeof args[2]).toEqual('function');
-        args[2]();
+        expect(typeof args[4]).toEqual('function');
+        args[4]();
         expect(component.filters).toEqual([{
             id: undefined,
             field: 'field1',
@@ -505,27 +498,6 @@ describe('Component: Sample', () => {
             prettyField: 'prettyField1',
             value: 'value1'
         }, neon.query.where('field1', '=', 'value1')]);
-    });
-
-    it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toEqual('0 Results');
-
-        component.activeData = [{}, {}];
-        expect(component.getButtonText()).toEqual('2 Results');
-
-        component.activeData = [{}];
-        component.docCount = 2;
-        component.options.limit = 1;
-        expect(component.getButtonText()).toEqual('1 of 2 Results');
-
-        component.docCount = 4;
-        expect(component.getButtonText()).toEqual('1 of 4 Results');
-
-        component.options.limit = 2;
-        expect(component.getButtonText()).toEqual('1 - 2 of 4 Results');
-
-        component.page = 2;
-        expect(component.getButtonText()).toEqual('3 - 4 of 4 Results');
     });
 
     it('getCloseableFilters does return expected array of filters', () => {
@@ -616,52 +588,6 @@ describe('Component: Sample', () => {
         })).toEqual('prettyField1 = value1');
     });
 
-    it('goToNextPage does not update page or call updateActiveData if lastPage is true', () => {
-        let spy = spyOn(component, 'updateActiveData');
-        component.goToNextPage();
-
-        expect(component.page).toEqual(1);
-        expect(spy.calls.count()).toEqual(0);
-    });
-
-    it('goToNextPage does update page and call updateActiveData if lastPage is false', () => {
-        let spy = spyOn(component, 'updateActiveData');
-        component.lastPage = false;
-
-        component.goToNextPage();
-        expect(component.page).toEqual(2);
-        expect(spy.calls.count()).toEqual(1);
-
-        component.goToNextPage();
-        expect(component.page).toEqual(3);
-        expect(spy.calls.count()).toEqual(2);
-    });
-
-    it('goToPreviousPage does not update page or call updateActiveData if page is 1', () => {
-        let spy = spyOn(component, 'updateActiveData');
-        component.goToPreviousPage();
-
-        expect(component.page).toEqual(1);
-        expect(spy.calls.count()).toEqual(0);
-    });
-
-    it('goToPreviousPage does update page and call updateActiveData if page is not 1', () => {
-        let spy = spyOn(component, 'updateActiveData');
-        component.page = 3;
-
-        component.goToPreviousPage();
-        expect(component.page).toEqual(2);
-        expect(spy.calls.count()).toEqual(1);
-
-        component.goToPreviousPage();
-        expect(component.page).toEqual(1);
-        expect(spy.calls.count()).toEqual(2);
-    });
-
-    it('handleChangeData does work as expected', () => {
-        // TODO Update if you override handleChangeData with custom behavior for the visualization.  Otherwise delete this test.
-    });
-
     it('handleChangeSubcomponentType does update subcomponentType and call expected functions', () => {
         let spy1 = spyOn(component, 'initializeSubcomponent');
         let spy2 = spyOn(component, 'handleChangeData');
@@ -694,17 +620,17 @@ describe('Component: Sample', () => {
         expect(component.subcomponentObject.constructor.name).toEqual(SubcomponentImpl1.name);
     });
 
-    it('isValidQuery does return expected boolean', () => {
-        expect(component.isValidQuery(component.options)).toEqual(false);
+    it('validateVisualizationQuery does return expected boolean', () => {
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.database = DatasetServiceMock.DATABASES[0];
-        expect(component.isValidQuery(component.options)).toEqual(false);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.table = DatasetServiceMock.TABLES[0];
-        expect(component.isValidQuery(component.options)).toEqual(false);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
-        expect(component.isValidQuery(component.options)).toEqual(true);
+        expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
     it('isVisualizationFilterUnique does return expected boolean', () => {
@@ -722,23 +648,17 @@ describe('Component: Sample', () => {
         expect(component.isVisualizationFilterUnique('field1', 'value2')).toEqual(true);
     });
 
-    it('onQuerySuccess with aggregation query data does update expected properties and call expected functions', () => {
+    it('transformVisualizationQueryResults with aggregation query data does return expected data', () => {
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
-        component.page = 2;
-        let spy1 = spyOn(component, 'updateActiveData');
-        let spy2 = spyOn(component, 'runDocCountQuery');
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                count: 2,
-                testRequiredField1: 'a'
-            }, {
-                count: 1,
-                testRequiredField1: 'z'
-            }]
-        });
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([{
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            count: 2,
+            testRequiredField1: 'a'
+        }, {
+            count: 1,
+            testRequiredField1: 'z'
+        }]);
+        expect(actual.data).toEqual([{
             count: 2,
             field: 'testRequiredField1',
             label: 'a',
@@ -751,45 +671,29 @@ describe('Component: Sample', () => {
             prettyField: 'Test Required Field 1',
             value: 'z'
         }]);
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with empty aggregation query data does update expected properties and call expected functions', () => {
+    it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
-        component.page = 2;
-        let spy1 = spyOn(component, 'updateActiveData');
-        let spy2 = spyOn(component, 'runDocCountQuery');
 
-        component.onQuerySuccess(component.options, {
-            data: []
-        });
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([]);
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(0);
+        let actual = component.transformVisualizationQueryResults(component.options, []);
+        expect(actual.data).toEqual([]);
     });
 
-    it('onQuerySuccess with aggregation query data and optional field does update expected properties and call expected functions', () => {
+    it('transformVisualizationQueryResults with aggregation query data and optional field does return expected data', () => {
         component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
-        component.page = 2;
-        let spy1 = spyOn(component, 'updateActiveData');
-        let spy2 = spyOn(component, 'runDocCountQuery');
 
-        component.onQuerySuccess(component.options, {
-            data: [{
-                count: 2,
-                testOptionalField1: 'alpha',
-                testRequiredField1: 'a'
-            }, {
-                count: 1,
-                testOptionalField1: 'omega',
-                testRequiredField1: 'z'
-            }]
-        });
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([{
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            count: 2,
+            testOptionalField1: 'alpha',
+            testRequiredField1: 'a'
+        }, {
+            count: 1,
+            testOptionalField1: 'omega',
+            testRequiredField1: 'z'
+        }]);
+        expect(actual.data).toEqual([{
             count: 2,
             field: 'testRequiredField1',
             label: 'a - alpha',
@@ -802,39 +706,20 @@ describe('Component: Sample', () => {
             prettyField: 'Test Required Field 1',
             value: 'z'
         }]);
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
-    });
-
-    it('onQuerySuccess with document count query data does update docCount', () => {
-        let spy1 = spyOn(component, 'updateActiveData');
-        let spy2 = spyOn(component, 'runDocCountQuery');
-
-        component.onQuerySuccess(component.options, {
-            data: [{
-                _docCount: 1234
-            }]
-        });
-        expect(component.docCount).toEqual(1234);
-        expect(component.responseData).toEqual([]);
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(0);
-    });
-
-    it('postInit does work as expected', () => {
-        let spy = spyOn(component, 'executeQueryChain');
-        component.postInit();
-        expect(spy.calls.count()).toEqual(1);
     });
 
     it('refreshVisualization does call subcomponentObject.updateData', () => {
         let spy = spyOn(component.subcomponentObject, 'updateData');
 
         component.refreshVisualization();
+        expect(spy.calls.count()).toEqual(0);
+
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([]));
+        component.refreshVisualization();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[]]);
 
-        component.activeData = [{}, {}];
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}, {}]));
         component.refreshVisualization();
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)).toEqual([[{}, {}]]);
@@ -882,41 +767,6 @@ describe('Component: Sample', () => {
             prettyField: 'prettyField1',
             value: 'value1'
         }]);
-    });
-
-    it('runDocCountQuery does call executeQuery', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
-        let spy = spyOn(component, 'executeQuery');
-
-        component.runDocCountQuery();
-        expect(spy.calls.count()).toEqual(1);
-        let query = new neon.query.Query().selectFrom('testDatabase1', 'testTable1')
-            .where(neon.query.where('testRequiredField1', '!=', null)).aggregate(neonVariables.COUNT, '*', '_docCount');
-        expect(spy.calls.argsFor(0)).toEqual([component.options, query]);
-    });
-
-    it('runDocCountQuery does add ignoreFilters to query', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testRequiredField1', '!=', null), 'testFilterName1');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1')];
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
-        let spy = spyOn(component, 'executeQuery');
-
-        component.runDocCountQuery();
-        expect(spy.calls.count()).toEqual(1);
-        let query = new neon.query.Query().selectFrom('testDatabase1', 'testTable1')
-            .where(neon.query.where('testRequiredField1', '!=', null)).ignoreFilters(['testDatabase1-testTable1-testFilterName1'])
-            .aggregate(neonVariables.COUNT, '*', '_docCount');
-        expect(spy.calls.argsFor(0)).toEqual([component.options, query]);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
     });
 
     it('setupFilters does not do anything if no filter exists', () => {
@@ -1071,61 +921,10 @@ describe('Component: Sample', () => {
         expect(component.showFilterContainer()).toEqual(true);
     });
 
-    it('showFooterContainer does return expected boolean', () => {
-        expect(component.showFooterContainer()).toEqual(false);
-
-        component.activeData = [{}];
-        component.responseData = [{}, {}];
-
-        expect(component.showFooterContainer()).toEqual(true);
-    });
-
-    it('subHandleChangeLimit does work as expected', () => {
-        // TODO Update if you override subHandleChangeLimit with custom behavior for the visualization.  Otherwise delete this test.
-    });
-
-    it('subNgOnDestroy does work as expected', () => {
-        let spy = spyOn(component.subcomponentObject, 'destroyElements');
-
-        component.subNgOnDestroy();
-        expect(spy.calls.count()).toEqual(1);
-    });
-
-    it('subNgOnInit does work as expected', () => {
-        let spy = spyOn(component, 'initializeSubcomponent');
-
-        component.subNgOnInit();
-        expect(spy.calls.count()).toEqual(1);
-    });
-
-    it('subOnResizeStop does work as expected', () => {
+    it('updateOnResize does work as expected', () => {
         let spy = spyOn(component.subcomponentObject, 'redraw');
 
-        component.subOnResizeStop();
-        expect(spy.calls.count()).toEqual(1);
-    });
-
-    it('updateActiveData does update activeData and lastPage from responseData, page, and limit and call refreshVisualization', () => {
-        component.options.limit = 2;
-        component.page = 1;
-        component.responseData = [{}, {}, {}];
-        let spy = spyOn(component, 'refreshVisualization');
-
-        component.updateActiveData();
-        expect(component.activeData).toEqual([{}, {}]);
-        expect(component.lastPage).toEqual(false);
-        expect(spy.calls.count()).toEqual(1);
-    });
-
-    it('updateActiveData does set lastPage to true if on last page', () => {
-        component.options.limit = 2;
-        component.page = 2;
-        component.responseData = [{}, {}, {}];
-        let spy = spyOn(component, 'refreshVisualization');
-
-        component.updateActiveData();
-        expect(component.activeData).toEqual([{}]);
-        expect(component.lastPage).toEqual(true);
+        component.updateOnResize();
         expect(spy.calls.count()).toEqual(1);
     });
 
@@ -1146,31 +945,39 @@ describe('Component: Sample', () => {
         expect(header.nativeElement.textContent).toContain('Sample');
     });
 
-    it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', () => {
-        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
-        expect(dataInfoTextInToolbar).not.toBeNull();
-        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('0 Results');
+    it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', async(() => {
+        (component as any).layerIdToElementCount.set(component.options._id, 10);
 
-        let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
-        expect(dataInfoIconInSidenav).not.toBeNull();
-        expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
+        // Force the component to update all its ngFor and ngIf elements.
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
 
-        let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
-        expect(dataInfoTextInSidenav).not.toBeNull();
-        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Results');
+            let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
+            expect(dataInfoTextInToolbar).not.toBeNull();
+            expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Results');
 
-        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
-        expect(errorMessageInToolbar).toBeNull();
+            let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
+            expect(dataInfoIconInSidenav).not.toBeNull();
+            expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
 
-        let errorIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
-        expect(errorIconInSidenav).toBeNull();
+            let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
+            expect(dataInfoTextInSidenav).not.toBeNull();
+            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('10 Results');
 
-        let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
-        expect(errorMessageInSidenav).toBeNull();
-    });
+            let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
+            expect(errorMessageInToolbar).toBeNull();
+
+            let errorIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
+            expect(errorIconInSidenav).toBeNull();
+
+            let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
+            expect(errorMessageInSidenav).toBeNull();
+        });
+    }));
 
     it('does show error-message in toolbar and sidenav if errorMessage is defined', async(() => {
-        component.errorMessage = 'Test Error Message';
+        (component as any).errorMessage = 'Test Error Message';
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -1181,12 +988,10 @@ describe('Component: Sample', () => {
             expect(dataInfoTextInToolbar).toBeNull();
 
             let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
-            expect(dataInfoIconInSidenav).not.toBeNull();
-            expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
+            expect(dataInfoIconInSidenav).toBeNull();
 
             let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
-            expect(dataInfoTextInSidenav).not.toBeNull();
-            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('0 Results');
+            expect(dataInfoTextInSidenav).toBeNull();
 
             let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
             expect(errorMessageInToolbar).not.toBeNull();
@@ -1304,8 +1109,8 @@ describe('Component: Sample', () => {
         expect(hiddenSpinner).not.toBeNull();
     });
 
-    it('does show loading overlay if isLoading is true', async(() => {
-        component.isLoading = 1;
+    it('does show loading overlay if loadingCount is positive', async(() => {
+        (component as any).loadingCount = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -1372,30 +1177,13 @@ describe('Component: Sample', () => {
         });
     }));
 
-    it('does show doc-count', async(() => {
-        let docCount = fixture.debugElement.query(By.css('mat-sidenav-container .body-container .doc-count'));
-        expect(docCount).not.toBeNull();
-        expect(docCount.nativeElement.textContent).toContain('Total Document Count: 0');
-        component.docCount = 1234;
-
-        // Force the component to update all its elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            docCount = fixture.debugElement.query(By.css('mat-sidenav-container .body-container .doc-count'));
-            expect(docCount).not.toBeNull();
-            expect(docCount.nativeElement.textContent).toContain('Total Document Count: 1234');
-        });
-    }));
-
-    it('does not show data-item elements if activeData is empty array', () => {
+    it('does not show data-item elements if active data is empty array', () => {
         let dataItems = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item'));
         expect(dataItems.length).toEqual(0);
     });
 
-    it('does show data-item elements if activeData is non-empty array', async(() => {
-        component.activeData = [{
+    it('does show data-item elements if active data is non-empty array', async(() => {
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
             count: 2,
             label: 'alpha',
             value: 'a'
@@ -1403,7 +1191,7 @@ describe('Component: Sample', () => {
             count: 1,
             label: 'omega',
             value: 'z'
-        }];
+        }]));
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -1429,115 +1217,6 @@ describe('Component: Sample', () => {
             expect(dataItemIcons[1].nativeElement.textContent).toEqual('find_replace');
             expect(dataItemIcons[2].nativeElement.textContent).toEqual('search');
             expect(dataItemIcons[3].nativeElement.textContent).toEqual('find_replace');
-        });
-    }));
-
-    it('does show empty chart-container', () => {
-        let chartContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container .chart-container'));
-        expect(chartContainer).not.toBeNull();
-
-        // TODO Add custom behavior here to test your subcomponent.
-    });
-
-    it('does show non-empty chart-container if ...', () => {
-        let chartContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container .chart-container'));
-        expect(chartContainer).not.toBeNull();
-
-        // TODO Add custom behavior here to test your subcomponent.
-    });
-
-    it('does not show footer-container or pagination-button elements if activeData.length === responseData.length', () => {
-        let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
-        expect(footerContainer).toBeNull();
-
-        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
-        expect(bodyContainer).toBeNull();
-    });
-
-    it('does show footer-container and pagination-button elements if activeData.length < responseData.length (first page)', async(() => {
-        component.activeData = [{}];
-        component.responseData = [{}, {}, {}];
-        component.lastPage = false;
-        component.page = 1;
-
-        // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
-            expect(footerContainer).not.toBeNull();
-
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
-            expect(bodyContainer).not.toBeNull();
-
-            let footerButtons = fixture.debugElement.queryAll(By.css(
-                'mat-sidenav-container .footer .footer-button-container .pagination-button'));
-            expect(footerButtons.length).toEqual(2);
-
-            expect(footerButtons[0].componentInstance.disabled).toEqual(true);
-            expect(footerButtons[0].nativeElement.textContent).toContain('Previous');
-
-            expect(footerButtons[1].componentInstance.disabled).toEqual(false);
-            expect(footerButtons[1].nativeElement.textContent).toContain('Next');
-        });
-    }));
-
-    it('does show footer-container and pagination-button elements if activeData.length < responseData.length (middle page)', async(() => {
-        component.activeData = [{}];
-        component.responseData = [{}, {}, {}];
-        component.lastPage = false;
-        component.page = 2;
-
-        // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
-            expect(footerContainer).not.toBeNull();
-
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
-            expect(bodyContainer).not.toBeNull();
-
-            let footerButtons = fixture.debugElement.queryAll(By.css(
-                'mat-sidenav-container .footer .footer-button-container .pagination-button'));
-            expect(footerButtons.length).toEqual(2);
-
-            expect(footerButtons[0].componentInstance.disabled).toEqual(false);
-            expect(footerButtons[0].nativeElement.textContent).toContain('Previous');
-
-            expect(footerButtons[1].componentInstance.disabled).toEqual(false);
-            expect(footerButtons[1].nativeElement.textContent).toContain('Next');
-        });
-    }));
-
-    it('does show footer-container and pagination-button elements if activeData.length < responseData.length (last page)', async(() => {
-        component.activeData = [{}];
-        component.responseData = [{}, {}, {}];
-        component.lastPage = true;
-        component.page = 3;
-
-        // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
-            expect(footerContainer).not.toBeNull();
-
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
-            expect(bodyContainer).not.toBeNull();
-
-            let footerButtons = fixture.debugElement.queryAll(By.css(
-                'mat-sidenav-container .footer .footer-button-container .pagination-button'));
-            expect(footerButtons.length).toEqual(2);
-
-            expect(footerButtons[0].componentInstance.disabled).toEqual(false);
-            expect(footerButtons[0].nativeElement.textContent).toContain('Previous');
-
-            expect(footerButtons[1].componentInstance.disabled).toEqual(true);
-            expect(footerButtons[1].nativeElement.textContent).toContain('Next');
         });
     }));
 });
@@ -1622,17 +1301,12 @@ describe('Component: Sample with config', () => {
     });
 
     it('class data properties are set to expected defaults', () => {
-        expect(component.activeData).toEqual([]);
-        expect(component.docCount).toEqual(0);
         expect(component.filters).toEqual([]);
-        expect(component.lastPage).toEqual(true);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([]);
 
         // Element Refs
         expect(component.headerText).toBeDefined();
         expect(component.infoText).toBeDefined();
-        expect(component.subcomponentElementRef).toBeDefined();
+        // expect(component.subcomponentElementRef).toBeDefined();
         expect(component.visualization).toBeDefined();
     });
 

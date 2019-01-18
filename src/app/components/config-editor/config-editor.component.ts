@@ -25,7 +25,6 @@ import { PropertyService } from '../../services/property.service';
 import * as JSONEditor from 'jsoneditor';
 declare var editor: any;
 import * as _ from 'lodash';
-import { windowCount } from 'rxjs/operator/windowCount';
 
 @Component({
   selector: 'app-config-editor',

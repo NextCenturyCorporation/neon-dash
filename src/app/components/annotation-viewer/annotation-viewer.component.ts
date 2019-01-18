@@ -32,7 +32,7 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, DatabaseMetaData, TableMetaData } from '../../dataset';
 import { neonMappings, neonUtilities, neonVariables } from '../../neon-namespaces';
 import {
@@ -99,7 +99,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     @ViewChild('infoText') infoText: ElementRef;
 
     public annotations: Annotation[];
-    public docCount: number;
+
+    // TODO THOR-985
     public data: Data[] = [];
 
     // The visualization filters.
@@ -112,21 +113,14 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     public annotationVisible: boolean[] = [];
 
-    // The data shown in the visualization (limited).
-    public activeData: any[] = [];
-
     //Either documentTextField or linkField
     public displayField: string;
 
-    // The data returned by the visualization query response (not limited).
-    public responseData: any[] = [];
-
     public seenTypes: string[] = [];
-    public disabledSet: [string[]] = [] as [string[]];
+    public disabledSet: [string[]] = [] as any;
     public colorKeys: string[] = [];
     public indexInclusive: boolean;
     public offset = 0;
-    public previousId: string = '';
 
     constructor(
         protected widgetService: AbstractWidgetService,
@@ -144,7 +138,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             ref
         );
 
-        this.subscribeToSelectId(this.getSelectIdCallback());
+        this.updateOnSelectId = true;
+        this.visualizationQueryPaginates = true;
     }
 
     /**
@@ -549,56 +544,27 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Creates and returns the Neon where clause for the visualization.
-     *
-     * @return {any}
-     */
-    createClause(): any {
-        let clause = neon.query.where(this.displayField, '!=', null);
-
-        if (this.hasUnsharedFilter()) {
-            clause = neon.query.and(clause,
-                neon.query.where(this.options.unsharedFilterField.columnName, '=', this.options.unsharedFilterValue));
-        }
-
-        return clause;
-    }
-
-    /**
-     * Creates and returns the visualization data query using the given options.
+     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
+     * @arg {neon.query.Query} query
+     * @arg {neon.query.WherePredicate[]} wherePredicates
      * @return {neon.query.Query}
      * @override
      */
-    createQuery(options: any): neon.query.Query {
+    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
+        let where: neon.query.WherePredicate = neon.query.where(this.displayField, '!=', null);
 
-        let aggregationFields = [this.displayField];
-        let clause = neon.query.where(this.displayField, '!=', null);
-        let databaseName = options.database.name;
-        let tableName = options.table.name;
-        let limit = options.limit;
-        let query = new neon.query.Query().selectFrom(databaseName, tableName);
         this.displayField = options.respondMode ? options.linkField.columnName : options.documentTextField.columnName;
 
-        if (this.hasUnsharedFilter()) {
-            clause = neon.query.and(clause,
-                neon.query.where(options.unsharedFilterField.columnName, '=', options.unsharedFilterValue));
+        if (options.respondMode && options.idField && this.selectedDataId) {
+            where = neon.query.where(options.idField.columnName, '=', options.id);
         }
 
-        if (options.respondMode && options.idField && this.previousId) {
-            let fields = [options.idField.columnName, options.linkField.columnName];
+        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(where);
 
-            let whereClauses = [
-                neon.query.where(options.idField.columnName, '=', options.id)
-            ];
-
-            return query.withFields(fields).where(neon.query.and.apply(query, whereClauses));
-        }
-
-        let whereClause = this.createClause();
-
-        return query.where(whereClause);
+        // Override the default query fields because we want to find all fields.
+        return query.withFields('*').where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0]);
     }
 
     /**
@@ -620,30 +586,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Creates and returns the where predicate for the visualization.
-     *
-     * @return {neon.query.WherePredicate}
-     */
-    createWhere(): neon.query.WherePredicate {
-        let clauses: neon.query.WherePredicate[] = [neon.query.where(this.displayField, '!=', null)];
-
-        // Only add the optional field if it is defined.
-        /*if (this.options.annotationViewerOptionalField.columnName) {
-            clauses.push(neon.query.where(this.options.annotationViewerOptionalField.columnName, '!=', null));
-        }*/
-
-        if (this.options.filter) {
-            clauses.push(neon.query.where(this.options.filter.lhs, this.options.filter.operator, this.options.filter.rhs));
-        }
-
-        if (this.hasUnsharedFilter()) {
-            clauses.push(neon.query.where(this.options.unsharedFilterField.columnName, '=', this.options.unsharedFilterValue));
-        }
-
-        return clauses.length > 1 ? neon.query.and.apply(neon.query, clauses) : clauses[0];
-    }
-
-    /**
      * Adds a filter for the given item both in neon and for the visualization or replaces all the existing filters if replaceAll is true.
      *
      * @arg {object} item
@@ -662,7 +604,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             } else if (this.filters.length > 1) {
                 // If we have multiple existing filters, remove all the old filters and add the new filter once done.
                 // Use concat to copy the filter list.
-                this.removeAllFilters(this.options, [].concat(this.filters), () => {
+                this.removeAllFilters(this.options, [].concat(this.filters), false, false, () => {
                     this.filters = [filter];
                     this.addNeonFilter(this.options, true, filter, neonFilter);
                 });
@@ -748,42 +690,14 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Creates and returns the callback function for a select_id event.
+     * Handles any needed behavior whenever a select_id event is observed that is relevant for the visualization.
      *
-     * @return {function}
-     * @private
-     */
-    private getSelectIdCallback() {
-        return (message) => {
-            if (message.database === this.options.database.name && message.table === this.options.table.name) {
-                this.options.id = Array.isArray(message.id) ? message.id[0] : message.id;
-                if (this.options.id !== this.previousId) {
-                    this.activeData = [];
-                    this.previousId = this.options.id;
-                    this.executeQueryChain();
-                }
-            }
-        };
-    }
-
-    /**
-     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
-     *
-     * @return {any[]}
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} id
      * @override
      */
-    public getShownDataArray(): any[] {
-        return this.activeData;
-    }
-
-    /**
-     * Returns the count of data items that an unlimited query for the visualization would contain.
-     *
-     * @return {number}
-     * @override
-     */
-    public getTotalDataCount(): number {
-        return this.docCount;
+    public onSelectId(options: any, id: any) {
+        options.id = id;
     }
 
     /**
@@ -797,44 +711,15 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Increases the page and updates the active data.
-     */
-    goToNextPage() {
-        if (!this.lastPage) {
-            this.page++;
-            this.updateActiveData();
-        }
-    }
-
-    /**
-     * Decreases the page and updates the active data.
-     */
-    goToPreviousPage() {
-        if (this.page !== 1) {
-            this.page--;
-            this.updateActiveData();
-        }
-    }
-
-    /**
-     * Updates properties and/or sub-components whenever a config option is changed and reruns the visualization query.
-     *
-     * @override
-     */
-    handleChangeData() {
-        super.handleChangeData();
-    }
-
-    /**
-     * Returns whether the visualization data query created using the given options is valid.
+     * Returns whether the visualization query created using the given options is valid.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(options: any): boolean {
+    validateVisualizationQuery(options: any): boolean {
         return !!(options.database.name && options.table.name && (options.documentTextField.columnName || options.linkField.columnName) &&
-            (!options.respondMode || this.previousId));
+            (!options.respondMode || this.selectedDataId));
     }
 
     /**
@@ -875,7 +760,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     updateLegendColor() {
-        for (let data of this.activeData) {
+        for (let data of this.data) {
             for (let part of data.parts) {
 
                 let disabledValues = this.disabledSet.map((function(set) {
@@ -896,50 +781,30 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Handles the given response data for a successful visualization data query created using the given options.
+     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {any} response
+     * @arg {any[]} results
+     * @return {TransformedVisualizationData}
      * @override
      */
-    onQuerySuccess(options: any, response: any) {
-        // Check for undefined because the count may be zero.
-        if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
-            this.docCount = response.data[0]._docCount;
-            return;
-        }
+    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
         this.displayField = options.respondMode ? options.linkField.columnName : options.documentTextField.columnName;
-        // The aggregation query response data will have a count field and all visualization fields.
-        this.responseData = response.data.map((item) => {
-            let label = item[this.displayField];
 
-            return {
-                count: item.count,
-                field: this.displayField,
-                label: label,
-                prettyField: this.displayField,
-                value: item[this.displayField]
-            };
-        });
-
-        this.disabledSet = [] as [string[]];
+        this.disabledSet = [] as any;
         this.colorKeys = [];
 
-        this.page = 1;
-        this.updateDocuemnts(response);
-        this.updateActiveData();
+        this.data = this.processResults(options, results);
+        this.createDisplayObjects(this.data);
+        this.updateLegend();
 
-        if (this.responseData.length) {
-            this.runDocCountQuery();
-        } else {
-            this.docCount = 0;
-        }
+        return new TransformedVisualizationData(this.data);
     }
 
-    updateDocuemnts(response) {
-        this.data = [];
-        for (let document of response.data) {
-            let data = {
+    processResults(options: any, results: any[]): Data[] {
+        let dataList: Data[] = [];
+        for (let result of results) {
+            let dataItem = {
                 annotationStartIndex: [],
                 annotationEndIndex: [],
                 annotationTextList: [],
@@ -949,33 +814,31 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                 parts: [],
                 validAnnotations: null
             };
-            data.annotationStartIndex = neonUtilities.deepFind(document, this.options.startCharacterField.columnName);
-            data.annotationEndIndex = neonUtilities.deepFind(document, this.options.endCharacterField.columnName);
-            data.annotationTextList = neonUtilities.deepFind(document, this.options.textField.columnName);
-            data.annotationTypeList = neonUtilities.deepFind(document, this.options.typeField.columnName);
+            dataItem.annotationStartIndex = neonUtilities.deepFind(result, options.startCharacterField.columnName);
+            dataItem.annotationEndIndex = neonUtilities.deepFind(result, options.endCharacterField.columnName);
+            dataItem.annotationTextList = neonUtilities.deepFind(result, options.textField.columnName);
+            dataItem.annotationTypeList = neonUtilities.deepFind(result, options.typeField.columnName);
 
-            data.documents = document[this.displayField];
-            if (data.documents) {
-                this.data.push(data);
+            dataItem.documents = result[this.displayField];
+            if (dataItem.documents) {
+                dataList.push(dataItem);
             }
         }
+        return dataList;
     }
 
     /**
-     * Handles any post-initialization behavior needed with properties or sub-components for the visualization.
+     * Initializes any visualization properties when the widget is created.
      *
      * @override
      */
-    postInit() {
+    initializeProperties() {
         // Backwards compatibility (documentLimit deprecated due to its redundancy with limit).
         this.options.limit = this.injector.get('documentLimit', this.options.limit);
-
-        // Run the query to load the data.
-        this.executeQueryChain();
     }
 
     /**
-     * Updates any properties and/or sub-components as needed.
+     * Updates and redraws the elements and properties for the visualization.
      *
      * @override
      */
@@ -993,21 +856,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         this.filters = this.filters.filter((existingFilter) => {
             return existingFilter.id !== filter.id;
         });
-    }
-
-    /**
-     * Creates and runs the document count query.
-     */
-    runDocCountQuery() {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createWhere())
-        .aggregate(neonVariables.COUNT, '*', '_docCount');
-
-        let ignoreFilters = this.getFiltersToIgnore();
-        if (ignoreFilters && ignoreFilters.length) {
-            query.ignoreFilters(ignoreFilters);
-        }
-
-        this.executeQuery(this.options, query);
     }
 
     /**
@@ -1034,8 +882,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                 }
             }
         }
-
-        this.executeQueryChain();
     }
 
     /**
@@ -1048,56 +894,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     showLegendContainer(): boolean {
-        let showLegend = false;
-        if (!this.options.singleColor && this.colorKeys.length > 0) {
-            showLegend = true;
-        }
-        return showLegend;
-    }
-
-    /**
-     * Returns whether any components are shown in the footer-container.
-     *
-     * @return {boolean}
-     */
-    showFooterContainer(): boolean {
-        return (this.activeData.length < this.responseData.length) && (this.activeData.length > 1);
-    }
-
-    /**
-     * Deletes any properties and/or sub-components needed.
-     *
-     * @override
-     */
-    subNgOnDestroy() {
-        //
-    }
-
-    /**
-     * Initializes any properties and/or sub-components needed once databases, tables, fields, and other meta properties are set.
-     *
-     * @override
-     */
-    subNgOnInit() {
-        // Do nothing.
-    }
-
-    /**
-     * Updates the pagination properties and the active data.
-     */
-    updateActiveData() {
-        this.activeData = [];
-        let offset = (this.page - 1) * this.options.limit;
-        this.activeData = this.data.slice(offset, (offset + this.options.limit));
-        this.lastPage = (this.data.length <= (offset + this.options.limit));
-        this.createDisplayObjects(this.activeData);
-        this.updateLegend();
-    }
-
-    /**
-     * Checks the footer for a single annotation in the viewer and the conditions for the pagination(Prev/Next) bar
-     */
-    checkFooter() {
-        return (this.docCount > this.options.limit) && (this.showFooterContainer());
+        return (!this.options.singleColor && this.colorKeys.length > 0);
     }
 }

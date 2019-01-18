@@ -16,10 +16,11 @@
 import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
-import { DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData,
-    Datastore, Dashboard, DashboardOptions, SimpleFilter, Dataset } from '../dataset';
-import { Subscription, Observable } from 'rxjs/Rx';
+import { Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
+    TableMetaData, TableMappings, FieldMetaData, Relation, SimpleFilter } from '../dataset';
+import { Subscription, Observable, interval } from 'rxjs';
 import { NeonGTDConfig } from '../neon-gtd-config';
+import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
 
 @Injectable()
@@ -356,11 +357,13 @@ export class DatasetService {
 
         if (this.currentDashboard.options.requeryInterval) {
             let delay = Math.max(0.5, this.currentDashboard.options.requeryInterval) * 60000;
-            this.updateInterval = Observable.interval(delay);
+            this.updateInterval = interval(delay);
             this.updateSubscription = this.updateInterval.subscribe(() => {
                 this.publishUpdateData();
             });
         }
+
+        this.messenger.publish(neonEvents.NEW_DATASET, {});
     }
 
     /**

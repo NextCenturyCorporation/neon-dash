@@ -1,10 +1,10 @@
 <div class="header-filter-options">
     <div layout-align="space-between center">
-        <button mat-icon-button aria-label="Add" matTooltip="Add New Clause" tooltip-position="below" (click)="addBlankFilterClause()">
+        <button mat-icon-button aria-label="Add" matTooltip="Add New Clause" matTooltipPosition="below" (click)="addBlankFilterClause()">
             <mat-icon>add_circle</mat-icon>
         </button>
 
-        <button mat-icon-button aria-label="Reset" matTooltip="Reset Filter Builder" tooltip-position="below"
+        <button mat-icon-button aria-label="Reset" matTooltip="Reset Filter Builder" matTooltipPosition="below"
                 (click)="resetFilterBuilder()">
             <mat-icon>delete_sweep</mat-icon>
         </button>
@@ -65,7 +65,7 @@
         </button>
 
         <button mat-icon-button class="neon-icon-button clause-button" (click)="removeClause(clause)"
-                matTooltip="Remove Filter" tooltip-position="below">
+                matTooltip="Remove Filter" matTooltipPosition="below">
             <mat-icon class="neon-icon">delete</mat-icon>
         </button>
     </div>
