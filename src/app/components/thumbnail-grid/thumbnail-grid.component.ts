@@ -160,7 +160,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 this.replaceNeonFilter(this.options, runQuery, filter, clause);
             }
         } else {
-            this.removeAllFilters(this.options, [].concat(this.filters), () => {
+            this.removeAllFilters(this.options, [].concat(this.filters), false, false, () => {
                 this.filters = [filter];
                 this.addNeonFilter(this.options, runQuery, filter, clause);
             });
