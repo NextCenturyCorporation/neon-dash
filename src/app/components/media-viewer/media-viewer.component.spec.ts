@@ -114,6 +114,53 @@ describe('Component: MediaViewer', () => {
         });
     }));
 
+    it('finalizeVisualizationQuery with no ID field does return expected query', (() => {
+        component.options.database = new DatabaseMetaData('testDatabase');
+        component.options.table = new TableMetaData('testTable');
+        component.options.id = 'testId';
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
+        component.options.nameField = DatasetServiceMock.NAME_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            filter: {
+                field: 'testLinkField',
+                operator: '!=',
+                value: null
+            }
+        });
+    }));
+
+    it('finalizeVisualizationQuery with sort field does return expected query', (() => {
+        component.options.database = new DatabaseMetaData('testDatabase');
+        component.options.table = new TableMetaData('testTable');
+        component.options.id = 'testId';
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
+        component.options.nameField = DatasetServiceMock.NAME_FIELD;
+        component.options.sortField = DatasetServiceMock.SORT_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            filter: {
+                filters: [{
+                    field: 'testLinkField',
+                    operator: '!=',
+                    value: null
+                }, {
+                    field: 'testIdField',
+                    operator: '=',
+                    value: 'testId'
+                }],
+                type: 'and'
+            },
+            sort: {
+                field: 'testSortField',
+                order: 1
+            }
+        });
+    }));
+
     it('getElementRefs does return expected object', () => {
         let refs = component.getElementRefs();
         expect(refs.headerText).toBeDefined();

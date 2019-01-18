@@ -15,13 +15,13 @@ datasets:
             fields:
 
   -
-    name: EVAL18SUBSET_INTEGRITY_REPORT_V3
+    name: EVAL18SUBSET_INTEGRITY_REPORT
     datastore: elasticsearchrest
     hostname: 10.107.5.227
     layout: INTEGRITY_REPORT
     databases:
       -
-        name: integrity_report_probes_100218
+        name: integrity_report_probes_100818
         prettyName: Probes
         tables:
           -
@@ -33,11 +33,15 @@ datasets:
               -
                 columnName: Exif.ImageSize
               -
+                columnName: Exif.Lens
+              -
                 columnName: Exif.Make
               -
                 columnName: Exif.Model
+              -
+                columnName: Exif.Orientation
       -
-        name: integrity_report_operations_100218
+        name: integrity_report_operations_100818
         prettyName: Operations
         tables:
           -
@@ -63,7 +67,7 @@ datasets:
                 columnName: OperationMaskPath
                 prettyName: Mask
       -
-        name: integrity_report_donors_100218
+        name: integrity_report_donors_100818
         prettyName: Donors
         tables:
           -
@@ -74,15 +78,15 @@ datasets:
       -
         members:
           -
-            database: integrity_report_probes_100218
+            database: integrity_report_probes_100818
             table: _doc
             field: ProbeFileID
           -
-            database: integrity_report_operations_100218
+            database: integrity_report_operations_100818
             table: _doc
             field: ProbeFileID
           -
-            database: integrity_report_donors_100218
+            database: integrity_report_donors_100818
             table: _doc
             field: ProbeFileID
 
@@ -338,116 +342,116 @@ datasets:
                 columnName: MergedMask
                 prettyName: Overlay
 
-  -
-    name: DEMO_II18_NC18_MDL_RUN_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-    datastore: elasticsearchrest
-    hostname: localhost
-    layout: RUN
-    databases:
-      -
-        name: demo_inputs_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-        prettyName: Media Input
-        tables:
-          -
-            name: doc
-            prettyName: Data
-            fields:
-              -
-                columnName: extension
-                prettyName: File Type
-              -
-                columnName: input
-                prettyName: Medium
-              -
-                columnName: name
-                prettyName: File Name
-              -
-                columnName: reasoning_inverted_mask
-                prettyName: Reasoning Mask (Inverted)
-              -
-                columnName: reasoning_mask
-                prettyName: Reasoning Mask (Output)
-              -
-                columnName: reasoning_merged_mask
-                prettyName: Reasoning Merged Mask
-              -
-                columnName: reasoning_score
-                prettyName: Reasoning Score
-              -
-                columnName: run
-                prettyName: Run
-              -
-                columnName: thumbnail
-                prettyName: Thumbnail
-      -
-        name: demo_scores_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-        prettyName: Analytic Output
-        tables:
-          -
-            name: doc
-            prettyName: Data
-            fields:
-              -
-                columnName: indicator
-                prettyName: Indicator Name
-              -
-                columnName: input
-                prettyName: Medium
-              -
-                columnName: inverted_mask
-                prettyName: Mask (Inverted)
-              -
-                columnName: manipulations
-                prettyName: Manipulations
-              -
-                columnName: mask
-                prettyName: Mask (Output)
-              -
-                columnName: merged_mask
-                prettyName: Overlay
-              -
-                columnName: name
-                prettyName: File Name
-              -
-                columnName: run
-                prettyName: Run
-              -
-                columnName: score
-                prettyName: Score
-              -
-                columnName: status
-                prettyName: Status
-    relations:
-      -
-        members:
-          -
-            database: demo_inputs_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-            table: doc
-            field: input
-          -
-            database: demo_scores_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-            table: doc
-            field: input
-      -
-        members:
-          -
-            database: demo_inputs_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-            table: doc
-            field: name
-          -
-            database: demo_scores_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-            table: doc
-            field: name
-      -
-        members:
-          -
-            database: demo_inputs_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-            table: doc
-            field: run
-          -
-            database: demo_scores_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-            table: doc
-            field: run
+#  -
+#    name: DEMO_II18_NC18_MDL_RUN_b153d2db-8340-40ac-9327-3bcde5fe2cc4
+#    datastore: elasticsearchrest
+#    hostname: localhost
+#    layout: RUN
+#    databases:
+#      -
+#        name: demo_inputs_b153d2db-8340-40ac-9327-3bcde5fe2cc4
+#        prettyName: Media Input
+#        tables:
+#          -
+#            name: doc
+#            prettyName: Data
+#            fields:
+#              -
+#                columnName: extension
+#                prettyName: File Type
+#              -
+#                columnName: input
+#                prettyName: Medium
+#              -
+#                columnName: name
+#                prettyName: File Name
+#              -
+#                columnName: reasoning_inverted_mask
+#                prettyName: Reasoning Mask (Inverted)
+#              -
+#                columnName: reasoning_mask
+#                prettyName: Reasoning Mask (Output)
+#              -
+#                columnName: reasoning_merged_mask
+#                prettyName: Reasoning Merged Mask
+#              -
+#                columnName: reasoning_score
+#                prettyName: Reasoning Score
+#              -
+#                columnName: run
+#                prettyName: Run
+#              -
+#                columnName: thumbnail
+#                prettyName: Thumbnail
+#      -
+#        name: demo_scores_b153d2db-8340-40ac-9327-3bcde5fe2cc4
+#        prettyName: Analytic Output
+#        tables:
+#          -
+#            name: doc
+#            prettyName: Data
+#            fields:
+#              -
+#                columnName: indicator
+#                prettyName: Indicator Name
+#              -
+#                columnName: input
+#                prettyName: Medium
+#              -
+#                columnName: inverted_mask
+#                prettyName: Mask (Inverted)
+#              -
+#                columnName: manipulations
+#                prettyName: Manipulations
+#              -
+#                columnName: mask
+#                prettyName: Mask (Output)
+#              -
+#                columnName: merged_mask
+#                prettyName: Overlay
+#              -
+#                columnName: name
+#                prettyName: File Name
+#              -
+#                columnName: run
+#                prettyName: Run
+#              -
+#                columnName: score
+#                prettyName: Score
+#              -
+#                columnName: status
+#                prettyName: Status
+#    relations:
+#      -
+#        members:
+#          -
+#            database: demo_inputs_b153d2db-8340-40ac-9327-3bcde5fe2cc4
+#            table: doc
+#            field: input
+#          -
+#            database: demo_scores_b153d2db-8340-40ac-9327-3bcde5fe2cc4
+#            table: doc
+#            field: input
+#      -
+#        members:
+#          -
+#            database: demo_inputs_b153d2db-8340-40ac-9327-3bcde5fe2cc4
+#            table: doc
+#            field: name
+#          -
+#            database: demo_scores_b153d2db-8340-40ac-9327-3bcde5fe2cc4
+#            table: doc
+#            field: name
+#      -
+#        members:
+#          -
+#            database: demo_inputs_b153d2db-8340-40ac-9327-3bcde5fe2cc4
+#            table: doc
+#            field: run
+#          -
+#            database: demo_scores_b153d2db-8340-40ac-9327-3bcde5fe2cc4
+#            table: doc
+#            field: run
 
 layouts:
   MANIPULATIONS:
@@ -470,8 +474,10 @@ layouts:
         defaultPercent: N/A
         filterField: ProbeFileID
         idField: ProbeFileID
-        linkField: ThumbDir
-        linkPrefix: http://10.107.5.227:8000
+        #linkField: ThumbDir
+        linkField: ProbeDir
+        linkPrefix: http://10.107.5.227:3000/thumbnail
+        #linkPrefix: http://10.107.5.227:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         nameField: ProbeFileID
         objectIdField:
@@ -577,7 +583,8 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - ProbeDir
-        linkPrefix: http://10.107.5.227:8000
+        linkPrefix: http://10.107.5.227:3000/image
+        #linkPrefix: http://10.107.5.227:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         typeMap:
             arw:
@@ -641,8 +648,10 @@ layouts:
         defaultPercent: N/A
         filterField: ProbeFileID
         idField: ProbeFileID
-        linkField: ThumbDir
-        linkPrefix: http://10.107.5.227:8000
+        #linkField: ThumbDir
+        linkField: ProbeDir
+        linkPrefix: http://10.107.5.227:3000/thumbnail
+        #linkPrefix: http://10.107.5.227:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         nameField: ProbeFileID
         objectIdField:
@@ -767,7 +776,8 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - ProbeDir
-        linkPrefix: http://10.107.5.227:8000
+        linkPrefix: http://10.107.5.227:3000/image
+        #linkPrefix: http://10.107.5.227:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         typeMap:
             arw:
@@ -821,7 +831,8 @@ layouts:
         idField: FileID
         ignoreSelf: false
         linkField: InvertedMask
-        linkPrefix: http://10.107.5.227:8000
+        linkPrefix: http://10.107.5.227:3000/thumbnail
+        #linkPrefix: http://10.107.5.227:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         nameField: IndicatorPretty
         objectIdField:
@@ -874,8 +885,10 @@ layouts:
         defaultPercent: N/A
         filterField: ProbeFileID
         idField: ProbeFileID
-        linkField: ThumbDir
-        linkPrefix: http://10.107.5.227:8000
+        #linkField: ThumbDir
+        linkField: ProbeDir
+        linkPrefix: http://10.107.5.227:3000/thumbnail
+        #linkPrefix: http://10.107.5.227:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         nameField: ProbeFileID
         objectIdField:
@@ -1000,7 +1013,8 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - ProbeDir
-        linkPrefix: http://10.107.5.227:8000
+        linkPrefix: http://10.107.5.227:3000/image
+        #linkPrefix: http://10.107.5.227:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         typeMap:
             arw:
@@ -1054,7 +1068,8 @@ layouts:
         idField: FileID
         ignoreSelf: false
         linkField: InvertedMask
-        linkPrefix: http://10.107.5.227:8000
+        linkPrefix: http://10.107.5.227:3000/thumbnail
+        #linkPrefix: http://10.107.5.227:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         nameField: IndicatorPretty
         objectIdField:
@@ -1320,11 +1335,11 @@ layouts:
       col: 1
       row: 1
       sizex: 4
-      sizey: 11
+      sizey: 12
       type: thumbnailGrid
       bindings:
         title: Probe Image Gallery
-        limit: 16
+        limit: 12
         database: nist_data
         table: _doc
         unsharedFilterField: ProjectType
@@ -1338,8 +1353,9 @@ layouts:
         defaultPercent:
         filterField: ProbeFileID
         idField: ProbeFileID
-        linkField: ProbeThumbnailPath
-        linkPrefix: http://10.107.5.227:3000/thumbnail/
+        linkField: ProbeFileName
+        #linkField: ProbeThumbnailPath
+        linkPrefix: http://10.107.5.227:3000/thumbnail
         #linkPrefix: http://10.107.5.227:8000/mnt/datasets/
         nameField: ProbeFileID
         objectIdField:
@@ -1374,13 +1390,13 @@ layouts:
 
     -
       col: 1
-      row: 12
+      row: 13
       sizex: 4
       sizey: 5
       type: thumbnailGrid
       bindings:
         title: Probe Video Gallery
-        limit: 4
+        limit: 3
         database: nist_data
         table: _doc
         unsharedFilterField: ProjectType
@@ -1394,8 +1410,9 @@ layouts:
         defaultPercent:
         filterField: ProbeFileID
         idField: ProbeFileID
-        linkField: ProbeThumbnailPath
-        linkPrefix: http://10.107.5.227:3000/thumbnail/
+        linkField: ProbeFileName
+        #linkField: ProbeThumbnailPath
+        linkPrefix: http://10.107.5.227:3000/thumbnail
         #linkPrefix: http://10.107.5.227:8000/mnt/datasets/
         nameField: ProbeFileID
         objectIdField:
@@ -1430,9 +1447,9 @@ layouts:
 
     -
       col: 1
-      row: 17
+      row: 18
       sizex: 4
-      sizey: 5
+      sizey: 4
       type: filterBuilder
       bindings:
         requireAll: true
@@ -1519,7 +1536,8 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - ProbeFileName
-        linkPrefix: http://10.107.5.227:8000
+        linkPrefix: http://10.107.5.227:3000/image
+        #linkPrefix: http://10.107.5.227:8000
         typeMap:
             jpeg: img
             arw:
@@ -1553,7 +1571,8 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - ProbeMaskFileName
-        linkPrefix: http://10.107.5.227:8000
+        linkPrefix: http://10.107.5.227:3000/image
+        #linkPrefix: http://10.107.5.227:8000
         typeMap:
             jpeg: img
             arw:
@@ -1587,7 +1606,8 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - BaseFileName
-        linkPrefix: http://10.107.5.227:8000
+        linkPrefix: http://10.107.5.227:3000/image
+        #linkPrefix: http://10.107.5.227:8000
         typeMap:
             jpeg: img
             arw:
@@ -1621,7 +1641,8 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - DonorFileName
-        linkPrefix: http://10.107.5.227:8000
+        linkPrefix: http://10.107.5.227:3000/image
+        #linkPrefix: http://10.107.5.227:8000
         typeMap:
             jpeg: img
             arw:
@@ -1655,7 +1676,8 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - DonorMaskFileName
-        linkPrefix: http://10.107.5.227:8000
+        linkPrefix: http://10.107.5.227:3000/image
+        #linkPrefix: http://10.107.5.227:8000
         typeMap:
             jpeg: img
             arw:
@@ -1689,7 +1711,8 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - BinaryProbeMaskFileName
-        linkPrefix: http://10.107.5.227:8000
+        linkPrefix: http://10.107.5.227:3000/image
+        #linkPrefix: http://10.107.5.227:8000
         typeMap:
             jpeg: img
             arw:
@@ -1757,11 +1780,11 @@ layouts:
     -
       col: 1
       row: 1
-      sizex: 4
-      sizey: 14
+      sizex: 3
+      sizey: 16
       type: thumbnailGrid
       bindings:
-        title: Probe Gallery
+        title: Probes
         limit: 200
         database: 0
         table: _doc
@@ -1771,16 +1794,18 @@ layouts:
         compareField: NeonReasoningLabel
         cropAndScale:
         defaultPercent: N/A
-        viewType: details
+        detailedThumbnails: true
         filterField: ProbeFileID
         flagLabel: NeonReasoningLabel
-        flagSubLabel1: Exif.ImageSize
+        flagSubLabel1: Exif.DateTimeOriginal
         flagSubLabel2: Exif.Model
-        flagSubLabel3: Exif.DateTimeOriginal
+        flagSubLabel3: Exif.Orientation
         idField: ProbeFileID
         ignoreSelf: true
-        linkField: NeonThumbnailPath
-        linkPrefix: http://10.107.5.227:8000
+        linkField: NeonProbePath
+        #linkField: NeonThumbnailPath
+        linkPrefix: http://10.107.5.227:3000/thumbnail
+        #linkPrefix: http://10.107.5.227:8000
         nameField: ProbeFileID
         objectIdField:
         objectNameField:
@@ -1821,13 +1846,13 @@ layouts:
 
     -
       col: 1
-      row: 15
-      sizex: 7
-      sizey: 6
+      row: 17
+      sizex: 12
+      sizey: 4
       type: filterBuilder
 
     -
-      col: 5
+      col: 4
       row: 1
       sizex: 3
       sizey: 6
@@ -1848,11 +1873,11 @@ layouts:
         allColumnStatus: hide
         fieldsConfig:
           -
-            name: OperationColor
+            name: OperationOrder
           -
             name: OperationGroup
           -
-            name: OperationOrder
+            name: OperationColor
           -
             name: OperationSubtype
           -
@@ -1869,10 +1894,10 @@ layouts:
         #        columnName: OperationOverlayPaths
 
     -
-      col: 5
+      col: 4
       row: 7
       sizex: 3
-      sizey: 8
+      sizey: 10
       type: documentViewer
       bindings:
         title: Metadata
@@ -1893,20 +1918,21 @@ layouts:
             field: Exif
 
     -
-      col: 8
+      col: 7
       row: 1
-      sizex: 5
+      sizex: 4
       sizey: 8
       type: mediaViewer
       bindings:
-        title: Probe
+        title: Selected Probe
         database: 0
         table: _doc
         border: grey
         idField: ProbeFileID
         linkFields:
           - NeonProbePath
-        linkPrefix: http://10.107.5.227:8000
+        linkPrefix: http://10.107.5.227:3000/image
+        #linkPrefix: http://10.107.5.227:8000
         maskField: NeonProbeMaskPath
         sliderValue: 50
         typeMap:
@@ -1949,13 +1975,13 @@ layouts:
                 type: mask
 
     -
-      col: 8
-      row: 9
-      sizex: 5
-      sizey: 4
+      col: 11
+      row: 1
+      sizex: 2
+      sizey: 16
       type: thumbnailGrid
       bindings:
-        title: Donor Gallery
+        title: Donors
         limit: 10
         database: 2
         table: _doc
@@ -1967,7 +1993,8 @@ layouts:
         idField: ProbeFileID
         ignoreSelf: false
         linkField: DonorPath
-        linkPrefix: http://10.107.5.227:8000
+        linkPrefix: http://10.107.5.227:3000/image
+        #linkPrefix: http://10.107.5.227:8000
         nameField: DonorFileID
         objectIdField:
         objectNameField:
@@ -2006,33 +2033,34 @@ layouts:
                 columnName: DonorMaskPath
 
     -
-      col: 8
-      row: 13
-      sizex: 5
+      col: 7
+      row: 9
+      sizex: 4
       sizey: 8
       type: mediaViewer
       bindings:
-        title: Donor
+        title: Selected Donor
         database: 2
         table: _doc
         border: grey
         idField: DonorFileID
         linkFields:
           - DonorPath
-        linkPrefix: http://10.107.5.227:8000
+        linkPrefix: http://10.107.5.227:3000/image
+        #linkPrefix: http://10.107.5.227:8000
         maskField: DonorMaskPath
         sliderValue: 50
         typeMap:
-            jpeg: mask
+            jpeg: mask,img
             arw:
-            bmp: mask
+            bmp: mask,img
             cr2:
             dng:
             iiq:
-            jpg: mask
+            jpg: mask,img
             mts:
             nef:
-            png: mask
+            png: mask,img
             raf:
             tif:
             3gp:
