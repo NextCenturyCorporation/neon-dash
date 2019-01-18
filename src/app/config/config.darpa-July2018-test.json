@@ -117,23 +117,22 @@
                 "bindings": {
                     "title": "Document Feed",
                     "table_key": "table_key_1",
-                    "idField": "_id",
-                    "sortField": "createdDate",
+                    "idField": "id_field_key",
+                    "sortField": "date_field_key",
                     "limit": "100",
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-						"createdDate",
-						"originalText"
+						"date_field_key",
+						"original_text_key"
 					],
 					"customColumnWidths": [
-                        ["createdDate", 15],
-                        ["originalText", 360]
+                        ["date_field_key", 15],
+                        ["original_text_key", 360]
                     ],
                     "filterable": false,
-                    "filterFields": ["id"],
+                    "filterFields": ["filter_field_key"],
                     "singleFilter": true,
-                    "ignoreSelf": false,
-                    "checkDuplicateField": "originalText"
+                    "ignoreSelf": false
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
