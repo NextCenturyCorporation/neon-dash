@@ -1414,8 +1414,12 @@ describe('BaseNeonComponent', () => {
         expect((component as any).hasUnsharedFilter()).toEqual(false);
         component.options.unsharedFilterField = DatasetServiceMock.FILTER_FIELD;
         expect((component as any).hasUnsharedFilter()).toEqual(false);
-        component.options.unsharedFilterValue = ' ';
+        component.options.unsharedFilterValue = '';
         expect((component as any).hasUnsharedFilter()).toEqual(false);
+        component.options.unsharedFilterValue = 0;
+        expect((component as any).hasUnsharedFilter()).toEqual(true);
+        component.options.unsharedFilterValue = false;
+        expect((component as any).hasUnsharedFilter()).toEqual(true);
         component.options.unsharedFilterValue = 'value';
         expect((component as any).hasUnsharedFilter()).toEqual(true);
 
@@ -1430,8 +1434,16 @@ describe('BaseNeonComponent', () => {
         })).toEqual(false);
         expect((component as any).hasUnsharedFilter({
             unsharedFilterField: DatasetServiceMock.FILTER_FIELD,
-            unsharedFilterValue: ' '
+            unsharedFilterValue: ''
         })).toEqual(false);
+        expect((component as any).hasUnsharedFilter({
+            unsharedFilterField: DatasetServiceMock.FILTER_FIELD,
+            unsharedFilterValue: 0
+        })).toEqual(true);
+        expect((component as any).hasUnsharedFilter({
+            unsharedFilterField: DatasetServiceMock.FILTER_FIELD,
+            unsharedFilterValue: false
+        })).toEqual(true);
         expect((component as any).hasUnsharedFilter({
             unsharedFilterField: DatasetServiceMock.FILTER_FIELD,
             unsharedFilterValue: 'value'
