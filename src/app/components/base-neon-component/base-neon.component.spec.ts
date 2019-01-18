@@ -294,7 +294,7 @@ describe('BaseNeonComponent', () => {
 
     it('ngAfterViewInit does work as expected', () => {
         let spyConstruct = spyOn(component, 'constructVisualization');
-        let spyExecute = spyOn(component, 'executeQueryChain');
+        let spyExecute = spyOn(component, 'executeAllQueryChain');
         component.ngAfterViewInit();
         expect(spyConstruct.calls.count()).toEqual(1);
         expect(spyExecute.calls.count()).toEqual(1);
@@ -1187,7 +1187,7 @@ describe('BaseNeonComponent', () => {
         expect(spyExecuteQuery.calls.argsFor(0)[3]).toBeDefined();
     });
 
-    it('handleSuccessfulVisualizationQuery with pagination and page > 1 does not execute total count query ', (done) => {
+    it('handleSuccessfulVisualizationQuery with pagination and page > 1 and element count does always execute total count query ', () => {
         let spy = spyOn(component, 'handleTransformVisualizationQueryResults');
         let spyExecuteQuery = spyOn(component, 'executeQuery');
         let expectedData = new TransformedVisualizationData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
@@ -1199,12 +1199,7 @@ describe('BaseNeonComponent', () => {
         (component as any).handleSuccessfulVisualizationQuery(component.options, {
             data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         }, () => {
-            expect((component as any).errorMessage).toEqual('');
-            expect((component as any).lastPage).toEqual(true);
-            expect((component as any).layerIdToActiveData.get(component.options._id)).toEqual(expectedData);
-            expect((component as any).layerIdToElementCount.get(component.options._id)).toEqual(20);
-            expect(spyExecuteQuery.calls.count()).toEqual(0);
-            done();
+            fail();
         });
         expect(spy.calls.count()).toEqual(1);
         expect(spyExecuteQuery.calls.count()).toEqual(0);
@@ -1216,6 +1211,14 @@ describe('BaseNeonComponent', () => {
 
         // Call the success callback
         args[2](expectedData);
+        expect((component as any).errorMessage).toEqual('');
+        expect((component as any).layerIdToActiveData.get(component.options._id)).toEqual(expectedData);
+        expect(spyExecuteQuery.calls.count()).toEqual(1);
+        expect(spyExecuteQuery.calls.argsFor(0)[0]).toEqual(component.options);
+        expect(spyExecuteQuery.calls.argsFor(0)[1]).toEqual(new neon.query.Query().selectFrom('testDatabase1', 'testTable1')
+            .aggregate(neonVariables.COUNT, '*', '_count'));
+        expect(spyExecuteQuery.calls.argsFor(0)[2]).toEqual('total count query');
+        expect(spyExecuteQuery.calls.argsFor(0)[3]).toBeDefined();
     });
 
     it('handleSuccessfulVisualizationQuery with showingZeroOrMultipleElementsPerResult does not execute total count query', (done) => {
