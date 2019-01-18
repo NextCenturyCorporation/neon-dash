@@ -88,10 +88,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     // Maps the options/layer ID to the query ID to the query object.
     private layerIdToQueryIdToQueryObject: Map<string, Map<string, any>> = new Map<string, Map<string, any>>();
 
-    protected errorMessage: string = '';
+    public errorMessage: string = '';
+    public loadingCount: number = 0;
+
     protected initializing: boolean = false;
     protected isMultiLayerWidget: boolean = false;
-    protected loadingCount: number = 0;
     protected redrawOnResize: boolean = false;
     protected selectedDataId: string = '';
     protected showingZeroOrMultipleElementsPerResult: boolean = false;
@@ -958,7 +959,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private hasUnsharedFilter(options?: any): boolean {
         return !!((options || this.options).unsharedFilterField && (options || this.options).unsharedFilterField.columnName &&
-            (options || this.options).unsharedFilterValue && (options || this.options).unsharedFilterValue.trim());
+            typeof (options || this.options).unsharedFilterValue !== 'undefined' && (options || this.options).unsharedFilterValue !== '');
     }
 
     /**

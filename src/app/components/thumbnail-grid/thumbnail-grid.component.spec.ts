@@ -175,7 +175,7 @@ describe('Component: ThumbnailGrid', () => {
 
             let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
             expect(dataInfoTextInToolbar).not.toBeNull();
-            expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Files');
+            expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Items');
 
             let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
             expect(dataInfoIconInSidenav).not.toBeNull();
@@ -183,7 +183,7 @@ describe('Component: ThumbnailGrid', () => {
 
             let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
             expect(dataInfoTextInSidenav).not.toBeNull();
-            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('10 Files');
+            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('10 Items');
 
             let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
             expect(errorMessageInToolbar).toBeNull();

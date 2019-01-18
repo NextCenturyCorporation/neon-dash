@@ -128,7 +128,7 @@
     <div *ngIf="options.url == ''">
         <div *ngIf="noDataId && tabsAndMedia.length == 0" class="viewer-text">No Data: {{ noDataId }}</div>
 
-        <mat-tab-group *ngIf="tabsAndMedia.length > 1" [selectedIndex]="selectedTabIndex" (selectedTabChange)="updateOnResize($event)">
+        <mat-tab-group *ngIf="tabsAndMedia.length > 1" [(selectedIndex)]="selectedTabIndex" (selectedTabChange)="updateOnResize($event)">
             <mat-tab class="tab" *ngFor="let tab of tabsAndMedia" [label]="tab.name">
                 <div [ngSwitch]="tab.selected.type">
                     <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
