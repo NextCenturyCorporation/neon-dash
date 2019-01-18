@@ -37,7 +37,7 @@ import {
     AbstractAggregationSubcomponent,
     AggregationSubcomponentListener
 } from './subcomponent.aggregation.abstract';
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { ChartJsBarSubcomponent } from './subcomponent.chartjs.bar';
 import { ChartJsDoughnutSubcomponent } from './subcomponent.chartjs.doughnut';
 import { ChartJsHistogramSubcomponent } from './subcomponent.chartjs.histogram';
@@ -72,6 +72,22 @@ class Filter {
     public value: any | { beginX: any, endX: any } | { beginX: any, beginY: any, endX: any, endY: any };
 }
 
+export class TransformedAggregationData extends TransformedVisualizationData {
+    constructor(data: any[]) {
+        super(data);
+    }
+
+    /**
+     * Returns the sum of the Y value of each element in the data.
+     *
+     * @return {number}
+     * @override
+     */
+    public count(): number {
+        return this._data.reduce((count, element) => count + element.y, 0);
+    }
+}
+
 @Component({
     selector: 'app-aggregation',
     templateUrl: './aggregation.component.html',
@@ -95,16 +111,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     public groupFilters: Filter[] = [];
     public valueFilters: Filter[] = [];
-
-    // The data pagination properties.
-    public lastPage: boolean = true;
-    public page: number = 1;
-
-    // The data shown in the visualization (limited).
-    public activeData: any[] = [];
-
-    // The data returned by the visualization query response (not limited).
-    public responseData: any[] = [];
 
     // The bucketizer for any date data.
     public dateBucketizer: any;
@@ -207,7 +213,17 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         );
     }
 
-    public ngAfterViewInit() {
+    /**
+     * Creates any visualization elements when the widget is drawn.
+     *
+     * @override
+     */
+    constructVisualization() {
+        this.subcomponentMain = this.initializeSubcomponent(this.subcomponentMainElementRef);
+        if (this.options.dualView) {
+            this.subcomponentZoom = this.initializeSubcomponent(this.subcomponentZoomElementRef, true);
+        }
+
         if (!this.options.axisLabelX) {
             this.options.axisLabelX =
                 (this.subcomponentMain && this.subcomponentMain.isHorizontal()) ?
@@ -275,16 +291,17 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Creates and returns the visualization data query using the given options.
+     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
+     * @arg {neon.query.Query} query
+     * @arg {neon.query.WherePredicate[]} wherePredicates
      * @return {neon.query.Query}
      * @override
      */
-    createQuery(options: any): neon.query.Query {
-        let query = new neon.query.Query().selectFrom(options.database.name, options.table.name);
+    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
         let groups: any[] = [];
-        let wheres: neon.query.WherePredicate[] = [neon.query.where(options.xField.columnName, '!=', null)];
+        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(neon.query.where(options.xField.columnName, '!=', null));
 
         if (options.xField.type === 'date') {
             switch (options.granularity) {
@@ -325,16 +342,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             groups.push(options.groupField.columnName);
         }
 
-        if (options.filter) {
-            wheres.push(neon.query.where(options.filter.lhs, options.filter.operator, options.filter.rhs));
-        }
-
-        if (this.hasUnsharedFilter()) {
-            wheres.push(neon.query.where(options.unsharedFilterField.columnName, '=', options.unsharedFilterValue));
-        }
-
-        return query.groupBy(groups).where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
-            .limit(options.limit);
+        return query.groupBy(groups).where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0]);
     }
 
     /**
@@ -478,6 +486,20 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Removes any visualization elements when the widget is deleted.
+     *
+     * @override
+     */
+    destroyVisualization() {
+        if (this.subcomponentMain) {
+            this.subcomponentMain.destroy();
+        }
+        if (this.subcomponentZoom) {
+            this.subcomponentZoom.destroy();
+        }
+    }
+
+    /**
      * Returns the superclass filter object.
      *
      * @return {any[]}
@@ -548,37 +570,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
-     *
-     * @return {any[]}
-     * @override
-     */
-    public getShownDataArray(): any[] {
-        return this.activeData;
-    }
-
-    /**
-     * Returns the count of the given array of data items that are currently shown in the visualization.
-     *
-     * @arg {any[]} data
-     * @return {number}
-     * @override
-     */
-    public getShownDataCount(data: any[]): number {
-        return data.reduce((count, element) => count + element.y, 0);
-    }
-
-    /**
-     * Returns the count of data items that an unlimited query for the visualization would contain.
-     *
-     * @return {number}
-     * @override
-     */
-    public getTotalDataCount(): number {
-        return this.responseData.length;
-    }
-
-    /**
      * Returns the default limit for the visualization.
      *
      * @return {string}
@@ -625,40 +616,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Increases the page and updates the active data.
-     */
-    goToNextPage() {
-        if (!this.lastPage) {
-            this.page++;
-            this.updateActiveData();
-        }
-    }
-
-    /**
-     * Decreases the page and updates the active data.
-     */
-    goToPreviousPage() {
-        if (this.page !== 1) {
-            this.page--;
-            this.updateActiveData();
-        }
-    }
-
-    /**
-     * Updates properties and/or sub-components whenever a config option is changed and reruns the visualization query.
-     *
-     * @override
-     */
-    handleChangeData() {
-        this.legendActiveGroups = [];
-        this.legendGroups = [];
-        this.colorKeys = [];
-        this.xList = [];
-        this.yList = [];
-        super.handleChangeData();
-    }
-
-    /**
      * Updates the sub-component and reruns the visualization query.
      */
     handleChangeSubcomponentType() {
@@ -690,6 +647,21 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 value: event.value
             };
             this.toggleFilter(this.groupFilters, filter);
+        }
+    }
+
+    /**
+     * Initilizes any visualization properties when the widget is created.
+     *
+     * @override
+     */
+    initializeProperties() {
+        this.newType = this.options.type;
+
+        // Check for the boolean value true (not just any truthy value) and fix it.
+        this.options.dualView = ('' + this.options.dualView) === 'true' ? 'on' : this.options.dualView;
+        if (!this.optionsTypeIsDualViewCompatible(this.options)) {
+            this.options.dualView = '';
         }
     }
 
@@ -743,37 +715,27 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns whether the visualization data query created using the given options is valid.
+     * Updates elements and properties whenever the widget config is changed.
      *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @return {boolean}
      * @override
      */
-    isValidQuery(options: any): boolean {
-        let validFields = options.xField.columnName && (this.optionsTypeIsXY(options) ? options.yField.columnName : true) &&
-            (options.aggregation !== neonVariables.COUNT ? options.aggregationField.columnName : true);
-        return !!(options.database.name && options.table.name && validFields);
+    onChangeData() {
+        this.legendActiveGroups = [];
+        this.legendGroups = [];
+        this.colorKeys = [];
+        this.xList = [];
+        this.yList = [];
     }
 
     /**
-     * Handles the given response data for a successful visualization data query created using the given options.
+     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {any} response
+     * @arg {any[]} results
+     * @return {TransformedVisualizationData} results
      * @override
      */
-    onQuerySuccess(options: any, response: any) {
-        this.page = 1;
-
-        if (!response || !response.data || !response.data.length) {
-            this.errorMessage = 'No Data';
-            this.responseData = [];
-            this.updateActiveData();
-            return;
-        }
-
-        this.errorMessage = '';
-
+    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
         let isXY = this.optionsTypeIsXY(options);
         let xList = [];
         let yList = [];
@@ -802,13 +764,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             };
         };
 
+        let queryResults = results;
+        let shownResults = [];
+
         if (!isXY) {
-            response.data = response.data.filter((item) => {
+            queryResults = queryResults.filter((item) => {
                 return item._aggregation !== 'NaN';
             });
         }
 
-        if (options.xField.type === 'date') {
+        if (options.xField.type === 'date' && queryResults.length) {
             // Transform date data.
             switch (options.granularity) {
                 case 'minute':
@@ -827,9 +792,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     break;
             }
 
-            let beginDate = options.savePrevious && this.xList.length ? this.xList[0] : response.data[0]._date;
+            let beginDate = options.savePrevious && this.xList.length ? this.xList[0] : queryResults[0]._date;
             let endDate = options.savePrevious && this.xList.length ? this.xList[this.xList.length - 1] :
-                response.data[response.data.length - 1]._date;
+                queryResults[queryResults.length - 1]._date;
             this.dateBucketizer.setStartDate(new Date(beginDate));
             this.dateBucketizer.setEndDate(new Date(endDate));
 
@@ -844,7 +809,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 return moment(this.dateBucketizer.getDateForBucket(index)).toISOString();
             });
 
-            response.data.forEach((item) => {
+            queryResults.forEach((item) => {
                 let transformation = createTransformationFromItem(item);
                 let transformations = groupToTransformations.get(transformation.group);
                 if (!transformations) {
@@ -863,7 +828,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             // Save each X that exists in order to update the xList.
             let xExists = new Map<any, boolean>();
 
-            this.responseData = Array.from(groupToTransformations.keys()).reduce((transformations, group) => {
+            shownResults = Array.from(groupToTransformations.keys()).reduce((transformations, group) => {
                 let nextTransformations = groupToTransformations.get(group);
                 if (options.timeFill) {
                     nextTransformations = nextTransformations.map((transformationArray, index) => {
@@ -899,7 +864,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             // Transform non-date data.
             this.dateBucketizer = null;
 
-            this.responseData = response.data.map((item) => {
+            shownResults = queryResults.map((item) => {
                 let transformation = createTransformationFromItem(item);
 
                 if (xList.indexOf(transformation.x) < 0) {
@@ -927,7 +892,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         this.xList = options.savePrevious && this.xList.length ? this.xList : xList;
         this.yList = yList;
-        this.updateActiveData();
+        return new TransformedAggregationData(shownResults);
     }
 
     /**
@@ -1063,23 +1028,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Handles any post-initialization behavior needed with properties or sub-components for the visualization.
-     *
-     * @override
-     */
-    postInit() {
-        this.newType = this.options.type;
-
-        // Check for the boolean value true (not just any truthy value) and fix it.
-        this.options.dualView = ('' + this.options.dualView) === 'true' ? 'on' : this.options.dualView;
-        if (!this.optionsTypeIsDualViewCompatible(this.options)) {
-            this.options.dualView = '';
-        }
-
-        this.executeQueryChain();
-    }
-
-    /**
      * Redraws the subcomponents.
      */
     redrawSubcomponents() {
@@ -1099,7 +1047,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Updates any properties and/or sub-components as needed.
+     * Updates and redraws the elements and properties for the visualization.
      *
      * @arg {boolean} [redrawMain=false]
      * @override
@@ -1120,7 +1068,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let meta = {
             aggregationField: isXY ? undefined : this.options.aggregationField.prettyName,
             aggregationLabel: isXY ? undefined : this.options.aggregation,
-            dataLength: this.activeData.length,
+            dataLength: this.getActiveData(this.options).data.length,
             groups: this.legendGroups,
             sort: this.options.sortByAggregation ? 'y' : 'x',
             xAxis: findAxisType(this.options.xField.type),
@@ -1131,15 +1079,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         // Update the overview if dualView is off or if it is not filtered.  It will only show the unfiltered data.
         if (this.subcomponentMain && (redrawMain || !this.options.dualView || !this.filterToPassToSuperclass.id)) {
-            this.subcomponentMain.draw(this.activeData, meta);
+            this.subcomponentMain.draw(this.getActiveData(this.options).data, meta);
         }
 
         // Update the zoom if dualView is truthy.  It will show both the unfiltered and filtered data.
         if (this.subcomponentZoom && this.options.dualView) {
-            this.subcomponentZoom.draw(this.activeData, meta);
+            this.subcomponentZoom.draw(this.getActiveData(this.options).data, meta);
         }
 
-        this.subOnResizeStop();
+        this.updateOnResize();
 
         this.colorKeys = [this.widgetService.getColorKey(this.options.database.name, this.options.table.name,
             this.options.groupField.columnName || '')];
@@ -1177,15 +1125,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     showBothViews(): boolean {
         return this.options.dualView === 'on' || (this.options.dualView === 'filter' && !!this.filterToPassToSuperclass.id);
-    }
-
-    /**
-     * Returns whether any components are shown in the footer container.
-     *
-     * @return {boolean}
-     */
-    showFooterContainer(): boolean {
-        return this.activeData.length < this.responseData.length;
     }
 
     /**
@@ -1377,51 +1316,37 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Updates properties and/or sub-components whenever the limit is changed and reruns the visualization query.
+     * Toggles the given filter in the given filter list and recreates or removes the neon filter.
      *
-     * @override
+     * @arg {Filter} filter
      */
-    subHandleChangeLimit() {
-        this.legendActiveGroups = [];
-        this.legendGroups = [];
-        this.colorKeys = [];
-        this.xList = [];
-        this.yList = [];
-        super.subHandleChangeLimit();
+    toggleFilter(filters: any[], filter: any) {
+        let indexMatches = filters.reduce((indexArray, existingFilter, index) => {
+            if (_.isEqual(existingFilter.field, filter.field) && _.isEqual(existingFilter.value, filter.value) &&
+                existingFilter.label === filter.label) {
+                indexArray.push(index);
+            }
+            return indexArray;
+        }, []);
+
+        if (indexMatches.length) {
+            indexMatches.reverse().forEach((indexMatch) => {
+                let existingFilter = filters.splice(indexMatch, 1);
+                this.subcomponentMain.deselect(existingFilter[0].value);
+            });
+        } else {
+            filters.push(filter);
+        }
+
+        this.createOrRemoveNeonFilter();
     }
 
     /**
-     * Deletes any properties and/or sub-components needed.
+     * Updates the visualization as needed whenever it is resized.
      *
      * @override
      */
-    subNgOnDestroy() {
-        if (this.subcomponentMain) {
-            this.subcomponentMain.destroy();
-        }
-        if (this.subcomponentZoom) {
-            this.subcomponentZoom.destroy();
-        }
-    }
-
-    /**
-     * Initializes any properties and/or sub-components needed once databases, tables, fields, and other options properties are set.
-     *
-     * @override
-     */
-    subNgOnInit() {
-        this.subcomponentMain = this.initializeSubcomponent(this.subcomponentMainElementRef);
-        if (this.options.dualView) {
-            this.subcomponentZoom = this.initializeSubcomponent(this.subcomponentZoomElementRef, true);
-        }
-    }
-
-    /**
-     * Resizes the sub-components.
-     *
-     * @override
-     */
-    subOnResizeStop() {
+    updateOnResize() {
         if (this.subcomponentMain) {
             this.minimumDimensionsMain = this.subcomponentMain.getMinimumDimensions();
             this.subcomponentMain.redraw();
@@ -1453,38 +1378,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Toggles the given filter in the given filter list and recreates or removes the neon filter.
+     * Returns whether the visualization query created using the given options is valid.
      *
-     * @arg {Filter} filter
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     * @override
      */
-    toggleFilter(filters: any[], filter: any) {
-        let indexMatches = filters.reduce((indexArray, existingFilter, index) => {
-            if (_.isEqual(existingFilter.field, filter.field) && _.isEqual(existingFilter.value, filter.value) &&
-                existingFilter.label === filter.label) {
-                indexArray.push(index);
-            }
-            return indexArray;
-        }, []);
-
-        if (indexMatches.length) {
-            indexMatches.reverse().forEach((indexMatch) => {
-                let existingFilter = filters.splice(indexMatch, 1);
-                this.subcomponentMain.deselect(existingFilter[0].value);
-            });
-        } else {
-            filters.push(filter);
-        }
-
-        this.createOrRemoveNeonFilter();
-    }
-
-    /**
-     * Updates the pagination properties and the active data.
-     */
-    updateActiveData() {
-        let offset = (this.page - 1) * this.options.limit;
-        this.activeData = this.responseData.slice(offset, (offset + this.options.limit));
-        this.lastPage = (this.responseData.length <= (offset + this.options.limit));
-        this.refreshVisualization();
+    validateVisualizationQuery(options: any): boolean {
+        let validFields = options.xField.columnName && (this.optionsTypeIsXY(options) ? options.yField.columnName : true) &&
+            (options.aggregation !== neonVariables.COUNT ? options.aggregationField.columnName : true);
+        return !!(options.database.name && options.table.name && validFields);
     }
 }

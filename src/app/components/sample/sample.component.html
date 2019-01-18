@@ -10,13 +10,13 @@
                 {{ getButtonText() }}
             </span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below"
             (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
 
-    <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+    <mat-sidenav #optionsMenu position="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
                 <div *ngIf="errorMessage">
@@ -81,7 +81,7 @@
                             (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
-                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below"
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below"
                         (click)="handleChangeLimit()">
                         <mat-icon>refresh</mat-icon>
                     </button>
@@ -114,7 +114,7 @@
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading > 0" [class.not-loading-overlay]="isLoading == 0">
+    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
         <mat-spinner></mat-spinner>
     </div>
 
@@ -131,41 +131,27 @@
     </div>
 
     <!-- TODO Remove the with-filter and/or with-footer classes if you don't need them. -->
-    <div class="body-container" [class.with-filter]="showFilterContainer()" [class.with-footer]="showFooterContainer()">
+    <div class="body-container" [class.with-filter]="showFilterContainer()">
 
         <!-- TODO Replace with your visualization components! -->
-        <div class="doc-count"><strong>Total Document Count: {{ docCount }}</strong></div>
-        <div class="data-item" *ngFor="let item of activeData">
-            <span class="text" [matTooltip]="item.label + ': ' + item.count" tooltip-position="below">
-                {{ item.label }}: {{ item.count }}
-            </span>
-            <button mat-icon-button class="neon-icon-button-small" aria-label="Add Filter"
-                [matTooltip]="'Add Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, false)">
-                <mat-icon class="neon-icon-small">search</mat-icon>
-            </button>
-            <button mat-icon-button class="neon-icon-button-small" aria-label="Replace Filter"
-                [matTooltip]="'Replace Filters with Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, true)">
-                <mat-icon class="neon-icon-small">find_replace</mat-icon>
-            </button>
-        </div>
+        <div *ngIf="getActiveData(options) != null">
+            <div class="data-item" *ngFor="let item of getActiveData(options).data">
+                <span class="text" [matTooltip]="item.label + ': ' + item.count" tooltip-position="below">
+                    {{ item.label }}: {{ item.count }}
+                </span>
+                <button mat-icon-button class="neon-icon-button-small" aria-label="Add Filter"
+                    [matTooltip]="'Add Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, false)">
+                    <mat-icon class="neon-icon-small">search</mat-icon>
+                </button>
+                <button mat-icon-button class="neon-icon-button-small" aria-label="Replace Filter"
+                    [matTooltip]="'Replace Filters with Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, true)">
+                    <mat-icon class="neon-icon-small">find_replace</mat-icon>
+                </button>
+            </div>
 
-        <!-- TODO Remove if you don't need a chart container element. -->
-        <div #subcomponent class="chart-container" style="display: none;">
-        </div>
-    </div>
-
-    <!-- TODO Do you need a footer for pagination or other components? -->
-    <div class="footer" *ngIf="showFooterContainer()">
-        <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
-                (click)="goToPreviousPage()">
-                Previous
-            </button>
-            <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary"
-                (click)="goToNextPage()">
-                Next
-            </button>
+            <!-- TODO Remove if you don't need a chart container element. -->
+            <div #subcomponent class="chart-container" style="display: none;">
+            </div>
         </div>
     </div>
 </mat-sidenav-container>

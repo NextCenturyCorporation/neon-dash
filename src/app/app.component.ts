@@ -29,7 +29,7 @@ import {
 import * as _ from 'lodash';
 import * as neon from 'neon-framework';
 import * as L from 'leaflet'; // imported for use of DomUtil.enable/disableTextSelection
-import * as uuid from 'node-uuid';
+import * as uuidv4 from 'uuid/v4';
 
 import { AbstractWidgetService } from './services/abstract.widget.service';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
@@ -193,7 +193,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         widgetGridItem.config = widgetGridItem.config || {};
         widgetGridItem.config.borderSize = widgetGridItem.config.borderSize || 10;
         widgetGridItem.config.dragHandle = widgetGridItem.config.dragHandle || '.drag-handle';
-        widgetGridItem.id = widgetGridItem.id || uuid.v4();
+        widgetGridItem.id = widgetGridItem.id || uuidv4();
 
         // Move grid item config properties from the top-level into the config object.
         widgetGridItem.config.col = widgetGridItem.config.col || widgetGridItem.col;

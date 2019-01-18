@@ -18,6 +18,7 @@ import { AbstractWidgetService, Theme } from './abstract.widget.service';
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
 import { Color, ColorSet } from '../color';
 import { DatasetService } from './dataset.service';
+import { neonEvents } from '../neon-namespaces';
 import * as neon from 'neon-framework';
 
 /**
@@ -53,8 +54,7 @@ export class WidgetService extends AbstractWidgetService {
     constructor(protected datasetService: DatasetService) {
         super();
         this.messenger = new neon.eventing.Messenger();
-        this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.resetColorMap);
-        this.resetColorMap();
+        this.messenger.subscribe(neonEvents.NEW_DATASET, this.resetColorMap.bind(this));
     }
 
     /**

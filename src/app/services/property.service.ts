@@ -15,7 +15,7 @@
  */
 import { Injectable, Inject } from '@angular/core';
 import { Http, RequestOptionsArgs, Headers  } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import * as _ from 'lodash';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { ConnectionService } from './connection.service';

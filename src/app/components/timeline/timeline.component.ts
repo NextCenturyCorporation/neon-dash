@@ -32,7 +32,7 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { Bucketizer } from '../bucketizers/Bucketizer';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { FieldMetaData } from '../../dataset';
@@ -53,6 +53,22 @@ import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 
 declare let d3;
+
+export class TransformedTimelineAggregationData extends TransformedVisualizationData {
+    constructor(data: any[]) {
+        super(data);
+    }
+
+    /**
+     * Returns the sum of the value of each element in the data.
+     *
+     * @return {number}
+     * @override
+     */
+    public count(): number {
+        return this._data.reduce((sum, element) => sum + element.value, 0);
+    }
+}
 
 @Component({
     selector: 'app-timeline',
@@ -77,18 +93,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         local: boolean
     }[] = [];
 
-    public activeData: {
-        value: number,
-        date: Date
-    }[] = [];
-    public docCount: number = 0;
-
     private chartDefaults: {
         activeColor: string,
         inactiveColor: string
     };
 
     public timelineChart: TimelineSelectorChart;
+
+    // TODO THOR-985
     public timelineData: TimelineData = new TimelineData();
 
     constructor(
@@ -109,7 +121,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         );
 
         console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');
-        this.enableRedrawAfterResize(true);
+        this.redrawOnResize = true;
     }
 
     /**
@@ -137,20 +149,17 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         ];
     }
 
-    subNgOnInit() {
+    /**
+     * Creates any visualization elements when the widget is drawn.
+     *
+     * @override
+     */
+    constructVisualization() {
         this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
         this.timelineData.granularity = this.options.granularity;
         this.timelineData.bucketizer = this.getBucketizer();
 
         this.timelineChart = new TimelineSelectorChart(this, this.svg, this.timelineData);
-    }
-
-    postInit() {
-        this.executeQueryChain();
-    }
-
-    subNgOnDestroy() {
-        // Do nothing.
     }
 
     addLocalFilter(id: string, field: string, prettyField: string, startDate: Date, endDate: Date, local?: boolean) {
@@ -188,7 +197,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         }
 
         // Update the charts
-        this.filterAndRefreshData();
+        this.filterAndRefreshData(this.getActiveData(this.options).data);
     }
 
     /**
@@ -212,49 +221,43 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         return filter.prettyField + ' from ' + begin + ' to ' + end;
     }
 
+    /**
+     * Initializes any visualization properties when the widget is created.
+     *
+     * @override
+     */
+    initializeProperties() {
+        // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
+        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+    }
+
     refreshVisualization() {
         this.timelineChart.redrawChart();
     }
 
     /**
-     * Returns whether the visualization data query created using the given options is valid.
+     * Returns whether the visualization query created using the given options is valid.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(options: any): boolean {
+    validateVisualizationQuery(options: any): boolean {
         return !!(options.database.name && options.table.name && options.dateField.columnName);
     }
 
     /**
-     * Creates and returns the Neon where clause for the visualization.
-     *
-     * @return {any}
-     */
-    createClause(): any {
-        let clause = neon.query.where(this.options.dateField.columnName, '!=', null);
-
-        if (this.hasUnsharedFilter()) {
-            clause = neon.query.and(clause, neon.query.where(this.options.unsharedFilterField.columnName, '=',
-                this.options.unsharedFilterValue));
-        }
-
-        return clause;
-    }
-
-    /**
-     * Creates and returns the visualization data query using the given options.
+     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
+     * @arg {neon.query.Query} query
+     * @arg {neon.query.WherePredicate[]} wherePredicates
      * @return {neon.query.Query}
      * @override
      */
-    createQuery(options: any): neon.query.Query {
-        let query = new neon.query.Query().selectFrom(options.database.name, options.table.name);
-        let whereClause = this.createClause();
+    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
+        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(neon.query.where(this.options.dateField.columnName, '!=', null));
         let dateField = options.dateField.columnName;
-        query = query.aggregate(neonVariables.MIN, dateField, 'date');
         let groupBys: any[] = [];
         switch (options.granularity) {
             // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
@@ -274,18 +277,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 groupBys.push(new neon.query.GroupByFunctionClause('year', dateField, 'year'));
             /* falls through */
         }
-        query = query.groupBy(groupBys);
-        query = query.sortBy('date', neonVariables.ASCENDING);
-        query = query.where(whereClause);
-        return query.aggregate(neonVariables.COUNT, '*', 'value');
-    }
-
-    getDocCount() {
-        if (!this.cannotExecuteQuery(this.options)) {
-            let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
-                .where(this.createClause()).aggregate(neonVariables.COUNT, '*', '_docCount');
-            this.executeQuery(this.options, countQuery);
-        }
+        // TODO FIXME Why are we calling aggregate twice?
+        return query.aggregate(neonVariables.MIN, dateField, 'date').groupBy(groupBys).sortBy('date', neonVariables.ASCENDING)
+            .where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0]).aggregate(neonVariables.COUNT, '*', 'value');
     }
 
     getFiltersToIgnore() {
@@ -305,51 +299,31 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Handles the given response data for a successful visualization data query created using the given options.
+     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {any} response
+     * @arg {any[]} results
+     * @return {TransformedVisualizationData}
      * @override
      */
-    onQuerySuccess(options: any, response: any) {
-        if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
-            this.docCount = response.data[0]._docCount;
-        } else {
-            // Convert all the dates into Date objects
-            this.activeData = response.data.map((item) => {
-                item.date = new Date(item.date);
-                return item;
-            });
+    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+        // Convert all the dates into Date objects
+        let data: { value: number, date: Date }[] = results.map((item) => {
+            return {
+                value: item.value,
+                date: new Date(item.date)
+            };
+        });
 
-            this.filterAndRefreshData();
-            this.getDocCount();
-        }
-    }
+        this.filterAndRefreshData(data);
 
-    /**
-     * Returns the array of data items that are currently shown in the visualization, or undefined if it has not yet run its data query.
-     *
-     * @return {any[]}
-     */
-    public getShownDataArray(): any[] {
-        return this.activeData;
-    }
-
-    /**
-     * Returns the count of the given array of data items that are currently shown in the visualization.
-     *
-     * @arg {any[]} data
-     * @return {number}
-     * @override
-     */
-    public getShownDataCount(data: any[]): number {
-        return data.reduce((sum, element) => sum + element.value, 0);
+        return new TransformedTimelineAggregationData(data);
     }
 
     /**
      * Filter the raw data and re-draw the chart
      */
-    filterAndRefreshData() {
+    filterAndRefreshData(data: any[]) {
         let series: TimelineSeries = {
             color: this.widgetService.getThemeMainColorHex(),
             name: 'Total',
@@ -361,11 +335,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             endDate: null
         };
 
-        if (this.activeData.length > 0) {
+        if (data.length > 0) {
             // The query includes a sort, so it *should* be sorted.
             // Start date will be the first entry, and the end date will be the last
-            series.startDate = this.activeData[0].date;
-            let lastDate = this.activeData[this.activeData.length - 1].date;
+            series.startDate = data[0].date;
+            let lastDate = data[data.length - 1].date;
             series.endDate = d3.time[this.options.granularity]
                 .utc.offset(lastDate, 1);
 
@@ -388,7 +362,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                     };
                 }
 
-                for (let row of this.activeData) {
+                for (let row of data) {
                     // Check if this should be in the focus data
                     // Focus data is not bucketized, just zeroed
                     if (filter) {
@@ -408,7 +382,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 }
             } else {
                 // No bucketizer, just add the data
-                for (let row of this.activeData) {
+                for (let row of data) {
                     // Check if this should be in the focus data
                     if (filter) {
                         if (filter.startDate <= row.date && filter.endDate >= row.date) {
@@ -437,8 +411,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         // Make sure to update both the data and primary series
         this.timelineData.data = [series];
         this.timelineData.primarySeries = series;
-
-        this.refreshVisualization();
     }
 
     @HostListener('window:resize')
@@ -492,8 +464,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         for (let neonFilter of neonFilters) {
             // The data we want is in the whereClause's subclauses
             let whereClause = neonFilter.filter.whereClause;
-            if (whereClause && whereClause.whereClauses.length === 2) {
-                let field = this.options.findField(neonFilter.filter.whereClause[0].lhs);
+            if (whereClause && whereClause.length > 0 && whereClause.whereClauses.length === 2) {
+                let field = this.options.findField(whereClause[0].lhs);
                 this.addLocalFilter(neonFilter.id, field.columnName, field.prettyName, whereClause.whereClauses[0].rhs,
                     whereClause.whereClauses[1].rhs);
             }

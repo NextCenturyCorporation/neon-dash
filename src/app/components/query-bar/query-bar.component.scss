@@ -28,7 +28,7 @@ input.query-bar-input {
     flex: 1 1 auto;
     border: none;
     background: transparent;
-    font-family: $mat-font-family;
+    font-family: Roboto, 'Helvetica Neue', sans-serif;
     font-size: 14px; // TODO: tie into theme
 }
 input.query-bar-input:focus {
