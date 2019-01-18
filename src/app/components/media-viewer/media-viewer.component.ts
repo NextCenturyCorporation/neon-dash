@@ -33,7 +33,7 @@ import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, MediaTypes } from '../../dataset';
-import { neonUtilities } from '../../neon-namespaces';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -78,7 +78,7 @@ export interface MediaTab {
 })
 export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     protected MEDIA_PADDING: number = 10;
-    protected SLIDER_HEIGHT: number = 60;
+    protected SLIDER_HEIGHT: number = 30;
     protected TAB_HEIGHT: number = 30;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
@@ -194,13 +194,14 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Appends the global linkPrefix to the given link if it is not already there.
+     * Appends the given prefix to the given link if it is not already there.
      *
      * @arg {string} link
+     * @arg {string} prefix
      * @return {string}
      */
-    appendLinkPrefixIfNeeded(link: string) {
-        return ((!!link && link.indexOf(this.options.linkPrefix) !== 0) ? (this.options.linkPrefix + link) : link);
+    appendPrefixIfNeeded(link: string, prefix: string) {
+        return ((!!link && link.indexOf(prefix) !== 0 && link.indexOf('http') !== 0) ? (prefix + link) : link);
     }
 
     /**
@@ -221,10 +222,11 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [
-            new WidgetFieldOption('idField', 'ID Field', true),
+            new WidgetFieldOption('idField', 'ID Field', false),
             new WidgetFieldOption('linkField', 'Link Field', false, false), // DEPRECATED
             new WidgetFieldOption('maskField', 'Mask Field', false),
             new WidgetFieldOption('nameField', 'Name Field', false),
+            new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetFieldOption('typeField', 'Type Field', false),
             new WidgetFieldArrayOption('linkFields', 'Link Field(s)', true)
         ];
@@ -244,6 +246,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             new WidgetFreeTextOption('id', 'ID', ''),
             new WidgetFreeTextOption('delimiter', 'Link Delimiter', ','),
             new WidgetFreeTextOption('linkPrefix', 'Link Prefix', ''),
+            new WidgetFreeTextOption('maskLinkPrefix', 'Mask Link Prefix', ''),
             new WidgetSelectOption('resize', 'Resize Media to Fit', true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('oneTabPerArray', 'Tab Behavior with Link Arrays', false, [{
                 prettyName: 'One Tab per Element',
@@ -268,10 +271,15 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
-        let idFilter = neon.query.where(options.idField.columnName, '=', options.id);
-        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(idFilter).concat(options.linkFields.map((linkField) => {
+        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(options.linkFields.map((linkField) => {
             return neon.query.where(linkField.columnName, '!=', null);
         }));
+        if (options.idField.columnName) {
+            wheres = wheres.concat(neon.query.where(options.idField.columnName, '=', options.id));
+        }
+        if (options.sortField.columnName) {
+            query.sortBy(options.sortField.columnName, neonVariables.ASCENDING);
+        }
         return query.where(neon.query.and.apply(neon.query, wheres));
     }
 
@@ -298,7 +306,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         let tabs = this.options.oneTabPerArray ? [oneTab] : [];
 
         links.filter((link) => !!link).forEach((link, index) => {
-            let mask = this.appendLinkPrefixIfNeeded(this.findElementAtIndex(masks, index));
+            let mask = this.appendPrefixIfNeeded(this.findElementAtIndex(masks, index), this.options.maskLinkPrefix ||
+                this.options.linkPrefix);
             let name = this.findElementAtIndex(names, index, (link ? link.substring(link.lastIndexOf('/') + 1) : oneTabName));
             let type = this.findElementAtIndex(types, index, (this.getMediaType(link) || ''));
 
@@ -323,7 +332,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 tab.list.push({
                     // TODO Add a boolean borderField with border options like:  true = red, false = yellow
                     border: this.options.border,
-                    link: this.appendLinkPrefixIfNeeded(link),
+                    link: this.appendPrefixIfNeeded(link, this.options.linkPrefix),
                     mask: mask,
                     name: name,
                     type: type
@@ -384,7 +393,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     public getVisualizationElementLabel(count: number): string {
-        return 'File' + (count === 1 ? '' : 's');
+        return 'Item' + (count === 1 ? '' : 's');
     }
 
     /**
@@ -420,6 +429,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     getFiltersToIgnore(): any[] {
         // Ignore all the filters for the database and the table so it always shows the selected items.
+        if (!this.options.idField.columnName) {
+            return [];
+        }
+
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name);
 
         let ignoredFilterIds = neonFilters.filter((neonFilter) => {
@@ -496,7 +509,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         let validLinkFields = options.linkFields.length ? options.linkFields.every((linkField) => {
             return !!linkField.columnName;
         }) : false;
-        return !!(options.database.name && options.table.name && options.id && options.idField.columnName && validLinkFields);
+        return !!(options.database.name && options.table.name && validLinkFields);
     }
 
     /**
