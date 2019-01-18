@@ -96,7 +96,7 @@
     <div class="body-container" [class.with-filter]="getCloseableFilters().length">
         <!-- Timeline chart div -->
         <div #svg class="timeline-selector-chart"></div>
-        <div class ="xlabel" *ngIf="timelineData.data.length"> {{ options.granularity }}</div>
-        <div class ="ylabel" *ngIf="timelineData.data.length">{{ options.yLabel }}</div>
+        <div class ="xlabel"> {{ options.granularity }}</div>
+        <div class ="ylabel">{{ options.yLabel }}</div>
     </div>
 </mat-sidenav-container>
