@@ -97,35 +97,35 @@ describe('Component: DataTable', () => {
 
         component.initializeHeadersFromExceptionsToStatus();
 
-        expect(component.options.headers.length).toEqual(4);
-        expect(component.options.headers[0].prop).toEqual('date');
-        expect(component.options.headers[0].name).toEqual('Date');
-        expect(component.options.headers[0].active).toEqual(false);
-        expect(component.options.headers[0].style).toEqual({});
-        expect(component.options.headers[0].cellClass).toBeDefined();
-        expect(component.options.headers[0].width).toEqual(150);
-        expect(component.options.headers[1].prop).toEqual('field2');
-        expect(component.options.headers[1].name).toEqual('Field 2');
-        expect(component.options.headers[1].active).toEqual(false);
-        expect(component.options.headers[1].style).toEqual({});
-        expect(component.options.headers[1].cellClass).toBeDefined();
-        expect(component.options.headers[1].width).toEqual(150);
-        expect(component.options.headers[2].prop).toEqual('category');
-        expect(component.options.headers[2].name).toEqual('Category');
-        expect(component.options.headers[2].active).toEqual(true);
-        expect(component.options.headers[2].style).toEqual({});
-        expect(component.options.headers[2].cellClass).toBeDefined();
-        expect(component.options.headers[2].width).toEqual(150);
-        expect(component.options.headers[3].prop).toEqual('field1');
-        expect(component.options.headers[3].name).toEqual('Field 1');
-        expect(component.options.headers[3].active).toEqual(true);
-        expect(component.options.headers[3].style).toEqual({});
-        expect(component.options.headers[3].cellClass).toBeDefined();
-        expect(component.options.headers[3].width).toEqual(150);
+        expect(component.headers.length).toEqual(4);
+        expect(component.headers[0].prop).toEqual('date');
+        expect(component.headers[0].name).toEqual('Date');
+        expect(component.headers[0].active).toEqual(false);
+        expect(component.headers[0].style).toEqual({});
+        expect(component.headers[0].cellClass).toBeDefined();
+        expect(component.headers[0].width).toEqual(150);
+        expect(component.headers[1].prop).toEqual('field2');
+        expect(component.headers[1].name).toEqual('Field 2');
+        expect(component.headers[1].active).toEqual(false);
+        expect(component.headers[1].style).toEqual({});
+        expect(component.headers[1].cellClass).toBeDefined();
+        expect(component.headers[1].width).toEqual(150);
+        expect(component.headers[2].prop).toEqual('category');
+        expect(component.headers[2].name).toEqual('Category');
+        expect(component.headers[2].active).toEqual(true);
+        expect(component.headers[2].style).toEqual({});
+        expect(component.headers[2].cellClass).toBeDefined();
+        expect(component.headers[2].width).toEqual(150);
+        expect(component.headers[3].prop).toEqual('field1');
+        expect(component.headers[3].name).toEqual('Field 1');
+        expect(component.headers[3].active).toEqual(true);
+        expect(component.headers[3].style).toEqual({});
+        expect(component.headers[3].cellClass).toBeDefined();
+        expect(component.headers[3].width).toEqual(150);
     });
 
     it('initializeHeadersFromFieldsConfig does create the expected headers in order', () => {
-        component.options.headers = [];
+        component.headers = [];
         component.options.fields = [
             new FieldMetaData('category', 'Category'),
             new FieldMetaData('field1', 'Field 1'),
@@ -140,31 +140,31 @@ describe('Component: DataTable', () => {
 
         component.initializeHeadersFromFieldsConfig();
 
-        expect(component.options.headers.length).toEqual(4);
-        expect(component.options.headers[0].prop).toEqual('date');
-        expect(component.options.headers[0].name).toEqual('Date');
-        expect(component.options.headers[0].active).toEqual(true);
-        expect(component.options.headers[0].style).toEqual({});
-        expect(component.options.headers[0].cellClass).toBeDefined();
-        expect(component.options.headers[0].width).toEqual(150);
-        expect(component.options.headers[1].prop).toEqual('field2');
-        expect(component.options.headers[1].name).toEqual('Field 2');
-        expect(component.options.headers[1].active).toEqual(false);
-        expect(component.options.headers[1].style).toEqual({});
-        expect(component.options.headers[1].cellClass).toBeDefined();
-        expect(component.options.headers[1].width).toEqual(150);
-        expect(component.options.headers[2].prop).toEqual('category');
-        expect(component.options.headers[2].name).toEqual('Category');
-        expect(component.options.headers[2].active).toEqual(true);
-        expect(component.options.headers[2].style).toEqual({});
-        expect(component.options.headers[2].cellClass).toBeDefined();
-        expect(component.options.headers[2].width).toEqual(150);
-        expect(component.options.headers[3].prop).toEqual('field1');
-        expect(component.options.headers[3].name).toEqual('Field 1');
-        expect(component.options.headers[3].active).toEqual(true);
-        expect(component.options.headers[3].style).toEqual({});
-        expect(component.options.headers[3].cellClass).toBeDefined();
-        expect(component.options.headers[3].width).toEqual(150);
+        expect(component.headers.length).toEqual(4);
+        expect(component.headers[0].prop).toEqual('date');
+        expect(component.headers[0].name).toEqual('Date');
+        expect(component.headers[0].active).toEqual(true);
+        expect(component.headers[0].style).toEqual({});
+        expect(component.headers[0].cellClass).toBeDefined();
+        expect(component.headers[0].width).toEqual(150);
+        expect(component.headers[1].prop).toEqual('field2');
+        expect(component.headers[1].name).toEqual('Field 2');
+        expect(component.headers[1].active).toEqual(false);
+        expect(component.headers[1].style).toEqual({});
+        expect(component.headers[1].cellClass).toBeDefined();
+        expect(component.headers[1].width).toEqual(150);
+        expect(component.headers[2].prop).toEqual('category');
+        expect(component.headers[2].name).toEqual('Category');
+        expect(component.headers[2].active).toEqual(true);
+        expect(component.headers[2].style).toEqual({});
+        expect(component.headers[2].cellClass).toBeDefined();
+        expect(component.headers[2].width).toEqual(150);
+        expect(component.headers[3].prop).toEqual('field1');
+        expect(component.headers[3].name).toEqual('Field 1');
+        expect(component.headers[3].active).toEqual(true);
+        expect(component.headers[3].style).toEqual({});
+        expect(component.headers[3].cellClass).toBeDefined();
+        expect(component.headers[3].width).toEqual(150);
 
     });
 
@@ -173,7 +173,7 @@ describe('Component: DataTable', () => {
             ['fieldWithCustomWidth', 260]
         ];
 
-        expect(component.getColumnWidth(new FieldMetaData('fieldWithCustomWidth', 'Field 1'))).toEqual(260);
+        expect(component.getColumnWidth('fieldWithCustomWidth')).toEqual(260);
     });
 
     it('getColumnWidth returns the default width if field not found in options.customColumnWidths', () => {
@@ -181,7 +181,7 @@ describe('Component: DataTable', () => {
             ['fieldWithNoMatch', 300]
         ];
 
-        expect(component.getColumnWidth(new FieldMetaData('anotherColumn', 'Another Column'))).toEqual(150);
+        expect(component.getColumnWidth('anotherColumn')).toEqual(150);
     });
 
     it('initializeProperties does call expected methods if options.fieldsConfig exists', () => {
@@ -212,7 +212,7 @@ describe('Component: DataTable', () => {
     it('recalculateActiveHeaders does update activeHeaders and call detectChanges', () => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
 
-        component.options.headers = [{
+        component.headers = [{
             prop: 'createdDate',
             name: 'Date Created',
             active: true,
@@ -225,7 +225,7 @@ describe('Component: DataTable', () => {
         component.recalculateActiveHeaders();
 
         expect(spy).toHaveBeenCalled();
-        expect(component.options.headers).toEqual([{
+        expect(component.headers).toEqual([{
             prop: 'createdDate',
             name: 'Date Created',
             active: true,
@@ -260,7 +260,7 @@ describe('Component: DataTable', () => {
         component.activeHeaders[0]['width'] = 50000;
         /* tslint:enable:no-string-literal */
 
-        component.options.headers = [{
+        component.headers = [{
             prop: 'createdDate',
             name: 'Date Created',
             active: true,
@@ -274,14 +274,14 @@ describe('Component: DataTable', () => {
 
         expect(spy).toHaveBeenCalled();
 
-        expect(component.options.headers[0].prop).toEqual('createdDate');
-        expect(component.options.headers[0].name).toEqual('Date Created');
-        expect(component.options.headers[0].active).toBeTruthy();
-        expect(component.options.headers[0].style).toEqual({});
-        expect(component.options.headers[0].cellClass).toEqual('');
+        expect(component.headers[0].prop).toEqual('createdDate');
+        expect(component.headers[0].name).toEqual('Date Created');
+        expect(component.headers[0].active).toBeTruthy();
+        expect(component.headers[0].style).toEqual({});
+        expect(component.headers[0].cellClass).toEqual('');
         /* tslint:disable:no-string-literal */
-        expect(component.options.headers[0]['width']).toBeLessThan(50000);
-        expect(component.options.headers[0]['$$oldWidth']).toBeLessThan(50000);
+        expect(component.headers[0]['width']).toBeLessThan(50000);
+        expect(component.headers[0]['$$oldWidth']).toBeLessThan(50000);
         /* tslint:enable:no-string-literal */
         expect(component.activeHeaders.length).toBe(1);
         expect(component.activeHeaders[0].prop).toEqual('createdDate');
@@ -298,7 +298,7 @@ describe('Component: DataTable', () => {
     });
 
     it('getActiveHeaders does return list of active headers', (() => {
-        component.options.headers = [{
+        component.headers = [{
             prop: 'createdDate',
             name: 'Date Created',
             active: true,
@@ -387,7 +387,7 @@ describe('Component: DataTable', () => {
 
     it('deactivateAllHeaders does set all headers to inactive and calls detectChanges', (() => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
-        component.options.headers = [{
+        component.headers = [{
             prop: 'createdDate',
             name: 'Date Created',
             active: true,
@@ -411,7 +411,7 @@ describe('Component: DataTable', () => {
         }];
 
         component.deactivateAllHeaders();
-        expect(component.options.headers).toEqual([{
+        expect(component.headers).toEqual([{
             prop: 'createdDate',
             name: 'Date Created',
             active: false,
@@ -438,7 +438,7 @@ describe('Component: DataTable', () => {
 
     it('activateAllHeaders does set all headers to active and calls detectChanges', (() => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
-        component.options.headers = [{
+        component.headers = [{
             prop: 'createdDate',
             name: 'Date Created',
             active: false,
@@ -462,7 +462,7 @@ describe('Component: DataTable', () => {
         }];
 
         component.activateAllHeaders();
-        expect(component.options.headers).toEqual([{
+        expect(component.headers).toEqual([{
             prop: 'createdDate',
             name: 'Date Created',
             active: true,
@@ -685,6 +685,10 @@ describe('Component: DataTable', () => {
         let filtersResult = component.getFiltersToIgnore();
         expect(filtersResult.length).toEqual(1);
         expect(filtersResult[0]).toEqual('testDatabase1-testTable1-testFilterField');
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('arrayToString does return the expected string value', () => {
@@ -753,6 +757,7 @@ describe('Component: DataTable', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.filterFields = [];
 
         // Test matching database/table but not field.
         component.setupFilters();
@@ -783,7 +788,7 @@ describe('Component: DataTable', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.sortField = DatasetServiceMock.SORT_FIELD;
+        component.options.filterFields = [DatasetServiceMock.SORT_FIELD];
 
         component.setupFilters();
         expect(component.filters).toEqual([{
@@ -805,7 +810,7 @@ describe('Component: DataTable', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.sortField = DatasetServiceMock.SORT_FIELD;
+        component.options.filterFields = [DatasetServiceMock.SORT_FIELD];
 
         component.filters = [{
             id: 'idA',
@@ -837,7 +842,7 @@ describe('Component: DataTable', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.sortField = DatasetServiceMock.SORT_FIELD;
+        component.options.filterFields = [DatasetServiceMock.SORT_FIELD];
 
         component.setupFilters();
         expect(component.filters).toEqual([]);
@@ -867,7 +872,7 @@ describe('Component: DataTable', () => {
     });
 
     it('onMouseUp does set expected drag properties and call clearHeaderStyles, but not recalculateActiveHeaders', () => {
-        component.options.headers = [{
+        component.headers = [{
             prop: 'testField1',
             name: 'Test Field 1',
             active: true,
@@ -890,7 +895,7 @@ describe('Component: DataTable', () => {
     });
 
     it('onMouseUp does set expected drag properties and call clearHeaderStyles, recalculateActiveHeaders', () => {
-        component.options.headers = [{
+        component.headers = [{
             prop: 'testField1',
             name: 'Test Field 1',
             active: true,
@@ -920,7 +925,7 @@ describe('Component: DataTable', () => {
     });
 
     it('onMouseDown does set styles as expected', () => {
-        component.options.headers = [{
+        component.headers = [{
             prop: 'testField1',
             name: 'Test Field 1',
             active: true,
@@ -949,7 +954,7 @@ describe('Component: DataTable', () => {
             x: 0,
             y: 0
         });
-        expect(component.options.headers[0].style).toEqual({
+        expect(component.headers[0].style).toEqual({
             color: 'black',
             backgroundColor: 'rgba(0, 0, 0, .2)',
             border: 'grey dashed 1px'
@@ -957,7 +962,7 @@ describe('Component: DataTable', () => {
     });
 
     it('onMouseEnter does not set drag object or styles if isDragging is false', () => {
-        component.options.headers = [{
+        component.headers = [{
             prop: 'testField1',
             name: 'Test Field 1',
             active: true,
@@ -975,11 +980,11 @@ describe('Component: DataTable', () => {
             x: 0,
             y: 0
         });
-        expect(component.options.headers[0].style).toEqual({color: 'black'});
+        expect(component.headers[0].style).toEqual({color: 'black'});
     });
 
     it('onMouseEnter does set drag object and styles if isDragging is true', () => {
-        component.options.headers = [{
+        component.headers = [{
             prop: 'testField1',
             name: 'Test Field 1',
             active: true,
@@ -1007,11 +1012,11 @@ describe('Component: DataTable', () => {
             x: 0,
             y: 0
         });
-        expect(component.options.headers[0].style).toEqual({
+        expect(component.headers[0].style).toEqual({
             color: 'black',
             borderTop: 'thick solid grey'
         });
-        expect(component.options.headers[1].style).toEqual({});
+        expect(component.headers[1].style).toEqual({});
 
         component.drag.downIndex = 0;
 
@@ -1025,17 +1030,17 @@ describe('Component: DataTable', () => {
             x: 0,
             y: 0
         });
-        expect(component.options.headers[0].style).toEqual({
+        expect(component.headers[0].style).toEqual({
             color: 'black',
             borderTop: 'thick solid grey'
         });
-        expect(component.options.headers[1].style).toEqual({
+        expect(component.headers[1].style).toEqual({
             borderBottom: 'thick solid grey'
         });
     });
 
     it('onMouseLeaveItem does not set styles if isDragging is false or index matches drag.downIndex', () => {
-        component.options.headers = [{
+        component.headers = [{
             prop: 'testField1',
             name: 'Test Field 1',
             active: true,
@@ -1048,7 +1053,7 @@ describe('Component: DataTable', () => {
         }];
         component.onMouseLeaveItem(0);
 
-        expect(component.options.headers[0].style).toEqual({
+        expect(component.headers[0].style).toEqual({
             borderTop: 'thick solid grey',
             borderBottom: 'thick solid grey'
         });
@@ -1058,7 +1063,7 @@ describe('Component: DataTable', () => {
 
         component.onMouseLeaveItem(0);
 
-        expect(component.options.headers[0].style).toEqual({
+        expect(component.headers[0].style).toEqual({
             borderTop: 'thick solid grey',
             borderBottom: 'thick solid grey'
         });
@@ -1067,7 +1072,7 @@ describe('Component: DataTable', () => {
     it('onMouseLeaveItem does set styles if isDragging is true and index does not match drag.downIndex', () => {
         component.drag.mousedown = true;
         component.drag.downIndex = 1;
-        component.options.headers = [{
+        component.headers = [{
             prop: 'testField1',
             name: 'Test Field 1',
             active: true,
@@ -1080,7 +1085,7 @@ describe('Component: DataTable', () => {
         }];
         component.onMouseLeaveItem(0);
 
-        expect(component.options.headers[0].style).toEqual({
+        expect(component.headers[0].style).toEqual({
             borderTop: null,
             borderBottom: null
         });
@@ -1095,7 +1100,7 @@ describe('Component: DataTable', () => {
             x: 0,
             y: 0
         };
-        component.options.headers = [{
+        component.headers = [{
             prop: 'testField1',
             name: 'Test Field 1',
             active: true,
@@ -1108,7 +1113,7 @@ describe('Component: DataTable', () => {
 
         expect(component.drag.downIndex).toEqual(-1);
         expect(component.drag.mousedown).toBeFalsy();
-        expect(component.options.headers[0].style).toEqual({});
+        expect(component.headers[0].style).toEqual({});
     });
 
     it('onMouseMove does not set drag object if isDragging is false', () => {
@@ -1140,7 +1145,7 @@ describe('Component: DataTable', () => {
     });
 
     it('clearHeaderStyles does clear styles', () => {
-        component.options.headers = [{
+        component.headers = [{
             prop: 'testField1',
             name: 'Test Field 1',
             active: true,
@@ -1158,8 +1163,8 @@ describe('Component: DataTable', () => {
 
         component.clearHeaderStyles();
 
-        expect(component.options.headers[0].style).toEqual({});
-        expect(component.options.headers[1].style).toEqual({});
+        expect(component.headers[0].style).toEqual({});
+        expect(component.headers[1].style).toEqual({});
     });
 
     it('getCloseableFilters does return filters', () => {
