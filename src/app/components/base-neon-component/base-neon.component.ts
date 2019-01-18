@@ -102,6 +102,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.initializing = true;
 
         this.options = this.createWidgetOptions(this.injector, this.getVisualizationDefaultTitle(), this.getVisualizationDefaultLimit());
+        this.options.title = this.getVisualizationTitle(this.options.title);
         this.newLimit = this.options.limit;
         this.id = this.options._id;
 
@@ -584,40 +585,59 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     /**
      * Updates tables, fields, and filters whenenver the database is changed and reruns the visualization query.
      *
-     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
-    handleChangeDatabase(options: any) {
-        this.updateTablesInOptions(options);
-        this.initializeFieldsInOptions(options, this.createLayerFieldOptions());
-        this.removeAllFilters(options, this.getCloseableFilters(), () => {
+    public handleChangeDatabase(options?: any): void {
+        let optionsToUpdate = options || this.options;
+        this.updateTablesInOptions(optionsToUpdate);
+        // Change behavior depending on if the given options are the top-level options or layer options.
+        // TODO THOR-1002 How to do this nicely
+        if (optionsToUpdate === this.options) {
+            this.initializeFieldsInOptions(optionsToUpdate, this.createFieldOptions().concat(
+                new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false)
+            ));
+        } else {
+            this.initializeFieldsInOptions(optionsToUpdate, this.createLayerFieldOptions());
+        }
+        this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), () => {
             this.setupFilters();
-            this.handleChangeData(options);
+            this.handleChangeData(optionsToUpdate);
         });
     }
 
     /**
      * Updates fields and filters whenever the table is changed and reruns the visualization query.
      *
-     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
-    handleChangeTable(options: any) {
-        this.updateFieldsInOptions(options);
-        this.initializeFieldsInOptions(options, this.createLayerFieldOptions());
-        this.removeAllFilters(options, this.getCloseableFilters(), () => {
+    public handleChangeTable(options?: any): void {
+        let optionsToUpdate = options || this.options;
+        this.updateFieldsInOptions(optionsToUpdate);
+        // Change behavior depending on if the given options are the top-level options or layer options.
+        // TODO THOR-1002 How to do this nicely
+        if (optionsToUpdate === this.options) {
+            this.initializeFieldsInOptions(optionsToUpdate, this.createFieldOptions().concat(
+                new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false)
+            ));
+        } else {
+            this.initializeFieldsInOptions(optionsToUpdate, this.createLayerFieldOptions());
+        }
+        this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), () => {
             this.setupFilters();
-            this.handleChangeData(options);
+            this.handleChangeData(optionsToUpdate);
         });
     }
 
     /**
      * Updates filters whenever a filter field is changed and reruns the visualization query.
      *
-     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
-    handleChangeFilterField(options: any) {
-        this.removeAllFilters(options, this.getCloseableFilters(), () => {
+    public handleChangeFilterField(options?: any): void {
+        let optionsToUpdate = options || this.options;
+        this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), () => {
             this.setupFilters();
-            this.handleChangeData(options);
+            this.handleChangeData(optionsToUpdate);
         });
     }
 
@@ -1138,7 +1158,43 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @return {FieldMetaData}
      */
     public findFieldObject(fields: FieldMetaData[], bindingKey: string, config?: any): FieldMetaData {
-        return this.findField(fields, (config ? config[bindingKey] : this.injector.get(bindingKey, ''))) || new FieldMetaData();
+        let configValue = (config ? config[bindingKey] : this.injector.get(bindingKey, ''));
+        return this.findField(fields, this.translateFieldKeyToValue(configValue)
+            ) || new FieldMetaData();
+    }
+
+    /**
+     * If field key is referenced in config file, find field value using current dashboard.
+     *
+     * @arg {any} configValue
+     * @return {any}
+     */
+    public translateFieldKeyToValue(configValue: any): string {
+        let currentDashboard = this.datasetService.getCurrentDashboard();
+
+        if (currentDashboard && currentDashboard.fields && currentDashboard.fields[configValue]) {
+            return this.datasetService.getFieldNameFromCurrentDashboardByKey(configValue);
+        } else {
+            // for backwards compatibility/if no field key reference exists in dashboard
+            return configValue;
+        }
+    }
+
+    /**
+     * If visualization title is a key referenced in config file, find value using current dashboard.
+     *
+     * @arg {any} configValue
+     * @return {any}
+     */
+    public getVisualizationTitle(configValue: any): string {
+        let currentDashboard = this.datasetService.getCurrentDashboard();
+
+        if (currentDashboard && currentDashboard.visualizationTitles && currentDashboard.visualizationTitles[configValue]) {
+            return currentDashboard.visualizationTitles[configValue];
+        } else {
+            // otherwise, just return value from layouts section of config
+            return configValue;
+        }
     }
 
     /**
@@ -1151,8 +1207,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     public findFieldObjects(fields: FieldMetaData[], bindingKey: string, config?: any): FieldMetaData[] {
         let bindings = (config ? config[bindingKey] : this.injector.get(bindingKey, null)) || [];
-        return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.findField(fields, columnName))
-            .filter((fieldsObject) => !!fieldsObject);
+        return (Array.isArray(bindings) ? bindings : []).map((configValue) =>
+            this.findField(fields, this.translateFieldKeyToValue(configValue))).filter((fieldsObject) => !!fieldsObject);
     }
 
     /**
@@ -1241,11 +1297,13 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         options.database = options.databases[0] || options.database;
 
         if (options.databases.length) {
-            // TODO: 873: verify which one of these is correct
-            let key = config ? config.tableKey : this.injector.get('tableKey', null);
+            let tableValue = config ? config.tableKey : this.injector.get('tableKey', null);
+            let currentDashboard = this.datasetService.getCurrentDashboard();
+            let configDatabase: any;
 
-            if (key) {
-                let configDatabase = this.datasetService.getDatabaseNameFromCurrentDashboardByKey(key);
+            if (currentDashboard && currentDashboard.tables && currentDashboard.tables[tableValue]) {
+                configDatabase = this.datasetService.getDatabaseNameFromCurrentDashboardByKey(tableValue);
+
                 if (configDatabase) {
                     for (let database of options.databases) {
                         if (configDatabase === database.name) {
@@ -1255,28 +1313,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                     }
                 }
             }
-
-            /*
-            let configDatabase = config ?
-                this.datasetService.getDatabaseNameFromCurrentDashboardByKey(config.tableKey) :
-                this.injector.get('database', null);
-            if (configDatabase) {
-                let isName = false;
-                for (let database of options.databases) {
-                    if (configDatabase === database.name) {
-                        options.database = database;
-                        isName = true;
-                        break;
-                    }
-                }
-                if (!isName) {
-                    // Check if the config database is actually an array index rather than a name.
-                    let databaseIndex = parseInt(configDatabase, 10);
-                    if (!isNaN(databaseIndex) && databaseIndex < options.databases.length) {
-                        options.database = options.databases[databaseIndex];
-                    }
-                }
-            }*/
         }
 
         return this.updateTablesInOptions(options, config);
@@ -1310,11 +1346,13 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         options.table = options.tables[0] || options.table;
 
         if (options.tables.length > 0) {
-            // TODO: 873: verify which one of these is correct
-            let key = config ? config.tableKey : this.injector.get('tableKey', null);
+            let tableValue = config ? config.tableKey : this.injector.get('tableKey', null);
+            let currentDashboard = this.datasetService.getCurrentDashboard();
+            let configTable: any;
 
-            if (key) {
-                let configTable = this.datasetService.getTableNameFromCurrentDashboardByKey(key);
+            if (currentDashboard && currentDashboard.tables && currentDashboard.tables[tableValue]) {
+                configTable = this.datasetService.getTableNameFromCurrentDashboardByKey(tableValue);
+
                 if (configTable) {
                     for (let table of options.tables) {
                         if (configTable === table.name) {
@@ -1324,27 +1362,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                     }
                 }
             }
-            /*
-            let configTable = config ?
-                this.datasetService.getTableNameFromCurrentDashboardByKey(config.tableKey) :
-                this.injector.get('table', null);
-            if (configTable) {
-                let isName = false;
-                for (let table of options.tables) {
-                    if (configTable === table.name) {
-                        options.table = table;
-                        isName = true;
-                        break;
-                    }
-                }
-                if (!isName) {
-                    // Check if the config table is actually an array index rather than a name.
-                    let tableIndex = parseInt(configTable, 10);
-                    if (!isNaN(tableIndex) && tableIndex < options.tables.length) {
-                        options.table = options.tables[tableIndex];
-                    }
-                }
-            }*/
         }
 
         return this.updateFieldsInOptions(options);

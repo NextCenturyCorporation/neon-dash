@@ -146,7 +146,6 @@ export class DatasetService {
             if (!nestedChoiceKeys.length) {
                 // If no choices are present, then this might be the last level of nested choices,
                 // which should instead have table keys and a layout specified. If not, delete choice.
-                // TODO: 825: Add field keys later.
                 if (!dashboardChoices[choiceKey].layout || !dashboardChoices[choiceKey].tables) {
                     delete dashboardChoices[choiceKey];
                 }
@@ -222,7 +221,7 @@ export class DatasetService {
      * @return {String}
      */
     static getFieldNameByKey(dashboard: Dashboard, key: string) {
-        return dashboard.fields[key].split('.')[3];
+        return dashboard.fields[key].split('.').slice(3).join('.');
     }
 
     constructor(@Inject('config') private config: NeonGTDConfig) {
