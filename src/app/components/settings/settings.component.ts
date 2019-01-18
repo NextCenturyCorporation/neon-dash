@@ -62,7 +62,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         protected datasetService: DatasetService,
         private dialog: MatDialog,
         public injector: Injector,
-        protected widgetService: AbstractWidgetService
+        public widgetService: AbstractWidgetService
     ) {
         this.datasetService = datasetService;
         this.injector = injector;
