@@ -320,7 +320,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         if (!this.filters.length) {
             this.filters.push(filter);
             let whereClause = neon.query.where(filter.field, '=', filter.value);
-            this.addNeonFilter(this.options, true, filter, whereClause);
+            this.addNeonFilter(this.options, !this.options.ignoreSelf, filter, whereClause);
         } else if (this.filterIsUnique(filter)) {
             filter.id = this.filters[0].id;
             this.filters.push(filter);
@@ -329,7 +329,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             });
             let whereClause = whereClauses.length === 1 ? whereClauses[0] : (this.options.andFilters ? neon.query.and.apply(neon.query,
                 whereClauses) : neon.query.or.apply(neon.query, whereClauses));
-            this.replaceNeonFilter(this.options, true, filter, whereClause);
+            this.replaceNeonFilter(this.options, !this.options.ignoreSelf, filter, whereClause);
         }
     }
 

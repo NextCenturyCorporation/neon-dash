@@ -770,10 +770,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             if (this.filters.length && this.options.singleFilter) {
                 filter.id = this.filters[0].id;
                 this.filters = [filter];
-                this.replaceNeonFilter(this.options, true, filter, clause);
+                this.replaceNeonFilter(this.options, !this.options.ignoreSelf, filter, clause);
             } else {
                 this.addLocalFilter(filter);
-                this.addNeonFilter(this.options, true, filter, clause);
+                this.addNeonFilter(this.options, !this.options.ignoreSelf, filter, clause);
             }
         }
     }

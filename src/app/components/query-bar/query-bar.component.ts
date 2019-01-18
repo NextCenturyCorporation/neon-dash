@@ -297,7 +297,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
                 clause = neon.query.where(this.options.filterField.columnName, '=', text);
 
                 if (this.currentFilter && this.filterIds) {
-                    this.removeAllFilters(this.options, this.filterService.getFilters());
+                    this.removeAllFilters(this.options, this.filterService.getFilters(), false, false);
                 }
 
                 this.addFilter(text, clause, this.options.filterField.columnName);
@@ -309,7 +309,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
                     }
                 }
             } else {
-                this.removeAllFilters(this.options, this.filterService.getFilters());
+                this.removeAllFilters(this.options, this.filterService.getFilters(), false, false);
             }
         }
     }
@@ -433,7 +433,8 @@ export class QueryBarComponent  extends BaseNeonComponent {
      */
     removeFilter() {
         if (this.filterIds) {
-            this.removeAllFilters(this.options, this.filterService.getFilters());
+            // Must always requery and refresh the visualization once all the filters are removed.
+            this.removeAllFilters(this.options, this.filterService.getFilters(), true, true);
             this.filterIds = [];
             this.currentFilter = '';
         }

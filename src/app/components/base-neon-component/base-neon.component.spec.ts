@@ -298,7 +298,7 @@ describe('BaseNeonComponent', () => {
 
     it('ngAfterViewInit does work as expected', () => {
         let spyConstruct = spyOn(component, 'constructVisualization');
-        let spyExecute = spyOn(component, 'executeQueryChain');
+        let spyExecute = spyOn(component, 'executeAllQueryChain');
         component.ngAfterViewInit();
         expect(spyConstruct.calls.count()).toEqual(1);
         expect(spyExecute.calls.count()).toEqual(1);
@@ -1070,7 +1070,7 @@ describe('BaseNeonComponent', () => {
         let args = spyRemoveFilter.calls.argsFor(0);
         expect(args[0]).toEqual(component.options);
         let spyChangeData = spyOn(component, 'handleChangeData');
-        args[2]();
+        args[4]();
         expect(spyChangeData.calls.count()).toEqual(1);
         expect(spyChangeData.calls.argsFor(0)).toEqual([component.options]);
     });
@@ -1096,7 +1096,7 @@ describe('BaseNeonComponent', () => {
         let args = spyRemoveFilter.calls.argsFor(0);
         expect(args[0]).toEqual(component.options);
         let spyChangeData = spyOn(component, 'handleChangeData');
-        args[2]();
+        args[4]();
         expect(spyChangeData.calls.count()).toEqual(1);
         expect(spyChangeData.calls.argsFor(0)).toEqual([component.options]);
     });
@@ -1104,13 +1104,18 @@ describe('BaseNeonComponent', () => {
     it('handleChangeFilterField does work as expected', () => {
         let spyRemoveFilter = spyOn(component, 'removeAllFilters');
         component.handleChangeFilterField(component.options);
-        expect(spyRemoveFilter.calls.count()).toEqual(1);
 
-        // Call the callback
+        expect(spyRemoveFilter.calls.count()).toEqual(1);
         let args = spyRemoveFilter.calls.argsFor(0);
         expect(args[0]).toEqual(component.options);
+        expect(args[1]).toEqual([]);
+        expect(args[2]).toEqual(false);
+        expect(args[3]).toEqual(false);
+
         let spyChangeData = spyOn(component, 'handleChangeData');
-        args[2]();
+
+        // Call the callback
+        args[4]();
         expect(spyChangeData.calls.count()).toEqual(1);
         expect(spyChangeData.calls.argsFor(0)).toEqual([component.options]);
     });
@@ -1270,7 +1275,7 @@ describe('BaseNeonComponent', () => {
         expect(spyExecuteQuery.calls.argsFor(0)[3]).toBeDefined();
     });
 
-    it('handleSuccessfulVisualizationQuery with pagination and page > 1 does not execute total count query ', (done) => {
+    it('handleSuccessfulVisualizationQuery with pagination and page > 1 and element count does always execute total count query ', () => {
         let spy = spyOn(component, 'handleTransformVisualizationQueryResults');
         let spyExecuteQuery = spyOn(component, 'executeQuery');
         let expectedData = new TransformedVisualizationData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
@@ -1282,12 +1287,7 @@ describe('BaseNeonComponent', () => {
         (component as any).handleSuccessfulVisualizationQuery(component.options, {
             data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         }, () => {
-            expect((component as any).errorMessage).toEqual('');
-            expect((component as any).lastPage).toEqual(true);
-            expect((component as any).layerIdToActiveData.get(component.options._id)).toEqual(expectedData);
-            expect((component as any).layerIdToElementCount.get(component.options._id)).toEqual(20);
-            expect(spyExecuteQuery.calls.count()).toEqual(0);
-            done();
+            fail();
         });
         expect(spy.calls.count()).toEqual(1);
         expect(spyExecuteQuery.calls.count()).toEqual(0);
@@ -1299,6 +1299,22 @@ describe('BaseNeonComponent', () => {
 
         // Call the success callback
         args[2](expectedData);
+        expect((component as any).errorMessage).toEqual('');
+        expect((component as any).layerIdToActiveData.get(component.options._id)).toEqual(expectedData);
+        expect(spyExecuteQuery.calls.count()).toEqual(1);
+        expect(spyExecuteQuery.calls.argsFor(0)[0]).toEqual(component.options);
+        expect(spyExecuteQuery.calls.argsFor(0)[1]).toEqual({
+            database: 'testDatabase1',
+            table: 'testTable1',
+            fields: ['*'],
+            aggregation: [{
+                name: '_count',
+                type: AggregationType.COUNT,
+                field: '*'
+            }]
+        });
+        expect(spyExecuteQuery.calls.argsFor(0)[2]).toEqual('total count query');
+        expect(spyExecuteQuery.calls.argsFor(0)[3]).toBeDefined();
     });
 
     it('handleSuccessfulVisualizationQuery with showingZeroOrMultipleElementsPerResult does not execute total count query', (done) => {
@@ -1883,18 +1899,15 @@ describe('BaseNeonComponent filter behavior', () => {
 
         component.removeLocalFilterFromLocalAndNeon = (opts, filter, bool1, bool2, removeMoreFilters) => {
             removeCalls++;
-            if (removeCalls === 1) {
-                expect(filter).toEqual({
-                    id: 'id1',
-                    key: 'key1',
-                    value: 'value1',
-                    prettyKey: 'prettyKey1'
-                });
-            }
             expect(bool1).toEqual(false);
             expect(bool2).toEqual(false);
-            expect(typeof removeMoreFilters).toEqual('function');
-            removeMoreFilters();
+            expect(filter).toEqual({
+                id: 'id1',
+                key: 'key1',
+                value: 'value1',
+                prettyKey: 'prettyKey1'
+            });
+            expect(removeMoreFilters).toEqual(undefined);
         };
 
         component.removeAllFilters(component.options, [{
@@ -1902,7 +1915,7 @@ describe('BaseNeonComponent filter behavior', () => {
             key: 'key1',
             value: 'value1',
             prettyKey: 'prettyKey1'
-        }]);
+        }], false, false);
 
         expect(removeCalls).toEqual(1);
     });
@@ -1912,6 +1925,8 @@ describe('BaseNeonComponent filter behavior', () => {
 
         component.removeLocalFilterFromLocalAndNeon = (opts, filter, bool1, bool2, removeMoreFilters) => {
             removeCalls++;
+            expect(bool1).toEqual(false);
+            expect(bool2).toEqual(false);
             if (removeCalls === 1) {
                 expect(filter).toEqual({
                     id: 'id1',
@@ -1919,19 +1934,17 @@ describe('BaseNeonComponent filter behavior', () => {
                     value: 'value1',
                     prettyKey: 'prettyKey1'
                 });
-            }
-            if (removeCalls === 2) {
+                expect(typeof removeMoreFilters).toEqual('function');
+                removeMoreFilters();
+            } else if (removeCalls === 2) {
                 expect(filter).toEqual({
                     id: 'id2',
                     key: 'key2',
                     value: 'value2',
                     prettyKey: 'prettyKey2'
                 });
+                expect(removeMoreFilters).toEqual(undefined);
             }
-            expect(bool1).toEqual(false);
-            expect(bool2).toEqual(false);
-            expect(typeof removeMoreFilters).toEqual('function');
-            removeMoreFilters();
         };
 
         component.removeAllFilters(component.options, [{
@@ -1944,12 +1957,12 @@ describe('BaseNeonComponent filter behavior', () => {
             key: 'key2',
             value: 'value2',
             prettyKey: 'prettyKey2'
-        }]);
+        }], false, false);
 
         expect(removeCalls).toEqual(2);
     });
 
-    it('removeAllFilters does work as expected with single filter', () => {
+    it('removeAllFilters does work as expected with callback function', () => {
         let removeCalls = 0;
         let callbackCalls = 0;
 
@@ -1968,7 +1981,7 @@ describe('BaseNeonComponent filter behavior', () => {
             key: 'key2',
             value: 'value2',
             prettyKey: 'prettyKey2'
-        }], () => {
+        }], false, false, () => {
             callbackCalls++;
         });
 
@@ -1978,7 +1991,7 @@ describe('BaseNeonComponent filter behavior', () => {
 
     it('removeAllFilters does not change original array', () => {
         component.removeLocalFilterFromLocalAndNeon = (opts, filter, bool1, bool2, removeMoreFilters) => {
-            removeMoreFilters();
+            // Do nothing.
         };
 
         let filters = [{
@@ -1993,7 +2006,7 @@ describe('BaseNeonComponent filter behavior', () => {
             prettyKey: 'prettyKey2'
         }];
 
-        component.removeAllFilters(component.options, filters);
+        component.removeAllFilters(component.options, filters, false, false);
 
         expect(filters).toEqual([{
             id: 'id1',

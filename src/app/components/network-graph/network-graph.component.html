@@ -110,7 +110,7 @@
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Node/Link Limit" [(ngModel)]="options.limit" (keyup.enter)="reloadGraph()">
+                        <input matInput placeholder="Node/Link Limit" [(ngModel)]="options.limit" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below" (click)="reloadGraph()">
