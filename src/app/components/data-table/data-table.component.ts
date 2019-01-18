@@ -582,8 +582,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            this.options.filterFields.map((fieldsObject) => fieldsObject.columnName));
+        let neonFilters = this.options.filterFields.length ? this.filterService.getFiltersForFields(this.options.database.name,
+            this.options.table.name, this.options.filterFields.map((fieldsObject) => fieldsObject.columnName)) : [];
         this.filters = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
