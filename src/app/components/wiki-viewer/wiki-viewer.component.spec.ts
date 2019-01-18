@@ -340,10 +340,10 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('does show error-message in toolbar and sidenav if errorMessage is defined', async(() => {
-        component.errorMessage = 'Test Error Message';
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {
+            component.errorMessage = 'Test Error Message';
             fixture.detectChanges();
 
             let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
@@ -426,6 +426,7 @@ describe('Component: WikiViewer', () => {
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {
+            component.isLoading = 1;
             fixture.detectChanges();
 
             let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));

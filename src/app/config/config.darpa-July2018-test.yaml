@@ -96,7 +96,7 @@ layouts:
         bindings:
             title: Document Feed
             tableKey: table_key_1
-            idField: _id # TODO: 825: potentially make fieldKeys later
+            idField: _id
             sortField: createdDate
             limit: 100
             allColumnStatus: hide

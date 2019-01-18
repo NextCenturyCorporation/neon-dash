@@ -88,7 +88,6 @@ dashboards:
                             layout: LDC_DISCOVERY
                             tables:
                                 table_key_1: es1.ldc_uyg_jul_18.ui_out
-                            # TODO: 825: use field keys
                             fields:
                                 field_key_1: es1.ldc_uyg_jul_18.ui_out.originalText
                                 field_key_2: es1.ldc_uyg_jul_18.ui_out.translatedText
@@ -137,7 +136,6 @@ layouts:
               show: true
               type: cluster
               limit: 20000
-              # TODO: 825: update layers keys to be more generic
               layers:
                   - title: Map
                     tableKey: table_key_1
@@ -306,7 +304,7 @@ layouts:
           bindings:
               title: Document Feed
               tableKey: table_key_1
-              idField: _id # TODO: 825: potentially make fieldKeys later
+              idField: _id
               sortField: createdDate
               limit: 100
               allColumnStatus: hide
@@ -343,7 +341,6 @@ layouts:
               show: true
               type: cluster
               limit: 5000
-              # TODO: 825: update layers keys to be more generic
               layers:
                   - title: Map
                     tableKey: table_key_1

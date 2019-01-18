@@ -299,7 +299,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getColumnWidth(fieldConfig) {
         for (let miniArray of this.options.customColumnWidths) {
-            if (fieldConfig.columnName === miniArray[0]) {
+            let name = this.translateFieldKeyToValue(miniArray[0]);
+            if (fieldConfig.columnName === name) {
                 return miniArray[1];
             }
         }
@@ -347,7 +348,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     headerIsInExceptions(header) {
         let colName = header.columnName;
         let pName = header.prettyName;
-        for (let name of this.options.exceptionsToStatus) {
+        for (let exception of this.options.exceptionsToStatus) {
+            let name = this.translateFieldKeyToValue(exception);
             if (colName === name || pName === name) {
                 return true;
             }
@@ -357,7 +359,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     sortOrderedHeaders(unordered) {
         let sorted = [];
-        for (let header of this.options.exceptionsToStatus) {
+        for (let exception of this.options.exceptionsToStatus) {
+            let header = this.translateFieldKeyToValue(exception);
             let headerToPush = this.getHeaderByName(header, unordered);
             if (headerToPush !== null) {
                 sorted.push(headerToPush);
