@@ -387,8 +387,7 @@ describe('BaseNeonComponent', () => {
         };
         let spyPostAddLayer = spyOn(component, 'postAddLayer');
         component.addLayer(inputOptions, {
-            database: 'testDatabase2',
-            table: 'testTable2',
+            tableKey: 'table_key_2',
             testField: 'testCategoryField',
             testValue: 'value binding',
             title: 'Title Binding'
