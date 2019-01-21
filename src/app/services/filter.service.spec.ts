@@ -38,10 +38,6 @@ class TestFilterService extends FilterService {
         return database + '-' + table + '-' + (this.idCounter++);
     }
 
-    protected getDatabaseFilterState(onSuccess: (filterList) => any, onError: (response: any) => any) {
-        this.http.get('/filterservice/filters/*/*').subscribe(onSuccess, onError);
-    }
-
     public reset() {
         this.filters = [];
         this.idCounter = 1;
@@ -168,147 +164,18 @@ describe('Service: Filter', () => {
         expect(service.getFilterById('testFilter2')).toEqual(undefined);
     });
 
-    it('getFilterState with no filters does not call replaceFilters but does call onSuccess', fakeAsync(() => {
-        let spy = spyOn(service, 'replaceFilter');
-        let successCalls = 0;
-        let failureCalls = 0;
-        service.getFilterState(() => {
-            ++successCalls;
-        }, () => {
-            ++failureCalls;
-        });
-
-        let request = backend.expectOne({
-            url: '/filterservice/filters/*/*',
-            method: 'GET'
-        });
-        request.flush([]);
-
-        expect(spy.calls.count()).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-    }));
-
-    it('getFilterState with response filters does call both replaceFilters and onSuccess', fakeAsync(() => {
-        let spy = spyOn(service, 'replaceFilter');
-        let successCalls = 0;
-        let failureCalls = 0;
-        service.getFilterState(() => {
-            ++successCalls;
-        }, () => {
-            ++failureCalls;
-        });
-
-        let request = backend.expectOne({
-            url: '/filterservice/filters/*/*',
-            method: 'GET'
-        });
-        request.flush([{
-            id: 'testFilter1',
-            dataSet: {
-                databaseName: 'testDatabase1',
-                tableName: 'testTable1'
-            },
-            filter: {
-                databaseName: 'testDatabase1',
-                tableName: 'testTable1',
-                whereClause: neon.query.where('testField1', '=', 'testValue1'),
-                filterName: 'Test Database 1 - Test Table 1 - Test Filter 1'
-            }
-        }, {
-            id: 'testFilter2',
-            dataSet: {
-                databaseName: 'testDatabase2',
-                tableName: 'testTable2'
-            },
-            filter: {
-                databaseName: 'testDatabase2',
-                tableName: 'testTable2',
-                whereClause: neon.query.where('testField2', '=', 'testValue2'),
-                filterName: 'Test Database 2 - Test Table 2 - Test Filter 2'
-            }
-        }]);
-
-        let filter1 = new ServiceFilter('testFilter1', undefined, 'testDatabase1', 'testTable1', {
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            whereClause: neon.query.where('testField1', '=', 'testValue1'),
-            filterName: 'Test Database 1 - Test Table 1 - Test Filter 1'
-        });
-
-        let filter2 = new ServiceFilter('testFilter2', undefined, 'testDatabase2', 'testTable2', {
-            databaseName: 'testDatabase2',
-            tableName: 'testTable2',
-            whereClause: neon.query.where('testField2', '=', 'testValue2'),
-            filterName: 'Test Database 2 - Test Table 2 - Test Filter 2'
-        });
-
-        expect(spy.calls.count()).toEqual(2);
-        expect(service.getFilters()).toEqual([filter1, filter2]);
-
-        let args1 = spy.calls.argsFor(0);
-        expect(args1.length).toEqual(7);
-        expect(args1[0].constructor.name).toEqual(neon.eventing.Messenger.name);
-        expect(args1[1]).toEqual('testFilter1');
-        expect(args1[2]).toEqual(undefined);
-        expect(args1[3]).toEqual('testDatabase1');
-        expect(args1[4]).toEqual('testTable1');
-        expect(args1[5]).toEqual(neon.query.where('testField1', '=', 'testValue1'));
-        expect(args1[6]).toEqual('Test Database 1 - Test Table 1 - Test Filter 1');
-
-        let args2 = spy.calls.argsFor(1);
-        expect(args2.length).toEqual(7);
-        expect(args2[0].constructor.name).toEqual(neon.eventing.Messenger.name);
-        expect(args2[1]).toEqual('testFilter2');
-        expect(args2[2]).toEqual(undefined);
-        expect(args2[3]).toEqual('testDatabase2');
-        expect(args2[4]).toEqual('testTable2');
-        expect(args2[5]).toEqual(neon.query.where('testField2', '=', 'testValue2'));
-        expect(args2[6]).toEqual('Test Database 2 - Test Table 2 - Test Filter 2');
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-    }));
-
-    it('getFilterState with response error does not call replaceFilters but does call onError', fakeAsync(() => {
-        let spy = spyOn(service, 'replaceFilter');
-        let successCalls = 0;
-        let failureCalls = 0;
-        service.getFilterState(() => {
-            ++successCalls;
-        }, (response) => {
-            ++failureCalls;
-            expect(response.statusText).toEqual('Test Error Message');
-        });
-
-        let request = backend.expectOne({
-            url: '/filterservice/filters/*/*',
-            method: 'GET'
-        });
-        request.flush(null, {
-            statusText: 'Test Error Message',
-            status: 500
-        });
-
-        expect(spy.calls.count()).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(1);
-    }));
-
-    it('addFilter does call both messenger.addFilters and onSuccess', () => {
+    it('addFilter does add filter and call onSuccess', () => {
         let successCalls = 0;
         let failureCalls = 0;
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
+        let messengerSpy = spyOn((service as any).messenger, 'publish');
         let wherePredicate = neon.query.where('testField', '=', 'testValue');
         let neonFilter = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
             .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
         neonFilter.whereClause = wherePredicate;
         let filter = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter);
 
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
+        service.addFilter(new neon.eventing.Messenger(), 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
             visName: 'Test Visualization',
             text: 'Test Text'
         }, (id) => {
@@ -319,28 +186,17 @@ describe('Service: Filter', () => {
         });
 
         expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
+        expect(messengerSpy.calls.argsFor(0)).toEqual(['filters_changed', {}]);
         expect(successCalls).toEqual(1);
         expect(failureCalls).toEqual(0);
         expect(service.getFilters()).toEqual([filter]);
     });
 
-    it('addFilter given filter with relation field does call both messenger.addFilters and onSuccess once each', () => {
+    it('addFilter given filter with relation field does add filter and call onSuccess once', () => {
         let successCalls = 0;
         let failureCalls = 0;
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
+        let messengerSpy = spyOn((service as any).messenger, 'publish');
         let wherePredicate = neon.query.where('testRelationFieldA', '=', 'testNewValue1');
         let neonFilter1 = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
             .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
@@ -348,7 +204,7 @@ describe('Service: Filter', () => {
         let filter1 = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter1,
             ['testDatabase2-testTable2-2']);
 
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
+        service.addFilter(new neon.eventing.Messenger(), 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
             visName: 'Test Visualization',
             text: 'Test Text'
         }, (id) => {
@@ -365,17 +221,7 @@ describe('Service: Filter', () => {
             ['testDatabase1-testTable1-1']);
 
         expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter1], ['testDatabase2-testTable2-2', neonFilter2]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
+        expect(messengerSpy.calls.argsFor(0)).toEqual(['filters_changed', {}]);
         expect(successCalls).toEqual(1);
         expect(failureCalls).toEqual(0);
         expect(service.getFilters()).toEqual([filter2, filter1]);
@@ -385,8 +231,7 @@ describe('Service: Filter', () => {
         let successCalls = 0;
         let failureCalls = 0;
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
+        let messengerSpy = spyOn((service as any).messenger, 'publish');
         let wherePredicate = neon.query.and.apply(neon.query, [
             neon.query.where('testRelationFieldA', '=', 'testRelationValueA'),
             neon.query.where('testRelationFieldB', '=', 'testRelationValueB')
@@ -397,7 +242,7 @@ describe('Service: Filter', () => {
         let filter1 = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter1,
             ['testDatabase2-testTable2-2']);
 
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
+        service.addFilter(new neon.eventing.Messenger(), 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
             visName: 'Test Visualization',
             text: 'Test Text'
         }, (id) => {
@@ -417,17 +262,7 @@ describe('Service: Filter', () => {
             ['testDatabase1-testTable1-1']);
 
         expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter1], ['testDatabase2-testTable2-2', neonFilter2]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
+        expect(messengerSpy.calls.argsFor(0)).toEqual(['filters_changed', {}]);
         expect(successCalls).toEqual(1);
         expect(failureCalls).toEqual(0);
         expect(service.getFilters()).toEqual([filter2, filter1]);
@@ -437,8 +272,7 @@ describe('Service: Filter', () => {
         let successCalls = 0;
         let failureCalls = 0;
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
+        let messengerSpy = spyOn((service as any).messenger, 'publish');
         let wherePredicate = neon.query.and.apply(neon.query, [
             neon.query.where('testFilterField', '=', 'testFilterText'),
             neon.query.where('testRelationFieldA', '=', 'testRelationText')
@@ -448,7 +282,7 @@ describe('Service: Filter', () => {
         neonFilter.whereClause = wherePredicate;
         let filter = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter);
 
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
+        service.addFilter(new neon.eventing.Messenger(), 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
             visName: 'Test Visualization',
             text: 'Test Text'
         }, (id) => {
@@ -459,69 +293,19 @@ describe('Service: Filter', () => {
         });
 
         expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
+        expect(messengerSpy.calls.argsFor(0)).toEqual(['filters_changed', {}]);
         expect(successCalls).toEqual(1);
         expect(failureCalls).toEqual(0);
         expect(service.getFilters()).toEqual([filter]);
-    });
-
-    it('addFilter does not add filter in onError', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
-
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
-        let wherePredicate = neon.query.where('testField', '=', 'testValue');
-        let neonFilter = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
-            .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
-        neonFilter.whereClause = wherePredicate;
-        let filter = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter);
-
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-            expect(id).toEqual('testDatabase1-testTable1-1');
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[2]();
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(1);
-        expect(service.getFilters()).toEqual([]);
     });
 
     it('removeFilters with no filters does not call onSuccess', () => {
         let successCalls = 0;
         let failureCalls = 0;
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'removeFilters');
+        let messengerSpy = spyOn((service as any).messenger, 'publish');
 
-        service.removeFilters(messenger, ['testFilter1', 'testFilter2'], (filter) => {
+        service.removeFilters(new neon.eventing.Messenger(), ['testFilter1', 'testFilter2'], (filter) => {
             ++successCalls;
         }, (response) => {
             ++failureCalls;
@@ -538,11 +322,10 @@ describe('Service: Filter', () => {
         let failureCalls = 0;
 
         let spy = spyOn(service, 'addFilter');
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'replaceFilters');
-        let wherePredicate = neon.query.where('testField', '=', 'testValue');
+        let messengerSpy = spyOn((service as any).messenger, 'replaceFilters');
+        let where = neon.query.where('testField', '=', 'testValue');
 
-        service.replaceFilter(messenger, 'testNewFilter1', 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
+        service.replaceFilter(new neon.eventing.Messenger(), 'testNewFilter1', 'testOwnerZ', 'testDatabase1', 'testTable1', where, {
             visName: 'Test Visualization',
             text: 'Test Text'
         }, (id) => {
@@ -559,11 +342,10 @@ describe('Service: Filter', () => {
 
         let args = spy.calls.argsFor(0);
         expect(args.length).toEqual(8);
-        expect(args[0]).toEqual(messenger);
         expect(args[1]).toEqual('testOwnerZ');
         expect(args[2]).toEqual('testDatabase1');
         expect(args[3]).toEqual('testTable1');
-        expect(args[4]).toEqual(wherePredicate);
+        expect(args[4]).toEqual(where);
         expect(args[5]).toEqual({
             visName: 'Test Visualization',
             text: 'Test Text'
@@ -646,99 +428,20 @@ describe('Service: Filter with existing filters', () => {
         expect(service.getFilterById('testFilter4')).toEqual(service.FILTER_4);
     });
 
-    it('getFilterState does replace existing filters', () => {
-        let spy = spyOn(service, 'replaceFilter');
-        let successCalls = 0;
-        let failureCalls = 0;
-        service.getFilterState(() => {
-            ++successCalls;
-        }, () => {
-            ++failureCalls;
-        });
+    it('addFilter with filters does add filter and call onSuccess', () => {
+        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
 
-        let request = backend.expectOne({
-            url: '/filterservice/filters/*/*',
-            method: 'GET'
-        });
-        request.flush([{
-            id: 'testFilter1',
-            dataSet: {
-                databaseName: 'testDatabase1',
-                tableName: 'testTable1'
-            },
-            filter: {
-                databaseName: 'testDatabase1',
-                tableName: 'testTable1',
-                whereClause: neon.query.where('testField1', '=', 'testNewValue1'),
-                filterName: 'Test Database 1 - Test Table 1 - Test Filter 1'
-            }
-        }, {
-            id: 'testFilter2',
-            dataSet: {
-                databaseName: 'testDatabase2',
-                tableName: 'testTable2'
-            },
-            filter: {
-                databaseName: 'testDatabase2',
-                tableName: 'testTable2',
-                whereClause: neon.query.where('testField2', '=', 'testNewValue2'),
-                filterName: 'Test Database 2 - Test Table 2 - Test Filter 2'
-            }
-        }]);
-
-        let filter1 = new ServiceFilter('testFilter1', undefined, 'testDatabase1', 'testTable1', {
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            whereClause: neon.query.where('testField1', '=', 'testNewValue1'),
-            filterName: 'Test Database 1 - Test Table 1 - Test Filter 1'
-        });
-
-        let filter2 = new ServiceFilter('testFilter2', undefined, 'testDatabase2', 'testTable2', {
-            databaseName: 'testDatabase2',
-            tableName: 'testTable2',
-            whereClause: neon.query.where('testField2', '=', 'testNewValue2'),
-            filterName: 'Test Database 2 - Test Table 2 - Test Filter 2'
-        });
-
-        expect(spy.calls.count()).toEqual(2);
-        expect(service.getFilters()).toEqual([filter1, filter2]);
-
-        let args1 = spy.calls.argsFor(0);
-        expect(args1.length).toEqual(7);
-        expect(args1[0].constructor.name).toEqual(neon.eventing.Messenger.name);
-        expect(args1[1]).toEqual('testFilter1');
-        expect(args1[2]).toEqual(undefined);
-        expect(args1[3]).toEqual('testDatabase1');
-        expect(args1[4]).toEqual('testTable1');
-        expect(args1[5]).toEqual(neon.query.where('testField1', '=', 'testNewValue1'));
-        expect(args1[6]).toEqual('Test Database 1 - Test Table 1 - Test Filter 1');
-
-        let args2 = spy.calls.argsFor(1);
-        expect(args2.length).toEqual(7);
-        expect(args2[0].constructor.name).toEqual(neon.eventing.Messenger.name);
-        expect(args2[1]).toEqual('testFilter2');
-        expect(args2[2]).toEqual(undefined);
-        expect(args2[3]).toEqual('testDatabase2');
-        expect(args2[4]).toEqual('testTable2');
-        expect(args2[5]).toEqual(neon.query.where('testField2', '=', 'testNewValue2'));
-        expect(args2[6]).toEqual('Test Database 2 - Test Table 2 - Test Filter 2');
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-    });
-
-    it('addFilter with filters does call both messenger.addFilters and onSuccess', () => {
         let successCalls = 0;
         let failureCalls = 0;
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
+        let messengerSpy = spyOn((service as any).messenger, 'publish');
         let wherePredicate = neon.query.where('testField', '=', 'testValue');
         let neonFilter = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
             .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
         neonFilter.whereClause = wherePredicate;
         let filter = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter);
 
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
+        service.addFilter(new neon.eventing.Messenger(), 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
             visName: 'Test Visualization',
             text: 'Test Text'
         }, (id) => {
@@ -749,28 +452,19 @@ describe('Service: Filter with existing filters', () => {
         });
 
         expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
+        expect(messengerSpy.calls.argsFor(0)).toEqual(['filters_changed', {}]);
         expect(successCalls).toEqual(1);
         expect(failureCalls).toEqual(0);
         expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4, filter]);
     });
 
-    it('addFilter with filters given filter with relation field does call both messenger.addFilters and onSuccess once each', () => {
+    it('addFilter with filters given filter with relation field does add filter and call onSuccess once', () => {
+        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
+
         let successCalls = 0;
         let failureCalls = 0;
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
+        let messengerSpy = spyOn((service as any).messenger, 'publish');
         let wherePredicate = neon.query.where('testRelationFieldA', '=', 'testNewValue1');
         let neonFilter1 = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
             .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
@@ -778,7 +472,7 @@ describe('Service: Filter with existing filters', () => {
         let filter1 = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter1,
             ['testDatabase2-testTable2-2']);
 
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
+        service.addFilter(new neon.eventing.Messenger(), 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
             visName: 'Test Visualization',
             text: 'Test Text'
         }, (id) => {
@@ -795,28 +489,19 @@ describe('Service: Filter with existing filters', () => {
             ['testDatabase1-testTable1-1']);
 
         expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter1], ['testDatabase2-testTable2-2', neonFilter2]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
+        expect(messengerSpy.calls.argsFor(0)).toEqual(['filters_changed', {}]);
         expect(successCalls).toEqual(1);
         expect(failureCalls).toEqual(0);
         expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4, filter2, filter1]);
     });
 
     it('addFilter with filters given multiple-clause filter with only relation fields', () => {
+        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
+
         let successCalls = 0;
         let failureCalls = 0;
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
+        let messengerSpy = spyOn((service as any).messenger, 'publish');
         let wherePredicate = neon.query.and.apply(neon.query, [
             neon.query.where('testRelationFieldA', '=', 'testRelationValueA'),
             neon.query.where('testRelationFieldB', '=', 'testRelationValueB')
@@ -827,7 +512,7 @@ describe('Service: Filter with existing filters', () => {
         let filter1 = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter1,
             ['testDatabase2-testTable2-2']);
 
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
+        service.addFilter(new neon.eventing.Messenger(), 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
             visName: 'Test Visualization',
             text: 'Test Text'
         }, (id) => {
@@ -847,69 +532,21 @@ describe('Service: Filter with existing filters', () => {
             ['testDatabase1-testTable1-1']);
 
         expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter1], ['testDatabase2-testTable2-2', neonFilter2]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
+        expect(messengerSpy.calls.argsFor(0)).toEqual(['filters_changed', {}]);
         expect(successCalls).toEqual(1);
         expect(failureCalls).toEqual(0);
         expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4, filter2, filter1]);
     });
 
-    it('addFilter with filters does not add filter in onError', () => {
+    it('removeFilters with filters does remove filter and call onSuccess', () => {
+        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
+
         let successCalls = 0;
         let failureCalls = 0;
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
-        let wherePredicate = neon.query.where('testField', '=', 'testValue');
-        let neonFilter = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
-            .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
-        neonFilter.whereClause = wherePredicate;
-        let filter = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter);
+        let messengerSpy = spyOn((service as any).messenger, 'publish');
 
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-            expect(id).toEqual('testDatabase1-testTable1-1');
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[2]();
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(1);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-    });
-
-    it('removeFilters with filters does call messenger.removeFilters and onSuccess', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
-
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'removeFilters');
-
-        service.removeFilters(messenger, ['testFilter1'], (filter) => {
+        service.removeFilters(new neon.eventing.Messenger(), ['testFilter1'], (filter) => {
             ++successCalls;
             expect(filter).toEqual(service.FILTER_1);
         }, (response) => {
@@ -917,30 +554,21 @@ describe('Service: Filter with existing filters', () => {
         });
 
         expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args1 = messengerSpy.calls.argsFor(0);
-        expect(args1.length).toEqual(3);
-        expect(args1[0]).toEqual(['testFilter1']);
-        expect(typeof args1[1]).toEqual('function');
-        expect(typeof args1[2]).toEqual('function');
-
-        args1[1]();
+        expect(messengerSpy.calls.argsFor(0)).toEqual(['filters_changed', {}]);
         expect(successCalls).toEqual(1);
         expect(failureCalls).toEqual(0);
         expect(service.getFilters()).toEqual([service.FILTER_2, service.FILTER_3, service.FILTER_4]);
     });
 
-    it('removeFilters with filters given multiple IDs does call both messenger.removeFilters and onSuccess multiple times', () => {
+    it('removeFilters with filters given multiple IDs does remove filters and call onSuccess multiple times', () => {
+        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
+
         let successCalls = 0;
         let failureCalls = 0;
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'removeFilters');
+        let messengerSpy = spyOn((service as any).messenger, 'publish');
 
-        service.removeFilters(messenger, ['testFilter1', 'testFilter2'], (filter) => {
+        service.removeFilters(new neon.eventing.Messenger(), ['testFilter1', 'testFilter2'], (filter) => {
             ++successCalls;
             if (successCalls === 1) {
                 expect(filter).toEqual(service.FILTER_1);
@@ -953,43 +581,22 @@ describe('Service: Filter with existing filters', () => {
         });
 
         expect(messengerSpy.calls.count()).toEqual(2);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args1 = messengerSpy.calls.argsFor(0);
-        expect(args1.length).toEqual(3);
-        expect(args1[0]).toEqual(['testFilter1']);
-        expect(typeof args1[1]).toEqual('function');
-        expect(typeof args1[2]).toEqual('function');
-
-        args1[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args2 = messengerSpy.calls.argsFor(1);
-        expect(args2.length).toEqual(3);
-        expect(args2[0]).toEqual(['testFilter2']);
-        expect(typeof args2[1]).toEqual('function');
-        expect(typeof args2[2]).toEqual('function');
-
-        args2[1]();
+        expect(messengerSpy.calls.argsFor(0)).toEqual(['filters_changed', {}]);
         expect(successCalls).toEqual(2);
         expect(failureCalls).toEqual(0);
         expect(service.getFilters()).toEqual([service.FILTER_3, service.FILTER_4]);
     });
 
-    it('removeFilters with filters given an ID with siblings does call both messenger.removeFilters and onSuccess once', () => {
+    it('removeFilters with filters given an ID with siblings does remove filter and call onSuccess once', () => {
         service.resetWithRelationFilters();
+        expect(service.getFilters()).toEqual([service.FILTER_5, service.FILTER_6]);
 
         let successCalls = 0;
         let failureCalls = 0;
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'removeFilters');
+        let messengerSpy = spyOn((service as any).messenger, 'publish');
 
-        service.removeFilters(messenger, ['testFilter5'], (filter) => {
+        service.removeFilters(new neon.eventing.Messenger(), ['testFilter5'], (filter) => {
             ++successCalls;
             expect(filter).toEqual(service.FILTER_5);
         }, (response) => {
@@ -997,62 +604,23 @@ describe('Service: Filter with existing filters', () => {
         });
 
         expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_5, service.FILTER_6]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual(['testFilter6', 'testFilter5']);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
+        expect(messengerSpy.calls.argsFor(0)).toEqual(['filters_changed', {}]);
         expect(successCalls).toEqual(1);
         expect(failureCalls).toEqual(0);
         expect(service.getFilters()).toEqual([]);
     });
 
-    it('removeFilters with filters does not remove filter in onError', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
-
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'removeFilters');
-
-        service.removeFilters(messenger, ['testFilter1'], (filter) => {
-            ++successCalls;
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args1 = messengerSpy.calls.argsFor(0);
-        expect(args1.length).toEqual(3);
-        expect(args1[0]).toEqual(['testFilter1']);
-        expect(typeof args1[1]).toEqual('function');
-        expect(typeof args1[2]).toEqual('function');
-
-        args1[2]();
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(1);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-    });
-
     it('replaceFilter with filters given new filter ID does call addFilter', () => {
+        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
+
         let successCalls = 0;
         let failureCalls = 0;
 
         let spy = spyOn(service, 'addFilter');
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'replaceFilters');
-        let wherePredicate = neon.query.where('testField', '=', 'testValue');
+        let messengerSpy = spyOn((service as any).messenger, 'publish');
+        let where = neon.query.where('testField', '=', 'testValue');
 
-        service.replaceFilter(messenger, 'testNewFilter1', 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
+        service.replaceFilter(new neon.eventing.Messenger(), 'testNewFilter1', 'testOwnerZ', 'testDatabase1', 'testTable1', where, {
             visName: 'Test Visualization',
             text: 'Test Text'
         }, (id) => {
@@ -1069,11 +637,10 @@ describe('Service: Filter with existing filters', () => {
 
         let args = spy.calls.argsFor(0);
         expect(args.length).toEqual(8);
-        expect(args[0]).toEqual(messenger);
         expect(args[1]).toEqual('testOwnerZ');
         expect(args[2]).toEqual('testDatabase1');
         expect(args[3]).toEqual('testTable1');
-        expect(args[4]).toEqual(wherePredicate);
+        expect(args[4]).toEqual(where);
         expect(args[5]).toEqual({
             visName: 'Test Visualization',
             text: 'Test Text'
@@ -1086,15 +653,16 @@ describe('Service: Filter with existing filters', () => {
         expect(failureCalls).toEqual(0);
     });
 
-    it('replaceFilter with filters given existing filter ID does call both messenger.replaceFilters and onSuccess', () => {
+    it('replaceFilter with filters given existing filter ID does replace existing filter and call onSuccess', () => {
+        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
+
         let successCalls = 0;
         let failureCalls = 0;
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'replaceFilters');
+        let messengerSpy = spyOn((service as any).messenger, 'publish');
         let wherePredicate = neon.query.where('testField', '=', 'testValue');
 
-        service.replaceFilter(messenger, 'testFilter1', 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
+        service.replaceFilter(new neon.eventing.Messenger(), 'testFilter1', 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
             visName: 'Test Visualization',
             text: 'Test Text'
         }, (id) => {
@@ -1105,38 +673,29 @@ describe('Service: Filter with existing filters', () => {
         });
 
         expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
+        expect(messengerSpy.calls.argsFor(0)).toEqual(['filters_changed', {}]);
+        expect(successCalls).toEqual(1);
         expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
 
         let neonFilter = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
             .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
         neonFilter.whereClause = wherePredicate;
         let filter = new ServiceFilter('testFilter1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter);
 
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testFilter1', neonFilter]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
         expect(service.getFilters()).toEqual([filter, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
     });
 
-    it('replaceFilter with filters given filter with relation field does call both messenger.addFilters and onSuccess once each', () => {
+    it('replaceFilter with filters given filter with relation field does replace existing filter and call onSuccess once', () => {
         service.resetWithRelationFilters();
+        expect(service.getFilters()).toEqual([service.FILTER_5, service.FILTER_6]);
 
         let successCalls = 0;
         let failureCalls = 0;
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'replaceFilters');
+        let messengerSpy = spyOn((service as any).messenger, 'publish');
         let wherePredicate = neon.query.where('testRelationFieldA', '=', 'testNewValue1');
 
-        service.replaceFilter(messenger, 'testFilter5', 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
+        service.replaceFilter(new neon.eventing.Messenger(), 'testFilter5', 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
             visName: 'Test Visualization',
             text: 'Test Text'
         }, (id) => {
@@ -1147,9 +706,9 @@ describe('Service: Filter with existing filters', () => {
         });
 
         expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
+        expect(messengerSpy.calls.argsFor(0)).toEqual(['filters_changed', {}]);
+        expect(successCalls).toEqual(1);
         expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_5, service.FILTER_6]);
 
         let neonFilter1 = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
             .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
@@ -1161,32 +720,23 @@ describe('Service: Filter with existing filters', () => {
         neonFilter2.whereClause = wherePredicate;
         let filter2 = new ServiceFilter('testFilter6', undefined, 'testDatabase2', 'testTable2', neonFilter2, ['testFilter5']);
 
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testFilter5', neonFilter1], ['testFilter6', neonFilter2]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
         expect(service.getFilters()).toEqual([filter1, filter2]);
     });
 
     it('replaceFilter with filters given multiple-clause filter with only relation fields', () => {
         service.resetWithRelationFilters();
+        expect(service.getFilters()).toEqual([service.FILTER_5, service.FILTER_6]);
 
         let successCalls = 0;
         let failureCalls = 0;
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'replaceFilters');
+        let messengerSpy = spyOn((service as any).messenger, 'publish');
         let wherePredicate = neon.query.and.apply(neon.query, [
             neon.query.where('testRelationFieldA', '=', 'testNewValue1'),
             neon.query.where('testRelationFieldB', '=', 'testNewValue2')
         ]);
 
-        service.replaceFilter(messenger, 'testFilter5', 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
+        service.replaceFilter(new neon.eventing.Messenger(), 'testFilter5', 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
             visName: 'Test Visualization',
             text: 'Test Text'
         }, (id) => {
@@ -1197,9 +747,9 @@ describe('Service: Filter with existing filters', () => {
         });
 
         expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
+        expect(messengerSpy.calls.argsFor(0)).toEqual(['filters_changed', {}]);
+        expect(successCalls).toEqual(1);
         expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_5, service.FILTER_6]);
 
         let neonFilter1 = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
             .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
@@ -1211,55 +761,6 @@ describe('Service: Filter with existing filters', () => {
         neonFilter2.whereClause = wherePredicate;
         let filter2 = new ServiceFilter('testFilter6', undefined, 'testDatabase2', 'testTable2', neonFilter2, ['testFilter5']);
 
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testFilter5', neonFilter1], ['testFilter6', neonFilter2]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
         expect(service.getFilters()).toEqual([filter1, filter2]);
-    });
-
-    it('replaceFilter with filters does not replace filter in onError', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
-
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'replaceFilters');
-        let wherePredicate = neon.query.where('testField', '=', 'testValue');
-
-        service.replaceFilter(messenger, 'testFilter1', 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-            expect(id).toEqual('testDatabase1-testTable1-1');
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let neonFilter = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
-            .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
-        neonFilter.whereClause = wherePredicate;
-        let filter = new ServiceFilter('testFilter1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testFilter1', neonFilter]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[2]();
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(1);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
     });
 });

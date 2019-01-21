@@ -317,25 +317,19 @@ export class ParameterService {
 
                 // Update dataset fields, then set as active and update the dashboard
                 this.datasetService.updateDatabases(matchingDataset, connection, (dataset: Dataset) => {
-                    this.filterService.getFilterState(() => {
-                        for (let i = 0; i < dataset.databases.length; i++) {
-                            for (let j = 0; j < dataset.databases[i].tables.length; j++) {
-                                dataset.databases[i].tables[j].mappings = dashboardState.dataset.databases[i].tables[j].mappings;
-                            }
-                        }
+                    // TODO THOR-1024 Do not expect filters within the dataset.
+                    this.filterService.setFilters((dataset as any).filters || []);
 
-                        this.messenger.publish(neonEvents.DASHBOARD_STATE, {
-                            dashboard: dashboardState.dashboard,
-                            dataset: dataset,
-                            dashboardStateId: dashboardStateId
-                        });
-                    }, (response) => {
-                        if (response.responseJSON) {
-                            this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                                error: null,
-                                message: response.responseJSON.error
-                            });
+                    for (let i = 0; i < dataset.databases.length; i++) {
+                        for (let j = 0; j < dataset.databases[i].tables.length; j++) {
+                            dataset.databases[i].tables[j].mappings = dashboardState.dataset.databases[i].tables[j].mappings;
                         }
+                    }
+
+                    this.messenger.publish(neonEvents.DASHBOARD_STATE, {
+                        dashboard: dashboardState.dashboard,
+                        dataset: dataset,
+                        dashboardStateId: dashboardStateId
                     });
                 });
             } else {

@@ -21,6 +21,7 @@ import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/mater
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
 import { ParameterService } from '../../services/parameter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -62,6 +63,7 @@ export class SaveStateComponent implements OnInit {
     constructor(
         protected connectionService: ConnectionService,
         protected datasetService: DatasetService,
+        protected filterService: FilterService,
         private snackBar: MatSnackBar,
         protected parameterService: ParameterService,
         public widgetService: AbstractWidgetService,
@@ -123,6 +125,9 @@ export class SaveStateComponent implements OnInit {
             });
 
             stateParams.dataset = this.datasetService.getDataset();
+
+            // TODO THOR-1024 Do not save filters within the dataset.
+            (stateParams.dataset as any).filters = this.filterService.getFilters();
 
             connection.saveState(stateParams, (response) => {
                 this.handleSaveStateSuccess(response);
