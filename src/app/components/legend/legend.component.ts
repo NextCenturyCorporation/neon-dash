@@ -76,7 +76,7 @@ export class LegendComponent implements OnInit {
     public colorSets: ColorSet[] = [];
     private _colorKeys: string[];
 
-    constructor(protected widgetService: AbstractWidgetService) {
+    constructor(public widgetService: AbstractWidgetService) {
         this.menuIcon = 'keyboard_arrow_down';
     }
 

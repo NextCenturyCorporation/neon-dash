@@ -106,8 +106,8 @@ describe('Component: MediaViewer', () => {
             .withFields(['testIdField', 'testLinkField', 'testNameField', 'testTypeField']);
 
         let whereClauses = [
-            neon.query.where('testIdField', '=', 'testId'),
-            neon.query.where('testLinkField', '!=', null)
+            neon.query.where('testLinkField', '!=', null),
+            neon.query.where('testIdField', '=', 'testId')
         ];
 
         query.where(neon.query.and.apply(query, whereClauses));
@@ -1310,7 +1310,7 @@ describe('Component: MediaViewer with config', () => {
 
     it('does have expected class options properties', () => {
         expect(component.options.border).toEqual('grey');
-        expect(component.options.id).toEqual('testId');
+        expect(component.options.id).toEqual(undefined);
         expect(component.options.linkPrefix).toEqual('prefix/');
         expect(component.options.resize).toEqual(false);
         expect(component.options.typeMap).toEqual({
