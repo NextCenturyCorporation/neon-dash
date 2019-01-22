@@ -6,7 +6,7 @@
             "icon": "assets/images/verdi-favicon.ico",
             "connectOnLoad": false,
             "layout": "verdi-ta1-layout",
-            "datastore": "elasticsearch",
+            "datastore": "elasticsearchrest",
             "hostname": "localhost",
             "databases": [
                 {
@@ -27,6 +27,7 @@
                             "name": "normal",
                             "prettyName": "Normal"
                         }
+                    ]
                 },
                 {
                     "name": "verdi_rdf_reified",
@@ -60,7 +61,7 @@
             "name": "VERDI LDC TA2",
             "connectOnLoad": false,
             "layout": "verdi-ta2-layout",
-            "datastore": "elasticsearch",
+            "datastore": "elasticsearchrest",
             "hostname": "localhost",
             "databases": [
                 {
@@ -91,6 +92,7 @@
                             "name": "normal",
                             "prettyName": "Normal"
                         }
+                    ]
                 },
                 {
                     "name": "verdi_rdf_reified",
@@ -126,7 +128,7 @@
             "icon": "assets/images/verdi-favicon.ico",
             "connectOnLoad": true,
             "layout": "verdi-ta3-layout",
-            "datastore": "elasticsearch",
+            "datastore": "elasticsearchrest",
             "hostname": "localhost",
             "databases": [
                 {
@@ -134,8 +136,8 @@
                     "prettyName": "VERDI Hypothesis Info",
                     "tables": [
                         {
-                            "name": "parent_children",
-                            "prettyName": "Parent Children"
+                            "name": "hypothesis_info",
+                            "prettyName": "Hypothesis Info"
                         }
                     ]
                 },
@@ -167,6 +169,7 @@
                             "name": "normal",
                             "prettyName": "Normal"
                         }
+                    ]
                 },
                 {
                     "name": "verdi_rdf_reified",
@@ -240,7 +243,7 @@
             "name": "VERDI LDC TA3 - Taxonomy",
             "connectOnLoad": false,
             "layout": "verdi-taxonomy",
-            "datastore": "elasticsearch",
+            "datastore": "elasticsearchrest",
             "hostname": "localhost",
             "databases": [
                 {
@@ -248,8 +251,8 @@
                     "prettyName": "VERDI Hypothesis Info",
                     "tables": [
                         {
-                            "name": "parent_children",
-                            "prettyName": "Parent Children"
+                            "name": "hypothesis_info",
+                            "prettyName": "Hypothesis Info"
                         }
                     ]
                 },
@@ -281,6 +284,7 @@
                             "name": "normal",
                             "prettyName": "Normal"
                         }
+                    ]
                 },
                 {
                     "name": "verdi_rdf_reified",
