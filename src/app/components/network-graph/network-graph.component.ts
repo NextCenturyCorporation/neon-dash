@@ -112,9 +112,10 @@ class Edge {
         public arrows?: ArrowProperties,
         public count?: number,
         public color?: EdgeColorProperties,
-        public type?: string //used to identify that category of edge (to hide/show when legend option is clicked)
+        public type?: string, //used to identify that category of edge (to hide/show when legend option is clicked)
         /* TODO: width seem to breaking directed arrows, removing for now
         public width?: number*/
+        public font?: Object
     ) {}
 }
 
@@ -731,7 +732,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let graph = new GraphProperties(),
             limit = this.options.limit,
             nodeColor = this.options.nodeColor,
-            textObject = {size: 10, face: 'Roboto, sans-serif', color: this.options.fontColor},
+            nodeTextObject = {size: 14, face: 'Roboto, sans-serif', color: this.options.fontColor},
             nodeShape = this.options.nodeShape;
 
         for (const entry of this.responseData) {
@@ -742,7 +743,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
                 for (let sNode of subject) {
                     for (let oNode of object) {
-                        this.addTriple(graph, sNode, predicate, oNode, nodeColor, textObject, nodeShape);
+                        this.addTriple(graph, sNode, predicate, oNode, nodeColor, nodeTextObject, nodeShape);
                     }
                 }
             }
@@ -753,24 +754,26 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private addTriple(graph: GraphProperties, subject: string, predicate: string, object: string, nodeColor?: string,
-                      textObject?: any, nodeShape?: string) {
+                      nodeTextObject?: any, nodeShape?: string) {
+        let edgeTextObject = {size: 10, face: 'Roboto, sans-serif'};
 
-        graph.addNode(new Node(subject, subject, '', null, nodeColor, false, textObject, nodeShape));
-        graph.addNode(new Node(object, object, '', null, nodeColor, false, textObject, nodeShape));
-        graph.addEdge(new Edge(subject, object, predicate, {to: this.options.isDirected}));
+        graph.addNode(new Node(subject, subject, '', null, nodeColor, false, nodeTextObject, nodeShape));
+        graph.addNode(new Node(object, object, '', null, nodeColor, false, nodeTextObject, nodeShape));
+        graph.addEdge(new Edge(subject, object, predicate, {to: this.options.isDirected}, null, null, null, edgeTextObject));
     }
 
     private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string,
                               colorValue?: string, edgeColorField?: string) {
         let edgeColor = {color: colorValue, highlight: colorValue};
+        let edgeTextObject = {size: 10, face: 'Roboto, sans-serif'};
         //TODO: edgeWidth being passed into Edge class is currently breaking directed arrows, removing for now
         // let edgeWidth = this.options.edgeWidth;
         if (Array.isArray(linkField)) {
             for (const linkEntry of linkField) {
-                graph.addEdge(new Edge(source, linkEntry, '', null, 1, edgeColor, edgeColorField));
+                graph.addEdge(new Edge(source, linkEntry, '', null, 1, edgeColor, edgeColorField, edgeTextObject));
             }
         } else if (linkField) {
-            graph.addEdge(new Edge(source, linkField, '', null, 1, edgeColor, edgeColorField));
+            graph.addEdge(new Edge(source, linkField, '', null, 1, edgeColor, edgeColorField, edgeTextObject));
         }
     }
 
@@ -787,7 +790,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             nodeColor = this.options.nodeColor,
             edgeColor = this.options.edgeColor,
             linkColor = this.options.linkColor,
-            textObject = {size: 10, face: 'Roboto, sans-serif', color: this.options.fontColor},
+            nodeTextObject = {size: 14, face: 'Roboto, sans-serif', color: this.options.fontColor},
+            edgeTextObject = {size: 10, face: 'Roboto, sans-serif'},
             limit = this.options.limit,
             nodeShape = this.options.nodeShape,
             xPositionField = this.options.xPositionField.columnName,
@@ -838,7 +842,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                         }
                     }
 
-                    graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor, false, textObject, nodeShape,
+                    graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor, false, nodeTextObject, nodeShape,
                         xPosition, yPosition, filterFields));
                 }
             }
@@ -898,7 +902,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                             }
                         }
 
-                        graph.addNode(new Node(linkEntry, linkNodeName, linkName, 1, linkColor, true, textObject, nodeShape,
+                        graph.addNode(new Node(linkEntry, linkNodeName, linkName, 1, linkColor, true, nodeTextObject, nodeShape,
                             xPosition, yPosition, filterFields));
                     }
                 }
@@ -938,7 +942,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                         }
 
                         graph.addEdge(new Edge(nodeEntry, links[i], linkNames[i], {to: this.options.isDirected}, 1,
-                            edgeColorObject, edgeType));
+                            edgeColorObject, edgeType, edgeTextObject));
                     }
                 }
             }
