@@ -106,7 +106,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     constructVisualization() {
-        this.textCloud = new TextCloud(new SizeOptions(14, 22, 'px'), new ColorOptions('#aaaaaa', this.textColor));
+        this.textCloud = new TextCloud(new SizeOptions(80, 140, '%'), new ColorOptions('#aaaaaa', this.textColor));
     }
 
     refreshVisualization() {
