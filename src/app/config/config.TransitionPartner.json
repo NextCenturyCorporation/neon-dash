@@ -406,7 +406,7 @@
                 "type": "aggregation",
                 "icon": "bar_chart",
                 "col": 5,
-                "row": 9,
+                "row": 10,
                 "sizex": 4,
                 "sizey": 5,
                 "bindings": {
@@ -509,7 +509,7 @@
                 "type": "textCloud",
                 "icon": "TagCloud64",
                 "col": 7,
-                "row": 14,
+                "row": 15,
                 "sizex": 6,
                 "sizey": 4,
                 "$$hashKey": "object:35",
@@ -605,7 +605,7 @@
                 "type": "aggregation",
                 "icon": "bar_chart",
                 "col": 5,
-                "row": 9,
+                "row": 10,
                 "sizex": 4,
                 "sizey": 5,
                 "bindings": {
@@ -706,7 +706,7 @@
                 "type": "textCloud",
                 "icon": "TagCloud64",
                 "col": 7,
-                "row": 14,
+                "row": 15,
                 "sizex": 6,
                 "sizey": 4,
                 "$$hashKey": "object:35",
@@ -1586,29 +1586,6 @@
                     ]
                 }
             ]
-        }
-    },
-    "routeService": {
-        "url": "http://localhost:8090/ghREST/",
-        "get": "route?lat1=LAT1&lon1=LON1&lat2=LAT2&lon2=LON2",
-        "post": "dynamicroute",
-        "disabled": true
-    },
-    "dashboard": {
-        "gridsterColumns": 24,
-        "gridsterMargins": 10,
-        "hideNavbarItems": false,
-        "hideAdvancedOptions": false,
-        "hideAddVisualizationsButton": false,
-        "hideErrorNotifications": true,
-        "hideHeaders": false,
-        "showFilterStatusTray": true,
-        "hideCloseButton": false,
-        "showVideoOnLoad": false,
-        "showImport": true,
-        "showExport": true,
-        "translationKeys": {
-            "google": "AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8"
         }
     }
 }
