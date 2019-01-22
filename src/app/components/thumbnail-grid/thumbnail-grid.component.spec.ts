@@ -171,7 +171,7 @@ describe('Component: ThumbnailGrid', () => {
 
         let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
         expect(dataInfoTextInToolbar).not.toBeNull();
-        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Files');
+        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Items');
 
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
@@ -582,10 +582,12 @@ describe('Component: ThumbnailGrid', () => {
             prettyField: 'prettyField2',
             value: 'value2'
         }]);
+        expect(args[2]).toEqual(false);
+        expect(args[3]).toEqual(false);
 
         // Run the callback.
-        expect(typeof args[2]).toEqual('function');
-        args[2]();
+        expect(typeof args[4]).toEqual('function');
+        args[4]();
 
         expect(component.filters).toEqual([{
             id: undefined,
@@ -642,10 +644,12 @@ describe('Component: ThumbnailGrid', () => {
             prettyField: 'prettyField2',
             value: 'value2'
         }]);
+        expect(args[2]).toEqual(false);
+        expect(args[3]).toEqual(false);
 
         // Run the callback.
-        expect(typeof args[2]).toEqual('function');
-        args[2]();
+        expect(typeof args[4]).toEqual('function');
+        args[4]();
 
         expect(component.filters).toEqual([{
             id: undefined,

@@ -766,7 +766,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             });
         }
 
-        if (options.xField.type === 'date') {
+        if (options.xField.type === 'date' && queryResults.length) {
             // Transform date data.
             switch (options.granularity) {
                 case 'minute':

@@ -63,7 +63,7 @@
                     </button>
                 </div>
                 <mat-list dense class="column-selector-list" (mouseleave)="onMouseLeaveArea(i)" (mousemove)="onMouseMove($event)">
-                    <mat-list-item *ngFor="let header of options.headers; let i = index" (mouseenter)="onMouseEnter(i)" (mouseup)="onMouseUp(i)"
+                    <mat-list-item *ngFor="let header of headers; let i = index" (mouseenter)="onMouseEnter(i)" (mouseup)="onMouseUp(i)"
                         (mouseleave)="onMouseLeaveItem(i)" [ngStyle]="{'border': header.style.border, 'background-color': header.style.backgroundColor, 'border-top': header.style.borderTop, 'border-bottom': header.style.borderBottom}">
                         <mat-icon (mousedown)="onMouseDown(i)">drag_handle</mat-icon>
                         <mat-checkbox color="primary" [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">{{ header.name }}</mat-checkbox>
