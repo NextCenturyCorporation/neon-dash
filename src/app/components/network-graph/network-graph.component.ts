@@ -755,7 +755,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     private addTriple(graph: GraphProperties, subject: string, predicate: string, object: string, nodeColor?: string,
                       nodeTextObject?: any, nodeShape?: string) {
-        let edgeTextObject = {size: 10, face: 'Roboto, sans-serif'};
+        let edgeTextObject = {size: 14, face: 'Roboto, sans-serif'};
 
         graph.addNode(new Node(subject, subject, '', null, nodeColor, false, nodeTextObject, nodeShape));
         graph.addNode(new Node(object, object, '', null, nodeColor, false, nodeTextObject, nodeShape));
@@ -765,7 +765,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string,
                               colorValue?: string, edgeColorField?: string) {
         let edgeColor = {color: colorValue, highlight: colorValue};
-        let edgeTextObject = {size: 10, face: 'Roboto, sans-serif'};
+        let edgeTextObject = {size: 14, face: 'Roboto, sans-serif'};
         //TODO: edgeWidth being passed into Edge class is currently breaking directed arrows, removing for now
         // let edgeWidth = this.options.edgeWidth;
         if (Array.isArray(linkField)) {
@@ -791,7 +791,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             edgeColor = this.options.edgeColor,
             linkColor = this.options.linkColor,
             nodeTextObject = {size: 14, face: 'Roboto, sans-serif', color: this.options.fontColor},
-            edgeTextObject = {size: 10, face: 'Roboto, sans-serif'},
+            edgeTextObject = {size: 14, face: 'Roboto, sans-serif'},
             limit = this.options.limit,
             nodeShape = this.options.nodeShape,
             xPositionField = this.options.xPositionField.columnName,
