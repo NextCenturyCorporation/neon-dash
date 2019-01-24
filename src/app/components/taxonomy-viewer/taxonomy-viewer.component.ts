@@ -520,6 +520,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             }
         }
 
+        //Gather the top level nodes in the taxonomy that are unchecked and add a != filter
         if (node.parent.level === 0 && $event.target.checked === false) {
             this.createNodeFilter(node.data, []);
         } else if (node.parent.level > 0) {
@@ -534,16 +535,17 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             } else {
                 relatives = this.retrieveUnselectedNodes(node.parent.data.children);
             }
-            if (!$event.target.checked) {
-                this.createNodeFilter(node.data, relatives);
-            }
-        }
 
+            this.createNodeFilter(node.data, relatives);
+        }
     }
 
     updateChildNodesCheckBox(node: TreeNode, checked: boolean) {
         let setNode = node.data || node;
         setNode.checked = checked;
+        if (checked === false && setNode.indeterminate) {
+            setNode.indeterminate = checked;
+        }
 
         if (setNode.children) {
             setNode.children.forEach((child) => this.updateChildNodesCheckBox(child, checked));
@@ -553,32 +555,34 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     updateParentNodesCheckBox(node: TreeNode) {
         if (node && node.level > 0 && node.children) {
             let setNode = node.data || node,
-                allChildChecked = true,
-                noChildChecked = true;
+                allChildrenChecked = true,
+                noChildrenChecked = true;
 
-            for (let child of node.children) {
+           for (let child of node.children) {
                 let setChild = child.data || child;
-                if (!setChild.checked) {
-                    allChildChecked = false;
-                } else if (setChild.checked) {
-                    noChildChecked = false;
-                }
+               if (node.level === 1 && !!setChild.indeterminate) {
+                   allChildrenChecked = false;
+                   noChildrenChecked = false;
+               } else if (!setChild.checked) {
+                    allChildrenChecked = false;
+               } else if (setChild.checked) {
+                    noChildrenChecked = false;
+               }
             }
 
-//todo: toggling children causes indeterminate to turn into checked AIDA-403
-            if (allChildChecked) {
-                setNode.checked = true;
-                setNode.indeterminate = false;
-            } else if (noChildChecked) {
-                setNode.checked = false;
-                setNode.indeterminate = false;
-            } else {
-                setNode.checked = true;
-                setNode.indeterminate = true;
-            }
+           if (allChildrenChecked) {
+                  setNode.checked = true;
+                  setNode.indeterminate = false;
+           } else if (noChildrenChecked) {
+                  setNode.checked = false;
+                  setNode.indeterminate = false;
+           } else {
+                  setNode.checked = true;
+                  setNode.indeterminate = true;
+           }
 
-            if (setNode.parent) {
-                this.updateParentNodesCheckBox(setNode.parent);
+            if (node.parent) {
+                this.updateParentNodesCheckBox(node.parent);
             }
         }
     }
@@ -609,7 +613,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     refreshVisualization() {
-        this.updateFilteredNodes();
         this.getElementRefs().treeRoot.treeModel.update();
     }
 
