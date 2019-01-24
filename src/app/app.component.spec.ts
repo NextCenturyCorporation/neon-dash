@@ -36,6 +36,7 @@ import { CurrentFiltersComponent } from './components/current-filters/current-fi
 import { GearComponent } from './components/gear/gear.component';
 import { LegendComponent } from './components/legend/legend.component';
 import { MapComponent } from './components//map/map.component';
+import { OptionsListComponent } from './components/options-list/options-list.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { SaveStateComponent } from './components/save-state/save-state.component';
 import { SettingsComponent } from './components/settings/settings.component';
@@ -111,6 +112,7 @@ describe('App', () => {
                 MediaViewerComponent,
                 NetworkGraphComponent,
                 NewsFeedComponent,
+                OptionsListComponent,
                 QueryBarComponent,
                 SampleComponent,
                 SaveStateComponent,

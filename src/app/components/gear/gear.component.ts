@@ -24,8 +24,8 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
+import { OptionsListComponent } from '../options-list/options-list.component';
 import { DatasetOptions, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
-
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import * as neon from 'neon-framework';
 import { WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../widget-option';
@@ -42,11 +42,17 @@ export class GearComponent implements OnInit, OnDestroy {
     public options: any = new WidgetOptionCollection();
     private messenger: neon.eventing.Messenger;
     private optionsList: WidgetOption[];
+
     private requiredList: WidgetOption[];
+    private requiredListNonField: WidgetOption[];
     private optionalList: WidgetOption[];
+    private optionalListNonField: WidgetOption[];
+    private optionsListCollection: [WidgetOption[]];
     private changeList: any[];
     private componentThis: any;
 
+    private addLayer: Function;
+    private removeLayer: Function;
     private handleChangeData: Function;
     private handleChangeDatabase: Function;
     private handleChangeLimit: Function;
@@ -65,7 +71,9 @@ export class GearComponent implements OnInit, OnDestroy {
         this.injector = injector;
 
         this.requiredList = [];
+        this.requiredListNonField = [];
         this.optionalList = [];
+        this.optionalListNonField = [];
         this.changeList = [];
         this.messenger = new neon.eventing.Messenger();
     }
@@ -112,14 +120,26 @@ export class GearComponent implements OnInit, OnDestroy {
     constructOptionsLists() {
         let list = this.optionsList;
         let requiredList = [];
+        let requiredNonFieldList = [];
+        let optionalNonFieldList = [];
         list.forEach(function(element) {
             if (element.isRequired && element instanceof WidgetFieldOption) {
                 requiredList.push(element);
                 list.splice(list.indexOf(element), 1);
+            } else if (element.isRequired && !(element instanceof WidgetFieldOption)) {
+                requiredNonFieldList.push(element);
+                list.splice(list.indexOf(element), 1);
+            } else if (!element.isRequired && element instanceof WidgetFieldOption) {
+                optionalNonFieldList.push(element);
+                list.splice(list.indexOf(element), 1);
             }
         });
         this.requiredList = requiredList;
+        this.requiredListNonField = requiredNonFieldList;
         this.optionalList = list;
+        this.optionalListNonField = optionalNonFieldList;
+        //console.log(this.requiredList);
+        //console.log(this.optionalList);
     }
 
     createEmptyField(): FieldMetaData {
@@ -225,6 +245,8 @@ export class GearComponent implements OnInit, OnDestroy {
     }
 
     updateOptions(message) {
+        this.addLayer = message.addLayer;
+        this.removeLayer = message.removeLayer;
         this.options = message.options;
         this.handleChangeData = message.changeData;
         this.handleChangeDatabase = message.changeDatabase;
