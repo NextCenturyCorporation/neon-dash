@@ -1,5 +1,5 @@
 <mat-form-field class="neon-form-field-flex-5">
-    <mat-select [placeholder]="dashboards.category" [(value)]="selectedDashboard" (change)="emitSelectedDashboard()">
+    <mat-select [placeholder]="dashboards.category" [(value)]="selectedDashboard" (selectionChange)="emitSelectedDashboard()">
         <mat-option *ngFor="let dashboardKey of getDashboardKeys()" [value]="dashboards.choices[dashboardKey]">
             {{ getDashboardName(dashboardKey) }}
         </mat-option>
