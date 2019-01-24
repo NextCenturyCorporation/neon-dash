@@ -52,7 +52,7 @@ import { TreeModule } from 'angular-tree-component';
 
 describe('Component: VisualizationInjector', () => {
 
-    initializeTestBed({
+    initializeTestBed('Visualization Injector', {
         declarations: [
             AggregationComponent,
             AnnotationViewerComponent,

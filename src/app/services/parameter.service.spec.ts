@@ -24,7 +24,7 @@ import { initializeTestBed } from '../../testUtils/initializeTestBed';
 describe('Service: Parameter', () => {
     let service;
 
-    initializeTestBed({
+    initializeTestBed('Parameter Service', {
         providers: [
             ParameterService,
             ConnectionService,

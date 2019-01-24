@@ -44,7 +44,7 @@ describe('Component: TextCloud', () => {
     let fixture: ComponentFixture<TextCloudComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Text Cloud', {
         declarations: [
             TextCloudComponent,
             ExportControlComponent,
