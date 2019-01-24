@@ -1516,7 +1516,7 @@ describe('Component: MediaViewer with config', () => {
 
     it('does have expected class options properties', () => {
         expect(component.options.border).toEqual('grey');
-        expect(component.options.id).toEqual('testId');
+        expect(component.options.id).toEqual(undefined);
         expect(component.options.linkPrefix).toEqual('prefix/');
         expect(component.options.resize).toEqual(false);
         expect(component.options.typeMap).toEqual({
@@ -1553,7 +1553,7 @@ describe('Component: MediaViewer with config', () => {
             expect(inputs[1].nativeElement.value).toEqual('grey');
 
             expect(inputs[2].attributes.placeholder).toEqual('ID');
-            expect(inputs[2].nativeElement.value).toEqual('testId');
+            expect(inputs[2].nativeElement.value).toEqual('');
 
             expect(inputs[3].attributes.placeholder).toEqual('Link Prefix');
             expect(inputs[3].nativeElement.value).toEqual('prefix/');
