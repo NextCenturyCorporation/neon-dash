@@ -51,6 +51,7 @@ import { CurrentFiltersComponent } from './components/current-filters/current-fi
 import { LegendComponent } from './components/legend/legend.component';
 import { MapComponent } from './components/map/map.component';
 import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
+import { OptionsListComponent } from './components/options-list/options-list.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { SaveStateComponent } from './components/save-state/save-state.component';
 import { SettingsComponent } from './components/settings/settings.component';
@@ -115,6 +116,7 @@ export function getAppConfig() {
         MediaViewerComponent,
         NetworkGraphComponent,
         NewsFeedComponent,
+        OptionsListComponent,
         QueryBarComponent,
         SampleComponent,
         SaveStateComponent,

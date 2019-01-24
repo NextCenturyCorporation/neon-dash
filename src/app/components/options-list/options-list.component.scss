@@ -14,16 +14,6 @@
  *
  */
 
-.gear-container {
-    width: 400px;
-    padding-left: 15px;
-    padding-right: 15px;
-
-    mat-toolbar {
-        margin: 10px 0;
-    }
-}
-
 .option-row {
     display: flex;
     align-items: center;
@@ -34,36 +24,6 @@
     padding: 5px;
 }
 
-.button-footer {
-    position: -webkit-sticky; /* Safari */
-    position: sticky;
-    padding: 5px;
-    top: 0;
-    bottom: 1px;
-    z-index: 9999;
-    background: var(--color-background-white);
-}
-
 .neon-button-large {
     margin: 5px;
-}
-
-.icon-with-text {
-    display: inline;
-
-    > mat-icon {
-        margin-right: 5px;
-    }
-
-    > div {
-        display: inline-block;
-    }
-}
-
-.tappable {
-    cursor: pointer;
-
-    &:hover {
-        color: var(--color-accent, lightgrey);
-    }
 }

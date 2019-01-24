@@ -1137,6 +1137,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Publishes the component's option object to the gear component
      */
     publishOptions() {
+        //console.log(this.options);
+        let addLayer: () => void = this.addLayer.bind(this);
+        let removeLayer: () => void = this.removeLayer.bind(this);
         let handleChangeData: () => void = this.handleChangeData.bind(this);
         let handleChangeDatabase: () => void = this.handleChangeDatabase.bind(this);
         let handleChangeFilterField: () => void = this.handleChangeFilterField.bind(this);
@@ -1144,6 +1147,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         let handleChangeSubcomponentType: () => void = this.handleChangeSubcomponentType.bind(this);
         let handleChangeTable: () => void = this.handleChangeTable.bind(this);
         this.messenger.publish('options', {
+            addLayer: addLayer,
+            removeLayer: removeLayer,
             options: this.options,
             changeData: handleChangeData,
             changeDatabase: handleChangeDatabase,

@@ -154,6 +154,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     initializeProperties() {
         // Backwards compatibility (mapType deprecated and replaced by type).
         this.options.type = this.injector.get('mapType', this.options.type);
+        this.options.isMultiLayerWidget = true;
     }
 
     /**
