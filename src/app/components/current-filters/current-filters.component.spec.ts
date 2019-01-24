@@ -31,7 +31,7 @@ describe('Component: CurrentFiltersComponent', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: CurrentFiltersComponent;
 
-    initializeTestBed({
+    initializeTestBed('Current Filters', {
         declarations: [
             CurrentFiltersComponent
         ],

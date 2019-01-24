@@ -45,7 +45,7 @@ describe('Component: DataTable', () => {
         getDebug = (selector: string) => fixture.debugElement.query(By.css(selector)),
         getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Data Table', {
         declarations: [
             DataTableComponent,
             ExportControlComponent,

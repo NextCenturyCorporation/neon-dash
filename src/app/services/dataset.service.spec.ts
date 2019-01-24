@@ -22,7 +22,7 @@ import { initializeTestBed } from '../../testUtils/initializeTestBed';
 describe('Service: DatasetService', () => {
     let testConfig = new NeonGTDConfig();
 
-    initializeTestBed({
+    initializeTestBed('Dataset Service', {
         providers: [
             DatasetService,
             { provide: 'config', useValue: testConfig }

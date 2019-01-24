@@ -40,7 +40,7 @@ describe('Component: Filter Builder', () => {
     let component: FilterBuilderComponent;
     let fixture: ComponentFixture<FilterBuilderComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Filter Builder', {
         declarations: [
             FilterBuilderComponent
         ],
@@ -321,7 +321,7 @@ describe('Component: Filter Builder with config', () => {
     let component: FilterBuilderComponent;
     let fixture: ComponentFixture<FilterBuilderComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Filter Builder', {
         declarations: [
             FilterBuilderComponent
         ],

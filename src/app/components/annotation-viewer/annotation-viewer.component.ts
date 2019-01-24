@@ -27,7 +27,7 @@ import {
 
 import { Color } from '../../color';
 
-import { AbstractSearchService, NeonFilterClause, NeonQueryPayload } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -547,13 +547,13 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
-        let filter: NeonFilterClause = this.searchService.buildFilterClause(this.displayField, '!=', null);
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let filter: FilterClause = this.searchService.buildFilterClause(this.displayField, '!=', null);
 
         this.displayField = options.respondMode ? options.linkField.columnName : options.documentTextField.columnName;
 
@@ -563,7 +563,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
         // Override the default query fields because we want to find all fields.
         this.searchService.updateFieldsToMatchAll(query)
-            .updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filter)));
+            .updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)));
 
         return query;
     }

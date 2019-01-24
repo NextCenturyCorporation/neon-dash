@@ -42,7 +42,7 @@ describe('Component: NetworkGraph', () => {
     let fixture: ComponentFixture<NetworkGraphComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Network Graph', {
         declarations: [
             LegendComponent,
             NetworkGraphComponent,

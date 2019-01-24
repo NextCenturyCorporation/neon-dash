@@ -17,7 +17,7 @@
 import { async, TestBed } from '@angular/core/testing';
 import { ConnectionService } from '../app/services/connection.service';
 
-export const initializeTestBed = (config) => {
+export const initializeTestBed = (name, config) => {
     config.providers = config.providers || [];
     config.providers.push(ConnectionService);
 
@@ -25,6 +25,9 @@ export const initializeTestBed = (config) => {
     let resetTestingModule = TestBed.resetTestingModule;
 
     beforeAll((done) => (async() => {
+        /* tslint:disable:no-console */
+        console.log('STARTING ' + name.toUpperCase() + ' TESTS...');
+        /* tslint:enable:no-console */
         TestBed.resetTestingModule();
         TestBed.configureTestingModule(config);
         await TestBed.compileComponents();

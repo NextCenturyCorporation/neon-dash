@@ -56,7 +56,7 @@ describe('Component: VisualizationContainer', () => {
     let component: VisualizationContainerComponent;
     let fixture: ComponentFixture<VisualizationContainerComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Visualization Container', {
         declarations: [
             AnnotationViewerComponent,
             AggregationComponent,

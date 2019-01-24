@@ -90,7 +90,7 @@ describe('App', () => {
     let component: AppComponent;
     let spyOnInit;
 
-    initializeTestBed({
+    initializeTestBed('App', {
           declarations: [
               AddVisualizationComponent,
               AppComponent,
