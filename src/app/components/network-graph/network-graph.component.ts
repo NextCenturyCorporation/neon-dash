@@ -1174,4 +1174,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.reloadGraph();
     }
 
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.transformVisualizationQueryResults(options, []);
+    }
 }
