@@ -2,19 +2,19 @@
     "datasets": [
         {
             "name": "Seedling LDC TA2",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "icon": "assets/images/verdi-favicon.ico",
             "layout": "verdi-ta2-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases": [
                 {
-                    "name": "verdi-rdf",
+                    "name": "verdi-support",
                     "prettyName": "VERDI SUPPORT",
                     "tables": [
                         {
-                            "name": "normal",
-                            "prettyName": "normal"
+                            "name": "parent_children",
+                            "prettyName": "Parent Children"
                         }
                     ]
                 },
@@ -33,9 +33,9 @@
                 {
                     "members": [
                         {
-                            "database": "verdi-rdf",
-                            "table": "normal",
-                            "field": "@id"
+                            "database": "verdi-support",
+                            "table": "parent_children",
+                            "field": "id"
                         },
                         {
                             "database": "kb-simple",
@@ -65,7 +65,7 @@
         {
             "title": "VERDI",
             "name": "Seedling LDC TA3 Events",
-            "connectOnLoad": false,
+            "connectOnLoad": true,
             "layout": "verdi-ta3-events",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -139,7 +139,7 @@
         {
             "title": "VERDI",
             "name": "Seedling LDC TA3 Map",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "layout": "verdi-ta3-map",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -310,7 +310,7 @@
                 "sizey": 16,
                 "bindings": {
                     "id": "_id",
-                    "title": "Ontology",
+                    "title": "Taxonomy",
                     "database": "kb-simple",
                     "table": "seedling",
                     "typeField": "types",
@@ -325,9 +325,9 @@
                     "extendedFilter": true,
                     "extensionFields": [
                         {
-                            "database": "verdi-rdf",
-                            "table": "normal",
-                            "field": "@id"
+                            "database": "verdi-support",
+                            "table": "parent_children",
+                            "field": "id"
                         }
                     ],
                     "ignoreSelf": true,
@@ -368,7 +368,7 @@
                         "types",
                         "docIds"
                     ],
-                    "idField": "kbid",
+                    "idField": "@id",
                     "id": "_id",
                     "filterable": true,
                     "multiFilter": true,
@@ -389,23 +389,23 @@
                 "bindings": {
                     "id": "_id",
                     "title": "Documents",
-                    "database": "verdi-rdf",
-                    "table": "normal",
-                    "idField": "@id",
-                    "flagSubLabel1": "@id",
-                    "flagSubLabel2": "date",
-                    "flagSubLabel3": "docType",
+                    "database": "verdi-support",
+                    "table": "parent_children",
+                    "idField": "id",
+                    "flagSubLabel1": "parent_uid",
+                    "flagSubLabel2": "download_date",
+                    "flagSubLabel3": "dtyp",
                     "linkField": "url",
-                    "dateField": "date",
+                    "dateField": "download_date",
                     "objectNameField": "",
-                    "objectIdField": "@id",
-                    "typeField": "docType",
+                    "objectIdField": "parent_uid",
+                    "typeField": "dtyp",
                     "predictedNameField": "",
                     "percentField": "",
                     "openOnMouseClick": true,
                     "hideUnfiltered": false,
-                    "sortField": "@id",
-                    "filterField": "@id",
+                    "sortField": "id",
+                    "filterField": "id",
                     "ignoreSelf": false,
                     "ascending": true,
                     "viewType": "details",

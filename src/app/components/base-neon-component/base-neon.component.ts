@@ -657,6 +657,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private handleSuccessfulVisualizationQuery(options: any, response: any, callback: () => void): void {
         if (!response || !response.data || !response.data.length) {
+            // TODO THOR-985 Don't call transformVisualizationQueryResults
+            this.transformVisualizationQueryResults(options, []);
             this.errorMessage = 'No Data';
             this.layerIdToActiveData.set(options._id, new TransformedVisualizationData());
             this.layerIdToElementCount.set(options._id, 0);
@@ -808,7 +810,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {boolean}
      */
     private cannotExecuteQuery(options: any): boolean {
-        return (!this.connectionService.getActiveConnection() || (options.hideUnfiltered &&
+        return (!this.connectionService.getActiveConnection() || (this.options.hideUnfiltered &&
             !this.filterService.getFiltersForFields(options.database.name, options.table.name).length));
     }
 
@@ -851,7 +853,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         } else {
             this.initializeFieldsInOptions(optionsToUpdate, this.createLayerFieldOptions());
         }
-        this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), () => {
+        this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), false, false, () => {
             this.setupFilters();
             this.handleChangeData(optionsToUpdate);
         });
@@ -874,7 +876,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         } else {
             this.initializeFieldsInOptions(optionsToUpdate, this.createLayerFieldOptions());
         }
-        this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), () => {
+        this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), false, false, () => {
             this.setupFilters();
             this.handleChangeData(optionsToUpdate);
         });
@@ -887,7 +889,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public handleChangeFilterField(options?: any): void {
         let optionsToUpdate = options || this.options;
-        this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), () => {
+        this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), false, false, () => {
             this.setupFilters();
             this.handleChangeData(optionsToUpdate);
         });
@@ -1011,19 +1013,25 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {array} filters
+     * @arg {boolean} requery
+     * @arg {boolean} refresh
      * @arg {function} [callback]
      */
-    public removeAllFilters(options: any, filters: any[], callback?: Function) {
+    public removeAllFilters(options: any, filters: any[], requery: boolean, refresh: boolean, callback?: Function) {
         if (!filters.length) {
+            // If removeAllFilters is called with no filters, we don't need to requery or refresh.
             if (callback) {
                 callback();
             }
-            return;
+        } else if (filters.length === 1) {
+            // Remove the last filter.
+            this.removeLocalFilterFromLocalAndNeon(options, filters[0], requery, refresh, callback);
+        } else {
+            // Remove the next filter.  Don't requery or refresh because this is not the last call.
+            this.removeLocalFilterFromLocalAndNeon(options, filters[0], false, false, () => {
+                this.removeAllFilters(options, filters.slice(1), requery, refresh, callback);
+            });
         }
-
-        this.removeLocalFilterFromLocalAndNeon(options, filters[0], false, false, () => {
-            this.removeAllFilters(options, filters.slice(1), callback);
-        });
     }
 
     /**
