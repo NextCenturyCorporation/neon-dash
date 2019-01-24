@@ -742,4 +742,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             this.addEventLinks(fields, metadata, name);
         }
     }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.transformVisualizationQueryResults(options, []);
+    }
 }

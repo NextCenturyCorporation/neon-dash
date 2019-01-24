@@ -830,4 +830,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     sanitize(url) {
         return this.sanitizer.bypassSecurityTrustResourceUrl(url);
     }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.transformVisualizationQueryResults(options, []);
+    }
 }
