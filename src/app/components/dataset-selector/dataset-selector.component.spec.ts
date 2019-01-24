@@ -31,7 +31,7 @@ describe('Component: DatasetSelector', () => {
     let fixture: ComponentFixture<DatasetSelectorComponent>;
     let component: DatasetSelectorComponent;
 
-    initializeTestBed({
+    initializeTestBed('Dataset Selector', {
         declarations: [
             DatasetSelectorComponent
         ],

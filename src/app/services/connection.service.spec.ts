@@ -22,7 +22,7 @@ import { initializeTestBed } from '../../testUtils/initializeTestBed';
 describe('Service: ConnectionService', () => {
     let service: ConnectionService;
 
-    initializeTestBed({
+    initializeTestBed('Connection Service', {
         providers: [ConnectionService]
     });
 

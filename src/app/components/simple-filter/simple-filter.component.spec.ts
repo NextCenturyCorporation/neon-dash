@@ -96,7 +96,7 @@ describe('Component: SimpleFilter', () => {
         fixture.detectChanges();
     };
 
-    initializeTestBed({
+    initializeTestBed('Simple Filter', {
         declarations: [
             SimpleFilterComponent
         ],
@@ -244,7 +244,7 @@ describe('Component: SimpleFilter unconfigured', () => {
     let element: DebugElement;
     let spyOnInit;
 
-    initializeTestBed({
+    initializeTestBed('Simple Filter', {
         declarations: [
             SimpleFilterComponent
         ],

@@ -26,7 +26,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, BoolFilterType, NeonFilterClause, NeonQueryPayload } from '../../services/abstract.search.service';
+import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -466,21 +466,21 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
-        let filter: NeonFilterClause = this.searchService.buildBoolFilterClause([
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let filter: FilterClause = this.searchService.buildCompoundFilterClause([
             this.searchService.buildFilterClause(options.nodeField.columnName, '!=', null),
             this.searchService.buildFilterClause(options.linkField.columnName, '!=', null)
-        ], BoolFilterType.OR);
+        ], CompoundFilterType.OR);
 
         let sortFieldName: string = (options.nodeColorField.columnName || options.edgeColorField.columnName ||
             options.nodeField.columnName);
 
-        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filter)))
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
             .updateSort(query, sortFieldName);
 
         return query;

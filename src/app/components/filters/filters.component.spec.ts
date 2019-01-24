@@ -42,7 +42,7 @@ describe('Component: Filters', () => {
     let fixture: ComponentFixture<FiltersComponent>;
     let debugElement: DebugElement;
 
-    initializeTestBed({
+    initializeTestBed('Filters', {
         declarations: [
             FiltersComponent,
             FilterBuilderComponent,
