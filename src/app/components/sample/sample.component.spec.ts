@@ -478,11 +478,13 @@ describe('Component: Sample', () => {
             prettyField: 'prettyField3',
             value: 'value3'
         }]);
+        expect(args[2]).toEqual(false);
+        expect(args[3]).toEqual(false);
 
         // Run the callback.
         spy = spyOn(component, 'addNeonFilter');
-        expect(typeof args[2]).toEqual('function');
-        args[2]();
+        expect(typeof args[4]).toEqual('function');
+        args[4]();
         expect(component.filters).toEqual([{
             id: undefined,
             field: 'field1',
