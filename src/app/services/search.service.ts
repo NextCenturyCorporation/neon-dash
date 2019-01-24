@@ -18,27 +18,26 @@ import { Injectable } from '@angular/core';
 import {
     AbstractSearchService,
     AggregationType,
-    BoolFilterType,
-    NeonFilterClause,
-    NeonQueryGroup,
-    NeonQueryPayload,
+    CompoundFilterType,
+    FilterClause,
+    QueryGroup,
+    QueryPayload,
     SortOrder,
     TimeInterval
 } from '../../app/services/abstract.search.service';
 import { ConnectionService } from './connection.service';
-
-import { NeonRequest } from '../connection';
+import { RequestWrapper } from '../connection';
 import * as neon from 'neon-framework';
 
-export class GroupWrapper implements NeonQueryGroup {
+export class GroupWrapper implements QueryGroup {
     constructor(public group: string | neon.query.GroupByFunctionClause) {}
 }
 
-export class QueryWrapper implements NeonQueryPayload {
+export class QueryWrapper implements QueryPayload {
     constructor(public query: neon.query.Query) {}
 }
 
-export class WhereWrapper implements NeonFilterClause {
+export class WhereWrapper implements FilterClause {
     constructor(public where: neon.query.WherePredicate) {}
 }
 
@@ -55,15 +54,15 @@ export class SearchService extends AbstractSearchService {
     }
 
     /**
-     * Returns a new boolean filter clause using the given list of filter clauses.  If only one filter clause is given, just return that
+     * Returns a new compound filter clause using the given list of filter clauses.  If only one filter clause is given, just return that
      * filter clause.
      *
      * @arg {WhereWrapper[]} filterClauses
-     * @arg {BoolFilterType} [type=BoolFilterType.AND]
+     * @arg {CompoundFilterType} [type=CompoundFilterType.AND]
      * @return {WhereWrapper}
      * @abstract
      */
-    public buildBoolFilterClause(filterClauses: WhereWrapper[], type: BoolFilterType = BoolFilterType.AND): WhereWrapper {
+    public buildCompoundFilterClause(filterClauses: WhereWrapper[], type: CompoundFilterType = CompoundFilterType.AND): WhereWrapper {
         if (!filterClauses.length) {
             return null;
         }
@@ -71,7 +70,7 @@ export class SearchService extends AbstractSearchService {
             return filterClauses[0];
         }
         let wheres = filterClauses.map((filterClause) => (filterClause as WhereWrapper).where);
-        return new WhereWrapper(type === BoolFilterType.AND ? neon.query.and.apply(neon.query, wheres) :
+        return new WhereWrapper(type === CompoundFilterType.AND ? neon.query.and.apply(neon.query, wheres) :
             neon.query.or.apply(neon.query, wheres));
     }
 
@@ -133,7 +132,7 @@ export class SearchService extends AbstractSearchService {
      *
      * @arg {string} datastoreType
      * @arg {string} datastoreHost
-     * @return {NeonRequest}
+     * @return {RequestWrapper}
      * @override
      */
     public canRunSearch(datastoreType: string, datastoreHost: string): boolean {
@@ -146,10 +145,10 @@ export class SearchService extends AbstractSearchService {
      * @arg {string} datastoreType
      * @arg {string} datastoreHost
      * @arg {QueryWrapper} queryPayload
-     * @return {NeonRequest}
+     * @return {RequestWrapper}
      * @override
      */
-    public runSearch(datastoreType: string, datastoreHost: string, queryPayload: QueryWrapper): NeonRequest {
+    public runSearch(datastoreType: string, datastoreHost: string, queryPayload: QueryWrapper): RequestWrapper {
         let connection = this.connectionService.createActiveConnection(datastoreType, datastoreHost);
         return connection ? connection.executeQuery((queryPayload as QueryWrapper).query, null) : null;
     }

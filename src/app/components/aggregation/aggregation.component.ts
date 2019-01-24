@@ -31,9 +31,9 @@ import { Color } from '../../color';
 import {
     AbstractSearchService,
     AggregationType,
-    NeonFilterClause,
-    NeonQueryGroup,
-    NeonQueryPayload,
+    FilterClause,
+    QueryGroup,
+    QueryPayload,
     SortOrder,
     TimeInterval
 } from '../../services/abstract.search.service';
@@ -301,14 +301,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
-        let groups: NeonQueryGroup[] = [];
-        let filters: NeonFilterClause[] = [this.searchService.buildFilterClause(options.xField.columnName, '!=', null)];
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let groups: QueryGroup[] = [];
+        let filters: FilterClause[] = [this.searchService.buildFilterClause(options.xField.columnName, '!=', null)];
 
         if (options.xField.type === 'date') {
             switch (options.granularity) {
@@ -349,7 +349,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             groups.push(this.searchService.buildQueryGroup(options.groupField.columnName));
         }
 
-        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filters)))
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
             .updateGroups(query, groups);
 
         return query;
