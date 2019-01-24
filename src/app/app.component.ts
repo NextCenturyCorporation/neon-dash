@@ -78,7 +78,15 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public createFiltersComponent: boolean = false; //This is used to create the Filters Component later
 
-    public widgetGridItems: NeonGridItem[] = [];
+    public selectedTabIndex = 0;
+    public tabbedGrid: {
+        list: NeonGridItem[],
+        name: string
+    }[] = [{
+        list: [],
+        name: ''
+    }];
+
     public widgets: Map<string, BaseNeonComponent> = new Map();
 
     public datasets: Dataset[] = [];
@@ -180,7 +188,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
-    addWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
+    addWidget(eventMessage: { gridName: string, widgetGridItem: NeonGridItem }) {
         let widgetGridItem: NeonGridItem = eventMessage.widgetGridItem;
 
         // Set default grid item config properties for the Neon dashboard.
@@ -195,9 +203,29 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         widgetGridItem.config.sizex = widgetGridItem.config.sizex || widgetGridItem.sizex || AppComponent.DEFAULT_SIZEX;
         widgetGridItem.config.sizey = widgetGridItem.config.sizey || widgetGridItem.sizey || AppComponent.DEFAULT_SIZEY;
 
+        // Find the right tab, or create a new one if needed.
+        let index = -1;
+        this.tabbedGrid.forEach((grid, i) => {
+            if (grid.name === eventMessage.gridName) {
+                index = i;
+            }
+        });
+        if (index < 0) {
+            // Remove the default tab if it is empty and we add a new tab.
+            if (!this.tabbedGrid[0].name && !this.tabbedGrid[0].list.length) {
+                this.tabbedGrid.shift();
+            }
+
+            this.tabbedGrid.push({
+                list: [],
+                name: eventMessage.gridName
+            });
+            index = this.tabbedGrid.length - 1;
+        }
+
         // If both col and row are set, add the widget to the grid.
         if (widgetGridItem.config.col && widgetGridItem.config.row) {
-            this.widgetGridItems.push(widgetGridItem);
+            this.tabbedGrid[index].list.push(widgetGridItem);
             return;
         }
 
@@ -224,7 +252,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             y++;
         }
 
-        this.widgetGridItems.push(widgetGridItem);
+        this.tabbedGrid[index].list.push(widgetGridItem);
     }
 
     changeFavicon() {
@@ -266,7 +294,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      * Clears the grid.
      */
     clearDashboard() {
-        this.widgetGridItems = [];
+        this.selectedTabIndex = 0;
+        this.tabbedGrid = [{
+            list: [],
+            name: ''
+        }];
     }
 
     /**
@@ -287,9 +319,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      * @arg {{id:string}} eventMessage
      */
     deleteWidget(eventMessage: { id: string }) {
-        for (let i = 0; i < this.widgetGridItems.length; i++) {
-            if (this.widgetGridItems[i].id === eventMessage.id) {
-                this.widgetGridItems.splice(i, 1);
+        for (let i = 0; i < this.tabbedGrid[this.selectedTabIndex].list.length; i++) {
+            if (this.tabbedGrid[this.selectedTabIndex].list[i].id === eventMessage.id) {
+                this.tabbedGrid[this.selectedTabIndex].list.splice(i, 1);
             }
         }
     }
@@ -336,7 +368,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     getMaxColInUse(): number {
         let maxCol = 0;
 
-        for (let widgetGridItem of this.widgetGridItems) {
+        for (let widgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
             maxCol = Math.max(maxCol, (widgetGridItem.config.col + widgetGridItem.config.sizex - 1));
         }
         return maxCol;
@@ -349,7 +381,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     getMaxRowInUse(): number {
         let maxRow = 0;
 
-        for (let widgetGridItem of this.widgetGridItems) {
+        for (let widgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
             maxRow = Math.max(maxRow, (widgetGridItem.config.row + widgetGridItem.config.sizey - 1));
         }
         return maxRow;
@@ -521,7 +553,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      * @arg widgetGridItem The widget to place
      */
     widgetFits(widgetGridItem: NeonGridItem) {
-        for (let existingWidgetGridItem of this.widgetGridItems) {
+        for (let existingWidgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
             if (this.widgetOverlaps(widgetGridItem, existingWidgetGridItem)) {
                 return false;
             }
