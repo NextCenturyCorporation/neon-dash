@@ -73,7 +73,7 @@ export class Dataset {
     public hasUpdatedFields: boolean = false;
     public layout: string = ''; // TODO: 825: layout will be specified in dashboards
     //public options: DatasetOptions = new DatasetOptions(); moved to DashboardOptions
-    public relations: Relation[] = []; // TODO: 825: this will move into dashboards
+    public relations: Relation[] = []; // TODO: 825: this will move into dashboards and become 'joins'
 
     constructor(
         public name: string = '',
