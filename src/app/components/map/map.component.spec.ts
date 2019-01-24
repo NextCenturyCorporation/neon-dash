@@ -235,7 +235,7 @@ describe('Component: Map', () => {
             component.filterByLocation(box);
         };
 
-    initializeTestBed({
+    initializeTestBed('Map', {
         declarations: [
             TestMapComponent,
             LegendComponent,
@@ -893,7 +893,7 @@ describe('Component: Map with config', () => {
     let component: TestMapComponent;
     let fixture: ComponentFixture<TestMapComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Map', {
         declarations: [
             TestMapComponent,
             LegendComponent,

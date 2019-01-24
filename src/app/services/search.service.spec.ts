@@ -24,7 +24,7 @@ import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import * as neon from 'neon-framework';
 
 describe('Service: Search', () => {
-    initializeTestBed({
+    initializeTestBed('Search Service', {
         providers: [
             SearchService,
             ConnectionService

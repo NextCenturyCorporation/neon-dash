@@ -41,7 +41,7 @@ describe('Component: DocumentViewer', () => {
     let component: DocumentViewerComponent;
     let fixture: ComponentFixture<DocumentViewerComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Document Viewer', {
         declarations: [
             DocumentViewerComponent,
             ExportControlComponent
@@ -917,7 +917,7 @@ describe('Component: Document Viewer with Config', () => {
     let component: DocumentViewerComponent;
     let fixture: ComponentFixture<DocumentViewerComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Document Viewer', {
         declarations: [
             DocumentViewerComponent,
             ExportControlComponent

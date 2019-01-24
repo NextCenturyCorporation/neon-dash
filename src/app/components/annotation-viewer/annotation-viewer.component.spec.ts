@@ -59,7 +59,7 @@ describe('Component: AnnotationViewer', () => {
     let fixture: ComponentFixture<AnnotationViewerComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Annotation Viewer', {
           declarations: [
               ExportControlComponent,
               LegendComponent,

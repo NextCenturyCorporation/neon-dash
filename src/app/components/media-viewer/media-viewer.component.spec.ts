@@ -41,7 +41,7 @@ describe('Component: MediaViewer', () => {
     let fixture: ComponentFixture<MediaViewerComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Media Viewer', {
         declarations: [
             MediaViewerComponent,
             ExportControlComponent
@@ -1512,7 +1512,7 @@ describe('Component: MediaViewer with config', () => {
     let component: MediaViewerComponent;
     let fixture: ComponentFixture<MediaViewerComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Media Viewer', {
         declarations: [
             MediaViewerComponent,
             ExportControlComponent
