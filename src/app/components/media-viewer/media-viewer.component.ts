@@ -27,7 +27,7 @@ import {
 
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-import { AbstractSearchService, NeonFilterClause, NeonQueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
@@ -265,13 +265,13 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
-        let filters: NeonFilterClause[] = options.linkFields.map((linkField) =>
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let filters: FilterClause[] = options.linkFields.map((linkField) =>
             this.searchService.buildFilterClause(linkField.columnName, '!=', null)
         );
 
@@ -283,7 +283,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             this.searchService.updateSort(query, options.sortField.columnName, SortOrder.ASCENDING);
         }
 
-        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filters)));
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)));
 
         return query;
     }

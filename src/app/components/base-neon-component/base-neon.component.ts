@@ -21,7 +21,7 @@ import {
     ChangeDetectorRef
 } from '@angular/core';
 
-import { AbstractSearchService, AggregationType, NeonFilterClause, NeonQueryPayload } from '../../services/abstract.search.service';
+import { AbstractSearchService, AggregationType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
@@ -234,10 +234,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Returns the export header data using the given options and visualization query.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} query
+     * @arg {QueryPayload} query
      * @return {{name:string,data:any}}
      */
-    private createExportOptions(options: any, query: NeonQueryPayload): { name: string, data: any } {
+    private createExportOptions(options: any, query: QueryPayload): { name: string, data: any } {
         let exportName = options.title.split(':').join(' ');
         let exportQuery: any = this.searchService.transformQueryPayloadToExport(query);
         return {
@@ -265,7 +265,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public createExportData(): { name: string, data: any }[] {
         return (this.isMultiLayerWidget ? this.options.layers : [this.options]).map((options) => {
-            let query: NeonQueryPayload = this.createCompleteVisualizationQuery(options);
+            let query: QueryPayload = this.createCompleteVisualizationQuery(options);
             return query ? this.createExportOptions(options, query) : [];
         }).filter((exportObject) => !!exportObject);
     }
@@ -499,7 +499,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         if (!this.initializing && this.validateVisualizationQuery(queryOptions)) {
             this.changeDetection.detectChanges();
 
-            let query: NeonQueryPayload = this.createCompleteVisualizationQuery(queryOptions);
+            let query: QueryPayload = this.createCompleteVisualizationQuery(queryOptions);
 
             if (query) {
                 this.searchService.updateLimit(query, this.options.limit);
@@ -532,21 +532,21 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @abstract
      */
-    public abstract finalizeVisualizationQuery(options: any, queryPayload: NeonQueryPayload,
-        sharedFilters: NeonFilterClause[]): NeonQueryPayload;
+    public abstract finalizeVisualizationQuery(options: any, queryPayload: QueryPayload,
+        sharedFilters: FilterClause[]): QueryPayload;
 
     /**
      * Creates and returns the visualization query with the database, table, and fields, but not the limit or offset.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @return {NeonQueryPayload}
+     * @return {QueryPayload}
      */
-    public createCompleteVisualizationQuery(options: any): NeonQueryPayload {
+    public createCompleteVisualizationQuery(options: any): QueryPayload {
         let fields: string[] = options.list().reduce((list: string[], option: WidgetOption) => {
             if (option.optionType === OptionType.FIELD && option.valueCurrent.columnName) {
                 list.push(option.valueCurrent.columnName);
@@ -579,7 +579,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             });
         });
 
-        let query: NeonQueryPayload = this.searchService.buildQueryPayload(options.database.name, options.table.name, fields);
+        let query: QueryPayload = this.searchService.buildQueryPayload(options.database.name, options.table.name, fields);
         return this.finalizeVisualizationQuery(options, query, this.createSharedFilters(options));
     }
 
@@ -587,10 +587,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Creates and returns the shared filters for the visualization query.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @return {NeonFilterClause[]}
+     * @return {FilterClause[]}
      */
-    public createSharedFilters(options: any): NeonFilterClause[] {
-        let filters: NeonFilterClause[] = [];
+    public createSharedFilters(options: any): FilterClause[] {
+        let filters: FilterClause[] = [];
         if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
             filters.push(this.searchService.buildFilterClause(options.filter.lhs, options.filter.operator, options.filter.rhs));
         }
@@ -663,7 +663,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.layerIdToActiveData.set(options._id, data);
 
             if (this.visualizationQueryPaginates && !this.showingZeroOrMultipleElementsPerResult) {
-                let countQuery: NeonQueryPayload = this.createCompleteVisualizationQuery(options);
+                let countQuery: QueryPayload = this.createCompleteVisualizationQuery(options);
                 if (countQuery) {
                     // Do not add a limit or an offset!
                     this.searchService.updateAggregation(countQuery, AggregationType.COUNT, '_count', '*');
@@ -740,11 +740,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Runs the given query.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} query
+     * @arg {QueryPayload} query
      * @arg {string} queryId
      * @arg {(options: any, response: any, callback: () => void) => void} callback
      */
-    private executeQuery(options: any, query: NeonQueryPayload, queryId: string,
+    private executeQuery(options: any, query: QueryPayload, queryId: string,
         callback: (options: any, response: any, callback: () => void) => void) {
 
         this.loadingCount++;

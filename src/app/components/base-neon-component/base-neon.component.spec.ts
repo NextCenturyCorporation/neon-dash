@@ -124,7 +124,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
 
     finalizeVisualizationQuery(options, query, filters) {
         if (filters.length) {
-            this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(filters));
+            this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(filters));
         }
         return query;
     }

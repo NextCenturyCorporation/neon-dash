@@ -15,7 +15,7 @@
  */
 import { inject } from '@angular/core/testing';
 
-import { AggregationType, BoolFilterType, SortOrder, TimeInterval } from './abstract.search.service';
+import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from './abstract.search.service';
 import { ConnectionService } from './connection.service';
 import { SearchService, GroupWrapper, QueryWrapper, WhereWrapper } from './search.service';
 
@@ -31,8 +31,8 @@ describe('Service: Search', () => {
         ]
     });
 
-    it('buildBoolFilterClause does return expected filter clause', inject([SearchService], (service: SearchService) => {
-        expect(service.buildBoolFilterClause([
+    it('buildCompoundFilterClause does return expected filter clause', inject([SearchService], (service: SearchService) => {
+        expect(service.buildCompoundFilterClause([
             new WhereWrapper(neon.query.where('field1', '=', 'value1')),
             new WhereWrapper(neon.query.where('field2', '=', 'value2'))
         ])).toEqual(new WhereWrapper(neon.query.and.apply(neon.query, [
@@ -40,15 +40,15 @@ describe('Service: Search', () => {
             neon.query.where('field2', '=', 'value2')
         ])));
 
-        expect(service.buildBoolFilterClause([
+        expect(service.buildCompoundFilterClause([
             new WhereWrapper(neon.query.where('field1', '=', 'value1')),
             new WhereWrapper(neon.query.where('field2', '=', 'value2'))
-        ], BoolFilterType.OR)).toEqual(new WhereWrapper(neon.query.or.apply(neon.query, [
+        ], CompoundFilterType.OR)).toEqual(new WhereWrapper(neon.query.or.apply(neon.query, [
             neon.query.where('field1', '=', 'value1'),
             neon.query.where('field2', '=', 'value2')
         ])));
 
-        expect(service.buildBoolFilterClause([
+        expect(service.buildCompoundFilterClause([
             new WhereWrapper(neon.query.where('field1', '=', 'value1')),
             new WhereWrapper(neon.query.or.apply(neon.query, [
                 neon.query.where('field2', '=', 'value2'),
@@ -63,8 +63,8 @@ describe('Service: Search', () => {
         ])));
     }));
 
-    it('buildBoolFilterClause does not wrap single filter clause', inject([SearchService], (service: SearchService) => {
-        expect(service.buildBoolFilterClause([new WhereWrapper(neon.query.where('field', '=', 'value'))])).toEqual(
+    it('buildCompoundFilterClause does not wrap single filter clause', inject([SearchService], (service: SearchService) => {
+        expect(service.buildCompoundFilterClause([new WhereWrapper(neon.query.where('field', '=', 'value'))])).toEqual(
             new WhereWrapper(neon.query.where('field', '=', 'value')));
     }));
 
