@@ -49,7 +49,6 @@ export interface MediaTab {
     // TODO Add a way for the user to select other items from the list.
     loaded: boolean;
     name: string;
-    slider: number;
     selected: {
         border: string,
         link: string,
@@ -297,7 +296,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     createTabs(links: any, masks: any, names: any[], types: any[], oneTabName: string = ''): MediaTab[] {
         let oneTab: MediaTab = {
             selected: undefined,
-            slider: Number.parseInt(this.options.sliderValue),
             name: oneTabName,
             loaded: false,
             list: []
@@ -322,7 +320,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 if (!this.options.oneTabPerArray) {
                     tab = {
                         selected: undefined,
-                        slider: Number.parseInt(this.options.sliderValue),
                         name: (links.length > 1 ? ((index + 1) + ': ') : '') + name,
                         loaded: false,
                         list: []
@@ -579,11 +576,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     /**
      * Changes the selected source image in the given tab to the element in the tab's list at the given index.
      *
-     * @arg {any} tab
-     * @arg {number} percent
+     * @arg {number} percentage
      */
-    onSliderChange(tab: any, percent: number) {
-        tab.slider = percent;
+    onSliderChange(percentage: number) {
+        this.options.sliderValue = percentage;
         this.refreshVisualization();
     }
 
@@ -593,6 +589,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     initializeProperties() {
+        this.options.sliderValue = Number.parseInt(this.options.sliderValue);
+
         // Backwards compatibility (linkField deprecated and replaced by linkFields).
         if (this.options.linkField.columnName && !this.options.linkFields.length) {
             this.options.linkFields.push(this.options.linkField);
@@ -754,5 +752,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         } else {
             this.addEventLinks(fields, metadata, name);
         }
+    }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.transformVisualizationQueryResults(options, []);
     }
 }

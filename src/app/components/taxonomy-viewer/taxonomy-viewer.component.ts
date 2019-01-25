@@ -679,4 +679,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             }
         }
     }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.transformVisualizationQueryResults(options, []);
+    }
 }

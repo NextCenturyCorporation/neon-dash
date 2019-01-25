@@ -573,4 +573,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     getVisualizationDefaultTitle(): string {
         return 'Timeline';
     }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.transformVisualizationQueryResults(options, []);
+    }
 }

@@ -896,4 +896,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     showLegendContainer(): boolean {
         return (!this.options.singleColor && this.colorKeys.length > 0);
     }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.transformVisualizationQueryResults(options, []);
+    }
 }
