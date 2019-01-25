@@ -1137,7 +1137,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Publishes the component's option object to the gear component
      */
     publishOptions() {
-        //console.log(this.options);
         let addLayer: () => void = this.addLayer.bind(this);
         let removeLayer: () => void = this.removeLayer.bind(this);
         let handleChangeData: () => void = this.handleChangeData.bind(this);

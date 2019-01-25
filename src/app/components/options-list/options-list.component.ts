@@ -52,19 +52,10 @@ export class OptionsListComponent implements OnInit {
     @Input() handleChangeFilterField: Function;
     @Input() handleChangeSubcomponentType: Function;
     @Input() handleChangeTable: Function;
-    /**
-     * Event triggered when an item in the legend has been selected.
-     * The event includes the field name, value, and a boolean if the value is currently selected
-     */
-    @Output() itemSelected = new EventEmitter<{ fieldName: string, value: string, currentlyActive: boolean }>();
-
-    @ViewChild('legend') legend: ElementRef;
-    @ViewChild('menu') menu: ElementRef;
-
-    public menuIcon: string;
+    @Input() handleDataChange: Function;
 
     constructor(public widgetService: AbstractWidgetService) {
-        this.menuIcon = 'keyboard_arrow_down';
+        //
     }
 
     checkOptionType(currentType: string, checkType) {

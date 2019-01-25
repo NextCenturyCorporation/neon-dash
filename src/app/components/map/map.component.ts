@@ -718,13 +718,18 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @arg {MapType} mapType
      */
     handleChangeMapType(mapType: MapType) {
-        if (this.options.type !== mapType) {
-            this.options.type = mapType;
-            if (this.mapObject) {
-                this.mapObject.destroy();
-            }
-            this.ngAfterViewInit(); // re-initialize map
+        if (this.mapObject) {
+            this.mapObject.destroy();
         }
+        this.ngAfterViewInit(); // re-initialize map
+    }
+
+    /**
+     * @override
+     * @param {MapType} mapType
+     */
+    handleChangeSubcomponentType(mapType: MapType) {
+        this.handleChangeMapType(mapType);
     }
 
     /**
