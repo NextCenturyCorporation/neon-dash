@@ -133,12 +133,12 @@
                 <div [ngSwitch]="tab.selected.type">
                     <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
                         <img *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name"
-                             [style.opacity]="calculateOpacity(tab.slider)" (load)="setTabLoaded(tab)"
+                             [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setTabLoaded(tab)"
                              [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' medium') : 'image medium'">
                         <img *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" [hidden]="!tab.loaded"
                              [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
-                        <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]="tab.slider"
-                                    (input)="onSliderChange(tab, $event.value)"></mat-slider>
+                        <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]="options.sliderValue"
+                                    (input)="onSliderChange($event.value)"></mat-slider>
                     </div>
                     <img *ngSwitchCase="mediaTypes.image" [src]="tab.selected.link" [alt]="tab.selected.name"
                         [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">
@@ -163,12 +163,12 @@
             <div class="viewer-text">{{ tabsAndMedia[0].name }}</div>
             <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
                 <img *ngIf="tabsAndMedia[0].selected.link" [src]="tabsAndMedia[0].selected.link" [alt]="tabsAndMedia[0].selected.name"
-                     [style.opacity]="calculateOpacity(tabsAndMedia[0].slider)" (load)="setTabLoaded(tabsAndMedia[0])"
+                     [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setTabLoaded(tabsAndMedia[0])"
                      [class]="tabsAndMedia[0].selected.border ? ('image with-border border-mat-' + tabsAndMedia[0].selected.border + ' medium') : 'image medium'">
                 <img *ngIf="tabsAndMedia[0].selected.mask" [src]="tabsAndMedia[0].selected.mask" [alt]="tabsAndMedia[0].selected.name" [hidden]="!tabsAndMedia[0].loaded"
                      [class]="tabsAndMedia[0].selected.border ? ('image with-border border-mat-' + tabsAndMedia[0].selected.border + ' mask') : 'image mask'">
-                <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]="tabsAndMedia[0].slider"
-                            (input)="onSliderChange(tabsAndMedia[0], $event.value)"></mat-slider>
+                <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]="options.sliderValue"
+                            (input)="onSliderChange($event.value)"></mat-slider>
             </div>
             <img *ngSwitchCase="mediaTypes.image" [src]="tabsAndMedia[0].selected.link" [alt]="tabsAndMedia[0].selected.name"
                 [class]="tabsAndMedia[0].selected.border ? ('image with-border border-mat-' + tabsAndMedia[0].selected.border) : 'image'">

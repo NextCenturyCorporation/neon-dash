@@ -207,7 +207,6 @@ describe('Component: MediaViewer', () => {
     it('transformVisualizationQueryResults does set expected properties with no data', (() => {
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName',
             selected: {
                 border: '',
@@ -256,7 +255,6 @@ describe('Component: MediaViewer', () => {
     it('transformVisualizationQueryResults does set expected properties with selected filter and no data', (() => {
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName',
             selected: {
                 border: '',
@@ -307,7 +305,6 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: 'testNameValue',
             selected: {
                 border: '',
@@ -340,7 +337,6 @@ describe('Component: MediaViewer', () => {
 
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testOldTab',
             selected: {
                 border: '',
@@ -367,7 +363,6 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: 'testNameValue2',
             selected: {
                 border: '',
@@ -407,7 +402,6 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: '1: testNameValue',
             selected: {
                 border: '',
@@ -425,7 +419,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: '2: testNameValue',
             selected: {
                 border: '',
@@ -465,7 +458,6 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: '1: testNameValue1',
             selected: {
                 border: '',
@@ -483,7 +475,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: '2: testNameValue2',
             selected: {
                 border: '',
@@ -538,7 +529,6 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: 'testLinkValue',
             selected: {
                 border: 'grey',
@@ -575,7 +565,6 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: 'testLinkValue',
             selected: {
                 border: '',
@@ -607,7 +596,6 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: 'testLinkValue',
             selected: {
                 border: '',
@@ -638,7 +626,6 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: 'testLinkValue',
             selected: {
                 border: '',
@@ -681,7 +668,6 @@ describe('Component: MediaViewer', () => {
         expect((component as any).errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: '1: video.avi',
             selected: {
                 border: '',
@@ -699,7 +685,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: '2: image.jpg',
             selected: {
                 border: '',
@@ -717,7 +702,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: '3: alpha.txt',
             selected: {
                 border: '',
@@ -735,7 +719,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: '4: audio.wav',
             selected: {
                 border: '',
@@ -753,7 +736,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: '5: other.xyz',
             selected: {
                 border: '',
@@ -969,7 +951,6 @@ describe('Component: MediaViewer', () => {
     it('does show tabs if tabsAndMedia is not empty', async(inject([DomSanitizer], (sanitizer) =>  {
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
@@ -987,7 +968,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: 'testTabName2',
             selected: {
                 border: '',
@@ -1027,7 +1007,6 @@ describe('Component: MediaViewer', () => {
         let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName',
             selected: {
                 border: '',
@@ -1059,7 +1038,6 @@ describe('Component: MediaViewer', () => {
         let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
@@ -1077,7 +1055,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: 'testTabName2',
             selected: {
                 border: '',
@@ -1111,7 +1088,6 @@ describe('Component: MediaViewer', () => {
         let vidSrc = 'https://youtu.be/Mxesac55Puo';
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName',
             selected: {
                 border: '',
@@ -1143,7 +1119,6 @@ describe('Component: MediaViewer', () => {
         let vidSrc = 'https://youtu.be/Mxesac55Puo';
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
@@ -1161,7 +1136,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: 'testTabName2',
             selected: {
                 border: '',
@@ -1195,7 +1169,6 @@ describe('Component: MediaViewer', () => {
         let audSrc = './assets/audio/test-audio.wav';
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName',
             selected: {
                 border: '',
@@ -1227,7 +1200,6 @@ describe('Component: MediaViewer', () => {
         let audSrc = './assets/audio/test-audio.wav';
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
@@ -1245,7 +1217,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: 'testTabName2',
             selected: {
                 border: '',
@@ -1279,7 +1250,6 @@ describe('Component: MediaViewer', () => {
         let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName',
             selected: {
                 border: '',
@@ -1311,7 +1281,6 @@ describe('Component: MediaViewer', () => {
         let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
@@ -1329,7 +1298,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: 'testTabName2',
             selected: {
                 border: '',
@@ -1362,7 +1330,6 @@ describe('Component: MediaViewer', () => {
     it('does show two tabs and slider', async(inject([DomSanitizer], (sanitizer) =>  {
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
@@ -1386,7 +1353,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: 'testTabName2',
             selected: {
                 border: '',
@@ -1427,7 +1393,6 @@ describe('Component: MediaViewer', () => {
         let maskSource = 'https://homepages.cae.wisc.edu/~ece533/images/boat.png';
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
