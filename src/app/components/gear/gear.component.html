@@ -31,127 +31,54 @@
             <div>Add Layer</div>
         </a>
 
-        <div *ngFor="let optionsList of options.layers">
-
-            </div>
+        <div *ngFor="let layer of options.layers">
+            <mat-toolbar style="cursor: pointer;" (click)="toggleFilter(layer)">
+                <span>{{ layer.title }}</span>
+                <span class="toolbar-spacer"></span>
+                <mat-icon class="neon-icon-small" *ngIf="options.layers.length > 1" (click)="removeLayer(layer)">delete</mat-icon>
+                <mat-icon class="neon-icon-small">{{ getIconForFilter(layer) }}</mat-icon>
+            </mat-toolbar>
+            <p></p>
+            <app-options-list [fields]=layer.fields [optionsList]=layer.list() [handleChangeData]=handleChangeData
+                [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit
+                [handleChangeFilterField]=handleChangeFilterField [handleChangeSubcomponentType]=handleChangeSubcomponentType
+                [handleChangeTable]=handleChangeTable [handleDataChange]=handleDataChange.bind(this)>
+            </app-options-list>
+        </div>
     </div>
 
     <!-- Non MultiLayer Support-->
-    <div *ngIf="!options.isMultiLayerWidget">
-
-        <div *ngFor="let optionsList of optionsListCollection">
-            <app-options-list [optionsList]=optionsList [fields]="options.fields">
-    
-            </app-options-list>
-        </div>
+    <div>
 
         <!-- Required Options-->
+        <app-options-list [fields]=options.fields [optionsList]=requiredList [handleChangeData]=handleChangeData
+            [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit [handleChangeFilterField]=handleChangeFilterField
+            [handleChangeSubcomponentType]=handleChangeSubcomponentType [handleChangeTable]=handleChangeTable
+            [handleDataChange]=handleDataChange.bind(this)>
+        </app-options-list>
+
+        <app-options-list [fields]=options.fields [optionsList]=requiredListNonField [handleChangeData]=handleChangeData
+            [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit [handleChangeFilterField]=handleChangeFilterField
+            [handleChangeSubcomponentType]=handleChangeSubcomponentType [handleChangeTable]=handleChangeTable
+            [handleDataChange]=handleDataChange.bind(this)>
+        </app-options-list>
 
         <!-- Optional Options-->
         <mat-toolbar color="primary">
             <span>Optional Config</span>
         </mat-toolbar>
-        <app-options-list
-            [optionsList]=optionalList>
+        <app-options-list [fields]=options.fields [optionsList]=optionalList [handleChangeData]=handleChangeData
+            [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit [handleChangeFilterField]=handleChangeFilterField
+            [handleChangeSubcomponentType]=handleChangeSubcomponentType [handleChangeTable]=handleChangeTable
+            [handleDataChange]=handleDataChange.bind(this)>
+        </app-options-list>
+
+        <app-options-list [fields]=options.fields [optionsList]=optionalListNonField [handleChangeData]=handleChangeData
+            [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit [handleChangeFilterField]=handleChangeFilterField
+            [handleChangeSubcomponentType]=handleChangeSubcomponentType [handleChangeTable]=handleChangeTable
+            [handleDataChange]=handleDataChange.bind(this)>
         </app-options-list>
     </div>
-
-
-<!--
-    <div *ngFor="let requiredOption of requiredList">
-        <!-- Select Option Type--
-        <mat-form-field class="option-container" *ngIf="checkOptionType(requiredOption.optionType, 'SELECT')">
-            <mat-select requiredOption.prettyName placeholder={{requiredOption.prettyName}} [ngModel]="requiredOption.valueCurrent"
-                name="{{requiredOption.prettyName}} Select" (ngModelChange)="handleDataChange(requiredOption, $event)">
-                <mat-option *ngFor="let choice of requiredOption.valueChoices" [value]="choice.variable">
-                    {{ choice.prettyName }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        <!-- Field Option Type--
-        <mat-form-field class="option-container" *ngIf="checkOptionType(requiredOption.optionType, 'FIELD')">
-            <mat-select requiredOption.prettyName placeholder={{requiredOption.prettyName}} [ngModel]="requiredOption.valueCurrent"
-                name="{{requiredOption.prettyName}} Field" (ngModelChange)="handleDataChange(requiredOption, $event)">
-                <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-            </mat-select>
-        </mat-form-field>
-        <!-- Free Text Option Type--
-        <div mat-fill class="flex center" *ngIf="checkOptionType(requiredOption.optionType, 'FREE_TEXT')">
-            <mat-form-field class='option-container' requiredOption.prettyName>
-                <input matInput placeholder={{requiredOption.prettyName}} [ngModel]="requiredOption.valueCurrent" name="{{requiredOption.prettyName}} Free"
-                    (ngModelChange)="handleDataChange(requiredOption, $event)" required="true">
-            </mat-form-field>
-        </div>
-        <!-- Field Array Option Type--
-        <div mat-fill class="flex center" *ngIf="checkOptionType(requiredOption.optionType, 'FIELD_ARRAY')">
-            <mat-form-field class='option-container'>
-                <mat-select placeholder={{requiredOption.prettyName}} [(ngModel)]="requiredOption.valueCurrent" name="{{requiredOption.prettyName}} Field Array"
-                    (ngModelChange)="handleDataChange(requiredOption, $event)" [disabled]="!options.filterable" multiple>
-                    <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-            </mat-form-field>
-        </div>
-        <!-- Multiple Select Option Type--
-        <div mat-fill class="flex center" *ngIf="checkOptionType(requiredOption.optionType, 'MULTIPLE_SELECT')">
-            <mat-form-field class='option-container'>
-                <mat-select placeholder={{requiredOption.prettyName}} [(ngModel)]="requiredOption.valueCurrent" name="{{requiredOption.prettyName}} Multiple Select"
-                    (ngModelChange)="handleDataChange(requiredOption, $event)" [disabled]="!options.filterable" multiple>
-                    <mat-option *ngFor="let field of options.fields" [value]="field">{{ field }}</mat-option>
-                </mat-select>
-            </mat-form-field>
-        </div>
-    </div>
-
-    <mat-toolbar color="primary">
-        <span>Optional Config</span>
-    </mat-toolbar>
-
-    <div *ngFor="let optionalOption of optionalList">
-        <!-- Select Option Type--
-        <mat-form-field class="option-container" *ngIf="checkOptionType(optionalOption.optionType, 'SELECT')">
-            <mat-select optionalOption.prettyName placeholder={{optionalOption.prettyName}} [ngModel]="optionalOption.valueCurrent"
-                name="{{optionalOption.prettyName}} Select" (ngModelChange)="handleDataChange(optionalOption, $event)">
-                <mat-option *ngFor="let choice of optionalOption.valueChoices" [value]="choice.variable">
-                    {{ choice.prettyName }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        <!-- Field Option Type--
-        <mat-form-field class="option-container" *ngIf="checkOptionType(optionalOption.optionType, 'FIELD')">
-            <mat-select optionalOption.prettyName placeholder={{optionalOption.prettyName}} [ngModel]="optionalOption.valueCurrent"
-                name="{{optionalOption.prettyName}} Field" (ngModelChange)="handleDataChange(optionalOption, $event)">
-                <mat-option [value]="createEmptyField()">(None)</mat-option>
-                <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-            </mat-select>
-        </mat-form-field>
-        <!-- Free Text Option Type--
-        <div mat-fill class="flex center" *ngIf="checkOptionType(optionalOption.optionType, 'FREE_TEXT')">
-            <mat-form-field class='option-container'>
-                <input matInput placeholder={{optionalOption.prettyName}} [ngModel]="optionalOption.valueCurrent" name="{{optionalOption.prettyName}} Free"
-                    (ngModelChange)="handleDataChange(optionalOption, $event)">
-            </mat-form-field>
-        </div>
-        <!-- Field Array Option Type--
-        <div mat-fill class="flex center" *ngIf="checkOptionType(optionalOption.optionType, 'FIELD_ARRAY')">
-            <mat-form-field class='option-container'>
-                <mat-select placeholder={{optionalOption.prettyName}} [(ngModel)]="optionalOption.valueCurrent" name="{{optionalOption.prettyName}} Field Array"
-                    (ngModelChange)="handleDataChange(optionalOption, $event)" [disabled]="!options.filterable" multiple>
-                    <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-            </mat-form-field>
-        </div>
-        <!-- Multiple Select Option Type--
-        <div mat-fill class="flex center" *ngIf="checkOptionType(optionalOption.optionType, 'MULTIPLE_SELECT')">
-            <mat-form-field class='option-container'>
-                <mat-select placeholder={{optionalOption.prettyName}} [(ngModel)]="optionalOption.valueCurrent" name="{{optionalOption.prettyName}} Multiple Select"
-                    (ngModelChange)="handleDataChange(optionalOption, $event)" [disabled]="!options.filterable" multiple>
-                    <mat-option *ngFor="let field of options.fields" [value]="field">{{ field }}</mat-option>
-                </mat-select>
-            </mat-form-field>
-        </div>
-    </div>
-
-    -->
 
     <app-export-control [widgets]="componentThis"></app-export-control>
 </form>
