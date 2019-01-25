@@ -188,7 +188,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
-    addWidget(eventMessage: { gridName: string, widgetGridItem: NeonGridItem }) {
+    addWidget(eventMessage: { gridName?: string, widgetGridItem: NeonGridItem }) {
         let widgetGridItem: NeonGridItem = eventMessage.widgetGridItem;
 
         // Set default grid item config properties for the Neon dashboard.
@@ -206,7 +206,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         // Find the right tab, or create a new one if needed.
         let index = -1;
         this.tabbedGrid.forEach((grid, i) => {
-            if (grid.name === eventMessage.gridName) {
+            if (grid.name === (eventMessage.gridName || '')) {
                 index = i;
             }
         });
@@ -218,7 +218,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
             this.tabbedGrid.push({
                 list: [],
-                name: eventMessage.gridName
+                name: (eventMessage.gridName || '')
             });
             index = this.tabbedGrid.length - 1;
         }

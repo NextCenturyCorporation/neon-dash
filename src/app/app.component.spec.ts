@@ -296,7 +296,7 @@ describe('App', () => {
             widgetGridItem: widgetGridItem1
         });
 
-        expect(component.widgetGridItems).toEqual([{
+        expect(component.tabbedGrid[0].list).toEqual([{
             col: 2,
             config: {
                 borderSize: 10,
@@ -331,7 +331,7 @@ describe('App', () => {
             widgetGridItem: widgetGridItem1
         });
 
-        expect(component.widgetGridItems).toEqual([{
+        expect(component.tabbedGrid[0].list).toEqual([{
             col: 2,
             config: {
                 borderSize: 10,
@@ -357,7 +357,7 @@ describe('App', () => {
             widgetGridItem: widgetGridItem1
         });
 
-        expect(component.widgetGridItems).toEqual([{
+        expect(component.tabbedGrid[0].list).toEqual([{
             config: {
                 borderSize: 10,
                 col: 1,
@@ -377,7 +377,7 @@ describe('App', () => {
             widgetGridItem: widgetGridItem2
         });
 
-        expect(component.widgetGridItems).toEqual([{
+        expect(component.tabbedGrid[0].list).toEqual([{
             config: {
                 borderSize: 10,
                 col: 1,
@@ -407,7 +407,7 @@ describe('App', () => {
             widgetGridItem: widgetGridItem3
         });
 
-        expect(component.widgetGridItems).toEqual([{
+        expect(component.tabbedGrid[0].list).toEqual([{
             config: {
                 borderSize: 10,
                 col: 1,
@@ -447,7 +447,7 @@ describe('App', () => {
             widgetGridItem: widgetGridItem4
         });
 
-        expect(component.widgetGridItems).toEqual([{
+        expect(component.tabbedGrid[0].list).toEqual([{
             config: {
                 borderSize: 10,
                 col: 1,
@@ -491,7 +491,7 @@ describe('App', () => {
     }));
 
     it('addWidget does set the position of the given widget with unspecified position and add it to the middle of the grid', async(() => {
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             config: {
                 borderSize: 10,
                 col: 1,
@@ -541,7 +541,7 @@ describe('App', () => {
             widgetGridItem: widgetGridItem1
         });
 
-        expect(component.widgetGridItems).toEqual([{
+        expect(component.tabbedGrid[0].list).toEqual([{
             config: {
                 borderSize: 10,
                 col: 1,
@@ -595,7 +595,7 @@ describe('App', () => {
     }));
 
     it('clearDashboard does delete all elements from the grid', async(() => {
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             config: {
                 borderSize: 10,
                 col: 1,
@@ -619,7 +619,7 @@ describe('App', () => {
 
         component.clearDashboard();
 
-        expect(component.widgetGridItems).toEqual([]);
+        expect(component.tabbedGrid[0].list).toEqual([]);
     }));
 
     it('contractWidget does update the size and position of the given widget to its previous config', async(() => {
@@ -659,7 +659,7 @@ describe('App', () => {
     }));
 
     it('deleteWidget does delete the widget from the grid', async(() => {
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             config: {
                 borderSize: 10,
                 col: 1,
@@ -685,7 +685,7 @@ describe('App', () => {
             id: 'a'
         });
 
-        expect(component.widgetGridItems).toEqual([{
+        expect(component.tabbedGrid[0].list).toEqual([{
             config: {
                 borderSize: 10,
                 col: 2,
@@ -733,7 +733,7 @@ describe('App', () => {
     it('getMaxColInUse does return expected number', async(() => {
         expect(component.getMaxColInUse()).toEqual(0);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             config: {
                 borderSize: 10,
                 col: 1,
@@ -747,7 +747,7 @@ describe('App', () => {
 
         expect(component.getMaxColInUse()).toEqual(1);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             config: {
                 borderSize: 10,
                 col: 1,
@@ -775,7 +775,7 @@ describe('App', () => {
     it('getMaxRowInUse does return expected number', async(() => {
         expect(component.getMaxRowInUse()).toEqual(0);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             config: {
                 borderSize: 10,
                 col: 1,
@@ -789,7 +789,7 @@ describe('App', () => {
 
         expect(component.getMaxRowInUse()).toEqual(1);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             config: {
                 borderSize: 10,
                 col: 1,
@@ -830,7 +830,7 @@ describe('App', () => {
 
         expect(widgetGridItem1.config.row).toEqual(1);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             config: {
                 borderSize: 10,
                 col: 1,
@@ -949,7 +949,7 @@ describe('App', () => {
 
         expect(component.widgetFits(widgetGridItem1)).toEqual(true);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             config: {
                 borderSize: 10,
                 col: 1,
@@ -963,7 +963,7 @@ describe('App', () => {
 
         expect(component.widgetFits(widgetGridItem1)).toEqual(true);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             config: {
                 borderSize: 10,
                 col: 1,
@@ -977,7 +977,7 @@ describe('App', () => {
 
         expect(component.widgetFits(widgetGridItem1)).toEqual(false);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             config: {
                 borderSize: 10,
                 col: 2,
@@ -991,7 +991,7 @@ describe('App', () => {
 
         expect(component.widgetFits(widgetGridItem1)).toEqual(false);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             config: {
                 borderSize: 10,
                 col: 1,
@@ -1015,7 +1015,7 @@ describe('App', () => {
 
         expect(component.widgetFits(widgetGridItem1)).toEqual(true);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             config: {
                 borderSize: 10,
                 col: 1,
