@@ -16,7 +16,7 @@
 import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 
 import { ConnectionService } from '../../services/connection.service';
-import { Datastore, DatabaseMetaData, TableMetaData, FieldMetaData, Relation, Dashboard } from '../../dataset';
+import { Datastore, DatabaseMetaData, TableMetaData, FieldMetaData, Dashboard } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ParameterService } from '../../services/parameter.service';

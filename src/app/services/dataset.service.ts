@@ -17,7 +17,7 @@ import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
 import { Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
-    TableMetaData, TableMappings, FieldMetaData, Relation, SimpleFilter } from '../dataset';
+    TableMetaData, TableMappings, FieldMetaData, SimpleFilter } from '../dataset';
 import { Subscription, Observable, interval } from 'rxjs';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { neonEvents } from '../neon-namespaces';
@@ -149,6 +149,19 @@ export class DatasetService {
                 // which should instead have table keys and a layout specified. If not, delete choice.
                 if (!dashboardChoices[choiceKey].layout || !dashboardChoices[choiceKey].tables) {
                     delete dashboardChoices[choiceKey];
+                }
+
+                if (dashboardChoices[choiceKey].relations) {
+                    let relations = dashboardChoices[choiceKey].relations;
+                    //console.log(relations);
+
+                    for (let relation of relations) {
+                        let datastoreKeys = Object.keys(relations);
+
+                        // TODO: 875: what should this be?
+                        /*datastoreKeys.forEach((datastoreKey) => {
+                        });*/
+                    }
                 }
             }
 
@@ -743,7 +756,7 @@ export class DatasetService {
      * the given field names to the field names in the other tables ({Object} fields).  This array will also contain
      * the relation object for the table and fields given in the arguments
      */
-    // TODO: 825: moving relations to options
+    // TODO: 825: moving relations to dashboard
     /*
     public getRelations(databaseName: string, tableName: string, fieldNames: string[]): any[] {
         let relations = this.dataset.relations;
@@ -967,7 +980,7 @@ export class DatasetService {
     // Returns every member of every relation that contains the given database/table/field combination.
     private findValueInRelations(db: string, t: string, f: string): { database: string, table: string, field: string }[] {
         let values = [];
-        // TODO: 825: moving relations
+        // TODO: 875: moving relations
         /*this.dataset.relations.forEach((relation) => {
             for (let x = relation.members.length - 1; x >= 0; x--) {
                 if (relation.members[x].database === db && relation.members[x].table === t && relation.members[x].field === f) {

@@ -1,7 +1,7 @@
 datastores:
     es1:
         host: localhost
-        type: elasticsearch
+        type: elasticsearchrest
         databases:
             ldc_uyg_jul_18: # layout: uyghur-ldc-sd: "DARPA60: Uyghur LDC Situation Discovery"
                 prettyName: 'Uyghur LDC, July 2018'
@@ -131,13 +131,22 @@ datastores:
                                 crimeviolence: Crime /  Violence
                                 terrorism: Terrorism
                                 regimechange: Regime Change
-            ll_nepal_06_14:
+            ll_nepal_06_14_annotations:
                 prettyName: Nepal Earthquake 2015, ELISA Annotations # DEV: Nepal ELISA Situation Awareness layout: nepal-elisa-sa
                 tables:
                     annotations:
                         prettyName: Annotations
                         mappings:
                             date: createdAt
+            ll_nepal_06_14_documents:
+                prettyName: Nepal Earthquake 2015, ELISA Documents # DEV: Nepal ELISA Situation Awareness layout: nepal-elisa-sa
+                tables:
+                    documents:
+                        prettyName: Documents
+                        mappings: #empty
+            ll_nepal_06_14_situations:
+                prettyName: Nepal Earthquake 2015, ELISA Situations # DEV: Nepal ELISA Situation Awareness layout: nepal-elisa-sa
+                tables:
                     situations:
                         prettyName: Situations
                         mappings: #empty
@@ -262,39 +271,41 @@ dashboards:
                             name: Nepal ELISA
                             layout: nepal-elisa-sa
                             tables:
-                                table_key_1: es1.ll_nepal_06_14.situations
-                                table_key_2: es1.ll_nepal_06_14.annotations
-                                table_key_3: es1.ll_nepal_06_14.documents
+                                table_key_1: es1.ll_nepal_06_14_situations
+                                table_key_2: es1.ll_nepal_06_14_annotations
+                                table_key_3: es1.ll_nepal_06_14_documents
                             fields:
-                                original_text_key: es1.ll_nepal_06_14.annotations.originalText
-                                situation_name_key: es1.ll_nepal_06_14.situations.situationName
-                                count_field_key: es1.ll_nepal_06_14.situations.docCount
-                                group_field_key_1: es1.ll_nepal_06_14.situations.topic
-                                group_field_key_2: es1.ll_nepal_06_14.annotations.llAnnotation.Type
-                                id_field_key_1: es1.ll_nepal_06_14.situations._id
-                                id_field_key_2: es1.ll_nepal_06_14.documents.id
-                                id_field_key_3: es1.ll_nepal_06_14.annotations._id
-                                id_field_key_4: es1.ll_nepal_06_14.annotations.id
-                                doc_field_key: es1.ll_nepal_06_14.situations.documents
-                                translated_text_key: es1.ll_nepal_06_14.documents.translatedText
-                                date_field_key_1: es1.ll_nepal_06_14.annotations.createdAt
-                                date_field_key_2: es1.ll_nepal_06_14.documents.createdAt
-                                color_field_key: es1.ll_nepal_06_14.annotations.sentimentString
-                                latitude_key: es1.ll_nepal_06_14.annotations.geoLocations.lat
-                                longitude_key: es1.ll_nepal_06_14.annotations.geoLocations.lon
-                                location_field_key: es1.ll_nepal_06_14.annotations.location
-                                text_cloud_data_key: es1.ll_nepal_06_14.annotations.LOC
-                                display_url_key: es1.ll_nepal_06_14.documents.mediaEntities.displayURL
-                                image_field_key: es1.ll_nepal_06_14.annotations.mediaEntities.mediaURLHttps
+                                original_text_key: es1.ll_nepal_06_14_annotations.originalText
+                                situation_name_key: es1.ll_nepal_06_14_situations.situationName
+                                count_field_key: es1.ll_nepal_06_14_situations.docCount
+                                group_field_key_1: es1.ll_nepal_06_14_situations.topic
+                                group_field_key_2: es1.ll_nepal_06_14_annotations.llAnnotation.Type
+                                id_field_key_1: es1.ll_nepal_06_14_situations._id
+                                id_field_key_2: es1.ll_nepal_06_14_documents.id
+                                id_field_key_3: es1.ll_nepal_06_14_annotations._id
+                                id_field_key_4: es1.ll_nepal_06_14_annotations.id
+                                doc_field_key: es1.ll_nepal_06_14_situations.documents
+                                translated_text_key: es1.ll_nepal_06_14_documents.translatedText
+                                date_field_key_1: es1.ll_nepal_06_14_annotations.createdAt
+                                date_field_key_2: es1.ll_nepal_06_14_documents.createdAt
+                                color_field_key: es1.ll_nepal_06_14_annotations.sentimentString
+                                latitude_key: es1.ll_nepal_06_14_annotations.geoLocations.lat
+                                longitude_key: es1.ll_nepal_06_14_annotations.geoLocations.lon
+                                location_field_key: es1.ll_nepal_06_14_annotations.location
+                                text_cloud_data_key: es1.ll_nepal_06_14_annotations.LOC
+                                display_url_key: es1.ll_nepal_06_14_documents.mediaEntities.displayURL
+                                image_field_key: es1.ll_nepal_06_14_annotations.mediaEntities.mediaURLHttps
                             # TODO: 875: verify relations structure is read in correctly
                             relations:
                                 - es1:
-                                    ll_nepal_06_14:
+                                    ll_nepal_06_14_situations:
                                         situations: 'documents'
+                                    ll_nepal_06_14_annotations:
                                         annotations: 'id'
                                 - es1:
-                                    ll_nepal_06_14:
+                                    ll_nepal_06_14_situations:
                                         situations: 'topic'
+                                    ll_nepal_06_14_annotations:
                                         annotations: 'llAnnotation.Type'
                             options:
                                 connectOnLoad: false
