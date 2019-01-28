@@ -38,12 +38,13 @@
                 <mat-icon class="neon-icon-small" *ngIf="options.layers.length > 1" (click)="removeLayer(layer)">delete</mat-icon>
                 <mat-icon class="neon-icon-small">{{ getIconForFilter(layer) }}</mat-icon>
             </mat-toolbar>
-            <p></p>
-            <app-options-list [fields]=layer.fields [optionsList]=layer.list() [handleChangeData]=handleChangeData
-                [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit
-                [handleChangeFilterField]=handleChangeFilterField [handleChangeSubcomponentType]=handleChangeSubcomponentType
-                [handleChangeTable]=handleChangeTable [handleDataChange]=handleDataChange.bind(this)>
-            </app-options-list>
+            <div [hidden]="!filterVisible.get(layer._id)">
+                <app-options-list [fields]=layer.fields [optionsList]=layer.list() [handleChangeData]=handleChangeData
+                    [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit
+                    [handleChangeFilterField]=handleChangeFilterField [handleChangeSubcomponentType]=handleChangeSubcomponentType
+                    [handleChangeTable]=handleChangeTable [handleDataChange]=handleDataChange.bind(this)>
+                </app-options-list>
+            </div>
         </div>
     </div>
 
