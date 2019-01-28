@@ -152,7 +152,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new WidgetSelectOption('filterable', 'Filterable', false, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('singleFilter', 'Filter Multiple', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable),
             // TODO THOR-949 Rename option and change to boolean.
-            new WidgetSelectOption('arrayFilterOperator', 'Filter Operator', true, [{
+            new WidgetSelectOption('arrayFilterOperator', 'Filter Operator', 'and', [{
                 prettyName: 'OR',
                 variable: 'or'
             }, {
