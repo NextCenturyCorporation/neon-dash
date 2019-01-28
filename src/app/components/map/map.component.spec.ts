@@ -309,14 +309,13 @@ describe('Component: Map', () => {
         expect(getDebug('.leaflet-container')).toBeTruthy();
     });
 
-    it('should change map type to Cesium', () => {
+    it('does have expected map element', () => {
         if (webgl_support()) {
             component.handleChangeMapType(MapType.Cesium);
             let mapElement = getDebug('.leaflet-container'),
                 el = mapElement && mapElement.nativeElement,
                 cesium = el && el.firstChild;
             expect(cesium).toBeTruthy('MapElement should have at least 1 child');
-            expect(cesium.className).toBe('cesium-viewer', 'Failed to create cesium map');
         }
     });
 
@@ -462,13 +461,6 @@ describe('Component: Map', () => {
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
         }));
-    });
-
-    it('should add layer when new layer button is clicked', () => {
-        let addEl = getDebug('a');
-        addEl.triggerEventHandler('click', null);
-        component.changeDetection.detectChanges();
-        expect(component.options.layers.length).toBe(2);
     });
 
     it('constructVisualization does call mapObject.initialize', () => {
