@@ -64,6 +64,8 @@ export class GearComponent implements OnInit, OnDestroy {
     private limitChanged: boolean;
     private mapType: MapType;
 
+    public collapseOptionalOptions: boolean;
+
     public filterVisible: Map<string, boolean> = new Map<string, boolean>();
 
     constructor(
@@ -72,7 +74,7 @@ export class GearComponent implements OnInit, OnDestroy {
         protected widgetService: AbstractWidgetService
     ) {
         this.injector = injector;
-
+        this.collapseOptionalOptions = true;
         this.requiredList = [];
         this.requiredListNonField = [];
         this.optionalList = [];
@@ -175,6 +177,16 @@ export class GearComponent implements OnInit, OnDestroy {
      */
     getIconForFilter(options: any): string {
         return this.filterVisible.get(options._id) ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
+    }
+
+    getIconForOptions() {
+        let icon: string;
+        if (this.collapseOptionalOptions) {
+            icon = 'keyboard_arrow_down';
+        } else {
+            icon = 'keyboard_arrow_up';
+        }
+        return icon;
     }
 
     getTitle() {
@@ -297,6 +309,13 @@ export class GearComponent implements OnInit, OnDestroy {
      */
     toggleFilter(options: any): void {
         this.filterVisible.set(options._id, !(this.filterVisible.get(options._id)));
+    }
+
+    /**
+     * Toggles the visibility of the optional options
+     */
+    toggleOptionalOptions(): void {
+        this.collapseOptionalOptions = !this.collapseOptionalOptions;
     }
 
     /**

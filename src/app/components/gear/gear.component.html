@@ -65,9 +65,11 @@
         </app-options-list>
 
         <!-- Optional Options-->
-        <mat-toolbar color="primary">
+        <mat-toolbar style="cursor: pointer;" (click)="toggleOptionalOptions()" color="primary">
             <span>Optional Config</span>
+            <mat-icon class="neon-icon-small">{{ getIconForOptions() }}</mat-icon>
         </mat-toolbar>
+        <div [hidden]="collapseOptionalOptions">
         <app-options-list [fields]=options.fields [optionsList]=optionalList [handleChangeData]=handleChangeData
             [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit [handleChangeFilterField]=handleChangeFilterField
             [handleChangeSubcomponentType]=handleChangeSubcomponentType [handleChangeTable]=handleChangeTable
@@ -79,6 +81,7 @@
             [handleChangeSubcomponentType]=handleChangeSubcomponentType [handleChangeTable]=handleChangeTable
             [handleDataChange]=handleDataChange.bind(this)>
         </app-options-list>
+        </div>
     </div>
 
     <app-export-control [widgets]="componentThis"></app-export-control>
