@@ -231,7 +231,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.layerIdToQueryIdToQueryObject.get(options._id).get(key).abort();
         });
         this.layerIdToQueryIdToQueryObject.delete(options._id);
-        this.handleChangeData();
+        this.options.layers = this.options.layers.filter((layer) => layer._id !== options._id);
+        this.handleChangeData(options);
     }
 
     /**
@@ -753,8 +754,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
         this.loadingCount++;
 
-        if (this.cannotExecuteQuery(options)) {
-            if (this.layerIdToQueryIdToQueryObject.get(options._id).has(queryId)) {
+        if (this.cannotExecuteQuery(options) || !this.layerIdToQueryIdToQueryObject.has(options._id)) {
+            if (this.layerIdToQueryIdToQueryObject.has(options._id) && this.layerIdToQueryIdToQueryObject.get(options._id).has(queryId)) {
                 this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).abort();
             }
             callback(options, {
