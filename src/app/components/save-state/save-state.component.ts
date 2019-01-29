@@ -103,7 +103,8 @@ export class SaveStateComponent implements OnInit {
             stateParams.stateName = name;
         }
 
-        let connection: neon.query.Connection = this.connectionService.getActiveConnection();
+        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
+            this.datasetService.getHostname());
         if (connection) {
             // Get each visualization's bindings and save them to our dashboard state parameter
             stateParams.dashboard = this.widgetGridItems.map((widgetGridItem) => {
@@ -147,7 +148,8 @@ export class SaveStateComponent implements OnInit {
         if (this.validateName(name)) {
             return;
         }
-        let connection: neon.query.Connection = this.connectionService.getActiveConnection();
+        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
+            this.datasetService.getHostname());
         if (connection) {
             let stateParams = {
                 stateName: name
@@ -180,7 +182,8 @@ export class SaveStateComponent implements OnInit {
         if (this.validateName(name)) {
             return;
         }
-        let connection: neon.query.Connection = this.connectionService.getActiveConnection();
+        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
+            this.datasetService.getHostname());
         if (connection) {
             connection.deleteState(this.formData.stateToDelete, (stateIds) => {
                 this.loadStateNames();
@@ -229,9 +232,11 @@ export class SaveStateComponent implements OnInit {
     loadStateNames() {
         this.formData.stateToDelete = '';
         this.formData.stateToLoad = '';
-        let connection: neon.query.Connection = this.connectionService.getActiveConnection();
+        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
+            this.datasetService.getHostname());
         if (!connection) {
-            connection = this.connectionService.createActiveConnection();
+            connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
+                this.datasetService.getHostname());
         }
 
         this.isLoading = true;

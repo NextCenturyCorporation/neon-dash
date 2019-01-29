@@ -23,7 +23,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
@@ -63,17 +63,17 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     public counter: number = 0;
 
     constructor(
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
+        searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef
     ) {
 
         super(
-            connectionService,
             datasetService,
             filterService,
+            searchService,
             injector,
             ref
         );
@@ -232,15 +232,15 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
+     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} query
-     * @arg {neon.query.WherePredicate[]} wherePredicates
-     * @return {neon.query.Query}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         // Does not run a visualization query.
         return null;
     }

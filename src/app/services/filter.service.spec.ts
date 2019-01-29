@@ -117,7 +117,7 @@ describe('Service: Filter', () => {
     let service;
     let backend;
 
-    initializeTestBed({
+    initializeTestBed('Filter Service', {
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: TestFilterService },
@@ -586,7 +586,7 @@ describe('Service: Filter with existing filters', () => {
     let http;
     let backend;
 
-    initializeTestBed({
+    initializeTestBed('Filter Service', {
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: TestFilterServiceWithFilters },

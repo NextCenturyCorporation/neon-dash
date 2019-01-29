@@ -27,13 +27,14 @@ import { DataTableComponent } from './data-table.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { By } from '@angular/platform-browser';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -44,16 +45,16 @@ describe('Component: DataTable', () => {
         getDebug = (selector: string) => fixture.debugElement.query(By.css(selector)),
         getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Data Table', {
         declarations: [
             DataTableComponent,
             ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -658,12 +659,18 @@ describe('Component: DataTable', () => {
         component.options.limit = 25;
         (component as any).page = 1;
 
-        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
-
-        let query = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name)
-            .where('testSortField', '!=', null).sortBy('testSortField', -1);
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            fields: ['*'],
+            filter: {
+                field: 'testSortField',
+                operator: '!=',
+                value: null
+            },
+            sort: {
+                field: 'testSortField',
+                order: -1
+            }
+        });
     });
 
     it('getFiltersToIgnore does return null', () => {
