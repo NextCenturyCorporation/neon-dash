@@ -9,12 +9,12 @@
             "hostname": "localhost",
             "databases": [
                 {
-                    "name": "verdi-support",
+                    "name": "verdi-rdf",
                     "prettyName": "VERDI SUPPORT",
                     "tables": [
                         {
-                            "name": "parent_children",
-                            "prettyName": "Parent Children"
+                            "name": "normal",
+                            "prettyName": "normal"
                         }
                     ]
                 },
@@ -33,9 +33,9 @@
                 {
                     "members": [
                         {
-                            "database": "verdi-support",
-                            "table": "parent_children",
-                            "field": "id"
+                            "database": "verdi-rdf",
+                            "table": "normal",
+                            "field": "@id"
                         },
                         {
                             "database": "kb-simple",
@@ -310,7 +310,7 @@
                 "sizey": 16,
                 "bindings": {
                     "id": "_id",
-                    "title": "Taxonomy",
+                    "title": "Ontology",
                     "database": "kb-simple",
                     "table": "seedling",
                     "typeField": "types",
@@ -325,9 +325,9 @@
                     "extendedFilter": true,
                     "extensionFields": [
                         {
-                            "database": "verdi-support",
-                            "table": "parent_children",
-                            "field": "id"
+                            "database": "verdi-rdf",
+                            "table": "normal",
+                            "field": "@id"
                         }
                     ],
                     "ignoreSelf": true,
@@ -368,7 +368,7 @@
                         "types",
                         "docIds"
                     ],
-                    "idField": "@id",
+                    "idField": "kbid",
                     "id": "_id",
                     "filterable": true,
                     "multiFilter": true,
@@ -389,23 +389,23 @@
                 "bindings": {
                     "id": "_id",
                     "title": "Documents",
-                    "database": "verdi-support",
-                    "table": "parent_children",
-                    "idField": "id",
-                    "flagSubLabel1": "parent_uid",
-                    "flagSubLabel2": "download_date",
-                    "flagSubLabel3": "dtyp",
+                    "database": "verdi-rdf",
+                    "table": "normal",
+                    "idField": "@id",
+                    "flagSubLabel1": "@id",
+                    "flagSubLabel2": "date",
+                    "flagSubLabel3": "docType",
                     "linkField": "url",
-                    "dateField": "download_date",
+                    "dateField": "date",
                     "objectNameField": "",
-                    "objectIdField": "parent_uid",
-                    "typeField": "dtyp",
+                    "objectIdField": "@id",
+                    "typeField": "docType",
                     "predictedNameField": "",
                     "percentField": "",
                     "openOnMouseClick": true,
                     "hideUnfiltered": false,
-                    "sortField": "id",
-                    "filterField": "id",
+                    "sortField": "@id",
+                    "filterField": "@id",
                     "ignoreSelf": false,
                     "ascending": true,
                     "viewType": "details",
