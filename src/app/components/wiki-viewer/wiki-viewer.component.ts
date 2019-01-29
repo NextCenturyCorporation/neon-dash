@@ -28,7 +28,7 @@ import {
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
@@ -66,9 +66,9 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     @ViewChild('infoText') infoText: ElementRef;
 
     constructor(
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
+        searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
         protected http: HttpClient,
@@ -76,9 +76,9 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     ) {
 
         super(
-            connectionService,
             datasetService,
             filterService,
+            searchService,
             injector,
             ref
         );
@@ -112,20 +112,23 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
+     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} query
-     * @arg {neon.query.WherePredicate[]} wherePredicates
-     * @return {neon.query.Query}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
-        let wheres: neon.query.WherePredicate[] = wherePredicates.concat([
-            neon.query.where(options.idField.columnName, '=', options.id),
-            neon.query.where(options.linkField.columnName, '!=', null)
-        ]);
-        return query.where(neon.query.and.apply(query, wheres));
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let filters: FilterClause[] = [
+            this.searchService.buildFilterClause(options.idField.columnName, '=', options.id),
+            this.searchService.buildFilterClause(options.linkField.columnName, '!=', null)
+        ];
+
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)));
+
+        return query;
     }
 
     /**

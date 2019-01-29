@@ -27,9 +27,10 @@ import { SubcomponentImpl2 } from './subcomponent.impl2';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
+import { SearchService } from '../../services/search.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -37,8 +38,8 @@ import { TransformedVisualizationData } from '../base-neon-component/base-neon.c
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -82,17 +83,17 @@ let validateToggle = (element: any, value: any, content: string, checked: boolea
 
 class TestSampleComponent extends SampleComponent {
     constructor(
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
+        searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef
     ) {
 
         super(
-            connectionService,
             datasetService,
             filterService,
+            searchService,
             injector,
             ref
         );
@@ -124,16 +125,16 @@ describe('Component: Sample', () => {
     let fixture: ComponentFixture<TestSampleComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Sample', {
         declarations: [
             TestSampleComponent,
             ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -239,13 +240,23 @@ describe('Component: Sample', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
-        let inputQuery = new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name);
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name)
-            .where(neon.query.where('testRequiredField1', '!=', null)).groupBy(['testRequiredField1'])
-            .aggregate(neonVariables.COUNT, '*', 'count').sortBy('count', neonVariables.DESCENDING));
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            aggregation: [{
+                field: '*',
+                name: '_count',
+                type: 'count'
+            }],
+            filter: {
+                field: 'testRequiredField1',
+                operator: '!=',
+                value: null
+            },
+            groups: ['testRequiredField1'],
+            sort: {
+                field: '_count',
+                order: -1
+            }
+        });
     });
 
     it('finalizeVisualizationQuery does return expected query with sampleOptionalField', () => {
@@ -254,18 +265,30 @@ describe('Component: Sample', () => {
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
 
-        let wherePredicate = neon.query.and.apply(neon.query, [
-            neon.query.where('testRequiredField1', '!=', null),
-            neon.query.where('testOptionalField1', '!=', null)
-        ]);
-
-        let inputQuery = new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name);
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name).where(wherePredicate)
-            .groupBy(['testRequiredField1', 'testOptionalField1']).aggregate(neonVariables.COUNT, '*', 'count')
-            .sortBy('count', neonVariables.DESCENDING));
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            aggregation: [{
+                field: '*',
+                name: '_count',
+                type: 'count'
+            }],
+            filter: {
+                filters: [{
+                    field: 'testRequiredField1',
+                    operator: '!=',
+                    value: null
+                }, {
+                    field: 'testOptionalField1',
+                    operator: '!=',
+                    value: null
+                }],
+                type: 'and'
+            },
+            groups: ['testRequiredField1', 'testOptionalField1'],
+            sort: {
+                field: '_count',
+                order: -1
+            }
+        });
     });
 
     it('createVisualizationFilter does return expected filter object', () => {
@@ -652,10 +675,10 @@ describe('Component: Sample', () => {
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
-            count: 2,
+            _count: 2,
             testRequiredField1: 'a'
         }, {
-            count: 1,
+            _count: 1,
             testRequiredField1: 'z'
         }]);
         expect(actual.data).toEqual([{
@@ -685,11 +708,11 @@ describe('Component: Sample', () => {
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
-            count: 2,
+            _count: 2,
             testOptionalField1: 'alpha',
             testRequiredField1: 'a'
         }, {
-            count: 1,
+            _count: 1,
             testOptionalField1: 'omega',
             testRequiredField1: 'z'
         }]);
@@ -1126,16 +1149,16 @@ describe('Component: Sample with config', () => {
     let fixture: ComponentFixture<TestSampleComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Sample', {
         declarations: [
             TestSampleComponent,
             ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchService },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'customEventsToPublish', useValue: [{ id: 'test_publish_event', fields: [{ columnName: 'testPublishField' }] }] },

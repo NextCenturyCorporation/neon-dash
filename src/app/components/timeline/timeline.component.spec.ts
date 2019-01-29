@@ -29,11 +29,12 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { TimelineComponent, TransformedTimelineAggregationData } from './timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { WidgetService } from '../../services/widget.service';
 
 let d3 = require('../../../assets/d3.min.js');
@@ -43,7 +44,7 @@ describe('Component: Timeline', () => {
     let component: TimelineComponent;
     let fixture: ComponentFixture<TimelineComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Timeline', {
         declarations: [
             TimelineComponent,
             ExportControlComponent,
@@ -51,9 +52,9 @@ describe('Component: Timeline', () => {
         ],
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
-            ConnectionService,
             DatasetService,
             FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: testConfig }
         ],

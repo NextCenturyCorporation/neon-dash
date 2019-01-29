@@ -25,13 +25,14 @@ import { FieldMetaData } from '../../dataset';
 import { FilterBuilderComponent } from './filter-builder.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import * as neon from 'neon-framework';
 
 describe('Component: Filter Builder', () => {
@@ -39,14 +40,14 @@ describe('Component: Filter Builder', () => {
     let component: FilterBuilderComponent;
     let fixture: ComponentFixture<FilterBuilderComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Filter Builder', {
         declarations: [
             FilterBuilderComponent
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: testConfig }
         ],
@@ -178,7 +179,7 @@ describe('Component: Filter Builder', () => {
     });
 
     it('finalizeVisualizationQuery does return null always', () => {
-        expect(component.finalizeVisualizationQuery(component.options, new neon.query.Query(), [])).toEqual(null);
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual(null);
     });
 
     it('getCloseableFilters does return empty array always', () => {
@@ -320,14 +321,14 @@ describe('Component: Filter Builder with config', () => {
     let component: FilterBuilderComponent;
     let fixture: ComponentFixture<FilterBuilderComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Filter Builder', {
         declarations: [
             FilterBuilderComponent
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             {
                 provide: 'clauseConfig',
