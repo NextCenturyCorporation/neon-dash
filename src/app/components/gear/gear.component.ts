@@ -221,7 +221,6 @@ export class GearComponent implements OnInit, OnDestroy {
                 this.mapType = newValue;
             }
         }
-        this.options[widgetOption.bindingKey] = newValue;
     }
 
     /**
