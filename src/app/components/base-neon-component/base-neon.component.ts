@@ -486,7 +486,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public beforeExecuteAllQueryChain(): void {
         // do nothing by default
     }
-    
+
     /**
      * Run after executing all the data queries for the visualization.
      * Used to notify the visualization that all queries have completed.
@@ -494,7 +494,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public afterExecuteAllQueryChain(): void {
         // do nothing by default
     }
-    
+
     /**
      * Runs all the data queries for the visualization.  Called on initialization, if a user changes the visualization config or sets a
      * filter, or whenever else the data queries need to be run.

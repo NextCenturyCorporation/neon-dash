@@ -248,8 +248,8 @@ describe('Component: NetworkGraph', () => {
         let options = component.options;
         options.layers = [
             {
-                database: "testNodeDatabase",
-                table: "testNodeTable",
+                database: 'testNodeDatabase',
+                table: 'testNodeTable',
                 layerType: 'nodes',
                 idField: new FieldMetaData('testNodeIdField'),
                 nameField: new FieldMetaData('testNodeNameField'),
@@ -258,8 +258,8 @@ describe('Component: NetworkGraph', () => {
                 param2Field: new FieldMetaData('testNodeYPositionField')
             },
             {
-                database: "testEdgeDatabase",
-                table: "testTable",
+                database: 'testEdgeDatabase',
+                table: 'testTable',
                 layerType: 'edges',
                 nameField: new FieldMetaData('testEdgeNameField'),
                 colorField: new FieldMetaData('testEdgeColorField'),
