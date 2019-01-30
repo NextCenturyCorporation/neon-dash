@@ -86,7 +86,7 @@ export class LeafletNeonMap extends AbstractMap {
     addPoints(points: MapPoint[], layer?: any, cluster?: boolean) {
         let layerGroup = this.layerGroups.get(layer);
         if (!layerGroup) {
-            layerGroup = !cluster ? new L.LayerGroup() : L.markerClusterGroup({
+            layerGroup = !cluster ? new L.LayerGroup() : (<any>L).markerClusterGroup({
                 // Override default function to add neon-cluster class to cluster icons.
                 iconCreateFunction: (clusterPoint) => {
                     return new L.DivIcon({
