@@ -1,19 +1,17 @@
 <div *ngFor="let option of optionsList">
     <!-- Database Option Type-->
-    <!--
     <mat-form-field class="option-container" *ngIf="checkOptionType(option.optionType, 'DATABASE')">
-        <mat-select placeholder="Database" [(ngModel)]="options.database" required="true" name="database"
+        <mat-select placeholder="Database" [(ngModel)]="option.valueCurrent" required="true" name="database"
             (ngModelChange)="handleChangeDatabase(option)">
-            <mat-option *ngFor="let database of options.databases" [value]="database">{{ database.prettyName }}</mat-option>
+            <mat-option *ngFor="let database of databases" [value]="database">{{ database.prettyName }}</mat-option>
         </mat-select>
-    </mat-form-field> -->
+    </mat-form-field>
     <!-- Table Option Type-->
-    <!--
     <mat-form-field class="option-container" *ngIf="checkOptionType(option.optionType, 'TABLE')">
-        <mat-select placeholder="Table" [(ngModel)]="options.table" required="true" name="table" (ngModelChange)="handleChangeTable(option)">
-            <mat-option *ngFor="let table of options.tables" [value]="table">{{ table.prettyName }}</mat-option>
+        <mat-select placeholder="Table" [(ngModel)]="option.valueCurrent" required="true" name="table" (ngModelChange)="handleChangeTable(option)">
+            <mat-option *ngFor="let table of tables" [value]="table">{{ table.prettyName }}</mat-option>
         </mat-select>
-    </mat-form-field> -->
+    </mat-form-field>
     <!-- Select Option Type-->
     <mat-form-field class="option-container" *ngIf="checkOptionType(option.optionType, 'SELECT')">
         <mat-select option.prettyName placeholder={{option.prettyName}} [ngModel]="option.valueCurrent"

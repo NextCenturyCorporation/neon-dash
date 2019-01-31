@@ -44,7 +44,9 @@ export class OptionsListComponent implements OnInit {
      */
     @Input() optionsList: string[];
     @Input() layers: any[];
+    @Input() databases: any[];
     @Input() fields: any[];
+    @Input() tables: any[];
 
     @Input() handleChangeData: Function;
     @Input() handleChangeDatabase: Function;
