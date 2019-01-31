@@ -40,7 +40,7 @@
     <!-- Field Array Option Type-->
     <div mat-fill class="flex center" *ngIf="checkOptionType(option.optionType, 'FIELD_ARRAY')">
         <mat-form-field class='option-container'>
-            <mat-select placeholder={{option.prettyName}} [(ngModel)]="option.valueCurrent" name="{{option.prettyName}} Field Array"
+            <mat-select placeholder={{option.prettyName}} [ngModel]="option.valueCurrent" name="{{option.prettyName}} Field Array"
                 (ngModelChange)="handleDataChange(option, $event)" multiple>
                 <mat-option *ngFor="let field of fields" [value]="field">{{ field.prettyName }}</mat-option>
             </mat-select>
@@ -49,7 +49,7 @@
     <!-- Multiple Select Option Type-->
     <div mat-fill class="flex center" *ngIf="checkOptionType(option.optionType, 'MULTIPLE_SELECT')">
         <mat-form-field class='option-container'>
-            <mat-select placeholder={{option.prettyName}} [(ngModel)]="option.valueCurrent" name="{{option.prettyName}} Multiple Select"
+            <mat-select placeholder={{option.prettyName}} [ngModel]="option.valueCurrent" name="{{option.prettyName}} Multiple Select"
                 (ngModelChange)="handleDataChange(option, $event)" multiple>
                 <mat-option *ngFor="let field of fields" [value]="field">{{ field }}</mat-option>
             </mat-select>

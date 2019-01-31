@@ -54,8 +54,9 @@ export class OptionsListComponent implements OnInit {
     @Input() handleChangeTable: Function;
     @Input() handleDataChange: Function;
 
+    newList: any[];
     constructor(public widgetService: AbstractWidgetService) {
-        //
+        this.newList = [];
     }
 
     checkOptionType(currentType: string, checkType) {
@@ -63,10 +64,6 @@ export class OptionsListComponent implements OnInit {
             return true;
         }
         return false;
-    }
-
-    @Input() set colorKeys(colorKeys: string[]) {
-        //
     }
 
     ngOnInit() {
