@@ -662,6 +662,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.errorMessage = 'No Data';
             this.layerIdToActiveData.set(options._id, new TransformedVisualizationData());
             this.layerIdToElementCount.set(options._id, 0);
+            this.clearVisualizationData(options);
             callback();
             return;
         }
@@ -1595,5 +1596,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         // Assumes single-layer widget.
         return this.visualizationQueryPaginates && (this.page > 1 || this.showingZeroOrMultipleElementsPerResult ||
             ((this.page * this.options.limit) < this.layerIdToElementCount.get(this.options._id)));
+    }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.  Override as needed.
     }
 }
