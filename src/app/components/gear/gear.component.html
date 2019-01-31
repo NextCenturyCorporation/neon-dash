@@ -39,10 +39,11 @@
                 <mat-icon class="neon-icon-small">{{ getIconForFilter(layer) }}</mat-icon>
             </mat-toolbar>
             <div [hidden]="!filterVisible.get(layer._id)">
-                <app-options-list [fields]=layer.fields [optionsList]=layer.list() [handleChangeData]=handleChangeData
-                    [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit
-                    [handleChangeFilterField]=handleChangeFilterField [handleChangeSubcomponentType]=handleChangeSubcomponentType
-                    [handleChangeTable]=handleChangeTable [handleDataChange]=handleDataChange.bind(this)>
+                <app-options-list [databases]=options.databases [fields]=options.fields [tables]=options.tables
+                    [optionsList]=layer.list() [handleChangeData]=handleChangeData [handleChangeDatabase]=handleChangeDatabase
+                    [handleChangeLimit]=handleChangeLimit [handleChangeFilterField]=handleChangeFilterField
+                    [handleChangeSubcomponentType]=handleChangeSubcomponentType [handleChangeTable]=handleChangeTable
+                    [handleDataChange]=handleDataChange.bind(this)>
                 </app-options-list>
             </div>
         </div>
@@ -52,16 +53,16 @@
     <div>
 
         <!-- Required Options-->
-        <app-options-list [fields]=options.fields [optionsList]=requiredList [handleChangeData]=handleChangeData
-            [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit [handleChangeFilterField]=handleChangeFilterField
-            [handleChangeSubcomponentType]=handleChangeSubcomponentType [handleChangeTable]=handleChangeTable
-            [handleDataChange]=handleDataChange.bind(this)>
+        <app-options-list [databases]=options.databases [fields]=options.fields [tables]=options.tables [optionsList]=requiredList
+            [handleChangeData]=handleChangeData [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit
+            [handleChangeFilterField]=handleChangeFilterField [handleChangeSubcomponentType]=handleChangeSubcomponentType
+            [handleChangeTable]=handleChangeTable [handleDataChange]=handleDataChange.bind(this)>
         </app-options-list>
 
-        <app-options-list [fields]=options.fields [optionsList]=requiredListNonField [handleChangeData]=handleChangeData
-            [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit [handleChangeFilterField]=handleChangeFilterField
-            [handleChangeSubcomponentType]=handleChangeSubcomponentType [handleChangeTable]=handleChangeTable
-            [handleDataChange]=handleDataChange.bind(this)>
+        <app-options-list [databases]=options.databases [fields]=options.fields [tables]=options.tables [optionsList]=requiredListNonField
+            [handleChangeData]=handleChangeData [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit
+            [handleChangeFilterField]=handleChangeFilterField [handleChangeSubcomponentType]=handleChangeSubcomponentType
+            [handleChangeTable]=handleChangeTable [handleDataChange]=handleDataChange.bind(this)>
         </app-options-list>
 
         <!-- Optional Options-->
@@ -70,17 +71,17 @@
             <mat-icon class="neon-icon-small">{{ getIconForOptions() }}</mat-icon>
         </mat-toolbar>
         <div [hidden]="collapseOptionalOptions">
-        <app-options-list [fields]=options.fields [optionsList]=optionalList [handleChangeData]=handleChangeData
-            [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit [handleChangeFilterField]=handleChangeFilterField
-            [handleChangeSubcomponentType]=handleChangeSubcomponentType [handleChangeTable]=handleChangeTable
-            [handleDataChange]=handleDataChange.bind(this)>
-        </app-options-list>
+            <app-options-list [databases]=options.databases [fields]=options.fields [tables]=options.tables [optionsList]=optionalList
+                [handleChangeData]=handleChangeData [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit
+                [handleChangeFilterField]=handleChangeFilterField [handleChangeSubcomponentType]=handleChangeSubcomponentType
+                [handleChangeTable]=handleChangeTable [handleDataChange]=handleDataChange.bind(this)>
+            </app-options-list>
 
-        <app-options-list [fields]=options.fields [optionsList]=optionalListNonField [handleChangeData]=handleChangeData
-            [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit [handleChangeFilterField]=handleChangeFilterField
-            [handleChangeSubcomponentType]=handleChangeSubcomponentType [handleChangeTable]=handleChangeTable
-            [handleDataChange]=handleDataChange.bind(this)>
-        </app-options-list>
+            <app-options-list [databases]=options.databases [fields]=options.fields [tables]=options.tables [optionsList]=optionalListNonField
+                [handleChangeData]=handleChangeData [handleChangeDatabase]=handleChangeDatabase [handleChangeLimit]=handleChangeLimit
+                [handleChangeFilterField]=handleChangeFilterField [handleChangeSubcomponentType]=handleChangeSubcomponentType
+                [handleChangeTable]=handleChangeTable [handleDataChange]=handleDataChange.bind(this)>
+            </app-options-list>
         </div>
     </div>
 
