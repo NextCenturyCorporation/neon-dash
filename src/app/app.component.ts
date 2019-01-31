@@ -297,6 +297,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         }
     }
 
+    disableClose(): boolean {
+        return this.currentPanel === 'gear';
+    }
+
     /**
      * Expands the given widget to fill the width of the grid.
      *

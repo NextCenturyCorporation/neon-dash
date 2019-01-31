@@ -21,7 +21,13 @@ import {
     Injector,
     OnDestroy,
     OnInit,
-    ViewEncapsulation
+    ViewEncapsulation,
+    Input,
+    Output,
+    EventEmitter,
+    ViewChild,
+    ViewChildren,
+    QueryList
 } from '@angular/core';
 
 import { OptionsListComponent } from '../options-list/options-list.component';
@@ -30,6 +36,7 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import * as neon from 'neon-framework';
 import { WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../widget-option';
 import { MapType } from '../map/map.type.abstract';
+import { MatSidenav } from '@angular/material';
 @Component({
     selector: 'app-gear',
     templateUrl: './gear.component.html',
@@ -38,7 +45,8 @@ import { MapType } from '../map/map.type.abstract';
     encapsulation: ViewEncapsulation.Emulated
 })
 export class GearComponent implements OnInit, OnDestroy {
-
+    @Input() sideNavRight: MatSidenav;
+    @ViewChildren('listChildren') listChildren: QueryList<OptionsListComponent>;
     public options: any = new WidgetOptionCollection();
     private messenger: neon.eventing.Messenger;
     private optionsList: WidgetOption[];
@@ -90,7 +98,7 @@ export class GearComponent implements OnInit, OnDestroy {
             let newLimit = parseFloat('' + this.newLimit);
             if (newLimit > 0) {
                 this.limitChanged = true;
-                this.changeList.push(widgetOption, newValue);
+                this.changeList.push(widgetOption, newLimit);
             } else {
                 this.limitChanged = false;
                 this.newLimit = this.options.limit;
@@ -200,7 +208,7 @@ export class GearComponent implements OnInit, OnDestroy {
      */
     handleApplyClick() {
         this.changeList.forEach((change) => {
-            this.options[change.widgetOption.bindingkey] = change.newValue;
+            this.options[change.widgetOption.bindingKey] = change.newValue;
         });
         this.changeList = [];
 
@@ -217,6 +225,9 @@ export class GearComponent implements OnInit, OnDestroy {
         }
 
         this.handleChangeData();
+        this.sideNavRight.close();
+        this.resetList();
+        this.changeDetection.detectChanges();
     }
 
     handleDataChange(widgetOption, newValue) {
@@ -299,7 +310,16 @@ export class GearComponent implements OnInit, OnDestroy {
         this.optionsList = this.options.list();
         this.cleanShowOptions();
         this.constructOptionsLists();
+        this.sideNavRight.close();
+        this.resetList();
         this.changeDetection.detectChanges();
+    }
+
+    resetList() {
+        this.requiredList = [];
+        this.requiredListNonField = [];
+        this.optionalList = [];
+        this.optionalListNonField = [];
     }
 
     /**
@@ -338,7 +358,6 @@ export class GearComponent implements OnInit, OnDestroy {
             this.handleChangeSubcomponentType = message.handleChangeSubcomponentType;
         }
 */
-        //console.log(this.options);
 
         this.optionsList = this.options.list();
         this.cleanShowOptions();
