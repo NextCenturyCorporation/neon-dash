@@ -95,7 +95,7 @@ interface ArrowProperties {
 interface ArrowUpdate {
     id: string;
     arrows: ArrowProperties;
-    color: Object;
+    color?: Object;
 }
 
 interface EdgeColorProperties {
