@@ -23,6 +23,7 @@ export namespace neonEvents {
     export const DASHBOARD_ERROR = 'DASHBOARD_ERROR';
     export const DASHBOARD_REFRESH = 'DASHBOARD_REFRESH';
     export const DASHBOARD_STATE = 'DASHBOARD_STATE';
+    export const FILTERS_CHANGED = 'filters_changed'; // Lowercase to maintain backwards compatibility
     export const NEW_DATASET = 'NEW_DATASET';
     export const WIDGET_ADD = 'WIDGET_ADD';
     export const WIDGET_DELETE = 'WIDGET_DELETE';
