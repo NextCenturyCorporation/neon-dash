@@ -48,47 +48,6 @@ export class FilterService {
 
     constructor(protected datasetService: DatasetService) {}
 
-    protected getDatabaseFilterState(onSuccess: (filterList: any[]) => any, onError: (response: any) => any) {
-        neon.query.Filter.getFilterState('*', '*', onSuccess, onError);
-    }
-
-    /**
-     * Gets all the filters from the server.
-     * @param {Function} [onSuccess] Optional success callback
-     * @param {Function} [onError] Optional error callback
-     * @method getFilterState
-     */
-    public getFilterState(onSuccess?: () => any, onError?: (resp: any) => any) {
-        this.getDatabaseFilterState((filters) => {
-            this.filters = filters.map((filter) => {
-                return new ServiceFilter(filter.id, undefined, filter.dataSet.databaseName, filter.dataSet.tableName, filter.filter);
-            });
-            for (let filter of this.filters) {
-                this.replaceFilter(
-                    this.messenger,
-                    filter.id,
-                    filter.filter.ownerId,
-                    filter.filter.databaseName,
-                    filter.filter.tableName,
-                    filter.filter.whereClause,
-                    filter.filter.filterName
-                );
-            }
-            if (onSuccess) {
-                onSuccess();
-            }
-        }, (response) => {
-            if (onError) {
-                onError(response);
-            } else if (response.responseJSON) {
-                this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                    error: null,
-                    message: response.responseJSON
-                });
-            }
-        });
-    }
-
     /**
      * Returns all filters matching the given comparator object. The comparator object can be as sparse
      * or as detailed as desired, and only filters matching every given field will be returned. If no parameter
@@ -190,22 +149,15 @@ export class FilterService {
             }
         }
 
-        messenger.addFilters(
-            serviceFilters.map((sFilter) => {
-                let fId = sFilter.id;
-                let fFilter = _.cloneDeep(sFilter.filter);
-                this.datifyWherePredicates(fFilter.whereClause, fFilter.databaseName, fFilter.tableName);
-                return [sFilter.id, fFilter];
-            }),
-            () => {
-                for (let i = serviceFilters.length - 1; i >= 0; i--) {
-                    this.filters.push(serviceFilters[i]);
-                }
-                if (onSuccess) {
-                    onSuccess(id); // Return the ID of the primary created filter.
-                }
-            },
-            onError);
+        for (let i = serviceFilters.length - 1; i >= 0; i--) {
+            this.filters.push(serviceFilters[i]);
+        }
+
+        if (onSuccess) {
+            onSuccess(id); // Return the ID of the primary created filter.
+        }
+
+        this.messenger.publish(neonEvents.FILTERS_CHANGED, {});
     }
 
     public replaceFilter(
@@ -250,26 +202,18 @@ export class FilterService {
             }
         }
 
-        messenger.replaceFilters(
-            idAndFilterList.map((idAndSFilterArray) => {
-                let fId = idAndSFilterArray[0];
-                let sFilter = idAndSFilterArray[1];
-                let fFilter = _.cloneDeep(sFilter) as neon.query.Filter;
-                this.datifyWherePredicates(fFilter.whereClause, fFilter.databaseName, fFilter.tableName);
-                return [fId, fFilter];
-            }),
-            () => {
-                let index = _.findIndex(this.filters, { id: id });
-                this.filters[index] = new ServiceFilter(id, ownerId, database, table, filter, this.filters[index].siblings);
-                for (let i = newSiblings.length - 1; i >= 0; i--) {
-                    index = _.findIndex(this.filters, { id: newSiblings[i].id });
-                    this.filters[index] = newSiblings[i];
-                }
-                if (onSuccess) {
-                    onSuccess(id); // Return the ID of the replaced filter.
-                }
-            },
-            onError);
+        let index = _.findIndex(this.filters, { id: id });
+        this.filters[index] = new ServiceFilter(id, ownerId, database, table, filter, this.filters[index].siblings);
+        for (let i = newSiblings.length - 1; i >= 0; i--) {
+            index = _.findIndex(this.filters, { id: newSiblings[i].id });
+            this.filters[index] = newSiblings[i];
+        }
+
+        if (onSuccess) {
+            onSuccess(id); // Return the ID of the replaced filter.
+        }
+
+        this.messenger.publish(neonEvents.FILTERS_CHANGED, {});
     }
 
     protected removeFilter(
@@ -286,21 +230,19 @@ export class FilterService {
             return;
         }
 
-        messenger.removeFilters(siblings,
-            () => { // TODO - Actually care about what's returned here: a list of successfully removed filters.
-                // Filters not included weren't successfully removed.
-                siblings.forEach((sibling) => {
-                    for (let index = this.filters.length - 1; index >= 0; index--) {
-                        if (this.filters[index].id === sibling) {
-                            this.filters.splice(index, 1);
-                        }
-                    }
-                });
-                if (onSuccess) {
-                    onSuccess(baseFilter); // Return the removed filter.
+        siblings.forEach((sibling) => {
+            for (let index = this.filters.length - 1; index >= 0; index--) {
+                if (this.filters[index].id === sibling) {
+                    this.filters.splice(index, 1);
                 }
-            },
-            onError);
+            }
+        });
+
+        if (onSuccess) {
+            onSuccess(baseFilter); // Return the removed filter.
+        }
+
+        this.messenger.publish(neonEvents.FILTERS_CHANGED, {});
     }
 
     public removeFilters(
@@ -310,7 +252,6 @@ export class FilterService {
         onError?: (resp: any) => any
     ) {
 
-        // TODO Use messenger.removeFilters now to remove all filters simultaneously.
         for (let id of ids) {
             this.removeFilter(messenger, id, onSuccess, onError);
         }
@@ -471,5 +412,9 @@ export class FilterService {
 
     public clearFilters() {
         this.filters = [];
+    }
+
+    public setFilters(filters: ServiceFilter[]) {
+        this.filters = filters;
     }
 }

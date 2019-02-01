@@ -24,6 +24,8 @@ import {
 import { AbstractSearchService, AggregationType, NeonFilterClause, NeonQueryPayload } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
+// TODO THOR-941 Don't import WhereWrapper!
+import { WhereWrapper } from '../../services/search.service';
 
 import { Color } from '../../color';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -138,7 +140,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.newLimit = this.options.limit;
         this.id = this.options._id;
 
-        this.messenger.subscribe('filters_changed', this.handleFiltersChangedEvent.bind(this));
+        this.messenger.subscribe(neonEvents.FILTERS_CHANGED, this.handleFiltersChangedEvent.bind(this));
         this.messenger.subscribe('select_id', (eventMessage) => {
             if (this.updateOnSelectId) {
                 (this.isMultiLayerWidget ? this.options.layers : [this.options]).forEach((layer) => {
@@ -508,12 +510,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                     this.searchService.updateOffset(query, (this.page - 1) * this.options.limit);
                 }
 
-                let filtersToIgnore = this.getFiltersToIgnore();
-                if (filtersToIgnore && filtersToIgnore.length && (query as any).query) {
-                    // TODO THOR-946
-                    (query as any).query.ignoreFilters(filtersToIgnore);
-                }
-
                 this.executeQuery(queryOptions, query, 'default visualization query', this.handleSuccessfulVisualizationQuery.bind(this));
             }
         }
@@ -590,13 +586,23 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {NeonFilterClause[]}
      */
     public createSharedFilters(options: any): NeonFilterClause[] {
-        let filters: NeonFilterClause[] = [];
+        let ignoreFilterIds: string[] = this.getFiltersToIgnore() || [];
+
+        // TODO THOR-941 FilterService.getFilters must return NeonFilterClause[] (don't depend on neon.query.Filter or WhereWrapper class)
+        let filters: NeonFilterClause[] = this.filterService.getFilters({
+            database: options.database.name,
+            table: options.table.name
+        }).filter((neonFilter) => ignoreFilterIds.indexOf(neonFilter.id) < 0).map((neonFilter) => new WhereWrapper(
+            neonFilter.filter.whereClause as neon.query.WherePredicate));
+
         if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
             filters.push(this.searchService.buildFilterClause(options.filter.lhs, options.filter.operator, options.filter.rhs));
         }
+
         if (this.hasUnsharedFilter(options)) {
             filters.push(this.searchService.buildFilterClause(options.unsharedFilterField.columnName, '=', options.unsharedFilterValue));
         }
+
         return filters;
     }
 
@@ -667,11 +673,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 if (countQuery) {
                     // Do not add a limit or an offset!
                     this.searchService.updateAggregation(countQuery, AggregationType.COUNT, '_count', '*');
-                    let filtersToIgnore = this.getFiltersToIgnore();
-                    if (filtersToIgnore && filtersToIgnore.length && (countQuery as any).query) {
-                        // TODO THOR-946
-                        (countQuery as any).query.ignoreFilters(filtersToIgnore);
-                    }
                     this.executeQuery(options, countQuery, 'total count query', this.handleSuccessfulTotalCountQuery.bind(this));
                     // Ignore our own callback since the visualization will be refreshed within handleSuccessfulTotalCountQuery.
                 } else {
