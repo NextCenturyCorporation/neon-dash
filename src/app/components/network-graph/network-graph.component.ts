@@ -853,8 +853,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 linkNameField = entry[linkNameColumn],
                 targetNameField = targetNameColumn && entry[targetNameColumn],
                 nodeField = entry[nodeName],
-                xPosition = entry[xPositionField] - 100,
-                yPosition = entry[yPositionField] + 100,
+                xPosition = entry[xTargetPositionField],
+                yPosition = entry[yTargetPositionField],
                 filterFields: any[] = [];
 
             // if there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
@@ -871,18 +871,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             if (links) {
                 for (let j = 0; j < links.length && graph.nodes.length < limit; j++) {
                     let linkEntry = links[j];
-                    let linkNode = this.responseData.find((item) => item.kbid === linkEntry);
-                    if (linkNode) {
-                        //If edge node exists then get the existing position and name in order to avoid node duplication and relocation
-                        nodeType = linkNode[nodeColorField];
-                        linkNodeName = linkNode[nodeNameColumn];
-                        xPosition = linkNode[xPositionField];
-                        yPosition = linkNode[yPositionField];
-                        filterFields.push({field: nodeName, data: linkNode[nodeName]});
-                    } else {
-                        linkNodeName = targetNames[j];
-                        filterFields.push({field: nodeName, data: linkEntry});
-                    }
+                    linkNodeName = targetNames[j];
+                    filterFields.push({field: nodeName, data: linkEntry});
 
                     if (linkEntry && this.isUniqueNode(linkEntry)) {
                         //If legend labels have been modified, override the link
