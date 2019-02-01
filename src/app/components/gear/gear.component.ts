@@ -353,11 +353,6 @@ export class GearComponent implements OnInit, OnDestroy {
         this.handleChangeSubcomponentType = message.handleChangeSubcomponentType;
         this.handleChangeTable = message.changeTable;
         this.componentThis = message.componentThis;
-/*
-        if (message.changeHandleSubcomponentType) {
-            this.handleChangeSubcomponentType = message.handleChangeSubcomponentType;
-        }
-*/
 
         this.optionsList = this.options.list();
         this.cleanShowOptions();

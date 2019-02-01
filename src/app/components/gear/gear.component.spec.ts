@@ -45,7 +45,7 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { WidgetOptionCollection } from '../../widget-option';
+import { WidgetOptionCollection, WidgetFreeTextOption } from '../../widget-option';
 
 // Must define the test component.
 @Component({
@@ -107,6 +107,44 @@ describe('Component: Gear Component', () => {
     });
 
     it('class options properties are set to expected defaults', () => {
-        expect(component.options).toBeUndefined();
+        expect(component.options).toBeDefined();
+        expect(component.collapseOptionalOptions).toEqual(true);
+        expect(component.filterVisible).toBeDefined();
     });
+
+    it('returns correct icon', () => {
+        expect(component.getIconForOptions()).toEqual('keyboard_arrow_down');
+        component.collapseOptionalOptions = false;
+        expect(component.getIconForOptions()).toEqual('keyboard_arrow_up');
+    });
+
+    it('returns expected title', () => {
+        let title = new WidgetFreeTextOption('title', 'title', 'default title');
+        component.options.inject(title);
+        expect(component.getTitle()).toBeDefined();
+        expect(component.getTitle()).toEqual('default title');
+    });
+
+    it('calls expected functions', () => {
+        let spyCSO = spyOn(component, 'cleanShowOptions');
+        let spyCOL = spyOn(component, 'constructOptionsLists');
+
+        let options = new WidgetOptionCollection();
+        let title = new WidgetFreeTextOption('title', 'title', 'default title');
+        options.inject(title);
+        let message = {
+            options: options
+        };
+
+        component.updateOptions(message);
+        expect(spyCSO).toHaveBeenCalledTimes(1);
+        expect(spyCOL).toHaveBeenCalledTimes(1);
+    });
+
+    it('toggleOptionalOptions changes value', () => {
+        expect(component.collapseOptionalOptions).toEqual(true);
+        component.toggleOptionalOptions();
+        expect(component.collapseOptionalOptions).toEqual(false);
+    });
+
 });
