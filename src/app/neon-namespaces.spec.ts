@@ -15,7 +15,7 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import { neonMappings, neonUtilities, neonVariables } from './neon-namespaces';
+import { neonMappings, neonUtilities } from './neon-namespaces';
 
 describe('NeonMappings', () => {
     it('defines mappings', () => {
@@ -24,18 +24,6 @@ describe('NeonMappings', () => {
         expect(neonMappings.LATITUDE).toBe('latitude');
         expect(neonMappings.LONGITUDE).toBe('longitude');
         expect(neonMappings.URL).toBe('url');
-    });
-});
-
-describe('NeonVariables', () => {
-    it('defines variables', () => {
-        expect(neonVariables.ASCENDING).toBeDefined();
-        expect(neonVariables.AVG).toBeDefined();
-        expect(neonVariables.COUNT).toBeDefined();
-        expect(neonVariables.DESCENDING).toBeDefined();
-        expect(neonVariables.MAX).toBeDefined();
-        expect(neonVariables.MIN).toBeDefined();
-        expect(neonVariables.SUM).toBeDefined();
     });
 });
 
@@ -331,14 +319,14 @@ describe('NeonUtilities', () => {
             keyB: 'Tango'
         }];
 
-        expect(neonUtilities.sortArrayOfObjects(keys, 'keyA', neonVariables.DESCENDING)).toEqual([
+        expect(neonUtilities.sortArrayOfObjects(keys, 'keyA', -1)).toEqual([
                 {keyA: 'value75', keyB: 'Tango'},
                 {keyA: 'value5', keyB: 'foxtrot'},
                 {keyA: 'value4', keyB: 'bravo'},
                 {keyA: 'value21', keyB: 'Oscar'},
                 {keyA: 'value16', keyB: 'sierra'}
             ]);
-        expect(neonUtilities.sortArrayOfObjects(keys, 'keyB', neonVariables.DESCENDING)).toEqual([
+        expect(neonUtilities.sortArrayOfObjects(keys, 'keyB', -1)).toEqual([
             {keyA: 'value75', keyB: 'Tango'},
             {keyA: 'value16', keyB: 'sierra'},
             {keyA: 'value21', keyB: 'Oscar'},
