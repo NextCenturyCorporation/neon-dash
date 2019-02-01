@@ -748,13 +748,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     }
                 }
             });
-        }
 
-        //Flattens multi-level arrays, removes duplicates, and sorts alphabetically
-        this.prettifiedNodeLabels = this.prettifiedNodeLabels.reduce(this.flattenArray, [])
-            .filter((value, index, array) => array.indexOf(value) === index).sort();
-        this.prettifiedEdgeLabels = this.prettifiedEdgeLabels.reduce(this.flattenArray, [])
-            .filter((value, index, array) => array.indexOf(value) === index).sort();
+            //Flattens multi-level arrays, removes duplicates, and sorts alphabetically
+            this.prettifiedNodeLabels = this.prettifiedNodeLabels.reduce(this.flattenArray, [])
+                .filter((value, index, array) => array.indexOf(value) === index).sort();
+            this.prettifiedEdgeLabels = this.prettifiedEdgeLabels.reduce(this.flattenArray, [])
+                .filter((value, index, array) => array.indexOf(value) === index).sort();
+        }
 
         this.existingNodeNames = [];
 
