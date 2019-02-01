@@ -105,7 +105,7 @@ interface ArrowProperties {
 interface ArrowUpdate {
     id: string;
     arrows: ArrowProperties;
-    color: Object;
+    color?: Object;
 }
 
 interface EdgeColorProperties {
@@ -285,7 +285,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             new WidgetFieldOption('xPositionField', 'X Position Field', false, this.optionsNotReified),
             new WidgetFieldOption('yPositionField', 'Y Position Field', false, this.optionsNotReified),
             new WidgetFieldOption('xTargetPositionField', 'X Target Position Field', false, this.optionsNotReified),
-            new WidgetFieldOption('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified)
+            new WidgetFieldOption('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified),
+            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
         ];
     }
 
@@ -323,9 +324,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             new WidgetFreeTextOption('fontColor', 'Font Color', '#343434', this.optionsNotReified),
             new WidgetFreeTextOption('linkColor', 'Link Color', '#96c1fc', this.optionsNotReified),
             new WidgetFreeTextOption('nodeColor', 'Node Color', '#96c1fc', this.optionsNotReified),
-            new WidgetFreeTextOption('nodeShape', 'Node Shape', 'box'),
-            // TODO THOR-950 Rename filterFields because it is not an array of FieldMetaData objects!
-            new WidgetNonPrimitiveOption('filterFields', 'Filter Fields', [])
+            new WidgetFreeTextOption('nodeShape', 'Node Shape', 'box')
         ];
     }
 
@@ -650,7 +649,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     setupFilters() {
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
-            this.options.table.name, this.options.filterFields);
+            this.options.table.name, this.options.filterFields.map((fieldsObject) => fieldsObject.columnName));
         this.filters = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
@@ -715,7 +714,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
-        this.neonFilters = this.filterService.getFiltersForFields(options.database.name, options.table.name, options.filterFields);
+        this.neonFilters = this.filterService.getFiltersForFields(options.database.name, options.table.name,
+            options.filterFields.map((fieldsObject) => fieldsObject.columnName));
 
         //TODO: clean up colors for layers
         if (!this.responseData.length && !LayerTypes.includes(options.layerType)) {
@@ -748,13 +748,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     }
                 }
             });
-
-            //Flattens multi-level arrays, removes duplicates, and sorts alphabetically
-            this.prettifiedNodeLabels = this.prettifiedNodeLabels.reduce(this.flattenArray, [])
-                .filter((value, index, array) => array.indexOf(value) === index).sort();
-            this.prettifiedEdgeLabels = this.prettifiedEdgeLabels.reduce(this.flattenArray, [])
-                .filter((value, index, array) => array.indexOf(value) === index).sort();
         }
+
+        //Flattens multi-level arrays, removes duplicates, and sorts alphabetically
+        this.prettifiedNodeLabels = this.prettifiedNodeLabels.reduce(this.flattenArray, [])
+            .filter((value, index, array) => array.indexOf(value) === index).sort();
+        this.prettifiedEdgeLabels = this.prettifiedEdgeLabels.reduce(this.flattenArray, [])
+            .filter((value, index, array) => array.indexOf(value) === index).sort();
 
         this.existingNodeNames = [];
 
@@ -1022,7 +1022,10 @@ private getAllNodes(data: any[], idField: string, nameField: string,
             limit = this.options.limit,
             nodeShape = this.options.nodeShape,
             xPositionField = this.options.xPositionField.columnName,
-            yPositionField = this.options.yPositionField.columnName;
+            yPositionField = this.options.yPositionField.columnName,
+            xTargetPositionField = this.options.xTargetPositionField.columnName,
+            yTargetPositionField = this.options.yTargetPositionField.columnName,
+            fFields = this.options.filterFields.map((fieldsObject) => fieldsObject.columnName);
 
         // assume nodes will take precedence over edges so create nodes first
         graph.nodes = this.getAllNodes(this.responseData, nodeName, nodeNameColumn, nodeColorField, nodeColor, xPositionField,
@@ -1037,8 +1040,8 @@ private getAllNodes(data: any[], idField: string, nameField: string,
                 linkNameField = entry[linkNameColumn],
                 targetNameField = targetNameColumn && entry[targetNameColumn],
                 nodeField = entry[nodeName],
-                xPosition = entry[xPositionField] - 100,
-                yPosition = entry[yPositionField] + 100,
+                xPosition = entry[xTargetPositionField],
+                yPosition = entry[yTargetPositionField],
                 filterFields: any[] = [];
 
             // if there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
@@ -1055,18 +1058,8 @@ private getAllNodes(data: any[], idField: string, nameField: string,
             if (links) {
                 for (let j = 0; j < links.length && graph.nodes.length < limit; j++) {
                     let linkEntry = links[j];
-                    let linkNode = this.responseData.find((item) => item.kbid === linkEntry);
-                    if (linkNode) {
-                        //If edge node exists then get the existing position and name in order to avoid node duplication and relocation
-                        nodeType = linkNode[nodeColorField];
-                        linkNodeName = linkNode[nodeNameColumn];
-                        xPosition = linkNode[xPositionField];
-                        yPosition = linkNode[yPositionField];
-                        filterFields.push({ field: nodeName, data: linkNode[nodeName] });
-                    } else {
-                        linkNodeName = targetNames[j];
-                        filterFields.push({ field: nodeName, data: linkEntry });
-                    }
+                    linkNodeName = targetNames[j];
+                    filterFields.push({field: nodeName, data: linkEntry});
 
                     if (linkEntry && this.isUniqueNode(linkEntry)) {
                         //If legend labels have been modified, override the link
@@ -1322,4 +1315,8 @@ private getAllNodes(data: any[], idField: string, nameField: string,
         this.reloadGraph();
     }
 
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.transformVisualizationQueryResults(options, []);
+    }
 }

@@ -32,7 +32,7 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, MediaTypes } from '../../dataset';
+import { MediaTypes } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -44,7 +44,6 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
-import * as _ from 'lodash';
 
 export const ViewType = {
     CARD: 'card',
@@ -161,7 +160,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 this.replaceNeonFilter(this.options, runQuery, filter, clause);
             }
         } else {
-            this.removeAllFilters(this.options, [].concat(this.filters), () => {
+            this.removeAllFilters(this.options, [].concat(this.filters), false, false, () => {
                 this.filters = [filter];
                 this.addNeonFilter(this.options, runQuery, filter, clause);
             });
@@ -215,7 +214,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             }, {
                 prettyName: 'Card',
                 variable: ViewType.CARD
-            }])
+            }]),
+            new WidgetFreeTextOption('canvasSize', 'Canvas Size', this.CANVAS_SIZE),
+            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', {value: false, length: 0})
+
         ];
     }
 
@@ -377,6 +379,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             text.push((actualText ? actualText + ' : ' : '') + item[this.options.objectNameField.columnName]);
         }
         return text.join(', ');
+    }
+
+    getTruncatedTitle(item): string {
+        let title = item[this.options.flagLabel.columnName];
+        if (title.length > this.options.truncateLabel.length) {
+            title = title.substring(0, this.options.truncateLabel.length).concat('...');
+        }
+
+        return title;
     }
 
     /**
@@ -604,7 +615,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 thumbnail = canvases[index].getContext('2d');
 
             thumbnail.fillStyle = '#ffffff';
-            thumbnail.fillRect(0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+            thumbnail.fillRect(0, 0, this.options.canvasSize, this.options.canvasSize);
 
             switch (type) {
                 case this.mediaTypes.image : {
@@ -615,7 +626,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             case 'both' : {
                                 // Use the MIN to crop the scale
                                 let size = Math.min(image.width, image.height);
-                                let multiplier = this.CANVAS_SIZE / size;
+                                let multiplier = this.options.canvasSize / size;
                                 thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
                                 break;
                             }
@@ -626,12 +637,12 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             case 'scale' : {
                                 // Use the MAX to scale
                                 let size = Math.max(image.width, image.height);
-                                let multiplier = this.CANVAS_SIZE / size;
+                                let multiplier = this.options.canvasSize / size;
                                 thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
                                 break;
                             }
                             default : {
-                                thumbnail.drawImage(image, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+                                thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
                             }
                         }
                     };
@@ -646,7 +657,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             case 'both' : {
                                 // Use the MIN to crop the scale
                                 let size = Math.min(video.width, video.height);
-                                let multiplier = this.CANVAS_SIZE / size;
+                                let multiplier = this.options.canvasSize / size;
                                 thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
                                 break;
                             }
@@ -657,12 +668,12 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             case 'scale' : {
                                 // Use the MAX to scale
                                 let size = Math.max(video.width, video.height);
-                                let multiplier = this.CANVAS_SIZE / size;
+                                let multiplier = this.options.canvasSize / size;
                                 thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
                                 break;
                             }
                             default : {
-                                thumbnail.drawImage(video, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+                                thumbnail.drawImage(video, 0, 0, this.options.canvasSize, this.options.canvasSize);
                             }
                         }
                     };
@@ -684,7 +695,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     image.src = '/assets/images/volume_up.svg';
                     image.onclick = () => this.displayMediaTab(grid);
                     image.onload = () => {
-                        thumbnail.drawImage(image, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+                        thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
                     };
 
                     break;
@@ -829,5 +840,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
     sanitize(url) {
         return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.transformVisualizationQueryResults(options, []);
     }
 }

@@ -604,7 +604,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             } else if (this.filters.length > 1) {
                 // If we have multiple existing filters, remove all the old filters and add the new filter once done.
                 // Use concat to copy the filter list.
-                this.removeAllFilters(this.options, [].concat(this.filters), () => {
+                this.removeAllFilters(this.options, [].concat(this.filters), false, false, () => {
                     this.filters = [filter];
                     this.addNeonFilter(this.options, true, filter, neonFilter);
                 });
@@ -895,5 +895,10 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     showLegendContainer(): boolean {
         return (!this.options.singleColor && this.colorKeys.length > 0);
+    }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.transformVisualizationQueryResults(options, []);
     }
 }

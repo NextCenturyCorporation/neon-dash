@@ -221,6 +221,16 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         return filter.prettyField + ' from ' + begin + ' to ' + end;
     }
 
+    /**
+     * Initializes any visualization properties when the widget is created.
+     *
+     * @override
+     */
+    initializeProperties() {
+        // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
+        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+    }
+
     refreshVisualization() {
         this.timelineChart.redrawChart();
     }
@@ -562,5 +572,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     getVisualizationDefaultTitle(): string {
         return 'Timeline';
+    }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.transformVisualizationQueryResults(options, []);
     }
 }

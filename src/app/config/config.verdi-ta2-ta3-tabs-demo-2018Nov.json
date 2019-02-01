@@ -10,7 +10,7 @@
             "databases": [
                 {
                     "name": "verdi-support",
-                    "prettyName": "VERDI SUPPORT",
+                    "prettyName": "VERDI",
                     "tables": [
                         {
                             "name": "parent_children",
@@ -29,16 +29,6 @@
                         {
                             "name": "normal",
                             "prettyName": "Normal"
-                        }
-                    ]
-                },
-                {
-                    "name": "verdi-simple-rdf",
-                    "prettyName": "VERDI SIMPLIFIED",
-                    "tables": [
-                        {
-                            "name": "kb_simple",
-                            "prettyName": "Knowledge Base Simplified"
                         }
                     ]
                 }
@@ -60,11 +50,6 @@
                             "database": "verdi-rdf",
                             "table": "normal",
                             "field": "identifier"
-                        },
-                        {
-                            "database": "verdi-simple-rdf",
-                            "table": "kb_simple",
-                            "field": "docIds"
                         }
                     ]
                 }
@@ -82,26 +67,15 @@
                             "types": {
                             }
                         }
-                    },
-                    "verdi-simple-rdf": {
-                        "kb_simple": {
-                            "categories": {
-                                "ENTITY": "#ADD8E6",
-                                "EVENT": "#D98C8C",
-                                "RELATION": "#FFE4B5"
-                            },
-                            "types": {
-                            }
-                        }
                     }
                 }
             }
         },
         {
             "title": "VERDI",
-            "name": "Seedling LDC TA3 Network",
+            "name": "Seedling LDC TA3",
             "connectOnLoad": true,
-            "layout": "verdi-ta3-network",
+            "layout": "verdi-ta3-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases": [
@@ -134,16 +108,6 @@
                         {
                             "name": "reified",
                             "prettyName": "Reified"
-                        }
-                    ]
-                },
-                {
-                    "name": "verdi-simple-rdf",
-                    "prettyName": "VERDI SIMPLIFIED",
-                    "tables": [
-                        {
-                            "name": "kb_simple",
-                            "prettyName": "Knowledge Base Simplified"
                         }
                     ]
                 }
@@ -184,11 +148,6 @@
                             "database": "verdi-rdf",
                             "table": "kb",
                             "field": "docIds"
-                        },
-                        {
-                            "database": "verdi-simple-rdf",
-                            "table": "kb_simple",
-                            "field": "docIds"
                         }
                     ]
                 }
@@ -198,17 +157,6 @@
                 "colorMaps": {
                     "verdi-rdf": {
                         "kb": {
-                            "categories": {
-                                "ENTITY": "#ADD8E6",
-                                "EVENT": "#D98C8C",
-                                "RELATION": "#FFE4B5"
-                            },
-                            "types": {
-                            }
-                        }
-                    },
-                    "verdi-simple-rdf": {
-                        "kb_simple": {
                             "categories": {
                                 "ENTITY": "#ADD8E6",
                                 "EVENT": "#D98C8C",
@@ -232,8 +180,8 @@
                 "bindings": {
                     "id": "_id",
                     "title": "Taxonomy",
-                    "database": "verdi-simple-rdf",
-                    "table": "kb_simple",
+                    "database": "verdi-rdf",
+                    "table": "kb",
                     "typeField": "types",
                     "subTypeField": "types",
                     "categoryField": "categories",
@@ -260,13 +208,15 @@
                 "col": 0
             },
             {
+                "name": "Network Graph",
                 "type": "networkGraph",
+                "icon": "Graph",
                 "sizex": 7,
                 "sizey": 16,
                 "bindings": {
                     "title": "Network Graph",
-                    "database": "verdi-simple-rdf",
-                    "table": "kb_simple",
+                    "database": "verdi-rdf",
+                    "table": "kb",
                     "unsharedFilterField": "",
                     "unsharedFilterValue": "",
                     "nodeField": "kbid",
@@ -305,6 +255,7 @@
             },
             {
                 "type": "thumbnailGrid",
+                "icon": "ThumbnailGrid",
                 "sizex": 2,
                 "sizey": 16,
                 "bindings": {
@@ -346,7 +297,7 @@
                 "col": 11
             }
         ],
-        "verdi-ta3-network": [
+        "verdi-ta3-layout": [
             {
                 "type": "queryBar",
                 "sizex": 12,
@@ -368,12 +319,6 @@
                         {
                             "database": "verdi-rdf",
                             "table": "kb",
-                            "idField": "docIds",
-                            "filterField": "hypotheses"
-                        },
-                        {
-                            "database": "verdi-simple-rdf",
-                            "table": "kb_simple",
                             "idField": "docIds",
                             "filterField": "hypotheses"
                         }
@@ -406,53 +351,175 @@
                 "col": 1
             },
             {
-                "type": "networkGraph",
+                "type": "tabs",
                 "sizex": 7,
                 "sizey": 12,
-                "bindings":{
+                "bindings": {
                     "title": "",
-                    "database": "verdi-simple-rdf",
-                    "table": "kb_simple",
-                    "unsharedFilterField": "",
-                    "unsharedFilterValue": "",
-                    "nodeField": "kbid",
-                    "nodeNameField": "name",
-                    "nodeShape": "box",
-                    "linkField": "edgeTarget",
-                    "linkNameField": "edgeLabel",
-                    "nodeColor": "",
-                    "linkColor": "#D1C2F0",
-                    "edgeColor": "#63B4CF",
-                    "xPositionField": "x",
-                    "yPositionField": "y",
-                    "typeField": "types",
-                    "isReified": false,
-                    "isDirected": true,
+                    "database": "verdi-rdf",
+                    "table": "kb",
                     "showOnlyFiltered": true,
-                    "physics": false,
                     "filterFields": [
                         "categories",
                         "types",
                         "docIds"
                     ],
-                    "idField": "@id",
-                    "id": "_id",
-                    "filterable": true,
-                    "multiFilter": true,
-                    "multiFilterOperator": "or",
-                    "displayLegend": true,
-                    "nodeColorField": "categories",
-                    "edgeColorField": "",
-                    "cleanLegendLabels": true,
-                    "legendFiltering": false
+                    "startTab": 0,
+                    "tabLinks" : [
+                        {
+                            "label": "Network Graph",
+                            "config": "network"
+                        }, {
+                            "label": "Map",
+                            "config": "map"
+                        }, {
+                            "label": "Events",
+                            "config": "events"
+                        }, {
+                            "label": "People",
+                            "config": "people"
+                        }
+                    ],
+                    "network" : {
+                        "type": "networkGraph",
+                        "bindings":{
+                            "title": "",
+                            "database": "verdi-rdf",
+                            "table": "kb",
+                            "unsharedFilterField": "",
+                            "unsharedFilterValue": "",
+                            "nodeField": "kbid",
+                            "nodeNameField": "name",
+                            "nodeShape": "box",
+                            "linkField": "edgeTarget",
+                            "linkNameField": "edgeLabel",
+                            "nodeColor": "",
+                            "linkColor": "#D1C2F0",
+                            "edgeColor": "#63B4CF",
+                            "xPositionField": "x",
+                            "yPositionField": "y",
+                            "typeField": "types",
+                            "isReified": false,
+                            "isDirected": true,
+                            "showOnlyFiltered": true,
+                            "physics": false,
+                            "filterFields": [
+                                "categories",
+                                "types",
+                                "docIds"
+                            ],
+                            "idField": "@id",
+                            "id": "_id",
+                            "filterable": true,
+                            "multiFilter": true,
+                            "multiFilterOperator": "or",
+                            "displayLegend": true,
+                            "nodeColorField": "categories",
+                            "edgeColorField": "",
+                            "cleanLegendLabels": true,
+                            "legendFiltering": false,
+                            "taxonomy": {
+                                "type": "taxonomyViewer",
+                                "bindings": {
+                                    "id": "_id",
+                                    "title": "",
+                                    "database": "verdi-rdf",
+                                    "table": "kb",
+                                    "typeField": "types",
+                                    "subTypeField": "types",
+                                    "categoryField": "categories",
+                                    "filterFields": [
+                                        "categories",
+                                        "types",
+                                        "docIds"
+                                    ],
+                                    "ignoreSelf": true,
+                                    "idField": "kbid",
+                                    "linkField": "",
+                                    "ascending": true
+                                }
+                            }
+                        }
+                    },
+                    "map" : {
+                        "type": "map",
+                        "bindings": {
+                            "title": "",
+                            "database": "",
+                            "table": "",
+                            "show": true,
+                            "type": "cluster",
+                            "limit": 5000,
+                            "mapType": "leaflet",
+                            "singleColor": true,
+                            "north": 32.3350745713,
+                            "west": 2.0856083513,
+                            "south": 24.3614785833,
+                            "east": 20.0807890155,
+                            "point" : {
+                                "latitude": 50.431782,
+                                "longitude": 30.516382,
+                                "zoom": 10,
+                                "message": "Kyiv, Ukraine"
+                            }
+                        }
+                    },
+                    "events" : {
+                        "type": "thumbnailGrid",
+                        "bindings": {
+                            "id": "_id",
+                            "title": "",
+                            "database": "verdi-support",
+                            "table": "parent_children",
+                            "idField": "id",
+                            "flagSubLabel1": "parent_uid",
+                            "flagSubLabel2": "download_date",
+                            "flagSubLabel3": "dtyp",
+                            "linkField": "url",
+                            "dateField": "download_date",
+                            "objectNameField": "",
+                            "objectIdField": "parent_uid",
+                            "typeField": "dtyp",
+                            "predictedNameField": "",
+                            "percentField": "",
+                            "openOnMouseClick": true,
+                            "showOnlyFiltered": true,
+                            "sortField": "dtyp",
+                            "filterField": "id",
+                            "cropAndScale": "scale",
+                            "canvasSize": 180.00,
+                            "ascending": true,
+                            "viewType": "card",
+                            "limit": 8,
+                            "typeMap": {
+                                "jpg": "img",
+                                "png": "img",
+                                "mp4": "vid",
+                                "pdf": "pdf",
+                                "ltf": "pdf",
+                                "gif": "img",
+                                "mp3": "aud",
+                                "svg": "img"
+                            }
+                        }
+                    },
+                    "people" : {
+                    }
                 },
                 "row": 2,
                 "col": 4
             },
             {
+                "name": "Thumbnail Grid",
                 "type": "thumbnailGrid",
+                "icon": "ThumbnailGrid",
                 "sizex": 2,
                 "sizey": 16,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 4,
+                "$$hashKey": "object:35",
                 "selected": true,
                 "bindings": {
                     "id": "_id",
@@ -505,7 +572,13 @@
                     "granularity": "day",
                     "filterFields": ["id"],
                     "showOnlyFiltered": true
-                }
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 3
+
+
             }
         ]
     }
