@@ -27,8 +27,14 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
+import {
+    AbstractSearchService,
+    AggregationType,
+    NeonFilterClause,
+    NeonQueryPayload,
+    TimeInterval
+} from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
@@ -37,7 +43,7 @@ import { Bucketizer } from '../bucketizers/Bucketizer';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { FieldMetaData } from '../../dataset';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { neonMappings } from '../../neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -104,18 +110,18 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     public timelineData: TimelineData = new TimelineData();
 
     constructor(
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
+        searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
         protected widgetService: AbstractWidgetService
     ) {
 
         super(
-            connectionService,
             datasetService,
             filterService,
+            searchService,
             injector,
             ref
         );
@@ -247,39 +253,42 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
+     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} query
-     * @arg {neon.query.WherePredicate[]} wherePredicates
-     * @return {neon.query.Query}
+     * @arg {NeonQueryPayload} queryPayload
+     * @arg {NeonFilterClause[]} sharedFilters
+     * @return {NeonQueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
-        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(neon.query.where(this.options.dateField.columnName, '!=', null));
-        let dateField = options.dateField.columnName;
-        let groupBys: any[] = [];
+    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
+        let filter: NeonFilterClause = this.searchService.buildFilterClause(this.options.dateField.columnName, '!=', null);
+
+        let groups = [];
         switch (options.granularity) {
             // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
             case 'minute':
-                groupBys.push(new neon.query.GroupByFunctionClause('minute', dateField, 'minute'));
+                groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.MINUTE));
             /* falls through */
             case 'hour':
-                groupBys.push(new neon.query.GroupByFunctionClause('hour', dateField, 'hour'));
+                groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.HOUR));
             /* falls through */
             case 'day':
-                groupBys.push(new neon.query.GroupByFunctionClause('dayOfMonth', dateField, 'day'));
+                groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.DAY_OF_MONTH));
             /* falls through */
             case 'month':
-                groupBys.push(new neon.query.GroupByFunctionClause('month', dateField, 'month'));
+                groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.MONTH));
             /* falls through */
             case 'year':
-                groupBys.push(new neon.query.GroupByFunctionClause('year', dateField, 'year'));
+                groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.YEAR));
             /* falls through */
         }
-        // TODO FIXME Why are we calling aggregate twice?
-        return query.aggregate(neonVariables.MIN, dateField, 'date').groupBy(groupBys).sortBy('date', neonVariables.ASCENDING)
-            .where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0]).aggregate(neonVariables.COUNT, '*', 'value');
+
+        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filter)))
+            .updateGroups(query, groups).updateAggregation(query, AggregationType.MIN, '_date', options.dateField.columnName)
+            .updateSort(query, '_date').updateAggregation(query, AggregationType.COUNT, '_aggregation', '*');
+
+        return query;
     }
 
     getFiltersToIgnore() {
@@ -310,8 +319,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         // Convert all the dates into Date objects
         let data: { value: number, date: Date }[] = results.map((item) => {
             return {
-                value: item.value,
-                date: new Date(item.date)
+                value: item._aggregation,
+                date: new Date(item._date)
             };
         });
 

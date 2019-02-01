@@ -38,8 +38,8 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { Color } from '../../color';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
@@ -49,37 +49,39 @@ import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: AnnotationViewer', () => {
     let component: AnnotationViewerComponent;
     let fixture: ComponentFixture<AnnotationViewerComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
+    initializeTestBed({
+          declarations: [
+              ExportControlComponent,
+              LegendComponent,
+              AnnotationViewerComponent,
+              UnsharedFilterComponent
+          ],
+          providers: [
+              { provide: AbstractWidgetService, useClass: WidgetService },
+              { provide: DatasetService, useClass: DatasetServiceMock },
+              { provide: FilterService, useClass: FilterServiceMock },
+              { provide: AbstractSearchService, useClass: SearchServiceMock },
+              Injector,
+              { provide: 'config', useValue: new NeonGTDConfig() }
+          ],
+          imports: [
+              AppMaterialModule,
+              BrowserAnimationsModule,
+              FormsModule
+          ]
+      });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                ExportControlComponent,
-                LegendComponent,
-                AnnotationViewerComponent,
-                UnsharedFilterComponent
-            ],
-            providers: [
-                ConnectionService,
-                { provide: AbstractWidgetService, useClass: WidgetService },
-                { provide: DatasetService, useClass: DatasetServiceMock },
-                { provide: FilterService, useClass: FilterServiceMock },
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() }
-            ],
-            imports: [
-                AppMaterialModule,
-                BrowserAnimationsModule,
-                FormsModule
-            ]
-        });
         fixture = TestBed.createComponent(AnnotationViewerComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();

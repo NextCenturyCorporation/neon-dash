@@ -29,8 +29,8 @@ import {
 
 import { Color } from '../../color';
 
+import { AbstractSearchService, NeonFilterClause, NeonQueryPayload } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
@@ -47,7 +47,7 @@ import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-co
 import { CesiumNeonMap } from './map.type.cesium';
 import { FieldMetaData } from '../../dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
-import { neonMappings, neonUtilities, neonVariables } from '../../neon-namespaces';
+import { neonMappings, neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -106,17 +106,17 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     public disabledSet: [string[]] = [] as any;
 
     constructor(
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
+        searchService: AbstractSearchService,
         injector: Injector,
         protected widgetService: AbstractWidgetService,
         ref: ChangeDetectorRef
     ) {
         super(
-            connectionService,
             datasetService,
             filterService,
+            searchService,
             injector,
             ref
         );
@@ -392,21 +392,23 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     /**
-     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
+     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} query
-     * @arg {neon.query.WherePredicate[]} wherePredicates
-     * @return {neon.query.Query}
+     * @arg {NeonQueryPayload} queryPayload
+     * @arg {NeonFilterClause[]} sharedFilters
+     * @return {NeonQueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
-        let wheres: neon.query.WherePredicate[] = wherePredicates.concat([
-            neon.query.where(options.latitudeField.columnName, '!=', null),
-            neon.query.where(options.longitudeField.columnName, '!=', null)
-        ]);
+    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
+        let filters: NeonFilterClause[] = [
+            this.searchService.buildFilterClause(options.latitudeField.columnName, '!=', null),
+            this.searchService.buildFilterClause(options.longitudeField.columnName, '!=', null)
+        ];
 
-        return query.where(neon.query.and.apply(neon.query, wheres));
+        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filters)));
+
+        return query;
     }
 
     legendItemSelected(event: any) {
