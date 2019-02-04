@@ -543,7 +543,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         this.mapObject.unhideAllPoints(options._id);
 
         this.mapObject.clearLayer(options._id);
-        this.mapObject.addPoints(mapPoints, options._id, true);
+        this.mapObject.addPoints(mapPoints, options._id, options.cluster);
 
         this.filterMapForLegend();
         this.updateLegend();
@@ -882,7 +882,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @override
      */
     createLayerNonFieldOptions(): WidgetOption[] {
-        return [];
+        return [
+            new WidgetSelectOption('cluster', 'Cluster', false, OptionChoices.NoFalseYesTrue)
+        ];
     }
 
     /**
