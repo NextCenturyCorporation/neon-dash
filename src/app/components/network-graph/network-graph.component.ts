@@ -1021,7 +1021,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      */
     handleChangeDirected() {
         let arrowUpdates: ArrowUpdate[] = this.graphData.edges.map(
-            (edge: ArrowUpdate) => ({id: edge.id, arrows: {to: this.options.isDirected}}),
+            (edge: ArrowUpdate) => ({id: edge.id, arrows: {to: this.options.isDirected}, color: []}),
             {fields: ['id', 'arrows']}
         );
         this.graphData.edges.update(arrowUpdates);
