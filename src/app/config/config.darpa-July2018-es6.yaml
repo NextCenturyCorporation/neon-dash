@@ -271,30 +271,30 @@ dashboards:
                             name: Nepal ELISA
                             layout: nepal-elisa-sa
                             tables:
-                                table_key_1: es1.ll_nepal_06_14_situations
-                                table_key_2: es1.ll_nepal_06_14_annotations
-                                table_key_3: es1.ll_nepal_06_14_documents
+                                table_key_1: es1.ll_nepal_06_14_situations.situations
+                                table_key_2: es1.ll_nepal_06_14_annotations.annotations
+                                table_key_3: es1.ll_nepal_06_14_documents.documents
                             fields:
-                                original_text_key: es1.ll_nepal_06_14_annotations.originalText
-                                situation_name_key: es1.ll_nepal_06_14_situations.situationName
-                                count_field_key: es1.ll_nepal_06_14_situations.docCount
-                                group_field_key_1: es1.ll_nepal_06_14_situations.topic
-                                group_field_key_2: es1.ll_nepal_06_14_annotations.llAnnotation.Type
-                                id_field_key_1: es1.ll_nepal_06_14_situations._id
-                                id_field_key_2: es1.ll_nepal_06_14_documents.id
-                                id_field_key_3: es1.ll_nepal_06_14_annotations._id
-                                id_field_key_4: es1.ll_nepal_06_14_annotations.id
-                                doc_field_key: es1.ll_nepal_06_14_situations.documents
-                                translated_text_key: es1.ll_nepal_06_14_documents.translatedText
-                                date_field_key_1: es1.ll_nepal_06_14_annotations.createdAt
-                                date_field_key_2: es1.ll_nepal_06_14_documents.createdAt
-                                color_field_key: es1.ll_nepal_06_14_annotations.sentimentString
-                                latitude_key: es1.ll_nepal_06_14_annotations.geoLocations.lat
-                                longitude_key: es1.ll_nepal_06_14_annotations.geoLocations.lon
-                                location_field_key: es1.ll_nepal_06_14_annotations.location
-                                text_cloud_data_key: es1.ll_nepal_06_14_annotations.LOC
-                                display_url_key: es1.ll_nepal_06_14_documents.mediaEntities.displayURL
-                                image_field_key: es1.ll_nepal_06_14_annotations.mediaEntities.mediaURLHttps
+                                original_text_key: es1.ll_nepal_06_14_annotations.annotations.originalText
+                                situation_name_key: es1.ll_nepal_06_14_situations.situations.situationName
+                                count_field_key: es1.ll_nepal_06_14_situations.situations.docCount
+                                group_field_key_1: es1.ll_nepal_06_14_situations.situations.topic
+                                group_field_key_2: es1.ll_nepal_06_14_annotations.annotations.llAnnotation.Type
+                                id_field_key_1: es1.ll_nepal_06_14_situations.situations._id
+                                id_field_key_2: es1.ll_nepal_06_14_documents.documents.id
+                                id_field_key_3: es1.ll_nepal_06_14_annotations.annotations._id
+                                id_field_key_4: es1.ll_nepal_06_14_annotations.annotations.id
+                                doc_field_key: es1.ll_nepal_06_14_situations.situations.documents
+                                translated_text_key: es1.ll_nepal_06_14_documents.documents.translatedText
+                                date_field_key_1: es1.ll_nepal_06_14_annotations.annotations.createdAt
+                                date_field_key_2: es1.ll_nepal_06_14_documents.documents.createdAt
+                                color_field_key: es1.ll_nepal_06_14_annotations.annotations.sentimentString
+                                latitude_key: es1.ll_nepal_06_14_annotations.annotations.geoLocations.lat
+                                longitude_key: es1.ll_nepal_06_14_annotations.annotations.geoLocations.lon
+                                location_field_key: es1.ll_nepal_06_14_annotations.annotations.location
+                                text_cloud_data_key: es1.ll_nepal_06_14_annotations.annotations.LOC
+                                display_url_key: es1.ll_nepal_06_14_documents.documents.mediaEntities.displayURL
+                                image_field_key: es1.ll_nepal_06_14_annotations.annotations.mediaEntities.mediaURLHttps
                             # TODO: 875: verify relations structure is read in correctly
                             relations:
                                 - es1:
