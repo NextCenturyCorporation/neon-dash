@@ -4,7 +4,7 @@
     </mat-form-field>
 
     <div *ngIf=!options.isMultiLayerWidget>
-        <mat-toolbar color="primary">
+        <mat-toolbar class="subheader" color="primary">
             <span>Required Config</span>
         </mat-toolbar>
 
@@ -32,7 +32,7 @@
         </a>
 
         <div *ngFor="let layer of options.layers">
-            <mat-toolbar style="cursor: pointer;" (click)="toggleFilter(layer)">
+            <mat-toolbar class="subheader" style="cursor: pointer;" (click)="toggleFilter(layer)">
                 <span>{{ layer.title }}</span>
                 <span class="toolbar-spacer"></span>
                 <mat-icon class="neon-icon-small" *ngIf="options.layers.length > 1" (click)="removeLayer(layer)">delete</mat-icon>
@@ -66,7 +66,7 @@
         </app-options-list>
 
         <!-- Optional Options-->
-        <mat-toolbar style="cursor: pointer;" (click)="toggleOptionalOptions()" color="primary">
+        <mat-toolbar class="subheader" style="cursor: pointer;" (click)="toggleOptionalOptions()" color="primary">
             <span>Optional Config</span>
             <mat-icon class="neon-icon-small">{{ getIconForOptions() }}</mat-icon>
         </mat-toolbar>
