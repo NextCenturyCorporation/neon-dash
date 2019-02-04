@@ -39,7 +39,6 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -78,7 +77,7 @@ describe('Component: Gear Component', () => {
     let fixture: ComponentFixture<TestGearComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('gear component', {
         declarations: [
             TestGearComponent,
             ExportControlComponent,

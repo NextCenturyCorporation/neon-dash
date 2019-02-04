@@ -144,7 +144,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         if (neonConfig.errors && neonConfig.errors.length > 0) {
             let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
-                panelClass: this.widgetService.getTheme(),
                 viewContainerRef: this.viewContainerRef
             });
             snackBarRef.instance.snackBarRef = snackBarRef;
@@ -451,7 +450,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     openCustomConnectionDialog() {
         let config = new MatDialogConfig();
-        config.panelClass = this.widgetService.getTheme();
         config.viewContainerRef = this.viewContainerRef;
 
         this.customConnectionDialogRef = this.dialog.open(CustomConnectionComponent, config);

@@ -28,8 +28,16 @@ import {
 
 import { Color } from '../../color';
 
+import {
+    AbstractSearchService,
+    AggregationType,
+    FilterClause,
+    QueryGroup,
+    QueryPayload,
+    SortOrder,
+    TimeInterval
+} from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
@@ -54,7 +62,6 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import { neonVariables } from '../../neon-namespaces';
 
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
@@ -193,18 +200,18 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public yList: any[] = [];
 
     constructor(
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
+        searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
         protected widgetService: AbstractWidgetService
     ) {
 
         super(
-            connectionService,
             datasetService,
             filterService,
+            searchService,
             injector,
             ref
         );
@@ -288,58 +295,61 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
+     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} query
-     * @arg {neon.query.WherePredicate[]} wherePredicates
-     * @return {neon.query.Query}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
-        let groups: any[] = [];
-        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(neon.query.where(options.xField.columnName, '!=', null));
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let groups: QueryGroup[] = [];
+        let filters: FilterClause[] = [this.searchService.buildFilterClause(options.xField.columnName, '!=', null)];
 
         if (options.xField.type === 'date') {
             switch (options.granularity) {
                 case 'minute':
-                    groups.push(new neon.query.GroupByFunctionClause('minute', options.xField.columnName, '_minute'));
-                /* falls through */
+                    groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.MINUTE));
+                    /* falls through */
                 case 'hour':
-                    groups.push(new neon.query.GroupByFunctionClause('hour', options.xField.columnName, '_hour'));
+                    groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.HOUR));
                     /* falls through */
                 case 'day':
-                    groups.push(new neon.query.GroupByFunctionClause('dayOfMonth', options.xField.columnName, '_day'));
+                    groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.DAY_OF_MONTH));
                     /* falls through */
                 case 'month':
-                    groups.push(new neon.query.GroupByFunctionClause('month', options.xField.columnName, '_month'));
+                    groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.MONTH));
                     /* falls through */
                 case 'year':
-                    groups.push(new neon.query.GroupByFunctionClause('year', options.xField.columnName, '_year'));
+                    groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.YEAR));
                     /* falls through */
             }
-            query.aggregate(neonVariables.MIN, options.xField.columnName, '_date').sortBy('_date', neonVariables.ASCENDING);
+            this.searchService.updateAggregation(query, AggregationType.MIN, '_date', options.xField.columnName).updateSort(query, '_date');
         } else if (!options.sortByAggregation) {
-            groups.push(options.xField.columnName);
-            query.sortBy(options.xField.columnName, neonVariables.ASCENDING);
+            groups.push(this.searchService.buildQueryGroup(options.xField.columnName));
+            this.searchService.updateSort(query, options.xField.columnName);
         } else {
-            groups.push(options.xField.columnName);
-            query.sortBy('_aggregation', neonVariables.DESCENDING);
+            groups.push(this.searchService.buildQueryGroup(options.xField.columnName));
+            this.searchService.updateSort(query, '_aggregation', SortOrder.DESCENDING);
         }
 
         if (this.optionsTypeIsXY(options)) {
-            groups.push(options.yField.columnName);
-            wheres.push(neon.query.where(options.yField.columnName, '!=', null));
+            groups.push(this.searchService.buildQueryGroup(options.yField.columnName));
+            filters.push(this.searchService.buildFilterClause(options.yField.columnName, '!=', null));
         } else {
-            query.aggregate(options.aggregation, (options.aggregation === neonVariables.COUNT ? '*' :
-                options.aggregationField.columnName), '_aggregation');
+            this.searchService.updateAggregation(query, options.aggregation, '_aggregation',
+                (options.aggregation === AggregationType.COUNT ? '*' : options.aggregationField.columnName));
         }
 
         if (options.groupField.columnName) {
-            groups.push(options.groupField.columnName);
+            groups.push(this.searchService.buildQueryGroup(options.groupField.columnName));
         }
 
-        return query.groupBy(groups).where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0]);
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
+            .updateGroups(query, groups);
+
+        return query;
     }
 
     /**
@@ -365,7 +375,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     createNonFieldOptions(): WidgetOption[] {
         return [
-            new WidgetSelectOption('aggregation', 'Aggregation', neonVariables.COUNT, OptionChoices.AggregationType,
+            new WidgetSelectOption('aggregation', 'Aggregation', AggregationType.COUNT, OptionChoices.Aggregation,
                 this.optionsTypeIsNotXY),
             new WidgetSelectOption('timeFill', 'Date Fill', false, OptionChoices.NoFalseYesTrue, this.optionsXFieldIsDate),
             new WidgetSelectOption('granularity', 'Date Granularity', 'year', OptionChoices.DateGranularity, this.optionsXFieldIsDate),
@@ -895,7 +905,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @return {boolean}
      */
     optionsAggregationIsNotCount(options: any): boolean {
-        return this.optionsTypeIsNotXY(options) && options.aggregation !== neonVariables.COUNT;
+        return this.optionsTypeIsNotXY(options) && options.aggregation !== AggregationType.COUNT;
     }
 
     /**
@@ -1382,7 +1392,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     validateVisualizationQuery(options: any): boolean {
         let validFields = options.xField.columnName && (this.optionsTypeIsXY(options) ? options.yField.columnName : true) &&
-            (options.aggregation !== neonVariables.COUNT ? options.aggregationField.columnName : true);
+            (options.aggregation !== AggregationType.COUNT ? options.aggregationField.columnName : true);
         return !!(options.database.name && options.table.name && validFields);
     }
 }

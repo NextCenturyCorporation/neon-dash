@@ -25,14 +25,19 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
+import {
+    AbstractSearchService,
+    AggregationType,
+    FilterClause,
+    QueryPayload,
+    SortOrder
+} from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
-import { neonVariables } from '../../neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -71,17 +76,17 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     public textColor: string = '#111';
 
     constructor(
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
+        searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
         protected widgetService: AbstractWidgetService
     ) {
         super(
-            connectionService,
             datasetService,
             filterService,
+            searchService,
             injector,
             ref
         );
@@ -94,7 +99,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      */
     initializeProperties() {
         // Backwards compatibility (sizeAggregation deprecated and replaced by aggregation).
-        this.options.aggregation = (this.options.aggregation || this.injector.get('sizeAggregation', neonVariables.COUNT)).toLowerCase();
+        this.options.aggregation = (this.options.aggregation || this.injector.get('sizeAggregation', AggregationType.COUNT)).toLowerCase();
 
         // This should happen before execute query as #refreshVisualization() depends on this.textCloud
         this.textColor = this.widgetService.getThemeAccentColorHex();
@@ -130,7 +135,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      */
     validateVisualizationQuery(options: any): boolean {
         return options.database.name && options.table.name && options.dataField.columnName &&
-            (options.aggregation !== neonVariables.COUNT ? options.sizeField.columnName : true);
+            (options.aggregation !== AggregationType.COUNT ? options.sizeField.columnName : true);
     }
 
     /**
@@ -154,7 +159,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      */
     createNonFieldOptions(): WidgetOption[] {
         return [
-            new WidgetSelectOption('aggregation', 'Aggregation', neonVariables.COUNT, OptionChoices.AggregationType),
+            new WidgetSelectOption('aggregation', 'Aggregation', AggregationType.COUNT, OptionChoices.Aggregation),
             new WidgetSelectOption('andFilters', 'Filter Operator', true, OptionChoices.OrFalseAndTrue),
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue),
             new WidgetSelectOption('paragraphs', 'Show as Paragraphs', false, OptionChoices.NoFalseYesTrue),
@@ -163,30 +168,25 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
+     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} query
-     * @arg {neon.query.WherePredicate[]} wherePredicates
-     * @return {neon.query.Query}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
-        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(neon.query.where(this.options.dataField.columnName, '!=', null));
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let filter: FilterClause = this.searchService.buildFilterClause(options.dataField.columnName, '!=', null);
 
-        if (options.aggregation === neonVariables.COUNT) {
-            // Normal aggregation query
-            return query.where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
-                .groupBy(options.dataField.columnName).aggregate(neonVariables.COUNT, '*', 'value')
-                .sortBy('value', neonVariables.DESCENDING);
-        }
+        let aggregationField = options.aggregation === AggregationType.COUNT ? '*' : options.sizeField.columnName;
 
-        // Query for data with the size field and sort by it
-        let sizeColumn = options.sizeField.columnName;
-        wheres.push(neon.query.where(sizeColumn, '!=', null));
-        return query.where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
-            .groupBy(options.dataField.columnName).aggregate(options.aggregation, sizeColumn, sizeColumn)
-            .sortBy(sizeColumn, neonVariables.DESCENDING);
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
+            .updateGroups(query, [this.searchService.buildQueryGroup(options.dataField.columnName)])
+            .updateAggregation(query, options.aggregation, '_aggregation', aggregationField)
+            .updateSort(query, '_aggregation', SortOrder.DESCENDING);
+
+        return query;
     }
 
     /**
@@ -258,13 +258,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+        // TODO Create new objects (don't use result objects)
         let data = results.map((item) => {
             item.key = item[options.dataField.columnName];
             item.keyTranslated = item.key;
-            // If we have a size field, asign the value to the value field
-            if (options.sizeField.columnName) {
-                item.value = item[options.sizeField.columnName];
-            }
+            item.value = item._aggregation;
             return item;
         });
 
@@ -278,7 +276,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @return {boolean}
      */
     optionsAggregationIsNotCount(options: any): boolean {
-        return options.aggregation !== neonVariables.COUNT;
+        return options.aggregation !== AggregationType.COUNT;
     }
 
     setupFilters() {

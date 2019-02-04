@@ -26,15 +26,15 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
+import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
 import { FieldMetaData } from '../../dataset';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -65,9 +65,9 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     private singleItemRef: MatDialogRef<DocumentViewerSingleItemComponent>;
 
     constructor(
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
+        searchService: AbstractSearchService,
         injector: Injector,
         protected widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
@@ -75,9 +75,9 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         public dialog: MatDialog
     ) {
         super(
-            connectionService,
             datasetService,
             filterService,
+            searchService,
             injector,
             ref
         );
@@ -150,33 +150,36 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
+     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} query
-     * @return {neon.query.Query}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
-        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(neon.query.where(this.options.dataField.columnName, '!=', null));
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let filter: FilterClause = this.searchService.buildFilterClause(this.options.dataField.columnName, '!=', null);
 
-        // TODO THOR-950 Don't overwrite the fields once metadataFields and popoutFields are arrays of FieldMetaData objects
-        let fields = [options.dataField.columnName].concat(neonUtilities.flatten(options.metadataFields).map((item) => {
+        // TODO THOR-950 Don't call updateFields once metadataFields and popoutFields are arrays of FieldMetaData objects.
+        let fields = neonUtilities.flatten(options.metadataFields).map((item) => {
             return item.field;
-        })).concat(neonUtilities.flatten(options.popoutFields).map((item) => {
+        }).concat(neonUtilities.flatten(options.popoutFields).map((item) => {
             return item.field;
         }));
-        if (options.dateField.columnName) {
-            fields = fields.concat(options.dateField.columnName);
-        }
-        if (options.sortField.columnName) {
-            query.sortBy(options.sortField.columnName, options.sortDescending ? neonVariables.DESCENDING : neonVariables.ASCENDING);
-        }
-        if (options.idField.columnName) {
-            fields = fields.concat(options.idField.columnName);
+
+        if (fields.length) {
+            this.searchService.updateFields(query, fields);
         }
 
-        return query.where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0]).withFields(fields);
+        if (options.sortField.columnName) {
+            this.searchService.updateSort(query, options.sortField.columnName, options.sortDescending ? SortOrder.DESCENDING :
+                SortOrder.ASCENDING);
+        }
+
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)));
+
+        return query;
     }
 
     /**
@@ -388,7 +391,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     private openSingleRecord(activeItemData: any) {
         let config = new MatDialogConfig();
-        config.panelClass = this.widgetService.getTheme();
         config.data = {
             item: activeItemData,
             showText: this.options.showText,

@@ -27,14 +27,14 @@ import {
 
 import { Color } from '../../color';
 
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, DatabaseMetaData, TableMetaData } from '../../dataset';
-import { neonMappings, neonUtilities, neonVariables } from '../../neon-namespaces';
+import { neonMappings, neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -124,16 +124,16 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     constructor(
         protected widgetService: AbstractWidgetService,
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
+        searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef
     ) {
         super(
-            connectionService,
             datasetService,
             filterService,
+            searchService,
             injector,
             ref
         );
@@ -544,27 +544,28 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
+     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} query
-     * @arg {neon.query.WherePredicate[]} wherePredicates
-     * @return {neon.query.Query}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
-        let where: neon.query.WherePredicate = neon.query.where(this.displayField, '!=', null);
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let filter: FilterClause = this.searchService.buildFilterClause(this.displayField, '!=', null);
 
         this.displayField = options.respondMode ? options.linkField.columnName : options.documentTextField.columnName;
 
         if (options.respondMode && options.idField && this.selectedDataId) {
-            where = neon.query.where(options.idField.columnName, '=', options.id);
+            filter = this.searchService.buildFilterClause(options.idField.columnName, '=', options.id);
         }
 
-        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(where);
-
         // Override the default query fields because we want to find all fields.
-        return query.withFields('*').where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0]);
+        this.searchService.updateFieldsToMatchAll(query)
+            .updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)));
+
+        return query;
     }
 
     /**

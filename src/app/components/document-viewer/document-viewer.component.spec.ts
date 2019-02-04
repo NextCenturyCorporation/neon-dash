@@ -26,34 +26,34 @@ import * as neon from 'neon-framework';
 import { DocumentViewerComponent } from './document-viewer.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 
-import { neonVariables } from '../../neon-namespaces';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: DocumentViewer', () => {
     let component: DocumentViewerComponent;
     let fixture: ComponentFixture<DocumentViewerComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Document Viewer', {
         declarations: [
             DocumentViewerComponent,
             ExportControlComponent
         ],
         providers: [
-            ConnectionService,
             DatasetService,
             {
                 provide: DatasetService,
                 useClass: DatasetServiceMock
             },
             FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
@@ -112,14 +112,14 @@ describe('Component: DocumentViewer', () => {
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
-        let inputQuery = new neon.query.Query()
-            .selectFrom('testDatabase1', 'testTable1')
-            .withFields(['testTextField', 'testDateField', 'testIdField']);
-        let query = new neon.query.Query()
-            .selectFrom('testDatabase1', 'testTable1')
-            .where(new neon.query.WhereClause('testTextField', '!=', null))
-            .withFields(['testTextField', 'testDateField', 'testIdField']);
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
+
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            filter: {
+                field: 'testTextField',
+                operator: '!=',
+                value: null
+            }
+        });
     });
 
     it('returns expected query from finalizeVisualizationQuery with sort', () => {
@@ -129,15 +129,66 @@ describe('Component: DocumentViewer', () => {
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.sortField = DatasetServiceMock.SORT_FIELD;
-        let inputQuery = new neon.query.Query()
-            .selectFrom('testDatabase1', 'testTable1')
-            .withFields(['testTextField', 'testDateField', 'testIdField']);
-        let query = new neon.query.Query()
-            .selectFrom('testDatabase1', 'testTable1')
-            .where(new neon.query.WhereClause('testTextField', '!=', null))
-            .withFields(['testTextField', 'testDateField', 'testIdField'])
-            .sortBy('testSortField', neonVariables.DESCENDING);
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            filter: {
+                field: 'testTextField',
+                operator: '!=',
+                value: null
+            },
+            sort: {
+                field: 'testSortField',
+                order: -1
+            }
+        });
+    });
+
+    it('returns expected query from finalizeVisualizationQuery with metadataFields', () => {
+        component.options.database = new DatabaseMetaData('testDatabase1');
+        component.options.table = new TableMetaData('testTable1');
+        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
+        component.options.dateField = DatasetServiceMock.DATE_FIELD;
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.metadataFields = [{
+            field: 'a'
+        }, {
+            field: 'b'
+        }];
+
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            fields: ['a', 'b'],
+            filter: {
+                field: 'testTextField',
+                operator: '!=',
+                value: null
+            }
+        });
+    });
+
+    it('returns expected query from finalizeVisualizationQuery with metadataFields and popoutFields', () => {
+        component.options.database = new DatabaseMetaData('testDatabase1');
+        component.options.table = new TableMetaData('testTable1');
+        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
+        component.options.dateField = DatasetServiceMock.DATE_FIELD;
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.metadataFields = [{
+            field: 'a'
+        }, {
+            field: 'b'
+        }];
+        component.options.popoutFields = [{
+            field: 'c'
+        }, {
+            field: 'd'
+        }];
+
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            fields: ['a', 'b', 'c', 'd'],
+            filter: {
+                field: 'testTextField',
+                operator: '!=',
+                value: null
+            }
+        });
     });
 
     it('sets expected properties if transformVisualizationQueryResults returns no data', () => {
@@ -862,15 +913,15 @@ describe('Component: Document Viewer with Config', () => {
     let component: DocumentViewerComponent;
     let fixture: ComponentFixture<DocumentViewerComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Document Viewer', {
         declarations: [
             DocumentViewerComponent,
             ExportControlComponent
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },

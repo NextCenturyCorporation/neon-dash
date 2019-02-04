@@ -32,7 +32,6 @@ import { } from 'jasmine-core';
 import { AddVisualizationComponent } from './add-visualization.component';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
@@ -42,7 +41,6 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -76,7 +74,7 @@ describe('Component: AddVisualization', () => {
     let debugElement: DebugElement;
     let spyOnInit;
 
-    initializeTestBed({
+    initializeTestBed('Add Visualization', {
         declarations: [
             TestAddVisualizationComponent
         ],
