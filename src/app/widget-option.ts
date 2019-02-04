@@ -14,8 +14,8 @@
  *
  */
 import { Injector } from '@angular/core';
+import { AggregationType } from './services/abstract.search.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from './dataset';
-import { neonVariables } from './neon-namespaces';
 import * as uuidv4 from 'uuid/v4';
 
 type OptionCallback = (options: any) => boolean;
@@ -305,21 +305,21 @@ export class WidgetOptionCollection {
 }
 
 export namespace OptionChoices {
-    export const AggregationType: OptionChoice[] = [{
+    export const Aggregation: OptionChoice[] = [{
         prettyName: 'Count',
-        variable: neonVariables.COUNT
+        variable: AggregationType.COUNT
     }, {
         prettyName: 'Average',
-        variable: neonVariables.AVG
+        variable: AggregationType.AVG
     }, {
         prettyName: 'Max',
-        variable: neonVariables.MAX
+        variable: AggregationType.MAX
     }, {
         prettyName: 'Min',
-        variable: neonVariables.MIN
+        variable: AggregationType.MIN
     }, {
         prettyName: 'Sum',
-        variable: neonVariables.SUM
+        variable: AggregationType.SUM
     }];
 
     export const AscendingFalseDescendingTrue: OptionChoice[] = [{

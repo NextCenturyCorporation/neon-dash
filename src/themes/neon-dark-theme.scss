@@ -103,8 +103,7 @@ $dark-theme: (
     background: $dark-theme-background
 );
 
-.neon-dark,
-.neon-dark + * .cdk-overlay-pane {
+.neon-dark {
     @include angular-material-theme($dark-theme);
 
     /* DO NOT USE SASS VARIABLES ($VAR) HERE!  YOU MUST HARDCODE ALL COLORS! */

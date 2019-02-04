@@ -25,12 +25,14 @@ import 'hammerjs';
 
 import { NgGridModule } from 'angular2-grid';
 
+import { AbstractSearchService } from './services/abstract.search.service';
 import { AbstractWidgetService } from './services/abstract.widget.service';
 import { ConnectionService } from './services/connection.service';
 import { DatasetService } from './services/dataset.service';
 import { FilterService } from './services/filter.service';
 import { ParameterService } from './services/parameter.service';
 import { PropertyService } from './services/property.service';
+import { SearchService } from './services/search.service';
 import { WidgetService } from './services/widget.service';
 
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
@@ -155,6 +157,10 @@ export function getAppConfig() {
         FilterService,
         ParameterService,
         PropertyService,
+        {
+            provide: AbstractSearchService,
+            useClass: SearchService
+        },
         {
             provide: AbstractWidgetService,
             useClass: WidgetService

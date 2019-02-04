@@ -31,7 +31,6 @@ import { } from 'jasmine-core';
 import { SettingsComponent } from './settings.component';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
@@ -41,7 +40,6 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -81,7 +79,7 @@ describe('Component: Settings', () => {
         getService = (type: any) => fixture.debugElement.injector.get(type);
     let debugElement: DebugElement;
 
-    initializeTestBed({
+    initializeTestBed('Settings', {
         declarations: [
             TestSettingsComponent
         ],
