@@ -137,15 +137,11 @@ export class GearComponent implements OnInit, OnDestroy {
         let optionalList = [];
         let requiredFieldList = [];
         let optionalFieldList = [];
-        //let removeList = [];
         list.forEach(function(element) {
             if (element.isRequired) {
                 requiredList.push(element);
-                //removeList.push(list.indexOf(element));
-                //list.splice(list.indexOf(element), 1);
             } else {
                 optionalList.push(element);
-                //list.splice(list.indexOf(element), 1);
             }
         });
 
@@ -167,10 +163,6 @@ export class GearComponent implements OnInit, OnDestroy {
         this.requiredListNonField = requiredList;
         this.optionalList = optionalList;
         this.optionalListNonField = optionalFieldList;
-        //console.log(this.requiredList);
-        //console.log(this.requiredListNonField);
-        //console.log(this.optionalList);
-        //console.log(this.optionalListNonField);
     }
 
     createEmptyField(): FieldMetaData {

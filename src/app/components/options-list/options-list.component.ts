@@ -37,11 +37,6 @@ import { WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../w
     changeDetection: ChangeDetectionStrategy.Default
 })
 export class OptionsListComponent implements OnInit {
-    /**
-     * List of fields that should be colored as 'active'.
-     * If this list is non-empty, all values are checked if they should be marked as active
-     * from just this list.
-     */
     @Input() optionsList: string[];
     @Input() layers: any[];
     @Input() databases: any[];
