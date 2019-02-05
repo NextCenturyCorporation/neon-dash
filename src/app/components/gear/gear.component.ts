@@ -74,7 +74,7 @@ export class GearComponent implements OnInit, OnDestroy {
 
     public collapseOptionalOptions: boolean;
 
-    public filterVisible: Map<string, boolean> = new Map<string, boolean>();
+    public layerVisible: Map<string, boolean> = new Map<string, boolean>();
 
     constructor(
         private changeDetection: ChangeDetectorRef,
@@ -176,7 +176,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * @return {string}
      */
     getIconForFilter(options: any): string {
-        return this.filterVisible.get(options._id) ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
+        return this.layerVisible.get(options._id) ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
     }
 
     getIconForOptions() {
@@ -187,6 +187,11 @@ export class GearComponent implements OnInit, OnDestroy {
             icon = 'keyboard_arrow_up';
         }
         return icon;
+    }
+
+    getLayerList(layer) {
+        let list = layer.list();
+        return list;
     }
 
     getTitle() {
@@ -270,7 +275,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * @override
      */
     postAddLayer(options: any) {
-        this.filterVisible.set(options._id, true);
+        this.layerVisible.set(options._id, true);
     }
 
     removeOptionsByBindingKey(list: any[], bindingKey: string): any[] {
@@ -320,7 +325,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * @arg {any} options A WidgetOptionCollection object.
      */
     toggleFilter(options: any): void {
-        this.filterVisible.set(options._id, !(this.filterVisible.get(options._id)));
+        this.layerVisible.set(options._id, !(this.layerVisible.get(options._id)));
     }
 
     /**

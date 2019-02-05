@@ -3,10 +3,11 @@
         <input matInput placeholder="Title" [(ngModel)]="options.title" name="Title" required="false">
     </mat-form-field>
 
+    <mat-toolbar class="subheader" color="primary">
+        <span>Required Config</span>
+    </mat-toolbar>
+
     <div *ngIf=!options.isMultiLayerWidget>
-        <mat-toolbar class="subheader" color="primary">
-            <span>Required Config</span>
-        </mat-toolbar>
 
         <mat-form-field class="option-container">
             <mat-select placeholder="Database" [(ngModel)]="options.database" required="true" name="database"
@@ -38,9 +39,9 @@
                 <mat-icon class="neon-icon-small" *ngIf="options.layers.length > 1" (click)="removeLayer(layer)">delete</mat-icon>
                 <mat-icon class="neon-icon-small">{{ getIconForFilter(layer) }}</mat-icon>
             </mat-toolbar>
-            <div [hidden]="!filterVisible.get(layer._id)">
+            <div class="option-well" [hidden]="layerVisible.get(layer._id)">
                 <app-options-list [databases]=options.databases [fields]=options.fields [tables]=options.tables
-                    [optionsList]=layer.list() [handleChangeData]=handleChangeData [handleChangeDatabase]=handleChangeDatabase
+                    [optionsList]=getLayerList(layer) [handleChangeData]=handleChangeData [handleChangeDatabase]=handleChangeDatabase
                     [handleChangeLimit]=handleChangeLimit [handleChangeFilterField]=handleChangeFilterField
                     [handleChangeSubcomponentType]=handleChangeSubcomponentType [handleChangeTable]=handleChangeTable
                     [handleDataChange]=handleDataChange.bind(this)>
@@ -50,7 +51,7 @@
     </div>
 
     <!-- Non MultiLayer Support-->
-    <div>
+    <div class="option-container">
 
         <!-- Required Options-->
         <app-options-list [databases]=options.databases [fields]=options.fields [tables]=options.tables [optionsList]=requiredList
