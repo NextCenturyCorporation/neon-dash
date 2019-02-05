@@ -38,6 +38,7 @@
 }
 
 .neon-dash {
+    background-color: var(--color-background, white);
     /* 60 = 50 px toolbar + 10 px neon-grid padding */
     height: calc(100% - 60px);
     overflow-y: auto;

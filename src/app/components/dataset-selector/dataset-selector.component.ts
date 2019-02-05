@@ -182,7 +182,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                     // Recreate the layout each time to ensure all visualizations are using the new dataset.
                     // Use an empty array of visualizations if the new dataset has no defined layout.
                     Object.keys(gridNameToLayout).forEach((gridName) => {
-                        let layout = gridNameToLayout[gridName];
+                        let layout = gridNameToLayout[gridName] || [];
                         layout.forEach((widgetGridItem) => {
                             this.messenger.publish(neonEvents.WIDGET_ADD, {
                                 gridName: gridName,
@@ -268,7 +268,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         // Recreate the layout each time to ensure all visualizations are using the new dataset.
         // Use an empty array of visualizations if the new dataset has no defined layout.
         Object.keys(gridNameToLayout).forEach((gridName) => {
-            let layout = gridNameToLayout[gridName];
+            let layout = gridNameToLayout[gridName] || [];
             layout.forEach((widgetGridItem) => {
                 this.messenger.publish(neonEvents.WIDGET_ADD, {
                     gridName: gridName,
