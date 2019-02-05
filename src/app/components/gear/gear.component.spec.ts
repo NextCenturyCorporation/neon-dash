@@ -46,40 +46,16 @@ import { WidgetService } from '../../services/widget.service';
 
 import { WidgetOptionCollection, WidgetFreeTextOption } from '../../widget-option';
 
-// Must define the test component.
-@Component({
-    selector: 'app-gear',
-    templateUrl: './gear.component.html',
-    styleUrls: ['./gear.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    encapsulation: ViewEncapsulation.Emulated
-})
-
-class TestGearComponent extends GearComponent {
-    constructor(
-        changeDetection: ChangeDetectorRef,
-        injector: Injector,
-        widgetService: AbstractWidgetService
-    ) {
-
-        super(
-            changeDetection,
-            injector,
-            widgetService
-        );
-    }
-}
-
 /* tslint:disable:component-class-suffix */
 
 describe('Component: Gear Component', () => {
-    let component: TestGearComponent;
-    let fixture: ComponentFixture<TestGearComponent>;
+    let component: GearComponent;
+    let fixture: ComponentFixture<GearComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('gear component', {
         declarations: [
-            TestGearComponent,
+            GearComponent,
             ExportControlComponent,
             UnsharedFilterComponent
         ],
@@ -100,7 +76,7 @@ describe('Component: Gear Component', () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(TestGearComponent);
+        fixture = TestBed.createComponent(GearComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
@@ -108,7 +84,7 @@ describe('Component: Gear Component', () => {
     it('class options properties are set to expected defaults', () => {
         expect(component.options).toBeDefined();
         expect(component.collapseOptionalOptions).toEqual(true);
-        expect(component.filterVisible).toBeDefined();
+        expect(component.layerVisible).toBeDefined();
     });
 
     it('returns correct icon', () => {

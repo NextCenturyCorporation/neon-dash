@@ -1,14 +1,14 @@
-<div *ngFor="let option of optionsList">
+<div class="option-container" *ngFor="let option of optionsList">
     <!-- Database Option Type-->
     <mat-form-field class="option-container" *ngIf="checkOptionType(option.optionType, 'DATABASE')">
-        <mat-select placeholder="Database" [(ngModel)]="option.valueCurrent" required="true" name="database"
+        <mat-select placeholder="Database" [(ngModel)]="option.valueCurrent" required="true" name="{{option.valueCurrent}} database"
             (ngModelChange)="handleChangeDatabase(option)">
             <mat-option *ngFor="let database of databases" [value]="database">{{ database.prettyName }}</mat-option>
         </mat-select>
     </mat-form-field>
     <!-- Table Option Type-->
     <mat-form-field class="option-container" *ngIf="checkOptionType(option.optionType, 'TABLE')">
-        <mat-select placeholder="Table" [(ngModel)]="option.valueCurrent" required="true" name="table" (ngModelChange)="handleChangeTable(option)">
+        <mat-select placeholder="Table" [(ngModel)]="option.valueCurrent" required="true" name="{{option.valueCurrent}} table" (ngModelChange)="handleChangeTable(option)">
             <mat-option *ngFor="let table of tables" [value]="table">{{ table.prettyName }}</mat-option>
         </mat-select>
     </mat-form-field>

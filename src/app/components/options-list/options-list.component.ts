@@ -14,15 +14,9 @@
  *
  */
 import {
-    ChangeDetectorRef,
     ChangeDetectionStrategy,
     Component,
-    ElementRef,
-    EventEmitter,
     Input,
-    OnInit,
-    Output,
-    ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 
@@ -36,8 +30,8 @@ import { WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../w
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.Default
 })
-export class OptionsListComponent implements OnInit {
-    @Input() optionsList: string[];
+export class OptionsListComponent {
+    @Input() optionsList: any[];
     @Input() layers: any[];
     @Input() databases: any[];
     @Input() fields: any[];
@@ -61,10 +55,6 @@ export class OptionsListComponent implements OnInit {
             return true;
         }
         return false;
-    }
-
-    ngOnInit() {
-        //
     }
 
 }
