@@ -801,7 +801,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 color: findGroupColor(group),
                 group: group,
                 x: item[options.xField.columnName],
-                y: isXY ? item[options.yField.columnName] : item._aggregation
+                y: isXY ? item[options.yField.columnName] : (Math.round((item._aggregation) * 10000) / 10000)
             };
         };
 
