@@ -255,7 +255,8 @@ describe('Component: NetworkGraph', () => {
                 nameField: new FieldMetaData('testNodeNameField'),
                 colorField: new FieldMetaData('testNodeColorField'),
                 param1Field: new FieldMetaData('testNodeXPositionField'),
-                param2Field: new FieldMetaData('testNodeYPositionField')
+                param2Field: new FieldMetaData('testNodeYPositionField'),
+                filterFields: [ new FieldMetaData('testFilterField')]
             },
             {
                 database: 'testEdgeDatabase',
@@ -264,7 +265,8 @@ describe('Component: NetworkGraph', () => {
                 nameField: new FieldMetaData('testEdgeNameField'),
                 colorField: new FieldMetaData('testEdgeColorField'),
                 param1Field: new FieldMetaData('testEdgeSourceIdField'),
-                param2Field: new FieldMetaData('testEdgeDestinationIdField')
+                param2Field: new FieldMetaData('testEdgeDestinationIdField'),
+                filterFields: [ new FieldMetaData('testFilterField')]
             }
         ];
         options.nodeColor = '#96f4f2';
@@ -274,6 +276,7 @@ describe('Component: NetworkGraph', () => {
         options.isReified = false;
         options.limit = 3;
 
+        component.initializeProperties(); //need isMultiLayerWidget to be true
         component.transformVisualizationQueryResults(options.layers[0], [{
             testNodeIdField: 'nodeId1',
             testNodeNameField: 'nodeName1',
@@ -325,11 +328,10 @@ describe('Component: NetworkGraph', () => {
         }];
 
         component.transformVisualizationQueryResults(options.layers[1], edgesData);
-        component.afterExecuteAllQueryChain();
 
         expect(component.totalNodes).toEqual(component.options.limit); //Total based on allowed limit
         expect(component.displayGraph).toEqual(true);
-        expect(component.graphData.nodes.length).toEqual(component.totalNodes);
+        expect(component.graphData.nodes.length).toEqual(component.options.limit);
         expect(component.graphData.edges.length).toEqual(edgesData.length);
 
     }));

@@ -13,19 +13,11 @@
  * limitations under the License.
  *
  */
-import {
-    AfterViewInit,
-    OnInit,
-    OnDestroy,
-    Injector,
-    ChangeDetectorRef
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@angular/core';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-
-import { Color } from '../../color';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { neonEvents, neonVariables } from '../../neon-namespaces';
 import {
@@ -491,14 +483,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Run after executing all the data queries for the visualization.
-     * Used to notify the visualization that all queries have completed.
-     */
-    public afterExecuteAllQueryChain(): void {
-        // do nothing by default
-    }
-
-    /**
      * Runs all the data queries for the visualization.  Called on initialization, if a user changes the visualization config or sets a
      * filter, or whenever else the data queries need to be run.
      */
@@ -756,10 +740,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private finishQueryExecution(): void {
         this.loadingCount--;
-        if (this.loadingCount === 0) {
-            this.afterExecuteAllQueryChain();
-        }
-
         this.refreshVisualization();
         this.changeDetection.detectChanges();
         this.updateHeaderTextStyles();
