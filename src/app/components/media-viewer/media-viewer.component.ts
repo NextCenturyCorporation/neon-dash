@@ -546,7 +546,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             }
 
             if (options.nameField.columnName) {
-                names = neonUtilities.deepFind(result, options.nameField.columnName) || '';
+                names = neonUtilities.deepFind(result, options.nameField.columnName);
+                names = typeof names === 'undefined' ? [] : names;
                 names = this.transformToStringArray(names, options.delimiter);
             }
 
