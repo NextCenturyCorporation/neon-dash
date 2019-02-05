@@ -934,7 +934,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public handleChangeLimit(options?: any): void {
         if (this.isNumber(this.newLimit)) {
             let newLimit = parseFloat('' + this.newLimit);
-            if (newLimit > 0) {
+            if (newLimit >= 0) {
                 (options || this.options).limit = newLimit;
                 this.handleChangeData();
             } else {
