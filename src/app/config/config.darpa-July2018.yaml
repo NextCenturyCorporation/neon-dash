@@ -286,7 +286,6 @@ dashboards:
                                 text_cloud_data_key: es1.ll_nepal_06_14.annotations.LOC
                                 display_url_key: es1.ll_nepal_06_14.documents.mediaEntities.displayURL
                                 image_field_key: es1.ll_nepal_06_14.annotations.mediaEntities.mediaURLHttps
-                            # TODO: 875: verify relations structure is read in correctly
                             relations:
                                 - es1:
                                     ll_nepal_06_14:

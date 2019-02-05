@@ -73,7 +73,6 @@ export class Dataset {
     public hasUpdatedFields: boolean = false;
     public layout: string = ''; // TODO: 825: layout will be specified in dashboards
     //public options: DatasetOptions = new DatasetOptions(); moved to DashboardOptions
-    //public relations: Relation[] = []; // TODO: 875: this will move into dashboards
 
     constructor(
         public name: string = '',
@@ -115,9 +114,7 @@ export class Dashboard {
     public fullTitle?: string; // added to dashboard in validateDashboards()
     public pathFromTop?: string[]; // added to dashboard in validateDashboards() - contains keys
     // (sans choices object references) needed to traverse back up Dashboard object
-    // TODO: 875: use any array for now
-    //public relations?: {[key: string]: any} = {};
-    public relations?: any[];
+    public relations?: {[key: string]: any}[];
 }
 
 /**
@@ -129,15 +126,6 @@ export class DashboardOptions {
     public requeryInterval?: number;
     public simpleFilter?: SimpleFilter;
 }
-
-// TODO: 875: new relations
-/* export class Relation {
-    members: {
-        database: string,
-        table: string,
-        field: string
-    }[];
-}*/
 
 export const MediaTypes = {
     image: 'img',
