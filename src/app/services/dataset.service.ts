@@ -324,7 +324,6 @@ export class DatasetService {
     public setActiveDataset(dataset): void {
         // TODO: 825: structure will likely change here
         this.dataset.name = dataset.name || 'Unknown Dataset';
-        // this.dataset.layout = dataset.layout || '';
         this.dataset.type = dataset.type || '';
         this.dataset.host = dataset.host || '';
         this.dataset.databases = dataset.databases || [];
@@ -769,7 +768,7 @@ export class DatasetService {
         table: string,
         field: string,
         mapping: Map<string, Map<string, { datastore: string, database: string, table: string, field: string }[]>>):
-        Map<string, Map<string, { database: string, table: string, field: string }[]>> {
+        Map<string, Map<string, { datastore: string, database: string, table: string, field: string }[]>> {
         let relatedFields: any = mapping;
 
         // TODO: 825: filters will need datastore info eventually - more of a backend task and don't need
@@ -905,8 +904,6 @@ export class DatasetService {
      * @param {Function} callback (optional)
      * @param {Number} index (optional)
      */
-    // TODO: 825: When dashboard config options layout is changed, do we want to change how/when this
-    // validation occurs? (THOR-826)
     public updateDatabases(dataset: Datastore, connection: neon.query.Connection): any {
         let promiseArray = [];
 
