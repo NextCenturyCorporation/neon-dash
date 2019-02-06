@@ -25,7 +25,7 @@
     </div>
 
     <!-- MultiLayer Support-->
-    <div class="option-container" *ngIf="options.isMultiLayerWidget">
+    <div class="list-container" *ngIf="options.isMultiLayerWidget">
 
         <a class="icon-with-text tappable" (click)="addLayer()">
             <mat-icon class="neon-icon-small">add_circle</mat-icon>
@@ -51,7 +51,7 @@
     </div>
 
     <!-- Non MultiLayer Support-->
-    <div class="option-container">
+    <div class="list-container">
 
         <!-- Required Options-->
         <app-options-list [databases]=options.databases [fields]=options.fields [tables]=options.tables [optionsList]=requiredList
