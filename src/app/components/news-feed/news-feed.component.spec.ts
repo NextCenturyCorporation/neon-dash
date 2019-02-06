@@ -26,14 +26,14 @@ import * as neon from 'neon-framework';
 
 import { ExportControlComponent } from '../export-control/export-control.component';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
-import { neonVariables } from '../../neon-namespaces';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 
 describe('Component: NewsFeed', () => {
@@ -48,9 +48,9 @@ describe('Component: NewsFeed', () => {
             ExportControlComponent
         ],
         providers: [
-            ConnectionService,
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -361,25 +361,24 @@ describe('Component: NewsFeed', () => {
         component.options.contentField = new FieldMetaData('testContentField');
         component.options.dateField = new FieldMetaData('testDateField');
 
-        let inputQuery = new neon.query.Query()
-            .selectFrom('testDatabase', 'testTable')
-            .withFields(['testIdField', 'testSortField', 'testPrimaryTitleField', 'testSecondaryTitleField',
-            'testFilterField', 'testContentField', 'testDateField']);
-
-        let query = new neon.query.Query()
-            .selectFrom('testDatabase', 'testTable')
-            .withFields(['testIdField', 'testSortField', 'testPrimaryTitleField', 'testSecondaryTitleField',
-            'testFilterField', 'testContentField', 'testDateField'])
-            .sortBy('testSortField', neonVariables.DESCENDING);
-
-        let whereClauses = [
-            neon.query.where('testIdField', '!=', null),
-            neon.query.where('testIdField', '!=', '')
-        ];
-
-        query.where(neon.query.and.apply(query, whereClauses));
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            filter: {
+                filters: [{
+                    field: 'testIdField',
+                    operator: '!=',
+                    value: null
+                }, {
+                    field: 'testIdField',
+                    operator: '!=',
+                    value: ''
+                }],
+                type: 'and'
+            },
+            sort: {
+                field: 'testSortField',
+                order: -1
+            }
+        });
     }));
 
     // //for filter exists method

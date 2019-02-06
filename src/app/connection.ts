@@ -13,12 +13,9 @@
  * limitations under the License.
  *
  */
-
- .neon-button-small {
-     margin-bottom: 10px;
- }
-
- .radio-container > * > * {
-    margin: 10px 15px 10px 15px;
-    font-size: 14px;
+export interface NeonRequest {
+    abort(): void;
+    always(callback: Function): void;
+    done(callback: Function): void;
+    fail(callback: Function): void;
 }

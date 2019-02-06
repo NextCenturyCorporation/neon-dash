@@ -276,8 +276,8 @@ export class ParameterService {
      * @param {String} filterStateId
      */
     loadState(dashboardStateId: string | number, filterStateId: string | number) {
-        let connection: neon.query.Connection = this.connectionService.getActiveConnection() ||
-            this.connectionService.createActiveConnection();
+        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
+            this.datasetService.getHostname());
         let params: any = {};
         if (dashboardStateId) {
             params.dashboardStateId = dashboardStateId;

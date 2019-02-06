@@ -71,6 +71,8 @@ export class DatasetServiceMock extends DatasetService {
         super(new NeonGTDConfig());
         this.setActiveDataset({
             databases: DatasetServiceMock.DATABASES,
+            datastore: 'testDatastore',
+            hostname: 'testHostname',
             relations: [{
                 members: [{
                     database: 'testDatabase1',
