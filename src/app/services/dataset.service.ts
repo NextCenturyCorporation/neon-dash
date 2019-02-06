@@ -731,6 +731,7 @@ export class DatasetService {
         table.mappings[key] = fieldName;
     }
 
+    // TODO: 825: need to add datastore to Filter object later
     public findMentionedFields(filter: neon.query.Filter): { database: string, table: string, field: string }[] {
         let findMentionedFieldsHelper = (clause: neon.query.WherePredicate) => {
             switch (clause.type) {
