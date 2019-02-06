@@ -26,7 +26,8 @@ import {
 } from '@angular/core';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
-import { ConnectionService } from '../../services/connection.service';
+
+import { AbstractSearchService, AggregationType } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
@@ -47,9 +48,10 @@ import {
 } from '../../widget-option';
 import { basename } from 'path';
 import * as neon from 'neon-framework';
-import { neonEvents, neonVariables } from '../../neon-namespaces';
+import { neonEvents } from '../../neon-namespaces';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import * as _ from 'lodash';
 
@@ -63,16 +65,16 @@ import * as _ from 'lodash';
 class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     public filters: any[] = [];
     constructor(
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
+        searchService: AbstractSearchService,
         injector: Injector,
         changeDetection: ChangeDetectorRef
     ) {
         super(
-            connectionService,
             datasetService,
             filterService,
+            searchService,
             injector,
             changeDetection
         );
@@ -119,9 +121,11 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         return false;
     }
 
-    finalizeVisualizationQuery(options, query, wherePredicates) {
-        return (wherePredicates.length ? (query.where(wherePredicates.length > 1 ? neon.query.and.apply(neon.query, wherePredicates) :
-            wherePredicates[0])) : query);
+    finalizeVisualizationQuery(options, query, filters) {
+        if (filters.length) {
+            this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(filters));
+        }
+        return query;
     }
 
     transformVisualizationQueryResults(options, results) {
@@ -220,9 +224,9 @@ describe('BaseNeonComponent', () => {
             FormsModule
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: testConfig },
             { provide: 'testDate', useValue: 'testDateField' },
@@ -407,8 +411,11 @@ describe('BaseNeonComponent', () => {
     });
 
     it('createCompleteVisualizationQuery does return expected query object', () => {
-        expect(component.createCompleteVisualizationQuery(component.options)).toEqual(new neon.query.Query()
-            .selectFrom('testDatabase1', 'testTable1'));
+        expect(component.createCompleteVisualizationQuery(component.options)).toEqual({
+            database: 'testDatabase1',
+            table: 'testTable1',
+            fields: ['*']
+        });
     });
 
     it('createCompleteVisualizationQuery with advanced options does return expected query object', () => {
@@ -448,13 +455,26 @@ describe('BaseNeonComponent', () => {
             }]
         }];
 
-        expect(component.createCompleteVisualizationQuery(component.options)).toEqual(new neon.query.Query()
-            .selectFrom('testDatabase2', 'testTable2').withFields([
+        expect(component.createCompleteVisualizationQuery(component.options)).toEqual({
+            database: 'testDatabase2',
+            table: 'testTable2',
+            fields: [
                 'testIdField', 'testFilterField', 'testCategoryField', 'testXField', 'testYField', 'testDateField', 'testLinkField',
                 'testNameField', 'testSizeField', 'testTextField', 'testTypeField'
-            ]).where(neon.query.and.apply(neon.query, [
-                neon.query.where('testIdField', '!=', 'testIdValue'), neon.query.where('testFilterField', '=', 'testFilterValue')
-            ])));
+            ],
+            filter: {
+                type: 'and',
+                filters: [{
+                    field: 'testIdField',
+                    operator: '!=',
+                    value: 'testIdValue'
+                }, {
+                    field: 'testFilterField',
+                    operator: '=',
+                    value: 'testFilterValue'
+                }]
+            }
+        });
     });
 
     it('createExportData does return expected data', () => {
@@ -465,11 +485,14 @@ describe('BaseNeonComponent', () => {
             columnName: 'export_2',
             prettyName: 'Export 2'
         }]);
-        let query = new neon.query.Query().selectFrom('testDatabase1', 'testTable1');
         expect(component.createExportData()).toEqual([{
             name: 'Query_Results_Table',
             data: {
-                query: query,
+                query: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    fields: ['*']
+                },
                 name: 'Mock Superclass-' + component.options._id,
                 fields: [{
                     query: 'export_1',
@@ -478,8 +501,8 @@ describe('BaseNeonComponent', () => {
                     query: 'export_2',
                     pretty: 'Export 2'
                 }],
-                ignoreFilters: query.ignoreFilters,
-                selectionOnly: query.selectionOnly,
+                ignoreFilters: undefined,
+                selectionOnly: undefined,
                 ignoredFilterIds: [],
                 type: 'query'
             }
@@ -521,12 +544,14 @@ describe('BaseNeonComponent', () => {
             }
             return [];
         });
-        let query1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1');
-        let query2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2');
         expect(component.createExportData()).toEqual([{
             name: 'Query_Results_Table',
             data: {
-                query: query1,
+                query: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    fields: ['*']
+                },
                 name: 'Layer 1-' + component.options.layers[0]._id,
                 fields: [{
                     query: 'export_1',
@@ -535,15 +560,19 @@ describe('BaseNeonComponent', () => {
                     query: 'export_2',
                     pretty: 'Export 2'
                 }],
-                ignoreFilters: query1.ignoreFilters,
-                selectionOnly: query1.selectionOnly,
+                ignoreFilters: undefined,
+                selectionOnly: undefined,
                 ignoredFilterIds: [],
                 type: 'query'
             }
         }, {
             name: 'Query_Results_Table',
             data: {
-                query: query2,
+                query: {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    fields: ['*']
+                },
                 name: 'Layer 2-' + component.options.layers[1]._id,
                 fields: [{
                     query: 'export_3',
@@ -552,8 +581,8 @@ describe('BaseNeonComponent', () => {
                     query: 'export_4',
                     pretty: 'Export 4'
                 }],
-                ignoreFilters: query2.ignoreFilters,
-                selectionOnly: query2.selectionOnly,
+                ignoreFilters: undefined,
+                selectionOnly: undefined,
                 ignoredFilterIds: [],
                 type: 'query'
             }
@@ -563,8 +592,8 @@ describe('BaseNeonComponent', () => {
         expect(spyExportFields.calls.argsFor(1)).toEqual([component.options.layers[1]]);
     });
 
-    it('createWherePredicates does return expected array', () => {
-        expect(component.createWherePredicates(component.options)).toEqual([]);
+    it('createSharedFilters does return expected array', () => {
+        expect(component.createSharedFilters(component.options)).toEqual([]);
 
         component.options.filter = {
             lhs: 'testField1',
@@ -572,23 +601,32 @@ describe('BaseNeonComponent', () => {
             rhs: 'testValue1'
         };
 
-        expect(component.createWherePredicates(component.options)).toEqual([
-            neon.query.where('testField1', '!=', 'testValue1')
-        ]);
+        expect(component.createSharedFilters(component.options)).toEqual([{
+            field: 'testField1',
+            operator: '!=',
+            value: 'testValue1'
+        }]);
 
         component.options.unsharedFilterField = new FieldMetaData('testField2');
         component.options.unsharedFilterValue = 'testValue2';
 
-        expect(component.createWherePredicates(component.options)).toEqual([
-            neon.query.where('testField1', '!=', 'testValue1'),
-            neon.query.where('testField2', '=', 'testValue2')
-        ]);
+        expect(component.createSharedFilters(component.options)).toEqual([{
+            field: 'testField1',
+            operator: '!=',
+            value: 'testValue1'
+        }, {
+            field: 'testField2',
+            operator: '=',
+            value: 'testValue2'
+        }]);
 
         component.options.filter = null;
 
-        expect(component.createWherePredicates(component.options)).toEqual([
-            neon.query.where('testField2', '=', 'testValue2')
-        ]);
+        expect(component.createSharedFilters(component.options)).toEqual([{
+            field: 'testField2',
+            operator: '=',
+            value: 'testValue2'
+        }]);
     });
 
     it('executeAllQueryChain does call executeQueryChain', () => {
@@ -634,7 +672,12 @@ describe('BaseNeonComponent', () => {
         (component as any).executeQueryChain();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)[0]).toEqual(component.options);
-        expect(spy.calls.argsFor(0)[1]).toEqual(new neon.query.Query().selectFrom('testDatabase1', 'testTable1').limit(1000));
+        expect(spy.calls.argsFor(0)[1]).toEqual({
+            database: 'testDatabase1',
+            table: 'testTable1',
+            fields: ['*'],
+            limit: 1000
+        });
         expect(spy.calls.argsFor(0)[2]).toEqual('default visualization query');
         expect(spy.calls.argsFor(0)[3]).toBeDefined();
     });
@@ -665,7 +708,13 @@ describe('BaseNeonComponent', () => {
         (component as any).executeQueryChain();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)[0]).toEqual(component.options);
-        expect(spy.calls.argsFor(0)[1]).toEqual(new neon.query.Query().selectFrom('testDatabase1', 'testTable1').limit(1000).offset(0));
+        expect(spy.calls.argsFor(0)[1]).toEqual({
+            database: 'testDatabase1',
+            table: 'testTable1',
+            fields: ['*'],
+            limit: 1000,
+            offset: 0
+        });
         expect(spy.calls.argsFor(0)[2]).toEqual('default visualization query');
         expect(spy.calls.argsFor(0)[3]).toBeDefined();
 
@@ -673,11 +722,18 @@ describe('BaseNeonComponent', () => {
         (component as any).executeQueryChain();
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)[0]).toEqual(component.options);
-        expect(spy.calls.argsFor(1)[1]).toEqual(new neon.query.Query().selectFrom('testDatabase1', 'testTable1').limit(1000).offset(1000));
+        expect(spy.calls.argsFor(1)[1]).toEqual({
+            database: 'testDatabase1',
+            table: 'testTable1',
+            fields: ['*'],
+            limit: 1000,
+            offset: 1000
+        });
         expect(spy.calls.argsFor(1)[2]).toEqual('default visualization query');
         expect(spy.calls.argsFor(1)[3]).toBeDefined();
     });
 
+    // TODO THOR-946
     it('executeQueryChain with filters to ignore does call executeQuery', () => {
         let spy = spyOn(component, 'executeQuery');
         component.getFiltersToIgnore = () => {
@@ -689,8 +745,12 @@ describe('BaseNeonComponent', () => {
         (component as any).executeQueryChain();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)[0]).toEqual(component.options);
-        expect(spy.calls.argsFor(0)[1]).toEqual(new neon.query.Query().selectFrom('testDatabase1', 'testTable1').limit(1000).ignoreFilters([
-            'testFilter1', 'testFilter2']));
+        expect(spy.calls.argsFor(0)[1]).toEqual({
+            database: 'testDatabase1',
+            table: 'testTable1',
+            fields: ['*'],
+            limit: 1000
+        });
         expect(spy.calls.argsFor(0)[2]).toEqual('default visualization query');
         expect(spy.calls.argsFor(0)[3]).toBeDefined();
     });
@@ -739,12 +799,27 @@ describe('BaseNeonComponent', () => {
         (component as any).executeQueryChain();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)[0]).toEqual(component.options);
-        expect(spy.calls.argsFor(0)[1]).toEqual(new neon.query.Query().selectFrom('testDatabase2', 'testTable2').withFields([
-            'testIdField', 'testFilterField', 'testCategoryField', 'testXField', 'testYField', 'testDateField', 'testLinkField',
-            'testNameField', 'testSizeField', 'testTextField', 'testTypeField'
-        ]).where(neon.query.and.apply(neon.query, [
-            neon.query.where('testIdField', '!=', 'testIdValue'), neon.query.where('testFilterField', '=', 'testFilterValue')
-        ])).limit(1000));
+        expect(spy.calls.argsFor(0)[1]).toEqual({
+            database: 'testDatabase2',
+            table: 'testTable2',
+            fields: [
+                'testIdField', 'testFilterField', 'testCategoryField', 'testXField', 'testYField', 'testDateField', 'testLinkField',
+                'testNameField', 'testSizeField', 'testTextField', 'testTypeField'
+            ],
+            filter: {
+                type: 'and',
+                filters: [{
+                    field: 'testIdField',
+                    operator: '!=',
+                    value: 'testIdValue'
+                }, {
+                    field: 'testFilterField',
+                    operator: '=',
+                    value: 'testFilterValue'
+                }]
+            },
+            limit: 1000
+        });
         expect(spy.calls.argsFor(0)[2]).toEqual('default visualization query');
         expect(spy.calls.argsFor(0)[3]).toBeDefined();
     });
@@ -1202,8 +1277,16 @@ describe('BaseNeonComponent', () => {
         expect((component as any).layerIdToElementCount.has(component.options._id)).toEqual(false);
         expect(spyExecuteQuery.calls.count()).toEqual(1);
         expect(spyExecuteQuery.calls.argsFor(0)[0]).toEqual(component.options);
-        expect(spyExecuteQuery.calls.argsFor(0)[1]).toEqual(new neon.query.Query().selectFrom('testDatabase1', 'testTable1')
-            .aggregate(neonVariables.COUNT, '*', '_count'));
+        expect(spyExecuteQuery.calls.argsFor(0)[1]).toEqual({
+            database: 'testDatabase1',
+            table: 'testTable1',
+            fields: ['*'],
+            aggregation: [{
+                name: '_count',
+                type: AggregationType.COUNT,
+                field: '*'
+            }]
+        });
         expect(spyExecuteQuery.calls.argsFor(0)[2]).toEqual('total count query');
         expect(spyExecuteQuery.calls.argsFor(0)[3]).toBeDefined();
     });
@@ -1236,8 +1319,16 @@ describe('BaseNeonComponent', () => {
         expect((component as any).layerIdToActiveData.get(component.options._id)).toEqual(expectedData);
         expect(spyExecuteQuery.calls.count()).toEqual(1);
         expect(spyExecuteQuery.calls.argsFor(0)[0]).toEqual(component.options);
-        expect(spyExecuteQuery.calls.argsFor(0)[1]).toEqual(new neon.query.Query().selectFrom('testDatabase1', 'testTable1')
-            .aggregate(neonVariables.COUNT, '*', '_count'));
+        expect(spyExecuteQuery.calls.argsFor(0)[1]).toEqual({
+            database: 'testDatabase1',
+            table: 'testTable1',
+            fields: ['*'],
+            aggregation: [{
+                name: '_count',
+                type: AggregationType.COUNT,
+                field: '*'
+            }]
+        });
         expect(spyExecuteQuery.calls.argsFor(0)[2]).toEqual('total count query');
         expect(spyExecuteQuery.calls.argsFor(0)[3]).toBeDefined();
     });
@@ -1583,9 +1674,9 @@ describe('Advanced BaseNeonComponent with config', () => {
             FormsModule
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: testConfig },
             { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
@@ -1661,20 +1752,38 @@ describe('Advanced BaseNeonComponent with config', () => {
     });
 
     it('createCompleteVisualizationQuery does return expected query object', () => {
-        expect(component.createCompleteVisualizationQuery(component.options)).toEqual(new neon.query.Query()
-            .selectFrom('testDatabase2', 'testTable2').withFields([
+        expect(component.createCompleteVisualizationQuery(component.options)).toEqual({
+            database: 'testDatabase2',
+            table: 'testTable2',
+            fields: [
                 'testConfigField', 'testSizeField', 'testNameField', 'testXField', 'testYField', 'testFilterField', 'testPublishColumnName',
                 'testReceiveColumnName'
-            ]).where(neon.query.and.apply(neon.query, [
-                neon.query.where('testConfigField', '!=', 'testConfigValue'), neon.query.where('testFilterField', '=', 'testFilterValue')
-            ])));
+            ],
+            filter: {
+                type: 'and',
+                filters: [{
+                    field: 'testConfigField',
+                    operator: '!=',
+                    value: 'testConfigValue'
+                }, {
+                    field: 'testFilterField',
+                    operator: '=',
+                    value: 'testFilterValue'
+                }]
+            }
+        });
     });
 
-    it('createWherePredicates does return expected array', () => {
-        expect(component.createWherePredicates(component.options)).toEqual([
-            neon.query.where('testConfigField', '!=', 'testConfigValue'),
-            neon.query.where('testFilterField', '=', 'testFilterValue')
-        ]);
+    it('createSharedFilters does return expected array', () => {
+        expect(component.createSharedFilters(component.options)).toEqual([{
+            field: 'testConfigField',
+            operator: '!=',
+            value: 'testConfigValue'
+        }, {
+            field: 'testFilterField',
+            operator: '=',
+            value: 'testFilterValue'
+        }]);
     });
 
     it('getBindings does return expected object', () => {
@@ -1798,9 +1907,9 @@ describe('BaseNeonComponent filter behavior', () => {
             FormsModule
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: testConfig }
         ]

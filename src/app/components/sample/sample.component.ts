@@ -25,14 +25,19 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ConnectionService } from '../../services/connection.service';
+import {
+    AbstractSearchService,
+    AggregationType,
+    NeonFilterClause,
+    NeonQueryPayload,
+    SortOrder
+} from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { AbstractSubcomponent, SubcomponentListener } from './subcomponent.abstract';
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
-import { neonVariables } from '../../neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -78,16 +83,16 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     public subcomponentTypes: string[] = ['Impl1', 'Impl2'];
 
     constructor(
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
+        searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef
     ) {
         super(
-            connectionService,
             datasetService,
             filterService,
+            searchService,
             injector,
             ref
         );
@@ -167,34 +172,36 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
+     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} query
-     * @arg {neon.query.WherePredicate[]} wherePredicates
-     * @return {neon.query.Query}
+     * @arg {NeonQueryPayload} queryPayload
+     * @arg {NeonFilterClause[]} sharedFilters
+     * @return {NeonQueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
+    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
         // TODO Change this behavior as needed to create your visualization query.  Here is a sample of a count aggregation query.
 
-        // TODO Add or remove where predicates as needed.
-        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(
-            neon.query.where(this.options.sampleRequiredField.columnName, '!=', null));
+        // TODO Add or remove filters as needed.
+        let filters: NeonFilterClause[] = [this.searchService.buildFilterClause(this.options.sampleRequiredField.columnName, '!=', null)];
 
         // Only add the optional field if it is defined.
         if (this.options.sampleOptionalField.columnName) {
-            wheres.push(neon.query.where(this.options.sampleOptionalField.columnName, '!=', null));
+            filters.push(this.searchService.buildFilterClause(this.options.sampleOptionalField.columnName, '!=', null));
         }
 
-        let aggregationFields = [options.sampleRequiredField.columnName];
+        let groups = [this.searchService.buildQueryGroup(options.sampleRequiredField.columnName)];
 
         if (options.sampleOptionalField.columnName) {
-            aggregationFields.push(options.sampleOptionalField.columnName);
+            groups.push(this.searchService.buildQueryGroup(options.sampleOptionalField.columnName));
         }
 
-        return query.where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
-            .groupBy(aggregationFields).aggregate(neonVariables.COUNT, '*', 'count').sortBy('count', neonVariables.DESCENDING);
+        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filters)))
+            .updateGroups(query, groups).updateAggregation(query, AggregationType.COUNT, '_count', '*')
+            .updateSort(query, '_count', SortOrder.DESCENDING);
+
+        return query;
     }
 
     /**
@@ -412,13 +419,13 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
         // TODO Change this behavior as needed to handle your query results:  update and/or redraw and properties and/or subcomponents.
 
-        // The aggregation query response data will have a count field and all visualization fields.
+        // The aggregation query response data will have a _count field and all visualization fields.
         let data = results.map((item) => {
             let label = item[options.sampleRequiredField.columnName] + (options.sampleOptionalField.columnName ? ' - ' +
                 item[options.sampleOptionalField.columnName] : '');
 
             return {
-                count: item.count,
+                count: item._count,
                 field: options.sampleRequiredField.columnName,
                 label: label,
                 prettyField: options.sampleRequiredField.prettyName,

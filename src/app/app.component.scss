@@ -69,9 +69,11 @@
     width: 410px;
 }
 
-.title{
-   position: -webkit-sticky; /* Safari */
-   position: sticky;
-   top: 0;
-   z-index: 9999;
+.title {
+    font-size: 20px;
+    font-weight: 500;
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0;
+    z-index: 9999;
 }
