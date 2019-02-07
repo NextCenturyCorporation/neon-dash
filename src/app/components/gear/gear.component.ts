@@ -57,6 +57,7 @@ export class GearComponent implements OnInit, OnDestroy {
     private optionalListNonField: WidgetOption[];
     private optionsListCollection: [WidgetOption[]];
     private changeList: any[];
+    private changeLayerList: any[];
     private componentThis: any;
 
     private addLayer: Function;
@@ -88,6 +89,7 @@ export class GearComponent implements OnInit, OnDestroy {
         this.optionalList = [];
         this.optionalListNonField = [];
         this.changeList = [];
+        this.changeLayerList = [];
         this.mapType = 3;
         this.messenger = new neon.eventing.Messenger();
     }
@@ -170,6 +172,17 @@ export class GearComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Disables the Apply button if there are any changes
+     */
+    disableApplyButton(): boolean {
+        if (this.changeList.length === 0 && this.changeLayerList.length === 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Returns the icon for the filter for the layer with the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
@@ -191,6 +204,7 @@ export class GearComponent implements OnInit, OnDestroy {
 
     getLayerList(layer) {
         let list = layer.list();
+        //console.log(list);
         return list;
     }
 
@@ -207,7 +221,13 @@ export class GearComponent implements OnInit, OnDestroy {
         this.changeList.forEach((change) => {
             this.options[change.widgetOption.bindingKey] = change.newValue;
         });
+        if (this.changeLayerList.length > 0) {
+            this.changeLayerList.forEach((change) => {
+                this.options.layers[change.index][change.option.bindingKey] = change.newValue;
+            });
+        }
         this.changeList = [];
+        this.changeLayerList = [];
 
         if (this.mapType !== 3) {
             this.handleChangeSubcomponentType(this.mapType);
@@ -227,7 +247,27 @@ export class GearComponent implements OnInit, OnDestroy {
         this.changeDetection.detectChanges();
     }
 
-    handleDataChange(widgetOption, newValue) {
+    /**
+     * Returns the icon for the filter for the layer with the given options.
+     *
+     * @arg widgetOption, newValue A WidgetOption object & the new value.
+     */
+    handleDataChange(widgetOption, newValue, layerIndex?) {
+        //console.log(widgetOption);
+        //console.log(layerIndex);
+
+        if (layerIndex > -1) {
+            let layerChange = {
+                option: widgetOption,
+                value: newValue,
+                index: layerIndex
+            };
+            this.changeLayerList.push(layerChange);
+            //console.log('layer');
+            //console.log(this.changeLayerList);
+            //console.log(this.options);
+        }
+
         if (widgetOption.bindingkey === 'limit') {
             this.changeFilterFieldLimit(widgetOption, newValue);
         } else {
@@ -354,6 +394,7 @@ export class GearComponent implements OnInit, OnDestroy {
         this.optionsList = this.options.list();
         this.cleanShowOptions();
         this.constructOptionsLists();
+        //console.log(this.options);
     }
 
 }
