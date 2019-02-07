@@ -312,7 +312,7 @@ describe('Component: Map', () => {
 
     it('does have expected map element', () => {
         if (webgl_support()) {
-            component.handleChangeMapType(MapType.Cesium);
+            component.handleChangeMapType();
             let mapElement = getDebug('.leaflet-container'),
                 el = mapElement && mapElement.nativeElement,
                 cesium = el && el.firstChild;
