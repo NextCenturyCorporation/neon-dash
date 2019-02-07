@@ -40,7 +40,7 @@
                 <mat-icon class="neon-icon-small">{{ getIconForFilter(layer) }}</mat-icon>
             </mat-toolbar>
             <div class="option-well" [hidden]="layerVisible.get(layer._id)">
-                <app-options-list [databases]=options.databases [fields]=options.fields [tables]=options.tables
+                <app-options-list [databases]=layer.databases [fields]=layer.fields [tables]=layer.tables
                     [optionsList]=getLayerList(layer) [handleChangeData]=handleChangeData [handleChangeDatabase]=handleChangeDatabase
                     [handleChangeLimit]=handleChangeLimit [handleChangeFilterField]=handleChangeFilterField
                     [handleChangeSubcomponentType]=handleChangeSubcomponentType [handleChangeTable]=handleChangeTable
