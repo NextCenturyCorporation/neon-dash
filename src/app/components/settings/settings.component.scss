@@ -41,6 +41,10 @@
 
 .radio-container {
     margin: 5 5px;
+
+    mat-radio-group {
+        font-size: 14px;
+    }
 }
 
 .option-row {
@@ -53,10 +57,13 @@ input {
 }
 
 .checkmark-container {
+    font-size: 14px;
     padding: 5px;
 }
 
 .header {
+    font-size: 16px;
+    font-weight: 500;
     padding: 5px;
 }
 

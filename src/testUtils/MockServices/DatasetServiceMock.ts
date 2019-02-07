@@ -71,7 +71,30 @@ export class DatasetServiceMock extends DatasetService {
         super(new NeonGTDConfig());
         this.setActiveDataset({
             databases: DatasetServiceMock.DATABASES,
-            name: 'datastore1'
+            name: 'datastore1',
+            type: 'testDatastore',
+            host: 'testHostname',
+            relations: [{
+                members: [{
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testRelationFieldA'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testRelationFieldA'
+                }]
+            }, {
+                members: [{
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testRelationFieldB'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testRelationFieldB'
+                }]
+            }]
         });
 
         let dashboardTableKeys: {[key: string]: string} = {};
