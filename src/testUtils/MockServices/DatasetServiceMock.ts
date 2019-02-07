@@ -73,28 +73,7 @@ export class DatasetServiceMock extends DatasetService {
             databases: DatasetServiceMock.DATABASES,
             name: 'datastore1',
             type: 'testDatastore',
-            host: 'testHostname',
-            relations: [{
-                members: [{
-                    database: 'testDatabase1',
-                    table: 'testTable1',
-                    field: 'testRelationFieldA'
-                }, {
-                    database: 'testDatabase2',
-                    table: 'testTable2',
-                    field: 'testRelationFieldA'
-                }]
-            }, {
-                members: [{
-                    database: 'testDatabase1',
-                    table: 'testTable1',
-                    field: 'testRelationFieldB'
-                }, {
-                    database: 'testDatabase2',
-                    table: 'testTable2',
-                    field: 'testRelationFieldB'
-                }]
-            }]
+            host: 'testHostname'
         });
 
         let dashboardTableKeys: {[key: string]: string} = {};
