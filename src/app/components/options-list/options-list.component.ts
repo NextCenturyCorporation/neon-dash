@@ -32,7 +32,7 @@ import { WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../w
 })
 export class OptionsListComponent {
     @Input() optionsList: any[];
-    @Input() layers: any[];
+    @Input() index: number;
     @Input() databases: any[];
     @Input() fields: any[];
     @Input() tables: any[];
@@ -45,6 +45,7 @@ export class OptionsListComponent {
     @Input() handleChangeTable: Function;
     @Input() handleDataChange: Function;
 
+    isLayer: boolean = false;
     newList: any[];
     constructor(public widgetService: AbstractWidgetService) {
         this.newList = [];
@@ -55,6 +56,14 @@ export class OptionsListComponent {
             return true;
         }
         return false;
+    }
+
+    handleListDataChange(widgetOption, newValue) {
+        if (this.index) {
+            this.handleDataChange(widgetOption, newValue, this.index);
+        } else {
+            this.handleDataChange(widgetOption, newValue, this.index);
+        }
     }
 
 }

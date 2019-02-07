@@ -32,7 +32,7 @@
             <div>Add Layer</div>
         </a>
 
-        <div *ngFor="let layer of options.layers">
+        <div *ngFor="let layer of options.layers; let i = index;">
             <mat-toolbar class="subheader" style="cursor: pointer;" (click)="toggleFilter(layer)">
                 <span>{{ layer.title }}</span>
                 <span class="toolbar-spacer"></span>
@@ -44,7 +44,7 @@
                     [optionsList]=getLayerList(layer) [handleChangeData]=handleChangeData [handleChangeDatabase]=handleChangeDatabase
                     [handleChangeLimit]=handleChangeLimit [handleChangeFilterField]=handleChangeFilterField
                     [handleChangeSubcomponentType]=handleChangeSubcomponentType [handleChangeTable]=handleChangeTable
-                    [handleDataChange]=handleDataChange.bind(this)>
+                    [handleDataChange]=handleDataChange.bind(this) [index]=i>
                 </app-options-list>
             </div>
         </div>
@@ -93,7 +93,7 @@
     <button mat-raised-button class="neon-button-large" color="primary" (click)="resetChangeList()">
         Cancel
     </button>
-    <button mat-raised-button class="neon-button-large" color="primary" [disabled]="changeList.length == 0" (click)="handleApplyClick()">
+    <button mat-raised-button class="neon-button-large" color="primary" [disabled]="disableApplyButton()" (click)="handleApplyClick()">
         Apply Changes
     </button>
 </div>
