@@ -201,7 +201,6 @@ export class GearComponent implements OnInit, OnDestroy {
 
     getLayerList(layer) {
         let list = layer.list();
-        //console.log(list);
         return list;
     }
 
@@ -216,11 +215,11 @@ export class GearComponent implements OnInit, OnDestroy {
      */
     handleApplyClick() {
         this.changeList.forEach((change) => {
-            this.options[change.widgetOption.bindingKey] = change.newValue;
+            this.options[change.option.bindingKey] = change.value;
         });
         if (this.changeLayerList.length > 0) {
             this.changeLayerList.forEach((change) => {
-                this.options.layers[change.index][change.option.bindingKey] = change.newValue;
+                this.options.layers[change.index][change.option.bindingKey] = change.value;
             });
         }
         this.changeList = [];
@@ -247,26 +246,20 @@ export class GearComponent implements OnInit, OnDestroy {
      * @arg widgetOption, newValue A WidgetOption object & the new value.
      */
     handleDataChange(widgetOption, newValue, layerIndex?) {
-        //console.log(widgetOption);
-        //console.log(layerIndex);
-
         if (layerIndex > -1) {
-            let layerChange = {
+            this.changeLayerList.push({
                 option: widgetOption,
                 value: newValue,
                 index: layerIndex
-            };
-            this.changeLayerList.push(layerChange);
-            //console.log('layer');
-            //console.log(this.changeLayerList);
-            //console.log(this.options);
-        }
-
-        if (widgetOption.bindingkey === 'limit') {
+            });
+        } else if (widgetOption.bindingkey === 'limit') {
             this.changeFilterFieldLimit(widgetOption, newValue);
         } else {
             this.overrideExistingChange(widgetOption);
-            this.changeList.push({ widgetOption, newValue });
+            this.changeList.push({
+                option: widgetOption,
+                value: newValue
+            });
         }
 
         if (widgetOption.bindingKey === 'type') {
@@ -385,7 +378,6 @@ export class GearComponent implements OnInit, OnDestroy {
         this.optionsList = this.options.list();
         this.cleanShowOptions();
         this.constructOptionsLists();
-        //console.log(this.options);
     }
 
 }
