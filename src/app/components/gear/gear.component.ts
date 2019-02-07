@@ -35,7 +35,6 @@ import { DatasetOptions, FieldMetaData, SimpleFilter, TableMetaData } from '../.
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import * as neon from 'neon-framework';
 import { WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../widget-option';
-import { MapType } from '../map/map.type.abstract';
 import { MatSidenav } from '@angular/material';
 @Component({
     selector: 'app-gear',
@@ -71,7 +70,6 @@ export class GearComponent implements OnInit, OnDestroy {
     private newLimit: string;
     private changeSubcomponentType: boolean;
     private limitChanged: boolean;
-    private mapType: MapType;
 
     public collapseOptionalOptions: boolean;
 
@@ -90,7 +88,6 @@ export class GearComponent implements OnInit, OnDestroy {
         this.optionalListNonField = [];
         this.changeList = [];
         this.changeLayerList = [];
-        this.mapType = 3;
         this.messenger = new neon.eventing.Messenger();
     }
 
@@ -229,10 +226,7 @@ export class GearComponent implements OnInit, OnDestroy {
         this.changeList = [];
         this.changeLayerList = [];
 
-        if (this.mapType !== 3) {
-            this.handleChangeSubcomponentType(this.mapType);
-            this.changeSubcomponentType = false;
-        } else if (this.changeSubcomponentType) {
+        if (this.changeSubcomponentType) {
             this.handleChangeSubcomponentType();
             this.changeSubcomponentType = false;
         }
@@ -277,9 +271,6 @@ export class GearComponent implements OnInit, OnDestroy {
 
         if (widgetOption.bindingKey === 'type') {
             this.changeSubcomponentType = true;
-            if (widgetOption.prettyName === 'Map Type') {
-                this.mapType = newValue;
-            }
         }
     }
 
