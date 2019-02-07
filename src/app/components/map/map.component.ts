@@ -719,7 +719,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      *
      * @arg {MapType} mapType
      */
-    handleChangeMapType(mapType: MapType) {
+    handleChangeMapType() {
         if (this.mapObject) {
             this.mapObject.destroy();
         }
@@ -730,8 +730,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @override
      * @param {MapType} mapType
      */
-    handleChangeSubcomponentType(mapType: MapType) {
-        this.handleChangeMapType(mapType);
+    handleChangeSubcomponentType() {
+        this.handleChangeMapType();
     }
 
     /**
