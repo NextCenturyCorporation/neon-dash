@@ -13,17 +13,4 @@
  * limitations under the License.
  *
  */
-
-.option-row {
-    display: flex;
-    align-items: center;
-}
-
-.option-container {
-    width: 360px;
-    padding: 5px;
-}
-
-.neon-button-large {
-    margin: 5px;
-}
+@import '../gear/gear.component.scss';

@@ -1,4 +1,4 @@
-<div class="option-container" *ngFor="let option of optionsList">
+<div *ngFor="let option of optionsList">
     <!-- Database Option Type-->
     <mat-form-field class="option-container" *ngIf="checkOptionType(option.optionType, 'DATABASE')">
         <mat-select placeholder="Database" [(ngModel)]="option.valueCurrent" required="true" name="{{option.valueCurrent}} database"
