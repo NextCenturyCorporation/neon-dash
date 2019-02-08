@@ -645,8 +645,15 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * Ensures that the source image loads before the mask.
      *
      * @arg {any} tab
+     * @arg {number} index
      */
-    setTabLoaded(tab: any) {
+    setTabLoaded(tab: any, index: number) {
+        let base = this.visualization.nativeElement.querySelector('#medium' + index);
+        let mask = this.visualization.nativeElement.querySelector('#mask' + index);
+        if (base && mask) {
+            mask.height = base.clientHeight;
+            mask.width = base.clientWidth;
+        }
         tab.loaded = true;
     }
 
