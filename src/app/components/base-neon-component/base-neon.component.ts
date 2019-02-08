@@ -13,19 +13,11 @@
  * limitations under the License.
  *
  */
-import {
-    AfterViewInit,
-    OnInit,
-    OnDestroy,
-    Injector,
-    ChangeDetectorRef
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@angular/core';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-
-import { Color } from '../../color';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { neonEvents, neonVariables } from '../../neon-namespaces';
 import {
@@ -483,14 +475,23 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
+     * Run before executing all the data queries for the visualization.
+     * Used to notify the visualization that queries are imminent.
+     */
+    public beforeExecuteAllQueryChain(): void {
+        // do nothing by default
+    }
+
+    /**
      * Runs all the data queries for the visualization.  Called on initialization, if a user changes the visualization config or sets a
      * filter, or whenever else the data queries need to be run.
      */
     private executeAllQueryChain(): void {
         if (!this.initializing) {
-            (this.isMultiLayerWidget ? this.options.layers : [this.options]).forEach((options) => {
+            this.beforeExecuteAllQueryChain();
+            for (let options of (this.isMultiLayerWidget ? this.options.layers : [this.options])) {
                 this.executeQueryChain(options);
-            });
+            }
         }
     }
 
