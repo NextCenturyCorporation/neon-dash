@@ -565,7 +565,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             return list;
         }, []);
 
-        if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
+        if (options.filter && options.filter.lhs && options.filter.operator && typeof options.filter.rhs !== 'undefined') {
             fields = [options.filter.lhs].concat(fields);
         }
 
@@ -600,7 +600,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public createWherePredicates(options: any): neon.query.WherePredicate[] {
         let wheres: neon.query.WherePredicate[] = [];
-        if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
+        if (options.filter && options.filter.lhs && options.filter.operator && typeof options.filter.rhs !== 'undefined') {
             wheres.push(neon.query.where(options.filter.lhs, options.filter.operator, options.filter.rhs));
         }
         if (this.hasUnsharedFilter(options)) {
