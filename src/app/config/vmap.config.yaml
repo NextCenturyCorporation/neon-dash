@@ -1,20 +1,5 @@
 datasets:
   -
-    name: NIST
-    datastore: elasticsearchrest
-    hostname: 10.107.5.227
-    layout: NIST
-    databases:
-      -
-        name: nist_data
-        prettyName: NIST
-        tables:
-          -
-            name: _doc
-            prettyName: Data
-            fields:
-
-  -
     name: MFC_2018_EVAL_PART1_REPORT
     datastore: elasticsearchrest
     hostname: 10.107.5.227
@@ -22,7 +7,7 @@ datasets:
     connectOnLoad: true
     databases:
       -
-        name: integrity_report_probes_012519
+        name: integrity_report_probes_020419
         prettyName: Probes
         tables:
           -
@@ -36,17 +21,50 @@ datasets:
                 columnName: GroundTruthLabel
                 prettyName: Ground Truth
               -
+                columnName: GroundTruthPercent
+                prettyName: Ground Truth Percentage
+              -
                 columnName: GroundTruthTitle
                 prettyName: Ground Truth with Percentage
               -
+                columnName: ManipulationOperations
+                prettyName: Ground Truth Probe Manipulation Operations
+              -
+                columnName: NeonDonorIDs
+                prettyName: UI Donor IDs
+              -
+                columnName: NeonDonorPaths
+                prettyName: UI Donor Paths
+              -
+                columnName: NeonDonorMaskPaths
+                prettyName: UI Donor Mask Paths
+              -
+                columnName: NeonMaskCompleteRequestUrl
+                prettyName: UI Complete Mask (Request URL)
+              -
+                columnName: NeonMaskRequestUrlList
+                prettyName: UI Masks (Request URLs)
+              -
+                columnName: NeonProbeMaskPath
+                prettyName: UI Probe Mask Path
+              -
+                columnName: NeonProbePath
+                prettyName: UI Probe Path
+              -
+                columnName: ReasoningAlgorithm
+                prettyName: Indicator Fusion Algorithm
+              -
                 columnName: ReasoningLabel
-                prettyName: TA2 Reasoning Label
+                prettyName: Indicator Fusion Label
+              -
+                columnName: ReasoningPercent
+                prettyName: Indicator Fusion Percent
               -
                 columnName: ReasoningScore
-                prettyName: TA2 Reasoning Score
+                prettyName: Indicator Fusion Score
               -
                 columnName: ReasoningTitle
-                prettyName: TA2 Reasoning Label and Score
+                prettyName: Indicator Fusion Label and Score
               -
                 columnName: Exif.DateTimeOriginal
               -
@@ -55,8 +73,9 @@ datasets:
                 columnName: Exif.Model
               -
                 columnName: Exif.SizeAndOrientation
+
       -
-        name: integrity_report_operations_012519
+        name: integrity_report_operations_020419
         prettyName: Operations
         tables:
           -
@@ -96,14 +115,18 @@ datasets:
               -
                 columnName: NeonDataSource
                 prettyName: Neon Data Source
+
       -
-        name: integrity_report_indicators_012519
-        prettyName: TA1 Indicators
+        name: integrity_report_indicators_020419
+        prettyName: Indicators
         tables:
           -
             name: _doc
             prettyName: Data
             fields:
+              -
+                columnName: ConfidenceScore
+                prettyName: Score (Decimal)
               -
                 columnName: DatasetName
                 prettyName: Dataset
@@ -124,7 +147,10 @@ datasets:
                 prettyName: Indicator (NIST)
               -
                 columnName: IndicatorNamePretty
-                prettyName: Indicator (NIST / DM)
+                prettyName: Indicator
+              -
+                columnName: IndicatorPercent
+                prettyName: Score (Percent)
               -
                 columnName: IndicatorPixelOptOut
                 prettyName: Pixel Opt Out
@@ -144,6 +170,21 @@ datasets:
                 columnName: IndicatorVersion
                 prettyName: Version
               -
+                columnName: NeonEval
+                prettyName: Neon TPR
+              -
+                columnName: NeonEvalPercentage
+                prettyName: Neon TPR (Percentage)
+              -
+                columnName: ManipulationOperations
+                prettyName: Ground Truth Probe Manipulation Operations
+              -
+                columnName: NeonID
+                prettyName: UI ID
+              -
+                columnName: OutputProbeMaskFileName
+                prettyName: Mask Name
+              -
                 columnName: ProbeFileID
                 prettyName: ProbeFileID
               -
@@ -153,23 +194,15 @@ datasets:
                 columnName: ProbePath
                 prettyName: ProbePath
               -
-                columnName: ConfidenceScore
-                prettyName: Score
-              -
                 columnName: ProbeStatus
                 prettyName: Status
               -
-                columnName: OutputProbeMaskFileName
-                prettyName: Mask Name
-              -
                 columnName: SelectiveScoring
                 prettyName: Selective Scorings
-              -
-                columnName: IsScoreCorrect
-                prettyName: Is Score Correct?
+
       -
-        name: integrity_report_fusion_012519
-        prettyName: TA2 Fusion
+        name: integrity_report_fusion_020419
+        prettyName: Indicator Fusion
         tables:
           -
             name: _doc
@@ -179,22 +212,32 @@ datasets:
                 columnName: DatasetName
                 prettyName: Dataset
               -
-                columnName: ProbePath
-                prettyName: ProbePath
+                columnName: NeonEval
+                prettyName: Neon TPR
+              -
+                columnName: NeonEvalPercentage
+                prettyName: Neon TPR (Percentage)
+              -
+                columnName: ManipulationOperations
+                prettyName: Ground Truth Probe Manipulation Operations
+              -
+                columnName: NeonProbePath
+                prettyName: UI Probe Path
               -
                 columnName: ReasoningAlgorithm
                 prettyName: Algorithm
               -
-                columnName: ReasoningMaskRequestUrl
+                columnName: ReasoningMaskPath
                 prettyName: Mask
               -
-                columnName: ReasoningScore
-                prettyName: Score
+                columnName: ReasoningPercent
+                prettyName: Score (Percent)
               -
-                columnName: IsScoreCorrect
-                prettyName: Is Score Correct?
+                columnName: ReasoningScore
+                prettyName: Score (Decimal)
+
       -
-        name: integrity_report_evaluation_012519
+        name: integrity_report_evaluation_020419
         prettyName: NIST Evaluation
         tables:
           -
@@ -222,8 +265,15 @@ datasets:
               -
                 columnName: IndicatorProbeOptOut
                 prettyName: Probe Opt Out
+              -
+                columnName: ManipulationOperations
+                prettyName: Ground Truth Probe Manipulation Operations
+              -
+                columnName: NeonID
+                prettyName: UI ID
+
       -
-        name: integrity_report_donors_012519
+        name: integrity_report_donors_020419
         prettyName: Donors
         tables:
           -
@@ -233,630 +283,223 @@ datasets:
               -
                 columnName: DatasetName
                 prettyName: Dataset
+
     relations:
       -
         members:
           -
-            database: integrity_report_probes_012519
+            database: integrity_report_probes_020419
             table: _doc
             field: DatasetName
           -
-            database: integrity_report_operations_012519
+            database: integrity_report_operations_020419
             table: _doc
             field: DatasetName
           -
-            database: integrity_report_indicators_012519
+            database: integrity_report_indicators_020419
             table: _doc
             field: DatasetName
           -
-            database: integrity_report_fusion_012519
+            database: integrity_report_fusion_020419
             table: _doc
             field: DatasetName
           -
-            database: integrity_report_evaluation_012519
+            database: integrity_report_evaluation_020419
             table: _doc
             field: DatasetName
           -
-            database: integrity_report_donors_012519
+            database: integrity_report_donors_020419
             table: _doc
             field: DatasetName
       -
         members:
           -
-            database: integrity_report_probes_012519
+            database: integrity_report_probes_020419
             table: _doc
             field: ProbeFileID
           -
-            database: integrity_report_operations_012519
+            database: integrity_report_operations_020419
             table: _doc
             field: ProbeFileID
           -
-            database: integrity_report_indicators_012519
+            database: integrity_report_indicators_020419
             table: _doc
             field: ProbeFileID
           -
-            database: integrity_report_fusion_012519
+            database: integrity_report_fusion_020419
             table: _doc
             field: ProbeFileID
           -
-            database: integrity_report_evaluation_012519
+            database: integrity_report_evaluation_020419
             table: _doc
             field: ProbeFileID
           -
-            database: integrity_report_donors_012519
+            database: integrity_report_donors_020419
             table: _doc
             field: ProbeFileID
       -
         members:
           -
-            database: integrity_report_indicators_012519
+            database: integrity_report_indicators_020419
             table: _doc
             field: IsTarget
           -
-            database: integrity_report_fusion_012519
+            database: integrity_report_fusion_020419
             table: _doc
             field: IsTarget
           -
-            database: integrity_report_evaluation_012519
+            database: integrity_report_evaluation_020419
             table: _doc
             field: IsTarget
       -
         members:
           -
-            database: integrity_report_indicators_012519
+            database: integrity_report_probes_020419
+            table: _doc
+            field: Exif.*
+          -
+            database: integrity_report_indicators_020419
+            table: _doc
+            field: Exif.*
+          -
+            database: integrity_report_fusion_020419
+            table: _doc
+            field: Exif.*
+          -
+            database: integrity_report_evaluation_020419
+            table: _doc
+            field: Exif.*
+      -
+        members:
+          -
+            database: integrity_report_probes_020419
+            table: _doc
+            field: ManipulationOperations
+          -
+            database: integrity_report_indicators_020419
+            table: _doc
+            field: ManipulationOperations
+          -
+            database: integrity_report_fusion_020419
+            table: _doc
+            field: ManipulationOperations
+          -
+            database: integrity_report_evaluation_020419
+            table: _doc
+            field: ManipulationOperations
+      -
+        members:
+          -
+            database: integrity_report_indicators_020419
             table: _doc
             field: IndicatorTask
           -
-            database: integrity_report_fusion_012519
+            database: integrity_report_fusion_020419
             table: _doc
             field: Task
           -
-            database: integrity_report_evaluation_012519
+            database: integrity_report_evaluation_020419
             table: _doc
             field: TaskID
       -
         members:
           -
-            database: integrity_report_indicators_012519
+            database: integrity_report_indicators_020419
             table: _doc
             field: IndicatorCondition
           -
-            database: integrity_report_evaluation_012519
+            database: integrity_report_evaluation_020419
             table: _doc
             field: IndicatorCondition
       -
         members:
           -
-            database: integrity_report_indicators_012519
+            database: integrity_report_indicators_020419
             table: _doc
             field: IndicatorID
           -
-            database: integrity_report_evaluation_012519
+            database: integrity_report_evaluation_020419
             table: _doc
             field: IndicatorID
       -
         members:
           -
-            database: integrity_report_indicators_012519
+            database: integrity_report_indicators_020419
             table: _doc
             field: IndicatorNameDM
           -
-            database: integrity_report_evaluation_012519
+            database: integrity_report_evaluation_020419
             table: _doc
             field: IndicatorNameDM
       -
         members:
           -
-            database: integrity_report_indicators_012519
+            database: integrity_report_indicators_020419
             table: _doc
             field: IndicatorNameNIST
           -
-            database: integrity_report_evaluation_012519
+            database: integrity_report_evaluation_020419
             table: _doc
             field: IndicatorNameNIST
       -
         members:
           -
-            database: integrity_report_indicators_012519
+            database: integrity_report_indicators_020419
             table: _doc
             field: IndicatorPixelOptOut
           -
-            database: integrity_report_evaluation_012519
+            database: integrity_report_evaluation_020419
             table: _doc
             field: IndicatorPixelOptOut
       -
         members:
           -
-            database: integrity_report_indicators_012519
+            database: integrity_report_indicators_020419
             table: _doc
             field: IndicatorProbeOptOut
           -
-            database: integrity_report_evaluation_012519
+            database: integrity_report_evaluation_020419
             table: _doc
             field: IndicatorProbeOptOut
       -
         members:
           -
-            database: integrity_report_indicators_012519
+            database: integrity_report_indicators_020419
             table: _doc
             field: IndicatorSubTask
           -
-            database: integrity_report_evaluation_012519
+            database: integrity_report_evaluation_020419
             table: _doc
             field: IndicatorSubTask
       -
         members:
           -
-            database: integrity_report_indicators_012519
+            database: integrity_report_indicators_020419
             table: _doc
             field: IndicatorTeam
           -
-            database: integrity_report_evaluation_012519
+            database: integrity_report_evaluation_020419
             table: _doc
             field: IndicatorTeam
 #      -
 #        members:
 #          -
-#            database: integrity_report_operations_012519
+#            database: integrity_report_operations_020419
 #            table: _doc
 #            field: OperationGroup
 #          -
-#            database: integrity_report_indicators_012519
+#            database: integrity_report_indicators_020419
 #            table: _doc
 #            field: SelectiveScoring
 
 layouts:
-  NIST:
-    -
-      col: 1
-      row: 1
-      sizex: 4
-      sizey: 12
-      type: thumbnailGrid
-      bindings:
-        title: Probe Image Gallery
-        limit: 12
-        database: nist_data
-        table: _doc
-        unsharedFilterField: ProjectType
-        unsharedFilterValue: image
-        ascending: true
-        border: valueCompare
-        borderCompareValue: Y
-        compareField: IsTarget
-        cropAndScale:
-        defaultLabel:
-        defaultPercent:
-        filterField: ProbeFileID
-        idField: ProbeFileID
-        linkField: ProbeFileName
-        #linkField: ProbeThumbnailPath
-        linkPrefix: http://10.107.5.227:3000/thumbnail
-        #linkPrefix: http://10.107.5.227:8000/mnt/datasets/
-        nameField: ProbeFileID
-        objectIdField:
-        objectNameField: TaskID
-        openOnMouseClick: false
-        percentField:
-        predictedNameField:
-        sortField: ProbeFileID
-        textMap:
-            actual: Task
-            percentage:
-            prediction:
-        typeMap:
-            jpeg: img
-            arw: img
-            bmp: img
-            cr2: img
-            dng: img
-            iiq: img
-            jpg: img
-            mts: img
-            nef: img
-            png: img
-            raf: img
-            tif: img
-            3gp: img
-            gif: img
-            avi: img
-            mov: img
-            mp4: img
-
-    -
-      col: 1
-      row: 13
-      sizex: 4
-      sizey: 5
-      type: thumbnailGrid
-      bindings:
-        title: Probe Video Gallery
-        limit: 3
-        database: nist_data
-        table: _doc
-        unsharedFilterField: ProjectType
-        unsharedFilterValue: video
-        ascending: true
-        border: valueCompare
-        borderCompareValue: Y
-        compareField: IsTarget
-        cropAndScale:
-        defaultLabel:
-        defaultPercent:
-        filterField: ProbeFileID
-        idField: ProbeFileID
-        linkField: ProbeFileName
-        #linkField: ProbeThumbnailPath
-        linkPrefix: http://10.107.5.227:3000/thumbnail
-        #linkPrefix: http://10.107.5.227:8000/mnt/datasets/
-        nameField: ProbeFileID
-        objectIdField:
-        objectNameField: TaskID
-        openOnMouseClick: false
-        percentField:
-        predictedNameField:
-        sortField: ProbeFileID
-        textMap:
-            actual: Task
-            percentage:
-            prediction:
-        typeMap:
-            jpeg: img
-            arw: img
-            bmp: img
-            cr2: img
-            dng: img
-            iiq: img
-            jpg: img
-            mts: img
-            nef: img
-            png: img
-            raf: img
-            tif: img
-            3gp: img
-            gif: img
-            avi: img
-            mov: img
-            mp4: img
-
-    -
-      col: 1
-      row: 18
-      sizex: 4
-      sizey: 4
-      type: filterBuilder
-      bindings:
-        requireAll: true
-
-    -
-      col: 5
-      row: 1
-      sizex: 4
-      sizey: 4
-      type: aggregation
-      bindings:
-        type: bar-h
-        title: Datasets
-        database: nist_data
-        table: _doc
-        aggregation: count
-        logScaleX: true
-        sortByAggregation: true
-        xField: Dataset
-        yPercentage: 0.3
-
-    -
-      col: 5
-      row: 5
-      sizex: 4
-      sizey: 4
-      type: aggregation
-      bindings:
-        type: bar-h
-        title: Tasks
-        database: nist_data
-        table: _doc
-        aggregation: count
-        logScaleX: true
-        sortByAggregation: true
-        xField: TaskID
-        yPercentage: 0.3
-
-    -
-      col: 5
-      row: 9
-      sizex: 4
-      sizey: 4
-      type: aggregation
-      bindings:
-        type: bar-h
-        title: Is Target
-        database: nist_data
-        table: _doc
-        aggregation: count
-        logScaleX: true
-        sortByAggregation: true
-        xField: IsTarget
-        yPercentage: 0.3
-
-    -
-      col: 5
-      row: 13
-      sizex: 4
-      sizey: 9
-      type: aggregation
-      bindings:
-        type: bar-h
-        title: Manipulations
-        database: nist_data
-        table: _doc
-        aggregation: count
-        logScaleX: true
-        sortByAggregation: true
-        xField: Manipulations
-        yPercentage: 0.3
-
-    -
-      col: 9
-      row: 1
-      sizex: 4
-      sizey: 7
-      type: mediaViewer
-      bindings:
-        title: Probe
-        database: nist_data
-        table: _doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - ProbeFileName
-        linkPrefix: http://10.107.5.227:3000/image
-        #linkPrefix: http://10.107.5.227:8000
-        typeMap:
-            jpeg: img
-            arw:
-            bmp: img
-            cr2:
-            dng:
-            iiq:
-            jpg: img
-            mts:
-            nef:
-            png: img
-            raf:
-            tif: img
-            3gp:
-            gif:
-            avi: vid
-            mov: vid
-            mp4: vid
-
-    -
-      col: 9
-      row: 8
-      sizex: 4
-      sizey: 7
-      type: mediaViewer
-      bindings:
-        title: Probe GT Mask
-        database: nist_data
-        table: _doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - ProbeMaskFileName
-        linkPrefix: http://10.107.5.227:3000/image
-        #linkPrefix: http://10.107.5.227:8000
-        typeMap:
-            jpeg: img
-            arw:
-            bmp: img
-            cr2:
-            dng:
-            iiq:
-            jpg: img
-            mts:
-            nef:
-            png: img
-            raf:
-            tif:
-            3gp:
-            gif:
-            avi: vid
-            mov: vid
-            mp4: vid
-
-    -
-      col: 9
-      row: 15
-      sizex: 4
-      sizey: 7
-      type: mediaViewer
-      bindings:
-        title: Base
-        database: nist_data
-        table: _doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - BaseFileName
-        linkPrefix: http://10.107.5.227:3000/image
-        #linkPrefix: http://10.107.5.227:8000
-        typeMap:
-            jpeg: img
-            arw:
-            bmp: img
-            cr2:
-            dng:
-            iiq:
-            jpg: img
-            mts:
-            nef:
-            png: img
-            raf:
-            tif:
-            3gp:
-            gif:
-            avi: vid
-            mov: vid
-            mp4: vid
-
-    -
-      col: 1
-      row: 22
-      sizex: 4
-      sizey: 7
-      type: mediaViewer
-      bindings:
-        title: Donor
-        database: nist_data
-        table: _doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - DonorFileName
-        linkPrefix: http://10.107.5.227:3000/image
-        #linkPrefix: http://10.107.5.227:8000
-        typeMap:
-            jpeg: img
-            arw:
-            bmp: img
-            cr2:
-            dng:
-            iiq:
-            jpg: img
-            mts:
-            nef:
-            png: img
-            raf:
-            tif:
-            3gp:
-            gif:
-            avi: vid
-            mov: vid
-            mp4: vid
-
-    -
-      col: 5
-      row: 22
-      sizex: 4
-      sizey: 7
-      type: mediaViewer
-      bindings:
-        title: Donor GT Mask
-        database: nist_data
-        table: _doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - DonorMaskFileName
-        linkPrefix: http://10.107.5.227:3000/image
-        #linkPrefix: http://10.107.5.227:8000
-        typeMap:
-            jpeg: img
-            arw:
-            bmp: img
-            cr2:
-            dng:
-            iiq:
-            jpg: img
-            mts:
-            nef:
-            png: img
-            raf:
-            tif:
-            3gp:
-            gif:
-            avi: vid
-            mov: vid
-            mp4: vid
-
-    -
-      col: 9
-      row: 22
-      sizex: 4
-      sizey: 7
-      type: mediaViewer
-      bindings:
-        title: Binary Probe GT Mask
-        database: nist_data
-        table: _doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - BinaryProbeMaskFileName
-        linkPrefix: http://10.107.5.227:3000/image
-        #linkPrefix: http://10.107.5.227:8000
-        typeMap:
-            jpeg: img
-            arw:
-            bmp: img
-            cr2:
-            dng:
-            iiq:
-            jpg: img
-            mts:
-            nef:
-            png: img
-            raf:
-            tif:
-            3gp:
-            gif:
-            avi: vid
-            mov: vid
-            mp4: vid
-
-    -
-      col: 1
-      row: 29
-      sizex: 12
-      sizey: 6
-      type: dataTable
-      bindings:
-        title: Data
-        database: nist_data
-        table: _doc
-        filterable: true
-        filterFields:
-          - ProbeFileID
-        idField: ProbeFileID
-        sortField: ProbeFileID
-        skinny: true
-        sortDescending: false
-        allColumnStatus: hide
-        fieldsConfig:
-          -
-            name: ProbeFileID
-          -
-            name: Dataset
-          -
-            name: TaskID
-          -
-            name: IsTarget
-          -
-            name: Manipulations
-          -
-            name: ProbeFileName
-          -
-            name: ProbeMaskFileName
-          -
-            name: BaseFileName
-          -
-            name: DonorFileName
-          -
-            name: DonorMaskFileName
-          -
-            name: BinaryProbeMaskFileName
-          -
-            name: JournalFileName
-
   REPORT:
     Interactive Integrity Report:
         -
           col: 1
           row: 1
           sizex: 3
-          sizey: 18
+          sizey: 12
           type: thumbnailGrid
           bindings:
             title: Probes
@@ -872,20 +515,23 @@ layouts:
             defaultPercent: N/A
             detailedThumbnails: true
             filterField: ProbeFileID
-            flagLabel: ReasoningTitle
+            #flagPrefix: "Likelihood of Manipulation: "
+            flagLabel: ReasoningPercent
             flagSubLabel1: Exif.DateTimeOriginal
             flagSubLabel2: Exif.Model
             flagSubLabel3: Exif.SizeAndOrientation
             ignoreSelf: true
             linkField: NeonProbePath
             linkPrefix: http://10.107.5.227:3000/thumbnail
+            #linkPrefix: https://workbench-demo-data.mediforprogram.com/thumbnail
             nameField: ProbeFileID
             objectIdField: ReasoningLabel
             objectNameField:
             openOnMouseClick: false
             percentField:
             predictedNameField:
-            sortField: ProbeFileID
+            sortDescending: true
+            sortField: ReasoningScore
             textMap:
                 actual: Truth
                 percentage: Score
@@ -915,31 +561,46 @@ layouts:
           row: 1
           sizex: 3
           sizey: 6
-          type: dataTable
+          type: mediaViewer
           bindings:
-            title: TA2 Fusion
+            title: Overall Manipulation Mask
+            limit: 100
             database: 3
             table: _doc
-            limit: 100
-            filterable: true
-            filterFields:
-              - ReasoningAlgorithm
+            border: grey
+            filter:
+              lhs: ReasoningAlgorithm
+              operator: '='
+              rhs: Random Forest
             hideUnfiltered: true
-            ignoreSelf: true
-            singleFilter: true
-            skinny: true
-            sortDescending: true
-            sortField: ReasoningScore
-            allColumnStatus: hide
-            customColumnWidths:
-              -
-                - ReasoningScore
-                - 50
-            fieldsConfig:
-              -
-                name: ReasoningAlgorithm
-              -
-                name: ReasoningScore
+            linkFields:
+              - NeonProbePath
+            linkPrefix: http://10.107.5.227:3000/image
+            #linkPrefix: https://workbench-demo-data.mediforprogram.com/image
+            maskField: ReasoningMaskPath
+            maskLinkPrefix: http://10.107.5.227:3000/image
+            #maskLinkPrefix: https://workbench-demo-data.mediforprogram.com/image
+            nameField: ReasoningAlgorithm
+            sliderValue: 50
+            sortField: ReasoningAlgorithm
+            typeMap:
+                jpeg: mask,img
+                arw: mask,img
+                bmp: mask,img
+                cr2: mask,img
+                dng: mask,img
+                iiq: mask,img
+                jpg: mask,img
+                mts: mask,img
+                nef: mask,img
+                png: mask,img
+                raf: mask,img
+                tif: mask,img
+                3gp: mask,img
+                gif:
+                avi: vid
+                mov: vid
+                mp4: vid
 
         -
           col: 4
@@ -948,7 +609,53 @@ layouts:
           sizey: 6
           type: dataTable
           bindings:
-            title: Ground Truth Manipulations
+            title: Indicators
+            database: 2
+            table: _doc
+            limit: 100
+            unsharedFilterField: ProbeStatus
+            unsharedFilterValue: Processed
+            filterable: true
+            filterFields:
+              - IndicatorNamePretty
+            # - SelectiveScoring
+            # heatmapDivisor: 0.2
+            # heatmapField: ConfidenceScore
+            hideUnfiltered: true
+            ignoreSelf: true
+            singleFilter: true
+            skinny: true
+            sortDescending: true
+            sortField: ConfidenceScore
+            allColumnStatus: hide
+            customColumnWidths:
+              -
+                - NeonID
+                - 50
+              -
+                - ConfidenceScore
+                - 100
+              -
+                - IndicatorPercent
+                - 100
+            fieldsConfig:
+              -
+                name: NeonID
+              -
+                name: IndicatorNamePretty
+              -
+                name: IndicatorPercent
+            #  -
+            #    name: SelectiveScoring
+
+        -
+          col: 7
+          row: 1
+          sizex: 3
+          sizey: 6
+          type: dataTable
+          bindings:
+            title: Manipulations
             database: 1
             table: _doc
             limit: 100
@@ -973,6 +680,9 @@ layouts:
               -
                 - OperationColor
                 - 50
+              -
+                - OperationPurpose
+                - 100
             fieldsConfig:
               -
                 name: OperationGroup
@@ -984,129 +694,14 @@ layouts:
                 name: OperationPurpose
 
         -
-          col: 4
-          row: 13
-          sizex: 3
-          sizey: 6
-          type: dataTable
-          bindings:
-            title: TA1 Indicators
-            database: 2
-            table: _doc
-            limit: 100
-            unsharedFilterField: ProbeStatus
-            unsharedFilterValue: Processed
-            filterable: true
-            filterFields:
-              - IndicatorNameNIST
-            # - SelectiveScoring
-            # heatmapDivisor: 0.2
-            # heatmapField: ConfidenceScore
-            hideUnfiltered: true
-            ignoreSelf: true
-            singleFilter: true
-            skinny: true
-            sortDescending: true
-            sortField: ConfidenceScore
-            allColumnStatus: hide
-            customColumnWidths:
-              -
-                - ConfidenceScore
-                - 100
-            fieldsConfig:
-              -
-                name: IndicatorNameNIST
-              -
-                name: ConfidenceScore
-              -
-                name: SelectiveScoring
-
-        -
-          col: 7
-          row: 1
-          sizex: 3
-          sizey: 6
-          type: mediaViewer
-          bindings:
-            title: Probe and TA2 Mask
-            database: 3
-            table: _doc
-            border: grey
-            hideUnfiltered: true
-            linkFields:
-              - ProbePath
-            linkPrefix: http://10.107.5.227:3000/image
-            maskField: ReasoningMaskRequestUrl
-            maskLinkPrefix: http://10.107.5.227:3000/masks
-            nameField: ReasoningAlgorithm
-            sliderValue: 50
-            sortField: ReasoningAlgorithm
-            typeMap:
-                jpeg: mask,img
-                arw: mask,img
-                bmp: mask,img
-                cr2: mask,img
-                dng: mask,img
-                iiq: mask,img
-                jpg: mask,img
-                mts: mask,img
-                nef: mask,img
-                png: mask,img
-                raf: mask,img
-                tif: mask,img
-                3gp: mask,img
-                gif:
-                avi: vid
-                mov: vid
-                mp4: vid
-
-        -
           col: 7
           row: 7
           sizex: 3
           sizey: 6
           type: mediaViewer
           bindings:
-            title: Probe and GT Mask
-            database: 1
-            table: _doc
-            border: grey
-            hideUnfiltered: true
-            linkFields:
-              - ProbePath
-            linkPrefix: http://10.107.5.227:3000/image
-            maskField: OperationMaskRequestUrl
-            maskLinkPrefix: http://10.107.5.227:3000/masks
-            nameField: OperationOrder
-            sliderValue: 50
-            sortField: OperationOrder
-            typeMap:
-                jpeg: mask,img
-                arw: mask,img
-                bmp: mask,img
-                cr2: mask,img
-                dng: mask,img
-                iiq: mask,img
-                jpg: mask,img
-                mts: mask,img
-                nef: mask,img
-                png: mask,img
-                raf: mask,img
-                tif: mask,img
-                3gp: mask,img
-                gif:
-                avi: vid
-                mov: vid
-                mp4: vid
-
-        -
-          col: 7
-          row: 13
-          sizex: 3
-          sizey: 6
-          type: mediaViewer
-          bindings:
-            title: Probe and TA1 Mask
+            title: Indicator Mask
+            limit: 100
             database: 2
             table: _doc
             border: grey
@@ -1114,24 +709,27 @@ layouts:
             linkFields:
               - ProbePath
             linkPrefix: http://10.107.5.227:3000/image
+            #linkPrefix: https://workbench-demo-data.mediforprogram.com/image
             maskField: IndicatorMaskPath
             maskLinkPrefix: http://10.107.5.227:3000/image
-            nameField: IndicatorNamePretty
+            #maskLinkPrefix: https://workbench-demo-data.mediforprogram.com/image
+            nameField: NeonID
             sliderValue: 50
+            sortField: NeonID
             typeMap:
-                jpeg: mask,img
-                arw: mask,img
-                bmp: mask,img
-                cr2: mask,img
-                dng: mask,img
-                iiq: mask,img
-                jpg: mask,img
-                mts: mask,img
-                nef: mask,img
-                png: mask,img
-                raf: mask,img
-                tif: mask,img
-                3gp: mask,img
+                jpeg: mask
+                arw: mask
+                bmp: mask
+                cr2: mask
+                dng: mask
+                iiq: mask
+                jpg: mask
+                mts: mask
+                nef: mask
+                png: mask
+                raf: mask
+                tif: mask
+                3gp: mask
                 gif:
                 avi: vid
                 mov: vid
@@ -1142,41 +740,38 @@ layouts:
           row: 1
           sizex: 3
           sizey: 6
-          type: thumbnailGrid
+          type: mediaViewer
           bindings:
-            title: Donors
-            database: 5
-            table: _doc
+            title: Manipulation Mask
             limit: 100
+            database: 1
+            table: _doc
+            border: grey
             hideUnfiltered: true
-            ascending: true
-            border: percentField
-            cropAndScale: scale
-            filterField: DonorFileID
-            ignoreSelf: true
-            linkField: DonorPath
-            linkPrefix: http://10.107.5.227:3000/thumbnail
-            nameField: DonorFileID
-            objectIdField:
-            objectNameField:
-            openOnMouseClick: false
-            percentField: DonorScore
-            predictedNameField:
-            sortField: DonorFileID
+            linkFields:
+              - ProbePath
+            linkPrefix: http://10.107.5.227:3000/image
+            #linkPrefix: https://workbench-demo-data.mediforprogram.com/image
+            maskField: OperationMaskRequestUrl
+            maskLinkPrefix: http://10.107.5.227:3000/masks
+            #maskLinkPrefix: https://workbench-demo-data.mediforprogram.com/masks
+            nameField: OperationOrder
+            sliderValue: 50
+            sortField: OperationOrder
             typeMap:
-                jpeg: img
-                arw: img
-                bmp: img
-                cr2: img
-                dng: img
-                iiq: img
-                jpg: img
-                mts: img
-                nef: img
-                png: img
-                raf: img
-                tif: img
-                3gp: img
+                jpeg: mask
+                arw: mask
+                bmp: mask
+                cr2: mask
+                dng: mask
+                iiq: mask
+                jpg: mask
+                mts: mask
+                nef: mask
+                png: mask
+                raf: mask
+                tif: mask
+                3gp: mask
                 gif:
                 avi: vid
                 mov: vid
@@ -1190,6 +785,7 @@ layouts:
           type: mediaViewer
           bindings:
             title: Selected Donor
+            limit: 100
             database: 5
             table: _doc
             border: grey
@@ -1197,8 +793,9 @@ layouts:
             linkFields:
               - DonorPath
             linkPrefix: http://10.107.5.227:3000/image
+            #linkPrefix: https://workbench-demo-data.mediforprogram.com/image
             maskField: DonorMaskPath
-            nameField: DonorFileID
+            nameField: DonorOrder
             sliderValue: 50
             sortField: DonorOrder
             typeMap:
@@ -1241,20 +838,22 @@ layouts:
             defaultPercent: N/A
             detailedThumbnails: true
             filterField: ProbeFileID
-            flagLabel: GroundTruthTitle
+            flagLabel: GroundTruthLabel
             flagSubLabel1: Exif.DateTimeOriginal
             flagSubLabel2: Exif.Model
             flagSubLabel3: Exif.SizeAndOrientation
             ignoreSelf: true
             linkField: NeonProbePath
             linkPrefix: http://10.107.5.227:3000/thumbnail
+            #linkPrefix: https://workbench-demo-data.mediforprogram.com/thumbnail
             nameField: ProbeFileID
             objectIdField: GroundTruthLabel
             objectNameField:
             openOnMouseClick: false
             percentField:
             predictedNameField:
-            sortField: ProbeFileID
+            sortDescending: true
+            sortField: ReasoningScore
             textMap:
                 actual: Truth
                 percentage: Score
@@ -1286,13 +885,14 @@ layouts:
           sizey: 3
           type: aggregation
           bindings:
-            type: bar-h
-            title: Tasks
+            type: histogram
+            title: File Sizes
             database: 2
             table: _doc
             aggregation: count
             countByAggregation: true
-            xField: IndicatorTask
+            ignoreSelf: true
+            xField: Exif.FileSize
             yPercentage: 0.3
 
         -
@@ -1303,12 +903,13 @@ layouts:
           type: aggregation
           bindings:
             type: bar-h
-            title: Sub Tasks
+            title: File Types
             database: 2
             table: _doc
             aggregation: count
             countByAggregation: true
-            xField: IndicatorSubTask
+            ignoreSelf: true
+            xField: Exif.FileType
             yPercentage: 0.3
 
         -
@@ -1319,12 +920,17 @@ layouts:
           type: aggregation
           bindings:
             type: bar-h
-            title: Conditions
+            title: Cameras
             database: 2
             table: _doc
+            filter:
+              lhs: Exif.Model
+              operator: '!='
+              rhs: '' 
             aggregation: count
             countByAggregation: true
-            xField: IndicatorCondition
+            ignoreSelf: true
+            xField: Exif.Model
             yPercentage: 0.3
 
         -
@@ -1335,12 +941,13 @@ layouts:
           type: aggregation
           bindings:
             type: bar-h
-            title: Pixel Opt Out
+            title: Lens
             database: 2
             table: _doc
             aggregation: count
             countByAggregation: true
-            xField: IndicatorPixelOptOut
+            ignoreSelf: true
+            xField: Exif.Lens
             yPercentage: 0.3
 
         -
@@ -1351,12 +958,13 @@ layouts:
           type: aggregation
           bindings:
             type: bar-h
-            title: Probe Opt Out
+            title: Compression
             database: 2
             table: _doc
             aggregation: count
             countByAggregation: true
-            xField: IndicatorProbeOptOut
+            ignoreSelf: true
+            xField: Exif.Compression
             yPercentage: 0.3
 
         -
@@ -1367,49 +975,95 @@ layouts:
           type: aggregation
           bindings:
             type: bar-h
-            title: Probe Status
+            title: Faces
             database: 2
             table: _doc
             aggregation: count
             countByAggregation: true
-            xField: ProbeStatus
+            ignoreSelf: true
+            xField: Exif.FacesDetected
             yPercentage: 0.3
 
         -
           col: 7
           row: 1
           sizex: 3
-          sizey: 3
+          sizey: 6
           type: aggregation
           bindings:
             type: bar-h
-            title: TA1 Teams
+            title: Manipulations
             database: 2
             table: _doc
+            filter:
+              lhs: ManipulationOperations
+              operator: '!='
+              rhs: '' 
             aggregation: count
             countByAggregation: true
-            xField: IndicatorTeam
+            ignoreSelf: true
+            xField: ManipulationOperations
             yPercentage: 0.3
 
         -
           col: 7
-          row: 4
+          row: 7
+          sizex: 3
+          sizey: 3
+          type: aggregation
+          bindings:
+            type: bar-h
+            title: Indicator Teams
+            database: 2
+            table: _doc
+            aggregation: count
+            countByAggregation: true
+            ignoreSelf: true
+            xField: IndicatorTeam
+            yPercentage: 0.3
+
+        -
+          col: 10
+          row: 1
           sizex: 3
           sizey: 9
           type: aggregation
           bindings:
             type: list
-            title: TA1 Indicator AUC
+            title: Indicator AUC
             database: 2
             table: _doc
-            aggregation: avg
-            aggregationField: IsScoreCorrect
-            countByAggregation: true
             filter:
-              lhs: IsScoreCorrect
+              lhs: NeonEval
               operator: '!='
               rhs: -1
+            aggregation: avg
+            aggregationField: NeonEval
+            countByAggregation: true
+            ignoreSelf: true
             xField: IndicatorNamePretty
+
+        -
+          col: 7
+          row: 10
+          sizex: 6
+          sizey: 3
+          type: aggregation
+          bindings:
+            type: histogram
+            title: Indicator Score TPR (%)
+            limit: 1000
+            database: 2
+            table: _doc
+            filter:
+              lhs: NeonEvalPercentage
+              operator: '!='
+              rhs: -100
+            aggregation: count
+            countByAggregation: true
+            ignoreSelf: true
+            xField: NeonEvalPercentage
+            yPercentage: 0.3
 
         -
           col: 7
@@ -1419,178 +1073,16 @@ layouts:
           type: aggregation
           bindings:
             type: histogram
-            title: TA1 Indicator Scores (%)
-            limit: 1000
-            database: 2
-            table: _doc
-            aggregation: count
-            countByAggregation: true
-            xField: Rounded
-            yPercentage: 0.3
-
-        -
-          col: 7
-          row: 16
-          sizex: 6
-          sizey: 3
-          type: aggregation
-          bindings:
-            type: histogram
-            title: TA1 Indicator MCCs (%)
+            title: Indicator MCCs (%)
             limit: 1000
             database: 4
             table: _doc
+            filter:
+              lhs: RoundedMCCInt
+              operator: '!='
+              rhs: -1
             aggregation: count
             countByAggregation: true
-            filter:
-              lhs: RoundedMCC
-              operator: '!='
-              rhs: -1
-            xField: RoundedMCC
+            ignoreSelf: true
+            xField: RoundedMCCInt
             yPercentage: 0.3
-
-        -
-          col: 10
-          row: 1
-          sizex: 3
-          sizey: 6
-          type: mediaViewer
-          bindings:
-            title: Probe and GT Mask
-            database: 1
-            table: _doc
-            border: grey
-            hideUnfiltered: true
-            linkFields:
-              - ProbePath
-            linkPrefix: http://10.107.5.227:3000/image
-            maskField: OperationMaskRequestUrl
-            maskLinkPrefix: http://10.107.5.227:3000/masks
-            nameField: OperationOrder
-            sliderValue: 50
-            sortField: OperationOrder
-            typeMap:
-                jpeg: mask,img
-                arw: mask,img
-                bmp: mask,img
-                cr2: mask,img
-                dng: mask,img
-                iiq: mask,img
-                jpg: mask,img
-                mts: mask,img
-                nef: mask,img
-                png: mask,img
-                raf: mask,img
-                tif: mask,img
-                3gp: mask,img
-                gif:
-                avi: vid
-                mov: vid
-                mp4: vid
-
-        -
-          col: 10
-          row: 7
-          sizex: 3
-          sizey: 6
-          type: mediaViewer
-          bindings:
-            title: Probe and TA1 Mask
-            database: 2
-            table: _doc
-            border: grey
-            hideUnfiltered: true
-            linkFields:
-              - ProbePath
-            linkPrefix: http://10.107.5.227:3000/image
-            maskField: IndicatorMaskPath
-            maskLinkPrefix: http://10.107.5.227:3000/image
-            nameField: IndicatorNamePretty
-            sliderValue: 50
-            filter:
-              lhs: IsScoreCorrect
-              operator: '!='
-              rhs: -1
-            typeMap:
-                jpeg: mask,img
-                arw: mask,img
-                bmp: mask,img
-                cr2: mask,img
-                dng: mask,img
-                iiq: mask,img
-                jpg: mask,img
-                mts: mask,img
-                nef: mask,img
-                png: mask,img
-                raf: mask,img
-                tif: mask,img
-                3gp: mask,img
-                gif:
-                avi: vid
-                mov: vid
-                mp4: vid
-
-#        -
-#          col: 10
-#          row: 1
-#          sizex: 3
-#          sizey: 3
-#          type: aggregation
-#          bindings:
-#            type: bar-h
-#            title: Ground Truth
-#            database: 0
-#            table: _doc
-#            aggregation: count
-#            countByAggregation: true
-#            xField: GroundTruthLabel
-#            yPercentage: 0.3
-#
-#        -
-#          col: 10
-#          row: 4
-#          sizex: 3
-#          sizey: 3
-#          type: aggregation
-#          bindings:
-#            type: bar-h
-#            title: Ground Truth Cameras
-#            database: 0
-#            table: _doc
-#            aggregation: count
-#            countByAggregation: true
-#            xField: Exif.Model
-#            yPercentage: 0.3
-#
-#        -
-#          col: 10
-#          row: 7
-#          sizex: 3
-#          sizey: 3
-#          type: aggregation
-#          bindings:
-#            type: bar-h
-#            title: Ground Truth File Types
-#            database: 0
-#            table: _doc
-#            aggregation: count
-#            countByAggregation: true
-#            xField: Exif.FileType
-#            yPercentage: 0.3
-#
-#        -
-#          col: 10
-#          row: 10
-#          sizex: 3
-#          sizey: 3
-#          type: aggregation
-#          bindings:
-#            type: bar-h
-#            title: Ground Truth Operations
-#            database: 1
-#            table: _doc
-#            aggregation: count
-#            countByAggregation: true
-#            xField: OperationGroup
-#            yPercentage: 0.3
-
