@@ -111,7 +111,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     };
 
     public projectTitle: string = 'Neon';
-    public projectIcon: string = 'assets/favicon.blue.ico?v=1';
+    public projectIcon: string = 'assets/favicon.medifor.ico';
 
     /* A reference to the dialog for adding visualizations. */
     private addVisDialogRef: MatDialogRef<AddVisualizationComponent>;
@@ -119,7 +119,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     /* A reference to the dialog for the custom connection dialog. */
     private customConnectionDialogRef: MatDialogRef<CustomConnectionComponent>;
 
-    public filtersIcon;
+    public filtersColor;
 
     public messenger: neon.eventing.Messenger;
 
@@ -168,7 +168,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         );
 
         this.changeFavicon();
-        this.filtersIcon = 'filters';
 
         this.messenger.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearDashboard.bind(this));
         this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, this.refreshDashboard.bind(this));
@@ -279,9 +278,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     changeFiltersComponentIcon() {
         let filters = this.filterService.getFilters();
         if (filters.length > 0) {
-            this.filtersIcon = 'filters_active';
+            this.filtersColor = 'warn';
         } else {
-            this.filtersIcon = 'filters';
+            this.filtersColor = 'white';
         }
         return true;
     }
@@ -407,7 +406,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     handleDashboardError(eventMessage: { error: Error | ExceptionInformation, message: string }) {
         // TODO THOR-916
-        console.error('An error occured: ' + eventMessage.message + '\n' + eventMessage.error);
+        console.error('An error occured: ' + eventMessage.message, eventMessage.error);
     }
 
     /**

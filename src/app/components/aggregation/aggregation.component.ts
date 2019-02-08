@@ -64,6 +64,8 @@ import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
 import * as neon from 'neon-framework';
 
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+
 class Filter {
     public field: string | { x: string, y: string };
     public label: string;
@@ -204,6 +206,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         filterService: FilterService,
         injector: Injector,
         ref: ChangeDetectorRef,
+        protected http: HttpClient,
         protected widgetService: AbstractWidgetService
     ) {
 
@@ -1185,7 +1188,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     showLegend(): boolean {
         // TODO THOR-973
         // Always show the legend for histogram, line, or scatter in order to avoid a bug resizing the selected area within the chart.
-        return this.optionsTypeIsContinuous(this.options) || (this.options.showLegend && this.legendGroups.length > 1);
+        // return this.optionsTypeIsContinuous(this.options) || (this.options.showLegend && this.legendGroups.length > 1);
+        return (this.options.showLegend && this.legendGroups.length > 1);
     }
 
     /**
@@ -1430,4 +1434,70 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             (options.aggregation !== neonVariables.COUNT ? options.aggregationField.columnName : true);
         return !!(options.database.name && options.table.name && validFields);
     }
+
+//    /**
+//     * Creates the transformed visualization data using the given options and results and then calls the given success callback function.
+//     *
+//     * @arg {any} options A WidgetOptionCollection object.
+//     * @arg {any[]} results
+//     * @arg {(data: TransformedVisualizationData) => void} successCallback
+//     * @arg {(err: Error) => void} successCallback
+//     * @override
+//     */
+//    public handleTransformVisualizationQueryResults(options: any, results: any[],
+//        successCallback: (data: TransformedVisualizationData) => void, failureCallback: (err: Error) => void
+//    ): void {
+//
+//        if (!this.options.rocCurve) {
+//            super.handleTransformVisualizationQueryResults(options, results, successCallback, failureCallback);
+//            return;
+//        }
+//
+//        new Promise<TransformedVisualizationData>((resolve, reject) => {
+//            try {
+//                let links: string[] = neonUtilities.deepFind(results[0], options.linkField.columnName) || [];
+//                this.retrieveWikiPage((Array.isArray(links) ? links : [links]), [], (data: WikiData[]) => {
+//                    resolve(new TransformedVisualizationData(data));
+//                });
+//            } catch (err) {
+//                reject(err);
+//            }
+//        }).then(successCallback, failureCallback);
+//    }
+//
+//    /**
+//     * Retrieves the wiki pages recursively using the given array of links.  Refreshes the visualization once finished.
+//     *
+//     * @arg {string[]} links
+//     * @arg {WikiData[]} data
+//     * @private
+//     */
+//    private findRocCurvePoints(links: string[], data: WikiData[], callback: (data: WikiData[]) => void): void {
+//        if (!links.length) {
+//            callback(data);
+//            return;
+//        }
+//
+//        let handleErrorOrFailure = (errorMessage: string): void => {
+//            data.push(new WikiData(links[0], errorMessage));
+//            console.error('Wiki Viewer Error ' + links[0], errorMessage);
+//            this.retrieveWikiPage(links.slice(1), data, callback);
+//        };
+//
+//        this.http.get(WikiViewerComponent.WIKI_LINK_PREFIX + links[0]).subscribe((wikiResponse: any) => {
+//            if (wikiResponse.error) {
+//                let errorMessage = [(wikiResponse.error.code || ''), (wikiResponse.error.info || '')].join(': ') || 'Error';
+//                return handleErrorOrFailure(errorMessage);
+//            }
+//            let responseBody = JSON.parse(wikiResponse.body);
+//            if (responseBody.error) {
+//                data.push(new WikiData(links[0], this.sanitizer.bypassSecurityTrustHtml(responseBody.error.info)));
+//            } else {
+//                data.push(new WikiData(responseBody.parse.title, this.sanitizer.bypassSecurityTrustHtml(responseBody.parse.text['*'])));
+//            }
+//            return this.retrieveWikiPage(links.slice(1), data, callback);
+//        }, (error: HttpErrorResponse) => {
+//            return handleErrorOrFailure(error.error);
+//        });
+//    }
 }
