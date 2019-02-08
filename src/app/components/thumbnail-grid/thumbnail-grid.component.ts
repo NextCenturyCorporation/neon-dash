@@ -205,7 +205,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue),
             new WidgetNonPrimitiveOption('textMap', 'Text Map', {}),
             new WidgetNonPrimitiveOption('typeMap', 'Type Map', {}),
-            new WidgetSelectOption('viewType', 'View', '', [{
+            new WidgetSelectOption('viewType', 'View', ViewType.TITLE, [{
                 prettyName: 'Title',
                 variable: ViewType.TITLE
             }, {

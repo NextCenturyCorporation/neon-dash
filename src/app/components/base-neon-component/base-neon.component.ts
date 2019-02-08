@@ -223,7 +223,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.layerIdToQueryIdToQueryObject.get(options._id).get(key).abort();
         });
         this.layerIdToQueryIdToQueryObject.delete(options._id);
-        this.handleChangeData();
+        this.options.layers = this.options.layers.filter((layer) => layer._id !== options._id);
+        this.handleChangeData(options);
     }
 
     /**
@@ -745,8 +746,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
         this.loadingCount++;
 
-        if (this.cannotExecuteQuery(options)) {
-            if (this.layerIdToQueryIdToQueryObject.get(options._id).has(queryId)) {
+        if (this.cannotExecuteQuery(options) || !this.layerIdToQueryIdToQueryObject.has(options._id)) {
+            if (this.layerIdToQueryIdToQueryObject.has(options._id) && this.layerIdToQueryIdToQueryObject.get(options._id).has(queryId)) {
                 this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).abort();
             }
             callback(options, {
@@ -1125,6 +1126,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Publishes the component's option object to the gear component
      */
     publishOptions() {
+        let addLayer: () => void = this.addLayer.bind(this);
+        let removeLayer: () => void = this.removeLayer.bind(this);
         let handleChangeData: () => void = this.handleChangeData.bind(this);
         let handleChangeDatabase: () => void = this.handleChangeDatabase.bind(this);
         let handleChangeFilterField: () => void = this.handleChangeFilterField.bind(this);
@@ -1132,6 +1135,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         let handleChangeSubcomponentType: () => void = this.handleChangeSubcomponentType.bind(this);
         let handleChangeTable: () => void = this.handleChangeTable.bind(this);
         this.messenger.publish('options', {
+            addLayer: addLayer,
+            removeLayer: removeLayer,
             options: this.options,
             changeData: handleChangeData,
             changeDatabase: handleChangeDatabase,

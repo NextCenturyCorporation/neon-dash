@@ -1,0 +1,56 @@
+<div *ngFor="let option of optionsList">
+    <!-- Database Option Type-->
+    <mat-form-field class="option-container" *ngIf="checkOptionType(option.optionType, 'DATABASE')">
+        <mat-select placeholder="Database" [(ngModel)]="option.valueCurrent" required="true" name="{{option.valueCurrent}} database"
+            (ngModelChange)="handleChangeDatabase(option)">
+            <mat-option *ngFor="let database of databases" [value]="database">{{ database.prettyName }}</mat-option>
+        </mat-select>
+    </mat-form-field>
+    <!-- Table Option Type-->
+    <mat-form-field class="option-container" *ngIf="checkOptionType(option.optionType, 'TABLE')">
+        <mat-select placeholder="Table" [(ngModel)]="option.valueCurrent" required="true" name="{{option.valueCurrent}} table" (ngModelChange)="handleChangeTable(option)">
+            <mat-option *ngFor="let table of tables" [value]="table">{{ table.prettyName }}</mat-option>
+        </mat-select>
+    </mat-form-field>
+    <!-- Select Option Type-->
+    <mat-form-field class="option-container" *ngIf="checkOptionType(option.optionType, 'SELECT')">
+        <mat-select option.prettyName placeholder={{option.prettyName}} [ngModel]="option.valueCurrent"
+            name="{{option.prettyName}} Select" (ngModelChange)="handleListDataChange(option, $event)">
+            <mat-option *ngFor="let choice of option.valueChoices" [value]="choice.variable">
+                {{ choice.prettyName }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <!-- Field Option Type-->
+    <mat-form-field class="option-container" *ngIf="checkOptionType(option.optionType, 'FIELD')">
+        <mat-select option.prettyName placeholder={{option.prettyName}} [ngModel]="option.valueCurrent"
+            name="{{option.prettyName}} Field" (ngModelChange)="handleListDataChange(option, $event)">
+            <mat-option *ngFor="let field of fields" [value]="field">{{ field.prettyName }}</mat-option>
+        </mat-select>
+    </mat-form-field>
+    <!-- Free Text Option Type-->
+    <div mat-fill class="flex center" *ngIf="checkOptionType(option.optionType, 'FREE_TEXT')">
+        <mat-form-field class='option-container' option.prettyName>
+            <input matInput placeholder={{option.prettyName}} [ngModel]="option.valueCurrent" name="{{option.prettyName}} Free"
+                (ngModelChange)="handleListDataChange(option, $event)" required="true">
+        </mat-form-field>
+    </div>
+    <!-- Field Array Option Type-->
+    <div mat-fill class="flex center" *ngIf="checkOptionType(option.optionType, 'FIELD_ARRAY')">
+        <mat-form-field class='option-container'>
+            <mat-select placeholder={{option.prettyName}} [ngModel]="option.valueCurrent" name="{{option.prettyName}} Field Array"
+                (ngModelChange)="handleListDataChange(option, $event)" multiple>
+                <mat-option *ngFor="let field of fields" [value]="field">{{ field.prettyName }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <!-- Multiple Select Option Type-->
+    <div mat-fill class="flex center" *ngIf="checkOptionType(option.optionType, 'MULTIPLE_SELECT')">
+        <mat-form-field class='option-container'>
+            <mat-select placeholder={{option.prettyName}} [ngModel]="option.valueCurrent" name="{{option.prettyName}} Multiple Select"
+                (ngModelChange)="handleListDataChange(option, $event)" multiple>
+                <mat-option *ngFor="let field of fields" [value]="field">{{ field }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+</div>
