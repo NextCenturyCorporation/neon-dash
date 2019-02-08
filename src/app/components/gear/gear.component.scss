@@ -15,35 +15,53 @@
  */
 
 .gear-container {
-    width: 400px;
-    padding-left: 15px;
-    padding-right: 15px;
+    padding: 0 15px;
 
     mat-toolbar {
-        margin: 10px 0;
+        margin: 10px 0 0;
+
+        .spacer {
+            padding: 5px;
+        }
     }
 }
 
-.option-row {
-    display: flex;
-    align-items: center;
-}
-
 .option-container {
-    width: 380px;
+    width: calc(100% - 10px);
     padding: 5px;
 }
 
 .button-footer {
-    position: -webkit-sticky; /* Safari */
+    position: -webkit-sticky;
+    /* Safari */
     position: sticky;
     padding: 5px;
     top: 0;
     bottom: 1px;
     z-index: 9999;
     background: var(--color-background-white);
+
+    > button {
+        margin: 5px;
+    }
 }
 
-.neon-button-large {
-    margin: 5px;
+.tappable {
+    cursor: pointer;
+
+    &:hover {
+        color: var(--color-accent, lightgrey);
+    }
+}
+
+.subheader {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.option-well {
+    background-color: var(--color-primary-contrast);
+    margin-bottom: 5px;
+    padding: 5px;
+    width: calc(100% - 10px);
 }

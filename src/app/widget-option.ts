@@ -239,7 +239,9 @@ export class WidgetOptionCollection {
     public _id: string;
     public databases: DatabaseMetaData[] = [];
     public fields: FieldMetaData[] = [];
+    public isMultiLayerWidget: boolean = false;
     public layers: WidgetOptionCollection[] = [];
+    public layeredWidget: boolean = false;
     public tables: TableMetaData[] = [];
 
     /**

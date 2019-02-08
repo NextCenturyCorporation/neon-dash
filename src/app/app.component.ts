@@ -296,6 +296,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         }
     }
 
+    disableClose(): boolean {
+        return this.currentPanel === 'gear';
+    }
+
     /**
      * Expands the given widget to fill the width of the grid.
      *
@@ -406,7 +410,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
          * The gear component is created when the app component is created because if it is created when
          * a component sends its option object in the messenger channel, it is too late.
          * The gear component is created too late to receive the option object in the meseenger channel,
-         * as a result you will have to intially click the gear option in the component twice to see any
+         * as a result you would have had to click the gear option in the component twice to see any
          * object values.
          * Another workaround might be sending the option object in the messenger channel after a feedback
          * from the app component after the toggleGear is received.

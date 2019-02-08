@@ -1,5 +1,5 @@
 <mat-sidenav-container class="neon-sidenav" [ngClass]="widgetService.getTheme()">
-    <mat-sidenav #sideNavRight class="neon-sidenav neon-sidenav-info" mat-fill position="end">
+    <mat-sidenav [disableClose]="disableClose()" #sideNavRight class="neon-sidenav neon-sidenav-info" mat-fill position="end">
         <div>
             <mat-toolbar class="title" color="primary">
                 <span>{{ rightPanelTitle }}</span>
@@ -17,7 +17,7 @@
                     </app-dataset-selector>
                 </div>
                 <div id="gear" class="gear-container" *ngIf="createGear">
-                    <app-gear></app-gear>
+                    <app-gear [sideNavRight]="sideNavRight"></app-gear>
                 </div>
                 <div id="savedState" class="saved-state-container" *ngIf="createSavedState">
                     <app-save-state [sidenav]="sideNavRight" [widgetGridItems]="widgetGridItems" [widgets]="widgets"></app-save-state>
@@ -33,7 +33,7 @@
         <span>{{ datasetService.getName() || "Choose Data..." }}</span>
         <span class="fill-remaining"></span>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below" id="showVisShortcutButton"
-            matTooltip="Add a New Visualization" (click)="setPanel('add.vis', 'Visualization'); sideNavRight.toggle()" *ngIf="showVisShortcut">
+            matTooltip="Add a New Visualization" (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()" *ngIf="showVisShortcut">
             <mat-icon class="neon-icon-large">add_circle</mat-icon>
         </button>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Connect to a Custom Data Source"
