@@ -2154,7 +2154,7 @@ describe('Component: Aggregation', () => {
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([], component.options));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2177,7 +2177,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -2213,7 +2213,7 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([], component.options));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2236,7 +2236,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
@@ -2270,7 +2270,7 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.xField = DatasetServiceMock.DATE_FIELD;
         component.options.yField = DatasetServiceMock.DATE_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([], component.options));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2293,7 +2293,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
@@ -2327,7 +2327,7 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.xField = DatasetServiceMock.TEXT_FIELD;
         component.options.yField = DatasetServiceMock.TEXT_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([], component.options));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2350,7 +2350,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
@@ -2393,7 +2393,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -2496,7 +2496,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -2565,7 +2565,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
