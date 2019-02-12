@@ -1,3 +1,5 @@
+# config for demo with Humanity Roads at Nepal August 15-17 2018
+
 datastores:
     es1:
         host: localhost
