@@ -560,7 +560,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             return list;
         }, []);
 
-        if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
+        if (options.filter && options.filter.lhs && options.filter.operator && typeof options.filter.rhs !== 'undefined') {
             fields = [options.filter.lhs].concat(fields);
         }
 
@@ -592,7 +592,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public createSharedFilters(options: any): NeonFilterClause[] {
         let filters: NeonFilterClause[] = [];
-        if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
+        if (options.filter && options.filter.lhs && options.filter.operator && typeof options.filter.rhs !== 'undefined') {
             filters.push(this.searchService.buildFilterClause(options.filter.lhs, options.filter.operator, options.filter.rhs));
         }
         if (this.hasUnsharedFilter(options)) {
@@ -923,7 +923,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public handleChangeLimit(options?: any): void {
         if (this.isNumber(this.newLimit)) {
             let newLimit = parseFloat('' + this.newLimit);
-            if (newLimit > 0) {
+            if (newLimit >= 0) {
                 (options || this.options).limit = newLimit;
                 this.handleChangeData();
             } else {
