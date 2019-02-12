@@ -71,29 +71,9 @@ export class DatasetServiceMock extends DatasetService {
         super(new NeonGTDConfig());
         this.setActiveDataset({
             databases: DatasetServiceMock.DATABASES,
+            name: 'datastore1',
             type: 'testDatastore',
-            host: 'testHostname',
-            relations: [{
-                members: [{
-                    database: 'testDatabase1',
-                    table: 'testTable1',
-                    field: 'testRelationFieldA'
-                }, {
-                    database: 'testDatabase2',
-                    table: 'testTable2',
-                    field: 'testRelationFieldA'
-                }]
-            }, {
-                members: [{
-                    database: 'testDatabase1',
-                    table: 'testTable1',
-                    field: 'testRelationFieldB'
-                }, {
-                    database: 'testDatabase2',
-                    table: 'testTable2',
-                    field: 'testRelationFieldB'
-                }]
-            }]
+            host: 'testHostname'
         });
 
         let dashboardTableKeys: {[key: string]: string} = {};
@@ -112,7 +92,26 @@ export class DatasetServiceMock extends DatasetService {
             tables: dashboardTableKeys,
             fields: dashboardFieldKeys,
             visualizationTitles: visTitles,
-            options: new DashboardOptions()
+            options: new DashboardOptions(),
+            relations: [{
+                datastore1: {
+                    testDatabase1: {
+                        testTable1: 'testRelationFieldA'
+                    },
+                    testDatabase2: {
+                        testTable2: 'testRelationFieldA'
+                    }
+                }
+            }, {
+                datastore1: {
+                    testDatabase1: {
+                        testTable1: 'testRelationFieldB'
+                    },
+                    testDatabase2: {
+                        testTable2: 'testRelationFieldB'
+                    }
+                }
+            }]
         });
     }
 }

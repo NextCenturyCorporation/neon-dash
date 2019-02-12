@@ -17,7 +17,7 @@ import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
 import { Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
-    TableMetaData, TableMappings, FieldMetaData, Relation, SimpleFilter } from '../dataset';
+    TableMetaData, TableMappings, FieldMetaData, SimpleFilter } from '../dataset';
 import { Subscription, Observable, interval } from 'rxjs';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { neonEvents } from '../neon-namespaces';
@@ -314,18 +314,16 @@ export class DatasetService {
     /**
      * Sets the active dataset to the given dataset.
      * @param {Object} The dataset containing {String} name, {String} layout, {String} datastore, {String} hostname,
-     * and {Array} databases.  Each database is an Object containing {String} name, {Array} tables, and {Array}
-     * relations.  Each table is an Object containing {String} name, {Array} fields, and {Object} mappings.  Each
+     * and {Array} databases.  Each database is an Object containing {String} name and {Array} tables.
+     * Each table is an Object containing {String} name, {Array} fields, and {Object} mappings.  Each
      * field is an Object containing {String} columnName and {String} prettyName.  Each mapping key is a unique
-     * identifier used by the visualizations and each value is a field name.  Each relation is an Object with table
-     * names as keys and field names as values.
+     * identifier used by the visualizations and each value is a field name.
      */
     // TODO: 825: this will likely be more like "set active dashboard/config" to allow
     // to connect to multiple datasets
     public setActiveDataset(dataset): void {
         // TODO: 825: structure will likely change here
         this.dataset.name = dataset.name || 'Unknown Dataset';
-        // this.dataset.layout = dataset.layout || '';
         this.dataset.type = dataset.type || '';
         this.dataset.host = dataset.host || '';
         this.dataset.databases = dataset.databases || [];
@@ -733,118 +731,7 @@ export class DatasetService {
         table.mappings[key] = fieldName;
     }
 
-    /**
-     * Returns an array of relations for the given database, table, and fields.  The given table is related to another table if
-     * the database contains relations mapping each given field name to the other table.
-     * @param {String} The database name
-     * @param {String} The table name
-     * @param {Array} The array of field names
-     * @return {Array} The array of relation objects which contain the table name ({String} table) and a mapping of
-     * the given field names to the field names in the other tables ({Object} fields).  This array will also contain
-     * the relation object for the table and fields given in the arguments
-     */
-    // TODO: 825: moving relations to options
-    /*
-    public getRelations(databaseName: string, tableName: string, fieldNames: string[]): any[] {
-        let relations = this.dataset.relations;
-
-        let initializeMapAsNeeded = (map, key1, key2) => {
-            if (!(map[key1])) {
-                map[key1] = {};
-            }
-            if (!(map[key1][key2])) {
-                map[key1][key2] = [];
-            }
-            return map;
-        };
-
-        // First we create a mapping of a relation's database/table/field to its related fields.
-        let relationToFields = {};
-
-        // Iterate through each field to find its relations.
-        fieldNames.forEach((fieldName) => {
-            // Iterate through each relation to compare with the current field.
-            relations.forEach((relation) => {
-                let relationFieldNamesForInput = relation[databaseName] ? relation[databaseName][tableName] : [];
-                relationFieldNamesForInput = _.isArray(relationFieldNamesForInput) ?
-                    relationFieldNamesForInput : [relationFieldNamesForInput];
-                // If the current relation contains a match for the input database/table/field,
-                // iterate through the elements in the current relation.
-                if (relationFieldNamesForInput.indexOf(fieldName) >= 0) {
-                    let databaseNames = Object.keys(relation);
-                    // Add each database/table/field in the current relation to the map.
-                    // Note that this will include the input database/table/field.
-                    databaseNames.forEach((relationDatabaseName) => {
-                        let tableNames = Object.keys(relation[relationDatabaseName]);
-                        tableNames.forEach((relationTableName) => {
-                            let relationFieldNames = relation[relationDatabaseName][relationTableName];
-                            relationFieldNames = _.isArray(relationFieldNames) ? relationFieldNames : [relationFieldNames];
-                            relationToFields = initializeMapAsNeeded(relationToFields, relationDatabaseName, relationTableName);
-
-                            let existingFieldIndex = relationToFields[relationDatabaseName][relationTableName].map((object) => {
-                                return object.initial;
-                            }).indexOf(fieldName);
-
-                            // If the database/table/field exists in the relation...
-                            if (existingFieldIndex >= 0) {
-                                relationFieldNames.forEach((relationFieldName) => {
-                                    // If the relation fields do not exist in the relation, add them to the mapping.
-                                    if (relationToFields[relationDatabaseName][relationTableName][existingFieldIndex]
-                                        .related.indexOf(relationFieldName) < 0) { /* tslint:disable:max-line-length
-                                        relationToFields[relationDatabaseName][relationTableName][existingFieldIndex]
-                                        .related.push(relationFieldName); /* tslint:disable:max-line-length
-                                    }
-                                });
-                            } else {
-                                // Else create a new object in the mapping for the database/table/field in the relation and
-                                // add its related fields.
-                                relationToFields[relationDatabaseName][relationTableName].push({
-                                    initial: fieldName,
-                                    related: [].concat(relationFieldNames)
-                                });
-                            }
-                        });
-                    });
-                }
-            });
-        });
-
-        let resultDatabaseNames = Object.keys(relationToFields);
-        if (resultDatabaseNames.length) {
-            let results = [];
-            // Iterate through the relations for each relation's database/table/field
-            // and add a relation object for each database/table pair to the final list of results.
-            resultDatabaseNames.forEach((resultDatabaseName) => {
-                let resultTableNames = Object.keys(relationToFields[resultDatabaseName]);
-                resultTableNames.forEach((resultTableName) => {
-                    results.push({
-                        database: resultDatabaseName,
-                        table: resultTableName,
-                        fields: relationToFields[resultDatabaseName][resultTableName]
-                    });
-                });
-            });
-            return results;
-        }
-
-        // If the input fields do not have any related fields in other tables,
-        // return a list containing a relation object for the input database/table/fields.
-        let result = {
-            database: databaseName,
-            table: tableName,
-            fields: []
-        };
-
-        fieldNames.forEach((fieldName) => {
-            result.fields.push({
-                initial: fieldName,
-                related: [fieldName]
-            });
-        });
-
-        return [result];
-    }*/
-
+    // TODO: 825: need to add datastore to Filter object later
     public findMentionedFields(filter: neon.query.Filter): { database: string, table: string, field: string }[] {
         let findMentionedFieldsHelper = (clause: neon.query.WherePredicate) => {
             switch (clause.type) {
@@ -877,16 +764,21 @@ export class DatasetService {
         });
     }
 
-    public getEquivalentFields(database: string,
+    public getEquivalentFields(datastore: string,
+        database: string,
         table: string,
         field: string,
-        mapping: Map<string, Map<string, { database: string, table: string, field: string }[]>>):
-        Map<string, Map<string, { database: string, table: string, field: string }[]>> {
+        mapping: Map<string, Map<string, { datastore: string, database: string, table: string, field: string }[]>>):
+        Map<string, Map<string, { datastore: string, database: string, table: string, field: string }[]>> {
         let relatedFields: any = mapping;
 
-        let found = this.findValueInRelations(database, table, field);
+        // TODO: 825: filters will need datastore info eventually - more of a backend task and don't need
+        // an additional ticket for this, leaving a TODO to help track this later.
+
+        let found = this.findValueInRelations(datastore, database, table, field);
+
         found.forEach((value) => {
-            this.addRelatedFieldToMapping(relatedFields, field, value.database, value.table, value.field);
+            this.addRelatedFieldToMapping(relatedFields, field, datastore, value.database, value.table, value.field);
         });
 
         // Recursively check for equivalents to the fields we already have until we don't find anything new.
@@ -896,17 +788,19 @@ export class DatasetService {
             for (let kvPair of relatedFields) {
                 for (let relatedField of kvPair[1].fields[field]) {
                     if (!relatedField.hasBeenChecked) {
-                        let values = this.findValueInRelations(kvPair[1].database, kvPair[1].table, relatedField);
+                        // TODO: 825: need to account for possibility of multiple datastores within a dashboard later on
+                        let values = this.findValueInRelations(datastore, kvPair[1].database, kvPair[1].table, relatedField);
                         for (let newValue of values) {
                             valueAdded = valueAdded ||
-                                this.addRelatedFieldToMapping(relatedFields, field, newValue.database, newValue.table, newValue.field);
+                                this.addRelatedFieldToMapping(relatedFields, field, datastore, newValue.database,
+                                    newValue.table, newValue.field);
                         }
                         relatedField.hasBeenChecked = true;
                     }
                 }
             }
         } while (valueAdded);
-        let initialFieldDbAndTableKey = this.makeDbAndTableKey(database, table);
+        let initialFieldDbAndTableKey = this.makeDatastoreDbAndTableKey(datastore, database, table);
         if (relatedFields.get(initialFieldDbAndTableKey) && relatedFields.get(initialFieldDbAndTableKey).get(field) !== undefined) {
             let fields = relatedFields.get(initialFieldDbAndTableKey).get(field);
             for (let index = fields.length - 1; index >= 0; index--) {
@@ -924,35 +818,40 @@ export class DatasetService {
         return relatedFields;
     }
 
-    // Internal helper method to create a mapping key for a database and table.
-    private makeDbAndTableKey(database: string, table: string): string {
-        return database + '_' + table;
+    // Internal helper method to create a mapping key for a datastore, database, and table.
+    private makeDatastoreDbAndTableKey(datastore: string, database: string, table: string): string {
+        return datastore + '_' + database + '_' + table;
     }
     // Internal helper method to add a related field to the mapping of related fields, and returns true if it was added and false otherwise.
-    private addRelatedFieldToMapping(mapping: Map<string, Map<string, { database: string, table: string, field: string }[]>>,
+    private addRelatedFieldToMapping(mapping: Map<string, Map<string, { datastore: string,
+        database: string, table: string, field: string }[]>>,
         baseField: string,
+        datastore: string,
         database: string,
         table: string,
         field: string): boolean {
-        let dbAndTableKey = this.makeDbAndTableKey(database, table);
-        if (mapping.get(dbAndTableKey) === undefined) {
-            let newMap = new Map<string, { database: string, table: string, field: string }[]>();
+        let key = this.makeDatastoreDbAndTableKey(datastore, database, table);
+        if (mapping.get(key) === undefined) {
+            let newMap = new Map<string, { datastore: string, database: string, table: string, field: string }[]>();
             newMap.set(baseField, [{
+                datastore: datastore,
                 database: database,
                 table: table,
                 field: field
             }]);
-            mapping.set(dbAndTableKey, newMap);
+            mapping.set(key, newMap);
             return true;
-        } else if (mapping.get(dbAndTableKey).get(baseField) === undefined) {
-            mapping.get(dbAndTableKey).set(baseField, [{
+        } else if (mapping.get(key).get(baseField) === undefined) {
+            mapping.get(key).set(baseField, [{
+                datastore: datastore,
                 database: database,
                 table: table,
                 field: field
             }]);
             return true;
-        } else if (mapping.get(dbAndTableKey).get(baseField).find((elem) => elem.field === field) === undefined) {
-            mapping.get(dbAndTableKey).get(baseField).push({
+        } else if (mapping.get(key).get(baseField).find((elem) => elem.field === field) === undefined) {
+            mapping.get(key).get(baseField).push({
+                datastore: datastore,
                 database: database,
                 table: table,
                 field: field
@@ -965,17 +864,37 @@ export class DatasetService {
 
     // Internal helper method to find a field in relations.
     // Returns every member of every relation that contains the given database/table/field combination.
-    private findValueInRelations(db: string, t: string, f: string): { database: string, table: string, field: string }[] {
+    private findValueInRelations(datastore: string, db: string, t: string,
+        f: string): { datastore: string, database: string, table: string, field: string }[] {
         let values = [];
-        // TODO: 825: moving relations
-        /*this.dataset.relations.forEach((relation) => {
-            for (let x = relation.members.length - 1; x >= 0; x--) {
-                if (relation.members[x].database === db && relation.members[x].table === t && relation.members[x].field === f) {
-                    values = values.concat(relation.members);
-                    return; // Return from this instance of forEach so we don't add the contents of this relation multiple times.
-                }
-            }
-        });*/
+        let relations = this.getCurrentDashboard().relations;
+
+        let relationMatch = _.find(relations, (relation: any) => {
+            return relation[datastore] && relation[datastore][db]
+                && relation[datastore][db][t] && relation[datastore][db][t] === f;
+        });
+
+        if (relationMatch) {
+            let datastoreKeys = Object.keys(relationMatch);
+
+            datastoreKeys.forEach((datastoreKey) => {
+                let databaseKeys = Object.keys(relationMatch[datastoreKey]);
+
+                databaseKeys.forEach((databaseKey) => {
+                    let tableKeys = Object.keys(relationMatch[datastoreKey][databaseKey]);
+
+                    tableKeys.forEach((tableKey) => {
+                        values.push({
+                            datastore: datastoreKey,
+                            database: databaseKey,
+                            table: tableKey,
+                            field: relationMatch[datastoreKey][databaseKey][tableKey]
+                        });
+                    });
+                });
+            });
+        }
+
         return values;
     }
 
@@ -986,8 +905,6 @@ export class DatasetService {
      * @param {Function} callback (optional)
      * @param {Number} index (optional)
      */
-    // TODO: 825: When dashboard config options layout is changed, do we want to change how/when this
-    // validation occurs? (THOR-826)
     public updateDatabases(dataset: Datastore, connection: neon.query.Connection): any {
         let promiseArray = [];
 
