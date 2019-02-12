@@ -80,7 +80,7 @@ class Filter {
 }
 
 export class TransformedAggregationData extends TransformedVisualizationData {
-    constructor(data: any[]) {
+    constructor(data: any[], public options: any) {
         super(data);
     }
 
@@ -91,6 +91,9 @@ export class TransformedAggregationData extends TransformedVisualizationData {
      * @override
      */
     public count(): number {
+        if (this.options.countByAggregation) {
+            return this._data.length;
+        }
         return this._data.reduce((count, element) => count + element.y, 0);
     }
 }
@@ -380,6 +383,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         return [
             new WidgetSelectOption('aggregation', 'Aggregation', AggregationType.COUNT, OptionChoices.Aggregation,
                 this.optionsTypeIsNotXY),
+            new WidgetSelectOption('countByAggregation', 'Count Aggregations', false, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('timeFill', 'Date Fill', false, OptionChoices.NoFalseYesTrue, this.optionsXFieldIsDate),
             new WidgetSelectOption('granularity', 'Date Granularity', 'year', OptionChoices.DateGranularity, this.optionsXFieldIsDate),
             new WidgetSelectOption('dualView', 'Dual View', '', [{
@@ -600,6 +604,43 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Returns the label for the objects that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        let label = 'Result';
+        if (this.options.countByAggregation) {
+            switch (this.options.type) {
+                case 'bar-h':
+                case 'bar-v':
+                case 'histogram':
+                    label = 'Bar';
+                    break;
+                case 'doughnut':
+                case 'pie':
+                    label = 'Slice';
+                    break;
+                case 'list':
+                    label = 'Row';
+                    break;
+                case 'line':
+                case 'line-xy':
+                    label = 'Line';
+                    break;
+                case 'scatter':
+                case 'scatter-xy':
+                    label = 'Point';
+                    break;
+            }
+        }
+        return label + (count === 1 ? '' : 's');
+    }
+
+    /**
      * Returns the label for the X Field in the gear option menu using the given subcomponent type.
      *
      * @arg {string} type
@@ -770,7 +811,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 color: findGroupColor(group),
                 group: group,
                 x: item[options.xField.columnName],
-                y: isXY ? item[options.yField.columnName] : item._aggregation
+                y: isXY ? item[options.yField.columnName] : (Math.round((item._aggregation) * 10000) / 10000)
             };
         };
 
@@ -902,7 +943,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         this.xList = options.savePrevious && this.xList.length ? this.xList : xList;
         this.yList = yList;
-        return new TransformedAggregationData(shownResults);
+        return new TransformedAggregationData(shownResults, this.options);
     }
 
     /**

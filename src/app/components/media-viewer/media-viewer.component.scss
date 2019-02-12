@@ -51,7 +51,7 @@ iframe {
     width: 100%;
 }
 
-img, video {
+img:not(.mask), video {
     height: auto;
     width: auto;
 }

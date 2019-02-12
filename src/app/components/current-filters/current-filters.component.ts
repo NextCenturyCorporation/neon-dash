@@ -73,6 +73,16 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
         this.filterService.removeFilters(this.messenger, filterIds, onSuccess.bind(this));
     }
 
+    removeAllFilters() {
+        let filterIds = [];
+        for (let filter of this.filters.raw) {
+            filterIds.push(filter.id);
+        }
+
+        this.removeFilter(filterIds);
+        this.filterService.clearFilters();
+    }
+
     onEventChanged() {
         this.updateCurrentFilters(this.filterService.getFilters());
     }

@@ -395,4 +395,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             infoText: this.infoText
         };
     }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.transformVisualizationQueryResults(options, []);
+    }
 }
