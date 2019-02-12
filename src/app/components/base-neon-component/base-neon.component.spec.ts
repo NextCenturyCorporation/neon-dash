@@ -1174,12 +1174,19 @@ describe('BaseNeonComponent', () => {
         expect(component.options.limit).toEqual(1234);
         expect(spy.calls.count()).toEqual(1);
 
-        component.newLimit = 0;
+        component.newLimit = -1;
 
         component.handleChangeLimit(component.options);
         expect(component.options.limit).toEqual(1234);
         expect(component.newLimit).toEqual(1234);
         expect(spy.calls.count()).toEqual(1);
+
+        component.newLimit = 0;
+
+        component.handleChangeLimit(component.options);
+        expect(component.options.limit).toEqual(0);
+        expect(component.newLimit).toEqual(0);
+        expect(spy.calls.count()).toEqual(2);
     });
 
     it('handleSuccessfulVisualizationQuery with no data does work as expected', (done) => {

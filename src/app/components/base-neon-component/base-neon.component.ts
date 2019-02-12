@@ -13,13 +13,7 @@
  * limitations under the License.
  *
  */
-import {
-    AfterViewInit,
-    OnInit,
-    OnDestroy,
-    Injector,
-    ChangeDetectorRef
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@angular/core';
 
 import { AbstractSearchService, AggregationType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -479,14 +473,23 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
+     * Run before executing all the data queries for the visualization.
+     * Used to notify the visualization that queries are imminent.
+     */
+    public beforeExecuteAllQueryChain(): void {
+        // do nothing by default
+    }
+
+    /**
      * Runs all the data queries for the visualization.  Called on initialization, if a user changes the visualization config or sets a
      * filter, or whenever else the data queries need to be run.
      */
     private executeAllQueryChain(): void {
         if (!this.initializing) {
-            (this.isMultiLayerWidget ? this.options.layers : [this.options]).forEach((options) => {
+            this.beforeExecuteAllQueryChain();
+            for (let options of (this.isMultiLayerWidget ? this.options.layers : [this.options])) {
                 this.executeQueryChain(options);
-            });
+            }
         }
     }
 
@@ -555,7 +558,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             return list;
         }, []);
 
-        if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
+        if (options.filter && options.filter.lhs && options.filter.operator && typeof options.filter.rhs !== 'undefined') {
             fields = [options.filter.lhs].concat(fields);
         }
 
@@ -588,14 +591,14 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public createSharedFilters(options: any): FilterClause[] {
         let ignoreFilterIds: string[] = this.getFiltersToIgnore() || [];
 
-        // TODO THOR-941 FilterService.getFilters must return NeonFilterClause[] (don't depend on neon.query.Filter or WhereWrapper class)
-        let filters: NeonFilterClause[] = this.filterService.getFilters({
+        // TODO THOR-941 FilterService.getFilters must return FilterClause[] (don't depend on neon.query.Filter or WhereWrapper class)
+        let filters: FilterClause[] = this.filterService.getFilters({
             database: options.database.name,
             table: options.table.name
         }).filter((neonFilter) => ignoreFilterIds.indexOf(neonFilter.id) < 0).map((neonFilter) => new WhereWrapper(
             neonFilter.filter.whereClause as neon.query.WherePredicate));
 
-        if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
+        if (options.filter && options.filter.lhs && options.filter.operator && typeof options.filter.rhs !== 'undefined') {
             filters.push(this.searchService.buildFilterClause(options.filter.lhs, options.filter.operator, options.filter.rhs));
         }
 
@@ -660,6 +663,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.errorMessage = 'No Data';
             this.layerIdToActiveData.set(options._id, new TransformedVisualizationData());
             this.layerIdToElementCount.set(options._id, 0);
+            this.clearVisualizationData(options);
             callback();
             return;
         }
@@ -922,7 +926,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public handleChangeLimit(options?: any): void {
         if (this.isNumber(this.newLimit)) {
             let newLimit = parseFloat('' + this.newLimit);
-            if (newLimit > 0) {
+            if (newLimit >= 0) {
                 (options || this.options).limit = newLimit;
                 this.handleChangeData();
             } else {
@@ -1539,5 +1543,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         // Assumes single-layer widget.
         return this.visualizationQueryPaginates && (this.page > 1 || this.showingZeroOrMultipleElementsPerResult ||
             ((this.page * this.options.limit) < this.layerIdToElementCount.get(this.options._id)));
+    }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.  Override as needed.
     }
 }

@@ -86,7 +86,7 @@ export class LeafletNeonMap extends AbstractMap {
     addPoints(points: MapPoint[], layer?: any, cluster?: boolean) {
         let layerGroup = this.layerGroups.get(layer);
         if (!layerGroup) {
-            layerGroup = !cluster ? new L.LayerGroup() : L.markerClusterGroup({
+            layerGroup = !cluster ? new L.LayerGroup() : (<any> L).markerClusterGroup({
                 // Override default function to add neon-cluster class to cluster icons.
                 iconCreateFunction: (clusterPoint) => {
                     return new L.DivIcon({
@@ -132,7 +132,8 @@ export class LeafletNeonMap extends AbstractMap {
 
             if (point.hoverPopupMap.size > 0) {
                 //build hover value and add to tooltip
-                tooltip += (tooltip ? '<br/>' : '') + `<span>${this.createHoverPopupString(point.hoverPopupMap)}</span>`;
+                let hoverPopupString = this.createHoverPopupString(point.hoverPopupMap);
+                tooltip += (tooltip ? '<br/>' : '') + (hoverPopupString !== '' ? `<span>${hoverPopupString}</span>` : '');
             }
 
             if (tooltip) {
@@ -251,7 +252,6 @@ export class LeafletNeonMap extends AbstractMap {
     }
 
     private createHoverPopupString(hoverPopupMap: Map<string, number>) {
-
         let result = [];
 
         //loop through and push values to array
@@ -264,6 +264,5 @@ export class LeafletNeonMap extends AbstractMap {
         });
 
         return result.join(','); // return comma separated string
-
     }
 }
