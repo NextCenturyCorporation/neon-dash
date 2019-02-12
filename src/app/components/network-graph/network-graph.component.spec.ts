@@ -63,7 +63,7 @@ describe('Component: NetworkGraph', () => {
             AppMaterialModule,
             FormsModule
         ],
-        schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
+        schemas: [CUSTOM_ELEMENTS_SCHEMA]
     });
 
     beforeEach(() => {
@@ -100,7 +100,6 @@ describe('Component: NetworkGraph', () => {
         expect(component.options.linkNameField).toEqual(new FieldMetaData());
         expect(component.options.nodeField).toEqual(new FieldMetaData());
         expect(component.options.nodeNameField).toEqual(new FieldMetaData());
-        expect(component.options.typeField).toEqual(new FieldMetaData());
         expect(component.options.xPositionField).toEqual(new FieldMetaData());
         expect(component.options.yPositionField).toEqual(new FieldMetaData());
         expect(component.options.xTargetPositionField).toEqual(new FieldMetaData());
@@ -112,7 +111,6 @@ describe('Component: NetworkGraph', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.typeField = new FieldMetaData('testTypeField');
         component.options.nodeField = new FieldMetaData('testNodeField');
         component.options.nodeNameField = new FieldMetaData('testNodeNameField');
         component.options.nodeColorField = new FieldMetaData('testNodeColorField');
@@ -148,34 +146,34 @@ describe('Component: NetworkGraph', () => {
         component.options.limit = 8;
 
         component.transformVisualizationQueryResults(component.options, [{
-            object : 'testObject',
-            predicate : 'testPredicate',
-            provenance : ['testProvenance'],
-            subject : 'testSubject'
+            object: 'testObject',
+            predicate: 'testPredicate',
+            provenance: ['testProvenance'],
+            subject: 'testSubject'
         },
         {
-            object : 'testObject2',
-            predicate : 'testPredicate',
-            provenance : ['testProvenance2'],
-            subject : ['testSubject2a', 'testSubject2b']
+            object: 'testObject2',
+            predicate: 'testPredicate',
+            provenance: ['testProvenance2'],
+            subject: ['testSubject2a', 'testSubject2b']
         },
         {
-            object : 'testObject3',
-            predicate : 'testPredicate3',
-            provenance : 'testProvenance3',
-            subject : ['testSubject3']
+            object: 'testObject3',
+            predicate: 'testPredicate3',
+            provenance: 'testProvenance3',
+            subject: ['testSubject3']
         },
         {
-            object : 'testObject',
-            predicate : 'testPredicate5',
-            provenance : 'testProvenance4',
-            subject : ['testSubject4']
+            object: 'testObject',
+            predicate: 'testPredicate5',
+            provenance: 'testProvenance4',
+            subject: ['testSubject4']
         },
         {
-            object : 'testObject4',
-            predicate : 'testPredicate3',
-            provenance : 'testProvenance4',
-            subject : ['testSubject4']
+            object: 'testObject4',
+            predicate: 'testPredicate3',
+            provenance: 'testProvenance4',
+            subject: ['testSubject4']
         }]);
 
         expect(component.totalNodes).toEqual(8); //Total based on allowed limit
@@ -188,7 +186,6 @@ describe('Component: NetworkGraph', () => {
     it('transformVisualizationQueryResults does load the Network Graph with tabular data', (() => {
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.typeField = new FieldMetaData('testTypeField');
         component.options.nodeNameField = new FieldMetaData('testNodeNameField');
         component.options.nodeField = new FieldMetaData('testNodeField');
         component.options.xPositionField = new FieldMetaData('testXPositionField');
@@ -248,6 +245,98 @@ describe('Component: NetworkGraph', () => {
 
     }));
 
+    it('transformVisualizationQueryResults does load the Network Graph from multiple data tables', (() => {
+        let options = component.options;
+        options.layers = [
+            {
+                database: 'testNodeDatabase',
+                table: 'testNodeTable',
+                layerType: 'nodes',
+                idField: new FieldMetaData('testNodeIdField'),
+                nameField: new FieldMetaData('testNodeNameField'),
+                colorField: new FieldMetaData('testNodeColorField'),
+                param1Field: new FieldMetaData('testNodeXPositionField'),
+                param2Field: new FieldMetaData('testNodeYPositionField'),
+                filterFields: [ new FieldMetaData('testFilterField')]
+            },
+            {
+                database: 'testEdgeDatabase',
+                table: 'testTable',
+                layerType: 'edges',
+                nameField: new FieldMetaData('testEdgeNameField'),
+                colorField: new FieldMetaData('testEdgeColorField'),
+                param1Field: new FieldMetaData('testEdgeSourceIdField'),
+                param2Field: new FieldMetaData('testEdgeDestinationIdField'),
+                filterFields: [ new FieldMetaData('testFilterField')]
+            }
+        ];
+        options.nodeColor = '#96f4f2';
+        options.edgeColor = '#93663e';
+        options.linkColor = '#938d8f';
+        options.nodeShape = 'star';
+        options.isReified = false;
+        options.limit = 3;
+
+        component.initializeProperties(); //need isMultiLayerWidget to be true
+        component.transformVisualizationQueryResults(options.layers[0], [{
+            testNodeIdField: 'nodeId1',
+            testNodeNameField: 'nodeName1',
+            testNodeColorField: 'Entity',
+            testNodeXPositionField: 100,
+            testNodeYPositionField: 215
+        },
+        {
+            testNodeIdField: 'nodeId2',
+            testNodeNameField: 'nodeName2',
+            testNodeColorField: 'Event',
+            testNodeXPositionField: -858,
+            testNodeYPositionField: 495
+        },
+        {
+            testNodeIdField: 'nodeId3',
+            testNodeNameField: 'nodeName3',
+            testNodeColorField: 'Relation',
+            testNodeXPositionField: -549,
+            testNodeYPositionField: -656
+        },
+        {
+            testNodeIdField: 'nodeId4',
+            testNodeNameField: 'nodeName4',
+            testNodeColorField: 'Entity',
+            testNodeXPositionField: 191,
+            testNodeYPositionField: -525
+        }]);
+
+        let edgesData = [{
+            testEdgeNameField: 'edgeName1',
+            testEdgeSourceIdField: 'nodeId1',
+            testEdgeDestinationIdField: 'nodeId2'
+        },
+        {
+            testEdgeNameField: 'edgeName2',
+            testEdgeSourceIdField: 'nodeId2',
+            testEdgeDestinationIdField: 'nodeId3'
+        },
+        {
+            testEdgeNameField: 'edgeName3',
+            testEdgeSourceIdField: 'nodeId3',
+            testEdgeDestinationIdField: 'nodeId2'
+        },
+        {
+            testEdgeNameField: 'edgeName4',
+            testEdgeSourceIdField: 'nodeId3',
+            testEdgeDestinationIdField: 'nodeId1'
+        }];
+
+        component.transformVisualizationQueryResults(options.layers[1], edgesData);
+
+        expect(component.totalNodes).toEqual(component.options.limit); //Total based on allowed limit
+        expect(component.displayGraph).toEqual(true);
+        expect(component.graphData.nodes.length).toEqual(component.options.limit);
+        expect(component.graphData.edges.length).toEqual(edgesData.length);
+
+    }));
+
     it('legendIsNeeded does not display a legend when display boolean is set to false', async(() => {
         component.options.edgeColorField = new FieldMetaData('testEdgeColorField');
         component.displayGraph = false;
@@ -292,14 +381,13 @@ describe('Component: NetworkGraph', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.typeField = new FieldMetaData('testTypeField');
         component.options.nodeNameField = new FieldMetaData('testNodeNameField');
         component.options.nodeField = new FieldMetaData('testNodeField');
         component.options.xPositionField = new FieldMetaData('testXPositionField');
         component.options.yPositionField = new FieldMetaData('testYPositionField');
 
         getService(FilterService).addFilter(null, 'idA', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-        neon.query.where('testTypeField', '=', 'testTypeValue'), 'testTypeFilter1');
+            neon.query.where('testTypeField', '=', 'testTypeValue'), 'testTypeFilter1');
 
         getService(FilterService).addFilter(null, 'idB', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testTypeField', '=', 'testTypeValue4'), 'testTypeFilter2');
@@ -360,7 +448,6 @@ describe('Component: NetworkGraph', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.typeField = new FieldMetaData('testTypeField');
         component.options.nodeNameField = new FieldMetaData('testNodeNameField');
         component.options.nodeField = new FieldMetaData('testNodeField');
         component.options.xPositionField = new FieldMetaData('testXPositionField');
@@ -393,7 +480,7 @@ describe('Component: NetworkGraph', () => {
             testYPositionField: 495
         }]);
 
-        component.legendItemSelected({currentlyActive: true, fieldName: 'testTypeField', value: 'testTypeValue2'});
+        component.legendItemSelected({ currentlyActive: true, fieldName: 'testTypeField', value: 'testTypeValue2' });
 
         let filters = getService(FilterService).getFiltersForFields(component.options.database.name, component.options.table.name,
             component.options.filterFields.map((fieldsObject) => fieldsObject.columnName));
@@ -408,7 +495,6 @@ describe('Component: NetworkGraph', () => {
     it('does create filter for graph when graph node is selected', (() => {
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.typeField = new FieldMetaData('testTypeField');
         component.options.nodeNameField = new FieldMetaData('testNodeNameField');
         component.options.nodeField = new FieldMetaData('testNodeField');
         component.options.xPositionField = new FieldMetaData('testXPositionField');
@@ -443,7 +529,7 @@ describe('Component: NetworkGraph', () => {
             testYPositionField: 495
         }]);
 
-        component.onSelect({nodes: ['testNodeValue2']});
+        component.onSelect({ nodes: ['testNodeValue2'] });
 
         let filters = getService(FilterService).getFiltersForFields(component.options.database.name, component.options.table.name,
             component.options.filterFields.map((fieldsObject) => fieldsObject.columnName));
