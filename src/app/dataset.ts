@@ -66,7 +66,10 @@ export class SimpleFilter {
     ) {}
 }
 
-// TODO: 825: turning this into Datastore
+/*
+TODO: 825: This was turned into Datastore -- leaving old commented out
+version here for reference until all THOR-825 related tasks are complete.
+
 export class Dataset {
     public connectOnLoad: boolean = false;
     public databases: DatabaseMetaData[] = [];
@@ -81,7 +84,7 @@ export class Dataset {
         public title: string = '', // TODO: 825: move this into layout or dashboards
         public icon: string = '' // TODO: 825: move this into layout or dashboards
     ) {}
-}
+}*/
 
 /**
  * Represents a single datastore from the datastores key/value pairs in the config file.
@@ -92,8 +95,8 @@ export class Datastore {
 
     constructor(
         public name: string = '',
-        public host: string = '',
-        public type: string = ''
+        public host: string = '', // formerly hostname
+        public type: string = '' // type of datastore (mongo, elasticsearch, etc.)
     ) {}
 }
 
