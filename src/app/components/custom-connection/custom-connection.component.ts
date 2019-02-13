@@ -15,7 +15,7 @@
  */
 import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
 import { DatasetService } from '../../services/dataset.service';
-import { Dataset } from '../../dataset';
+import { Datastore } from '../../dataset';
 import { MatDialogRef } from '@angular/material';
 import { neonEvents } from '../../neon-namespaces';
 
@@ -73,7 +73,7 @@ export class CustomConnectionComponent implements AfterViewInit {
     }
 
     createDataset() {
-        let dataset = new Dataset(this.data.datasetName, this.data.datastoreType, this.data.datastoreHost);
+        let dataset = new Datastore(this.data.datasetName, this.data.datastoreHost, this.data.datastoreType);
         dataset.databases = this.data.selectedDatabases;
         this.datasetService.addDataset(dataset);
         this.datasetService.setActiveDataset(dataset);
