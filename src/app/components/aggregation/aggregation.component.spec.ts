@@ -3401,6 +3401,7 @@ describe('Component: Aggregation', () => {
             aggregation: AggregationType.COUNT,
             axisLabelX: '',
             axisLabelY: 'count',
+            countByAggregation: false,
             dualView: '',
             granularity: 'year',
             hideGridLines: false,
@@ -3431,6 +3432,7 @@ describe('Component: Aggregation', () => {
         component.options.yField = DatasetServiceMock.Y_FIELD;
 
         component.options.aggregation = AggregationType.SUM;
+        component.options.countByAggregation = true;
         component.options.dualView = 'on';
         component.options.granularity = 'day';
         component.options.hideGridLines = true;
@@ -3473,6 +3475,7 @@ describe('Component: Aggregation', () => {
             aggregation: AggregationType.SUM,
             axisLabelX: '',
             axisLabelY: 'count',
+            countByAggregation: true,
             dualView: 'on',
             granularity: 'day',
             hideGridLines: true,
