@@ -1028,8 +1028,7 @@ private getAllNodes(data: any[], idField: string, nameField: string, colorField:
             xPositionField = this.options.xPositionField.columnName,
             yPositionField = this.options.yPositionField.columnName,
             xTargetPositionField = this.options.xTargetPositionField.columnName,
-            yTargetPositionField = this.options.yTargetPositionField.columnName,
-            fFields = this.options.filterFields.map((fieldsObject) => fieldsObject.columnName);
+            yTargetPositionField = this.options.yTargetPositionField.columnName;
 
         // assume nodes will take precedence over edges so create nodes first
         graph.nodes = this.getAllNodes(this.responseData, nodeName, nodeNameColumn, nodeColorField, nodeColor, xPositionField,
