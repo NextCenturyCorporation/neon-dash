@@ -114,6 +114,7 @@ export class LeafletNeonMap extends AbstractMap {
 
             let circleOptions = {
                 // TODO Use theme color (color-text-main)
+                ids: point.idList,
                 color: '#333',
                 colorByField: point.colorByField,
                 colorByValue: point.colorByValue,
@@ -246,7 +247,7 @@ export class LeafletNeonMap extends AbstractMap {
     private addClickEventListener(circle: L.CircleMarker) {
         return circle.addEventListener('click', (event) => { // event is a leaflet MouseEvent
             let castEvent = event as L.LeafletMouseEvent;
-            this.filterListener.filterByMapPoint(castEvent.target._latlng.lat, castEvent.target._latlng.lng);
+            this.filterListener.filterByMapPoint(castEvent.target.options.ids, castEvent.target._latlng.lat, castEvent.target._latlng.lng);
         });
     }
 
