@@ -213,7 +213,7 @@
         {
             "title": "VERDI",
             "name": "Seedling LDC TA3 Network",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "layout": "verdi-ta3-network",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -586,7 +586,6 @@
                     "table": "seedling",
                     "dateField": "docDate",
                     "granularity": "day",
-                    "filterFields": ["kbid"],
                     "hideUnfiltered": true
                 }
             }
@@ -609,12 +608,6 @@
                             "table": "hypothesis_info",
                             "idField": "hypothesis_id",
                             "filterField": "query"
-                        },
-                        {
-                            "database": "kb-geo",
-                            "table": "seedling",
-                            "idField": "kbid",
-                            "filterField": "hypotheses"
                         },
                         {
                             "database": "kb-geo",
@@ -665,6 +658,13 @@
                     "singleColor": true,
                     "filterable": true,
                     "hideUnfiltered": true,
+                    "showPointDataOnHover": true,
+                    "filterFields": [
+                        "categories",
+                        "types",
+                        "docIds",
+                        "docDate"
+                    ],
                     "name": "Documents",
                     "layers": [{
                         "title": "Map",
@@ -672,7 +672,9 @@
                         "table": "seedling",
                         "latitudeField": "geoLocation.lat",
                         "longitudeField": "geoLocation.lon",
+                        "hoverPopupField": "name",
                         "dateField": "docDate",
+                        "idField": "docIds",
                         "colorField": "types"
                     }]
                 },
@@ -732,7 +734,6 @@
                     "table": "seedling",
                     "dateField": "docDate",
                     "granularity": "day",
-                    "filterFields": ["kbid"],
                     "hideUnfiltered": true
                 }
             }
@@ -821,7 +822,8 @@
                     "filterFields": [
                         "categories",
                         "types",
-                        "docIds"
+                        "docIds",
+                        "docDate"
                     ],
                     "idField": "@id",
                     "id": "_id",
@@ -892,7 +894,6 @@
                     "table": "parent_children",
                     "dateField": "download_date",
                     "granularity": "day",
-                    "filterFields": ["id"],
                     "hideUnfiltered": true
                 }
             }
