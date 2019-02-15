@@ -118,9 +118,9 @@ export class LeafletNeonMap extends AbstractMap {
                 colorByField: point.colorByField,
                 colorByValue: point.colorByValue,
                 fillColor: point.cssColorString,
-                fillOpacity: mapIsSelected ? (pointIsSelected ? 1 : .1) : 1,
-                opacity: mapIsSelected ? (pointIsSelected ? 0 : .2) : 1,
-                radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30), // Default is 10
+                fillOpacity: mapIsSelected ? (pointIsSelected ? 1 : 0.1) : 0.6,
+                opacity: mapIsSelected ? (pointIsSelected ? 0 : 0.2) : 1,
+                radius: Math.min(Math.floor(6 * Math.pow(point.count, 0.5)), 30), // Default is 10
                 stroke: mapIsSelected && pointIsSelected ? false : true,
                 weight: 1
             };
