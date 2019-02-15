@@ -247,7 +247,10 @@ export class LeafletNeonMap extends AbstractMap {
     private addClickEventListener(circle: L.CircleMarker) {
         return circle.addEventListener('click', (event) => { // event is a leaflet MouseEvent
             let castEvent = event as L.LeafletMouseEvent;
-            this.filterListener.filterByMapPoint(castEvent.target._latlng.lat, castEvent.target._latlng.lng);
+            // The _preSpiderfyLatlng property will be attached to clusters.
+            let lat: number = castEvent.target._preSpiderfyLatlng ? castEvent.target._preSpiderfyLatlng.lat : castEvent.target._latlng.lat;
+            let lng: number = castEvent.target._preSpiderfyLatlng ? castEvent.target._preSpiderfyLatlng.lng : castEvent.target._latlng.lng;
+            this.filterListener.filterByMapPoint(castEvent.target.options.ids, lat, lng);
         });
     }
 
