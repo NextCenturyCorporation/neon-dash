@@ -13,6 +13,8 @@
  * limitations under the License.
  *
  */
+// TODO: THOR-825: rename classes/functions that still reference 'dataset' to say 'datastore' (THOR-1052)
+
 export class FieldMetaData {
     constructor(
         public columnName: string = '',
@@ -67,20 +69,21 @@ export class SimpleFilter {
 }
 
 /*
-TODO: 825: This was turned into Datastore -- leaving old commented out
-version here for reference until all THOR-825 related tasks are complete.
+TODO: THOR-825: This was turned into Datastore -- leaving old commented out
+version here along with comments on updates made for reference until all
+THOR-825 related tasks are complete.
 
 export class Dataset {
     public connectOnLoad: boolean = false;
     public databases: DatabaseMetaData[] = [];
     public hasUpdatedFields: boolean = false;
-    public layout: string = ''; // TODO: 825: layout will be specified in dashboards
+    public layout: string = ''; // layouts are now specified in dashboards
     //public options: DatasetOptions = new DatasetOptions(); moved to DashboardOptions
 
     constructor(
         public name: string = '',
-        public datastore: string = '', // TODO: 825: this will become 'type'
-        public hostname: string = '', // TODO: 825: this will change to 'host'
+        public datastore: string = '', // this became 'type'
+        public hostname: string = '', // this was updated to 'host'
         public title: string = '', // TODO: 825: move this into layout or dashboards
         public icon: string = '' // TODO: 825: move this into layout or dashboards
     ) {}
