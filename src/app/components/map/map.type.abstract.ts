@@ -53,7 +53,7 @@ export class MapPoint {
 
 export interface FilterListener {
     filterByLocation(box: BoundingBoxByDegrees);
-    filterByMapPoint(targetIds: any, lat: number, lng: number);
+    filterByMapPoint(filters: Map<string, any>[], lat: number, lng: number);
 }
 
 export abstract class AbstractMap {
