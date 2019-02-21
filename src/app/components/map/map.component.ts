@@ -62,7 +62,8 @@ import * as _ from 'lodash';
 import * as geohash from 'geo-hash';
 
 class UniqueLocationPoint {
-    constructor(public idField: string, public idList: string[], public lat: number, public lng: number, public count: number,
+    constructor(public idField: string, public idList: string[], public filterList: Map<string, any>[],
+        public filterFields: Map<string, any>, public lat: number, public lng: number, public count: number,
         public colorField: string, public colorValue: string, public hoverPopupMap: Map<string, number>) { }
 }
 
@@ -633,7 +634,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                 hoverPopupMap.set(hoverPopupValue, 1);
             }
 
-            obj = new UniqueLocationPoint(idValue, idList, lat, lng, 1, colorField, colorValue, hoverPopupMap);
+            obj = new UniqueLocationPoint(idValue, idList, [], null, lat, lng, 1, colorField, colorValue, hoverPopupMap);
             map.set(hashCode, obj);
         } else {
                 obj.idList.push(idValue);  //add the id to the list of points
@@ -912,7 +913,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             new WidgetFieldOption('dateField', 'Date Field', false),
             new WidgetFieldOption('hoverPopupField', 'Hover Popup Field', false),
             new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('sizeField', 'Size Field', false)
+            new WidgetFieldOption('sizeField', 'Size Field', false),
+            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
         ];
     }
 
