@@ -34,7 +34,7 @@ export class DatasetService {
     private datasets: Datastore[] = [];
 
     // The active dataset.
-    // TODO: 825: This will probably need to be an array/map of active datastores
+    // TODO: THOR-1062: This will probably need to be an array/map of active datastores
     // since a dashboard can reference multiple datastores.
     private dataset: Datastore = new Datastore();
 
@@ -285,6 +285,7 @@ export class DatasetService {
     /**
      * Updates the dataset that matches the active dataset.
      */
+    // TODO: THOR-1062: may need to change to account for multiple datastores later
     private updateDataset(): void {
         for (let i = 0; i < this.datasets.length; ++i) {
             if (this.datasets[i].name === this.dataset.name) {
@@ -319,10 +320,9 @@ export class DatasetService {
      * field is an Object containing {String} columnName and {String} prettyName.  Each mapping key is a unique
      * identifier used by the visualizations and each value is a field name.
      */
-    // TODO: 825: this will likely be more like "set active dashboard/config" to allow
+    // TODO: THOR-1062: this will likely be more like "set active dashboard/config" to allow
     // to connect to multiple datasets
     public setActiveDataset(dataset): void {
-        // TODO: 825: structure will likely change here
         this.dataset.name = dataset.name || 'Unknown Dataset';
         this.dataset.type = dataset.type || '';
         this.dataset.host = dataset.host || '';
@@ -467,7 +467,6 @@ export class DatasetService {
      * @param {String} layoutName
      */
     public setLayout(layoutName: string): void {
-        // TODO: 825: may need to revisit later
         this.currentDashboard.layout = layoutName;
         this.updateDataset();
     }
@@ -787,7 +786,7 @@ export class DatasetService {
             for (let kvPair of relatedFields) {
                 for (let relatedField of kvPair[1].fields[field]) {
                     if (!relatedField.hasBeenChecked) {
-                        // TODO: 825: need to account for possibility of multiple datastores within a dashboard later on
+                        // TODO: THOR-1062: need to account for possibility of multiple datastores within a dashboard later on
                         let values = this.findValueInRelations(datastore, kvPair[1].database, kvPair[1].table, relatedField);
                         for (let newValue of values) {
                             valueAdded = valueAdded ||
@@ -1100,7 +1099,7 @@ export class DatasetService {
         }
     }
 
-    // TODO: 825: entire key may be more important later when
+    // TODO: THOR-1062: entire key may be more important later when
     // connecting to multiple databases -- for now we can just
     // use a partial key
     /**
