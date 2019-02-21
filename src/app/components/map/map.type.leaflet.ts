@@ -115,6 +115,7 @@ export class LeafletNeonMap extends AbstractMap {
             let circleOptions = {
                 // TODO Use theme color (color-text-main)
                 ids: point.idList,
+                filters: point.filterList,
                 color: '#333',
                 colorByField: point.colorByField,
                 colorByValue: point.colorByValue,
@@ -251,6 +252,9 @@ export class LeafletNeonMap extends AbstractMap {
             let lat: number = castEvent.target._preSpiderfyLatlng ? castEvent.target._preSpiderfyLatlng.lat : castEvent.target._latlng.lat;
             let lng: number = castEvent.target._preSpiderfyLatlng ? castEvent.target._preSpiderfyLatlng.lng : castEvent.target._latlng.lng;
             this.filterListener.filterByMapPoint(castEvent.target.options.ids, lat, lng);
+
+            //TODO://figure out why this is breaking things
+            //this.filterListener.filterByMapPoint(castEvent.target.options.filters, lat, lng);
         });
     }
 
