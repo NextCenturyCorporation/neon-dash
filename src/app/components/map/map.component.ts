@@ -527,9 +527,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             }
 
             mapPoints.push(
-                new MapPoint(unique.idField, unique.idList, `${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`,
-                    unique.lat, unique.lng, unique.count, color,
-                    'Count: ' + unique.count,
+                new MapPoint(unique.idField, unique.idList, [], null, `${unique.lat.toFixed(3)}\u00b0,
+                    ${unique.lng.toFixed(3)}\u00b0`, unique.lat, unique.lng, unique.count, color, 'Count: ' + unique.count,
                     unique.colorField, unique.colorValue, unique.hoverPopupMap
                 ));
         });

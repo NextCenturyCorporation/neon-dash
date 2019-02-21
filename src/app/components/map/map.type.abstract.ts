@@ -37,6 +37,8 @@ export class MapPoint {
     constructor(
         public idValue: string,
         public idList: string[],
+        public filterList: Map<string, any>[],
+        public filterFields: Map<string, any>,
         public name: string,
         public lat: number,
         public lng: number,
