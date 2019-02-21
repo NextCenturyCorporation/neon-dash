@@ -114,7 +114,6 @@ export class LeafletNeonMap extends AbstractMap {
 
             let circleOptions = {
                 // TODO Use theme color (color-text-main)
-                ids: point.idList,
                 filters: point.filterList,
                 color: '#333',
                 colorByField: point.colorByField,
