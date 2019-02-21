@@ -1,4 +1,3 @@
-# TODO: 825: should this be redone after config changes for Neon 3 are complete?
 dashboard:
   translationKeys:
     google: API_KEY

@@ -75,7 +75,7 @@ dashboards:
                                     ldc_uyg_jul_18:
                                         ui_out:
                                             topic:
-                                                # TODO: 825: Made ticket to resolve issue with colorMaps
+                                                # TODO: THOR-825: Made ticket to resolve issue with colorMaps
                                                 # using pretty labels instead of actual values in data
                                                 # (THOR-915)
                                                 # using pretty labels here for now
