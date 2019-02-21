@@ -148,7 +148,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         return dashboard.tables[key].split('.')[0];
     }
 
-    // TODO: 825: later will need to account for multiple datastores
+    // TODO: THOR-1062: later will need to account for multiple datastores
     findMatchingDatastoreIndex(choice: Dashboard) {
         for (let index = 0; index < this.datasets.length; index ++) {
             let datastoreName = this.getDatastoreNameFromTableKey(choice);
@@ -208,7 +208,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                 // the dropdowns are populated
                 this.dashboardDropdown.selectDashboardChoice(this.dashboards, paths, 0, this.dashboardDropdown);
 
-                // TODO: 825: Will need to account for multiple datastores later.
+                // TODO: THOR-1062: Will need to account for multiple datastores later.
                 let index = this.findMatchingDatastoreIndex(connectOnLoadDashboard);
                 if (index !== undefined) {
                     let dataset = this.datasets[index];
@@ -279,11 +279,10 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
      * @param {Dashboard} dashboard to connect to
      * @method connectToPreset
      */
-    // TODO: 825: new implementation:
-    // - just focus on one connection for now
-    // - for now using the datastores name to link dashboard and datastore
-    // - then later, use the tablekeys and field keys from dashboards instead of
-    //      the datastores/dashboards combo
+    // TODO: THOR-1062:
+    // Right now, datastore name is being used to link dashboard and datastore.
+    // Later, we'll probably need to use tableKeys/fieldKeys or some other mechanism
+    // to account for the case of multiple datastores within one dashboard.
     connectToPreset(index: number, loadDashboardState: boolean, dashboard: Dashboard) {
         this.activeDataset = {
             name: this.datasets[index].name,

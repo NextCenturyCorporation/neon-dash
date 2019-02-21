@@ -343,7 +343,7 @@ export class FilterService {
         let mentionedFields = this.datasetService.findMentionedFields(filter);
         let relatedFieldMapping: any = new Map<string, any>();
 
-        // TODO: 825: when multiple datastores are fully supported, we will need to
+        // TODO: THOR-1062: when multiple datastores are fully supported, we will need to
         // update how we obtain the datastore (it will also need to be added to the
         // Field object)
         let datastore = this.datasetService.getDataset().name;
