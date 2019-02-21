@@ -251,10 +251,7 @@ export class LeafletNeonMap extends AbstractMap {
             // The _preSpiderfyLatlng property will be attached to clusters.
             let lat: number = castEvent.target._preSpiderfyLatlng ? castEvent.target._preSpiderfyLatlng.lat : castEvent.target._latlng.lat;
             let lng: number = castEvent.target._preSpiderfyLatlng ? castEvent.target._preSpiderfyLatlng.lng : castEvent.target._latlng.lng;
-            this.filterListener.filterByMapPoint(castEvent.target.options.ids, lat, lng);
-
-            //TODO://figure out why this is breaking things
-            //this.filterListener.filterByMapPoint(castEvent.target.options.filters, lat, lng);
+            this.filterListener.filterByMapPoint(castEvent.target.options.filters, lat, lng);
         });
     }
 

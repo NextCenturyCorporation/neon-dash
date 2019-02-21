@@ -249,35 +249,56 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         }
     }
 
-    filterByMapPoint(targetIds: any, lat: number, lon: number) {
+    filterByMapPoint(filters: Map<string, any>[], lat: number, lon: number) {
         let fieldsByLayer = this.options.layers.map((layer) => {
             return {
                 latitude: layer.latitudeField.columnName,
                 longitude: layer.longitudeField.columnName,
                 prettyLatitude: layer.latitudeField.prettyName,
                 prettyLongitude: layer.longitudeField.prettyName,
-                id: layer.idField.columnName
+                id: layer.idField.columnName,
+                fields: layer.filterFields
             };
         });
-        let localLayerName = 'latitude equals ' + lat + ' and longitude equals ' + lon;
-        let localFilters = this.createFilter(fieldsByLayer, localLayerName);
-        let idObject = this.createFilter(fieldsByLayer, ' ' + fieldsByLayer[0].id + ' = ' + targetIds.join(','));
+
+        let localLayerName = 'latitude equals ' + lat + ' and longitude equals ' + lon,
+            localFilters = this.createFilter(fieldsByLayer, localLayerName),
+            neonFilters = this.filterService.getFiltersByOwner(this.id);
+
         this.addLocalFilter(localFilters);
 
         for (let i = 0; i < localFilters.fieldsByLayer.length; i++) {
-            let neonFilters = this.filterService.getFiltersByOwner(this.id),
-                neonPointFilter = this.createNeonPointFilter(lat, lon, localFilters.fieldsByLayer[i].latitude,
-                    localFilters.fieldsByLayer[i].longitude),
-                neonIdFilter = this.createNeonIdFilter(localFilters.fieldsByLayer[i].id, targetIds);
+            let neonPointFilter = this.createNeonPointFilter(lat, lon, localFilters.fieldsByLayer[i].latitude,
+                localFilters.fieldsByLayer[i].longitude);
 
             if (neonFilters && neonFilters.length) {
                 this.filterHistory.push(neonFilters[0]);
                 localFilters.id = neonFilters[0].id;
                 this.replaceNeonFilter(this.options.layers[i], true, localFilters, neonPointFilter);
-                this.replaceNeonFilter(this.options.layers[i], true, idObject, neonIdFilter);
             } else {
                 this.addNeonFilter(this.options.layers[i], true, localFilters, neonPointFilter);
-                this.addNeonFilter(this.options.layers[i], true, idObject, neonIdFilter);
+            }
+        }
+
+        this.manageFieldFilters(fieldsByLayer, filters, neonFilters);
+    }
+
+    manageFieldFilters(fieldsByLayer, fieldFilters, neonFilters) {
+        for (let field of fieldsByLayer[0].fields) {
+            let fieldValues: string[] = [],
+                fieldName = field.columnName;
+            for (let filter of fieldFilters) {
+                fieldValues.push(filter.get(fieldName));
+            }
+            fieldValues = neonUtilities.flatten(fieldValues);
+            let fieldObject = this.createFilter(fieldsByLayer, ' ' + fieldName + ' = ' + fieldValues.join(',')),
+                neonIdFilter = this.createNeonFieldFilter(fieldName, fieldValues);
+            if (neonFilters && neonFilters.length) {
+                if (fieldObject) {
+                    this.replaceNeonFilter(this.options.layers[0], true, fieldObject, neonIdFilter);
+                }
+            } else {
+                this.addNeonFilter(this.options.layers[0], true, fieldObject, neonIdFilter);
             }
         }
     }
@@ -294,21 +315,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             id: undefined,
             fieldsByLayer: fieldsByLayer,
             filterName: name
-        };
-    }
-
-    /**
-     * Creates and returns a filter object with the given fields and name.
-     *
-     * @arg {string} field
-     * @arg {string} value
-     * @return {any}
-     */
-    createIdObject(field: string, name: string): any {
-        return {
-            id: undefined, // This will be set in the success callback of addNeonFilter.
-            field: field,
-            value: name
         };
     }
 
@@ -346,7 +352,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         );
     }
 
-    createNeonIdFilter(idField: string, idValues: string[]): neon.query.WherePredicate {
+    createNeonFieldFilter(idField: string, idValues: string[]): neon.query.WherePredicate {
         let clauses = [];
 
         for (let value of idValues) {
@@ -484,8 +490,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @return {array}
      * @protected
      */
-    protected getMapPoints(databaseName: string, tableName: string, idField: string, lngField: string, latField: string, colorField: string,
-        hoverPopupField: FieldMetaData, data: any[]
+    protected getMapPoints(databaseName: string, tableName: string, idField: string, filterFields: any[],
+       lngField: string, latField: string, colorField: string, hoverPopupField: FieldMetaData, data: any[]
     ): any[] {
 
         let map = new Map<string, UniqueLocationPoint>();
@@ -495,7 +501,13 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                 latCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, latField)),
                 colorValue = neonUtilities.deepFind(point, colorField),
                 idValue = neonUtilities.deepFind(point, idField),
+                filterValues = new Map<string, any>(),
                 hoverPopupValue = hoverPopupField.columnName ? neonUtilities.deepFind(point, hoverPopupField.columnName) : '';
+
+            for (let field of filterFields) {
+                let fieldValue = neonUtilities.deepFind(point, field.columnName);
+                filterValues.set(field.columnName, fieldValue);
+            }
 
             //use first value if deepFind returns an array
             colorValue = colorValue instanceof Array ? (colorValue.length ? colorValue[0] : '') : colorValue;
@@ -506,15 +518,15 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
                     //check if hover popup value is nested within coordinate array
                     if (hoverPopupValue instanceof Array) {
-                        this.addOrUpdateUniquePoint(map, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue,
+                        this.addOrUpdateUniquePoint(map, filterValues, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue,
                             (hoverPopupField.prettyName ? hoverPopupField.prettyName + ':  ' : '') + hoverPopupValue[pos]);
                     } else {
-                        this.addOrUpdateUniquePoint(map, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue,
+                        this.addOrUpdateUniquePoint(map, filterValues, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue,
                             (hoverPopupField.prettyName ? hoverPopupField.prettyName + ':  ' : '') + hoverPopupValue);
                     }
                 }
             } else {
-                this.addOrUpdateUniquePoint(map, idValue, latCoord, lngCoord, colorField, colorValue, hoverPopupValue);
+                this.addOrUpdateUniquePoint(map, filterValues, idValue, latCoord, lngCoord, colorField, colorValue, hoverPopupValue);
             }
         }
 
@@ -528,7 +540,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             }
 
             mapPoints.push(
-                new MapPoint(unique.idField, unique.idList, [], null, `${unique.lat.toFixed(3)}\u00b0,
+                new MapPoint(unique.idField, unique.idList, unique.filterList, unique.filterFields, `${unique.lat.toFixed(3)}\u00b0,
                     ${unique.lng.toFixed(3)}\u00b0`, unique.lat, unique.lng, unique.count, color, 'Count: ' + unique.count,
                     unique.colorField, unique.colorValue, unique.hoverPopupMap
                 ));
@@ -565,6 +577,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             options.database.name,
             options.table.name,
             options.idField.columnName,
+            options.filterFields,
             options.longitudeField.columnName,
             options.latitudeField.columnName,
             options.colorField.columnName,
@@ -611,8 +624,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         }
     }
 
-    addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, idValue: string, lat: number, lng: number, colorField: string,
-         colorValue: string, hoverPopupValue: string) {
+    addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, filterFields: Map<string, any>, idValue: string, lat: number, lng: number,
+        colorField: string, colorValue: string, hoverPopupValue: string) {
 
         if (!super.isNumber(lat) || !super.isNumber(lng)) {
             return;
@@ -627,17 +640,20 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             let idList: string[] = [];
                 idList.push(idValue);  //store the id of the unique point
 
+            let filterList: any[] = [];
+            filterList.push(filterFields);
+
             let hoverPopupMap = new Map<string, number>();
 
             //add to map if hover value exists
             if (hoverPopupValue) {
                 hoverPopupMap.set(hoverPopupValue, 1);
             }
-
-            obj = new UniqueLocationPoint(idValue, idList, [], null, lat, lng, 1, colorField, colorValue, hoverPopupMap);
+            obj = new UniqueLocationPoint(idValue, idList, filterList, filterFields, lat, lng, 1, colorField, colorValue, hoverPopupMap);
             map.set(hashCode, obj);
         } else {
                 obj.idList.push(idValue);  //add the id to the list of points
+            obj.filterList.push(filterFields);
             obj.count++;
 
             //check if popup value already exists increase count in map
