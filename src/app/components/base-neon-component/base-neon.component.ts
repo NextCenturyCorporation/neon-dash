@@ -769,8 +769,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).abort();
         }
 
-        this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(this.datasetService.getDatastore(),
-            this.datasetService.getHostname(), query));
+        this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(
+            this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost(), query));
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).always(() => {
             this.layerIdToQueryIdToQueryObject.get(options._id).delete(queryId);
@@ -799,7 +799,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {boolean}
      */
     private cannotExecuteQuery(options: any): boolean {
-        return (!this.searchService.canRunSearch(this.datasetService.getDatastore(), this.datasetService.getHostname()) ||
+        return (!this.searchService.canRunSearch(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost()) ||
             (this.options.hideUnfiltered && !this.filterService.getFiltersForFields(options.database.name, options.table.name).length));
     }
 

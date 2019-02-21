@@ -473,19 +473,18 @@ export class DatasetService {
     }
 
     /**
-     * Returns the datastore for the active dataset.
+     * Returns the datastore type for the active datastore (elasticsearchrest, mongo, etc)
      * @return {String}
      */
-    // TODO: 825: rename to type?
-    public getDatastore(): string {
+    public getDatastoreType(): string {
         return this.dataset.type;
     }
 
     /**
-     * Returns the hostname for the active dataset.
+     * Returns the hostname for the active datastore.
      * @return {String}
      */
-    public getHostname(): string {
+    public getDatastoreHost(): string {
         return this.dataset.host;
     }
 
