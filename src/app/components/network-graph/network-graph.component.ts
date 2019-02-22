@@ -723,7 +723,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             //TODO: clean up node labels for layers
             this.responseData.push({ options: options, results: results });
 
-        } else if (!this.responseData.length) {
+        } else {
 
             // TODO THOR-985
             this.responseData = results;
