@@ -143,14 +143,11 @@
                     </div>
                     <img *ngSwitchCase="mediaTypes.image" [src]="tab.selected.link" [alt]="tab.selected.name"
                         [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">
-                    <video *ngSwitchCase="mediaTypes.video" controls
-                        [class]="tab.selected.border ? ('video with-border border-mat-' + tab.selected.border) : 'video'">
-                        <source [src]="tab.selected.link">
-                    </video>
                     <audio *ngSwitchCase="mediaTypes.audio" controls [attr.autoplay]='options.autoplay ? true : null'
                         [class]="tab.selected.border ? ('audio with-border border-mat-' + tab.selected.border) : 'audio'">
                         <source [src]="tab.selected.link">
                     </audio>
+                    <!-- Use iframe for mediaTypes.video and other types -->
                     <iframe *ngSwitchDefault [src]="sanitize(tab.selected.link)" frameborder="0"
                         [class]="tab.selected.border ? ('frame with-border border-mat-' + tab.selected.border) : 'frame'">
                     </iframe>
@@ -175,14 +172,11 @@
                     </div>
                     <img *ngSwitchCase="mediaTypes.image" [src]="tab.selected.link" [alt]="tab.selected.name"
                         [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">
-                    <video *ngSwitchCase="mediaTypes.video" controls
-                        [class]="tab.selected.border ? ('video with-border border-mat-' + tab.selected.border) : 'video'">
-                        <source [src]="tab.selected.link">
-                    </video>
                     <audio *ngSwitchCase="mediaTypes.audio" controls [attr.autoplay]='options.autoplay ? true : null'
                         [class]="tab.selected.border ? ('audio with-border border-mat-' + tab.selected.border) : 'audio'">
                         <source [src]="tab.selected.link">
                     </audio>
+                    <!-- Use iframe for mediaTypes.video and other types -->
                     <iframe *ngSwitchDefault [src]="sanitize(tab.selected.link)" frameborder="0"
                         [class]="tab.selected.border ? ('frame with-border border-mat-' + tab.selected.border) : 'frame'">
                     </iframe>
