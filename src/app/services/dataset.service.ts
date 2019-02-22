@@ -729,7 +729,7 @@ export class DatasetService {
         table.mappings[key] = fieldName;
     }
 
-    // TODO: 825: need to add datastore to Filter object later
+    // TODO: THOR-1063: need to add datastore to Filter object later
     public findMentionedFields(filter: neon.query.Filter): { database: string, table: string, field: string }[] {
         let findMentionedFieldsHelper = (clause: neon.query.WherePredicate) => {
             switch (clause.type) {
@@ -770,8 +770,8 @@ export class DatasetService {
         Map<string, Map<string, { datastore: string, database: string, table: string, field: string }[]>> {
         let relatedFields: any = mapping;
 
-        // TODO: 825: filters will need datastore info eventually - more of a backend task and don't need
-        // an additional ticket for this, leaving a TODO to help track this later.
+        // TODO: THOR-1063: filters will need datastore info eventually - more of a backend task,
+        // but leaving a TODO to help track this later.
 
         let found = this.findValueInRelations(datastore, database, table, field);
 
