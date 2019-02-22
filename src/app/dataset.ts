@@ -84,8 +84,8 @@ export class Dataset {
         public name: string = '',
         public datastore: string = '', // this became 'type'
         public hostname: string = '', // this was updated to 'host'
-        public title: string = '', // TODO: 825: move this into layout or dashboards
-        public icon: string = '' // TODO: 825: move this into layout or dashboards
+        public title: string = '', // renamed projectTitle, moved to base level of config file and read in within app.component.ts
+        public icon: string = '' // renamed projectIcon, moved to base level of config file and read in within app.component.ts
     ) {}
 }*/
 

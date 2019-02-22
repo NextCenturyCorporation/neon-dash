@@ -226,9 +226,9 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
             }
         }
 
-        // TODO: 825: fix later
-        // this is for loading saved state and passing in url params, but
-        // maybe this shouldn't be here
+        // TODO: THOR-1066:
+        // This is for loading saved state and passing in url params, but
+        // maybe this shouldn't be here.
         this.messenger.subscribe(neonEvents.DASHBOARD_STATE, (message) => {
             if (message && message.dataset) {
                 if (message.dataset) {
@@ -241,7 +241,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                     };
                     this.activeDatasetChanged.emit(this.activeDataset);
                 }
-                // TODO: 825: need new mechanism to set dashboard config?
+                // TODO: THOR-1066: need new mechanism to set dashboard config?
                 if (message.dashboard) {
                     let layoutName: string = 'savedDashboard-' + message.dashboardStateId;
 
