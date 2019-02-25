@@ -1570,8 +1570,6 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: 'database', useValue: 'testDatabase2' },
-            { provide: 'table', useValue: 'testTable2' },
             { provide: 'filter', useValue: {lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 10 },
             { provide: 'border', useValue: 'percentCompare' },
@@ -1597,10 +1595,11 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'predictedNameField', useValue: 'testNameField' },
             { provide: 'sortDescending', useValue: false },
             { provide: 'sortField', useValue: 'testSortField' },
+            { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'textMap', useValue: { actual: 'Truth', percentage: 'Score' } },
+            { provide: 'title', useValue: 'Test Title' },
             { provide: 'typeField', useValue: 'testTypeField' },
-            { provide: 'typeMap', useValue: { jpg: 'img', mov: 'vid' } },
-            { provide: 'title', useValue: 'Test Title' }
+            { provide: 'typeMap', useValue: { jpg: 'img', mov: 'vid' } }
         ],
         imports: [
             AppMaterialModule,
