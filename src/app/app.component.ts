@@ -35,7 +35,7 @@ import { AbstractWidgetService } from './services/abstract.widget.service';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { BaseNeonComponent } from './components/base-neon-component/base-neon.component';
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
-import { Dataset } from './dataset';
+import { Datastore } from './dataset';
 import { DatasetService } from './services/dataset.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../app/services/filter.service';
@@ -73,6 +73,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public showFiltersComponentIcon: boolean = false;
     //Toolbar
     public showVisShortcut: boolean = true;
+    public showDashboardSelector: boolean = false;
 
     public rightPanelTitle: string = 'Dashboard Layouts';
 
@@ -81,7 +82,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public widgetGridItems: NeonGridItem[] = [];
     public widgets: Map<string, BaseNeonComponent> = new Map();
 
-    public datasets: Dataset[] = [];
+    public datasets: Datastore[] = [];
 
     public gridConfig: NgGridConfig = {
         resizable: true,
@@ -144,9 +145,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             snackBarRef.instance.addErrors('Configuration Errors', neonConfig.errors);
         }
 
-        if (this.datasets && this.datasets.length > 0) {
-            this.projectTitle = this.datasets[0].title ? this.datasets[0].title : this.projectTitle;
-            this.projectIcon = this.datasets[0].icon ? this.datasets[0].icon : this.projectIcon;
+        if (this.neonConfig) {
+            this.projectTitle = this.neonConfig.projectTitle ? this.neonConfig.projectTitle : this.projectTitle;
+            this.projectIcon = this.neonConfig.projectIcon ? this.neonConfig.projectIcon : this.projectIcon;
         }
 
         this.matIconRegistry.addSvgIcon(
@@ -157,6 +158,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.matIconRegistry.addSvgIcon(
             'filters_active',
             this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filters_active.svg')
+        );
+
+        this.matIconRegistry.addSvgIcon(
+            'dashboard_selector',
+            this.domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/database_icon.svg')
         );
 
         this.changeFavicon();
@@ -313,7 +319,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         eventMessage.widgetGridItem.config.sizey = (visibleRowCount > 0) ? visibleRowCount : eventMessage.widgetGridItem.config.sizex;
     }
 
-    getDatasets(): Dataset[] {
+    getDatasets(): Datastore[] {
         return this.datasets;
     }
 
@@ -452,6 +458,16 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             filtersContainer.setAttribute('style', 'display: show');
         } else if (filtersContainer) {
             filtersContainer.setAttribute('style', 'display: none');
+        }
+    }
+
+    toggleDashboardSelectorDialog(showSelector: boolean) {
+        this.showDashboardSelector = showSelector;
+        let dashboardSelectorContainer: HTMLElement = document.getElementById('dashboard.selector');
+        if (this.showDashboardSelector && dashboardSelectorContainer) {
+            dashboardSelectorContainer.setAttribute('style', 'display: show');
+        } else if (dashboardSelectorContainer) {
+            dashboardSelectorContainer.setAttribute('style', 'display: none');
         }
     }
 
