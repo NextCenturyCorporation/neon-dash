@@ -822,7 +822,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                 this.filterHistory.push(neonFilters[0]);
                 this.removeLocalFilterFromLocalAndNeon(layer, filter, true, false);
             }
-
         });
 
         this.removeFilter();
