@@ -63,7 +63,7 @@ import * as geohash from 'geo-hash';
 
 class UniqueLocationPoint {
     constructor(public idField: string, public idList: string[], public filterList: Map<string, any>[],
-        public filterFields: Map<string, any>, public lat: number, public lng: number, public count: number,
+        public filterMap: Map<string, any>, public lat: number, public lng: number, public count: number,
         public colorField: string, public colorValue: string, public hoverPopupMap: Map<string, number>) { }
 }
 
@@ -504,7 +504,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @return {array}
      * @protected
      */
-    protected getMapPoints(databaseName: string, tableName: string, idField: string, filterFields: any[],
+    protected getMapPoints(databaseName: string, tableName: string, idField: string, filterFields: FieldMetaData[],
        lngField: string, latField: string, colorField: string, hoverPopupField: FieldMetaData, data: any[]
     ): any[] {
 
@@ -554,7 +554,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             }
 
             mapPoints.push(
-                new MapPoint(unique.idField, unique.idList, unique.filterList, unique.filterFields, `${unique.lat.toFixed(3)}\u00b0,
+                new MapPoint(unique.idField, unique.idList, unique.filterList, unique.filterMap, `${unique.lat.toFixed(3)}\u00b0,
                     ${unique.lng.toFixed(3)}\u00b0`, unique.lat, unique.lng, unique.count, color, 'Count: ' + unique.count,
                     unique.colorField, unique.colorValue, unique.hoverPopupMap
                 ));
@@ -638,7 +638,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         }
     }
 
-    addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, filterFields: Map<string, any>, idValue: string, lat: number, lng: number,
+    addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, filterMap: Map<string, any>, idValue: string, lat: number, lng: number,
         colorField: string, colorValue: string, hoverPopupValue: string) {
 
         if (!super.isNumber(lat) || !super.isNumber(lng)) {
@@ -655,7 +655,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                 idList.push(idValue);  //store the id of the unique point
 
             let filterList: any[] = [];
-            filterList.push(filterFields);
+            filterList.push(filterMap);
 
             let hoverPopupMap = new Map<string, number>();
 
@@ -663,11 +663,11 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             if (hoverPopupValue) {
                 hoverPopupMap.set(hoverPopupValue, 1);
             }
-            obj = new UniqueLocationPoint(idValue, idList, filterList, filterFields, lat, lng, 1, colorField, colorValue, hoverPopupMap);
+            obj = new UniqueLocationPoint(idValue, idList, filterList, filterMap, lat, lng, 1, colorField, colorValue, hoverPopupMap);
             map.set(hashCode, obj);
         } else {
             obj.idList.push(idValue);  //add the id to the list of points
-            obj.filterList.push(filterFields);
+            obj.filterList.push(filterMap);
             obj.count++;
 
             //check if popup value already exists increase count in map

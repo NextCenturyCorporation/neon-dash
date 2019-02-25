@@ -659,12 +659,6 @@
                     "filterable": true,
                     "hideUnfiltered": true,
                     "showPointDataOnHover": true,
-                    "filterFields": [
-                        "categories",
-                        "types",
-                        "docIds",
-                        "docDate"
-                    ],
                     "name": "Documents",
                     "layers": [{
                         "title": "Map",
@@ -674,7 +668,8 @@
                         "longitudeField": "geoLocation.lon",
                         "hoverPopupField": "name",
                         "dateField": "docDate",
-                        "idField": "docIds",
+                        "idField": "kbid",
+                        "filterFields": ["kbid", "docIds"],
                         "colorField": "types"
                     }]
                 },
