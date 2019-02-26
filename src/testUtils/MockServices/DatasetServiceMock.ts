@@ -15,13 +15,14 @@
  */
 import * as neon from 'neon-framework';
 
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../app/dataset';
+import { DatabaseMetaData, FieldMetaData, TableMetaData, DashboardOptions } from '../../app/dataset';
 import { DatasetService } from '../../app/services/dataset.service';
 import { NeonGTDConfig } from '../../app/neon-gtd-config';
 
 export class DatasetServiceMock extends DatasetService {
     public static CATEGORY_FIELD = new FieldMetaData('testCategoryField', 'Test Category Field', false, 'string');
     public static DATE_FIELD = new FieldMetaData('testDateField', 'Test Date Field', false, 'date');
+    public static FIELD_KEY_FIELD = new FieldMetaData('testFieldKeyField', 'Test Field Key Field', false, 'string');
     public static FILTER_FIELD = new FieldMetaData('testFilterField', 'Test Filter Field', false, 'string');
     public static ID_FIELD = new FieldMetaData('testIdField', 'Test ID Field', false, 'string');
     public static LINK_FIELD = new FieldMetaData('testLinkField', 'Test Link Field', false, 'string');
@@ -40,6 +41,7 @@ export class DatasetServiceMock extends DatasetService {
     public static FIELDS: FieldMetaData[] = [
         DatasetServiceMock.CATEGORY_FIELD,
         DatasetServiceMock.DATE_FIELD,
+        DatasetServiceMock.FIELD_KEY_FIELD,
         DatasetServiceMock.FILTER_FIELD,
         DatasetServiceMock.ID_FIELD,
         DatasetServiceMock.LINK_FIELD,
@@ -69,28 +71,46 @@ export class DatasetServiceMock extends DatasetService {
         super(new NeonGTDConfig());
         this.setActiveDataset({
             databases: DatasetServiceMock.DATABASES,
-            datastore: 'testDatastore',
-            hostname: 'testHostname',
+            name: 'datastore1',
+            type: 'testDatastore',
+            host: 'testHostname'
+        });
+
+        let dashboardTableKeys: {[key: string]: string} = {};
+        dashboardTableKeys.table_key_1 = 'datastore1.testDatabase1.testTable1';
+        dashboardTableKeys.table_key_2 = 'datastore1.testDatabase2.testTable2';
+
+        let dashboardFieldKeys: {[key: string]: string} = {};
+        dashboardFieldKeys.field_key_1 = 'datastore1.testDatabase1.testTable1.testFieldKeyField';
+
+        let visTitles: {[key: string]: string} = {};
+        visTitles.dataTableTitle = 'Documents';
+
+        this.setCurrentDashboard({
+            name: 'Test Discovery Config',
+            layout: 'DISCOVERY',
+            tables: dashboardTableKeys,
+            fields: dashboardFieldKeys,
+            visualizationTitles: visTitles,
+            options: new DashboardOptions(),
             relations: [{
-                members: [{
-                    database: 'testDatabase1',
-                    table: 'testTable1',
-                    field: 'testRelationFieldA'
-                }, {
-                    database: 'testDatabase2',
-                    table: 'testTable2',
-                    field: 'testRelationFieldA'
-                }]
+                datastore1: {
+                    testDatabase1: {
+                        testTable1: 'testRelationFieldA'
+                    },
+                    testDatabase2: {
+                        testTable2: 'testRelationFieldA'
+                    }
+                }
             }, {
-                members: [{
-                    database: 'testDatabase1',
-                    table: 'testTable1',
-                    field: 'testRelationFieldB'
-                }, {
-                    database: 'testDatabase2',
-                    table: 'testTable2',
-                    field: 'testRelationFieldB'
-                }]
+                datastore1: {
+                    testDatabase1: {
+                        testTable1: 'testRelationFieldB'
+                    },
+                    testDatabase2: {
+                        testTable2: 'testRelationFieldB'
+                    }
+                }
             }]
         });
     }

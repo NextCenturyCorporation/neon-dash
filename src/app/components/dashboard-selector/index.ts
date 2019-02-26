@@ -13,4 +13,4 @@
  * limitations under the License.
  *
  */
-export * from './dataset-selector.component';
+export * from './dashboard-selector.component';

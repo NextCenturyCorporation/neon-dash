@@ -1263,7 +1263,6 @@ describe('Component: Sample with config', () => {
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'customEventsToPublish', useValue: [{ id: 'test_publish_event', fields: [{ columnName: 'testPublishField' }] }] },
             { provide: 'customEventsToReceive', useValue: [{ id: 'test_receive_event', fields: [{ columnName: 'testReceiveField' }] }] },
-            { provide: 'database', useValue: 'testDatabase2' },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'hideUnfiltered', useValue: true },
             { provide: 'limit', useValue: 1234 },
@@ -1271,7 +1270,7 @@ describe('Component: Sample with config', () => {
             { provide: 'sampleRequiredField', useValue: 'testCategoryField' },
             { provide: 'sortDescending', useValue: true },
             { provide: 'subcomponentType', useValue: 'Impl2' },
-            { provide: 'table', useValue: 'testTable2' },
+            { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'title', useValue: 'Test Title' },
             { provide: 'unsharedFilterField', useValue: 'testFilterField' },
             { provide: 'unsharedFilterValue', useValue: 'testFilterValue' }
