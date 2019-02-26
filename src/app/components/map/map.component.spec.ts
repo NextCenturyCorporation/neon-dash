@@ -423,9 +423,8 @@ describe('Component: Map', () => {
         let mapPoints1 = component.getMapPoints('myDatabase', 'myTable', 'id',
             [new FieldMetaData('filterFields', 'Filter Fields')], 'lng', 'lat',
             'category', new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset1.data);
-        //expect(mapPoints1).toEqual(dataset1.expected);
-        expect(mapPoints1[0].name).toEqual(dataset1.expected[0].name);
-        /*
+        expect(mapPoints1).toEqual(dataset1.expected);
+        //expect(mapPoints1[0].name).toEqual(dataset1.expected[0].name);
         let mapPoints2 = component.getMapPoints('myDatabase', 'myTable', 'id',
             [new FieldMetaData('filterFields', 'Filter Fields')], 'lng', 'lat', 'category',
             new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset2.data);
@@ -437,7 +436,7 @@ describe('Component: Map', () => {
         let mapPoints4 = component.getMapPoints('myDatabase', 'myTable', 'id',
             [new FieldMetaData('filterFields', 'Filter Fields')], 'lng', 'lat', 'category',
             new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset4.data);
-        expect(mapPoints4).toEqual(dataset4.expected);*/
+        expect(mapPoints4).toEqual(dataset4.expected);
     });
 
     it('should filter by bounding box', () => {
