@@ -30,13 +30,14 @@ import * as neon from 'neon-framework';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { WikiViewerComponent } from './wiki-viewer.component';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 describe('Component: WikiViewer', () => {
     let component: WikiViewerComponent;
@@ -48,9 +49,9 @@ describe('Component: WikiViewer', () => {
             ExportControlComponent
         ],
         providers: [
-            ConnectionService,
             DatasetService,
             FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -86,21 +87,20 @@ describe('Component: WikiViewer', () => {
         component.options.idField = new FieldMetaData('testIdField');
         component.options.linkField = new FieldMetaData('testLinkField');
 
-        let inputQuery = new neon.query.Query()
-            .selectFrom('testDatabase', 'testTable')
-            .withFields(['testLinkField']);
-
-        let whereClauses = [
-            neon.query.where('testIdField', '=', 'testId'),
-            neon.query.where('testLinkField', '!=', null)
-        ];
-
-        let query = new neon.query.Query()
-            .selectFrom('testDatabase', 'testTable')
-            .withFields(['testLinkField'])
-            .where(neon.query.and.apply(neon.query, whereClauses));
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            filter: {
+                filters: [{
+                    field: 'testIdField',
+                    operator: '=',
+                    value: 'testId'
+                }, {
+                    field: 'testLinkField',
+                    operator: '!=',
+                    value: null
+                }],
+                type: 'and'
+            }
+        });
     }));
 
     it('getElementRefs does return expected object', () => {
@@ -335,9 +335,9 @@ describe('Component: WikiViewer with mock HTTP', () => {
             ExportControlComponent
         ],
         providers: [
-            ConnectionService,
             DatasetService,
             FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -508,9 +508,9 @@ describe('Component: WikiViewer with config', () => {
             ExportControlComponent
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase1' },

@@ -755,9 +755,30 @@ export class DatasetService {
         let values = [];
         this.dataset.relations.forEach((relation) => {
             for (let x = relation.members.length - 1; x >= 0; x--) {
-                if (relation.members[x].database === db && relation.members[x].table === t && relation.members[x].field === f) {
-                    values = values.concat(relation.members);
-                    return; // Return from this instance of forEach so we don't add the contents of this relation multiple times.
+                if (relation.members[x].database === db && relation.members[x].table === t) {
+                    if (relation.members[x].field === f) {
+                        values = values.concat(relation.members);
+                        return; // Return from this instance of forEach so we don't add the contents of this relation multiple times.
+                    }
+                    // Allow wildcard matches on nested fields (only works with one nested level).  EX:  A.B matches A.*
+                    let fieldSeparatorIndex = f.indexOf('.');
+                    let relationFieldSeparatorIndex = relation.members[x].field.indexOf('.');
+                    if (fieldSeparatorIndex >= 0 && relationFieldSeparatorIndex >= 0) {
+                        let fieldParent = f.substring(0, fieldSeparatorIndex);
+                        let relationFieldParent = relation.members[x].field.substring(0, relationFieldSeparatorIndex);
+                        let relationFieldChildren = relation.members[x].field.substring(relationFieldSeparatorIndex + 1);
+                        if (fieldParent === relationFieldParent && relationFieldChildren === '*') {
+                            let relationValueClone = _.cloneDeep(relation.members);
+                            // Clone the relation and replace the wildcard fields with the real field.
+                            relationValueClone.forEach((relationCopy) => {
+                                if (relationCopy.field === (fieldParent + '.*')) {
+                                    relationCopy.field = f;
+                                }
+                            });
+                            values = values.concat(relationValueClone);
+                            return;
+                        }
+                    }
                 }
             }
         });
