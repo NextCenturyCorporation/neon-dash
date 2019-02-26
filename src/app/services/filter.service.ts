@@ -342,8 +342,14 @@ export class FilterService {
 
         let mentionedFields = this.datasetService.findMentionedFields(filter);
         let relatedFieldMapping: any = new Map<string, any>();
+
+        // TODO: THOR-1062: when multiple datastores are fully supported, we will need to
+        // update how we obtain the datastore (it will also need to be added to the
+        // Field object)
+        let datastore = this.datasetService.getDataset().name;
+
         mentionedFields.forEach((field) => {
-            this.datasetService.getEquivalentFields(field.database, field.table, field.field, relatedFieldMapping);
+            this.datasetService.getEquivalentFields(datastore, field.database, field.table, field.field, relatedFieldMapping);
         });
 
         let childFilters = [];
@@ -355,7 +361,7 @@ export class FilterService {
             } else if (numFieldsWithRelatedValuesInDBPair > numFieldsInFilter) {
                 throw new Error('More fields with related values than there are fields. How did this even happen?');
             } else {
-                let permutations = this.getPermutations(filter.databaseName, filter.tableName, value);
+                let permutations = this.getPermutations(datastore, filter.databaseName, filter.tableName, value);
                 permutations.forEach((permutation) => {
                     let childFilter = this.adaptNeonFilterForNewDataset(filter, permutation);
                     childFilter.filterName = this.createFilterName(childFilter.databaseName, childFilter.tableName, filterName);
@@ -366,10 +372,12 @@ export class FilterService {
         return childFilters;
     }
 
-    protected getPermutations(originalDb: string,
+    protected getPermutations(datastore: string,
+        originalDb: string,
         originalTable: string,
-        relatedFieldMapping: Map<string, { database: string, table: string, field: string }[]>):
-        Map<{ database: string, table: string, field: string }, { database: string, table: string, field: string }>[] {
+        relatedFieldMapping: Map<string, { datastore: string, database: string, table: string, field: string }[]>):
+        Map<{ datastore: string, database: string, table: string, field: string },
+        { datastore: string, database: string, table: string, field: string }>[] {
 
         let getPermutationHelper = (fields: any[], permutationToDate: Map<any, any>) => {
             let currentPermutation = permutationToDate || new Map<any, any>();
@@ -378,10 +386,12 @@ export class FilterService {
                 for (let option of currentField[1]) {
                     let current = _.cloneDeep(currentPermutation);
                     current.set({
+                        datastore: datastore,
                         database: originalDb,
                         table: originalTable,
                         field: currentField[0]
                     }, {
+                            datastore: datastore,
                             database: option.database,
                             table: option.table,
                             field: option.field

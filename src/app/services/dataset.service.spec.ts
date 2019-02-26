@@ -14,7 +14,7 @@
  *
  */
 import { TestBed, inject } from '@angular/core/testing';
-import { Dataset } from '../dataset';
+import { Datastore } from '../dataset';
 import { DatasetService } from './dataset.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
@@ -33,12 +33,12 @@ describe('Service: DatasetService', () => {
         expect(service).toBeTruthy();
     }));
 
-    it('should have no active datasets at creation',
+    it('should have no active datastores at creation',
         inject([DatasetService], (service: DatasetService) => {
-        expect(service.getDataset()).toEqual(new Dataset());
+        expect(service.getDataset()).toEqual(new Datastore());
     }));
 
-    it('should return datasets by name',
+    it('should return datastores by name',
         inject([DatasetService], (service: DatasetService) => {
             service.addDataset({
             name: 'd1',
