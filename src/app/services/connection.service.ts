@@ -19,33 +19,28 @@ import * as neon from 'neon-framework';
 @Injectable()
 export class ConnectionService {
 
-    private activeConnection: neon.query.Connection;
+    // Maps the datastore types to datastore hosts to connections.
+    private connections: Map<string, Map<string, neon.query.Connection>> = new Map<string, Map<string, neon.query.Connection>>();
 
     /**
-     * Creates a Neon connection to the given host with the given database type.
-     * @param {String} databaseType
-     * @param {String} host
-     * @method createActiveConnection
+     * Creates and returns a Neon connection to the given host with the given datastore type (like elasticsearch or sql).
+     *
+     * @arg {String} datastoreType
+     * @arg {String} datastoreHost
      * @return {neon.query.Connection}
      */
-    public createActiveConnection(databaseType?: string, host?: string): neon.query.Connection {
-        if (!this.activeConnection || this.activeConnection.databaseType_ !== databaseType || this.activeConnection.host_ !== host) {
-            this.activeConnection = new neon.query.Connection();
+    public createActiveConnection(datastoreType: string, datastoreHost: string): neon.query.Connection {
+        if (datastoreType && datastoreHost) {
+            if (!this.connections.has(datastoreType)) {
+                this.connections.set(datastoreType, new Map<string, neon.query.Connection>());
+            }
+            if (!this.connections.get(datastoreType).has(datastoreHost)) {
+                let connection = new neon.query.Connection();
+                connection.connect(datastoreType, datastoreHost);
+                this.connections.get(datastoreType).set(datastoreHost, connection);
+            }
+            return this.connections.get(datastoreType).get(datastoreHost);
         }
-
-        if (databaseType && host) {
-            this.activeConnection.connect(databaseType, host);
-        }
-
-        return this.activeConnection;
-    }
-
-    /**
-     * Returns the active connection.
-     * @method getActiveConnection
-     * @return {neon.query.Connection}
-     */
-    public getActiveConnection(): neon.query.Connection {
-        return this.activeConnection;
+        return null;
     }
 }

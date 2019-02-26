@@ -28,8 +28,8 @@ import { MapComponent } from './map.component';
 import { LegendComponent } from '../legend/legend.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
@@ -48,6 +48,7 @@ import * as neon from 'neon-framework';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 function webgl_support(): any {
     try {
@@ -69,17 +70,17 @@ function webgl_support(): any {
 
 class TestMapComponent extends MapComponent {
     constructor(
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
+        searchService: AbstractSearchService,
         injector: Injector,
         widgetService: AbstractWidgetService,
         ref: ChangeDetectorRef
     ) {
         super(
-            connectionService,
             datasetService,
             filterService,
+            searchService,
             injector,
             widgetService,
             ref
@@ -241,9 +242,9 @@ describe('Component: Map', () => {
             ExportControlComponent
         ],
         providers: [
-            ConnectionService,
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: 'config', useValue: new NeonGTDConfig() }
@@ -710,23 +711,37 @@ describe('Component: Map', () => {
 
         component.options.limit = 5678;
 
-        let where1 = [neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)];
-        let query1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1').where(neon.query.and.apply(neon.query, where1))
-            .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testId1', 'testColor1', 'testSize1', 'testDate1', 'testHover1']);
-        let input1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1')
-            .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testId1', 'testColor1', 'testSize1', 'testDate1', 'testHover1']);
-
-        expect(component.finalizeVisualizationQuery(component.options.layers[0], input1, [])).toEqual(query1);
+        expect(component.finalizeVisualizationQuery(component.options.layers[0], {}, [])).toEqual({
+            filter: {
+                filters: [{
+                    field: 'testLatitude1',
+                    operator: '!=',
+                    value: null
+                }, {
+                    field: 'testLongitude1',
+                    operator: '!=',
+                    value: null
+                }],
+                type: 'and'
+            }
+        });
 
         updateMapLayer2(component);
 
-        let where2 = [neon.query.where('testLatitude2', '!=', null), neon.query.where('testLongitude2', '!=', null)];
-        let query2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2').where(neon.query.and.apply(neon.query, where2))
-            .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testId2', 'testColor2', 'testSize2', 'testDate2', 'testHover2']);
-        let input2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2')
-            .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testId2', 'testColor2', 'testSize2', 'testDate2', 'testHover2']);
-
-        expect(component.finalizeVisualizationQuery(component.options.layers[1], input2, [])).toEqual(query2);
+        expect(component.finalizeVisualizationQuery(component.options.layers[1], {}, [])).toEqual({
+            filter: {
+                filters: [{
+                    field: 'testLatitude2',
+                    operator: '!=',
+                    value: null
+                }, {
+                    field: 'testLongitude2',
+                    operator: '!=',
+                    value: null
+                }],
+                type: 'and'
+            }
+        });
     });
 
     it('updateLegend does update colorKeys', () => {
@@ -902,9 +917,9 @@ describe('Component: Map with config', () => {
             ExportControlComponent
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: 'config', useValue: new NeonGTDConfig() },

@@ -28,7 +28,7 @@ export class TableMetaData {
         public prettyName: string = '',
         public fields: FieldMetaData[] = [],
         public mappings: TableMappings = {},
-        public labelOptions: TableMappings = {}
+        public labelOptions: any = {}
     ) {}
 }
 

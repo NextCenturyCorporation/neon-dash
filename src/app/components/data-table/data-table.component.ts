@@ -26,13 +26,13 @@ import {
     HostListener
 } from '@angular/core';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService, NeonFilterClause, NeonQueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -71,6 +71,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     public activeHeaders: { prop: string, name: string, active: boolean, style: Object, cellClass: any }[] = [];
     public headerWidths: Map<string, number> = new Map<string, number>();
+    public headers: any[] = [];
     public selected: any[] = [];
     public showColumnSelector: string = 'hide';
     public styleRules: string[] = [];
@@ -96,16 +97,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     public seenValues = [];
 
     constructor(
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
+        searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef
     ) {
         super(
-            connectionService,
             datasetService,
             filterService,
+            searchService,
             injector,
             ref
         );
@@ -196,7 +197,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     getExportFields(): { columnName: string, prettyName: string }[] {
-        return this.options.headers.filter((header) => header.active).map((header) => {
+        return this.headers.filter((header) => header.active).map((header) => {
             return {
                 columnName: header.prop,
                 prettyName: header.name
@@ -240,7 +241,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     name: fieldObject.prettyName,
                     active: !show && orderedHeaders.length < initialHeaderLimit,
                     style: {},
-                    width: this.getColumnWidth(fieldObject)
+                    width: this.getColumnWidth(fieldObject.columnName)
                 });
             } else {
                 unorderedHeaders.push({
@@ -249,13 +250,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     name: fieldObject.prettyName,
                     active: show && unorderedHeaders.length < initialHeaderLimit,
                     style: {},
-                    width: this.getColumnWidth(fieldObject)
+                    width: this.getColumnWidth(fieldObject.columnName)
                 });
             }
         }
         // Order fields in exceptions first.
         orderedHeaders = this.sortOrderedHeaders(orderedHeaders);
-        this.options.headers = orderedHeaders.concat(unorderedHeaders);
+        this.headers = orderedHeaders.concat(unorderedHeaders);
     }
 
     initializeHeadersFromFieldsConfig() {
@@ -264,25 +265,25 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             let fieldObject = this.findField(this.options.fields, fieldConfig.name);
             if (fieldObject && fieldObject.columnName) {
                 existingFields.push(fieldObject.columnName);
-                this.options.headers.push({
+                this.headers.push({
                     cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: !fieldConfig.hide,
                     style: {},
-                    width: this.getColumnWidth(fieldConfig)
+                    width: this.getColumnWidth(fieldConfig.name)
                 });
             }
         }
         for (let fieldObject of this.options.fields) {
             if (existingFields.indexOf(fieldObject.columnName) < 0) {
-                this.options.headers.push({
+                this.headers.push({
                     cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: (this.options.allColumnStatus === 'show'),
                     style: {},
-                    width: this.getColumnWidth(fieldObject)
+                    width: this.getColumnWidth(fieldObject.name)
                 });
             }
         }
@@ -292,9 +293,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * Returns the custom width for a column (or default if not specified in the config)
      * @returns width for a specific column
      */
-    getColumnWidth(fieldConfig) {
+    getColumnWidth(fieldName) {
         for (let miniArray of this.options.customColumnWidths) {
-            if (fieldConfig.columnName === miniArray[0]) {
+            if (fieldName === miniArray[0]) {
                 return miniArray[1];
             }
         }
@@ -399,7 +400,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     getActiveHeaders() {
         let active = [];
-        for (let header of this.options.headers) {
+        for (let header of this.headers) {
             if (header.active) {
                 active.push(header);
             }
@@ -423,15 +424,15 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     deactivateAllHeaders() {
         this.activeHeaders = [];
-        for (let header of this.options.headers) {
+        for (let header of this.headers) {
             header.active = false;
         }
         this.changeDetection.detectChanges();
     }
 
     activateAllHeaders() {
-        this.activeHeaders = this.options.headers;
-        for (let header of this.options.headers) {
+        this.activeHeaders = this.headers;
+        for (let header of this.headers) {
             header.active = true;
         }
         this.changeDetection.detectChanges();
@@ -484,20 +485,23 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
+     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} query
-     * @arg {neon.query.WherePredicate[]} wherePredicates
-     * @return {neon.query.Query}
+     * @arg {NeonQueryPayload} queryPayload
+     * @arg {NeonFilterClause[]} sharedFilters
+     * @return {NeonQueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
-        let wheres: neon.query.WherePredicate[] = wherePredicates.concat(neon.query.where(options.sortField.columnName, '!=', null));
+    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
+        let filter: NeonFilterClause = this.searchService.buildFilterClause(options.sortField.columnName, '!=', null);
 
         // Override the default query fields because we want to find all fields.
-        return query.withFields('*').where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
-            .sortBy(options.sortField.columnName, options.sortDescending ? neonVariables.DESCENDING : neonVariables.ASCENDING);
+        this.searchService.updateFieldsToMatchAll(query)
+            .updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filter)))
+            .updateSort(query, options.sortField.columnName, options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+
+        return query;
     }
 
     /**
@@ -581,8 +585,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.options.sortField.columnName]);
+        let neonFilters = this.options.filterFields.length ? this.filterService.getFiltersForFields(this.options.database.name,
+            this.options.table.name, this.options.filterFields.map((fieldsObject) => fieldsObject.columnName)) : [];
         this.filters = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
@@ -605,11 +609,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     // mouse up in a drag and drop element
     onMouseUp(i) {
         if (this.isDragging && this.drag.downIndex !== this.drag.currentIndex) {
-            let length = this.options.headers.length;
+            let length = this.headers.length;
             if (this.drag.downIndex >= length || i >= length || this.drag.downIndex < 0 || i < 0) {
                 // Do nothing
             } else {
-                let h = this.options.headers;
+                let h = this.headers;
                 let si = this.drag.downIndex; // startIndex
                 let ei = i; // endIndex
                 let dir = (si > ei ? -1 : 1);
@@ -674,7 +678,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     clearHeaderStyles() {
-        for (let header of this.options.headers) {
+        for (let header of this.headers) {
             header.style = {};
         }
     }
@@ -729,6 +733,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 let value = (this.options.idField.columnName.length === 0) ? selected[0][filterFieldObject.columnName] :
                     dataObject[filterFieldObject.columnName];
                 let filter = this.createFilterObject(filterFieldObject.columnName, value, filterFieldObject.prettyName);
+
+                if (typeof value === 'string' && value.indexOf('[') === 0 && value.indexOf(']') === (value.length - 1)) {
+                    value = value.substring(1, value.length - 1).split(',');
+                }
 
                 if (value instanceof Array) {
                     if (this.options.arrayFilterOperator === 'and') {
@@ -799,7 +807,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @private
      */
     private setStyle(index: number, style: string, value: string) {
-        this.options.headers[index].style[style] = value;
+        this.headers[index].style[style] = value;
     }
 
     /**
@@ -826,12 +834,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                         colorValue = 'rgb(' + regexMatch[1] + ',' + regexMatch[2] + ',' + regexMatch[3] + ')';
                     }
                 }
-                if (self.styleRules.indexOf(colorClass) < 0) {
-                    self.styleSheet.insertRule('.' + colorClass + ':before { background-color: ' + colorValue + '; }');
-                    self.styleRules.push(colorClass);
+                if (colorClass && colorValue) {
+                    if (self.styleRules.indexOf(colorClass) < 0) {
+                        self.styleSheet.insertRule('.' + colorClass + ':before { background-color: ' + colorValue + '; }');
+                        self.styleRules.push(colorClass);
+                    }
+                    cellClass['color-field'] = true;
+                    cellClass[colorClass] = true;
                 }
-                cellClass['color-field'] = true;
-                cellClass[colorClass] = true;
             }
             return cellClass;
         };

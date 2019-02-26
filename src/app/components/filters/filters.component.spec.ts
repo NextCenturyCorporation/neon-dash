@@ -24,13 +24,14 @@ import { AppMaterialModule } from '../../app.material.module';
 import { FiltersComponent } from './filters.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { CurrentFiltersComponent } from '../current-filters/current-filters.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { By } from '@angular/platform-browser';
@@ -48,9 +49,9 @@ describe('Component: Filters', () => {
             CurrentFiltersComponent
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: testConfig }
         ],

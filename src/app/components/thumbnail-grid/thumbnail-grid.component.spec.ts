@@ -21,7 +21,6 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { neonVariables } from '../../neon-namespaces';
 
 import {} from 'jasmine-core';
 import * as neon from 'neon-framework';
@@ -30,12 +29,13 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { MatAutocompleteModule } from '@angular/material';
 import { DetailsThumbnailSubComponent } from './subcomponent.details-view';
 import { TitleThumbnailSubComponent } from './subcomponent.title-view';
@@ -82,9 +82,9 @@ describe('Component: ThumbnailGrid', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -175,7 +175,7 @@ describe('Component: ThumbnailGrid', () => {
 
             let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
             expect(dataInfoTextInToolbar).not.toBeNull();
-            expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Files');
+            expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Items');
 
             let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
             expect(dataInfoIconInSidenav).not.toBeNull();
@@ -183,7 +183,7 @@ describe('Component: ThumbnailGrid', () => {
 
             let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
             expect(dataInfoTextInSidenav).not.toBeNull();
-            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('10 Files');
+            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('10 Items');
 
             let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
             expect(errorMessageInToolbar).toBeNull();
@@ -757,37 +757,45 @@ describe('Component: ThumbnailGrid', () => {
             neon.query.where('testLinkField', '!=', '')
         ]);
 
-        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name)
-            .withFields(fields);
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            filter: {
+                filters: [{
+                    field: 'testLinkField',
+                    operator: '!=',
+                    value: null
+                }, {
+                    field: 'testLinkField',
+                    operator: '!=',
+                    value: ''
+                }],
+                type: 'and'
+            },
+            sort: {
+                field: 'testSortField',
+                order: 1
+            }
+        });
 
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name)
-            .withFields(fields)
-            .where(wherePredicate)
-            .sortBy('testSortField', neonVariables.ASCENDING));
-
-        component.options.categoryField = new FieldMetaData('testCategoryField', 'Test Category Field');
-        component.options.compareField = new FieldMetaData('testCompareField', 'Test Compare Field');
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
-        component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
-        component.options.objectIdField = new FieldMetaData('testObjectIdField', 'Test Object ID Field');
-        component.options.objectNameField = new FieldMetaData('testObjectNameField', 'Test Object Name Field');
-        component.options.percentField = new FieldMetaData('testPercentField', 'Test Percent Field');
-        component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
-        component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
         component.options.sortDescending = true;
 
-        fields = ['testLinkField', 'testSortField', 'testCategoryField', 'testCompareField', 'testFilterField', 'testIdField',
-            'testNameField', 'testObjectIdField', 'testObjectNameField', 'testPercentField', 'testPredictedNameField', 'testTypeField'];
-
-        inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name).withFields(fields);
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name)
-            .withFields(fields)
-            .where(wherePredicate)
-            .sortBy('testSortField', neonVariables.DESCENDING));
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            filter: {
+                filters: [{
+                    field: 'testLinkField',
+                    operator: '!=',
+                    value: null
+                }, {
+                    field: 'testLinkField',
+                    operator: '!=',
+                    value: ''
+                }],
+                type: 'and'
+            },
+            sort: {
+                field: 'testSortField',
+                order: -1
+            }
+        });
     });
 
     it('filterExists does return expected boolean', () => {
@@ -1557,9 +1565,9 @@ describe('Component: ThumbnailGrid with config', () => {
         ],
 
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase2' },

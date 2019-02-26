@@ -29,8 +29,8 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { LegendComponent } from '../legend/legend.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
+import { AbstractSearchService, AggregationType } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
@@ -40,8 +40,8 @@ import { Color } from '../../color';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -62,9 +62,9 @@ describe('Component: Aggregation', () => {
         ],
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -90,7 +90,7 @@ describe('Component: Aggregation', () => {
         expect(component.options.xField).toEqual(new FieldMetaData());
         expect(component.options.yField).toEqual(new FieldMetaData());
 
-        expect(component.options.aggregation).toEqual(neonVariables.COUNT);
+        expect(component.options.aggregation).toEqual(AggregationType.COUNT);
         expect(component.options.dualView).toEqual('');
         expect(component.options.granularity).toEqual('year');
         expect(component.options.hideGridLines).toEqual(false);
@@ -589,34 +589,52 @@ describe('Component: Aggregation', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.xField = DatasetServiceMock.X_FIELD;
 
-        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name)
-            .where(neon.query.where('testXField', '!=', null))
-            .groupBy(['testXField'])
-            .aggregate(neonVariables.COUNT, '*', '_aggregation')
-            .sortBy('testXField', neonVariables.ASCENDING));
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            aggregation: [{
+                field: '*',
+                name: '_aggregation',
+                type: 'count'
+            }],
+            filter: {
+                field: 'testXField',
+                operator: '!=',
+                value: null
+            },
+            groups: ['testXField'],
+            sort: {
+                field: 'testXField',
+                order: 1
+            }
+        });
     });
 
     it('finalizeVisualizationQuery does return expected aggregation query with optional fields', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregation = AggregationType.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.limit = 100;
         component.options.sortByAggregation = true;
         component.options.xField = DatasetServiceMock.X_FIELD;
 
-        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name)
-            .where(neon.query.where('testXField', '!=', null))
-            .groupBy(['testXField', 'testCategoryField'])
-            .aggregate(neonVariables.SUM, 'testSizeField', '_aggregation')
-            .sortBy('_aggregation', neonVariables.DESCENDING));
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            aggregation: [{
+                field: 'testSizeField',
+                name: '_aggregation',
+                type: 'sum'
+            }],
+            filter: {
+                field: 'testXField',
+                operator: '!=',
+                value: null
+            },
+            groups: ['testXField', 'testCategoryField'],
+            sort: {
+                field: '_aggregation',
+                order: -1
+            }
+        });
     });
 
     it('finalizeVisualizationQuery does return expected XY query', () => {
@@ -627,46 +645,71 @@ describe('Component: Aggregation', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
 
-        let wherePredicate = neon.query.and.apply(neon.query, [
-            neon.query.where('testXField', '!=', null),
-            neon.query.where('testYField', '!=', null)
-        ]);
-
-        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name)
-            .where(wherePredicate)
-            .groupBy(['testXField', 'testYField', 'testCategoryField'])
-            .sortBy('testXField', neonVariables.ASCENDING));
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            filter: {
+                filters: [{
+                    field: 'testXField',
+                    operator: '!=',
+                    value: null
+                }, {
+                    field: 'testYField',
+                    operator: '!=',
+                    value: null
+                }],
+                type: 'and'
+            },
+            groups: ['testXField', 'testYField', 'testCategoryField'],
+            sort: {
+                field: 'testXField',
+                order: 1
+            }
+        });
     });
 
     it('finalizeVisualizationQuery does return expected aggregation query with filters', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregation = AggregationType.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
 
-        let wherePredicate = neon.query.and.apply(neon.query, [
-            neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue'),
-            neon.query.where('testFilterField', '=', 'testFilterValue'),
-            neon.query.where('testXField', '!=', null)
-        ]);
-
-        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
-        let wherePredicates = [
-            neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue'),
-            neon.query.where('testFilterField', '=', 'testFilterValue')
-        ];
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, wherePredicates)).toEqual(new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name)
-            .where(wherePredicate)
-            .groupBy(['testXField', 'testCategoryField'])
-            .aggregate(neonVariables.SUM, 'testSizeField', '_aggregation')
-            .sortBy('testXField', neonVariables.ASCENDING));
+        expect(component.finalizeVisualizationQuery(component.options, {}, [{
+            field: 'testConfigFilterField',
+            operator: '=',
+            value: 'testConfigFilterValue'
+        }, {
+            field: 'testFilterField',
+            operator: '=',
+            value: 'testFilterValue'
+        }])).toEqual({
+            aggregation: [{
+                field: 'testSizeField',
+                name: '_aggregation',
+                type: 'sum'
+            }],
+            filter: {
+                filters: [{
+                    field: 'testConfigFilterField',
+                    operator: '=',
+                    value: 'testConfigFilterValue'
+                }, {
+                    field: 'testFilterField',
+                    operator: '=',
+                    value: 'testFilterValue'
+                }, {
+                    field: 'testXField',
+                    operator: '!=',
+                    value: null
+                }],
+                type: 'and'
+            },
+            groups: ['testXField', 'testCategoryField'],
+            sort: {
+                field: 'testXField',
+                order: 1
+            }
+        });
     });
 
     it('finalizeVisualizationQuery does return expected XY query with filters', () => {
@@ -677,48 +720,75 @@ describe('Component: Aggregation', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
 
-        let wherePredicate = neon.query.and.apply(neon.query, [
-            neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue'),
-            neon.query.where('testFilterField', '=', 'testFilterValue'),
-            neon.query.where('testXField', '!=', null),
-            neon.query.where('testYField', '!=', null)
-        ]);
-
-        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
-        let wherePredicates = [
-            neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue'),
-            neon.query.where('testFilterField', '=', 'testFilterValue')
-        ];
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, wherePredicates)).toEqual(new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name)
-            .where(wherePredicate)
-            .groupBy(['testXField', 'testYField', 'testCategoryField'])
-            .sortBy('testXField', neonVariables.ASCENDING));
+        expect(component.finalizeVisualizationQuery(component.options, {}, [{
+            field: 'testConfigFilterField',
+            operator: '=',
+            value: 'testConfigFilterValue'
+        }, {
+            field: 'testFilterField',
+            operator: '=',
+            value: 'testFilterValue'
+        }])).toEqual({
+            filter: {
+                filters: [{
+                    field: 'testConfigFilterField',
+                    operator: '=',
+                    value: 'testConfigFilterValue'
+                }, {
+                    field: 'testFilterField',
+                    operator: '=',
+                    value: 'testFilterValue'
+                }, {
+                    field: 'testXField',
+                    operator: '!=',
+                    value: null
+                }, {
+                    field: 'testYField',
+                    operator: '!=',
+                    value: null
+                }],
+                type: 'and'
+            },
+            groups: ['testXField', 'testYField', 'testCategoryField'],
+            sort: {
+                field: 'testXField',
+                order: 1
+            }
+        });
     });
 
     it('finalizeVisualizationQuery does return expected date aggregation query', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregation = AggregationType.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.DATE_FIELD;
 
-        let groups = [
-            new neon.query.GroupByFunctionClause('year', 'testDateField', '_year'),
-            'testCategoryField'
-        ];
-
-        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name)
-            .where(neon.query.where('testDateField', '!=', null))
-            .groupBy(groups)
-            .aggregate(neonVariables.MIN, 'testDateField', '_date')
-            .aggregate(neonVariables.SUM, 'testSizeField', '_aggregation')
-            .sortBy('_date', neonVariables.ASCENDING));
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            aggregation: [{
+                field: 'testDateField',
+                name: '_date',
+                type: 'min'
+            }, {
+                field: 'testSizeField',
+                name: '_aggregation',
+                type: 'sum'
+            }],
+            filter: {
+                field: 'testDateField',
+                operator: '!=',
+                value: null
+            },
+            groups: [{
+                field: 'testDateField',
+                type: 'year'
+            }, 'testCategoryField'],
+            sort: {
+                field: '_date',
+                order: 1
+            }
+        });
     });
 
     it('finalizeVisualizationQuery does return expected date XY query', () => {
@@ -729,54 +799,80 @@ describe('Component: Aggregation', () => {
         component.options.xField = DatasetServiceMock.DATE_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
 
-        let wherePredicate = neon.query.and.apply(neon.query, [
-            neon.query.where('testDateField', '!=', null),
-            neon.query.where('testYField', '!=', null)
-        ]);
-
-        let groups = [
-            new neon.query.GroupByFunctionClause('year', 'testDateField', '_year'),
-            'testYField',
-            'testCategoryField'
-        ];
-
-        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name)
-            .where(wherePredicate)
-            .groupBy(groups)
-            .aggregate(neonVariables.MIN, 'testDateField', '_date')
-            .sortBy('_date', neonVariables.ASCENDING));
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            aggregation: [{
+                field: 'testDateField',
+                name: '_date',
+                type: 'min'
+            }],
+            filter: {
+                filters: [{
+                    field: 'testDateField',
+                    operator: '!=',
+                    value: null
+                }, {
+                    field: 'testYField',
+                    operator: '!=',
+                    value: null
+                }],
+                type: 'and'
+            },
+            groups: [{
+                field: 'testDateField',
+                type: 'year'
+            }, 'testYField', 'testCategoryField'],
+            sort: {
+                field: '_date',
+                order: 1
+            }
+        });
     });
 
     it('finalizeVisualizationQuery does add multiple groups to date query if needed', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregation = AggregationType.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.granularity = 'minute';
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.DATE_FIELD;
 
-        let groups = [
-            new neon.query.GroupByFunctionClause('minute', 'testDateField', '_minute'),
-            new neon.query.GroupByFunctionClause('hour', 'testDateField', '_hour'),
-            new neon.query.GroupByFunctionClause('dayOfMonth', 'testDateField', '_day'),
-            new neon.query.GroupByFunctionClause('month', 'testDateField', '_month'),
-            new neon.query.GroupByFunctionClause('year', 'testDateField', '_year'),
-            'testCategoryField'
-        ];
-
-        let inputQuery = new neon.query.Query().selectFrom(component.options.database.name, component.options.table.name);
-
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(new neon.query.Query()
-            .selectFrom(component.options.database.name, component.options.table.name)
-            .where(neon.query.where('testDateField', '!=', null))
-            .groupBy(groups)
-            .aggregate(neonVariables.MIN, 'testDateField', '_date')
-            .aggregate(neonVariables.SUM, 'testSizeField', '_aggregation')
-            .sortBy('_date', neonVariables.ASCENDING));
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            aggregation: [{
+                field: 'testDateField',
+                name: '_date',
+                type: 'min'
+            }, {
+                field: 'testSizeField',
+                name: '_aggregation',
+                type: 'sum'
+            }],
+            filter: {
+                field: 'testDateField',
+                operator: '!=',
+                value: null
+            },
+            groups: [{
+                field: 'testDateField',
+                type: 'minute'
+            }, {
+                field: 'testDateField',
+                type: 'hour'
+            }, {
+                field: 'testDateField',
+                type: 'dayOfMonth'
+            }, {
+                field: 'testDateField',
+                type: 'month'
+            }, {
+                field: 'testDateField',
+                type: 'year'
+            }, 'testCategoryField'],
+            sort: {
+                field: '_date',
+                order: 1
+            }
+        });
     });
 
     it('destroyVisualization does work as expected', () => {
@@ -1316,7 +1412,7 @@ describe('Component: Aggregation', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
 
-        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregation = AggregationType.SUM;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
@@ -1878,29 +1974,29 @@ describe('Component: Aggregation', () => {
     });
 
     it('optionsAggregationIsNotCount does return expected boolean', () => {
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'bar-h' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'bar-v' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'doughnut' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'histogram' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'pie' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'line' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'scatter' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'table' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'bar-h' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'bar-v' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'doughnut' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'histogram' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'pie' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'line' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'scatter' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'table' })).toEqual(false);
 
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'line-xy' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.COUNT, type: 'scatter-xy' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'line-xy' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'scatter-xy' })).toEqual(false);
 
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'bar-h' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'bar-v' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'doughnut' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'histogram' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'pie' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'line' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'scatter' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'table' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'bar-h' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'bar-v' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'doughnut' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'histogram' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'pie' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'line' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'scatter' })).toEqual(true);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'table' })).toEqual(true);
 
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'line-xy' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: neonVariables.SUM, type: 'scatter-xy' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'line-xy' })).toEqual(false);
+        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'scatter-xy' })).toEqual(false);
     });
 
     it('optionsTypeIsContinuous does return expected boolean', () => {
@@ -2054,17 +2150,17 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does draw data', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
-        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregation = AggregationType.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([], component.options));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: neonVariables.SUM,
+            aggregationLabel: AggregationType.SUM,
             dataLength: 0,
             groups: [],
             sort: 'x',
@@ -2081,7 +2177,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -2097,7 +2193,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: neonVariables.SUM,
+            aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2117,7 +2213,7 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([], component.options));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2140,7 +2236,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
@@ -2174,7 +2270,7 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.xField = DatasetServiceMock.DATE_FIELD;
         component.options.yField = DatasetServiceMock.DATE_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([], component.options));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2197,7 +2293,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
@@ -2231,7 +2327,7 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.xField = DatasetServiceMock.TEXT_FIELD;
         component.options.yField = DatasetServiceMock.TEXT_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([], component.options));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2254,7 +2350,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
@@ -2285,7 +2381,7 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does draw zoom data if dualView is truthy', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
-        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregation = AggregationType.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
@@ -2297,7 +2393,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -2313,7 +2409,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: neonVariables.SUM,
+            aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2331,7 +2427,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: neonVariables.SUM,
+            aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2354,7 +2450,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: neonVariables.SUM,
+            aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2372,7 +2468,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: neonVariables.SUM,
+            aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2387,7 +2483,7 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does not draw main data if filterToPassToSuperclass.id is defined unless dualView is falsey', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
-        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregation = AggregationType.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
@@ -2400,7 +2496,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -2417,7 +2513,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: neonVariables.SUM,
+            aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2440,7 +2536,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: neonVariables.SUM,
+            aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2456,7 +2552,7 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does draw main data if given true argument', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
-        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregation = AggregationType.SUM;
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
@@ -2469,7 +2565,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -2485,7 +2581,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: neonVariables.SUM,
+            aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -2503,7 +2599,7 @@ describe('Component: Aggregation', () => {
             y: 4
         }], {
             aggregationField: 'Test Size Field',
-            aggregationLabel: neonVariables.SUM,
+            aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
             sort: 'y',
@@ -3302,9 +3398,10 @@ describe('Component: Aggregation', () => {
             groupField: '',
             xField: '',
             yField: '',
-            aggregation: neonVariables.COUNT,
+            aggregation: AggregationType.COUNT,
             axisLabelX: '',
             axisLabelY: 'count',
+            countByAggregation: false,
             dualView: '',
             granularity: 'year',
             hideGridLines: false,
@@ -3334,7 +3431,8 @@ describe('Component: Aggregation', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
 
-        component.options.aggregation = neonVariables.SUM;
+        component.options.aggregation = AggregationType.SUM;
+        component.options.countByAggregation = true;
         component.options.dualView = 'on';
         component.options.granularity = 'day';
         component.options.hideGridLines = true;
@@ -3374,9 +3472,10 @@ describe('Component: Aggregation', () => {
             groupField: 'testCategoryField',
             xField: 'testXField',
             yField: 'testYField',
-            aggregation: neonVariables.SUM,
+            aggregation: AggregationType.SUM,
             axisLabelX: '',
             axisLabelY: 'count',
+            countByAggregation: true,
             dualView: 'on',
             granularity: 'day',
             hideGridLines: true,
@@ -4020,9 +4119,9 @@ describe('Component: Aggregation with config', () => {
         ],
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase2' },
@@ -4034,7 +4133,7 @@ describe('Component: Aggregation with config', () => {
             { provide: 'groupField', useValue: 'testCategoryField' },
             { provide: 'xField', useValue: 'testXField' },
             { provide: 'yField', useValue: 'testYField' },
-            { provide: 'aggregation', useValue: neonVariables.SUM },
+            { provide: 'aggregation', useValue: AggregationType.SUM },
             { provide: 'granularity', useValue: 'day' },
             { provide: 'hideGridLines', useValue: true },
             { provide: 'hideGridTicks', useValue: true },
@@ -4088,7 +4187,7 @@ describe('Component: Aggregation with config', () => {
         expect(component.options.xField).toEqual(DatasetServiceMock.X_FIELD);
         expect(component.options.yField).toEqual(DatasetServiceMock.Y_FIELD);
 
-        expect(component.options.aggregation).toEqual(neonVariables.SUM);
+        expect(component.options.aggregation).toEqual(AggregationType.SUM);
         expect(component.options.granularity).toEqual('day');
         expect(component.options.hideGridLines).toEqual(true);
         expect(component.options.hideGridTicks).toEqual(true);
@@ -4291,9 +4390,9 @@ describe('Component: Aggregation with XY config', () => {
         ],
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase2' },
@@ -4305,7 +4404,7 @@ describe('Component: Aggregation with XY config', () => {
             { provide: 'groupField', useValue: 'testCategoryField' },
             { provide: 'xField', useValue: 'testXField' },
             { provide: 'yField', useValue: 'testYField' },
-            { provide: 'aggregation', useValue: neonVariables.SUM },
+            { provide: 'aggregation', useValue: AggregationType.SUM },
             { provide: 'granularity', useValue: 'day' },
             { provide: 'hideGridLines', useValue: true },
             { provide: 'hideGridTicks', useValue: true },
@@ -4495,9 +4594,9 @@ describe('Component: Aggregation with date config', () => {
         ],
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase2' },
@@ -4509,7 +4608,7 @@ describe('Component: Aggregation with date config', () => {
             { provide: 'groupField', useValue: 'testCategoryField' },
             { provide: 'xField', useValue: 'testDateField' },
             { provide: 'yField', useValue: 'testYField' },
-            { provide: 'aggregation', useValue: neonVariables.SUM },
+            { provide: 'aggregation', useValue: AggregationType.SUM },
             { provide: 'granularity', useValue: 'day' },
             { provide: 'hideGridLines', useValue: true },
             { provide: 'hideGridTicks', useValue: true },

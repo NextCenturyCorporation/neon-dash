@@ -15,11 +15,11 @@
  */
 import { AfterViewInit, ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@angular/core';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService, AggregationType, NeonFilterClause, NeonQueryPayload } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { neonEvents, neonVariables } from '../../neon-namespaces';
+import { neonEvents } from '../../neon-namespaces';
 import {
     OptionChoices,
     OptionType,
@@ -80,10 +80,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     // Maps the options/layer ID to the query ID to the query object.
     private layerIdToQueryIdToQueryObject: Map<string, Map<string, any>> = new Map<string, Map<string, any>>();
 
-    protected errorMessage: string = '';
+    public errorMessage: string = '';
+    public loadingCount: number = 0;
+
     protected initializing: boolean = false;
     protected isMultiLayerWidget: boolean = false;
-    protected loadingCount: number = 0;
     protected redrawOnResize: boolean = false;
     protected selectedDataId: string = '';
     protected showingZeroOrMultipleElementsPerResult: boolean = false;
@@ -101,18 +102,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     // A WidgetOptionCollection object.  Must use "any" type to avoid typescript errors.
     public options: any;
 
-    /**
-     * @constructor
-     * @arg {ConnectionService} connectionService
-     * @arg {DatasetService} datasetService
-     * @arg {FilterService} filterService
-     * @arg {Injector} injector
-     * @arg {ChangeDetectorRef} changeDetection
-     */
     constructor(
-        protected connectionService: ConnectionService,
         protected datasetService: DatasetService,
         protected filterService: FilterService,
+        protected searchService: AbstractSearchService,
         protected injector: Injector,
         public changeDetection: ChangeDetectorRef
     ) {
@@ -233,23 +226,24 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Returns the export header data using the given options and visualization query.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} query
+     * @arg {NeonQueryPayload} query
      * @return {{name:string,data:any}}
      */
-    private createExportOptions(options: any, query: neon.query.Query): { name: string, data: any } {
+    private createExportOptions(options: any, query: NeonQueryPayload): { name: string, data: any } {
         let exportName = options.title.split(':').join(' ');
+        let exportQuery: any = this.searchService.transformQueryPayloadToExport(query);
         return {
             // TODO THOR-861 What is this name?  Should it really be hard-coded?
             name: 'Query_Results_Table',
             data: {
-                query: query,
+                query: exportQuery,
                 name: exportName + '-' + options._id,
                 fields: this.getExportFields(options).map((exportFieldsObject) => ({
                     query: exportFieldsObject.columnName,
                     pretty: exportFieldsObject.prettyName || exportFieldsObject.columnName
                 })),
-                ignoreFilters: query.ignoreFilters,
-                selectionOnly: query.selectionOnly,
+                ignoreFilters: exportQuery.ignoreFilters,
+                selectionOnly: exportQuery.selectionOnly,
                 ignoredFilterIds: [],
                 type: 'query'
             }
@@ -263,7 +257,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public createExportData(): { name: string, data: any }[] {
         return (this.isMultiLayerWidget ? this.options.layers : [this.options]).map((options) => {
-            let query: neon.query.Query = this.createCompleteVisualizationQuery(options);
+            let query: NeonQueryPayload = this.createCompleteVisualizationQuery(options);
             return query ? this.createExportOptions(options, query) : [];
         }).filter((exportObject) => !!exportObject);
     }
@@ -390,7 +384,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             onSuccess.bind(this),
             (response: any) => {
                 this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                    error: response,
+                    error: response.responseJSON.stackTrace,
                     message: 'Add filter failed on visualization ' + options.title + ' database ' + options.database.name + ' table ' +
                         options.table.name
                 });
@@ -463,7 +457,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             onSuccess.bind(this),
             (response: any) => {
                 this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                    error: response,
+                    error: response.responseJSON.stackTrace,
                     message: 'Replace filter failed on visualization ' + options.title + ' database ' + options.database.name + ' table ' +
                         options.table.name
                 });
@@ -506,18 +500,19 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         if (!this.initializing && this.validateVisualizationQuery(queryOptions)) {
             this.changeDetection.detectChanges();
 
-            let query: neon.query.Query = this.createCompleteVisualizationQuery(queryOptions);
+            let query: NeonQueryPayload = this.createCompleteVisualizationQuery(queryOptions);
 
             if (query) {
-                query.limit(this.options.limit);
+                this.searchService.updateLimit(query, this.options.limit);
 
                 if (this.visualizationQueryPaginates) {
-                    query.offset((this.page - 1) * this.options.limit);
+                    this.searchService.updateOffset(query, (this.page - 1) * this.options.limit);
                 }
 
                 let filtersToIgnore = this.getFiltersToIgnore();
-                if (filtersToIgnore && filtersToIgnore.length) {
-                    query.ignoreFilters(filtersToIgnore);
+                if (filtersToIgnore && filtersToIgnore.length && (query as any).query) {
+                    // TODO THOR-946
+                    (query as any).query.ignoreFilters(filtersToIgnore);
                 }
 
                 this.executeQuery(queryOptions, query, 'default visualization query', this.handleSuccessfulVisualizationQuery.bind(this));
@@ -535,24 +530,24 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public abstract validateVisualizationQuery(options: any): boolean;
 
     /**
-     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
+     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} query
-     * @arg {neon.query.WherePredicate[]} wherePredicates
-     * @return {neon.query.Query}
+     * @arg {NeonQueryPayload} queryPayload
+     * @arg {NeonFilterClause[]} sharedFilters
+     * @return {NeonQueryPayload}
      * @abstract
      */
-    public abstract finalizeVisualizationQuery(options: any, query: neon.query.Query,
-        wherePredicates: neon.query.WherePredicate[]): neon.query.Query;
+    public abstract finalizeVisualizationQuery(options: any, queryPayload: NeonQueryPayload,
+        sharedFilters: NeonFilterClause[]): NeonQueryPayload;
 
     /**
      * Creates and returns the visualization query with the database, table, and fields, but not the limit or offset.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @return {neon.query.Query}
+     * @return {NeonQueryPayload}
      */
-    public createCompleteVisualizationQuery(options: any): neon.query.Query {
+    public createCompleteVisualizationQuery(options: any): NeonQueryPayload {
         let fields: string[] = options.list().reduce((list: string[], option: WidgetOption) => {
             if (option.optionType === OptionType.FIELD && option.valueCurrent.columnName) {
                 list.push(option.valueCurrent.columnName);
@@ -565,7 +560,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             return list;
         }, []);
 
-        if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
+        if (options.filter && options.filter.lhs && options.filter.operator && typeof options.filter.rhs !== 'undefined') {
             fields = [options.filter.lhs].concat(fields);
         }
 
@@ -585,28 +580,25 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             });
         });
 
-        let query: neon.query.Query = new neon.query.Query().selectFrom(options.database.name, options.table.name);
-        if (fields.length) {
-            query.withFields(fields);
-        }
-        return this.finalizeVisualizationQuery(options, query, this.createWherePredicates(options));
+        let query: NeonQueryPayload = this.searchService.buildQueryPayload(options.database.name, options.table.name, fields);
+        return this.finalizeVisualizationQuery(options, query, this.createSharedFilters(options));
     }
 
     /**
-     * Creates and returns the common where predicates for the visualization query.
+     * Creates and returns the shared filters for the visualization query.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @return {neon.query.WherePredicate[]}
+     * @return {NeonFilterClause[]}
      */
-    public createWherePredicates(options: any): neon.query.WherePredicate[] {
-        let wheres: neon.query.WherePredicate[] = [];
-        if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
-            wheres.push(neon.query.where(options.filter.lhs, options.filter.operator, options.filter.rhs));
+    public createSharedFilters(options: any): NeonFilterClause[] {
+        let filters: NeonFilterClause[] = [];
+        if (options.filter && options.filter.lhs && options.filter.operator && typeof options.filter.rhs !== 'undefined') {
+            filters.push(this.searchService.buildFilterClause(options.filter.lhs, options.filter.operator, options.filter.rhs));
         }
         if (this.hasUnsharedFilter(options)) {
-            wheres.push(neon.query.where(options.unsharedFilterField.columnName, '=', options.unsharedFilterValue));
+            filters.push(this.searchService.buildFilterClause(options.unsharedFilterField.columnName, '=', options.unsharedFilterValue));
         }
-        return wheres;
+        return filters;
     }
 
     /**
@@ -673,13 +665,14 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.layerIdToActiveData.set(options._id, data);
 
             if (this.visualizationQueryPaginates && !this.showingZeroOrMultipleElementsPerResult) {
-                let countQuery: neon.query.Query = this.createCompleteVisualizationQuery(options);
+                let countQuery: NeonQueryPayload = this.createCompleteVisualizationQuery(options);
                 if (countQuery) {
                     // Do not add a limit or an offset!
-                    countQuery.aggregate(neonVariables.COUNT, '*', '_count');
+                    this.searchService.updateAggregation(countQuery, AggregationType.COUNT, '_count', '*');
                     let filtersToIgnore = this.getFiltersToIgnore();
-                    if (filtersToIgnore && filtersToIgnore.length) {
-                        countQuery.ignoreFilters(filtersToIgnore);
+                    if (filtersToIgnore && filtersToIgnore.length && (countQuery as any).query) {
+                        // TODO THOR-946
+                        (countQuery as any).query.ignoreFilters(filtersToIgnore);
                     }
                     this.executeQuery(options, countQuery, 'total count query', this.handleSuccessfulTotalCountQuery.bind(this));
                     // Ignore our own callback since the visualization will be refreshed within handleSuccessfulTotalCountQuery.
@@ -749,11 +742,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Runs the given query.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} queryObject
+     * @arg {NeonQueryPayload} query
      * @arg {string} queryId
      * @arg {(options: any, response: any, callback: () => void) => void} callback
      */
-    private executeQuery(options: any, queryObject: neon.query.Query, queryId: string,
+    private executeQuery(options: any, query: NeonQueryPayload, queryId: string,
         callback: (options: any, response: any, callback: () => void) => void) {
 
         this.loadingCount++;
@@ -768,21 +761,17 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             return;
         }
 
-        /* tslint:disable:no-string-literal */
-        let filter = _.cloneDeep(queryObject['filter']);
-        /* tslint:enable:no-string-literal */
-
         //If we have any labelOptions in the config, we want to edit the data to convert whatever data items that are specified to the
         //"pretty" name. The pretty name goes to the visualizations, but it must be converted back before doing a query as the
         //database won't recognize the pretty name.
-        this.datifyWherePredicates(options, filter.whereClause);
+        this.searchService.transformFilterClauseValues(query, this.getLabelOptions(options));
 
         if (this.layerIdToQueryIdToQueryObject.get(options._id).has(queryId)) {
             this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).abort();
         }
 
-        this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId,
-            this.connectionService.getActiveConnection().executeQuery(queryObject, null));
+        this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(this.datasetService.getDatastore(),
+            this.datasetService.getHostname(), query));
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).always(() => {
             this.layerIdToQueryIdToQueryObject.get(options._id).delete(queryId);
@@ -796,7 +785,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.loadingCount--;
             if (response.statusText !== 'abort') {
                 this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                    error: response,
+                    error: response.responseJSON.stackTrace,
                     message: 'FAILED ' + options.title + ' ' + queryId
                 });
                 this.changeDetection.detectChanges();
@@ -811,8 +800,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {boolean}
      */
     private cannotExecuteQuery(options: any): boolean {
-        return (!this.connectionService.getActiveConnection() || (this.options.hideUnfiltered &&
-            !this.filterService.getFiltersForFields(options.database.name, options.table.name).length));
+        return (!this.searchService.canRunSearch(this.datasetService.getDatastore(), this.datasetService.getHostname()) ||
+            (this.options.hideUnfiltered && !this.filterService.getFiltersForFields(options.database.name, options.table.name).length));
     }
 
     /**
@@ -934,7 +923,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public handleChangeLimit(options?: any): void {
         if (this.isNumber(this.newLimit)) {
             let newLimit = parseFloat('' + this.newLimit);
-            if (newLimit > 0) {
+            if (newLimit >= 0) {
                 (options || this.options).limit = newLimit;
                 this.handleChangeData();
             } else {
@@ -959,7 +948,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private hasUnsharedFilter(options?: any): boolean {
         return !!((options || this.options).unsharedFilterField && (options || this.options).unsharedFilterField.columnName &&
-            (options || this.options).unsharedFilterValue && (options || this.options).unsharedFilterValue.trim());
+            typeof (options || this.options).unsharedFilterValue !== 'undefined' && (options || this.options).unsharedFilterValue !== '');
     }
 
     /**
@@ -1001,7 +990,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             },
             (response: any) => {
                 this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                    error: response,
+                    error: response.responseJSON.stackTrace,
                     message: 'Remove filter failed on visualization ' + options.title + ' database ' + options.database.name + ' table ' +
                         options.table.name
                 });
@@ -1214,52 +1203,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             }
         }
         return response;
-    }
-
-    /**
-     * Converts data elements that are specified to have a pretty name back to their original data label so that the database can
-     * correctly query. When it comes back in handleSuccessfulVisualizationQuery, the response will be converted back to their "pretty" form
-     * Will probably skew the data if the config specifies a data label to have a pretty name that is the same as another data label
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.WherePredicate} wherePredicate
-     */
-    private datifyWherePredicates(options: any, wherePredicate: neon.query.WherePredicate) {
-        let labelOptions = this.getLabelOptions(options);
-        switch (wherePredicate.type) {
-            case 'or':
-            case 'and':
-                for (let clause of (wherePredicate as neon.query.BooleanClause).whereClauses) {
-                    //recursively edit where clauses that contain multiple whereClauses
-                    this.datifyWherePredicates(options, clause);
-                }
-                break;
-            case 'where':
-                this.datifyWherePredicate((wherePredicate as neon.query.WhereClause), labelOptions);
-                break;
-        }
-    }
-
-    /**
-     * Base case of datifyWherePredicates() when there is a single where clause
-     *
-     * @arg {neon.query.WhereClause} wherePredicate
-     * @arg {any} labelOptions
-     */
-    private datifyWherePredicate(wherePredicate: neon.query.WhereClause, labelOptions: any) {
-        let labelKeys = Object.keys(labelOptions);
-
-        let key = wherePredicate.lhs;
-        if (labelKeys.includes(key)) {
-            let prettyLabels = labelOptions[key];
-            let labels = Object.keys(prettyLabels);
-            for (let label of labels) {
-                let possiblePrettyLabel = wherePredicate.rhs;
-                if (prettyLabels[label] === possiblePrettyLabel) {
-                    wherePredicate.rhs = label;
-                }
-            }
-        }
     }
 
     /**

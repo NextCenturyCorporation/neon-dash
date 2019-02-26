@@ -26,14 +26,20 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
+import {
+    AbstractSearchService,
+    BoolFilterType,
+    NeonFilterClause,
+    NeonQueryPayload,
+    SortOrder
+} from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -121,9 +127,10 @@ class Edge {
         public arrows?: ArrowProperties,
         public count?: number,
         public color?: EdgeColorProperties,
-        public type?: string //used to identify that category of edge (to hide/show when legend option is clicked)
+        public type?: string, //used to identify that category of edge (to hide/show when legend option is clicked)
         /* TODO: width seem to breaking directed arrows, removing for now
         public width?: number*/
+        public font?: Object
     ) { }
 }
 
@@ -158,6 +165,10 @@ export class TransformedGraphData extends TransformedVisualizationData {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit {
+    static FONT = 'Roboto, sans-serif';
+    static EDGE_FONT_SIZE: number = 14;
+    static NODE_FONT_SIZE: number = 14;
+
     @ViewChild('graphElement') graphElement: ElementRef;
     @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
@@ -226,18 +237,18 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     private graph: vis.Network;
 
     constructor(
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
+        searchService: AbstractSearchService,
         injector: Injector,
         protected widgetService: AbstractWidgetService,
         ref: ChangeDetectorRef
     ) {
 
         super(
-            connectionService,
             datasetService,
             filterService,
+            searchService,
             injector,
             ref
         );
@@ -542,41 +553,44 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     /**
-     * Finalizes the given visualization query by adding the where predicates, aggregations, groups, and sort using the given options.
+     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {neon.query.Query} query
-     * @arg {neon.query.WherePredicate[]} wherePredicates
-     * @return {neon.query.Query}
+     * @arg {NeonQueryPayload} queryPayload
+     * @arg {NeonFilterClause[]} sharedFilters
+     * @return {NeonQueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: neon.query.Query, wherePredicates: neon.query.WherePredicate[]): neon.query.Query {
+    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
         let names: string[];
         let sortFieldName: string;
-        let sortOrder: neon.query.SortOrder;
+        let sortOrder: SortOrder = SortOrder.DESCENDING;
 
         switch (options.layerType) {
             case LayerType.Clusters:
             case LayerType.Nodes:
                 names = [options.nameField.columnName, options.idField.columnName];
                 sortFieldName = options.idField.columnName;
-                sortOrder = neonVariables.DESCENDING;
                 break;
             case LayerType.Edges:
             case LayerType.ClusterMemberships:
                 names = [options.nameField.columnName, options.param1Field.columnName, options.param2Field.columnName];
                 sortFieldName = options.param1Field.columnName;
-                sortOrder = neonVariables.DESCENDING;
                 break;
             default:
                 names = [options.nodeField.columnName, options.linkField.columnName];
                 sortFieldName = (options.nodeColorField.columnName || options.edgeColorField.columnName ||
                     options.nodeField.columnName);
-                sortOrder = neonVariables.ASCENDING;
+                sortOrder = SortOrder.ASCENDING;
         }
-        let where = neon.query.or.apply(neon.query, names.map((name) => neon.query.where(name, '!=', null)));
-        return query.where(wherePredicates.length ? neon.query.and.apply(neon.query, [wherePredicates, where]) : where)
-            .sortBy(sortFieldName, sortOrder);
+
+        let filter: NeonFilterClause = this.searchService.buildBoolFilterClause(names.map((name) =>
+            this.searchService.buildFilterClause(name, '!=', null)), BoolFilterType.OR);
+
+        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filter)))
+            .updateSort(query, sortFieldName, sortOrder);
+
+        return query;
     }
 
     public beforeExecuteAllQueryChain(): void {
@@ -709,7 +723,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             //TODO: clean up node labels for layers
             this.responseData.push({ options: options, results: results });
 
-        } else if (!this.responseData.length) {
+        } else {
 
             // TODO THOR-985
             this.responseData = results;
@@ -837,7 +851,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let graph = new GraphProperties(),
             limit = this.options.limit,
             nodeColor = this.options.nodeColor,
-            textColor = { color: this.options.fontColor },
+            nodeTextObject = {
+                size: NetworkGraphComponent.NODE_FONT_SIZE,
+                face: NetworkGraphComponent.FONT,
+                color: this.options.fontColor
+            },
             nodeShape = this.options.nodeShape;
 
         for (const entry of this.responseData) {
@@ -848,7 +866,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
                 for (let sNode of subject) {
                     for (let oNode of object) {
-                        this.addTriple(graph, sNode, predicate, oNode, nodeColor, textColor, nodeShape);
+                        this.addTriple(graph, sNode, predicate, oNode, nodeColor, nodeTextObject, nodeShape);
                     }
                 }
             }
@@ -859,24 +877,33 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private addTriple(graph: GraphProperties, subject: string, predicate: string, object: string, nodeColor?: string,
-        textColor?: any, nodeShape?: string) {
+        nodeTextObject?: any, nodeShape?: string) {
+        let edgeTextObject = {
+            size: NetworkGraphComponent.EDGE_FONT_SIZE,
+            face: NetworkGraphComponent.FONT
+        };
 
-        graph.addNode(new Node(subject, subject, '', null, nodeColor, false, textColor, nodeShape));
-        graph.addNode(new Node(object, object, '', null, nodeColor, false, textColor, nodeShape));
-        graph.addEdge(new Edge(subject, object, predicate, { to: this.options.isDirected }));
+        graph.addNode(new Node(subject, subject, '', null, nodeColor, false, nodeTextObject, nodeShape));
+        graph.addNode(new Node(object, object, '', null, nodeColor, false, nodeTextObject, nodeShape));
+        graph.addEdge(new Edge(subject, object, predicate, { to: this.options.isDirected }, null, null, null, edgeTextObject));
     }
 
     private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string,
         colorValue?: string, edgeColorField?: string) {
         let edgeColor = { color: colorValue, highlight: colorValue };
+        let edgeTextObject = {
+            size: NetworkGraphComponent.EDGE_FONT_SIZE,
+            face: NetworkGraphComponent.FONT
+        };
+
         //TODO: edgeWidth being passed into Edge class is currently breaking directed arrows, removing for now
         // let edgeWidth = this.options.edgeWidth;
         if (Array.isArray(linkField)) {
             for (const linkEntry of linkField) {
-                graph.addEdge(new Edge(source, linkEntry, '', null, 1, edgeColor, edgeColorField));
+                graph.addEdge(new Edge(source, linkEntry, '', null, 1, edgeColor, edgeColorField, edgeTextObject));
             }
         } else if (linkField) {
-            graph.addEdge(new Edge(source, linkField, '', null, 1, edgeColor, edgeColorField));
+            graph.addEdge(new Edge(source, linkField, '', null, 1, edgeColor, edgeColorField, edgeTextObject));
         }
     }
 
@@ -937,6 +964,10 @@ private getAllNodes(data: any[], idField: string, nameField: string, colorField:
         let ret: Edge[] = [];
         let colorMapVal = originalColorMapVal;
         let color = originalColor;
+        let edgeTextObject = {
+            size: NetworkGraphComponent.EDGE_FONT_SIZE,
+            face: NetworkGraphComponent.FONT
+        };
 
         // if there is a valid colorField and no modifications to the legend labels, override the default colorString
         if (colorField && this.prettifiedEdgeLabels.length === 0) {
@@ -963,7 +994,8 @@ private getAllNodes(data: any[], idField: string, nameField: string, colorField:
                 }
             }
 
-            ret.push(new Edge(source, destinations[i], names[i], { to: this.options.isDirected }, 1, colorObject, colorMapVal));
+            ret.push(new Edge(source, destinations[i], names[i], { to: this.options.isDirected }, 1, colorObject, colorMapVal,
+                edgeTextObject));
         }
         return ret;
     }
@@ -1022,7 +1054,11 @@ private getAllNodes(data: any[], idField: string, nameField: string, colorField:
             nodeColor = this.options.nodeColor,
             edgeColor = this.options.edgeColor,
             linkColor = this.options.linkColor,
-            textColor = { color: this.options.fontColor },
+            nodeTextObject = {
+                size: NetworkGraphComponent.NODE_FONT_SIZE,
+                face: NetworkGraphComponent.FONT,
+                color: this.options.fontColor
+            },
             limit = this.options.limit,
             nodeShape = this.options.nodeShape,
             xPositionField = this.options.xPositionField.columnName,
@@ -1078,7 +1114,7 @@ private getAllNodes(data: any[], idField: string, nameField: string, colorField:
                             }
                         }
 
-                        graph.addNode(new Node(linkEntry, linkNodeName, linkName, 1, linkColor, true, textColor, nodeShape,
+                        graph.addNode(new Node(linkEntry, linkNodeName, linkName, 1, linkColor, true, nodeTextObject, nodeShape,
                             xPosition, yPosition, filterFields));
                     }
                 }
