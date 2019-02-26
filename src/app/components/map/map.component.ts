@@ -553,11 +553,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                     unique.colorValue).getComputedCss(this.visualization);
             }
 
-            mapPoints.push(
-                new MapPoint(unique.idField, unique.idList, unique.filterList, unique.filterMap, `${unique.lat.toFixed(3)}\u00b0,
-                    ${unique.lng.toFixed(3)}\u00b0`, unique.lat, unique.lng, unique.count, color, 'Count: ' + unique.count,
-                    unique.colorField, unique.colorValue, unique.hoverPopupMap
-                ));
+            let name = `${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`;
+            mapPoints.push(new MapPoint(unique.idField, unique.idList, unique.filterList, unique.filterMap, name, unique.lat, unique.lng,
+                unique.count, color, 'Count: ' + unique.count, unique.colorField, unique.colorValue, unique.hoverPopupMap));
         });
         mapPoints.sort((a, b) => b.count - a.count);
         return mapPoints;
