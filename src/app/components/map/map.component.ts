@@ -279,7 +279,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             }
         }
 
-        this.manageFieldFilters(fieldsByLayer, filters, neonFilters);
+        for (let i = 0; i < this.options.layers.length; i++) {
+            this.manageFieldFilters(fieldsByLayer[i], this.options.layers[i], filters, neonFilters);
+        }
     }
 
     /**
@@ -356,8 +358,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @arg {array} fieldFilters
      * @arg {array} neonFilters
      */
-    manageFieldFilters(fieldsByLayer, fieldFilters, neonFilters) {
-        for (let field of fieldsByLayer[0].fields) {
+    manageFieldFilters(fieldsByLayer, layerOptions, fieldFilters, neonFilters) {
+        for (let field of fieldsByLayer.fields) {
             let fieldValues: string[] = [],
                 fieldName = field.columnName;
             for (let filter of fieldFilters) {
@@ -368,10 +370,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                 neonIdFilter = this.createNeonFieldFilter(fieldName, fieldValues);
             if (neonFilters && neonFilters.length) {
                 if (fieldObject) {
-                    this.replaceNeonFilter(this.options.layers[0], true, fieldObject, neonIdFilter);
+                    this.replaceNeonFilter(layerOptions, true, fieldObject, neonIdFilter);
                 }
             } else {
-                this.addNeonFilter(this.options.layers[0], true, fieldObject, neonIdFilter);
+                this.addNeonFilter(layerOptions, true, fieldObject, neonIdFilter);
             }
         }
     }
