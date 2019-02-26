@@ -119,9 +119,9 @@ export class LeafletNeonMap extends AbstractMap {
                 colorByField: point.colorByField,
                 colorByValue: point.colorByValue,
                 fillColor: point.cssColorString,
-                fillOpacity: mapIsSelected ? (pointIsSelected ? 1 : .1) : 1,
-                opacity: mapIsSelected ? (pointIsSelected ? 0 : .2) : 1,
-                radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30), // Default is 10
+                fillOpacity: mapIsSelected ? (pointIsSelected ? 1 : 0.1) : 0.6,
+                opacity: mapIsSelected ? (pointIsSelected ? 0 : 0.2) : 1,
+                radius: Math.min(Math.floor(6 * Math.pow(point.count, 0.5)), 30), // Default is 10
                 stroke: mapIsSelected && pointIsSelected ? false : true,
                 weight: 1
             };
@@ -133,7 +133,8 @@ export class LeafletNeonMap extends AbstractMap {
 
             if (point.hoverPopupMap.size > 0) {
                 //build hover value and add to tooltip
-                tooltip += (tooltip ? '<br/>' : '') + `<span>${this.createHoverPopupString(point.hoverPopupMap)}</span>`;
+                let hoverPopupString = this.createHoverPopupString(point.hoverPopupMap);
+                tooltip += (tooltip ? '<br/>' : '') + (hoverPopupString !== '' ? `<span>${hoverPopupString}</span>` : '');
             }
 
             if (tooltip) {
@@ -255,7 +256,6 @@ export class LeafletNeonMap extends AbstractMap {
     }
 
     private createHoverPopupString(hoverPopupMap: Map<string, number>) {
-
         let result = [];
 
         //loop through and push values to array
@@ -268,6 +268,5 @@ export class LeafletNeonMap extends AbstractMap {
         });
 
         return result.join(','); // return comma separated string
-
     }
 }

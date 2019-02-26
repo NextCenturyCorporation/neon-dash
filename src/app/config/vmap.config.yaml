@@ -1,27 +1,13 @@
 datasets:
   -
-    name: NIST
+    name: MFC_2018_EVAL_PART1_REPORT
     datastore: elasticsearchrest
     hostname: 10.107.5.227
-    layout: NIST
+    layout: REPORT
+    connectOnLoad: true
     databases:
       -
-        name: nist_data
-        prettyName: NIST
-        tables:
-          -
-            name: _doc
-            prettyName: Data
-            fields:
-
-  -
-    name: EVAL18SUBSET_INTEGRITY_REPORT_V3
-    datastore: elasticsearchrest
-    hostname: 10.107.5.227
-    layout: INTEGRITY_REPORT
-    databases:
-      -
-        name: integrity_report_probes_100218
+        name: integrity_report_probes_020419
         prettyName: Probes
         tables:
           -
@@ -29,15 +15,67 @@ datasets:
             prettyName: Data
             fields:
               -
+                columnName: DatasetName
+                prettyName: Dataset
+              -
+                columnName: GroundTruthLabel
+                prettyName: Ground Truth
+              -
+                columnName: GroundTruthPercent
+                prettyName: Ground Truth Percentage
+              -
+                columnName: GroundTruthTitle
+                prettyName: Ground Truth with Percentage
+              -
+                columnName: ManipulationOperations
+                prettyName: Ground Truth Probe Manipulation Operations
+              -
+                columnName: NeonDonorIDs
+                prettyName: UI Donor IDs
+              -
+                columnName: NeonDonorPaths
+                prettyName: UI Donor Paths
+              -
+                columnName: NeonDonorMaskPaths
+                prettyName: UI Donor Mask Paths
+              -
+                columnName: NeonMaskCompleteRequestUrl
+                prettyName: UI Complete Mask (Request URL)
+              -
+                columnName: NeonMaskRequestUrlList
+                prettyName: UI Masks (Request URLs)
+              -
+                columnName: NeonProbeMaskPath
+                prettyName: UI Probe Mask Path
+              -
+                columnName: NeonProbePath
+                prettyName: UI Probe Path
+              -
+                columnName: ReasoningAlgorithm
+                prettyName: Indicator Fusion Algorithm
+              -
+                columnName: ReasoningLabel
+                prettyName: Indicator Fusion Label
+              -
+                columnName: ReasoningPercent
+                prettyName: Indicator Fusion Percent
+              -
+                columnName: ReasoningScore
+                prettyName: Indicator Fusion Score
+              -
+                columnName: ReasoningTitle
+                prettyName: Indicator Fusion Label and Score
+              -
                 columnName: Exif.DateTimeOriginal
               -
-                columnName: Exif.ImageSize
-              -
-                columnName: Exif.Make
+                columnName: Exif.FileType
               -
                 columnName: Exif.Model
+              -
+                columnName: Exif.SizeAndOrientation
+
       -
-        name: integrity_report_operations_100218
+        name: integrity_report_operations_020419
         prettyName: Operations
         tables:
           -
@@ -45,2012 +83,1006 @@ datasets:
             prettyName: Data
             fields:
               -
-                columnName: OperationGroup
-                prettyName: Operation
+                columnName: DatasetName
+                prettyName: Dataset
               -
-                columnName: OperationSubtype
-                prettyName: Subtype
+                columnName: ProbeFileID
+                prettyName: ProbeFileID
               -
-                columnName: OperationScore
-                prettyName: Score
-              -
-                columnName: OperationOrder
-                prettyName: Order
+                columnName: JournalName
+                prettyName: JournalName
               -
                 columnName: OperationColor
                 prettyName: Color
               -
-                columnName: OperationMaskPath
+                columnName: OperationGroup
+                prettyName: Operation
+              -
+                columnName: OperationLabel
+                prettyName: Operation and Order
+              -
+                columnName: OperationOrder
+                prettyName: Order
+              -
+                columnName: OperationPurpose
+                prettyName: Purpose
+              -
+                columnName: OperationScore
+                prettyName: Score
+              -
+                columnName: OperationMaskRequestUrl
                 prettyName: Mask
+              -
+                columnName: NeonDataSource
+                prettyName: Neon Data Source
+
       -
-        name: integrity_report_donors_100218
+        name: integrity_report_indicators_020419
+        prettyName: Indicators
+        tables:
+          -
+            name: _doc
+            prettyName: Data
+            fields:
+              -
+                columnName: ConfidenceScore
+                prettyName: Score (Decimal)
+              -
+                columnName: DatasetName
+                prettyName: Dataset
+              -
+                columnName: IndicatorCondition
+                prettyName: Condition
+              -
+                columnName: IndicatorID
+                prettyName: ID
+              -
+                columnName: IndicatorMaskPath
+                prettyName: Mask Path
+              -
+                columnName: IndicatorNameDM
+                prettyName: Indicator (DM)
+              -
+                columnName: IndicatorNameNIST
+                prettyName: Indicator (NIST)
+              -
+                columnName: IndicatorNamePretty
+                prettyName: Indicator
+              -
+                columnName: IndicatorPercent
+                prettyName: Score (Percent)
+              -
+                columnName: IndicatorPixelOptOut
+                prettyName: Pixel Opt Out
+              -
+                columnName: IndicatorProbeOptOut
+                prettyName: Probe Opt Out
+              -
+                columnName: IndicatorSubTask
+                prettyName: Sub Task
+              -
+                columnName: IndicatorTask
+                prettyName: Task
+              -
+                columnName: IndicatorTeam
+                prettyName: Team
+              -
+                columnName: IndicatorVersion
+                prettyName: Version
+              -
+                columnName: NeonEval
+                prettyName: Neon TPR
+              -
+                columnName: NeonEvalPercentage
+                prettyName: Neon TPR (Percentage)
+              -
+                columnName: ManipulationOperations
+                prettyName: Ground Truth Probe Manipulation Operations
+              -
+                columnName: NeonID
+                prettyName: UI ID
+              -
+                columnName: OutputProbeMaskFileName
+                prettyName: Mask Name
+              -
+                columnName: ProbeFileID
+                prettyName: ProbeFileID
+              -
+                columnName: ProbeFileName
+                prettyName: ProbeFileName
+              -
+                columnName: ProbePath
+                prettyName: ProbePath
+              -
+                columnName: ProbeStatus
+                prettyName: Status
+              -
+                columnName: SelectiveScoring
+                prettyName: Selective Scorings
+
+      -
+        name: integrity_report_fusion_020419
+        prettyName: Indicator Fusion
+        tables:
+          -
+            name: _doc
+            prettyName: Data
+            fields:
+              -
+                columnName: DatasetName
+                prettyName: Dataset
+              -
+                columnName: NeonEval
+                prettyName: Neon TPR
+              -
+                columnName: NeonEvalPercentage
+                prettyName: Neon TPR (Percentage)
+              -
+                columnName: ManipulationOperations
+                prettyName: Ground Truth Probe Manipulation Operations
+              -
+                columnName: NeonProbePath
+                prettyName: UI Probe Path
+              -
+                columnName: ReasoningAlgorithm
+                prettyName: Algorithm
+              -
+                columnName: ReasoningMaskPath
+                prettyName: Mask
+              -
+                columnName: ReasoningPercent
+                prettyName: Score (Percent)
+              -
+                columnName: ReasoningScore
+                prettyName: Score (Decimal)
+
+      -
+        name: integrity_report_evaluation_020419
+        prettyName: NIST Evaluation
+        tables:
+          -
+            name: _doc
+            prettyName: Data
+            fields:
+              -
+                columnName: DatasetName
+                prettyName: Dataset
+              -
+                columnName: TaskID
+                prettyName: Task
+              -
+                columnName: IndicatorID
+                prettyName: ID
+              -
+                columnName: IndicatorNameDM
+                prettyName: Indicator (DM)
+              -
+                columnName: IndicatorNameNIST
+                prettyName: Indicator (NIST)
+              -
+                columnName: IndicatorPixelOptOut
+                prettyName: Pixel Opt Out
+              -
+                columnName: IndicatorProbeOptOut
+                prettyName: Probe Opt Out
+              -
+                columnName: ManipulationOperations
+                prettyName: Ground Truth Probe Manipulation Operations
+              -
+                columnName: NeonID
+                prettyName: UI ID
+
+      -
+        name: integrity_report_donors_020419
         prettyName: Donors
         tables:
           -
             name: _doc
             prettyName: Data
             fields:
+              -
+                columnName: DatasetName
+                prettyName: Dataset
+
     relations:
       -
         members:
           -
-            database: integrity_report_probes_100218
+            database: integrity_report_probes_020419
+            table: _doc
+            field: DatasetName
+          -
+            database: integrity_report_operations_020419
+            table: _doc
+            field: DatasetName
+          -
+            database: integrity_report_indicators_020419
+            table: _doc
+            field: DatasetName
+          -
+            database: integrity_report_fusion_020419
+            table: _doc
+            field: DatasetName
+          -
+            database: integrity_report_evaluation_020419
+            table: _doc
+            field: DatasetName
+          -
+            database: integrity_report_donors_020419
+            table: _doc
+            field: DatasetName
+      -
+        members:
+          -
+            database: integrity_report_probes_020419
             table: _doc
             field: ProbeFileID
           -
-            database: integrity_report_operations_100218
+            database: integrity_report_operations_020419
             table: _doc
             field: ProbeFileID
           -
-            database: integrity_report_donors_100218
+            database: integrity_report_indicators_020419
             table: _doc
             field: ProbeFileID
-
-  -
-    name: EVAL17PART1_II17_SRI17_MDL
-    datastore: elasticsearchrest
-    hostname: localhost
-    layout: REASONING
-    databases:
-      -
-        name: nc2017_eval_part_1_sri_072018
-        prettyName: Media Input
-        tables:
           -
-            name: doc
-            prettyName: Data
-            fields:
-              -
-                columnName: ProbeDir
-                prettyName: Medium
-              -
-                columnName: ProbeFileID
-                prettyName: File Name
-              -
-                columnName: ThumbDir
-                prettyName: Thumbnail
-              -
-                columnName: WorldDir
-                prettyName: World Medium
-              -
-                columnName: FileType
-                prettyName: File Type
-              -
-                columnName: CameraID
-                prettyName: Camera Type
-              -
-                columnName: Run
-                prettyName: Run
-              -
-                columnName: TaskID
-                prettyName: Task ID
-              -
-                columnName: Manipulations
-                prettyName: Manipulations
-              -
-                columnName: ManipulationPercentage
-                prettyName: Manipulation Percentage
-              -
-                columnName: InvertedMask
-                prettyName: GT Mask
-              -
-                columnName: MergedMask
-                prettyName: Overlay
-      -
-        name: nc2017_eval_full_indicator_17_output_072018
-        prettyName: Analytic Output
-        tables:
-          -
-            name: doc
-            prettyName: Data
-            fields:
-              -
-                columnName: FileID
-                prettyName: File Name
-              -
-                columnName: IndicatorPretty
-                prettyName: Indicator Name
-              -
-                columnName: InvertedMask
-                prettyName: Mask
-              -
-                columnName: MergedMask
-                prettyName: Overlay
-              -
-                columnName: NormalizedScore
-                prettyName: Score Percentage
-              -
-                columnName: Indicator
-                prettyName: Indicator (Raw)
-              -
-                columnName: Mask
-                prettyName: Mask (Raw)
-              -
-                columnName: Run
-                prettyName: Run
-              -
-                columnName: Score
-                prettyName: Score (Raw)
-              -
-                columnName: Status
-                prettyName: Status (Raw)
-    relations:
-      -
-        members:
-          -
-            database: nc2017_eval_part_1_sri_072018
-            table: doc
+            database: integrity_report_fusion_020419
+            table: _doc
             field: ProbeFileID
           -
-            database: nc2017_eval_full_indicator_17_output_072018
-            table: doc
-            field: FileID
-
-  -
-    name: EVAL17PART1_II18_RF18_MDL
-    datastore: elasticsearchrest
-    hostname: localhost
-    layout: REASONING_GT
-    databases:
-      -
-        name: nc2017_eval_part_1_072018
-        prettyName: Media Input
-        tables:
-          -
-            name: doc
-            prettyName: Data
-            fields:
-              -
-                columnName: ProbeDir
-                prettyName: Medium
-              -
-                columnName: ProbeFileID
-                prettyName: File Name
-              -
-                columnName: ThumbDir
-                prettyName: Thumbnail
-              -
-                columnName: WorldDir
-                prettyName: World Medium
-              -
-                columnName: FileType
-                prettyName: File Type
-              -
-                columnName: CameraID
-                prettyName: Camera Type
-              -
-                columnName: Run
-                prettyName: Run
-              -
-                columnName: TaskID
-                prettyName: Task ID
-              -
-                columnName: Manipulations
-                prettyName: Manipulations
-              -
-                columnName: ManipulationPercentage
-                prettyName: Manipulation Percentage
-              -
-                columnName: InvertedMask
-                prettyName: GT Mask
-              -
-                columnName: MergedMask
-                prettyName: Overlay
-      -
-        name: nc2017_eval_part_1_indicator_18_output_072018
-        prettyName: Analytic Output
-        tables:
-          -
-            name: doc
-            prettyName: Data
-            fields:
-              -
-                columnName: FileID
-                prettyName: File Name
-              -
-                columnName: IndicatorPretty
-                prettyName: Indicator Name
-              -
-                columnName: InvertedMask
-                prettyName: Mask
-              -
-                columnName: MergedMask
-                prettyName: Overlay
-              -
-                columnName: NormalizedScore
-                prettyName: Score Percentage
-              -
-                columnName: Indicator
-                prettyName: Indicator (Raw)
-              -
-                columnName: Mask
-                prettyName: Mask (Raw)
-              -
-                columnName: Run
-                prettyName: Run
-              -
-                columnName: Score
-                prettyName: Score (Raw)
-              -
-                columnName: Status
-                prettyName: Status (Raw)
-    relations:
-      -
-        members:
-          -
-            database: nc2017_eval_part_1_072018
-            table: doc
+            database: integrity_report_evaluation_020419
+            table: _doc
             field: ProbeFileID
           -
-            database: nc2017_eval_part_1_indicator_18_output_072018
-            table: doc
-            field: FileID
-
-  -
-    name: EVAL17PART1_REFMAN_REF_MDL
-    datastore: elasticsearchrest
-    hostname: localhost
-    layout: MANIPULATIONS
-    connectOnLoad: true
-    databases:
-      -
-        name: nc2017_eval_part_1_072018
-        prettyName: Media Input
-        tables:
-          -
-            name: doc
-            prettyName: Data
-            fields:
-              -
-                columnName: ProbeDir
-                prettyName: Medium
-              -
-                columnName: ProbeFileID
-                prettyName: File Name
-              -
-                columnName: ThumbDir
-                prettyName: Thumbnail
-              -
-                columnName: WorldDir
-                prettyName: World Medium
-              -
-                columnName: FileType
-                prettyName: File Type
-              -
-                columnName: CameraID
-                prettyName: Camera Type
-              -
-                columnName: Run
-                prettyName: Run
-              -
-                columnName: TaskID
-                prettyName: Task ID
-              -
-                columnName: Manipulations
-                prettyName: Manipulations
-              -
-                columnName: ManipulationPercentage
-                prettyName: Manipulation Percentage
-              -
-                columnName: InvertedMask
-                prettyName: GT Mask
-              -
-                columnName: MergedMask
-                prettyName: Overlay
-
-  -
-    name: DEMO_II18_NC18_MDL_RUN_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-    datastore: elasticsearchrest
-    hostname: localhost
-    layout: RUN
-    databases:
-      -
-        name: demo_inputs_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-        prettyName: Media Input
-        tables:
-          -
-            name: doc
-            prettyName: Data
-            fields:
-              -
-                columnName: extension
-                prettyName: File Type
-              -
-                columnName: input
-                prettyName: Medium
-              -
-                columnName: name
-                prettyName: File Name
-              -
-                columnName: reasoning_inverted_mask
-                prettyName: Reasoning Mask (Inverted)
-              -
-                columnName: reasoning_mask
-                prettyName: Reasoning Mask (Output)
-              -
-                columnName: reasoning_merged_mask
-                prettyName: Reasoning Merged Mask
-              -
-                columnName: reasoning_score
-                prettyName: Reasoning Score
-              -
-                columnName: run
-                prettyName: Run
-              -
-                columnName: thumbnail
-                prettyName: Thumbnail
-      -
-        name: demo_scores_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-        prettyName: Analytic Output
-        tables:
-          -
-            name: doc
-            prettyName: Data
-            fields:
-              -
-                columnName: indicator
-                prettyName: Indicator Name
-              -
-                columnName: input
-                prettyName: Medium
-              -
-                columnName: inverted_mask
-                prettyName: Mask (Inverted)
-              -
-                columnName: manipulations
-                prettyName: Manipulations
-              -
-                columnName: mask
-                prettyName: Mask (Output)
-              -
-                columnName: merged_mask
-                prettyName: Overlay
-              -
-                columnName: name
-                prettyName: File Name
-              -
-                columnName: run
-                prettyName: Run
-              -
-                columnName: score
-                prettyName: Score
-              -
-                columnName: status
-                prettyName: Status
-    relations:
+            database: integrity_report_donors_020419
+            table: _doc
+            field: ProbeFileID
       -
         members:
           -
-            database: demo_inputs_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-            table: doc
-            field: input
+            database: integrity_report_indicators_020419
+            table: _doc
+            field: IsTarget
           -
-            database: demo_scores_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-            table: doc
-            field: input
+            database: integrity_report_fusion_020419
+            table: _doc
+            field: IsTarget
+          -
+            database: integrity_report_evaluation_020419
+            table: _doc
+            field: IsTarget
       -
         members:
           -
-            database: demo_inputs_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-            table: doc
-            field: name
+            database: integrity_report_probes_020419
+            table: _doc
+            field: Exif.*
           -
-            database: demo_scores_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-            table: doc
-            field: name
+            database: integrity_report_indicators_020419
+            table: _doc
+            field: Exif.*
+          -
+            database: integrity_report_fusion_020419
+            table: _doc
+            field: Exif.*
+          -
+            database: integrity_report_evaluation_020419
+            table: _doc
+            field: Exif.*
       -
         members:
           -
-            database: demo_inputs_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-            table: doc
-            field: run
+            database: integrity_report_probes_020419
+            table: _doc
+            field: ManipulationOperations
           -
-            database: demo_scores_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-            table: doc
-            field: run
+            database: integrity_report_indicators_020419
+            table: _doc
+            field: ManipulationOperations
+          -
+            database: integrity_report_fusion_020419
+            table: _doc
+            field: ManipulationOperations
+          -
+            database: integrity_report_evaluation_020419
+            table: _doc
+            field: ManipulationOperations
+      -
+        members:
+          -
+            database: integrity_report_indicators_020419
+            table: _doc
+            field: IndicatorTask
+          -
+            database: integrity_report_fusion_020419
+            table: _doc
+            field: Task
+          -
+            database: integrity_report_evaluation_020419
+            table: _doc
+            field: TaskID
+      -
+        members:
+          -
+            database: integrity_report_indicators_020419
+            table: _doc
+            field: IndicatorCondition
+          -
+            database: integrity_report_evaluation_020419
+            table: _doc
+            field: IndicatorCondition
+      -
+        members:
+          -
+            database: integrity_report_indicators_020419
+            table: _doc
+            field: IndicatorID
+          -
+            database: integrity_report_evaluation_020419
+            table: _doc
+            field: IndicatorID
+      -
+        members:
+          -
+            database: integrity_report_indicators_020419
+            table: _doc
+            field: IndicatorNameDM
+          -
+            database: integrity_report_evaluation_020419
+            table: _doc
+            field: IndicatorNameDM
+      -
+        members:
+          -
+            database: integrity_report_indicators_020419
+            table: _doc
+            field: IndicatorNameNIST
+          -
+            database: integrity_report_evaluation_020419
+            table: _doc
+            field: IndicatorNameNIST
+      -
+        members:
+          -
+            database: integrity_report_indicators_020419
+            table: _doc
+            field: IndicatorPixelOptOut
+          -
+            database: integrity_report_evaluation_020419
+            table: _doc
+            field: IndicatorPixelOptOut
+      -
+        members:
+          -
+            database: integrity_report_indicators_020419
+            table: _doc
+            field: IndicatorProbeOptOut
+          -
+            database: integrity_report_evaluation_020419
+            table: _doc
+            field: IndicatorProbeOptOut
+      -
+        members:
+          -
+            database: integrity_report_indicators_020419
+            table: _doc
+            field: IndicatorSubTask
+          -
+            database: integrity_report_evaluation_020419
+            table: _doc
+            field: IndicatorSubTask
+      -
+        members:
+          -
+            database: integrity_report_indicators_020419
+            table: _doc
+            field: IndicatorTeam
+          -
+            database: integrity_report_evaluation_020419
+            table: _doc
+            field: IndicatorTeam
+#      -
+#        members:
+#          -
+#            database: integrity_report_operations_020419
+#            table: _doc
+#            field: OperationGroup
+#          -
+#            database: integrity_report_indicators_020419
+#            table: _doc
+#            field: SelectiveScoring
 
 layouts:
-  MANIPULATIONS:
-    -
-      col: 1
-      row: 1
-      sizex: 3
-      sizey: 12
-      type: thumbnailGrid
-      bindings:
-        title: Probe Gallery
-        limit: 30
-        database: 0
-        table: doc
-        ascending: true
-        border: percentCompare
-        borderCompareValue: Manipulated
-        compareField: ManipulationString
-        cropAndScale:
-        defaultPercent: N/A
-        filterField: ProbeFileID
-        idField: ProbeFileID
-        linkField: ThumbDir
-        linkPrefix: http://10.107.5.227:8000
-        #linkPrefix: http://workbench-demo-data.mediforprogram.com
-        nameField: ProbeFileID
-        objectIdField:
-        objectNameField:
-        openOnMouseClick: false
-        percentField: ManipulationPercentage
-        predictedNameField:
-        sortField: ProbeFileID
-        styleClass: style2
-        textMap:
-            actual: Truth
-            percentage: GT Score
-            prediction:
-        typeMap:
-            arw:
-            bmp: img
-            cr2:
-            gif: img
-            iiq:
-            jpg: img
-            jpeg: img
-            nef:
-            png: img
-            tif:
-            avi: vid
-            mp4: vid
-        customEventsToPublish:
-          -
-            id: show_medium
-            fields:
+  REPORT:
+    Interactive Integrity Report:
+        -
+          col: 1
+          row: 1
+          sizex: 3
+          sizey: 12
+          type: thumbnailGrid
+          bindings:
+            title: Probes
+            limit: 200
+            database: 0
+            table: _doc
+            ascending: true
+            border:
+            borderCompareValue:
+            categoryField: GroundTruthLabel
+            compareField: ReasoningLabel
+            cropAndScale:
+            defaultPercent: N/A
+            detailedThumbnails: true
+            filterField: ProbeFileID
+            #flagPrefix: "Likelihood of Manipulation: "
+            flagLabel: ReasoningPercent
+            flagSubLabel1: Exif.DateTimeOriginal
+            flagSubLabel2: Exif.Model
+            flagSubLabel3: Exif.SizeAndOrientation
+            ignoreSelf: true
+            linkField: NeonProbePath
+            linkPrefix: http://10.107.5.227:3000/thumbnail
+            #linkPrefix: https://workbench-demo-data.mediforprogram.com/thumbnail
+            nameField: ProbeFileID
+            objectIdField: ReasoningLabel
+            objectNameField:
+            openOnMouseClick: false
+            percentField:
+            predictedNameField:
+            sortDescending: true
+            sortField: ReasoningScore
+            textMap:
+                actual: Truth
+                percentage: Score
+                prediction:
+            typeMap:
+                jpeg: img
+                arw: img
+                bmp: img
+                cr2: img
+                dng: img
+                iiq: img
+                jpg: img
+                mts: img
+                nef: img
+                png: img
+                raf: img
+                tif: img
+                3gp: img
+                gif:
+                avi: vid
+                mov: vid
+                mp4: vid
+            viewType: details
+
+        -
+          col: 4
+          row: 1
+          sizex: 3
+          sizey: 6
+          type: mediaViewer
+          bindings:
+            title: Overall Manipulation Mask
+            limit: 100
+            database: 3
+            table: _doc
+            border: grey
+            filter:
+              lhs: ReasoningAlgorithm
+              operator: '='
+              rhs: Random Forest
+            hideUnfiltered: true
+            linkFields:
+              - NeonProbePath
+            linkPrefix: http://10.107.5.227:3000/image
+            #linkPrefix: https://workbench-demo-data.mediforprogram.com/image
+            maskField: ReasoningMaskPath
+            maskLinkPrefix: http://10.107.5.227:3000/image
+            #maskLinkPrefix: https://workbench-demo-data.mediforprogram.com/image
+            nameField: ReasoningAlgorithm
+            sliderValue: 50
+            sortField: ReasoningAlgorithm
+            typeMap:
+                jpeg: mask,img
+                arw: mask,img
+                bmp: mask,img
+                cr2: mask,img
+                dng: mask,img
+                iiq: mask,img
+                jpg: mask,img
+                mts: mask,img
+                nef: mask,img
+                png: mask,img
+                raf: mask,img
+                tif: mask,img
+                3gp: mask,img
+                gif:
+                avi: vid
+                mov: vid
+                mp4: vid
+
+        -
+          col: 4
+          row: 7
+          sizex: 3
+          sizey: 6
+          type: dataTable
+          bindings:
+            title: Indicators
+            database: 2
+            table: _doc
+            limit: 100
+            unsharedFilterField: ProbeStatus
+            unsharedFilterValue: Processed
+            filterable: true
+            filterFields:
+              - IndicatorNamePretty
+            # - SelectiveScoring
+            # heatmapDivisor: 0.2
+            # heatmapField: ConfidenceScore
+            hideUnfiltered: true
+            ignoreSelf: true
+            singleFilter: true
+            skinny: true
+            sortDescending: true
+            sortField: ConfidenceScore
+            allColumnStatus: hide
+            customColumnWidths:
               -
-                columnName: MergedMask
+                - NeonID
+                - 50
               -
-                columnName: InvertedMask
-
-    -
-      col: 1
-      row: 13
-      sizex: 6
-      sizey: 4
-      type: filterBuilder
-
-    -
-      col: 4
-      row: 1
-      sizex: 3
-      sizey: 4
-      type: aggregation
-      bindings:
-        type: list
-        title: Manipulations
-        limit: 100
-        database: 0
-        table: doc
-        aggregation: count
-        logScaleX: true
-        notFilterable: true
-        sortByAggregation: true
-        xField: Manipulations
-        yPercentage: 0.3
-
-    -
-      col: 4
-      row: 5
-      sizex: 3
-      sizey: 8
-      type: documentViewer
-      bindings:
-        title: Metadata
-        limit: 1
-        database: 0
-        table: doc
-        hideUnfiltered: true
-        dataField: ProbeFileID
-        hideSource: true
-        idField: ProbeFileID
-        nameWidthCss: 50%
-        metadataFields:
-          -
-            name: File Name
-            field: ProbeFileID
-          -
-            name: File Type
-            field: FileType
-          -
-            name: Camera Type
-            field: CameraID
-          -
-            name: EXIF Data
-            field: Exif
-
-    -
-      col: 7
-      row: 1
-      sizex: 6
-      sizey: 8
-      type: mediaViewer
-      bindings:
-        title: Probe
-        database: 0
-        table: doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - ProbeDir
-        linkPrefix: http://10.107.5.227:8000
-        #linkPrefix: http://workbench-demo-data.mediforprogram.com
-        typeMap:
-            arw:
-            bmp: img
-            cr2:
-            gif: img
-            iiq:
-            jpg: img
-            jpeg: img
-            nef:
-            png: img
-            tif:
-            avi: vid
-            mp4: vid
-        customEventsToReceive:
-          -
-            id: show_medium
-            fields:
+                - ConfidenceScore
+                - 100
               -
-                columnName: ProbeDir
-                prettyName: Medium
+                - IndicatorPercent
+                - 100
+            fieldsConfig:
               -
-                columnName: MergedMask
-                prettyName: Overlay
+                name: NeonID
               -
-                columnName: InvertedMask
-                prettyName: Mask
+                name: IndicatorNamePretty
               -
-                columnName: ReasoningMergedMask
-                prettyName: Overlay
+                name: IndicatorPercent
+            #  -
+            #    name: SelectiveScoring
+
+        -
+          col: 7
+          row: 1
+          sizex: 3
+          sizey: 6
+          type: dataTable
+          bindings:
+            title: Manipulations
+            database: 1
+            table: _doc
+            limit: 100
+            colorField: OperationColor
+            filterable: true
+            filterFields:
+              - OperationOrder
+            hideUnfiltered: true
+            ignoreSelf: true
+            singleFilter: true
+            skinny: true
+            sortDescending: false
+            sortField: OperationOrder
+            allColumnStatus: hide
+            customColumnWidths:
               -
-                columnName: ReasoningInvertedMask
-                prettyName: Mask
-
-    -
-      col: 7
-      row: 13
-      sizex: 6
-      sizey: 4
-      type: documentViewer
-      bindings:
-        title: Supplemental Information
-
-  REASONING_GT:
-    -
-      col: 1
-      row: 1
-      sizex: 3
-      sizey: 12
-      type: thumbnailGrid
-      bindings:
-        title: Probe Gallery
-        limit: 30
-        database: 0
-        table: doc
-        ascending: true
-        border: percentCompare
-        borderCompareValue: Manipulated
-        compareField: ManipulationString
-        cropAndScale:
-        defaultPercent: N/A
-        filterField: ProbeFileID
-        idField: ProbeFileID
-        linkField: ThumbDir
-        linkPrefix: http://10.107.5.227:8000
-        #linkPrefix: http://workbench-demo-data.mediforprogram.com
-        nameField: ProbeFileID
-        objectIdField:
-        objectNameField:
-        openOnMouseClick: false
-        percentField: ReasoningScore
-        predictedNameField:
-        sortField: ProbeFileID
-        styleClass: style2
-        textMap:
-            actual: Truth
-            percentage: Reasoning Score
-            prediction:
-        typeMap:
-            arw:
-            bmp: img
-            cr2:
-            gif: img
-            iiq:
-            jpg: img
-            jpeg: img
-            nef:
-            png: img
-            tif:
-            avi: vid
-            mp4: vid
-        customEventsToPublish:
-          -
-            id: show_medium
-            fields:
+                - OperationScore
+                - 50
               -
-                columnName: InvertedMask
+                - OperationOrder
+                - 50
               -
-                columnName: MergedMask
-
-    -
-      col: 1
-      row: 13
-      sizex: 6
-      sizey: 4
-      type: filterBuilder
-
-    -
-      col: 4
-      row: 1
-      sizex: 3
-      sizey: 4
-      type: dataTable
-      bindings:
-        title: Scores
-        database: 1
-        table: doc
-        filterable: true
-        filterFields:
-          - Indicator
-        hideUnfiltered: true
-        heatmapDivisor: 0.2
-        heatmapField: NormalizedScore
-        idField: IndicatorPretty
-        ignoreSelf: true
-        sortField: NormalizedScore
-        skinny: true
-        sortDescending: true
-        unsharedFilterField: Status
-        unsharedFilterValue: Processed
-        allColumnStatus: hide
-        fieldsConfig:
-          -
-            name: IndicatorPretty
-          -
-            name: NormalizedScore
-        customEventsToPublish:
-          -
-            id: show_medium
-            fields:
+                - OperationColor
+                - 50
               -
-                columnName: InvertedMask
+                - OperationPurpose
+                - 100
+            fieldsConfig:
               -
-                columnName: MergedMask
-
-    -
-      col: 4
-      row: 5
-      sizex: 3
-      sizey: 8
-      type: documentViewer
-      bindings:
-        title: Metadata
-        limit: 1
-        database: 0
-        table: doc
-        hideUnfiltered: true
-        dataField: ProbeFileID
-        hideSource: true
-        idField: ProbeFileID
-        nameWidthCss: 50%
-        metadataFields:
-          -
-            name: File Name
-            field: ProbeFileID
-          -
-            name: File Type
-            field: FileType
-          -
-            name: Camera Type
-            field: CameraID
-          -
-            name: EXIF Data
-            field: Exif
-
-    -
-      col: 7
-      row: 1
-      sizex: 6
-      sizey: 8
-      type: mediaViewer
-      bindings:
-        title: Probe
-        database: 0
-        table: doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - ProbeDir
-        linkPrefix: http://10.107.5.227:8000
-        #linkPrefix: http://workbench-demo-data.mediforprogram.com
-        typeMap:
-            arw:
-            bmp: img
-            cr2:
-            gif: img
-            iiq:
-            jpg: img
-            jpeg: img
-            nef:
-            png: img
-            tif:
-            avi: vid
-            mp4: vid
-        customEventsToReceive:
-          -
-            id: show_medium
-            fields:
+                name: OperationGroup
               -
-                columnName: ProbeDir
-                prettyName: Medium
+                name: OperationOrder
               -
-                columnName: MergedMask
-                prettyName: Overlay
+                name: OperationColor
               -
-                columnName: InvertedMask
-                prettyName: Mask
-              -
-                columnName: ReasoningMergedMask
-                prettyName: Overlay
-              -
-                columnName: ReasoningInvertedMask
-                prettyName: Mask
+                name: OperationPurpose
 
-    -
-      col: 7
-      row: 9
-      sizex: 6
-      sizey: 4
-      type: thumbnailGrid
-      bindings:
-        title: Masks
-        limit: 30
-        database: 1
-        table: doc
-        hideUnfiltered: true
-        ascending: true
-        border: grey
-        cropAndScale: scale
-        filterField: FileID
-        idField: FileID
-        ignoreSelf: false
-        linkField: InvertedMask
-        linkPrefix: http://10.107.5.227:8000
-        #linkPrefix: http://workbench-demo-data.mediforprogram.com
-        nameField: IndicatorPretty
-        objectIdField:
-        objectNameField:
-        openOnMouseClick: false
-        percentField:
-        predictedNameField:
-        sortField: IndicatorPretty
-        styleClass: style2
-        typeMap:
-            arw:
-            bmp: img
-            cr2:
-            gif: img
-            iiq:
-            jpg: img
-            jpeg: img
-            nef:
-            png: img
-            tif:
-            avi: vid
-            mp4: vid
+        -
+          col: 7
+          row: 7
+          sizex: 3
+          sizey: 6
+          type: mediaViewer
+          bindings:
+            title: Indicator Mask
+            limit: 100
+            database: 2
+            table: _doc
+            border: grey
+            hideUnfiltered: true
+            linkFields:
+              - ProbePath
+            linkPrefix: http://10.107.5.227:3000/image
+            #linkPrefix: https://workbench-demo-data.mediforprogram.com/image
+            maskField: IndicatorMaskPath
+            maskLinkPrefix: http://10.107.5.227:3000/image
+            #maskLinkPrefix: https://workbench-demo-data.mediforprogram.com/image
+            nameField: NeonID
+            sliderValue: 50
+            sortField: NeonID
+            typeMap:
+                jpeg: mask
+                arw: mask
+                bmp: mask
+                cr2: mask
+                dng: mask
+                iiq: mask
+                jpg: mask
+                mts: mask
+                nef: mask
+                png: mask
+                raf: mask
+                tif: mask
+                3gp: mask
+                gif:
+                avi: vid
+                mov: vid
+                mp4: vid
 
-    -
-      col: 7
-      row: 13
-      sizex: 6
-      sizey: 4
-      type: documentViewer
-      bindings:
-        title: Supplemental Information
+        -
+          col: 10
+          row: 1
+          sizex: 3
+          sizey: 6
+          type: mediaViewer
+          bindings:
+            title: Manipulation Mask
+            limit: 100
+            database: 1
+            table: _doc
+            border: grey
+            hideUnfiltered: true
+            linkFields:
+              - ProbePath
+            linkPrefix: http://10.107.5.227:3000/image
+            #linkPrefix: https://workbench-demo-data.mediforprogram.com/image
+            maskField: OperationMaskRequestUrl
+            maskLinkPrefix: http://10.107.5.227:3000/masks
+            #maskLinkPrefix: https://workbench-demo-data.mediforprogram.com/masks
+            nameField: OperationOrder
+            sliderValue: 50
+            sortField: OperationOrder
+            typeMap:
+                jpeg: mask
+                arw: mask
+                bmp: mask
+                cr2: mask
+                dng: mask
+                iiq: mask
+                jpg: mask
+                mts: mask
+                nef: mask
+                png: mask
+                raf: mask
+                tif: mask
+                3gp: mask
+                gif:
+                avi: vid
+                mov: vid
+                mp4: vid
 
-  REASONING:
-    -
-      col: 1
-      row: 1
-      sizex: 3
-      sizey: 12
-      type: thumbnailGrid
-      bindings:
-        title: Probe Gallery
-        limit: 30
-        database: 0
-        table: doc
-        ascending: true
-        border: percentCompare
-        borderCompareValue: Manipulated
-        compareField: ManipulationString
-        cropAndScale:
-        defaultPercent: N/A
-        filterField: ProbeFileID
-        idField: ProbeFileID
-        linkField: ThumbDir
-        linkPrefix: http://10.107.5.227:8000
-        #linkPrefix: http://workbench-demo-data.mediforprogram.com
-        nameField: ProbeFileID
-        objectIdField:
-        objectNameField:
-        openOnMouseClick: false
-        percentField: ReasoningScore
-        predictedNameField:
-        sortField: ProbeFileID
-        styleClass: style2
-        textMap:
-            actual: Truth
-            percentage: Reasoning Score
-            prediction:
-        typeMap:
-            arw:
-            bmp: img
-            cr2:
-            gif: img
-            iiq:
-            jpg: img
-            jpeg: img
-            nef:
-            png: img
-            tif:
-            avi: vid
-            mp4: vid
-        customEventsToPublish:
-          -
-            id: show_medium
-            fields:
-              -
-                columnName: ReasoningInvertedMask
-              -
-                columnName: ReasoningMergedMask
+        -
+          col: 10
+          row: 7
+          sizex: 3
+          sizey: 6
+          type: mediaViewer
+          bindings:
+            title: Selected Donor
+            limit: 100
+            database: 5
+            table: _doc
+            border: grey
+            hideUnfiltered: true
+            linkFields:
+              - DonorPath
+            linkPrefix: http://10.107.5.227:3000/image
+            #linkPrefix: https://workbench-demo-data.mediforprogram.com/image
+            maskField: DonorMaskPath
+            nameField: DonorOrder
+            sliderValue: 50
+            sortField: DonorOrder
+            typeMap:
+                jpeg: mask,img
+                arw: mask,img
+                bmp: mask,img
+                cr2: mask,img
+                dng: mask,img
+                iiq: mask,img
+                jpg: mask,img
+                mts: mask,img
+                nef: mask,img
+                png: mask,img
+                raf: mask,img
+                tif: mask,img
+                3gp: mask,img
+                gif:
+                avi: vid
+                mov: vid
+                mp4: vid
 
-    -
-      col: 1
-      row: 13
-      sizex: 6
-      sizey: 4
-      type: filterBuilder
+    Evaluation Performance Summary:
+        -
+          col: 1
+          row: 1
+          sizex: 3
+          sizey: 18
+          type: thumbnailGrid
+          bindings:
+            title: Probes
+            limit: 200
+            database: 0
+            table: _doc
+            ascending: true
+            border:
+            borderCompareValue:
+            categoryField: GroundTruthLabel
+            compareField:
+            cropAndScale:
+            defaultPercent: N/A
+            detailedThumbnails: true
+            filterField: ProbeFileID
+            flagLabel: GroundTruthLabel
+            flagSubLabel1: Exif.DateTimeOriginal
+            flagSubLabel2: Exif.Model
+            flagSubLabel3: Exif.SizeAndOrientation
+            ignoreSelf: true
+            linkField: NeonProbePath
+            linkPrefix: http://10.107.5.227:3000/thumbnail
+            #linkPrefix: https://workbench-demo-data.mediforprogram.com/thumbnail
+            nameField: ProbeFileID
+            objectIdField: GroundTruthLabel
+            objectNameField:
+            openOnMouseClick: false
+            percentField:
+            predictedNameField:
+            sortDescending: true
+            sortField: ReasoningScore
+            textMap:
+                actual: Truth
+                percentage: Score
+                prediction:
+            typeMap:
+                jpeg: img
+                arw: img
+                bmp: img
+                cr2: img
+                dng: img
+                iiq: img
+                jpg: img
+                mts: img
+                nef: img
+                png: img
+                raf: img
+                tif: img
+                3gp: img
+                gif:
+                avi: vid
+                mov: vid
+                mp4: vid
+            viewType: details
 
-    -
-      col: 4
-      row: 1
-      sizex: 3
-      sizey: 4
-      type: dataTable
-      bindings:
-        title: Scores
-        database: 1
-        table: doc
-        filterable: true
-        filterFields:
-          - Indicator
-        hideUnfiltered: true
-        heatmapDivisor: 0.2
-        heatmapField: NormalizedScore
-        idField: IndicatorPretty
-        ignoreSelf: true
-        sortField: NormalizedScore
-        skinny: true
-        sortDescending: true
-        unsharedFilterField: Status
-        unsharedFilterValue: Processed
-        allColumnStatus: hide
-        fieldsConfig:
-          -
-            name: IndicatorPretty
-          -
-            name: NormalizedScore
-        customEventsToPublish:
-          -
-            id: show_medium
-            fields:
-              -
-                columnName: InvertedMask
-              -
-                columnName: MergedMask
+        -
+          col: 4
+          row: 1
+          sizex: 3
+          sizey: 3
+          type: aggregation
+          bindings:
+            type: histogram
+            title: File Sizes
+            database: 2
+            table: _doc
+            aggregation: count
+            countByAggregation: true
+            ignoreSelf: true
+            xField: Exif.FileSize
+            yPercentage: 0.3
 
-    -
-      col: 4
-      row: 5
-      sizex: 3
-      sizey: 8
-      type: documentViewer
-      bindings:
-        title: Metadata
-        limit: 1
-        database: 0
-        table: doc
-        hideUnfiltered: true
-        dataField: ProbeFileID
-        hideSource: true
-        idField: ProbeFileID
-        nameWidthCss: 50%
-        metadataFields:
-          -
-            name: File Name
-            field: ProbeFileID
-          -
-            name: File Type
-            field: FileType
-          -
-            name: Camera Type
-            field: CameraID
-          -
-            name: EXIF Data
-            field: Exif
+        -
+          col: 4
+          row: 4
+          sizex: 3
+          sizey: 3
+          type: aggregation
+          bindings:
+            type: bar-h
+            title: File Types
+            database: 2
+            table: _doc
+            aggregation: count
+            countByAggregation: true
+            ignoreSelf: true
+            xField: Exif.FileType
+            yPercentage: 0.3
 
-    -
-      col: 7
-      row: 1
-      sizex: 6
-      sizey: 8
-      type: mediaViewer
-      bindings:
-        title: Probe
-        database: 0
-        table: doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - ProbeDir
-        linkPrefix: http://10.107.5.227:8000
-        #linkPrefix: http://workbench-demo-data.mediforprogram.com
-        typeMap:
-            arw:
-            bmp: img
-            cr2:
-            gif: img
-            iiq:
-            jpg: img
-            jpeg: img
-            nef:
-            png: img
-            tif:
-            avi: vid
-            mp4: vid
-        customEventsToReceive:
-          -
-            id: show_medium
-            fields:
-              -
-                columnName: ProbeDir
-                prettyName: Medium
-              -
-                columnName: MergedMask
-                prettyName: Overlay
-              -
-                columnName: InvertedMask
-                prettyName: Mask
-              -
-                columnName: ReasoningMergedMask
-                prettyName: Overlay
-              -
-                columnName: ReasoningInvertedMask
-                prettyName: Mask
+        -
+          col: 4
+          row: 7
+          sizex: 3
+          sizey: 3
+          type: aggregation
+          bindings:
+            type: bar-h
+            title: Cameras
+            database: 2
+            table: _doc
+            filter:
+              lhs: Exif.Model
+              operator: '!='
+              rhs: '' 
+            aggregation: count
+            countByAggregation: true
+            ignoreSelf: true
+            xField: Exif.Model
+            yPercentage: 0.3
 
-    -
-      col: 7
-      row: 9
-      sizex: 6
-      sizey: 4
-      type: thumbnailGrid
-      bindings:
-        title: Masks
-        limit: 30
-        database: 1
-        table: doc
-        hideUnfiltered: true
-        ascending: true
-        border: grey
-        cropAndScale: scale
-        filterField: FileID
-        idField: FileID
-        ignoreSelf: false
-        linkField: InvertedMask
-        linkPrefix: http://10.107.5.227:8000
-        #linkPrefix: http://workbench-demo-data.mediforprogram.com
-        nameField: IndicatorPretty
-        objectIdField:
-        objectNameField:
-        openOnMouseClick: false
-        percentField:
-        predictedNameField:
-        sortField: IndicatorPretty
-        styleClass: style2
-        typeMap:
-            arw:
-            bmp: img
-            cr2:
-            gif: img
-            iiq:
-            jpg: img
-            jpeg: img
-            nef:
-            png: img
-            tif:
-            avi: vid
-            mp4: vid
+        -
+          col: 4
+          row: 10
+          sizex: 3
+          sizey: 3
+          type: aggregation
+          bindings:
+            type: bar-h
+            title: Lens
+            database: 2
+            table: _doc
+            aggregation: count
+            countByAggregation: true
+            ignoreSelf: true
+            xField: Exif.Lens
+            yPercentage: 0.3
 
-    -
-      col: 7
-      row: 13
-      sizex: 6
-      sizey: 4
-      type: documentViewer
-      bindings:
-        title: Supplemental Information
+        -
+          col: 4
+          row: 13
+          sizex: 3
+          sizey: 3
+          type: aggregation
+          bindings:
+            type: bar-h
+            title: Compression
+            database: 2
+            table: _doc
+            aggregation: count
+            countByAggregation: true
+            ignoreSelf: true
+            xField: Exif.Compression
+            yPercentage: 0.3
 
-  RUN:
-    -
-      col: 1
-      row: 1
-      sizex: 3
-      sizey: 12
-      type: thumbnailGrid
-      bindings:
-        title: Media
-        limit: 30
-        database: 0
-        table: doc
-        ascending: true
-        border: grey
-        cropAndScale:
-        defaultPercent: N/A
-        filterField: name
-        idField: input
-        linkField: thumbnail
-        linkPrefix: http://10.107.128.20:7480
-        #linkPrefix: http://ceph.mediforprogram.com
-        nameField: name
-        objectIdField:
-        objectNameField:
-        openOnMouseClick: false
-        percentField: reasoning_score
-        predictedNameField:
-        sortField: name
-        styleClass: style2
-        textMap:
-            actual: Truth
-            percentage: Reasoning Score
-            prediction:
-        typeMap:
-            arw:
-            bmp: img
-            cr2:
-            gif: img
-            iiq:
-            jpg: img
-            jpeg: img
-            nef:
-            png: img
-            tif:
-            avi: vid
-            mp4: vid
-        customEventsToPublish:
-          -
-            id: show_medium
-            fields:
-              -
-                columnName: reasoning_inverted_mask
-              -
-                columnName: reasoning_merged_mask
+        -
+          col: 4
+          row: 16
+          sizex: 3
+          sizey: 3
+          type: aggregation
+          bindings:
+            type: bar-h
+            title: Faces
+            database: 2
+            table: _doc
+            aggregation: count
+            countByAggregation: true
+            ignoreSelf: true
+            xField: Exif.FacesDetected
+            yPercentage: 0.3
 
-    -
-      col: 1
-      row: 13
-      sizex: 6
-      sizey: 4
-      type: filterBuilder
+        -
+          col: 7
+          row: 1
+          sizex: 3
+          sizey: 6
+          type: aggregation
+          bindings:
+            type: bar-h
+            title: Manipulations
+            database: 2
+            table: _doc
+            filter:
+              lhs: ManipulationOperations
+              operator: '!='
+              rhs: '' 
+            aggregation: count
+            countByAggregation: true
+            ignoreSelf: true
+            xField: ManipulationOperations
+            yPercentage: 0.3
 
-    -
-      col: 4
-      row: 1
-      sizex: 3
-      sizey: 4
-      type: dataTable
-      bindings:
-        title: Scores
-        database: 1
-        table: doc
-        filterable: true
-        filterFields:
-          - indicator
-        hideUnfiltered: true
-        heatmapDivisor: 0.2
-        heatmapField: score
-        idField: indicator
-        ignoreSelf: true
-        sortField: score
-        skinny: true
-        sortDescending: true
-        unsharedFilterField: status
-        unsharedFilterValue: Processed
-        allColumnStatus: hide
-        fieldsConfig:
-          -
-            name: indicator
-          -
-            name: score
-        customEventsToPublish:
-          -
-            id: show_medium
-            fields:
-              -
-                columnName: inverted_mask
-              -
-                columnName: merged_mask
+        -
+          col: 7
+          row: 7
+          sizex: 3
+          sizey: 3
+          type: aggregation
+          bindings:
+            type: bar-h
+            title: Indicator Teams
+            database: 2
+            table: _doc
+            aggregation: count
+            countByAggregation: true
+            ignoreSelf: true
+            xField: IndicatorTeam
+            yPercentage: 0.3
 
-    -
-      col: 4
-      row: 5
-      sizex: 3
-      sizey: 8
-      type: documentViewer
-      bindings:
-        title: Metadata
-        limit: 1
-        database: 0
-        table: doc
-        hideUnfiltered: true
-        dataField: input
-        hideSource: true
-        idField: input
-        nameWidthCss: 50%
-        metadataFields:
-          -
-            name: File Name
-            field: name
-          -
-            name: File Type
-            field: extension
-          -
-            name: EXIF Data
-            field: exif
+        -
+          col: 10
+          row: 1
+          sizex: 3
+          sizey: 9
+          type: aggregation
+          bindings:
+            type: list
+            title: Indicator AUC
+            database: 2
+            table: _doc
+            filter:
+              lhs: NeonEval
+              operator: '!='
+              rhs: -1
+            aggregation: avg
+            aggregationField: NeonEval
+            countByAggregation: true
+            ignoreSelf: true
+            xField: IndicatorNamePretty
 
-    -
-      col: 7
-      row: 1
-      sizex: 6
-      sizey: 8
-      type: mediaViewer
-      bindings:
-        title: Probe
-        database: 0
-        table: doc
-        border: grey
-        idField: input
-        linkFields:
-          - input
-        linkPrefix: http://10.107.128.20:7480
-        #linkPrefix: http://ceph.mediforprogram.com
-        typeMap:
-            arw:
-            bmp: img
-            cr2:
-            gif: img
-            iiq:
-            jpg: img
-            jpeg: img
-            nef:
-            png: img
-            tif:
-            avi: vid
-            mp4: vid
-        customEventsToReceive:
-          -
-            id: show_medium
-            fields:
-              -
-                columnName: input
-                prettyName: Medium
-              -
-                columnName: merged_mask
-                prettyName: Overlay
-              -
-                columnName: inverted_mask
-                prettyName: Mask
-              -
-                columnName: reasoning_merged_mask
-                prettyName: Reasoning Overlay
-              -
-                columnName: reasoning_inverted_mask
-                prettyName: Reasoning Mask
+        -
+          col: 7
+          row: 10
+          sizex: 6
+          sizey: 3
+          type: aggregation
+          bindings:
+            type: histogram
+            title: Indicator Score TPR (%)
+            limit: 1000
+            database: 2
+            table: _doc
+            filter:
+              lhs: NeonEvalPercentage
+              operator: '!='
+              rhs: -100
+            aggregation: count
+            countByAggregation: true
+            ignoreSelf: true
+            xField: NeonEvalPercentage
+            yPercentage: 0.3
 
-    -
-      col: 7
-      row: 9
-      sizex: 6
-      sizey: 4
-      type: thumbnailGrid
-      bindings:
-        title: Masks
-        limit: 30
-        database: 1
-        table: doc
-        hideUnfiltered: true
-        ascending: true
-        border: grey
-        cropAndScale: scale
-        filterField: name
-        idField: input
-        ignoreSelf: false
-        linkField: inverted_mask
-        linkPrefix: http://10.107.128.20:7480
-        #linkPrefix: http://ceph.mediforprogram.com
-        nameField: indicator
-        objectIdField:
-        objectNameField:
-        openOnMouseClick: false
-        percentField:
-        predictedNameField:
-        sortField: indicator
-        styleClass: style2
-        typeMap:
-            arw:
-            bmp: img
-            cr2:
-            gif: img
-            iiq:
-            jpg: img
-            jpeg: img
-            nef:
-            png: img
-            tif:
-            avi: vid
-            mp4: vid
-
-    -
-      col: 7
-      row: 13
-      sizex: 6
-      sizey: 4
-      type: documentViewer
-      bindings:
-        title: Supplemental Information
-
-  NIST:
-    -
-      col: 1
-      row: 1
-      sizex: 4
-      sizey: 11
-      type: thumbnailGrid
-      bindings:
-        title: Probe Image Gallery
-        limit: 16
-        database: nist_data
-        table: _doc
-        unsharedFilterField: ProjectType
-        unsharedFilterValue: image
-        ascending: true
-        border: valueCompare
-        borderCompareValue: Y
-        compareField: IsTarget
-        cropAndScale:
-        defaultLabel:
-        defaultPercent:
-        filterField: ProbeFileID
-        idField: ProbeFileID
-        linkField: ProbeThumbnailPath
-        linkPrefix: http://10.107.5.227:3000/thumbnail/
-        #linkPrefix: http://10.107.5.227:8000/mnt/datasets/
-        nameField: ProbeFileID
-        objectIdField:
-        objectNameField: TaskID
-        openOnMouseClick: false
-        percentField:
-        predictedNameField:
-        sortField: ProbeFileID
-        styleClass: style2
-        textMap:
-            actual: Task
-            percentage:
-            prediction:
-        typeMap:
-            jpeg: img
-            arw: img
-            bmp: img
-            cr2: img
-            dng: img
-            iiq: img
-            jpg: img
-            mts: img
-            nef: img
-            png: img
-            raf: img
-            tif: img
-            3gp: img
-            gif: img
-            avi: img
-            mov: img
-            mp4: img
-
-    -
-      col: 1
-      row: 12
-      sizex: 4
-      sizey: 5
-      type: thumbnailGrid
-      bindings:
-        title: Probe Video Gallery
-        limit: 4
-        database: nist_data
-        table: _doc
-        unsharedFilterField: ProjectType
-        unsharedFilterValue: video
-        ascending: true
-        border: valueCompare
-        borderCompareValue: Y
-        compareField: IsTarget
-        cropAndScale:
-        defaultLabel:
-        defaultPercent:
-        filterField: ProbeFileID
-        idField: ProbeFileID
-        linkField: ProbeThumbnailPath
-        linkPrefix: http://10.107.5.227:3000/thumbnail/
-        #linkPrefix: http://10.107.5.227:8000/mnt/datasets/
-        nameField: ProbeFileID
-        objectIdField:
-        objectNameField: TaskID
-        openOnMouseClick: false
-        percentField:
-        predictedNameField:
-        sortField: ProbeFileID
-        styleClass: style2
-        textMap:
-            actual: Task
-            percentage:
-            prediction:
-        typeMap:
-            jpeg: img
-            arw: img
-            bmp: img
-            cr2: img
-            dng: img
-            iiq: img
-            jpg: img
-            mts: img
-            nef: img
-            png: img
-            raf: img
-            tif: img
-            3gp: img
-            gif: img
-            avi: img
-            mov: img
-            mp4: img
-
-    -
-      col: 1
-      row: 17
-      sizex: 4
-      sizey: 5
-      type: filterBuilder
-      bindings:
-        requireAll: true
-
-    -
-      col: 5
-      row: 1
-      sizex: 4
-      sizey: 4
-      type: aggregation
-      bindings:
-        type: bar-h
-        title: Datasets
-        database: nist_data
-        table: _doc
-        aggregation: count
-        logScaleX: true
-        sortByAggregation: true
-        xField: Dataset
-        yPercentage: 0.3
-
-    -
-      col: 5
-      row: 5
-      sizex: 4
-      sizey: 4
-      type: aggregation
-      bindings:
-        type: bar-h
-        title: Tasks
-        database: nist_data
-        table: _doc
-        aggregation: count
-        logScaleX: true
-        sortByAggregation: true
-        xField: TaskID
-        yPercentage: 0.3
-
-    -
-      col: 5
-      row: 9
-      sizex: 4
-      sizey: 4
-      type: aggregation
-      bindings:
-        type: bar-h
-        title: Is Target
-        database: nist_data
-        table: _doc
-        aggregation: count
-        logScaleX: true
-        sortByAggregation: true
-        xField: IsTarget
-        yPercentage: 0.3
-
-    -
-      col: 5
-      row: 13
-      sizex: 4
-      sizey: 9
-      type: aggregation
-      bindings:
-        type: bar-h
-        title: Manipulations
-        database: nist_data
-        table: _doc
-        aggregation: count
-        logScaleX: true
-        sortByAggregation: true
-        xField: Manipulations
-        yPercentage: 0.3
-
-    -
-      col: 9
-      row: 1
-      sizex: 4
-      sizey: 7
-      type: mediaViewer
-      bindings:
-        title: Probe
-        database: nist_data
-        table: _doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - ProbeFileName
-        linkPrefix: http://10.107.5.227:8000
-        typeMap:
-            jpeg: img
-            arw:
-            bmp: img
-            cr2:
-            dng:
-            iiq:
-            jpg: img
-            mts:
-            nef:
-            png: img
-            raf:
-            tif: img
-            3gp:
-            gif:
-            avi: vid
-            mov: vid
-            mp4: vid
-
-    -
-      col: 9
-      row: 8
-      sizex: 4
-      sizey: 7
-      type: mediaViewer
-      bindings:
-        title: Probe GT Mask
-        database: nist_data
-        table: _doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - ProbeMaskFileName
-        linkPrefix: http://10.107.5.227:8000
-        typeMap:
-            jpeg: img
-            arw:
-            bmp: img
-            cr2:
-            dng:
-            iiq:
-            jpg: img
-            mts:
-            nef:
-            png: img
-            raf:
-            tif:
-            3gp:
-            gif:
-            avi: vid
-            mov: vid
-            mp4: vid
-
-    -
-      col: 9
-      row: 15
-      sizex: 4
-      sizey: 7
-      type: mediaViewer
-      bindings:
-        title: Base
-        database: nist_data
-        table: _doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - BaseFileName
-        linkPrefix: http://10.107.5.227:8000
-        typeMap:
-            jpeg: img
-            arw:
-            bmp: img
-            cr2:
-            dng:
-            iiq:
-            jpg: img
-            mts:
-            nef:
-            png: img
-            raf:
-            tif:
-            3gp:
-            gif:
-            avi: vid
-            mov: vid
-            mp4: vid
-
-    -
-      col: 1
-      row: 22
-      sizex: 4
-      sizey: 7
-      type: mediaViewer
-      bindings:
-        title: Donor
-        database: nist_data
-        table: _doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - DonorFileName
-        linkPrefix: http://10.107.5.227:8000
-        typeMap:
-            jpeg: img
-            arw:
-            bmp: img
-            cr2:
-            dng:
-            iiq:
-            jpg: img
-            mts:
-            nef:
-            png: img
-            raf:
-            tif:
-            3gp:
-            gif:
-            avi: vid
-            mov: vid
-            mp4: vid
-
-    -
-      col: 5
-      row: 22
-      sizex: 4
-      sizey: 7
-      type: mediaViewer
-      bindings:
-        title: Donor GT Mask
-        database: nist_data
-        table: _doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - DonorMaskFileName
-        linkPrefix: http://10.107.5.227:8000
-        typeMap:
-            jpeg: img
-            arw:
-            bmp: img
-            cr2:
-            dng:
-            iiq:
-            jpg: img
-            mts:
-            nef:
-            png: img
-            raf:
-            tif:
-            3gp:
-            gif:
-            avi: vid
-            mov: vid
-            mp4: vid
-
-    -
-      col: 9
-      row: 22
-      sizex: 4
-      sizey: 7
-      type: mediaViewer
-      bindings:
-        title: Binary Probe GT Mask
-        database: nist_data
-        table: _doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - BinaryProbeMaskFileName
-        linkPrefix: http://10.107.5.227:8000
-        typeMap:
-            jpeg: img
-            arw:
-            bmp: img
-            cr2:
-            dng:
-            iiq:
-            jpg: img
-            mts:
-            nef:
-            png: img
-            raf:
-            tif:
-            3gp:
-            gif:
-            avi: vid
-            mov: vid
-            mp4: vid
-
-    -
-      col: 1
-      row: 29
-      sizex: 12
-      sizey: 6
-      type: dataTable
-      bindings:
-        title: Data
-        database: nist_data
-        table: _doc
-        filterable: true
-        filterFields:
-          - ProbeFileID
-        idField: ProbeFileID
-        sortField: ProbeFileID
-        skinny: true
-        sortDescending: false
-        allColumnStatus: hide
-        fieldsConfig:
-          -
-            name: ProbeFileID
-          -
-            name: Dataset
-          -
-            name: TaskID
-          -
-            name: IsTarget
-          -
-            name: Manipulations
-          -
-            name: ProbeFileName
-          -
-            name: ProbeMaskFileName
-          -
-            name: BaseFileName
-          -
-            name: DonorFileName
-          -
-            name: DonorMaskFileName
-          -
-            name: BinaryProbeMaskFileName
-          -
-            name: JournalFileName
-
-  INTEGRITY_REPORT:
-    -
-      col: 1
-      row: 1
-      sizex: 4
-      sizey: 14
-      type: thumbnailGrid
-      bindings:
-        title: Probe Gallery
-        limit: 200
-        database: 0
-        table: _doc
-        ascending: true
-        border: percentCompare
-        borderCompareValue: Manipulated
-        compareField: NeonReasoningLabel
-        cropAndScale:
-        defaultPercent: N/A
-        viewType: details
-        filterField: ProbeFileID
-        flagLabel: NeonReasoningLabel
-        flagSubLabel1: Exif.ImageSize
-        flagSubLabel2: Exif.Model
-        flagSubLabel3: Exif.DateTimeOriginal
-        idField: ProbeFileID
-        ignoreSelf: true
-        linkField: NeonThumbnailPath
-        linkPrefix: http://10.107.5.227:8000
-        nameField: ProbeFileID
-        objectIdField:
-        objectNameField:
-        openOnMouseClick: false
-        percentField: NeonReasoningScore
-        predictedNameField:
-        sortField: ProbeFileID
-        textMap:
-            actual: Truth
-            percentage: Score
-            prediction:
-        typeMap:
-            jpeg: img
-            arw:
-            bmp: img
-            cr2:
-            dng:
-            iiq:
-            jpg: img
-            mts:
-            nef:
-            png: img
-            raf:
-            tif:
-            3gp:
-            gif:
-            avi: vid
-            mov: vid
-            mp4: vid
-        customEventsToPublish:
-          -
-            id: show_operations
-            fields:
-              -
-                columnName: NeonOperationsSorted
-              -
-                columnName: NeonProbeSplitMaskPathsSorted
-
-    -
-      col: 1
-      row: 15
-      sizex: 7
-      sizey: 6
-      type: filterBuilder
-
-    -
-      col: 5
-      row: 1
-      sizex: 3
-      sizey: 6
-      type: dataTable
-      bindings:
-        title: Manipulations
-        database: 1
-        table: _doc
-        colorField: OperationColor
-        filterable: false
-        filterFields:
-        hideUnfiltered: true
-        #idField: OperationGroup
-        ignoreSelf: true
-        sortField: OperationOrder
-        skinny: true
-        sortDescending: false
-        allColumnStatus: hide
-        fieldsConfig:
-          -
-            name: OperationColor
-          -
-            name: OperationGroup
-          -
-            name: OperationOrder
-          -
-            name: OperationSubtype
-          -
-            name: OperationScore
-        #customEventsToPublish:
-        #  -
-        #    id: show_operation
-        #    fields:
-        #      -
-        #        columnName: OperationOrder
-        #      -
-        #        columnName: OperationMaskPath
-        #      -
-        #        columnName: OperationOverlayPaths
-
-    -
-      col: 5
-      row: 7
-      sizex: 3
-      sizey: 8
-      type: documentViewer
-      bindings:
-        title: Metadata
-        limit: 1
-        database: 0
-        table: _doc
-        hideUnfiltered: true
-        dataField: ProbeFileID
-        hideSource: true
-        idField: ProbeFileID
-        nameWidthCss: 50%
-        metadataFields:
-          -
-            name: File Name
-            field: ProbeFileID
-          -
-            name: EXIF Data
-            field: Exif
-
-    -
-      col: 8
-      row: 1
-      sizex: 5
-      sizey: 8
-      type: mediaViewer
-      bindings:
-        title: Probe
-        database: 0
-        table: _doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - NeonProbePath
-        linkPrefix: http://10.107.5.227:8000
-        maskField: NeonProbeMaskPath
-        sliderValue: 50
-        typeMap:
-            jpeg: mask
-            arw:
-            bmp: mask
-            cr2:
-            dng:
-            iiq:
-            jpg: mask
-            mts:
-            nef:
-            png: mask
-            raf:
-            tif:
-            3gp:
-            gif:
-            avi: vid
-            mov: vid
-            mp4: vid
-        customEventsToReceive:
-          #-
-          #  id: show_operation
-          #  fields:
-          #    -
-          #      columnName: OperationMaskPath
-          #      type: mask
-          #    -
-          #      columnName: OperationOrder
-          #      prettyName: Step
-          #      type: tab
-          -
-            id: show_operations
-            fields:
-              -
-                columnName: NeonOperationsSorted
-                type: name
-              -
-                columnName: NeonProbeSplitMaskPathsSorted
-                type: mask
-
-    -
-      col: 8
-      row: 9
-      sizex: 5
-      sizey: 4
-      type: thumbnailGrid
-      bindings:
-        title: Donor Gallery
-        limit: 10
-        database: 2
-        table: _doc
-        hideUnfiltered: true
-        ascending: true
-        border: percentField
-        cropAndScale: scale
-        filterField:
-        idField: ProbeFileID
-        ignoreSelf: false
-        linkField: DonorPath
-        linkPrefix: http://10.107.5.227:8000
-        nameField: DonorFileID
-        objectIdField:
-        objectNameField:
-        openOnMouseClick: false
-        percentField: DonorScore
-        predictedNameField:
-        sortField: DonorFileID
-        styleClass: style2
-        typeMap:
-            jpeg: img
-            arw:
-            bmp: img
-            cr2:
-            dng:
-            iiq:
-            jpg: img
-            mts:
-            nef:
-            png: img
-            raf:
-            tif:
-            3gp:
-            gif:
-            avi: vid
-            mov: vid
-            mp4: vid
-        customEventsToPublish:
-          -
-            id: show_donor
-            fields:
-              -
-                columnName: DonorFileID
-              -
-                columnName: DonorPath
-              -
-                columnName: DonorMaskPath
-
-    -
-      col: 8
-      row: 13
-      sizex: 5
-      sizey: 8
-      type: mediaViewer
-      bindings:
-        title: Donor
-        database: 2
-        table: _doc
-        border: grey
-        idField: DonorFileID
-        linkFields:
-          - DonorPath
-        linkPrefix: http://10.107.5.227:8000
-        maskField: DonorMaskPath
-        sliderValue: 50
-        typeMap:
-            jpeg: mask
-            arw:
-            bmp: mask
-            cr2:
-            dng:
-            iiq:
-            jpg: mask
-            mts:
-            nef:
-            png: mask
-            raf:
-            tif:
-            3gp:
-            gif:
-            avi: vid
-            mov: vid
-            mp4: vid
-        customEventsToReceive:
-          -
-            id: show_donor
-            fields:
-              -
-                columnName: DonorFileID
-                type: tab
-              -
-                columnName: DonorPath
-                type: base
-              -
-                columnName: DonorMaskPath
-                type: mask
-
+        -
+          col: 7
+          row: 13
+          sizex: 6
+          sizey: 3
+          type: aggregation
+          bindings:
+            type: histogram
+            title: Indicator MCCs (%)
+            limit: 1000
+            database: 4
+            table: _doc
+            filter:
+              lhs: RoundedMCCInt
+              operator: '!='
+              rhs: -1
+            aggregation: count
+            countByAggregation: true
+            ignoreSelf: true
+            xField: RoundedMCCInt
+            yPercentage: 0.3

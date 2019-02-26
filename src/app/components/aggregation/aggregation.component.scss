@@ -64,6 +64,12 @@
             font-size: 14px;
             line-height: 16px;
             height: 16px;
+            /* TODO Make configurable! */
+            max-width: 250px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            word-break: break-all;
 
             &.list-selectable {
                 &.heat-1 {
@@ -116,4 +122,3 @@
         }
     }
 }
-

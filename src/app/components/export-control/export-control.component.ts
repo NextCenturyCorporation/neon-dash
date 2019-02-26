@@ -48,6 +48,7 @@ export class ExportControlComponent {
 
     constructor(
         protected connectionService: ConnectionService,
+        protected datasetService: DatasetService,
         private matSnackBar: MatSnackBar,
         private viewContainerRef: ViewContainerRef
     ) {
@@ -85,7 +86,8 @@ export class ExportControlComponent {
     }
 
     handleExportClick() {
-        let connection: neon.query.Connection = this.connectionService.getActiveConnection();
+        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
+            this.datasetService.getHostname());
         let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;
         let data = {

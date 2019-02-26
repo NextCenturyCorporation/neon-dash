@@ -28,11 +28,12 @@ import * as neon from 'neon-framework';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { MediaViewerComponent } from './media-viewer.component';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: MediaViewer', () => {
@@ -46,9 +47,9 @@ describe('Component: MediaViewer', () => {
             ExportControlComponent
         ],
         providers: [
-            ConnectionService,
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
@@ -97,22 +98,67 @@ describe('Component: MediaViewer', () => {
         component.options.nameField = DatasetServiceMock.NAME_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
 
-        let inputQuery = new neon.query.Query()
-            .selectFrom('testDatabase', 'testTable')
-            .withFields(['testIdField', 'testLinkField', 'testNameField', 'testTypeField']);
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            filter: {
+                filters: [{
+                    field: 'testLinkField',
+                    operator: '!=',
+                    value: null
+                }, {
+                    field: 'testIdField',
+                    operator: '=',
+                    value: 'testId'
+                }],
+                type: 'and'
+            }
+        });
+    }));
 
-        let query = new neon.query.Query()
-            .selectFrom('testDatabase', 'testTable')
-            .withFields(['testIdField', 'testLinkField', 'testNameField', 'testTypeField']);
+    it('finalizeVisualizationQuery with no ID field does return expected query', (() => {
+        component.options.database = new DatabaseMetaData('testDatabase');
+        component.options.table = new TableMetaData('testTable');
+        component.options.id = 'testId';
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
+        component.options.nameField = DatasetServiceMock.NAME_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
 
-        let whereClauses = [
-            neon.query.where('testIdField', '=', 'testId'),
-            neon.query.where('testLinkField', '!=', null)
-        ];
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            filter: {
+                field: 'testLinkField',
+                operator: '!=',
+                value: null
+            }
+        });
+    }));
 
-        query.where(neon.query.and.apply(query, whereClauses));
+    it('finalizeVisualizationQuery with sort field does return expected query', (() => {
+        component.options.database = new DatabaseMetaData('testDatabase');
+        component.options.table = new TableMetaData('testTable');
+        component.options.id = 'testId';
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
+        component.options.nameField = DatasetServiceMock.NAME_FIELD;
+        component.options.sortField = DatasetServiceMock.SORT_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
 
-        expect(component.finalizeVisualizationQuery(component.options, inputQuery, [])).toEqual(query);
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            filter: {
+                filters: [{
+                    field: 'testLinkField',
+                    operator: '!=',
+                    value: null
+                }, {
+                    field: 'testIdField',
+                    operator: '=',
+                    value: 'testId'
+                }],
+                type: 'and'
+            },
+            sort: {
+                field: 'testSortField',
+                order: 1
+            }
+        });
     }));
 
     it('getElementRefs does return expected object', () => {
@@ -207,7 +253,6 @@ describe('Component: MediaViewer', () => {
     it('transformVisualizationQueryResults does set expected properties with no data', (() => {
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName',
             selected: {
                 border: '',
@@ -256,7 +301,6 @@ describe('Component: MediaViewer', () => {
     it('transformVisualizationQueryResults does set expected properties with selected filter and no data', (() => {
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName',
             selected: {
                 border: '',
@@ -307,7 +351,6 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: 'testNameValue',
             selected: {
                 border: '',
@@ -340,7 +383,6 @@ describe('Component: MediaViewer', () => {
 
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testOldTab',
             selected: {
                 border: '',
@@ -367,7 +409,6 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: 'testNameValue2',
             selected: {
                 border: '',
@@ -407,7 +448,6 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: '1: testNameValue',
             selected: {
                 border: '',
@@ -425,7 +465,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: '2: testNameValue',
             selected: {
                 border: '',
@@ -465,7 +504,6 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: '1: testNameValue1',
             selected: {
                 border: '',
@@ -483,7 +521,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: '2: testNameValue2',
             selected: {
                 border: '',
@@ -538,7 +575,6 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: 'testLinkValue',
             selected: {
                 border: 'grey',
@@ -575,7 +611,6 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: 'testLinkValue',
             selected: {
                 border: '',
@@ -607,7 +642,6 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: 'testLinkValue',
             selected: {
                 border: '',
@@ -638,7 +672,6 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: 'testLinkValue',
             selected: {
                 border: '',
@@ -681,7 +714,6 @@ describe('Component: MediaViewer', () => {
         expect((component as any).errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
-            slider: 0,
             name: '1: video.avi',
             selected: {
                 border: '',
@@ -699,7 +731,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: '2: image.jpg',
             selected: {
                 border: '',
@@ -717,7 +748,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: '3: alpha.txt',
             selected: {
                 border: '',
@@ -735,7 +765,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: '4: audio.wav',
             selected: {
                 border: '',
@@ -753,7 +782,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: '5: other.xyz',
             selected: {
                 border: '',
@@ -969,7 +997,6 @@ describe('Component: MediaViewer', () => {
     it('does show tabs if tabsAndMedia is not empty', async(inject([DomSanitizer], (sanitizer) =>  {
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
@@ -987,7 +1014,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: 'testTabName2',
             selected: {
                 border: '',
@@ -1027,7 +1053,6 @@ describe('Component: MediaViewer', () => {
         let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName',
             selected: {
                 border: '',
@@ -1059,7 +1084,6 @@ describe('Component: MediaViewer', () => {
         let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
@@ -1077,7 +1101,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: 'testTabName2',
             selected: {
                 border: '',
@@ -1107,95 +1130,10 @@ describe('Component: MediaViewer', () => {
         });
     })));
 
-    it('does show single video tag according to the video type', async(inject([DomSanitizer], (sanitizer) => {
-        let vidSrc = 'https://youtu.be/Mxesac55Puo';
-        component.tabsAndMedia = [{
-            loaded: false,
-            slider: 0,
-            name: 'testTabName',
-            selected: {
-                border: '',
-                link: vidSrc,
-                mask: '',
-                name: 'testName',
-                type: 'vid'
-            },
-            list: [{
-                border: '',
-                link: vidSrc,
-                mask: '',
-                name: 'testName',
-                type: 'vid'
-            }]
-        }];
-        fixture.detectChanges();
-
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
-            expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<video');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
-        });
-    })));
-
-    it('does show multiple video tags in tabs according to the video type', async(inject([DomSanitizer], (sanitizer) => {
-        let vidSrc = 'https://youtu.be/Mxesac55Puo';
-        component.tabsAndMedia = [{
-            loaded: false,
-            slider: 0,
-            name: 'testTabName1',
-            selected: {
-                border: '',
-                link: vidSrc,
-                mask: '',
-                name: 'testName',
-                type: 'vid'
-            },
-            list: [{
-                border: '',
-                link: vidSrc,
-                mask: '',
-                name: 'testName',
-                type: 'vid'
-            }]
-        }, {
-            loaded: false,
-            slider: 0,
-            name: 'testTabName2',
-            selected: {
-                border: '',
-                link: vidSrc,
-                mask: '',
-                name: 'testName',
-                type: 'vid'
-            },
-            list: [{
-                border: '',
-                link: vidSrc,
-                mask: '',
-                name: 'testName',
-                type: 'vid'
-            }]
-        }];
-        fixture.detectChanges();
-
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-            let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
-            expect(tabs.length).toBe(2);
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
-            expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<video');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
-        });
-    })));
-
     it('does show single audio tag according to the audio type', async(inject([DomSanitizer], (sanitizer) => {
         let audSrc = './assets/audio/test-audio.wav';
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName',
             selected: {
                 border: '',
@@ -1227,7 +1165,6 @@ describe('Component: MediaViewer', () => {
         let audSrc = './assets/audio/test-audio.wav';
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
@@ -1245,7 +1182,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: 'testTabName2',
             selected: {
                 border: '',
@@ -1279,7 +1215,6 @@ describe('Component: MediaViewer', () => {
         let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName',
             selected: {
                 border: '',
@@ -1311,7 +1246,6 @@ describe('Component: MediaViewer', () => {
         let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
@@ -1329,7 +1263,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: 'testTabName2',
             selected: {
                 border: '',
@@ -1362,7 +1295,6 @@ describe('Component: MediaViewer', () => {
     it('does show two tabs and slider', async(inject([DomSanitizer], (sanitizer) =>  {
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
@@ -1386,7 +1318,6 @@ describe('Component: MediaViewer', () => {
             }]
         }, {
             loaded: false,
-            slider: 0,
             name: 'testTabName2',
             selected: {
                 border: '',
@@ -1427,7 +1358,6 @@ describe('Component: MediaViewer', () => {
         let maskSource = 'https://homepages.cae.wisc.edu/~ece533/images/boat.png';
         component.tabsAndMedia = [{
             loaded: false,
-            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
@@ -1472,9 +1402,9 @@ describe('Component: MediaViewer with config', () => {
             ExportControlComponent
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'title', useValue: 'Test Title' },
@@ -1516,7 +1446,7 @@ describe('Component: MediaViewer with config', () => {
 
     it('does have expected class options properties', () => {
         expect(component.options.border).toEqual('grey');
-        expect(component.options.id).toEqual(undefined);
+        expect(component.options.id).toEqual('testId');
         expect(component.options.linkPrefix).toEqual('prefix/');
         expect(component.options.resize).toEqual(false);
         expect(component.options.typeMap).toEqual({
@@ -1553,7 +1483,7 @@ describe('Component: MediaViewer with config', () => {
             expect(inputs[1].nativeElement.value).toEqual('grey');
 
             expect(inputs[2].attributes.placeholder).toEqual('ID');
-            expect(inputs[2].nativeElement.value).toEqual('');
+            expect(inputs[2].nativeElement.value).toEqual('testId');
 
             expect(inputs[3].attributes.placeholder).toEqual('Link Prefix');
             expect(inputs[3].nativeElement.value).toEqual('prefix/');
