@@ -37,6 +37,8 @@ export class MapPoint {
     constructor(
         public idValue: string,
         public idList: string[],
+        public filterList: Map<string, any>[],
+        public filterFields: Map<string, any>,
         public name: string,
         public lat: number,
         public lng: number,
@@ -51,7 +53,7 @@ export class MapPoint {
 
 export interface FilterListener {
     filterByLocation(box: BoundingBoxByDegrees);
-    filterByMapPoint(lat: number, lng: number);
+    filterByMapPoint(filters: Map<string, any>[], lat: number, lng: number);
 }
 
 export abstract class AbstractMap {
