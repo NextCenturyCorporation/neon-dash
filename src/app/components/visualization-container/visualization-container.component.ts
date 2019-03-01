@@ -15,8 +15,10 @@
  */
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
+import * as neon from 'neon-framework';
+
 import { NeonGridItem } from '../../neon-grid-item';
+import { neonEvents } from '../../neon-namespaces';
 import { VisualizationInjectorComponent } from '../visualization-injector/visualization-injector.component';
 
 @Component({
@@ -32,7 +34,10 @@ export class VisualizationContainerComponent implements OnInit {
 
     @Input() visualization: NeonGridItem;
 
-    constructor(private activeGridService: ActiveGridService) {
+    private messenger: any;
+
+    constructor() {
+        this.messenger = new neon.eventing.Messenger();
         this.expanded = false;
         this.showToolbar = false;
     }
@@ -42,13 +47,17 @@ export class VisualizationContainerComponent implements OnInit {
     }
 
     close() {
-        this.activeGridService.closeItem(this.visualization.id);
+        this.messenger.publish(neonEvents.WIDGET_DELETE, {
+            id: this.visualization.id
+        });
     }
 
     contract() {
         this.onResizeStart();
         this.expanded = false;
-        this.activeGridService.contractItem(this.visualization);
+        this.messenger.publish(neonEvents.WIDGET_CONTRACT, {
+            widgetGridItem: this.visualization
+        });
         setTimeout(() => {
             this.onResizeStop();
         }, 300);
@@ -57,7 +66,9 @@ export class VisualizationContainerComponent implements OnInit {
     expand() {
         this.onResizeStart();
         this.expanded = true;
-        this.activeGridService.expandItem(this.visualization);
+        this.messenger.publish(neonEvents.WIDGET_EXPAND, {
+            widgetGridItem: this.visualization
+        });
         setTimeout(() => {
             this.onResizeStop();
         }, 300);
@@ -65,11 +76,15 @@ export class VisualizationContainerComponent implements OnInit {
     }
 
     moveToTop() {
-        this.activeGridService.moveItemToTop(this.visualization);
+        this.messenger.publish(neonEvents.WIDGET_MOVE_TO_TOP, {
+            widgetGridItem: this.visualization
+        });
     }
 
     moveToBottom() {
-        this.activeGridService.moveItemToBottom(this.visualization);
+        this.messenger.publish(neonEvents.WIDGET_MOVE_TO_BOTTOM, {
+            widgetGridItem: this.visualization
+        });
     }
 
     onResizeStart() {

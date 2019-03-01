@@ -13,8 +13,7 @@
  * limitations under the License.
  *
  */
-
-@import '../themes/neon-green-theme';
+@import 'neon-properties';
 
 .neon-sidenav {
     height: 100%;
@@ -25,7 +24,7 @@
 }
 
 .neon-link {
-    color: #fafafa;
+    color: var(--color-background, white);
     height: 30px;
     margin: 0 5px;
 
@@ -34,40 +33,45 @@
     }
 
     &:hover {
-        color: $accent-bright;
+        color: var(--color-accent, lightgrey);
     }
 }
 
 .neon-dash {
-    background-color: #fafafa;
+    background-color: var(--color-background, white);
     /* 60 = 50 px toolbar + 10 px padding */
     height: calc(100% - 60px);
     padding: 5px;
     overflow-y: auto;
 }
 
-.color-primary {
-    color: mat-color($primary);
-}
-
-.color-highlight {
-    color: $accent-bright;
-}
-
 .header-toggle-container {
     z-index: 9999;
     position: absolute;
-    width:98%;
+    /* Subtract 15px for the scrollbar.  Not an ideal fix since it also applies without the scrollbar present. */
+    width: calc(100% - 15px);
 
-    .filter-builder-container{
-        padding-left: 10px;
-        padding-right: 10px;
+    .filters-container {
         width: 100%;
-        height: 150px;
+        height: 200px;
 
-        .filter-builder-footer{
+        .header-toggle-footer {
             height: 1px;
             background-color: grey;
         }
     }
+}
+
+.right-panel-container {
+    height: 100%;
+    width: 410px;
+}
+
+.title {
+    font-size: 20px;
+    font-weight: 500;
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0;
+    z-index: 9999;
 }

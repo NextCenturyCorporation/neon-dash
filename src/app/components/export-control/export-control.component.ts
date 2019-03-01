@@ -19,14 +19,13 @@ import { MatDialog, MatDialogRef, MatSnackBar, MatSnackBarConfig } from '@angula
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { ParameterService } from '../../services/parameter.service';
-import { ThemesService } from '../../services/themes.service';
 
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 
-import * as _ from 'lodash';
+import { neonEvents } from '../../neon-namespaces';
+
 import * as neon from 'neon-framework';
 
 @Component({
@@ -34,31 +33,26 @@ import * as neon from 'neon-framework';
   templateUrl: './export-control.component.html',
   styleUrls: ['./export-control.component.scss']
 })
-export class ExportControlComponent implements OnInit {
-    @Input() exportTarget: string;
-    @Input() hideFormats: boolean;
-    @Input() exportId: number;
-    @Input() buttonTextOverride: string;
-    public exportFormat: number;
+export class ExportControlComponent {
+    @Input() widgets: BaseNeonComponent | Map<string, BaseNeonComponent>;
 
-    public buttonText: string;
+    public exportFormatList: any[] = [{
+        name: 'csv',
+        value: 0
+    }, {
+        name: 'xlsx',
+        value: 1
+    }];
 
-    constructor(private connectionService: ConnectionService,
-        private errorNotificationService: ErrorNotificationService,
-        public exportService: ExportService,
+    public exportFormat: number = this.exportFormatList[0].value;
+
+    constructor(
+        protected connectionService: ConnectionService,
+        protected datasetService: DatasetService,
         private matSnackBar: MatSnackBar,
-        public themesService: ThemesService,
-        private viewContainerRef: ViewContainerRef) {
+        private viewContainerRef: ViewContainerRef
+    ) {
         this.handleExportClick = this.handleExportClick.bind(this);
-        this.exportFormat = 0;
-    }
-
-    ngOnInit() {
-        this.exportFormat = this.exportService.getFileFormats()[0].value;
-        this.buttonText = (this.exportTarget === 'all' ? ' Export All Visualizations ' : 'Export to File');
-        if (this.buttonTextOverride) {
-          this.buttonText = this.buttonTextOverride;
-        }
     }
 
     setExportFormat(value: number) {
@@ -87,20 +81,18 @@ export class ExportControlComponent implements OnInit {
         }
     }
 
-    handleExportClick() {
-        let exportAll = this.exportTarget === 'all';
-        this.export(exportAll);
-
+    getExportButtonText(): string {
+        return (this.widgets instanceof Map) ? 'Export All Visualizations' : 'Export to File';
     }
 
-    export(exportAll: boolean) {
-        this.exportService.setFileFormat(this.exportFormat);
-        let connection: neon.query.Connection = this.connectionService.getActiveConnection();
+    handleExportClick() {
+        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
+            this.datasetService.getHostname());
         let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;
         let data = {
             // TODO Change this hardcoded value to something like a user ID.
-            name: (exportAll ? 'All_Widgets' : 'Export'),
+            name: ((this.widgets instanceof Map) ? 'All_Widgets' : 'Export'),
             data: []
         };
 
@@ -109,33 +101,22 @@ export class ExportControlComponent implements OnInit {
             return;
         }
 
-        let localExportId = this.exportId;
-        let widgetObjects = this.exportService.getWidgets()
-          .filter((widget) => {
-              return exportAll || widget.id === localExportId;
-          })
-          .map((widget) => widget.callback());
-        for (let widgetObject of widgetObjects) {
-            if (Array.isArray(widgetObject)) {
-                for (let widgetObjectIndx of widgetObject) {
-                     for (let widgetObjectItem of widgetObjectIndx.data) {
-                            data.data.push(widgetObjectItem);
-                        }
-                }
-            } else {
-            for (let widgetObjectItem of widgetObject.data) {
-                data.data.push(widgetObjectItem);
-            }
+        let widgetExportDataList: ({ name: string, data: any }[])[] = ((this.widgets instanceof Map) ? Array.from(this.widgets.values()) :
+            [this.widgets]).map((widget) => widget.createExportData());
+
+        for (let widgetExportData of widgetExportDataList) {
+            for (let widgetExportItem of widgetExportData) {
+                data.data.push(widgetExportItem.data);
             }
         }
 
-        if (this.exportService.getWidgets().length === 0) {
+        if (!widgetExportDataList.length) {
             this.matSnackBar.open('There are no visualizations to export.', 'OK', config);
             return;
         }
         if (data && data.data && data.data.length === 1) {
             data.name = data.data[0].name;
         }
-        connection.executeExport(data, this.exportSuccess.bind(this), this.exportFail.bind(this), this.exportService.getFileFormat());
+        connection.executeExport(data, this.exportSuccess.bind(this), this.exportFail.bind(this), this.exportFormat);
     }
 }

@@ -1,30 +1,29 @@
-<div [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-toolbar color="primary">
-        <span>Add Visualizations</span>
-    </mat-toolbar>
-
+<div>
     <div class="add-visualization-grid-container" mat-fill>
         <mat-grid-list cols="4" rowHeight="130px" gutterSize="5px">
             <mat-grid-tile *ngFor="let item of visualizations; let i = index;" [class.selected]="item.selected"
-                [colspan]="1" [rowspan]="1" class="add-visualization-tile" matRipple>
-                <a (click)="onItemSelected($event.shiftKey, i)">
+                [colspan]="1" [rowspan]="1" class="add-visualization-tile">
+                <a (click)="onItemSelected($event.shiftKey, i)" matRipple>
                     <div class="neon-popup-thumbnail center-block text-center">
                         <div class="center-block">
                             <div class="center-block icon-container">
                                 <img class="neon-svg-icon" src="./assets/icons/{{item.icon}}.svg">
                             </div>
                             <div class="center-contents">
-                                <span class="text-uppercase">{{ item.name }}</span>
+                                <span class="content-text">{{ item.name }}</span>
                             </div>
                         </div>
                     </div>
                 </a>
             </mat-grid-tile>
         </mat-grid-list>
+        <mat-divider class="divider"></mat-divider>
     </div>
-
+    <div class="checkmark-container content-text">
+        <input type="checkbox" [checked]="showVisShortcut" (change)="publishShowVisShortcut()">
+        Show shortcut
+    </div>
     <div mat-fill class="flex">
         <span class="fill-remaining"></span>
-        <button mat-raised-button color="primary" (click)="dialogRef.close('close')"> Close </button>
     </div>
 </div>

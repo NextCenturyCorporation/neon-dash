@@ -20,30 +20,38 @@ import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 describe('Service: ConnectionService', () => {
+    let service: ConnectionService;
+
     initializeTestBed({
         providers: [ConnectionService]
     });
 
-    it('should ...', inject([ConnectionService], (service: ConnectionService) => {
-      expect(service).toBeTruthy();
+    beforeEach(inject([ConnectionService], (connectionService: ConnectionService) => {
+        service = connectionService;
     }));
 
-    it('should create the service',
-    inject([ConnectionService], (service: ConnectionService) => {
-      expect(service).toBeTruthy();
-    }));
+    it('should have no connections', () => {
+        expect(Array.from((service as any).connections.keys())).toEqual([]);
+    });
 
-  it('should have no active connections after creation',
-    inject([ConnectionService], (service: ConnectionService) => {
-      expect(service.getActiveConnection()).toBeUndefined();
-    }));
+    it('createActiveConnection should return a new connection', () => {
+        let connection = service.createActiveConnection('testType', 'testHost');
+        expect(connection).toBeTruthy();
+        expect(connection.databaseType_).toEqual('testType');
+        expect(connection.host_).toEqual('testHost');
+        expect(Array.from((service as any).connections.keys())).toEqual(['testType']);
+        expect(Array.from((service as any).connections.get('testType').keys())).toEqual(['testHost']);
+    });
 
-  it('should return an active connection after one has been created.',
-    inject([ConnectionService], (service: ConnectionService) => {
-      let connection = service.createActiveConnection(neon.query.Connection.MONGO, 'foo');
-      expect(connection).toBeTruthy();
-      expect(connection.databaseType_).toEqual(neon.query.Connection.MONGO);
-      expect(connection.host_).toEqual('foo');
-      expect(service.getActiveConnection()).toBeTruthy();
-    }));
+    it('createActiveConnection does not override an existing connection', () => {
+        let connection1 = service.createActiveConnection('testType', 'testHost');
+        let connection2 = service.createActiveConnection('testType', 'testHost');
+        expect(connection1).toEqual(connection2);
+    });
+
+    it('createActiveConnection does return null if type or host are undefined', () => {
+        expect(service.createActiveConnection(undefined, undefined)).toEqual(null);
+        expect(service.createActiveConnection('testType', undefined)).toEqual(null);
+        expect(service.createActiveConnection(undefined, 'testHost')).toEqual(null);
+    });
 });

@@ -28,69 +28,24 @@ import {
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService, NeonFilterClause, NeonQueryPayload } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetOption
+} from '../../widget-option';
 import * as neon from 'neon-framework';
 
-/**
- * Manages configurable options for the specific visualization.
- */
-export class WikiViewerOptions extends BaseNeonOptions {
-    public id: string;
-    public idField: FieldMetaData;
-    public linkField: FieldMetaData;
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'idField',
-            'linkField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.id = this.injector.get('id', '');
-    }
+export class WikiData {
+    constructor(public name: string, public text: SafeHtml) {}
 }
 
 /**
@@ -110,73 +65,82 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
-    public options: WikiViewerOptions;
-
-    public isLoadingWikiPage: boolean = false;
-    public wikiName: string[] = [];
-    public wikiText: SafeHtml[] = [];
-
     constructor(
-        activeGridService: ActiveGridService,
-        connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
-        exportService: ExportService,
+        searchService: AbstractSearchService,
         injector: Injector,
-        themesService: ThemesService,
         ref: ChangeDetectorRef,
-        visualizationService: VisualizationService,
         protected http: HttpClient,
         protected sanitizer: DomSanitizer
     ) {
 
         super(
-            activeGridService,
-            connectionService,
             datasetService,
             filterService,
-            exportService,
+            searchService,
             injector,
-            themesService,
-            ref,
-            visualizationService
+            ref
         );
 
-        this.options = new WikiViewerOptions(this.injector, this.datasetService, 'Wiki Viewer', 10);
-
-        this.subscribeToSelectId(this.getSelectIdCallback());
+        this.updateOnSelectId = true;
     }
 
     /**
-     * Creates and returns the query for the wiki viewer.
+     * Creates and returns an array of field options for the visualization.
      *
-     * @return {neon.query.Query}
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
      * @override
      */
-    createQuery(): neon.query.Query {
-        let query = new neon.query.Query()
-            .selectFrom(this.options.database.name, this.options.table.name)
-            .withFields([this.options.linkField.columnName]);
-
-        let whereClauses = [
-            neon.query.where(this.options.idField.columnName, '=', this.options.id),
-            neon.query.where(this.options.linkField.columnName, '!=', null)
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('idField', 'ID Field', true),
+            new WidgetFieldOption('linkField', 'Link Field', true)
         ];
-
-        return query.where(neon.query.and.apply(query, whereClauses));
     }
 
     /**
-     * Creates and returns the text for the settings button.
+     * Creates and returns an array of non-field options for the visualization.
      *
+     * @return {WidgetOption[]}
+     * @override
+     */
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetFreeTextOption('id', 'ID', '')
+        ];
+    }
+
+    /**
+     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {NeonQueryPayload} queryPayload
+     * @arg {NeonFilterClause[]} sharedFilters
+     * @return {NeonQueryPayload}
+     * @override
+     */
+    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
+        let filters: NeonFilterClause[] = [
+            this.searchService.buildFilterClause(options.idField.columnName, '=', options.id),
+            this.searchService.buildFilterClause(options.linkField.columnName, '!=', null)
+        ];
+
+        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filters)));
+
+        return query;
+    }
+
+    /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
      * @return {string}
      * @override
      */
-    getButtonText() {
-        if (!this.wikiName.length) {
-            return 'No Data';
-        }
-        return 'Total ' + super.prettifyInteger(this.wikiName.length);
+    public getVisualizationElementLabel(count: number): string {
+        return 'Page' + (count === 1 ? '' : 's');
     }
 
     /**
@@ -204,16 +168,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Returns the options for the specific visualization.
-     *
-     * @return {BaseNeonOptions}
-     * @override
-     */
-    getOptions(): BaseNeonOptions {
-        return this.options;
-    }
-
-    /**
      * Returns the list filters for the wiki viewer to ignore (null for no filters).
      *
      * @return {null}
@@ -235,82 +189,86 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Creates and returns the callback function for a select_id event.
+     * Handles any needed behavior whenever a select_id event is observed that is relevant for the visualization.
      *
-     * @return {function}
-     * @private
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any} id
+     * @override
      */
-    private getSelectIdCallback() {
-        return (message) => {
-            if (message.database === this.options.database.name && message.table === this.options.table.name) {
-                this.options.id = Array.isArray(message.id) ? message.id[0] : message.id;
-                this.executeQueryChain();
-            }
-        };
+    public onSelectId(options: any, id: any) {
+        options.id = id;
     }
 
     /**
-     * Returns the label for the tab using the given array of names and the given index.
+     * Returns the default limit for the visualization.
      *
-     * @arg {array} names
-     * @arg {number} index
      * @return {string}
-     * @private
+     * @override
      */
-    private getTabLabel(names, index) {
-        return names && names.length > index ? names[index] : '';
+    getVisualizationDefaultLimit(): number {
+        return 10;
     }
 
     /**
-     * Returns whether the wiki viewer query using the options data config is valid.
+     * Returns the default title for the visualization.
      *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'Wiki Viewer';
+    }
+
+    /**
+     * Returns whether the visualization query created using the given options is valid.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(): boolean {
-        return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name && this.options.id &&
-            this.options.idField && this.options.idField.columnName && this.options.linkField && this.options.linkField.columnName);
+    validateVisualizationQuery(options: any): boolean {
+        return !!(options.database.name && options.table.name && options.id && options.idField.columnName && options.linkField.columnName);
     }
 
     /**
-     * Handles the wiki viewer query results.
+     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
      *
-     * @arg {object} response
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any[]} results
+     * @return {TransformedVisualizationData}
      * @override
      */
-    onQuerySuccess(response: any) {
-        this.wikiName = [];
-        this.wikiText = [];
+    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+        // Unused because we override handleTransformVisualizationQueryResults.
+        return null;
+    }
 
-        try {
-            if (response && response.data && response.data.length && response.data[0]) {
-                this.errorMessage = '';
-                this.isLoadingWikiPage = true;
-                let links = neonUtilities.deepFind(response.data[0], this.options.linkField.columnName);
-                this.retrieveWikiPage(Array.isArray(links) ? links : [links]);
-            } else {
-                this.errorMessage = 'No Data';
-                this.refreshVisualization();
+    /**
+     * Creates the transformed visualization data using the given options and results and then calls the given success callback function.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any[]} results
+     * @arg {(data: TransformedVisualizationData) => void} successCallback
+     * @arg {(err: Error) => void} successCallback
+     * @override
+     */
+    public handleTransformVisualizationQueryResults(options: any, results: any[],
+        successCallback: (data: TransformedVisualizationData) => void, failureCallback: (err: Error) => void): void {
+
+        new Promise<TransformedVisualizationData>((resolve, reject) => {
+            try {
+                let links: string[] = neonUtilities.deepFind(results[0], options.linkField.columnName) || [];
+                this.retrieveWikiPage((Array.isArray(links) ? links : [links]), [], (data: WikiData[]) => {
+                    resolve(new TransformedVisualizationData(data));
+                });
+            } catch (err) {
+                reject(err);
             }
-        } catch (e) {
-            this.isLoadingWikiPage = false;
-            this.errorMessage = 'Error';
-            console.error('Error in ' + this.options.title, e);
-            this.refreshVisualization();
-        }
+        }).then(successCallback, failureCallback);
     }
 
     /**
-     * Initializes the wiki viewer by running its query.
-     *
-     * @override
-     */
-    postInit() {
-        this.executeQueryChain();
-    }
-
-    /**
-     * Refreshes the wiki viewer.
+     * Updates and redraws the elements and properties for the visualization.
      *
      * @override
      */
@@ -331,40 +289,36 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     /**
      * Retrieves the wiki pages recursively using the given array of links.  Refreshes the visualization once finished.
      *
-     * @arg {array} links
+     * @arg {string[]} links
+     * @arg {WikiData[]} data
      * @private
      */
-    private retrieveWikiPage(links) {
+    private retrieveWikiPage(links: string[], data: WikiData[], callback: (data: WikiData[]) => void): void {
         if (!links.length) {
-            this.isLoadingWikiPage = false;
-            this.refreshVisualization();
+            callback(data);
             return;
         }
 
-        let handleErrorOrFailure = (errorMessage: string) => {
-            this.wikiName.push(links[0]);
-            this.wikiText.push(errorMessage);
-            console.error('Error ' + links[0], errorMessage);
-            this.retrieveWikiPage(links.slice(1));
+        let handleErrorOrFailure = (errorMessage: string): void => {
+            data.push(new WikiData(links[0], errorMessage));
+            console.error('Wiki Viewer Error ' + links[0], errorMessage);
+            this.retrieveWikiPage(links.slice(1), data, callback);
         };
 
         this.http.get(WikiViewerComponent.WIKI_LINK_PREFIX + links[0]).subscribe((wikiResponse: any) => {
             if (wikiResponse.error) {
                 let errorMessage = [(wikiResponse.error.code || ''), (wikiResponse.error.info || '')].join(': ') || 'Error';
-                handleErrorOrFailure(errorMessage);
-                return;
+                return handleErrorOrFailure(errorMessage);
             }
-            let responseObject = JSON.parse(wikiResponse.body);
-            if (responseObject.error) {
-                this.wikiName.push(links[0]);
-                this.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(responseObject.error.info));
+            let responseBody = JSON.parse(wikiResponse.body);
+            if (responseBody.error) {
+                data.push(new WikiData(links[0], this.sanitizer.bypassSecurityTrustHtml(responseBody.error.info)));
             } else {
-                this.wikiName.push(responseObject.parse.title);
-                this.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(responseObject.parse.text['*']));
+                data.push(new WikiData(responseBody.parse.title, this.sanitizer.bypassSecurityTrustHtml(responseBody.parse.text['*'])));
             }
-            this.retrieveWikiPage(links.slice(1));
+            return this.retrieveWikiPage(links.slice(1), data, callback);
         }, (error: HttpErrorResponse) => {
-            handleErrorOrFailure(error.error);
+            return handleErrorOrFailure(error.error);
         });
     }
 
@@ -374,24 +328,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      * @override
      */
     setupFilters() {
-        // Do nothing.
-    }
-
-    /**
-     * Destroys any wiki viewer sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnDestroy() {
-        // Do nothing.
-    }
-
-    /**
-     * Initializes any wiki viewer sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnInit() {
         // Do nothing.
     }
 

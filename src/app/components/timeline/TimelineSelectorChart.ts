@@ -16,7 +16,6 @@
 /// <reference path="../../../../node_modules/@types/d3/index.d.ts" />
 import * as _ from 'lodash';
 import * as $ from 'jquery';
-
 import { ElementRef } from '@angular/core';
 import { TimelineComponent } from './timeline.component';
 import { Bucketizer } from '../bucketizers/Bucketizer';
@@ -55,7 +54,7 @@ export class TimelineSeries {
     public data: TimelineItem[] = DEFAULT_DATA;
     public focusData: TimelineItem[] = [];
     public name: string = 'Default';
-    public type: string= 'bar';
+    public type: string = 'bar';
     public options: Object = {};
     public startDate: Date = DEFAULT_DATA[0].date;
     public endDate: Date = DEFAULT_DATA[1].date;
@@ -224,11 +223,14 @@ export class TimelineSelectorChart {
     clearBrush(): void {
         this.data.extent = [];
         this.oldExtent = [];
-        this.brush.clear();
-        d3.select(this.element.nativeElement).select('.brush').call(this.brush);
-        if (this.data.data.length && this.data.data[0].data) {
-            this.render();
+        if (this.brush) {
+            this.brush.clear();
+            d3.select(this.element.nativeElement).select('.brush').call(this.brush);
+            if (this.data.data.length && this.data.data[0].data) {
+                this.render();
+            }
         }
+
     }
 
     datesEqual(a, b): boolean {

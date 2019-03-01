@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -8,12 +8,12 @@
             </span>
             <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
 
-    <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+    <mat-sidenav #optionsMenu position="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
                 <div *ngIf="errorMessage">
@@ -110,10 +110,10 @@
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Node/Link Limit" [(ngModel)]="options.limit" (keyup.enter)="reloadGraph()">
+                        <input matInput placeholder="Node/Link Limit" [(ngModel)]="options.limit" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
-                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="reloadGraph()">
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below" (click)="reloadGraph()">
                         <mat-icon>refresh</mat-icon>
                     </button>
                 </div>
@@ -208,12 +208,12 @@
                 </mat-button-toggle-group>
                 <p></p>
 
-                <app-export-control [exportId]="exportId"></app-export-control>
+                <app-export-control [widgets]="this"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
         <mat-spinner></mat-spinner>
     </div>
 
@@ -224,11 +224,11 @@
         </div>
     </div>
 
-    <div class="filter-container">
+    <div class="filter-container" *ngIf="options.filterable">
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
             <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">{{ filter.value }}</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, false)">
+                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(options, filter, true, false)">
                 <mat-icon class="neon-icon-small">close</mat-icon>
             </button>
         </div>
@@ -236,9 +236,9 @@
 
     <div class=" legend-container ">
         <div *ngIf="legendIsNeeded()">
-            <app-legend *ngIf="options.legendFiltering" [fieldNames]="colorByFields" [disabledSets]="disabledSet" [filteringOn]="options.legendFiltering"
-                (itemSelected)="legendItemSelected($event)"></app-legend>
-            <app-legend *ngIf="!options.legendFiltering" [fieldNames]="colorByFields"  [filteringOn]="options.legendFiltering"></app-legend>
+            <app-legend *ngIf="options.legendFiltering" [colorKeys]="colorKeys" [disabledSets]="disabledSet"
+                    [filteringOn]="options.legendFiltering" (itemSelected)="legendItemSelected($event)"></app-legend>
+            <app-legend *ngIf="!options.legendFiltering" [colorKeys]="colorKeys"  [filteringOn]="options.legendFiltering"></app-legend>
         </div>
     </div>
 

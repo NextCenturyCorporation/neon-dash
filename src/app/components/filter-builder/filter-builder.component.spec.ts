@@ -25,19 +25,15 @@ import { FieldMetaData } from '../../dataset';
 import { FilterBuilderComponent } from './filter-builder.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { TranslationService } from '../../services/translation.service';
-import { VisualizationService } from '../../services/visualization.service';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import * as neon from 'neon-framework';
 
 describe('Component: Filter Builder', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -49,15 +45,9 @@ describe('Component: Filter Builder', () => {
             FilterBuilderComponent
         ],
         providers: [
-            ActiveGridService,
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
-            ExportService,
-            TranslationService,
-            ErrorNotificationService,
-            VisualizationService,
-            ThemesService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: testConfig }
         ],
@@ -80,46 +70,46 @@ describe('Component: Filter Builder', () => {
     });
 
     it('class properties are set to expected defaults', () => {
-        expect(component.options.clauses.length).toEqual(1);
-        expect(component.options.clauses[0].databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(component.options.clauses[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.options.clauses[0].tables).toEqual(DatasetServiceMock.TABLES);
-        expect(component.options.clauses[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.options.clauses[0].fields).toEqual(DatasetServiceMock.FIELDS);
-        expect(component.options.clauses[0].field).toEqual(new FieldMetaData());
-        expect(component.options.clauses[0].operator.value).toEqual('contains');
-        expect(component.options.clauses[0].value).toEqual('');
-        expect(component.options.clauses[0].active).toEqual(false);
-        expect(component.options.clauses[0].id).toEqual(1);
-        expect(component.options.clauses[0].changeDatabase).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.options.clauses[0].changeTable).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.options.clauses[0].changeField).toEqual(new FieldMetaData());
+        expect(component.clauses.length).toEqual(1);
+        expect(component.clauses[0].databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(component.clauses[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(component.clauses[0].tables).toEqual(DatasetServiceMock.TABLES);
+        expect(component.clauses[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component.clauses[0].fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.clauses[0].field).toEqual(new FieldMetaData());
+        expect(component.clauses[0].operator.value).toEqual('contains');
+        expect(component.clauses[0].value).toEqual('');
+        expect(component.clauses[0].active).toEqual(false);
+        expect(component.clauses[0].id).toEqual(1);
+        expect(component.clauses[0].changeDatabase).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(component.clauses[0].changeTable).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component.clauses[0].changeField).toEqual(new FieldMetaData());
 
-        let databaseTableFieldKeys = Array.from(component.options.databaseTableFieldKeysToFilterIds.keys());
+        let databaseTableFieldKeys = Array.from(component.databaseTableFieldKeysToFilterIds.keys());
         expect(databaseTableFieldKeys.length > 0).toEqual(true);
 
         databaseTableFieldKeys.forEach((key) => {
-            expect(component.options.databaseTableFieldKeysToFilterIds.get(key)).toEqual('');
+            expect(component.databaseTableFieldKeysToFilterIds.get(key)).toEqual('');
         });
     });
 
     it('addBlankFilterClause does work as expected', () => {
         component.addBlankFilterClause();
 
-        expect(component.options.clauses.length).toEqual(2);
-        expect(component.options.clauses[1].databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(component.options.clauses[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.options.clauses[1].tables).toEqual(DatasetServiceMock.TABLES);
-        expect(component.options.clauses[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.options.clauses[1].fields).toEqual(DatasetServiceMock.FIELDS);
-        expect(component.options.clauses[1].field).toEqual(new FieldMetaData());
-        expect(component.options.clauses[1].operator.value).toEqual('contains');
-        expect(component.options.clauses[1].value).toEqual('');
-        expect(component.options.clauses[1].active).toEqual(false);
-        expect(component.options.clauses[1].id).toEqual(2);
-        expect(component.options.clauses[1].changeDatabase).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.options.clauses[1].changeTable).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.options.clauses[1].changeField).toEqual(new FieldMetaData());
+        expect(component.clauses.length).toEqual(2);
+        expect(component.clauses[1].databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(component.clauses[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(component.clauses[1].tables).toEqual(DatasetServiceMock.TABLES);
+        expect(component.clauses[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component.clauses[1].fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.clauses[1].field).toEqual(new FieldMetaData());
+        expect(component.clauses[1].operator.value).toEqual('contains');
+        expect(component.clauses[1].value).toEqual('');
+        expect(component.clauses[1].active).toEqual(false);
+        expect(component.clauses[1].id).toEqual(2);
+        expect(component.clauses[1].changeDatabase).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(component.clauses[1].changeTable).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component.clauses[1].changeField).toEqual(new FieldMetaData());
     });
 
     it('addOrReplaceFilter does nothing if given filter does not have clauses', () => {
@@ -144,9 +134,9 @@ describe('Component: Filter Builder', () => {
             text: '0 Filters'
         });
 
-        component.options.clauses[0].active = true;
-        component.options.clauses[0].field = DatasetServiceMock.TEXT_FIELD;
-        component.options.clauses[0].value = 'My Test Text';
+        component.clauses[0].active = true;
+        component.clauses[0].field = DatasetServiceMock.TEXT_FIELD;
+        component.clauses[0].value = 'My Test Text';
 
         expect(component.createFilterNameObject()).toEqual({
             visName: 'Filter Builder',
@@ -154,9 +144,9 @@ describe('Component: Filter Builder', () => {
         });
 
         component.addBlankFilterClause();
-        component.options.clauses[1].active = true;
-        component.options.clauses[1].field = DatasetServiceMock.TEXT_FIELD;
-        component.options.clauses[1].value = 'My Test Text';
+        component.clauses[1].active = true;
+        component.clauses[1].field = DatasetServiceMock.TEXT_FIELD;
+        component.clauses[1].value = 'My Test Text';
 
         expect(component.createFilterNameObject()).toEqual({
             visName: 'Filter Builder',
@@ -188,16 +178,16 @@ describe('Component: Filter Builder', () => {
         // TODO
     });
 
-    it('createQuery does return null always', () => {
-        expect(component.createQuery()).toEqual(null);
+    it('finalizeVisualizationQuery does return null always', () => {
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual(null);
     });
 
     it('getCloseableFilters does return empty array always', () => {
         expect(component.getCloseableFilters()).toEqual([]);
     });
 
-    it('options.getDatabaseTableFieldKey does return expected string', () => {
-        expect(component.options.getDatabaseTableFieldKey('a', 'b', 'c')).toEqual('a-b-c');
+    it('getDatabaseTableFieldKey does return expected string', () => {
+        expect(component.getDatabaseTableFieldKey('a', 'b', 'c')).toEqual('a-b-c');
     });
 
     it('getFiltersToIgnore does return null always', () => {
@@ -207,28 +197,23 @@ describe('Component: Filter Builder', () => {
     it('getFilterText does return expected string', () => {
         expect(component.getFilterText(null)).toEqual('0 Filters');
 
-        component.options.clauses[0].active = true;
-        component.options.clauses[0].field = DatasetServiceMock.TEXT_FIELD;
-        component.options.clauses[0].value = 'My Test Text';
+        component.clauses[0].active = true;
+        component.clauses[0].field = DatasetServiceMock.TEXT_FIELD;
+        component.clauses[0].value = 'My Test Text';
 
         expect(component.getFilterText(null)).toEqual('Test Text Field contains My Test Text');
 
         component.addBlankFilterClause();
-        component.options.clauses[1].active = true;
-        component.options.clauses[1].field = DatasetServiceMock.TEXT_FIELD;
-        component.options.clauses[1].value = 'My Test Text';
+        component.clauses[1].active = true;
+        component.clauses[1].field = DatasetServiceMock.TEXT_FIELD;
+        component.clauses[1].value = 'My Test Text';
 
         expect(component.getFilterText(null)).toEqual('2 Filters');
     });
 
-    it('getElementRefs does return expected object', () => {
+    it('getElementRefs returns empty object', () => {
         let refs = component.getElementRefs();
-        expect(refs.headerText).toBeDefined();
-        expect(refs.visualization).toBeDefined();
-    });
-
-    it('getOptions does return options object', () => {
-        expect(component.getOptions()).toEqual(component.options);
+        expect(refs).toEqual({});
     });
 
     it('handleChangeDatabaseOfClause does deactivate clause, update database/tables/fields, and call updateFiltersOfKey', () => {
@@ -247,20 +232,35 @@ describe('Component: Filter Builder', () => {
         // TODO
     });
 
-    it('handleFiltersChangedEvent does nothing', () => {
+    it('validateVisualizationQuery does return false always', () => {
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
+    });
+
+    it('transformVisualizationQueryResults does nothing', () => {
         // TODO
     });
 
-    it('isValidQuery does return false always', () => {
-        expect(component.isValidQuery()).toEqual(false);
-    });
+    it('initializeProperties does initialize clauses from clauseConfig', () => {
+        component.clauses = [];
+        component.options.clauseConfig = [{
+            database: 'testDatabase2',
+            table: 'testTable2',
+            field: 'testTextField',
+            operator: '=',
+            value: 'My Test Text',
+            id: 'testFilterId'
+        }];
 
-    it('onQuerySuccess does nothing', () => {
-        // TODO
-    });
+        component.initializeProperties();
 
-    it('postInit does nothing', () => {
-        // TODO
+        expect(component.clauses.length).toEqual(1);
+        expect(component.clauses[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(component.clauses[0].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(component.clauses[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(component.clauses[0].operator.value).toEqual('=');
+        expect(component.clauses[0].value).toEqual('My Test Text');
+        expect(component.clauses[0].active).toEqual(true);
+        expect(component.databaseTableFieldKeysToFilterIds.get('testDatabase2-testTable2-testTextField')).toEqual('testFilterId');
     });
 
     it('refreshVisualization does nothing', () => {
@@ -289,79 +289,6 @@ describe('Component: Filter Builder', () => {
 
     it('setupFilters does nothing', () => {
         // TODO
-    });
-
-    it('options.createBindings does return clauses as clauseConfig bindings', () => {
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 10,
-            table: 'testTable1',
-            title: 'Filter Builder',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            clauseConfig: [],
-            initialFilters: [],
-            multiFilter: false,
-            requireAll: false
-        });
-
-        component.options.clauses[0].active = true;
-        component.options.clauses[0].field = DatasetServiceMock.TEXT_FIELD;
-        component.options.clauses[0].value = 'My Test Text';
-        component.options.databaseTableFieldKeysToFilterIds.set('testDatabase1-testTable1-testTextField', 'testFilterId');
-        component.options.multiFilter = true;
-        component.options.requireAll = true;
-
-        expect(component.options.createBindings()).toEqual({
-            configFilter: undefined,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            hideUnfiltered: false,
-            limit: 10,
-            table: 'testTable1',
-            title: 'Filter Builder',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            clauseConfig: [{
-                database: 'testDatabase1',
-                table: 'testTable1',
-                field: 'testTextField',
-                operator: 'contains',
-                value: 'My Test Text',
-                id: 'testFilterId'
-            }],
-            initialFilters: [],
-            multiFilter: true,
-            requireAll: true
-        });
-    });
-
-    it('subNgOnInit does initialize clauses from clauseConfig', () => {
-        component.options.clauses = [];
-        component.options.clauseConfig = [{
-            database: 'testDatabase2',
-            table: 'testTable2',
-            field: 'testTextField',
-            operator: '=',
-            value: 'My Test Text',
-            id: 'testFilterId'
-        }];
-
-        component.subNgOnInit();
-
-        expect(component.options.clauses.length).toEqual(1);
-        expect(component.options.clauses[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(component.options.clauses[0].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(component.options.clauses[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect(component.options.clauses[0].operator.value).toEqual('=');
-        expect(component.options.clauses[0].value).toEqual('My Test Text');
-        expect(component.options.clauses[0].active).toEqual(true);
-        expect(component.options.databaseTableFieldKeysToFilterIds.get('testDatabase2-testTable2-testTextField')).toEqual('testFilterId');
     });
 
     it('toggleClause does validate and activate given inactive clause', () => {
@@ -399,15 +326,9 @@ describe('Component: Filter Builder with config', () => {
             FilterBuilderComponent
         ],
         providers: [
-            ActiveGridService,
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
-            ExportService,
-            TranslationService,
-            ErrorNotificationService,
-            VisualizationService,
-            ThemesService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             {
                 provide: 'clauseConfig',
@@ -449,29 +370,29 @@ describe('Component: Filter Builder with config', () => {
     });
 
     it('clauses and databaseTableFieldKeysToFilterIds are set from config to expected values', () => {
-        expect(component.options.clauses.length).toEqual(1);
-        expect(component.options.clauses[0].databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(component.options.clauses[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(component.options.clauses[0].tables).toEqual(DatasetServiceMock.TABLES);
-        expect(component.options.clauses[0].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(component.options.clauses[0].fields).toEqual(DatasetServiceMock.FIELDS);
-        expect(component.options.clauses[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect(component.options.clauses[0].operator.value).toEqual('=');
-        expect(component.options.clauses[0].value).toEqual('testTextValue');
-        expect(component.options.clauses[0].active).toEqual(true);
-        expect(component.options.clauses[0].id).toEqual(1);
-        expect(component.options.clauses[0].changeDatabase).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(component.options.clauses[0].changeTable).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(component.options.clauses[0].changeField).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(component.clauses.length).toEqual(1);
+        expect(component.clauses[0].databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(component.clauses[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(component.clauses[0].tables).toEqual(DatasetServiceMock.TABLES);
+        expect(component.clauses[0].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(component.clauses[0].fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.clauses[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(component.clauses[0].operator.value).toEqual('=');
+        expect(component.clauses[0].value).toEqual('testTextValue');
+        expect(component.clauses[0].active).toEqual(true);
+        expect(component.clauses[0].id).toEqual(1);
+        expect(component.clauses[0].changeDatabase).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(component.clauses[0].changeTable).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(component.clauses[0].changeField).toEqual(DatasetServiceMock.TEXT_FIELD);
 
-        expect(component.options.databaseTableFieldKeysToFilterIds.get('testDatabase2-testTable2-testTextField')).toEqual('testFilterId');
+        expect(component.databaseTableFieldKeysToFilterIds.get('testDatabase2-testTable2-testTextField')).toEqual('testFilterId');
 
-        let databaseTableFieldKeys = Array.from(component.options.databaseTableFieldKeysToFilterIds.keys());
+        let databaseTableFieldKeys = Array.from(component.databaseTableFieldKeysToFilterIds.keys());
         expect(databaseTableFieldKeys.length > 0).toEqual(true);
 
         databaseTableFieldKeys.forEach((key) => {
             if (key !== 'testDatabase2-testTable2-testTextField') {
-                expect(component.options.databaseTableFieldKeysToFilterIds.get(key)).toEqual('');
+                expect(component.databaseTableFieldKeysToFilterIds.get(key)).toEqual('');
             }
         });
     });

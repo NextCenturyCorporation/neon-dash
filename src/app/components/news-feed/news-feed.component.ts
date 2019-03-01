@@ -27,91 +27,23 @@ import {
 
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService, NeonFilterClause, NeonQueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, MediaTypes } from '../../dataset';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import { neonUtilities } from '../../neon-namespaces';
+import {
+    OptionChoices,
+    WidgetFieldArrayOption,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetOption,
+    WidgetSelectOption
+} from '../../widget-option';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-
-/**
- * Manages configurable options for the specific visualization.
- */
-export class NewsFeedOptions extends BaseNeonOptions {
-    public showOnlyFiltered: boolean;
-    public ascending: boolean;
-    public filterField: FieldMetaData;
-    public id: string;
-    public idField: FieldMetaData;
-    public linkField: FieldMetaData;
-    public ignoreSelf: boolean;
-    public dateField: FieldMetaData;
-    public primaryTitleField: FieldMetaData;
-    public secondaryTitleField: FieldMetaData;
-    public contentField: FieldMetaData;
-    public sortField: FieldMetaData;
-
-    /**
-     * Appends all the non-field bindings for the specific visualization to the given bindings object and returns the bindings object.
-     *
-     * @arg {any} bindings
-     * @return {any}
-     * @override
-     */
-    appendNonFieldBindings(bindings: any): any {
-        bindings.ignoreSelf = this.ignoreSelf;
-
-        return bindings;
-    }
-
-    /**
-     * Returns the list of field properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldProperties(): string[] {
-        return [
-            'contentField',
-            'dateField',
-            'filterField',
-            'idField',
-            'linkField',
-            'primaryTitleField',
-            'secondaryTitleField',
-            'sortField'
-        ];
-    }
-
-    /**
-     * Returns the list of field array properties for the specific visualization.
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFieldArrayProperties(): string[] {
-        return [];
-    }
-
-    /**
-     * Initializes all the non-field bindings for the specific visualization.
-     *
-     * @override
-     */
-    initializeNonFieldBindings() {
-        this.id = this.injector.get('id', '');
-        this.ascending = this.injector.get('ascending', false);
-        this.ignoreSelf = this.injector.get('ignoreSelf', false);
-        this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
-    }
-}
 
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
@@ -138,30 +70,42 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         value: string
     }[] = [];
 
-    public options: NewsFeedOptions;
+    constructor(
+        datasetService: DatasetService,
+        filterService: FilterService,
+        searchService: AbstractSearchService,
+        injector: Injector,
+        ref: ChangeDetectorRef,
+        private sanitizer: DomSanitizer
+    ) {
+        super(
+            datasetService,
+            filterService,
+            searchService,
+            injector,
+            ref
+        );
 
-    public gridArray: any[] = [];
-    public queryArray: any[] = [];
-    public pagingGrid: any[] = [];
-    public lastPage: boolean = true;
-    public page: number = 1;
-    public neonFilters: any[] = [];
-    public showGrid: boolean;
+        this.visualizationQueryPaginates = true;
+    }
 
-    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
-        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-        ref: ChangeDetectorRef, visualizationService: VisualizationService, private sanitizer: DomSanitizer) {
-
-        super(activeGridService, connectionService, datasetService,
-            filterService, exportService, injector, themesService, ref, visualizationService);
-
-        this.options = new NewsFeedOptions(this.injector, this.datasetService, 'News Feed', 10);
-
-        if (!this.options.sortField.columnName) {
-            this.options.sortField = this.options.idField;
-        }
-
-        this.showGrid = !this.options.showOnlyFiltered;
+    /**
+     * Creates and returns an array of field options for the visualization.
+     *
+     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @override
+     */
+    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return [
+            new WidgetFieldOption('contentField', 'Content Field', false),
+            new WidgetFieldOption('dateField', 'Date Field', false),
+            new WidgetFieldOption('filterField', 'Filter Field', false),
+            new WidgetFieldOption('idField', 'ID Field', true),
+            new WidgetFieldOption('linkField', 'Link Field', false),
+            new WidgetFieldOption('primaryTitleField', 'Primary Title Field', false),
+            new WidgetFieldOption('secondaryTitleField', 'Secondary Title Field', false),
+            new WidgetFieldOption('sortField', 'Sort Field', true)
+        ];
     }
 
     /**
@@ -186,59 +130,54 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
 
         if (!this.filters.length) {
             this.filters = [filter];
-            this.addNeonFilter(runQuery, filter, clause);
+            this.addNeonFilter(this.options, runQuery, filter, clause);
         } else if (this.filters.length === 1) {
             if (!this.filterExists(filter.field, filter.value)) {
                 filter.id = this.filters[0].id;
                 this.filters = [filter];
-                this.replaceNeonFilter(runQuery, filter, clause);
+                this.replaceNeonFilter(this.options, runQuery, filter, clause);
             }
         } else {
-            this.removeAllFilters([].concat(this.filters), () => {
+            this.removeAllFilters(this.options, [].concat(this.filters), false, false, () => {
                 this.filters = [filter];
-                this.addNeonFilter(runQuery, filter, clause);
+                this.addNeonFilter(this.options, runQuery, filter, clause);
             });
         }
     }
 
     /**
-     * Creates and returns the query for the thumbnail grid.
+     * Creates and returns an array of non-field options for the visualization.
      *
-     * @return {neon.query.Query}
+     * @return {WidgetOption[]}
      * @override
      */
-    createQuery(): neon.query.Query {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
+    createNonFieldOptions(): WidgetOption[] {
+        return [
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.NoFalseYesTrue, this.optionsFilterable),
+            new WidgetFreeTextOption('id', 'ID', ''),
+            new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue)
+        ];
+    }
 
-        let fields = [this.options.idField.columnName, this.options.sortField.columnName];
-
-        if (this.options.primaryTitleField.columnName) {
-            fields.push(this.options.primaryTitleField.columnName);
-        }
-
-        if (this.options.secondaryTitleField.columnName) {
-            fields.push(this.options.secondaryTitleField.columnName);
-        }
-
-        if (this.options.filterField.columnName) {
-            fields.push(this.options.filterField.columnName);
-        }
-
-        if (this.options.contentField.columnName) {
-            fields.push(this.options.contentField.columnName);
-        }
-
-        if (this.options.dateField.columnName) {
-            fields.push(this.options.dateField.columnName);
-        }
-
-        let whereClauses = [
-            neon.query.where(this.options.idField.columnName, '!=', null),
-            neon.query.where(this.options.idField.columnName, '!=', '')
+    /**
+     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {NeonQueryPayload} queryPayload
+     * @arg {NeonFilterClause[]} sharedFilters
+     * @return {NeonQueryPayload}
+     * @override
+     */
+    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
+        let filters: NeonFilterClause[] = [
+            this.searchService.buildFilterClause(options.idField.columnName, '!=', null),
+            this.searchService.buildFilterClause(options.idField.columnName, '!=', '')
         ];
 
-        return query.withFields(fields).where(neon.query.and.apply(query, whereClauses))
-            .sortBy(this.options.sortField.columnName, this.options.ascending ? neonVariables.ASCENDING : neonVariables.DESCENDING);
+        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filters)))
+            .updateSort(query, options.sortField.columnName, !options.ascending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+
+        return query;
     }
 
     /**
@@ -253,63 +192,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         return this.filters.some((existingFilter) => {
             return field === existingFilter.field && value === existingFilter.value;
         });
-    }
-
-    /**
-     * Creates and returns the text for the settings button.
-     *
-     * @return {string}
-     * @override
-     */
-    getButtonText() {
-        if (!this.gridArray.length) {
-            return 'No Data';
-        }
-
-        if (this.options.showOnlyFiltered && !this.neonFilters.length) {
-            return 'No Filter Selected';
-        }
-
-        if (this.gridArray.length <= this.options.limit) {
-            return 'Total Items ' + super.prettifyInteger(this.gridArray.length);
-        }
-
-        let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1),
-            end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.gridArray.length));
-
-        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.gridArray.length);
-    }
-
-    /**
-     * Increases the page and updates the bar chart data.
-     */
-    goToNextPage() {
-        if (!this.lastPage) {
-            this.page++;
-            this.updatePageData();
-        }
-    }
-
-    /**
-     * Decreases the page and updates the bar chart data.
-     */
-    goToPreviousPage() {
-        if (this.page !== 1) {
-            this.page--;
-            this.updatePageData();
-        }
-    }
-
-    /**
-     * Updates lastPage and the bar chart data using the page and limit.
-     */
-    updatePageData() {
-        let offset = (this.page - 1) * this.options.limit;
-        this.lastPage = (this.gridArray.length <= (offset + this.options.limit));
-        this.pagingGrid = this.gridArray.slice(offset,
-            Math.min(this.page * this.options.limit, this.gridArray.length));
-        this.showGrid = true;
-        this.refreshVisualization();
     }
 
     /**
@@ -373,82 +255,68 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns the options for the specific visualization.
+     * Returns the default limit for the visualization.
      *
-     * @return {BaseNeonOptions}
+     * @return {string}
      * @override
      */
-    getOptions(): BaseNeonOptions {
-        return this.options;
+    getVisualizationDefaultLimit(): number {
+        return 10;
     }
 
     /**
-     * Returns whether the thumbnail grid query using the active data config is valid.
+     * Returns the default title for the visualization.
      *
+     * @return {string}
+     * @override
+     */
+    getVisualizationDefaultTitle(): string {
+        return 'News Feed';
+    }
+
+    /**
+     * Returns whether the visualization query created using the given options is valid.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      * @override
      */
-    isValidQuery(): boolean {
-        return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name &&
-            this.options.idField && this.options.idField.columnName && this.options.sortField && this.options.sortField.columnName);
+    validateVisualizationQuery(options: any): boolean {
+        return !!(options.database.name && options.table.name && options.idField.columnName && options.sortField.columnName);
     }
 
     /**
-     * Handles the thumbnail grid query results and show/hide event for selecting/filtering and unfiltering documents.
+     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
      *
-     * @arg {object} response
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any[]} results
+     * @return {any[]}
      * @override
      */
-    onQuerySuccess(response) {
-        this.gridArray = [];
-        this.queryArray = [];
-        this.errorMessage = '';
-        this.lastPage = true;
-        this.page = 1;
-
-        try {
-            if (response && response.data && response.data.length && response.data[0]) {
-                this.isLoading = true;
-                response.data.forEach((d) => {
-                    let item = {};
-                    for (let field of this.options.fields) {
-                        if (field.columnName === this.options.filterField.columnName) {
-                            this.queryArray.push(neonUtilities.deepFind(d, this.options.filterField.columnName));
-                        }
-                        if (field.type || field.columnName === '_id') {
-                            let value = neonUtilities.deepFind(d, field.columnName);
-                            if (typeof value !== 'undefined') {
-                                item[field.columnName] = value;
-                            }
-                        }
+    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+        let data = results.map((d) => {
+            let item = {};
+            for (let field of options.fields) {
+                if (field.type || field.columnName === '_id') {
+                    let value = neonUtilities.deepFind(d, field.columnName);
+                    if (typeof value !== 'undefined') {
+                        item[field.columnName] = value;
                     }
-                    this.gridArray.push(item);
-                    this.queryArray = this.queryArray.filter((value, index, array) => array.indexOf(value) === index);
-                });
-
-                this.neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
-                    this.options.table.name, [this.options.filterField.columnName]);
-
-                if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
-                    this.lastPage = (this.gridArray.length <= this.options.limit);
-                    this.pagingGrid = this.gridArray.slice(0, this.options.limit);
-                    this.refreshVisualization();
-                    this.isLoading = false;
-                    this.showGrid = true;
-                } else {
-                    this.pagingGrid = [];
-                    this.showGrid = false;
                 }
-
-            } else {
-                this.errorMessage = 'No Data';
-                this.refreshVisualization();
             }
-        } catch (e) {
-            console.error(this.options.title + ' Error: ' + e);
-            this.errorMessage = 'Error';
-            this.refreshVisualization();
-        }
+            return item;
+        });
+        return new TransformedVisualizationData(data);
+    }
+
+    /**
+     * Returns whether the widget is filterable.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsFilterable(options: any): boolean {
+        return options.filterable;
     }
 
     /**
@@ -472,16 +340,23 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Initializes the thumbnail grid by running its query.
+     * Initializes any visualization properties when the widget is created.
      *
      * @override
      */
-    postInit() {
-        this.executeQueryChain();
+    initializeProperties() {
+        if (!this.options.sortField.columnName) {
+            this.options.sortField = this.options.idField;
+        }
+
+        // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
+        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+        // Backwards compatibility (ascending deprecated and replaced by sortDescending).
+        this.options.sortDescending = !(this.injector.get('ascending', !this.options.sortDescending));
     }
 
     /**
-     * Refreshes the thumbnail grid.
+     * Updates and redraws the elements and properties for the visualization.
      *
      * @override
      */
@@ -499,8 +374,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         this.filters = this.filters.filter((existingFilter: any) => {
             return existingFilter.id !== filter.id;
         });
-
-        this.showGrid = false;
     }
 
     /**
@@ -542,7 +415,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
 
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
+                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 let filter = {
                     id: neonFilter.id,
@@ -555,23 +428,5 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                 }
             }
         }
-    }
-
-    /**
-     * Destroys any thumbnail grid sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnDestroy() {
-        // Do nothing.
-    }
-
-    /**
-     * Initializes any thumbnail grid sub-components if needed.
-     *
-     * @override
-     */
-    subNgOnInit() {
-        // Do nothing.
     }
 }

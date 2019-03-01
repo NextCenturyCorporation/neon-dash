@@ -18,11 +18,13 @@ import { Component, OnInit, AfterViewInit, OnDestroy, ViewEncapsulation, Element
 
 import { MatSnackBar, MatDialog } from '@angular/material';
 import { NeonGTDConfig } from './../../neon-gtd-config';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { PropertyService } from '../../services/property.service';
+
 import * as JSONEditor from 'jsoneditor';
 declare var editor: any;
 import * as _ from 'lodash';
-import { windowCount } from 'rxjs/operator/windowCount';
 
 @Component({
   selector: 'app-config-editor',
@@ -41,7 +43,7 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
     public editor: any;
 
     constructor(@Inject('config') private neonConfig: NeonGTDConfig, public snackBar: MatSnackBar,
-        private propertyService: PropertyService) {
+        protected propertyService: PropertyService, protected widgetService: AbstractWidgetService) {
         this.snackBar = snackBar;
         this.currentConfig = neonConfig;
         if (this.currentConfig.errors) {
@@ -95,11 +97,16 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
         let text = JSON.stringify(this.editor.get());
         this.propertyService.setProperty(this.CONFIG_PROP_NAME, text,
         (response) => {
-            this.snackBar.open('Configuration updated successfully.  Refresh to reflect changes.',
-              'OK', {duration: this.DEFAULT_SNACK_BAR_DURATION});
+            this.snackBar.open('Configuration updated successfully.  Refresh to reflect changes.', 'OK', {
+                panelClass: this.widgetService.getTheme(),
+                duration: this.DEFAULT_SNACK_BAR_DURATION
+            });
         },
         (response) => {
-            this.snackBar.open('Error attempting to save configuration', 'OK', {duration: this.DEFAULT_SNACK_BAR_DURATION});
+            this.snackBar.open('Error attempting to save configuration', 'OK', {
+                panelClass: this.widgetService.getTheme(),
+                duration: this.DEFAULT_SNACK_BAR_DURATION
+            });
             console.warn('Error attempting to save configuration:');
             console.warn(response);
         }
@@ -110,11 +117,17 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
         if (window.confirm('Are you sure you want to delete this?')) {
             this.propertyService.deleteProperty(this.CONFIG_PROP_NAME, (response) => {
                 this.snackBar.open('Configuration deleted from Property Service successfully.  ' +
-                'Configuration will be loaded from internal \'json\' or \'yaml\' files.', 'OK',
-                {duration: this.DEFAULT_SNACK_BAR_DURATION});
+                    'Configuration will be loaded from internal \'json\' or \'yaml\' files.', 'OK', {
+                        panelClass: this.widgetService.getTheme(),
+                        duration: this.DEFAULT_SNACK_BAR_DURATION
+                    }
+                );
             },
             (response) => {
-                this.snackBar.open('Error attempting to delete property configuration', 'OK', {duration: this.DEFAULT_SNACK_BAR_DURATION});
+                this.snackBar.open('Error attempting to delete property configuration', 'OK', {
+                    panelClass: this.widgetService.getTheme(),
+                    duration: this.DEFAULT_SNACK_BAR_DURATION
+                });
                 console.warn('Error attempting to delete property configuration:');
                 console.warn(response);
             });

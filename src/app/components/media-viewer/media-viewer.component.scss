@@ -27,7 +27,7 @@
 }
 
 iframe.with-border, img.with-border, video.with-border, audio.with-border {
-    border: 3px solid #fafafa;
+    border: 3px solid var(--color-background, white);
 }
 
 iframe.border-mat-blue, img.border-mat-blue, video.border-mat-blue, audio.border-mat-blue {
@@ -51,7 +51,7 @@ iframe {
     width: 100%;
 }
 
-img, video {
+img:not(.mask), video {
     height: auto;
     width: auto;
 }

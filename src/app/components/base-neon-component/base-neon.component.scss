@@ -13,13 +13,7 @@
  * limitations under the License.
  *
  */
-
-/*
- *  This file contains common CSS for components.
- */
-
-@import '~@angular/material/_theming';
-@import '../../../themes/neon-green-theme';
+@import '../../neon-properties';
 
 $filter-container-height: 40px;
 $footer-height: 35px;
@@ -30,17 +24,18 @@ $footer-height: 35px;
     border-radius: 5px;
 
     .header.text {
-        font-size: 18px;
-        font-weight: bold;
-        line-height: 20px;
+        font-size: 14px;
+        font-weight: 500;
         margin: 0 5px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        color: mat-color($header-text);
+        color: var(--color-text-header, grey);
     }
 
     .info.text {
+        font-size: 14px;
+        font-weight: 500;
         margin: 0 5px;
         overflow: hidden;
         text-align: right;
@@ -81,7 +76,7 @@ $footer-height: 35px;
             }
 
             .chart-selection {
-                background-color: mat-color($primary, 400, .4);
+                background-color: var(--color-primary-transparent, rgba(128,128,128,0.33));
                 height: 10px;
                 width: 10px;
                 position: absolute;
@@ -99,7 +94,7 @@ $footer-height: 35px;
     }
 
     .footer {
-        border-top: 5px solid $accent-bright;
+        border-top: 2px solid var(--color-accent, lightgrey);
         position: absolute;
         bottom: 0;
         height: #{$footer-height};
@@ -114,7 +109,8 @@ $footer-height: 35px;
             .pagination-button {
                 flex: 1 0 0;
                 /* Copied font size, height, and line height from neon-button-small in styles.scss */
-                font-size: 12px !important;
+                font-size: 14px !important;
+                font-weight: 500 !important;
                 height: 25px !important;
                 line-height: 15px !important;
                 margin: 0 5px;
@@ -148,7 +144,7 @@ $footer-height: 35px;
         border-radius: 5px;
         margin: 5px;
         padding: 5px 0 5px 10px;
-        background-color: mat-color($accent);
+        background-color: var(--color-background-contrast, grey);
     }
 
     %filter-label-shared {
@@ -193,14 +189,14 @@ $footer-height: 35px;
         cursor: pointer;
 
         &:hover {
-            color: mat-color($primary);
+            color: var(--color-accent, lightgrey);
         }
     }
 
     .text {
         font-size: 14px;
         line-height: 20px;
-        color: mat-color($fade);
+        color: var(--color-text-header, grey);
     }
 
     .toggle-text {
@@ -212,10 +208,10 @@ $footer-height: 35px;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-}
 
-.neon-green-dark-theme {
-    .filter-reset {
-        background-color: mat-color($primary);
+    .subheader {
+        font-size: 14px;
+        font-weight: 500;
     }
+
 }

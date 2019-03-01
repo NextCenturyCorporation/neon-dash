@@ -1,8 +1,8 @@
-<div *ngIf="simpleFilter | async" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'" class="simple-filter">
+<div *ngIf="showSimpleSearch" class="simple-filter">
     <button mat-button mat-icon-button (click)="addFilter(filter.value)">
-        <mat-icon mat-button>{{ simpleFilter.icon || 'search' }}</mat-icon>
+        <mat-icon mat-button>search</mat-icon>
     </button>
-    <input class="simple-filter-input" #filter [placeholder]="(simpleFilter | async).placeHolder || 'Filter on field \'' + (simpleFilter | async).fieldName + '\''" (keyup)="0" (keyup.enter)="addFilter(filter.value)">
+    <input class="simple-filter-input" #filter [placeholder]="" (keyup)="0" (keyup.enter)="addFilter(filter.value)">
     <button mat-button *ngIf="filter.value || (filterId | async)" mat-icon-button aria-label="Clear" (click)="filter.value = ''; removeFilter()">
         <mat-icon>close</mat-icon>
     </button>

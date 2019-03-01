@@ -1,21 +1,23 @@
-/* You can add global styles to this file, and also import other style files */
-@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
-@import '~@angular/material/prebuilt-themes/purple-green.css';
 @import '~@angular/material/_theming';
-@import 'themes/neon-green-theme.scss';
+@import 'themes/neon-dark-theme';
+@import 'themes/neon-green-theme';
+@import 'themes/neon-teal-theme';
+@import '~angular-tree-component/dist/angular-tree-component.css';
+
+@include mat-core();
 
 body {
+    background-color: var(--color-background, white);
+    color: var(--color-text-main, dimgrey);
     font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
 @font-face {
     font-family: 'Material Icons';
-    font-style: normal;
-    font-weight: 400;
-    src: url(assets/Material/2fcrYFNaTjcS6g4U3t-Y5ZjZjT5FdEJ140U2DJYC3mY.woff2); /* For IE6-8 */
+    src: url(assets/Material/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2); /* For IE6-8 */
     src: local('Material Icons'),
       local('MaterialIcons-Regular'),
-      url(assets/Material/2fcrYFNaTjcS6g4U3t-Y5ZjZjT5FdEJ140U2DJYC3mY.woff2) format('woff2'),
+      url(assets/Material/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2) format('woff2');
 }
 
 .material-icons {
@@ -76,7 +78,7 @@ body {
 
 /* Angular2-Grid Overrides */
 .grid {
-    background-color: #fafafa !important;
+    background-color: var(--color-background, white) !important;
     position: relative;
 }
 
@@ -94,7 +96,7 @@ body {
 }
 
 .grid-placeholder {
-    background-color: gray;
+    background-color: var(--color-background-contrast, grey);
     border: 2px dotted black;
     opacity: 0.3;
     z-index: 10;
@@ -145,8 +147,8 @@ body {
 .mat-raised-button,
 .mat-stroked-button {
     border-radius: 5px !important;
-    font-size: 18px !important;
-    font-weight: 600 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
     line-height: 20px !important;
     height: 30px !important;
     min-width: unset !important;
@@ -156,21 +158,16 @@ body {
         vertical-align: bottom !important;
     }
 
-    &.neon-button-large {
-        font-size: 24px !important;
-        line-height: 25px !important;
-        height: 35px !important;
-    }
-
     &.neon-button-small {
-        font-size: 12px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
         line-height: 15px !important;
         height: 25px !important;
     }
 
     &:not([disabled]) {
         &:hover {
-            background-color: $accent-bright !important;
+            background-color: var(--color-accent, lightgrey) !important;
         }
     }
 }
@@ -182,8 +179,8 @@ body {
 
 .mat-button-toggle-group {
     border-radius: 10px !important;
-    font-size: 18px !important;
-    font-weight: 600 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
 
     .mat-button-toggle {
         &:first-child {
@@ -195,7 +192,7 @@ body {
         }
 
         &:hover:not(.mat-button-toggle-checked) {
-            background-color: $accent-bright !important;
+            background-color: var(--color-accent, lightgrey) !important;
         }
     }
 
@@ -206,18 +203,9 @@ body {
         padding: 5px 10px !important;
     }
 
-    &.neon-button-toggle-group-large {
-        font-size: 24px !important;
-
-        .mat-button-toggle-label-content {
-            height: 25px !important;
-            line-height: 25px !important;
-            padding: 5px 10px !important;
-        }
-    }
-
     &.neon-button-toggle-group-small {
         font-size: 12px !important;
+        font-weight: 500px !important;
 
         .mat-button-toggle-label-content {
             height: 15px !important;
@@ -287,7 +275,7 @@ body {
     &:not([disabled]) {
         &.active,
         &:hover {
-            color: $accent-bright !important;
+            color: var(--color-accent, lightgrey) !important;
         }
     }
 }
@@ -315,7 +303,7 @@ body {
 
     &:not([disabled]) {
         &.active {
-            color: $accent-bright !important;
+            color: var(--color-accent, lightgrey) !important;
         }
     }
 }
@@ -353,6 +341,17 @@ body {
     padding: 5px 20px !important;
 }
 
+
+/* TODO THOR-898 */
+.mat-select-panel {
+    background-color: white;
+    color: #333333;
+
+    .mat-option:hover {
+        background-color: #999999;
+    }
+}
+
 .mat-sidenav {
     > .mat-card {
         padding: 20px !important;
@@ -364,12 +363,12 @@ body {
 }
 
 .mat-slider-horizontal {
-    height: 60px !important;
+    height: 30px !important;
     min-width: unset !important;
 
     .mat-slider-wrapper {
         /* Position the slider near the bottom and save 40px for the thumb-label. */
-        top: 49px !important;
+        top: 14px !important;
         /* Add the same margin to the left and right. */
         left: 10px !important;
         right: 10px !important;
@@ -383,12 +382,11 @@ body {
 }
 
 .mat-toolbar {
-    font-weight: 600 !important;
     line-height: 30px !important;
     height: 40px !important;
     min-height: 40px !important;
     padding: 5px 10px !important;
-    border-bottom: 5px solid $accent-bright !important;
+    border-bottom: 2px solid var(--color-accent, lightgrey) !important;
 
     &.neon-toolbar-large {
         height: 50px !important;
@@ -397,26 +395,43 @@ body {
     }
 
     &.neon-toolbar-thin {
-        padding: 5px !important;
+        padding: 6px !important;
     }
 
     &.neon-toolbar-wide {
         padding: 5px 20px !important;
     }
+
+    &.titlebar-header-text {
+        font-size: 20px;
+        font-weight: 400;
+    }
+
+    &.widget-header-text {
+        font-size: 14px;
+        font-weight: 500;
+    }
+}
+
+.mat-tooltip {
+    background-color: grey;
+    color: white;
+    margin: 5px;
+    padding: 5px;
 }
 
 .simpleSnackBar {
-    background-color: rgba(0, 0, 0, 0.54) !important;
-    
+    background-color: var(--color-accent, grey) !important;
+    color: var(--color-accent-contrast, white);
 
     .mat-simple-snackbar-action {
-        position: absolute; 
+        position: absolute;
         top: 0;
         right: 0;
         font-weight: 800;
     }
 
-    .mat-simple-snackbar{
+    .mat-simple-snackbar {
         justify-content: center;
     }
 }
