@@ -1077,7 +1077,6 @@ private getAllNodes(data: any[], idField: string, nameField: string, colorField:
                 edgeType = entry[edgeColorField],
                 linkNodeName = '',
                 linkNameField = entry[linkNameColumn],
-                targetNameField = targetNameColumn && entry[targetNameColumn],
                 nodeField = entry[nodeName],
                 xPosition = entry[xTargetPositionField],
                 yPosition = entry[yTargetPositionField],
@@ -1090,35 +1089,7 @@ private getAllNodes(data: any[], idField: string, nameField: string, colorField:
                     colorMapVal).getComputedCss(this.visualization);
             }
 
-            // create a node if linkfield doesn't point to a node that already exists
-            let links = this.getArray(linkField),
-                targetNames = !targetNameField ? links : this.getArray(targetNameField);
-
-            if (links) {
-                for (let j = 0; j < links.length && graph.nodes.length < limit; j++) {
-                    let linkEntry = links[j];
-                    linkNodeName = targetNames[j];
-                    filterFields.push({field: nodeName, data: linkEntry});
-
-                    if (linkEntry && this.isUniqueNode(linkEntry)) {
-                        //If legend labels have been modified, override the link
-                        if (this.prettifiedNodeLabels.length > 0 && this.options.displayLegend && nodeType && nodeType !== '') {
-                            let shortName = this.labelCleanUp(nodeType);
-                            for (const nodeLabel of this.prettifiedNodeLabels) {
-                                if (nodeLabel === shortName) {
-                                    let colorMapVal = nodeColorField && nodeLabel;
-                                    linkColor = this.widgetService.getColor(this.options.database.name, this.options.table.name,
-                                        nodeColorField, colorMapVal).getComputedCss(this.visualization);
-                                    break;
-                                }
-                            }
-                        }
-
-                        graph.addNode(new Node(linkEntry, linkNodeName, linkName, 1, linkColor, true, nodeTextObject, nodeShape,
-                            xPosition, yPosition, filterFields));
-                    }
-                }
-            }
+            let links = this.getArray(linkField);
 
             // create edges between nodes and destinations specified by linkfield
             let linkNames = !linkNameField ? [].fill('', 0, links.length) : this.getArray(linkNameField),
