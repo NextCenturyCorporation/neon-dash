@@ -288,7 +288,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             for (let node of relativeData) {
                 nodeClauses.push(neon.query.where(nodeFilter.field, '!=', node.name));
                 if (node.sourceIds.length) {
-                    sourceClauses.concat(this.createSourceClauses(node.sourceIds));
+                    sourceClauses = sourceClauses.concat(this.createSourceClauses(node.sourceIds));
                 }
             }
 
@@ -307,7 +307,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         if (sourceClauses.length) {
             sourceClause = neon.query.and.apply(neon.query, sourceClauses);
-            this.addFilter(sourceFilter, runQuery, sourceClause);
+            // TODO AIDA-607
+            // this.addFilter(sourceFilter, runQuery, sourceClause);
         }
 
     }
