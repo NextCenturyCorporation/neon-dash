@@ -162,7 +162,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.matIconRegistry.addSvgIcon(
             'dashboard_selector',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/database_icon.svg')
+            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/database_icon.svg')
         );
 
         this.changeFavicon();
