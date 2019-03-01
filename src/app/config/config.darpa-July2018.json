@@ -547,24 +547,6 @@
                 "minSizey": 3
             },
             {
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "col": 1,
-                "row": 14,
-                "sizex": 6,
-                "sizey": 4,
-                "bindings": {
-                    "title": "Filter Builder",
-                    "database": "ldc_uyg_jul_18",
-                    "table": "ui_output"
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2
-            },
-            {
                 "name": "Text Cloud",
                 "type": "textCloud",
                 "icon": "TagCloud64",
@@ -760,24 +742,6 @@
                 "minPixely": 240,
                 "minSizex": 4,
                 "minSizey": 3
-            },
-            {
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "col": 1,
-                "row": 14,
-                "sizex": 6,
-                "sizey": 4,
-                "bindings": {
-                    "title": "Filter Builder",
-                    "database": "uyg_elisa_sd",
-                    "table": "ui_out"
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2
             },
             {
                 "name": "Text Cloud",
@@ -983,24 +947,6 @@
                 "minPixely": 240,
                 "minSizex": 4,
                 "minSizey": 4
-            },
-            {
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "col": 1,
-                "row": 14,
-                "sizex": 6,
-                "sizey": 4,
-                "bindings": {
-                    "title": "Filter Builder",
-                    "database": "ll_nepal_07_11_3",
-                    "table": "annotations"
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2
             },
             {
                 "name": "Text Cloud",
@@ -1252,26 +1198,6 @@
                 "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
                 "row": 14,
                 "col": 7
-            },
-            {
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "sizex": 6,
-                "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:31",
-                "selected": true,
-                "bindings": {
-                    "title": "Filter Builder",
-                    "database": "elisa_car_1",
-                    "table": "annotations"
-                },
-                "row": 14,
-                "col": 1
             }
         ],
         "nepal-elisa-sa": [{
@@ -1474,26 +1400,6 @@
             }
         ],
         "human-terrain": [{
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "sizex": 8,
-                "sizey": 2,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:31",
-                "selected": true,
-                "bindings": {
-                    "title": "Filter Builder",
-                    "database": "ll_nepal_06_14_2",
-                    "table": "annotations1Author"
-                },
-                "row": 1,
-                "col": 1
-            },
-            {
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",

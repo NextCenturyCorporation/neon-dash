@@ -31,13 +31,23 @@
 
 .modal__datasource-container {
   border: solid 1px rgba(0, 0, 0, 0.2);
-  background-color: #fff;
+  background-color: var(--color-background, white);
   border-radius: 2px;
   height: 140px;
   overflow-y: auto;
 }
 
 .modal__datasource-list-item {
-  font-size: 0.8rem;
+  font-size: 14px;
   padding: 6px 6px 0 6px;
+}
+
+button {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+select, input {
+    font-size: 14px;
+    font-weight: 400;
 }

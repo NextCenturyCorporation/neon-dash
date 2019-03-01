@@ -1,4 +1,4 @@
-<mat-toolbar color="primary">
+<mat-toolbar color="primary" class="header-text">
     <span>Local Filter</span>
 </mat-toolbar>
 
@@ -17,12 +17,12 @@
               [disabled]="!(meta.unsharedFilterField.columnName)" (keyup.enter)="handleChangeUnsharedFilterValue()">
     </mat-form-field>
 
-    <button mat-icon-button matTooltip="Remove Unshared Filter" tooltip-position="below" (click)="handleRemoveUnsharedFilter()"
+    <button mat-icon-button matTooltip="Remove Unshared Filter" matTooltipPosition="below" (click)="handleRemoveUnsharedFilter()"
         [disabled]="(meta.unsharedFilterField.columnName == undefined || meta.unsharedFilterValue == '')">
         <mat-icon>clear</mat-icon>
     </button>
 
-    <button mat-icon-button matTooltip="Set Unshared Filter" tooltip-position="below" (click)="handleChangeUnsharedFilterValue()">
+    <button mat-icon-button matTooltip="Set Unshared Filter" matTooltipPosition="below" (click)="handleChangeUnsharedFilterValue()">
         <mat-icon>refresh</mat-icon>
     </button>
 </div>

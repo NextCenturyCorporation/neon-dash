@@ -68,7 +68,7 @@
                     "predictedNameField": "PredictedName",
                     "percentField": "PredictedProbability",
                     "sortField": "PredictedProbability",
-                    "detailedThumbnails": false
+                    "viewType": "title"
                 },
                 "row": 12,
                 "col": 1
@@ -99,7 +99,7 @@
                     "predictedNameField": "PredictedName",
                     "percentField": "PredictedProbability",
                     "sortField": "PredictedProbability",
-                    "detailedThumbnails": false
+                    "viewType": "title"
                 },
                 "row": 12,
                 "col": 7

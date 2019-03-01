@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -8,12 +8,12 @@
             </span>
             <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
 
-    <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+    <mat-sidenav #optionsMenu position="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
                 <div *ngIf="errorMessage">
@@ -74,17 +74,17 @@
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Row Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                        <input matInput placeholder="Row Limit" [(ngModel)]="newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
-                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below" (click)="handleChangeLimit()">
                         <mat-icon>refresh</mat-icon>
                     </button>
                 </div>
                 <p></p>
 
                 <span class="toggle-text">Allow Multiple Filters:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [disabled]="!options.filterable" [(ngModel)]="options.singleFilter" (ngModelChange)="handleFiltersChangedEvent()">
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [disabled]="!options.filterable" [(ngModel)]="options.singleFilter" (ngModelChange)="handleChangeData()">
                     <mat-button-toggle [value]="false">Yes</mat-button-toggle>
                     <mat-button-toggle [value]="true">No</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -121,14 +121,14 @@
                 <p></p>
 
                 <span class="toggle-text">Ignore Own Filters:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [disabled]="!options.filterable" [(ngModel)]="options.ignoreSelf" (ngModelChange)="handleFiltersChangedEvent()">
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [disabled]="!options.filterable" [(ngModel)]="options.ignoreSelf" (ngModelChange)="handleChangeData()">
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
                 </mat-button-toggle-group>
                 <p></p>
 
                 <span class="toggle-text">Show Data Matching:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [disabled]="!options.filterable" [(ngModel)]="options.arrayFilterOperator" (ngModelChange)="handleFiltersChangedEvent()">
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [disabled]="!options.filterable" [(ngModel)]="options.arrayFilterOperator" (ngModelChange)="handleChangeData()">
                     <mat-button-toggle value="and">All Filters</mat-button-toggle>
                     <mat-button-toggle value="or">Any Filters</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -175,30 +175,30 @@
                 <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
-                <app-export-control [exportId]="exportId"></app-export-control>
+                <app-export-control [widgets]="this"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
         <mat-spinner></mat-spinner>
     </div>
 
     <div class="datatable-filter-container">
         <div class="datatable-filter-reset" *ngFor="let filter of getCloseableFilters()">
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, false)">
+                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(options, filter, true, false)">
                 <mat-icon class="neon-icon-small">close</mat-icon>
             </button>
             <span class="datatable-filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.value }}</span>
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="docCount > options.limit">
+    <div class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="showPagination()">
         <div class="table-container">
-            <ngx-datatable #table class="material table" [class.skinny]="this.options.skinny"
+            <ngx-datatable #table class="material table"[class.skinny]="this.options.skinny"
                 [class.selectable]="options.filterable || options.idField.columnName"
-                [rows]="activeData"
+                [rows]="getTableRowData()"
                 [columnMode]="'force'"
                 [columns]="activeHeaders"
                 [headerHeight]="getTableHeaderHeight()"
@@ -216,7 +216,7 @@
 
             <div *ngIf="showColumnSelector=='show'" class="column-selector">
                 <div class="column-selector-header"><span> Columns </span>
-                    <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" tooltip-position="below" (click)="closeColumnSelector()">
+                    <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" matTooltipPosition="below" (click)="closeColumnSelector()">
                       <mat-icon class="column-selector-close-icon">close</mat-icon>
                     </button>
 
@@ -230,7 +230,7 @@
                     </button>
                 </div>
                 <mat-list dense class="column-selector-list" (mouseleave)="onMouseLeaveArea(i)" (mousemove)="onMouseMove($event)">
-                    <mat-list-item *ngFor="let header of options.headers; let i = index" (mouseenter)="onMouseEnter(i)" (mouseup)="onMouseUp(i)"
+                    <mat-list-item *ngFor="let header of headers; let i = index" (mouseenter)="onMouseEnter(i)" (mouseup)="onMouseUp(i)"
                         (mouseleave)="onMouseLeaveItem(i)" [ngStyle]="{'border': header.style.border, 'background-color': header.style.backgroundColor, 'border-top': header.style.borderTop, 'border-bottom': header.style.borderBottom}">
                         <mat-icon (mousedown)="onMouseDown(i)">drag_handle</mat-icon>
                         <mat-checkbox color="primary" [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">{{ header.name }}</mat-checkbox>
@@ -240,14 +240,14 @@
         </div>
     </div>
 
-    <div class="footer" *ngIf="docCount > options.limit">
+    <div class="footer" *ngIf="showPagination()">
         <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button" color="primary" (click)="previousPage()">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button" color="primary" (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="page*options.limit >= (docCount)" class="pagination-button" color="primary"
-                    (click)="nextPage()">
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button" color="primary"
+                    (click)="goToNextPage()">
                 Next
             </button>
         </div>

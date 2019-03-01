@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -8,13 +8,13 @@
             </span>
             <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
 
     <!-- Options menu -->
-    <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+    <mat-sidenav #optionsMenu position="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
                 <div *ngIf="errorMessage">
@@ -77,24 +77,24 @@
                 <mat-form-field>
                     <mat-select placeholder="Sort Field" [(ngModel)]="options.sortField" (ngModelChange)="handleChangeData()"
                         [disabled]="options.fields.length == 0">
-                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option [value]="createEmptyField()">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
-                <span class="toggle-text">Sort Order:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.sortOrder" (ngModelChange)="handleChangeData()">
-                    <mat-button-toggle value="ASCENDING">ASC</mat-button-toggle>
-                    <mat-button-toggle value="DESCENDING">DESC</mat-button-toggle>
+                <span class="toggle-text">Sort:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.sortDescending" (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="false">Ascending</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Descending</mat-button-toggle>
                 </mat-button-toggle-group>
                 <p></p>
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Document Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                        <input matInput placeholder="Document Limit" [(ngModel)]="newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
-                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below" (click)="handleChangeLimit()">
                         <mat-icon>refresh</mat-icon>
                     </button>
                 </div>
@@ -138,46 +138,51 @@
         </mat-card>
     </mat-sidenav>
 
-    <mat-list class="document-viewer-list-container body-container" [class.with-footer]="docCount > options.limit">
-        <div class="mat-list-item-text document-viewer-list-item" *ngFor="let activeItem of activeData">
-            <table class="document-viewer-table" *ngIf="activeItem.rows.length > 0">
-                <tr class="document-viewer-row" [ngClass]="{'document-viewer-even': i % 2 === 1}" *ngFor="let item of activeItem.rows; index as i">
-                    <td class="document-viewer-name" [style.width]="options.nameWidthCss || '50%'">{{ item.name }}: </td>
-                    <td class="document-viewer-text">{{ item.text }}</td>
-                </tr>
-            </table>
+    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
+        <mat-spinner></mat-spinner>
+    </div>
 
-            <table class="document-viewer-table" *ngIf="options.showText">
-                <tr class="document-viewer-row">
-                    <td class="document-viewer-text">{{ activeItem.data[options.dataField.columnName] }}</td>
-                </tr>
-            </table>
+    <mat-list class="document-viewer-list-container body-container" [class.with-footer]="showPagination()">
+        <div *ngIf="getActiveData(options) != null">
+            <div class="mat-list-item-text document-viewer-list-item" *ngFor="let activeItem of getActiveData(options).data">
+                <table class="document-viewer-table" *ngIf="activeItem.rows.length > 0">
+                    <tr class="document-viewer-row" [ngClass]="{'document-viewer-even': i % 2 === 1}" *ngFor="let item of activeItem.rows; index as i">
+                        <td class="document-viewer-name" [style.width]="options.nameWidthCss || '50%'">{{ item.name }}: </td>
+                        <td class="document-viewer-text">{{ item.text }}</td>
+                    </tr>
+                </table>
 
-            <table class="document-viewer-table" *ngIf="showSourceButton() || showSelectButton()">
-                <tr class="document-viewer-row">
-                    <td class="document-viewer-button" *ngIf="showSourceButton()">
-                        <button mat-raised-button class="neon-button-small" color="primary" (click)="openSingleRecord(activeItem.data)">
-                            View Source Text
-                        </button>
-                    </td>
-                    <td class="document-viewer-button" *ngIf="showSelectButton()">
-                        <button mat-raised-button class="neon-button-small" color="primary" (click)="selectSingleRecord(activeItem.data)">
-                            Select
-                        </button>
-                    </td>
-                </tr>
-            </table>
+                <table class="document-viewer-table" *ngIf="options.showText">
+                    <tr class="document-viewer-row">
+                        <td class="document-viewer-text">{{ activeItem.data[options.dataField.columnName] }}</td>
+                    </tr>
+                </table>
+
+                <table class="document-viewer-table" *ngIf="showSourceButton() || showSelectButton()">
+                    <tr class="document-viewer-row">
+                        <td class="document-viewer-button" *ngIf="showSourceButton()">
+                            <button mat-raised-button class="neon-button-small" color="primary" (click)="openSingleRecord(activeItem.data)">
+                                View Source Text
+                            </button>
+                        </td>
+                        <td class="document-viewer-button" *ngIf="showSelectButton()">
+                            <button mat-raised-button class="neon-button-small" color="primary" (click)="selectSingleRecord(activeItem.data)">
+                                Select
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </mat-list>
 
-    <div class="footer" *ngIf="docCount > options.limit">
+    <div class="footer" *ngIf="showPagination()">
         <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button" color="primary" (click)="previousPage()">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button" color="primary" (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="page*options.limit >= docCount" class="pagination-button" color="primary"
-                    (click)="nextPage()">
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button" color="primary" (click)="goToNextPage()">
                 Next
             </button>
         </div>

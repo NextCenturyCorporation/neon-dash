@@ -25,22 +25,17 @@ import { FieldMetaData } from '../../dataset';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { AppMaterialModule } from '../../app.material.module';
-import { ChartComponent } from '../chart/chart.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
-import { TimelineComponent } from './timeline.component';
+import { TimelineComponent, TransformedTimelineAggregationData } from './timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { TranslationService } from '../../services/translation.service';
-import { VisualizationService } from '../../services/visualization.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import { WidgetService } from '../../services/widget.service';
 
 let d3 = require('../../../assets/d3.min.js');
 
@@ -51,22 +46,15 @@ describe('Component: Timeline', () => {
 
     initializeTestBed({
         declarations: [
-            ChartComponent,
             TimelineComponent,
             ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [
-            ActiveGridService,
-            ConnectionService,
+            { provide: AbstractWidgetService, useClass: WidgetService },
             DatasetService,
             FilterService,
-            ExportService,
-            TranslationService,
-            ErrorNotificationService,
-            VisualizationService,
-            ThemesService,
-            ColorSchemeService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: testConfig }
         ],
@@ -85,54 +73,6 @@ describe('Component: Timeline', () => {
 
     it('should create an instance', () => {
         expect(component).toBeTruthy();
-    });
-
-    it('createClause does return expected object', () => {
-        component.options.dateField = new FieldMetaData('testDateField');
-        expect(component.createClause()).toEqual(neon.query.where('testDateField', '!=', null));
-
-        component.options.unsharedFilterField = new FieldMetaData('testFilterField');
-        component.options.unsharedFilterValue = 'testFilterValue';
-        expect(component.createClause()).toEqual(neon.query.and(neon.query.where('testDateField', '!=', null),
-            neon.query.where('testFilterField', '=', 'testFilterValue')));
-    });
-
-    it('getButtonText does return expected string', () => {
-        expect(component.getButtonText()).toBe('No Data');
-
-        component.activeData = [{
-            date: new Date(),
-            value: 0
-        }];
-        expect(component.getButtonText()).toBe('No Data');
-
-        component.docCount = 2;
-        component.activeData = [{
-            date: new Date(),
-            value: 1
-        }, {
-            date: new Date(),
-            value: 1
-        }];
-        expect(component.getButtonText()).toBe('Total 2');
-
-        component.docCount = 6;
-        expect(component.getButtonText()).toBe('2 of 6');
-
-        component.activeData = [{
-            date: new Date(),
-            value: 3
-        }, {
-            date: new Date(),
-            value: 2
-        }, {
-            date: new Date(),
-            value: 1
-        }, {
-            date: new Date(),
-            value: 0
-        }];
-        expect(component.getButtonText()).toBe('Total 6');
     });
 
     it('getElementRefs does return expected object', () => {

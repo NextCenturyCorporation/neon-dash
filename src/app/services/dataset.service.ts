@@ -16,9 +16,10 @@
 import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
-import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData, Relation } from '../dataset';
-import { Subscription, Observable } from 'rxjs/Rx';
+import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData, Relation, SimpleFilter } from '../dataset';
+import { Subscription, Observable, interval } from 'rxjs';
 import { NeonGTDConfig } from '../neon-gtd-config';
+import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
 
 @Injectable()
@@ -169,11 +170,52 @@ export class DatasetService {
         }
         if (this.dataset.options.requeryInterval) {
             let delay = Math.max(0.5, this.dataset.options.requeryInterval) * 60000;
-            this.updateInterval = Observable.interval(delay);
+            this.updateInterval = interval(delay);
             this.updateSubscription = this.updateInterval.subscribe(() => {
                 this.publishUpdateData();
             });
         }
+
+        this.messenger.publish(neonEvents.NEW_DATASET, {});
+    }
+
+    /**
+     *
+     * @param simpleField The new field for the simple search
+     */
+    public setActiveDatasetSimpleFilterFieldName(simpleField: FieldMetaData) {
+        this.createSimpleFilter();
+        this.dataset.options.simpleFilter.fieldName = simpleField.columnName;
+    }
+
+    /**
+     * Creates a simpleFilter if it doesn't exist
+     */
+    public createSimpleFilter() {
+        if (!this.dataset.options.simpleFilter) {
+            this.dataset.options.simpleFilter = new SimpleFilter(
+                this.dataset.databases[0].name,
+                this.dataset.databases[0].tables[0].name,
+                ''
+            );
+        }
+    }
+
+    /**
+     * returns the simple search field
+     * @return {string}
+     */
+    public getActiveDatasetSimpleFilterFieldName(): string {
+        this.createSimpleFilter();
+        return this.dataset.options.simpleFilter.fieldName;
+    }
+
+    /**
+     * returns the active table fields
+     * @return {Object}
+     */
+    public getActiveFields() {
+        return this.dataset.databases[0].tables[0].fields;
     }
 
     /**
@@ -713,9 +755,30 @@ export class DatasetService {
         let values = [];
         this.dataset.relations.forEach((relation) => {
             for (let x = relation.members.length - 1; x >= 0; x--) {
-                if (relation.members[x].database === db && relation.members[x].table === t && relation.members[x].field === f) {
-                    values = values.concat(relation.members);
-                    return; // Return from this instance of forEach so we don't add the contents of this relation multiple times.
+                if (relation.members[x].database === db && relation.members[x].table === t) {
+                    if (relation.members[x].field === f) {
+                        values = values.concat(relation.members);
+                        return; // Return from this instance of forEach so we don't add the contents of this relation multiple times.
+                    }
+                    // Allow wildcard matches on nested fields (only works with one nested level).  EX:  A.B matches A.*
+                    let fieldSeparatorIndex = f.indexOf('.');
+                    let relationFieldSeparatorIndex = relation.members[x].field.indexOf('.');
+                    if (fieldSeparatorIndex >= 0 && relationFieldSeparatorIndex >= 0) {
+                        let fieldParent = f.substring(0, fieldSeparatorIndex);
+                        let relationFieldParent = relation.members[x].field.substring(0, relationFieldSeparatorIndex);
+                        let relationFieldChildren = relation.members[x].field.substring(relationFieldSeparatorIndex + 1);
+                        if (fieldParent === relationFieldParent && relationFieldChildren === '*') {
+                            let relationValueClone = _.cloneDeep(relation.members);
+                            // Clone the relation and replace the wildcard fields with the real field.
+                            relationValueClone.forEach((relationCopy) => {
+                                if (relationCopy.field === (fieldParent + '.*')) {
+                                    relationCopy.field = f;
+                                }
+                            });
+                            values = values.concat(relationValueClone);
+                            return;
+                        }
+                    }
                 }
             }
         });

@@ -14,10 +14,10 @@
  *
  */
 import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
-import { ActiveGridService } from '../../services/active-grid.service';
 import { DatasetService } from '../../services/dataset.service';
 import { Dataset } from '../../dataset';
 import { MatDialogRef } from '@angular/material';
+import { neonEvents } from '../../neon-namespaces';
 
 import { CustomConnectionStep } from './custom-connection-step';
 import { CustomConnectionData } from './custom-connection-data';
@@ -34,8 +34,6 @@ export class CustomConnectionComponent implements AfterViewInit {
     public dialogRef: MatDialogRef<CustomConnectionComponent>;
     @Output() datasetCreated: EventEmitter<any> = new EventEmitter<any>();
 
-    private datasetService: DatasetService;
-    private activeGridService: ActiveGridService;
     private messenger: neon.eventing.Messenger;
 
     @ViewChildren('step') private stepQueryList: QueryList<CustomConnectionStep>;
@@ -43,10 +41,8 @@ export class CustomConnectionComponent implements AfterViewInit {
     private currentStep: CustomConnectionStep;
     private currentStepIndex: number;
 
-    constructor(activeGridService: ActiveGridService, datasetService: DatasetService, dialogRef: MatDialogRef<CustomConnectionComponent>) {
+    constructor(private datasetService: DatasetService, dialogRef: MatDialogRef<CustomConnectionComponent>) {
         this.dialogRef = dialogRef;
-        this.activeGridService = activeGridService;
-        this.datasetService = datasetService;
         this.messenger = new neon.eventing.Messenger();
 
         this.steps = [];
@@ -83,7 +79,7 @@ export class CustomConnectionComponent implements AfterViewInit {
         this.datasetService.setActiveDataset(dataset);
 
         this.messenger.clearFiltersSilently();
-        this.activeGridService.clear();
+        this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});
         this.datasetCreated.emit(dataset);
         this.dialogRef.close();
     }
@@ -102,7 +98,7 @@ export class CustomConnectionComponent implements AfterViewInit {
         }
     }
 
-    getCurrentStepTitle(): string {
+    public getCurrentStepTitle(): string {
         return this.currentStep ? this.currentStep.title : '';
     }
 

@@ -15,7 +15,6 @@
  */
 import { ElementRef } from '@angular/core';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, whiteString } from './map.type.abstract';
-import { MapLayer } from './map.component';
 import 'cesium/Build/Cesium/Cesium.js';
 declare var Cesium;
 
@@ -43,7 +42,7 @@ export class CesiumNeonMap extends AbstractMap {
         rectangle: null
     };
 
-    private dataSources = new Map<MapLayer, any>();
+    private dataSources = new Map<any, any>();
 
     private hiddenEntities = new Map();
 
@@ -143,7 +142,7 @@ export class CesiumNeonMap extends AbstractMap {
 
         this.cesiumViewer = viewer;
 
-        this.popupEntity = this.mapOptions.hoverPopupEnabled && this.cesiumViewer.entities.add({
+        this.popupEntity = this.mapOptions.showPointDataOnHover && this.cesiumViewer.entities.add({
                 label: {
                     show: false,
                     showBackground: true,
@@ -188,7 +187,7 @@ export class CesiumNeonMap extends AbstractMap {
         }
     }
 
-    addPoints(points: MapPoint[], layer?: MapLayer, cluster: boolean = false) {
+    addPoints(points: MapPoint[], layer?: any, cluster: boolean = false) {
         let ds = this.getDataSource(layer),
             entities = ds.entities;
 
@@ -221,7 +220,7 @@ export class CesiumNeonMap extends AbstractMap {
         entities.resumeEvents();
     }
 
-    clearLayer(layer: MapLayer) {
+    clearLayer(layer: any) {
         let ds = this.getDataSource(layer);
         this.cesiumViewer.dataSources.remove(ds, true);
         this.dataSources.delete(layer);
@@ -234,7 +233,7 @@ export class CesiumNeonMap extends AbstractMap {
         return this.cesiumViewer && this.cesiumViewer.destroy();
     }
 
-    hidePoints(layer: MapLayer, value: string) {
+    hidePoints(layer: any, value: string) {
         let ds = this.getDataSource(layer);
         let entities = ds.entities;
 
@@ -258,7 +257,7 @@ export class CesiumNeonMap extends AbstractMap {
         this.hiddenEntities.set(layer, hiddenEntities);
     }
 
-    unhidePoints(layer: MapLayer, value: string) {
+    unhidePoints(layer: any, value: string) {
         let ds = this.getDataSource(layer);
         let entities = ds.entities;
 
@@ -281,7 +280,7 @@ export class CesiumNeonMap extends AbstractMap {
         this.hiddenEntities.set(layer, hiddenEntities);
     }
 
-    unhideAllPoints(layer: MapLayer) {
+    unhideAllPoints(layer: any) {
         let ds = this.getDataSource(layer);
         let entities = ds.entities;
 
@@ -370,11 +369,11 @@ export class CesiumNeonMap extends AbstractMap {
         if (this.selection.selectionDown && end) {
             this.setEndPos(end);
             this.drawSelection();
-        } else if (end && (this.mapOptions.hoverPopupEnabled || this.mapOptions.hoverSelect)) {
+        } else if (end && (this.mapOptions.showPointDataOnHover || this.mapOptions.hoverSelect)) {
             let viewer = this.cesiumViewer,
                 objectsAtLocation = viewer.scene.drillPick(end); // get all entities under mouse
 
-            if (this.mapOptions.hoverPopupEnabled) {
+            if (this.mapOptions.showPointDataOnHover) {
                 let popup = this.popupEntity;
 
                 // ensure that an object exists at cursor and that it isn't one of the map-feature entities (eg. popup)
@@ -480,7 +479,7 @@ export class CesiumNeonMap extends AbstractMap {
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // Drawing support
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    private getDataSource(layer: MapLayer) {
+    private getDataSource(layer: any) {
         let dataSource = this.dataSources.get(layer);
 
         if (!dataSource) {

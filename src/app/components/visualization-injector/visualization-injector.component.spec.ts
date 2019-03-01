@@ -20,35 +20,35 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 import { AggregationComponent } from '../aggregation/aggregation.component';
 import { AnnotationViewerComponent } from '../annotation-viewer/annotation-viewer.component';
-import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { LegendComponent } from '../legend/legend.component';
-import { LineChartComponent } from '../line-chart/line-chart.component';
 import { MapComponent } from '../map/map.component';
+import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
+import { NewsFeedComponent } from '../news-feed/news-feed.component';
+import { QueryBarComponent } from '../query-bar/query-bar.component';
 import { SampleComponent } from '../sample/sample.component';
-import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
+import { TaxonomyViewerComponent } from '../taxonomy-viewer/taxonomy-viewer.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
+import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { VisualizationInjectorComponent } from './visualization-injector.component';
 import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
 
+import { DetailsThumbnailSubComponent } from '../thumbnail-grid/subcomponent.details-view';
+import { TitleThumbnailSubComponent } from '../thumbnail-grid/subcomponent.title-view';
+import { CardThumbnailSubComponent } from '../thumbnail-grid/subcomponent.card-view';
+
 import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { VisualizationService } from '../../services/visualization.service';
-import { ChartComponent } from '../chart/chart.component';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
-import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
-import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { NewsFeedComponent } from '../news-feed/news-feed.component';
-import { QueryBarComponent } from '../query-bar/query-bar.component';
-import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from '../thumbnail-grid/thumbnail-details.component';
 import { MatAutocompleteModule } from '@angular/material';
+import { TreeModule } from 'angular-tree-component';
 
 describe('Component: VisualizationInjector', () => {
 
@@ -56,25 +56,23 @@ describe('Component: VisualizationInjector', () => {
         declarations: [
             AggregationComponent,
             AnnotationViewerComponent,
-            BarChartComponent,
-            ChartComponent,
+            CardThumbnailSubComponent,
             DataTableComponent,
+            DetailsThumbnailSubComponent,
             DocumentViewerComponent,
             ExportControlComponent,
             FilterBuilderComponent,
             LegendComponent,
-            LineChartComponent,
             MapComponent,
             MediaViewerComponent,
             NetworkGraphComponent,
             NewsFeedComponent,
             QueryBarComponent,
             SampleComponent,
-            ScatterPlotComponent,
+            TaxonomyViewerComponent,
             TextCloudComponent,
-            ThumbnailDetailsContractedComponent,
-            ThumbnailDetailsExpandedComponent,
             ThumbnailGridComponent,
+            TitleThumbnailSubComponent,
             TimelineComponent,
             UnsharedFilterComponent,
             VisualizationInjectorComponent,
@@ -88,13 +86,8 @@ describe('Component: VisualizationInjector', () => {
             NgxDatatableModule,
             NgxGraphModule,
             BrowserAnimationsModule,
-            ReactiveFormsModule
+            ReactiveFormsModule,
+            TreeModule.forRoot()
         ]
     });
-
-    it('should create an instance', inject([ComponentFactoryResolver],
-        (resolver: ComponentFactoryResolver) => {
-        let component = new VisualizationInjectorComponent(resolver, new VisualizationService());
-        expect(component).toBeTruthy();
-    }));
 });

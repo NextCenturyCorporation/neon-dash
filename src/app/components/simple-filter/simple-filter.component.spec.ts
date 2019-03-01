@@ -13,23 +13,29 @@
  * limitations under the License.
  *
  */
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { SimpleFilterComponent } from './simple-filter.component';
 import { DatasetOptions, SimpleFilter } from '../../dataset';
-import { DebugElement } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    ChangeDetectionStrategy,
+    Component,
+    DebugElement,
+    NO_ERRORS_SCHEMA,
+    OnDestroy, OnInit
+} from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 
 const databaseName = 'database';
 const tableName = 'table';
@@ -38,8 +44,8 @@ const fieldName = 'field';
 // TODO Is this really needed?
 class MockFilterService extends FilterServiceMock {
     addFilter(messenger: neon.eventing.Messenger, ownerId: string, database: string, table: string,
-              whereClause: any, filterName: string | { visName: string; text: string },
-              onSuccess: (resp: any) => any, onError: (resp: any) => any): void {
+        whereClause: any, filterName: string | { visName: string; text: string },
+        onSuccess: (resp: any) => any, onError: (resp: any) => any): void {
         super.addFilter(messenger, ownerId, database, table, whereClause, filterName, onSuccess, onError);
         onSuccess(super.getLatestFilterId());
     }
@@ -56,100 +62,85 @@ class MockDatasetService extends DatasetService {
         return this.options;
     }
 }
-
-class SimpleFilterTester {
-    fixture: ComponentFixture<SimpleFilterComponent>;
-    component: SimpleFilterComponent;
-    filterService: FilterService;
-    datasetService: DatasetService;
-    element: DebugElement;
-
-    constructor(mockDataset = true) {
-        TestBed.configureTestingModule({
-            declarations: [
-                SimpleFilterComponent
-            ],
-            providers: [
-                { provide: FilterService, useClass: MockFilterService },
-                ThemesService,
-                { provide: DatasetService, useClass: mockDataset ? MockDatasetService : DatasetService },
-                ErrorNotificationService,
-                { provide: 'config', useValue: new NeonGTDConfig() }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                BrowserAnimationsModule
-            ]
-        });
-        let fixture = TestBed.createComponent(SimpleFilterComponent);
-        this.fixture = fixture;
-        this.component = fixture.componentInstance;
-        this.filterService = this.getInjected(FilterService);
-        this.detectChanges();
-
-        this.element = this.getElement('.simple-filter');
+@Component({
+    selector: 'app-simple-filter',
+    templateUrl: './simple-filter.component.html',
+    styleUrls: ['./simple-filter.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+class TestSimpleFilterComponent extends SimpleFilterComponent {
+    constructor(
+        changeDetection: ChangeDetectorRef,
+        datasetService: DatasetService,
+        filterService: FilterService
+    ) {
+        super(
+            changeDetection,
+            datasetService,
+            filterService
+        );
     }
-
-    getElement(selector: string) {
-        return this.fixture.debugElement.query(By.css(selector));
-    }
-
-    getInjected(type: any) {
-        return this.fixture.debugElement.injector.get(type);
-    }
-
-    getInputElement() {
-        return this.getElement('input.simple-filter-input');
-    }
-
-    setInput(input: string) {
-        let inputEl = this.getInputElement();
-        inputEl.nativeElement.value = input;
-        this.detectChanges();
-    }
-
-    clickSearch() {
-        this.element.children[0].triggerEventHandler('click', null);
-
-        // ensure that html updates after filter is added
-        this.detectChanges();
-    }
-
-    getCloseElement() {
-        return this.element.children[2];
-    }
-
-    clickClose() {
-        this.getCloseElement().triggerEventHandler('click', null);
-
-        // ensure that html updates after filter is removed
-        this.detectChanges();
-    }
-
-    detectChanges() { this.fixture.detectChanges(); }
 }
 
 describe('Component: SimpleFilter', () => {
-    let tester: SimpleFilterTester;
+    let component: SimpleFilterComponent;
+    let fixture: ComponentFixture<SimpleFilterComponent>;
+    let filterService: FilterService;
+    let element: DebugElement;
+    let setInput = (input: string) => {
+        fixture.debugElement.query(By.css('input.simple-filter-input')).nativeElement.value = input;
+        fixture.detectChanges();
+    };
+    let clickSearch = () => {
+        element.children[0].triggerEventHandler('click', null);
+        fixture.detectChanges();
+    };
 
-    beforeEach(() => tester = new SimpleFilterTester());
+    initializeTestBed({
+        declarations: [
+            SimpleFilterComponent
+        ],
+        providers: [
+            { provide: FilterService, useClass: MockFilterService },
+            { provide: DatasetService, useClass: MockDatasetService },
+            { provide: 'config', useValue: new NeonGTDConfig() }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            BrowserAnimationsModule
+        ]
+    });
 
-    it('should create an instance', () => expect(tester.component).toBeTruthy());
+    beforeEach(() => {
+        fixture = TestBed.createComponent(SimpleFilterComponent);
+        component = fixture.componentInstance;
+        component.showSimpleSearch = true;
+        filterService = fixture.debugElement.injector.get(FilterService);
+        fixture.detectChanges();
+        element = fixture.debugElement.query(By.css('.simple-filter'));
+    });
 
-    it('should show in the UI when the configuration includes a simpleFilter option', () => expect(tester.element).toBeTruthy());
+    afterEach(() => {
+        // Cleanup:  Remove all filters that were added in each test.
+        filterService.removeFilters(null, filterService.getFilters().map((filter) => {
+            return filter.id;
+        }));
+    });
+
+    it('should show in the UI when the configuration includes a simpleFilter option', () => expect(element).toBeTruthy());
 
     it('should filter when the user clicks the search icon', () => {
         // set input.value
         let value = 'filter with click';
-        tester.setInput(value);
+        setInput(value);
 
         // find search icon element and click it
-        tester.clickSearch();
+        clickSearch();
 
         // verify that filter is added to filterService
-        expect(tester.filterService.getFilters().length).toBe(1);
-        let filter = tester.filterService.getFilterById(tester.component.filterId.getValue());
+        expect(filterService.getFilters().length).toBe(1);
+        let filter = filterService.getFilterById(component.filterId.getValue());
         expect(filter).toBeTruthy();
         let expected = neon.query.where(fieldName, 'contains', value);
         expect(filter.filter.whereClause).toEqual(expected);
@@ -158,23 +149,23 @@ describe('Component: SimpleFilter', () => {
     it('should replace filter when one already exists', () => {
         // set input.value
         let value = 'filter with click';
-        tester.setInput(value);
+        setInput(value);
 
         // find search icon element and click it
-        tester.clickSearch();
-        let filterId = tester.component.filterId.getValue();
+        clickSearch();
+        let filterId = component.filterId.getValue();
 
         value = 'replace filter with click';
-        tester.setInput(value);
-        tester.clickSearch();
+        setInput(value);
+        clickSearch();
 
         // verify that filter id didn't change
-        expect(tester.component.filterId.getValue()).toBe(filterId, 'filter id should not have changed');
+        expect(component.filterId.getValue()).toBe(filterId, 'filter id should not have changed');
 
         // verify that only one filter is in the filter service
-        expect(tester.filterService.getFilters().length).toBe(1, 'there should still only be 1 filter');
+        expect(filterService.getFilters().length).toBe(1, 'there should still only be 1 filter');
 
-        let filter = tester.filterService.getFilterById(tester.component.filterId.getValue());
+        let filter = filterService.getFilterById(component.filterId.getValue());
         expect(filter).toBeTruthy();
 
         let expected = neon.query.where(fieldName, 'contains', value);
@@ -184,14 +175,14 @@ describe('Component: SimpleFilter', () => {
     it('should filter when the user presses enter', () => {
         // set input.value
         let value = 'filter with enter';
-        tester.setInput(value);
+        setInput(value);
 
         // simulate enter key
-        tester.getInputElement().triggerEventHandler('keyup.enter', null);
+        fixture.debugElement.query(By.css('input.simple-filter-input')).triggerEventHandler('keyup.enter', null);
 
         // verify that filter is added to filterService
-        expect(tester.filterService.getFilters().length).toBe(1);
-        let filter = tester.filterService.getFilterById(tester.component.filterId.getValue());
+        expect(filterService.getFilters().length).toBe(1);
+        let filter = filterService.getFilterById(component.filterId.getValue());
         expect(filter).toBeTruthy();
         let expected = neon.query.where(fieldName, 'contains', value);
         expect(filter.filter.whereClause).toEqual(expected);
@@ -199,60 +190,113 @@ describe('Component: SimpleFilter', () => {
 
     it('should show close icon when filter has been created', () => {
         // set input.value
-        tester.setInput('filter for showing close icon');
+        setInput('filter for showing close icon');
 
         // find search icon element and click it
-        tester.clickSearch();
+        clickSearch();
 
         // verify that close exists
-        expect(tester.getCloseElement()).toBeTruthy();
+        expect(element.children[2]).toBeTruthy();
 
         // should even show if user removes text from input
-        tester.setInput('');
+        setInput('');
 
         // verify that close exists
-        expect(tester.getCloseElement()).toBeTruthy();
+        expect(element.children[2]).toBeTruthy();
     });
 
     it('should clear the filter if the user clicks the close icon', () => {
         // set input.value
-        tester.setInput('filter for checking close button');
+        setInput('filter for checking close button');
 
         // find search icon element and click it
-        tester.clickSearch();
+        clickSearch();
 
         // find close icon element and click it
-        tester.clickClose();
+        element.children[2].triggerEventHandler('click', null);
+        fixture.detectChanges();
 
         // verify that filter is no longer in filterService
-        expect(tester.filterService.getFilters().length).toBe(0);
+        expect(filterService.getFilters().length).toBe(0);
     });
 
     it('should clear the filter if the user filters on an empty string', () => {
         // set input.value
-        tester.setInput('filter for empty string test');
+        setInput('filter for empty string test');
 
         // find search icon element and click it
-        tester.clickSearch();
+        clickSearch();
 
         // set input.value to ''
-        tester.setInput('');
+        setInput('');
 
         // click search
-        tester.clickSearch();
+        clickSearch();
 
         // verify that filter is no longer in filterService
-        expect(tester.filterService.getFilters().length).toBe(0);
+        expect(filterService.getFilters().length).toBe(0);
     });
 });
 
 describe('Component: SimpleFilter unconfigured', () => {
+    let component: SimpleFilterComponent;
+    let fixture: ComponentFixture<SimpleFilterComponent>;
+    let element: DebugElement;
+    let spyOnInit;
 
-    let tester: SimpleFilterTester;
+    initializeTestBed({
+        declarations: [
+            SimpleFilterComponent
+        ],
+        providers: [
+            { provide: FilterService, useClass: MockFilterService },
+            { provide: DatasetService, useClass: DatasetService },
+            { provide: 'config', useValue: new NeonGTDConfig() }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            BrowserAnimationsModule
+        ]
+    });
 
-    beforeEach(() => tester = new SimpleFilterTester(false));
+    beforeEach(() => {
+        fixture = TestBed.createComponent(SimpleFilterComponent);
+        component = fixture.componentInstance;
+        component.showSimpleSearch = false;
+        spyOnInit = spyOn(component, 'ngOnInit');
+        fixture.detectChanges();
+        element = fixture.debugElement.query(By.css('.simple-filter'));
+    });
 
-    it('should create an instance', () => expect(tester.component).toBeTruthy());
+    it('**should not show in the UI when showSimpleFilter is set to false**', () => {
+        expect(element).toBeFalsy();
+    });
 
-    it('should not show in the UI when the configuration does not include a simpleFilter option', () => expect(tester.element).toBeFalsy());
+    it('Checks Default values', () => {
+        expect(component.showSimpleSearch).toEqual(false);
+    });
+
+    it('Check that the publish function updates the correct booleans', (() => {
+        let spyOnBingShowSimpleSearch = spyOn(component, 'bindShowSimpleSearch');
+        let spyOnPublishShowSimpleSearch = spyOn(component, 'publishShowSimpleSearch');
+        let message = {
+            showSimpleSearch: false
+        };
+
+        expect(spyOnInit.calls.count()).toEqual(1);
+
+        component.showSimpleSearch = false;
+        expect(component.showSimpleSearch).toEqual(false);
+        component.ngOnInit();
+
+        component.bindShowSimpleSearch(message);
+        component.ngOnInit();
+        component.publishShowSimpleSearch();
+
+        expect(spyOnInit.calls.count()).toEqual(3);
+        expect(spyOnBingShowSimpleSearch.calls.count()).toEqual(1);
+        expect(spyOnPublishShowSimpleSearch.calls.count()).toEqual(1);
+    }));
+
 });

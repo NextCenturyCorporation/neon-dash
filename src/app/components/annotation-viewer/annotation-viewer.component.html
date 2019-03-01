@@ -1,28 +1,28 @@
-<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
         <span #infoText class="info text">
-            <span class="error-message" *ngIf="options.errorMessage" [matTooltip]="options.errorMessage" tooltip-position="below">
-                {{ options.errorMessage }}
+            <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
+                {{ errorMessage }}
             </span>
-            <span *ngIf="!options.errorMessage" class="data-info" [matTooltip]="getButtonText()" tooltip-position="below">
+            <span *ngIf="!errorMessage" class="data-info" [matTooltip]="getButtonText()" tooltip-position="below">
                 {{ getButtonText() }}
             </span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
 
     <!-- Options menu -->
-    <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+    <mat-sidenav #optionsMenu position="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
-                <div *ngIf="options.errorMessage">
-                    <label class="icon-with-text error-message" [matTooltip]="options.errorMessage" tooltip-position="below">
+                <div *ngIf="errorMessage">
+                    <label class="icon-with-text error-message" [matTooltip]="errorMessage" tooltip-position="below">
                         <mat-icon class="neon-icon-small">error</mat-icon>
-                        <span>{{ options.errorMessage }}</span>
+                        <span>{{ errorMessage }}</span>
                     </label>
                     <p></p>
                 </div>
@@ -86,9 +86,9 @@
                 <!-- TODO Do you need a limit? -->
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Document Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                        <input matInput placeholder="Document Limit" [(ngModel)]="newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
-                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below" (click)="handleChangeLimit()">
                         <mat-icon>refresh</mat-icon>
                     </button>
                 </div>
@@ -101,9 +101,9 @@
                 </mat-button-toggle-group>
                 <p></p>
 
-                <mat-toolbar style="cursor: pointer;">
+                <mat-toolbar class="subheader" style="cursor: pointer;">
                     <span>Annotations</span>
-                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeFilterField()">
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below" (click)="handleChangeFilterField()">
                         <mat-icon>refresh</mat-icon>
                     </button>
                 </mat-toolbar>
@@ -144,12 +144,12 @@
                 <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
-                <app-export-control [exportId]="exportId"></app-export-control>
+                <app-export-control [widgets]="this"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
         <mat-spinner></mat-spinner>
     </div>
 
@@ -157,13 +157,13 @@
 
     <div class=" top-container ">
         <div class="legend-container" *ngIf="showLegendContainer()">
-            <app-legend [fieldNames]="colorByFields" [disabledSets]="disabledSet" (itemSelected)="legendItemSelected($event)"></app-legend>
+            <app-legend [colorKeys]="colorKeys" [disabledSets]="disabledSet" (itemSelected)="legendItemSelected($event)"></app-legend>
         </div>
         <div class="filter-container" *ngIf="showFilterContainer()">
             <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
                 <span class="filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.value }}</span>
                 <button mat-icon-button class="neon-icon-button-small" aria-label="Close" [matTooltip]="'Delete Filter ' + getFilterText(filter)"
-                    tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
+                    tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(options, filter, true, true)">
                     <mat-icon class="neon-icon-small">close</mat-icon>
                 </button>
             </div>
@@ -171,12 +171,12 @@
     </div>
 
     <!-- TODO Remove the with-filter and/or with-footer classes if you don't need them. -->
-    <div class="body-container" [class.with-filter]="showFilterContainer()" [class.with-footer]="checkFooter()">
+    <div class="body-container" [class.with-filter]="showFilterContainer()" [class.with-footer]="showPagination()">
         <mat-list class="annotation-viewer-list-container body-container">
             <div class="mat-list-item-text annotation-viewer-list-item" layout="column">
                 <!-- TODO Do not use <table> elements!  Use flex styling! -->
                 <ul class="annotation-viewer-table">
-                    <ng-template ngFor let-item [ngForOf]="activeData">
+                    <ng-template ngFor let-item [ngForOf]="data">
                         <li [ngClass]="{
                                 'document-row': !options.respondMode || options.highlightInRespondMode,
                                 'document-row-no-highlight-respond': options.respondMode && !options.highlightInRespondMode
@@ -192,7 +192,7 @@
         </mat-list>
     </div>
 
-    <div class="footer" *ngIf="showFooterContainer()">
+    <div class="footer" *ngIf="showPagination()">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
                 Previous

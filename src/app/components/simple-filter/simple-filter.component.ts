@@ -13,14 +13,13 @@
  * limitations under the License.
  *
  */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
 import { DatasetService } from '../../services/dataset.service';
 import { SimpleFilter } from '../../dataset';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { BehaviorSubject } from 'rxjs';
 import * as neon from 'neon-framework';
-import * as uuid from 'node-uuid';
+import * as uuidv4 from 'uuid/v4';
 
 @Component({
     selector: 'app-simple-filter',
@@ -28,15 +27,21 @@ import * as uuid from 'node-uuid';
     styleUrls: ['./simple-filter.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SimpleFilterComponent {
+export class SimpleFilterComponent implements OnInit, OnDestroy {
 
     public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
     public filterId = new BehaviorSubject<string>(undefined);
 
-    private id = uuid.v4();
+    private id = uuidv4();
     private messenger = new neon.eventing.Messenger();
 
-    constructor(private datasetService: DatasetService, private filterService: FilterService, public themesService: ThemesService) {
+    public showSimpleSearch: boolean;
+
+    constructor(
+        private changeDetection: ChangeDetectorRef,
+        protected datasetService: DatasetService,
+        protected filterService: FilterService
+    ) {
         this.setSimpleFilter();
     }
 
@@ -72,6 +77,36 @@ export class SimpleFilterComponent {
                 noOp
             );
         }
+    }
+
+    bindShowSimpleSearch(message) {
+        this.showSimpleSearch = message.showSimpleSearch;
+        this.changeDetection.detectChanges();
+    }
+
+    checkSimpleFilter() {
+        if (this.simpleFilter && this.showSimpleSearch !== false) {
+            this.showSimpleSearch = true;
+        } else {
+            this.showSimpleSearch = false;
+        }
+        this.publishShowSimpleSearch();
+    }
+
+    ngOnDestroy() {
+        this.messenger.unsubscribeAll();
+    }
+
+    ngOnInit() {
+        this.checkSimpleFilter();
+
+        this.messenger.subscribe('showSimpleSearch', (message) => this.bindShowSimpleSearch(message));
+    }
+
+    publishShowSimpleSearch() {
+        this.messenger.publish('showSimpleSearch', {
+            showSimpleSearch: this.showSimpleSearch
+        });
     }
 
     removeFilter() {
