@@ -112,7 +112,6 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         info: '',
         data: false
     };
-    @Output() gridItemsChanged: EventEmitter<number> = new EventEmitter<number>();
     @Output() activeDatasetChanged: EventEmitter<any> = new EventEmitter<any>();
 
     private messenger: neon.eventing.Messenger;
@@ -175,13 +174,24 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                     }
 
                     this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});
-                    message.dashboard.forEach((widgetGridItem) => {
-                        this.messenger.publish(neonEvents.WIDGET_ADD, {
-                            widgetGridItem: widgetGridItem
+
+                    let gridNameToLayout = !Array.isArray(this.layouts[layoutName]) ? this.layouts[layoutName] : {
+                        '': this.layouts[layoutName]
+                    };
+
+                    // Recreate the layout each time to ensure all visualizations are using the new dataset.
+                    // Use an empty array of visualizations if the new dataset has no defined layout.
+                    Object.keys(gridNameToLayout).forEach((gridName) => {
+                        let layout = gridNameToLayout[gridName] || [];
+                        layout.forEach((widgetGridItem) => {
+                            this.messenger.publish(neonEvents.WIDGET_ADD, {
+                                gridName: gridName,
+                                widgetGridItem: _.cloneDeep(widgetGridItem)
+                            });
                         });
                     });
+
                     this.activeDatasetChanged.emit(this.activeDataset);
-                    this.gridItemsChanged.emit(message.dashboard.length);
                 }
             }
         });
@@ -244,22 +254,29 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      */
     updateLayout(loadDashboardState: boolean) {
         let layoutName = this.datasetService.getLayout();
-        let layout = this.layouts[layoutName] || [];
+        let layoutConfig = this.layouts[layoutName] || [];
 
         // Clear any old filters prior to loading the new layout and dataset.
         this.messenger.clearFiltersSilently();
 
         this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});
 
+        let gridNameToLayout = !Array.isArray(layoutConfig) ? layoutConfig : {
+            '': layoutConfig
+        };
+
         // Recreate the layout each time to ensure all visualizations are using the new dataset.
         // Use an empty array of visualizations if the new dataset has no defined layout.
-        for (let widgetGridItem of layout) {
-            this.messenger.publish(neonEvents.WIDGET_ADD, {
-                widgetGridItem: _.cloneDeep(widgetGridItem)
+        Object.keys(gridNameToLayout).forEach((gridName) => {
+            let layout = gridNameToLayout[gridName] || [];
+            layout.forEach((widgetGridItem) => {
+                this.messenger.publish(neonEvents.WIDGET_ADD, {
+                    gridName: gridName,
+                    widgetGridItem: _.cloneDeep(widgetGridItem)
+                });
             });
-        }
+        });
 
-        this.gridItemsChanged.emit(layout.length);
         this.activeDatasetChanged.emit(this.activeDataset);
         this.parameterService.addFiltersFromUrl(!loadDashboardState);
     }
