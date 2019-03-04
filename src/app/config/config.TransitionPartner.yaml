@@ -531,9 +531,9 @@ layouts:
                     colorField: group_field_key
               mapType: leaflet
               west: 21.3
-              north: 42.1
-              east: 21.7
-              south: 41.6
+              north: 42.2
+              east: 21.6
+              south: 41.8
         - name: Text Cloud
           type: textCloud
           icon: TagCloud64
