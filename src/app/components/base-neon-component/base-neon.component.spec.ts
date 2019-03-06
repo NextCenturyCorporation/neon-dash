@@ -234,7 +234,9 @@ describe('BaseNeonComponent', () => {
             { provide: 'testFake', useValue: 'testFakeField' },
             { provide: 'testList', useValue: ['testDateField', 'testFakeField', 'testNameField', 'testSizeField'] },
             { provide: 'testName', useValue: 'testNameField' },
-            { provide: 'testSize', useValue: 'testSizeField' }
+            { provide: 'testSize', useValue: 'testSizeField' },
+            { provide: 'testFieldKey1', useValue: 'field_key_1'},
+            { provide: 'testListWithFieldKey', useValue: ['field_key_1', 'testNameField']}
         ]
     });
 
@@ -389,8 +391,7 @@ describe('BaseNeonComponent', () => {
         };
         let spyPostAddLayer = spyOn(component, 'postAddLayer');
         component.addLayer(inputOptions, {
-            database: 'testDatabase2',
-            table: 'testTable2',
+            tableKey: 'table_key_2',
             testField: 'testCategoryField',
             testValue: 'value binding',
             title: 'Title Binding'
@@ -851,8 +852,19 @@ describe('BaseNeonComponent', () => {
         expect(component.findFieldObject(component.options.fields, 'testDate')).toEqual(DatasetServiceMock.DATE_FIELD);
         expect(component.findFieldObject(component.options.fields, 'testName')).toEqual(DatasetServiceMock.NAME_FIELD);
         expect(component.findFieldObject(component.options.fields, 'testSize')).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(component.findFieldObject(component.options.fields, 'testFieldKey1')).toEqual(DatasetServiceMock.FIELD_KEY_FIELD);
         expect(component.findFieldObject(component.options.fields, 'testFake')).toEqual(new FieldMetaData());
         expect(component.findFieldObject(component.options.fields, 'fakeBind')).toEqual(new FieldMetaData());
+    });
+
+    it('translateFieldKeyToValue does return expected string', () => {
+        expect(component.translateFieldKeyToValue('field_key_1')).toEqual('testFieldKeyField');
+        expect(component.translateFieldKeyToValue(DatasetServiceMock.DATE_FIELD)).toEqual(DatasetServiceMock.DATE_FIELD);
+    });
+
+    it('getVisualizationTitle does return expected string', () => {
+        expect(component.getVisualizationTitle('dataTableTitle')).toEqual('Documents');
+        expect(component.getVisualizationTitle('News Feed')).toEqual('News Feed');
     });
 
     it('findFieldObjects does return expected array', () => {
@@ -860,6 +872,10 @@ describe('BaseNeonComponent', () => {
             DatasetServiceMock.DATE_FIELD,
             DatasetServiceMock.NAME_FIELD,
             DatasetServiceMock.SIZE_FIELD
+        ]);
+        expect(component.findFieldObjects(component.options.fields, 'testListWithFieldKey')).toEqual([
+            DatasetServiceMock.FIELD_KEY_FIELD,
+            DatasetServiceMock.NAME_FIELD
         ]);
         expect(component.findFieldObjects(component.options.fields, 'testName')).toEqual([]);
         expect(component.findFieldObjects(component.options.fields, 'fakeBind')).toEqual([]);
@@ -1172,12 +1188,6 @@ describe('BaseNeonComponent', () => {
         component.handleChangeLimit(component.options);
         expect(component.options.limit).toEqual(1234);
         expect(spy.calls.count()).toEqual(1);
-
-        component.options.limit = 0;
-
-        component.handleChangeLimit(component.options);
-        expect(component.options.limit).toEqual(0);
-        expect(spy.calls.count()).toEqual(2);
     });
 
     it('handleSuccessfulVisualizationQuery with no data does work as expected', (done) => {
@@ -1666,8 +1676,6 @@ describe('Advanced BaseNeonComponent with config', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: testConfig },
-            { provide: 'database', useValue: 1 },
-            { provide: 'table', useValue: 1 },
             { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
             { provide: 'customEventsToPublish', useValue: [ { id: 'testPublishId', fields: [ { columnName: 'testPublishColumnName',
                 prettyName: 'testPublishPrettyName' } ] } ] },
@@ -1675,6 +1683,7 @@ describe('Advanced BaseNeonComponent with config', () => {
                 type: 'testReceiveType' } ] } ] },
             { provide: 'hideUnfiltered', useValue: true },
             { provide: 'limit', useValue: 10 },
+            { provide: 'tableKey', useValue: 'table_key_2'},
             { provide: 'testArray', useValue: [4, 3, 2, 1] },
             { provide: 'testFreeText', useValue: 'the quick brown fox jumps over the lazy dog' },
             { provide: 'testMultipleFields', useValue: ['testXField', 'testYField'] },

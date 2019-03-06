@@ -86,7 +86,7 @@ export class LeafletNeonMap extends AbstractMap {
     addPoints(points: MapPoint[], layer?: any, cluster?: boolean) {
         let layerGroup = this.layerGroups.get(layer);
         if (!layerGroup) {
-            layerGroup = !cluster ? new L.LayerGroup() : L.markerClusterGroup({
+            layerGroup = !cluster ? new L.LayerGroup() : (<any> L).markerClusterGroup({
                 // Override default function to add neon-cluster class to cluster icons.
                 iconCreateFunction: (clusterPoint) => {
                     return new L.DivIcon({
@@ -118,9 +118,9 @@ export class LeafletNeonMap extends AbstractMap {
                 colorByField: point.colorByField,
                 colorByValue: point.colorByValue,
                 fillColor: point.cssColorString,
-                fillOpacity: mapIsSelected ? (pointIsSelected ? 1 : .1) : 1,
-                opacity: mapIsSelected ? (pointIsSelected ? 0 : .2) : 1,
-                radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30), // Default is 10
+                fillOpacity: mapIsSelected ? (pointIsSelected ? 1 : 0.1) : 0.6,
+                opacity: mapIsSelected ? (pointIsSelected ? 0 : 0.2) : 1,
+                radius: Math.min(Math.floor(6 * Math.pow(point.count, 0.5)), 30), // Default is 10
                 stroke: mapIsSelected && pointIsSelected ? false : true,
                 weight: 1
             };
@@ -132,7 +132,8 @@ export class LeafletNeonMap extends AbstractMap {
 
             if (point.hoverPopupMap.size > 0) {
                 //build hover value and add to tooltip
-                tooltip += (tooltip ? '<br/>' : '') + `<span>${this.createHoverPopupString(point.hoverPopupMap)}</span>`;
+                let hoverPopupString = this.createHoverPopupString(point.hoverPopupMap);
+                tooltip += (tooltip ? '<br/>' : '') + (hoverPopupString !== '' ? `<span>${hoverPopupString}</span>` : '');
             }
 
             if (tooltip) {
@@ -246,12 +247,14 @@ export class LeafletNeonMap extends AbstractMap {
     private addClickEventListener(circle: L.CircleMarker) {
         return circle.addEventListener('click', (event) => { // event is a leaflet MouseEvent
             let castEvent = event as L.LeafletMouseEvent;
-            this.filterListener.filterByMapPoint(castEvent.target._latlng.lat, castEvent.target._latlng.lng);
+            // The _preSpiderfyLatlng property will be attached to clusters.
+            let lat: number = castEvent.target._preSpiderfyLatlng ? castEvent.target._preSpiderfyLatlng.lat : castEvent.target._latlng.lat;
+            let lng: number = castEvent.target._preSpiderfyLatlng ? castEvent.target._preSpiderfyLatlng.lng : castEvent.target._latlng.lng;
+            this.filterListener.filterByMapPoint(lat, lng);
         });
     }
 
     private createHoverPopupString(hoverPopupMap: Map<string, number>) {
-
         let result = [];
 
         //loop through and push values to array
@@ -264,6 +267,5 @@ export class LeafletNeonMap extends AbstractMap {
         });
 
         return result.join(','); // return comma separated string
-
     }
 }

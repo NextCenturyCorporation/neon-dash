@@ -13,19 +13,11 @@
  * limitations under the License.
  *
  */
-import {
-    AfterViewInit,
-    OnInit,
-    OnDestroy,
-    Injector,
-    ChangeDetectorRef
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@angular/core';
 
 import { AbstractSearchService, AggregationType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
-
-import { Color } from '../../color';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { neonEvents } from '../../neon-namespaces';
 import {
@@ -132,6 +124,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.initializing = true;
 
         this.options = this.createWidgetOptions(this.injector, this.getVisualizationDefaultTitle(), this.getVisualizationDefaultLimit());
+        this.options.title = this.getVisualizationTitle(this.options.title);
         this.id = this.options._id;
 
         this.messenger.subscribe('filters_changed', this.handleFiltersChangedEvent.bind(this));
@@ -474,14 +467,23 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
+     * Run before executing all the data queries for the visualization.
+     * Used to notify the visualization that queries are imminent.
+     */
+    public beforeExecuteAllQueryChain(): void {
+        // do nothing by default
+    }
+
+    /**
      * Runs all the data queries for the visualization.  Called on initialization, if a user changes the visualization config or sets a
      * filter, or whenever else the data queries need to be run.
      */
     private executeAllQueryChain(): void {
         if (!this.initializing) {
-            (this.isMultiLayerWidget ? this.options.layers : [this.options]).forEach((options) => {
+            this.beforeExecuteAllQueryChain();
+            for (let options of (this.isMultiLayerWidget ? this.options.layers : [this.options])) {
                 this.executeQueryChain(options);
-            });
+            }
         }
     }
 
@@ -556,7 +558,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             return list;
         }, []);
 
-        if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
+        if (options.filter && options.filter.lhs && options.filter.operator && typeof options.filter.rhs !== 'undefined') {
             fields = [options.filter.lhs].concat(fields);
         }
 
@@ -588,7 +590,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public createSharedFilters(options: any): FilterClause[] {
         let filters: FilterClause[] = [];
-        if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
+        if (options.filter && options.filter.lhs && options.filter.operator && typeof options.filter.rhs !== 'undefined') {
             filters.push(this.searchService.buildFilterClause(options.filter.lhs, options.filter.operator, options.filter.rhs));
         }
         if (this.hasUnsharedFilter(options)) {
@@ -651,6 +653,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.errorMessage = 'No Data';
             this.layerIdToActiveData.set(options._id, new TransformedVisualizationData());
             this.layerIdToElementCount.set(options._id, 0);
+            this.clearVisualizationData(options);
             callback();
             return;
         }
@@ -765,8 +768,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).abort();
         }
 
-        this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(this.datasetService.getDatastore(),
-            this.datasetService.getHostname(), query));
+        this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(
+            this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost(), query));
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).always(() => {
             this.layerIdToQueryIdToQueryObject.get(options._id).delete(queryId);
@@ -795,7 +798,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {boolean}
      */
     private cannotExecuteQuery(options: any): boolean {
-        return (!this.searchService.canRunSearch(this.datasetService.getDatastore(), this.datasetService.getHostname()) ||
+        return (!this.searchService.canRunSearch(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost()) ||
             (this.options.hideUnfiltered && !this.filterService.getFiltersForFields(options.database.name, options.table.name).length));
     }
 
@@ -918,7 +921,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public handleChangeLimit(options?: any): void {
         if (this.isNumber(this.options.Limit)) {
             let newLimit = parseFloat('' + this.options.Limit);
-            if (newLimit > 0) {
+            if (newLimit >= 0) {
                 (options || this.options).limit = newLimit;
                 this.handleChangeData();
             } else {
@@ -1384,7 +1387,43 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {FieldMetaData}
      */
     public findFieldObject(fields: FieldMetaData[], bindingKey: string, config?: any): FieldMetaData {
-        return this.findField(fields, (config ? config[bindingKey] : this.injector.get(bindingKey, ''))) || new FieldMetaData();
+        let configValue = (config ? config[bindingKey] : this.injector.get(bindingKey, ''));
+        return this.findField(fields, this.translateFieldKeyToValue(configValue)
+            ) || new FieldMetaData();
+    }
+
+    /**
+     * If field key is referenced in config file, find field value using current dashboard.
+     *
+     * @arg {any} configValue
+     * @return {any}
+     */
+    public translateFieldKeyToValue(configValue: any): string {
+        let currentDashboard = this.datasetService.getCurrentDashboard();
+
+        if (currentDashboard && currentDashboard.fields && currentDashboard.fields[configValue]) {
+            return this.datasetService.getFieldNameFromCurrentDashboardByKey(configValue);
+        } else {
+            // for backwards compatibility/if no field key reference exists in dashboard
+            return configValue;
+        }
+    }
+
+    /**
+     * If visualization title is a key referenced in config file, find value using current dashboard.
+     *
+     * @arg {any} configValue
+     * @return {any}
+     */
+    public getVisualizationTitle(configValue: any): string {
+        let currentDashboard = this.datasetService.getCurrentDashboard();
+
+        if (currentDashboard && currentDashboard.visualizationTitles && currentDashboard.visualizationTitles[configValue]) {
+            return currentDashboard.visualizationTitles[configValue];
+        } else {
+            // otherwise, just return value from layouts section of config
+            return configValue;
+        }
     }
 
     /**
@@ -1397,8 +1436,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public findFieldObjects(fields: FieldMetaData[], bindingKey: string, config?: any): FieldMetaData[] {
         let bindings = (config ? config[bindingKey] : this.injector.get(bindingKey, null)) || [];
-        return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.findField(fields, columnName))
-            .filter((fieldsObject) => !!fieldsObject);
+        return (Array.isArray(bindings) ? bindings : []).map((configValue) =>
+            this.findField(fields, this.translateFieldKeyToValue(configValue))).filter((fieldsObject) => !!fieldsObject);
     }
 
     /**
@@ -1485,21 +1524,19 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         options.database = options.databases[0] || options.database;
 
         if (options.databases.length) {
-            let configDatabase = config ? config.database : this.injector.get('database', null);
-            if (configDatabase) {
-                let isName = false;
-                for (let database of options.databases) {
-                    if (configDatabase === database.name) {
-                        options.database = database;
-                        isName = true;
-                        break;
-                    }
-                }
-                if (!isName) {
-                    // Check if the config database is actually an array index rather than a name.
-                    let databaseIndex = parseInt(configDatabase, 10);
-                    if (!isNaN(databaseIndex) && databaseIndex < options.databases.length) {
-                        options.database = options.databases[databaseIndex];
+            let tableValue = config ? config.tableKey : this.injector.get('tableKey', null);
+            let currentDashboard = this.datasetService.getCurrentDashboard();
+            let configDatabase: any;
+
+            if (currentDashboard && currentDashboard.tables && currentDashboard.tables[tableValue]) {
+                configDatabase = this.datasetService.getDatabaseNameFromCurrentDashboardByKey(tableValue);
+
+                if (configDatabase) {
+                    for (let database of options.databases) {
+                        if (configDatabase === database.name) {
+                            options.database = database;
+                            break;
+                        }
                     }
                 }
             }
@@ -1536,21 +1573,19 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         options.table = options.tables[0] || options.table;
 
         if (options.tables.length > 0) {
-            let configTable = config ? config.table : this.injector.get('table', null);
-            if (configTable) {
-                let isName = false;
-                for (let table of options.tables) {
-                    if (configTable === table.name) {
-                        options.table = table;
-                        isName = true;
-                        break;
-                    }
-                }
-                if (!isName) {
-                    // Check if the config table is actually an array index rather than a name.
-                    let tableIndex = parseInt(configTable, 10);
-                    if (!isNaN(tableIndex) && tableIndex < options.tables.length) {
-                        options.table = options.tables[tableIndex];
+            let tableValue = config ? config.tableKey : this.injector.get('tableKey', null);
+            let currentDashboard = this.datasetService.getCurrentDashboard();
+            let configTable: any;
+
+            if (currentDashboard && currentDashboard.tables && currentDashboard.tables[tableValue]) {
+                configTable = this.datasetService.getTableNameFromCurrentDashboardByKey(tableValue);
+
+                if (configTable) {
+                    for (let table of options.tables) {
+                        if (configTable === table.name) {
+                            options.table = table;
+                            break;
+                        }
                     }
                 }
             }
@@ -1588,5 +1623,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         // Assumes single-layer widget.
         return this.visualizationQueryPaginates && (this.page > 1 || this.showingZeroOrMultipleElementsPerResult ||
             ((this.page * this.options.limit) < this.layerIdToElementCount.get(this.options._id)));
+    }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.  Override as needed.
     }
 }

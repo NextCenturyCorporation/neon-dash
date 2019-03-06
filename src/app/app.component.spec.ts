@@ -26,7 +26,7 @@ import { AppComponent } from './app.component';
 import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
-import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
+import { DashboardSelectorComponent } from './components/dashboard-selector/dashboard-selector.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
 import { ExportControlComponent } from './components/export-control/export-control.component';
@@ -75,6 +75,7 @@ import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-gr
 import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 import { MatAutocompleteModule } from '@angular/material';
 import { QueryBarComponent } from './components/query-bar/query-bar.component';
+import { DashboardDropdownComponent } from './components/dashboard-dropdown/dashboard-dropdown.component';
 import { DetailsThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.details-view';
 import { TitleThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.title-view';
 import { CardThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.card-view';
@@ -100,7 +101,8 @@ describe('App', () => {
               AggregationComponent,
               AnnotationViewerComponent,
               CardThumbnailSubComponent,
-              DatasetSelectorComponent,
+              DashboardDropdownComponent,
+              DashboardSelectorComponent,
               DataTableComponent,
               DetailsThumbnailSubComponent,
               DocumentViewerComponent,
@@ -166,7 +168,7 @@ describe('App', () => {
 
     it('should include top level layout components', async(() => {
         expect(debugElement.nativeElement.querySelectorAll('mat-sidenav-container')).toBeTruthy();
-        expect(debugElement.nativeElement.querySelectorAll('app-dataset-selector')).toBeTruthy();
+        expect(debugElement.nativeElement.querySelectorAll('app-dashboard-selector')).toBeTruthy();
         // Since the about pane and options pane are rendered only after a user opens their sidenav area,
         // these should not exist upon initial render.
         expect(debugElement.nativeElement.querySelectorAll('app-right-panel')).toBeTruthy();
