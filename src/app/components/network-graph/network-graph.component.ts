@@ -1047,7 +1047,6 @@ private getAllNodes(data: any[], idField: string, nameField: string, colorField:
             linkNameColumn = this.options.linkNameField.columnName,
             nodeName = this.options.nodeField.columnName,
             nodeNameColumn = this.options.nodeNameField.columnName,
-            targetNameColumn = this.options.targetNameField.columnName,
             nodeColorField = this.options.nodeColorField.columnName,
             edgeColorField = this.options.edgeColorField.columnName,
             targetColorField = this.options.targetColorField.columnName,
@@ -1059,12 +1058,8 @@ private getAllNodes(data: any[], idField: string, nameField: string, colorField:
                 face: NetworkGraphComponent.FONT,
                 color: this.options.fontColor
             },
-            limit = this.options.limit,
-            nodeShape = this.options.nodeShape,
             xPositionField = this.options.xPositionField.columnName,
-            yPositionField = this.options.yPositionField.columnName,
-            xTargetPositionField = this.options.xTargetPositionField.columnName,
-            yTargetPositionField = this.options.yTargetPositionField.columnName;
+            yPositionField = this.options.yPositionField.columnName;
 
         // assume nodes will take precedence over edges so create nodes first
         graph.nodes = this.getAllNodes(this.responseData, nodeName, nodeNameColumn, nodeColorField, nodeColor, xPositionField,
@@ -1075,12 +1070,8 @@ private getAllNodes(data: any[], idField: string, nameField: string, colorField:
             let linkField = entry[linkName],
                 nodeType = entry[targetColorField] || entry[nodeColorField],
                 edgeType = entry[edgeColorField],
-                linkNodeName = '',
                 linkNameField = entry[linkNameColumn],
-                nodeField = entry[nodeName],
-                xPosition = entry[xTargetPositionField],
-                yPosition = entry[yTargetPositionField],
-                filterFields: any[] = [];
+                nodeField = entry[nodeName];
 
             // if there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
             if (nodeColorField && this.prettifiedNodeLabels.length === 0) {
