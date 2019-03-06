@@ -293,9 +293,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * Returns the custom width for a column (or default if not specified in the config)
      * @returns width for a specific column
      */
-    getColumnWidth(fieldName) {
+    getColumnWidth(fieldConfig) {
         for (let miniArray of this.options.customColumnWidths) {
-            if (fieldName === miniArray[0]) {
+            let name = this.translateFieldKeyToValue(miniArray[0]);
+            if (fieldConfig === name) {
                 return miniArray[1];
             }
         }
@@ -339,7 +340,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     headerIsInExceptions(header) {
         let colName = header.columnName;
         let pName = header.prettyName;
-        for (let name of this.options.exceptionsToStatus) {
+        for (let exception of this.options.exceptionsToStatus) {
+            let name = this.translateFieldKeyToValue(exception);
             if (colName === name || pName === name) {
                 return true;
             }
@@ -349,7 +351,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     sortOrderedHeaders(unordered) {
         let sorted = [];
-        for (let header of this.options.exceptionsToStatus) {
+        for (let exception of this.options.exceptionsToStatus) {
+            let header = this.translateFieldKeyToValue(exception);
             let headerToPush = this.getHeaderByName(header, unordered);
             if (headerToPush !== null) {
                 sorted.push(headerToPush);

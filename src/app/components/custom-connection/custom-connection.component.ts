@@ -15,7 +15,7 @@
  */
 import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
 import { DatasetService } from '../../services/dataset.service';
-import { Dataset } from '../../dataset';
+import { Datastore } from '../../dataset';
 import { MatDialogRef } from '@angular/material';
 import { neonEvents } from '../../neon-namespaces';
 
@@ -73,10 +73,17 @@ export class CustomConnectionComponent implements AfterViewInit {
     }
 
     createDataset() {
-        let dataset = new Dataset(this.data.datasetName, this.data.datastoreType, this.data.datastoreHost);
+        let dataset = new Datastore(this.data.datasetName, this.data.datastoreHost, this.data.datastoreType);
         dataset.databases = this.data.selectedDatabases;
         this.datasetService.addDataset(dataset);
         this.datasetService.setActiveDataset(dataset);
+
+        // TODO: THOR-825:
+        // TODO: THOR-1056: fix so that the dashboard is added to existing list
+        // TODO: THOR-1056: make enough information available to set entire currentDashboard here.
+
+        // TODO: THOR-1056: fix so that this uses dashboards properly/incorporate next line
+        //this.datasetService.setCurrentDashboard(??)
 
         this.messenger.clearFiltersSilently();
         this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});

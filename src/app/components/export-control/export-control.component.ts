@@ -86,8 +86,8 @@ export class ExportControlComponent {
     }
 
     handleExportClick() {
-        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
-            this.datasetService.getHostname());
+        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastoreType(),
+            this.datasetService.getDatastoreHost());
         let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;
         let data = {

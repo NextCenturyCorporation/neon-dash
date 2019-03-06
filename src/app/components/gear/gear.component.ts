@@ -31,7 +31,7 @@ import {
 } from '@angular/core';
 
 import { OptionsListComponent } from '../options-list/options-list.component';
-import { DatasetOptions, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
+import { FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import * as neon from 'neon-framework';
 import { WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../widget-option';

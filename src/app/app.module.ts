@@ -42,7 +42,8 @@ import { AppComponent } from './app.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
 import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
-import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
+import { DashboardDropdownComponent } from './components/dashboard-dropdown/dashboard-dropdown.component';
+import { DashboardSelectorComponent } from './components/dashboard-selector/dashboard-selector.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
 import { DocumentViewerSingleItemComponent } from './components/document-viewer-single-item/document-viewer-single-item.component';
@@ -103,7 +104,8 @@ export function getAppConfig() {
         ConfirmationDialogComponent,
         CustomConnectionComponent,
         CustomConnectionSimpleSetupStepComponent,
-        DatasetSelectorComponent,
+        DashboardDropdownComponent,
+        DashboardSelectorComponent,
         DataTableComponent,
         DetailsThumbnailSubComponent,
         DocumentViewerComponent,

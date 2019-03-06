@@ -51,7 +51,9 @@
     /* Subtract 15px for the scrollbar.  Not an ideal fix since it also applies without the scrollbar present. */
     width: calc(100% - 15px);
 
-    .filters-container {
+    .filters-container, .dashboard-selector-container {
+        padding-left: 10px;
+        padding-right: 10px;
         width: 100%;
         height: 200px;
 

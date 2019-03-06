@@ -14,7 +14,7 @@
  *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData, Dataset } from '../../dataset';
+import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';

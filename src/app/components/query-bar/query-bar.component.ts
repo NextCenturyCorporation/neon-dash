@@ -327,7 +327,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
         if (fields.database !== this.options.database.name && fields.table !== this.options.table.name) {
             let query = new neon.query.Query().selectFrom(fields.database, fields.table),
                 queryFields = [fields.idField, fields.filterField],
-                execute = this.searchService.runSearch(this.datasetService.getDatastore(), this.datasetService.getHostname(), {
+                execute = this.searchService.runSearch(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost(), {
                     query: query
                 }),
                 tempArray = [],
@@ -449,5 +449,10 @@ export class QueryBarComponent  extends BaseNeonComponent {
      */
     setupFilters() {
         //
+    }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.transformVisualizationQueryResults(options, []);
     }
 }

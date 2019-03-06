@@ -897,8 +897,7 @@ describe('Component: Map with config', () => {
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: 'database', useValue: 'testDatabase1' },
-            { provide: 'table', useValue: 'testTable1' },
+            { provide: 'tableKey', useValue: 'table_key_1' },
             {
                 provide: 'layers', useValue: [{
                     colorField: 'testColorField',
