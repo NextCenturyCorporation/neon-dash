@@ -1471,7 +1471,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public updateDatabasesInOptions(options: any, config?: any): any {
         options.databases = this.datasetService.getDatabases();
-        options.database = this.datasetService.getDatabaseWithDashboardName() || options.database;
+        options.database = this.datasetService.getCurrentDatabase() || options.database;
 
         if (options.databases.length) {
             let tableValue = config ? config.tableKey : this.injector.get('tableKey', null);

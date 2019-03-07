@@ -38,6 +38,7 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
+import { neonEvents } from '../../../app/neon-namespaces';
 
 @Component({
     selector: 'app-filter-builder',
@@ -77,6 +78,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             injector,
             ref
         );
+
+        this.messenger.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearFilterBuilder.bind(this));
     }
 
     /**
@@ -139,6 +142,12 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                 onError.bind(this)
             );
         }
+    }
+
+    clearFilterBuilder() {
+        this.clauses.forEach((clause) => {
+            this.removeClause(clause);
+        });
     }
 
     createClauseBindings(): any[] {
@@ -397,6 +406,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     initializeProperties() {
         // Backwards compatibility (initialFilters deprecated due to its redundancy with clauseConfig).
+        this.messenger.subscribe('DASHBOARD_CLEAR', this.clearFilterBuilder.bind(this));
         this.options.clauseConfig = this.options.clauseConfig || this.injector.get('initialFilters', []);
 
         this.options.databases.forEach((database) => {

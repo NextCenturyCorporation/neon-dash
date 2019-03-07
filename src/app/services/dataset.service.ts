@@ -533,7 +533,7 @@ export class DatasetService {
      * or undefined otherwise.
      * Dashboard name only includes part of the database pretty name
      */
-    public getDatabaseWithDashboardName(): DatabaseMetaData {
+    public getCurrentDatabase(): DatabaseMetaData {
         if (!this.getCurrentDashboard()) {
             return undefined;
         }
