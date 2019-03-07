@@ -154,7 +154,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      *
      * @arg {string} text
      */
-    createFilter(text: any, filterField: FieldMetaData, neonFilters) {
+    createFilter(text: any, filterField: FieldMetaData, neonFilters: any) {
         if (!filterField.columnName) {
             return;
         }
