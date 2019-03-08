@@ -82,7 +82,7 @@ describe('Component: Gear Component', () => {
     });
 
     it('class options properties are set to expected defaults', () => {
-        expect(component.options).toBeDefined();
+        expect(component.modifiedOptions).toBeDefined();
         expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerVisible).toBeDefined();
     });
@@ -93,18 +93,10 @@ describe('Component: Gear Component', () => {
         expect(component.getIconForOptions()).toEqual('keyboard_arrow_up');
     });
 
-    it('returns expected title', () => {
-        let title = new WidgetFreeTextOption('title', 'title', 'default title');
-        component.options.inject(title);
-        expect(component.getTitle()).toBeDefined();
-        expect(component.getTitle()).toEqual('default title');
-    });
-
     it('calls expected functions', () => {
-        let spyCSO = spyOn(component, 'cleanShowOptions');
-        let spyCOL = spyOn(component, 'constructOptionsLists');
+        let spy = spyOn(component, 'createGearMenuData');
 
-        let options = new WidgetOptionCollection();
+        let options = new WidgetOptionCollection(() => []);
         let title = new WidgetFreeTextOption('title', 'title', 'default title');
         options.inject(title);
         let message = {
@@ -112,8 +104,7 @@ describe('Component: Gear Component', () => {
         };
 
         component.updateOptions(message);
-        expect(spyCSO).toHaveBeenCalledTimes(1);
-        expect(spyCOL).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
     });
 
     it('toggleOptionalOptions changes value', () => {
