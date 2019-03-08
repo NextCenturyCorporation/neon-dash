@@ -279,7 +279,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let activeItemText = this.createTableRowText(activeItemData, arrayFilter);
         if (activeItemText) {
             activeItem.rows.push({
-                name: name || (this.findField(this.options.fields, field) || this.createEmptyField()).prettyName || field,
+                name: name || (this.options.findField(field) || this.createEmptyField()).prettyName || field,
                 text: activeItemText
             });
         }

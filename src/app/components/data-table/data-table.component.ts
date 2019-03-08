@@ -262,7 +262,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     initializeHeadersFromFieldsConfig() {
         let existingFields = [];
         for (let fieldConfig of this.options.fieldsConfig) {
-            let fieldObject = this.findField(this.options.fields, fieldConfig.name);
+            let fieldObject = this.options.findField(fieldConfig.name);
             if (fieldObject && fieldObject.columnName) {
                 existingFields.push(fieldObject.columnName);
                 this.headers.push({
@@ -295,7 +295,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getColumnWidth(fieldConfig) {
         for (let miniArray of this.options.customColumnWidths) {
-            let name = this.translateFieldKeyToValue(miniArray[0]);
+            let name = this.datasetService.translateFieldKeyToValue(miniArray[0]);
             if (fieldConfig === name) {
                 return miniArray[1];
             }
@@ -341,7 +341,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let colName = header.columnName;
         let pName = header.prettyName;
         for (let exception of this.options.exceptionsToStatus) {
-            let name = this.translateFieldKeyToValue(exception);
+            let name = this.datasetService.translateFieldKeyToValue(exception);
             if (colName === name || pName === name) {
                 return true;
             }
@@ -352,7 +352,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     sortOrderedHeaders(unordered) {
         let sorted = [];
         for (let exception of this.options.exceptionsToStatus) {
-            let header = this.translateFieldKeyToValue(exception);
+            let header = this.datasetService.translateFieldKeyToValue(exception);
             let headerToPush = this.getHeaderByName(header, unordered);
             if (headerToPush !== null) {
                 sorted.push(headerToPush);
@@ -593,7 +593,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.filters = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 this.addLocalFilter({
                     id: neonFilter.id,
@@ -732,7 +732,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 obj[this.options.idField.columnName] === selected[0][this.options.idField.columnName])[0];
 
             this.options.filterFields.forEach((filterField: any) => {
-                let filterFieldObject = this.findField(this.options.fields, filterField.columnName);
+                let filterFieldObject = this.options.findField(filterField.columnName);
                 let value = (this.options.idField.columnName.length === 0) ? selected[0][filterFieldObject.columnName] :
                     dataObject[filterFieldObject.columnName];
                 let filter = this.createFilterObject(filterFieldObject.columnName, value, filterFieldObject.prettyName);

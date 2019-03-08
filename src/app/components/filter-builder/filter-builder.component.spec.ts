@@ -80,7 +80,7 @@ describe('Component: Filter Builder', () => {
         expect(component.clauses[0].operator.value).toEqual('contains');
         expect(component.clauses[0].value).toEqual('');
         expect(component.clauses[0].active).toEqual(false);
-        expect(component.clauses[0].id).toEqual(1);
+        expect(component.clauses[0]._id).toBeDefined();
         expect(component.clauses[0].changeDatabase).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(component.clauses[0].changeTable).toEqual(DatasetServiceMock.TABLES[0]);
         expect(component.clauses[0].changeField).toEqual(new FieldMetaData());
@@ -106,7 +106,7 @@ describe('Component: Filter Builder', () => {
         expect(component.clauses[1].operator.value).toEqual('contains');
         expect(component.clauses[1].value).toEqual('');
         expect(component.clauses[1].active).toEqual(false);
-        expect(component.clauses[1].id).toEqual(2);
+        expect(component.clauses[1]._id).toBeDefined();
         expect(component.clauses[1].changeDatabase).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(component.clauses[1].changeTable).toEqual(DatasetServiceMock.TABLES[0]);
         expect(component.clauses[1].changeField).toEqual(new FieldMetaData());
@@ -380,7 +380,7 @@ describe('Component: Filter Builder with config', () => {
         expect(component.clauses[0].operator.value).toEqual('=');
         expect(component.clauses[0].value).toEqual('testTextValue');
         expect(component.clauses[0].active).toEqual(true);
-        expect(component.clauses[0].id).toEqual(1);
+        expect(component.clauses[0]._id).toBeDefined();
         expect(component.clauses[0].changeDatabase).toEqual(DatasetServiceMock.DATABASES[1]);
         expect(component.clauses[0].changeTable).toEqual(DatasetServiceMock.TABLES[1]);
         expect(component.clauses[0].changeField).toEqual(DatasetServiceMock.TEXT_FIELD);

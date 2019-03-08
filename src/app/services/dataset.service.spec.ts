@@ -14,10 +14,11 @@
  *
  */
 import { TestBed, inject } from '@angular/core/testing';
-import { Datastore } from '../dataset';
+import { Dashboard, DashboardOptions, Datastore } from '../dataset';
 import { DatasetService } from './dataset.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
+import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
 
 describe('Service: DatasetService', () => {
     let testConfig = new NeonGTDConfig();
@@ -29,13 +30,12 @@ describe('Service: DatasetService', () => {
         ]
     });
 
-    it('should be injectable', inject([DatasetService], (service: DatasetService) => {
-        expect(service).toBeTruthy();
+    it('should have no active datastores at creation', inject([DatasetService], (service: DatasetService) => {
+        expect(service.getDataset()).toEqual(new Datastore());
     }));
 
-    it('should have no active datastores at creation',
-        inject([DatasetService], (service: DatasetService) => {
-        expect(service.getDataset()).toEqual(new Datastore());
+    it('should have no active dashboards at creation', inject([DatasetService], (service: DatasetService) => {
+        expect(service.getCurrentDashboard()).not.toBeDefined();
     }));
 
     it('should return datastores by name',
@@ -49,5 +49,67 @@ describe('Service: DatasetService', () => {
             name: 'd1',
             databases: []
         });
+    }));
+});
+
+describe('Service: mock DatasetService with mock data', () => {
+    let testConfig = new NeonGTDConfig();
+
+    initializeTestBed('Dataset Service', {
+        providers: [
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: 'config', useValue: testConfig }
+        ]
+    });
+
+    it('should have active datastore at creation', inject([DatasetService], (service: DatasetService) => {
+        let datastore: Datastore = new Datastore('datastore1', 'testHostname', 'testDatastore');
+        datastore.databases = DatasetServiceMock.DATABASES;
+        expect(service.getDataset()).toEqual(datastore);
+    }));
+
+    it('should have active dashboard at creation', inject([DatasetService], (service: DatasetService) => {
+        let dashboard: Dashboard = new Dashboard();
+        dashboard.name = 'Test Discovery Config';
+        dashboard.layout = 'DISCOVERY';
+        dashboard.options = new DashboardOptions();
+        dashboard.visualizationTitles = {
+            dataTableTitle: 'Documents'
+        };
+        dashboard.tables = {
+            table_key_1: 'datastore1.testDatabase1.testTable1',
+            table_key_2: 'datastore1.testDatabase2.testTable2'
+        };
+        dashboard.fields = {
+            field_key_1: 'datastore1.testDatabase1.testTable1.testFieldKeyField'
+        };
+        dashboard.relations = [{
+            datastore1: {
+                testDatabase1: {
+                    testTable1: 'testRelationFieldA'
+                },
+                testDatabase2: {
+                    testTable2: 'testRelationFieldA'
+                }
+            }
+        }, {
+            datastore1: {
+                testDatabase1: {
+                    testTable1: 'testRelationFieldB'
+                },
+                testDatabase2: {
+                    testTable2: 'testRelationFieldB'
+                }
+            }
+
+        }];
+        expect(service.getCurrentDashboard()).toEqual(dashboard);
+    }));
+
+    it('translateFieldKeyToValue does return expected string', inject([DatasetService], (service: DatasetService) => {
+        expect(service.translateFieldKeyToValue('field_key_1')).toEqual('testFieldKeyField');
+        expect(service.translateFieldKeyToValue('testDateField')).toEqual('testDateField');
+        expect(service.translateFieldKeyToValue('testNameField')).toEqual('testNameField');
+        expect(service.translateFieldKeyToValue('testSizeField')).toEqual('testSizeField');
     }));
 });

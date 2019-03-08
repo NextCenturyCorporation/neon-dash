@@ -32,10 +32,12 @@ import {
 
 import { OptionsListComponent } from '../options-list/options-list.component';
 import { FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
+import { DatasetService } from '../../services/dataset.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import * as neon from 'neon-framework';
-import { WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../widget-option';
+import { OptionType, WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../widget-option';
 import { MatSidenav } from '@angular/material';
+
 @Component({
     selector: 'app-gear',
     templateUrl: './gear.component.html',
@@ -46,97 +48,62 @@ import { MatSidenav } from '@angular/material';
 export class GearComponent implements OnInit, OnDestroy {
     @Input() sideNavRight: MatSidenav;
     @ViewChildren('listChildren') listChildren: QueryList<OptionsListComponent>;
-    public options: any = new WidgetOptionCollection();
-    private messenger: neon.eventing.Messenger;
-    private optionsList: WidgetOption[];
 
-    private requiredList: WidgetOption[];
-    private requiredListNonField: WidgetOption[];
-    private optionalList: WidgetOption[];
-    private optionalListNonField: WidgetOption[];
-    private optionsListCollection: [WidgetOption[]];
-    private changeList: any[];
-    private changeLayerList: any[];
+    private messenger: neon.eventing.Messenger;
+    private originalOptions: any;
+    public modifiedOptions: any = {
+        databases: [],
+        fields: [],
+        layers: [],
+        tables: []
+    };
+
+    private requiredList: string[] = [];
+    private requiredListNonField: string[] = [];
+    private optionalList: string[] = [];
+    private optionalListNonField: string[] = [];
     private componentThis: any;
 
-    private addLayer: Function;
-    private removeLayer: Function;
+    private createLayer: Function;
+    private deleteLayer: Function;
+    private finalizeCreateLayer: Function;
+    private finalizeDeleteLayer: Function;
     private handleChangeData: Function;
-    private handleChangeDatabase: Function;
-    private handleChangeLimit: Function;
-    private handleChangeFilterField: Function;
+    private handleChangeFilterData: Function;
     private handleChangeSubcomponentType: Function;
-    private handleChangeTable: Function;
-    private newLimit: string;
-    private changeSubcomponentType: boolean;
-    private limitChanged: boolean;
 
-    public collapseOptionalOptions: boolean;
-
+    private changeSubcomponentType: boolean = false;
+    public changeMade: boolean = false;
+    public collapseOptionalOptions: boolean = true;
     public layerVisible: Map<string, boolean> = new Map<string, boolean>();
 
     constructor(
         private changeDetection: ChangeDetectorRef,
         public injector: Injector,
+        protected datasetService: DatasetService,
         protected widgetService: AbstractWidgetService
     ) {
-        this.injector = injector;
-        this.collapseOptionalOptions = true;
-        this.requiredList = [];
-        this.requiredListNonField = [];
-        this.optionalList = [];
-        this.optionalListNonField = [];
-        this.changeList = [];
-        this.changeLayerList = [];
         this.messenger = new neon.eventing.Messenger();
-    }
-
-    changeFilterFieldLimit(widgetOption, newValue) {
-        this.newLimit = newValue;
-        if (this.isNumber(this.newLimit)) {
-            let newLimit = parseFloat('' + this.newLimit);
-            if (newLimit > 0) {
-                this.limitChanged = true;
-                this.changeList.push(widgetOption, newLimit);
-            } else {
-                this.limitChanged = false;
-                this.newLimit = this.options.limit;
-            }
-        } else {
-            this.limitChanged = false;
-            this.newLimit = this.options.limit;
-        }
-    }
-
-    checkOptionType(currentType: string, checkType) {
-        if (currentType === checkType) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Removes database and table options
-     */
-    cleanShowOptions() {
-        let list = this.optionsList;
-        list = this.removeOptionsByEnableInMenu(list, false);
-        list = this.removeOptionsByBindingKey(list, 'title');
-        list = this.removeOptionsByType(list, 'DATABASE');
-        list = this.removeOptionsByType(list, 'TABLE');
-        this.optionsList = list;
     }
 
     /**
      * Constructs requiredList & optionalList at the same time
      */
-    constructOptionsLists() {
-        let list = this.optionsList;
-        let requiredList = [];
-        let optionalList = [];
-        let requiredFieldList = [];
-        let optionalFieldList = [];
-        list.forEach(function(element) {
+    createGearMenuData() {
+        this.modifiedOptions = this.originalOptions.copy();
+
+        let optionList: WidgetOption[] = this.modifiedOptions.list();
+        optionList = this.removeOptionsByEnableInMenu(optionList, false);
+        optionList = this.removeOptionsByBindingKey(optionList, 'title');
+        optionList = this.removeOptionsByType(optionList, 'DATABASE');
+        optionList = this.removeOptionsByType(optionList, 'TABLE');
+
+        let requiredList: WidgetOption[] = [];
+        let optionalList: WidgetOption[] = [];
+        let requiredFieldList: WidgetOption[] = [];
+        let optionalFieldList: WidgetOption[] = [];
+
+        optionList.forEach(function(element) {
             if (element.isRequired) {
                 requiredList.push(element);
             } else {
@@ -158,25 +125,14 @@ export class GearComponent implements OnInit, OnDestroy {
             }
         });
 
-        this.requiredList = requiredFieldList;
-        this.requiredListNonField = requiredList;
-        this.optionalList = optionalList;
-        this.optionalListNonField = optionalFieldList;
+        this.requiredList = requiredFieldList.map((option) => option.bindingKey);
+        this.requiredListNonField = requiredList.map((option) => option.bindingKey);
+        this.optionalList = optionalList.map((option) => option.bindingKey);
+        this.optionalListNonField = optionalFieldList.map((option) => option.bindingKey);
     }
 
     createEmptyField(): FieldMetaData {
         return new FieldMetaData();
-    }
-
-    /**
-     * Disables the Apply button if there are any changes
-     */
-    disableApplyButton(): boolean {
-        if (this.changeList.length === 0 && this.changeLayerList.length === 0) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     /**
@@ -199,14 +155,14 @@ export class GearComponent implements OnInit, OnDestroy {
         return icon;
     }
 
-    getLayerList(layer) {
-        let list = layer.list();
-        return list;
-    }
-
-    getTitle() {
-        let titleOption = this.options.access('title');
-        return titleOption.valueCurrent;
+    getLayerList(layer: any): string[] {
+        // TODO THOR-1062
+        let optionList: WidgetOption[] = layer.list();
+        optionList = this.removeOptionsByEnableInMenu(optionList, false);
+        optionList = this.removeOptionsByBindingKey(optionList, 'title');
+        optionList = this.removeOptionsByType(optionList, 'DATABASE');
+        optionList = this.removeOptionsByType(optionList, 'TABLE');
+        return optionList.map((option) => option.bindingKey);
     }
 
     /**
@@ -214,57 +170,79 @@ export class GearComponent implements OnInit, OnDestroy {
      * handleChange functions accordingly.
      */
     handleApplyClick() {
-        this.changeList.forEach((change) => {
-            this.options[change.option.bindingKey] = change.value;
-        });
-        if (this.changeLayerList.length > 0) {
-            this.changeLayerList.forEach((change) => {
-                this.options.layers[change.index][change.option.bindingKey] = change.value;
-            });
-        }
-        this.changeList = [];
-        this.changeLayerList = [];
+        let filterDataChange = this.originalOptions.database.name !== this.modifiedOptions.database.name ||
+            this.originalOptions.table.name !== this.modifiedOptions.table.name;
 
+        this.originalOptions.database = this.modifiedOptions.database;
+        this.originalOptions.databases = this.modifiedOptions.databases;
+        this.originalOptions.table = this.modifiedOptions.table;
+        this.originalOptions.tables = this.modifiedOptions.tables;
+        this.originalOptions.fields = this.modifiedOptions.fields;
+
+        this.modifiedOptions.list().forEach((option) => {
+            if (this.originalOptions[option.bindingKey] !== option.valueCurrent && this.isFilterData(option.optionType)) {
+                filterDataChange = true;
+            }
+            // TODO THOR-1044 Validate number free text options
+            this.originalOptions[option.bindingKey] = option.valueCurrent;
+        });
+
+        let modifiedLayerIds = this.modifiedOptions.layers.map((layer) => layer._id);
+        this.originalOptions.layers.forEach((layer) => {
+            // If the layer was deleted, finalize its deletion.
+            if (modifiedLayerIds.indexOf(layer._id) < 0) {
+                this.finalizeDeleteLayer(layer);
+            }
+        });
+        let originalLayerIds = this.originalOptions.layers.map((layer) => layer._id);
+        this.modifiedOptions.layers.forEach((layer) => {
+            // If the layer was created, finalize its creation.
+            if (originalLayerIds.indexOf(layer._id) < 0) {
+                this.finalizeCreateLayer(layer);
+            }
+        });
+
+        this.originalOptions.layers = this.modifiedOptions.layers;
+
+        // TODO THOR-1061
         if (this.changeSubcomponentType) {
             this.handleChangeSubcomponentType();
-            this.changeSubcomponentType = false;
         }
 
-        if (this.limitChanged) {
-            this.handleChangeLimit();
+        if (filterDataChange) {
+            this.handleChangeFilterData();
+        } else {
+            this.handleChangeData();
         }
 
-        this.handleChangeData();
         this.sideNavRight.close();
         this.resetList();
         this.changeDetection.detectChanges();
     }
 
     /**
-     * Returns the icon for the filter for the layer with the given options.
+     * Handles the change of database in the given options.
      *
-     * @arg widgetOption, newValue A WidgetOption object & the new value.
+     * @arg {any} options A WidgetOptionCollection
      */
-    handleDataChange(widgetOption, newValue, layerIndex?) {
-        if (layerIndex > -1) {
-            this.changeLayerList.push({
-                option: widgetOption,
-                value: newValue,
-                index: layerIndex
-            });
-        } else if (widgetOption.bindingkey === 'limit') {
-            this.changeFilterFieldLimit(widgetOption, newValue);
-        } else {
-            this.overrideExistingChange(widgetOption);
-            this.changeList.push({
-                option: widgetOption,
-                value: newValue
-            });
-        }
+    public handleChangeDatabase(options: any): void {
+        options.updateTables(this.datasetService);
+        this.changeMade = true;
+    }
 
-        if (widgetOption.bindingKey === 'type') {
-            this.changeSubcomponentType = true;
-        }
+    /**
+     * Handles the change of table in the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection
+     */
+    public handleChangeTable(options: any): void {
+        options.updateFields(this.datasetService);
+        this.changeMade = true;
+    }
+
+    private isFilterData(optionType: OptionType): boolean {
+        return optionType === OptionType.DATABASE || optionType === OptionType.TABLE || optionType === OptionType.FIELD ||
+            optionType === OptionType.FIELD_ARRAY;
     }
 
     /**
@@ -284,12 +262,6 @@ export class GearComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.messenger.subscribe('options', (message) => this.updateOptions(message));
         this.changeDetection.detectChanges();
-    }
-
-    overrideExistingChange(option: WidgetOption) {
-        this.changeList = this.changeList.filter((change) =>
-            change.widgetOption.bindingKey !== option.bindingKey
-        );
     }
 
     /**
@@ -327,16 +299,15 @@ export class GearComponent implements OnInit, OnDestroy {
     }
 
     resetChangeList() {
-        this.changeList = [];
-        this.optionsList = this.options.list();
-        this.cleanShowOptions();
-        this.constructOptionsLists();
+        this.createGearMenuData();
         this.sideNavRight.close();
         this.resetList();
         this.changeDetection.detectChanges();
     }
 
     resetList() {
+        this.changeMade = false;
+        this.changeSubcomponentType = false;
         this.requiredList = [];
         this.requiredListNonField = [];
         this.optionalList = [];
@@ -360,24 +331,44 @@ export class GearComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Updates the gear menu on data change.
+     *
+     * @arg {string} bindingKey
+     */
+    updateGearMenuOnDataChange(bindingKey: string) {
+        this.changeMade = true;
+        // TODO THOR-1061
+        if (bindingKey === 'type') {
+            this.changeSubcomponentType = true;
+        }
+    }
+
+    handleAddLayer() {
+        this.createLayer(this.modifiedOptions);
+        this.changeMade = true;
+    }
+
+    handleRemoveLayer(layer: any) {
+        this.deleteLayer(this.modifiedOptions, layer);
+        this.changeMade = true;
+    }
+
+    /**
      *  Receives the message object with the WidgetOptionCollection object and callbacks from the widget
      * @arg {message} message
      */
     updateOptions(message) {
-        this.addLayer = message.addLayer;
-        this.removeLayer = message.removeLayer;
-        this.options = message.options;
+        this.createLayer = message.createLayer;
+        this.deleteLayer = message.deleteLayer;
+        this.finalizeCreateLayer = message.finalizeCreateLayer;
+        this.finalizeDeleteLayer = message.finalizeDeleteLayer;
+        this.originalOptions = message.options;
         this.handleChangeData = message.changeData;
-        this.handleChangeDatabase = message.changeDatabase;
-        this.handleChangeFilterField = message.changeFilterField;
-        this.handleChangeLimit = message.changeLimitCallback;
+        this.handleChangeFilterData = message.changeFilterData;
         this.handleChangeSubcomponentType = message.handleChangeSubcomponentType;
-        this.handleChangeTable = message.changeTable;
         this.componentThis = message.componentThis;
 
-        this.optionsList = this.options.list();
-        this.cleanShowOptions();
-        this.constructOptionsLists();
+        this.createGearMenuData();
     }
 
 }

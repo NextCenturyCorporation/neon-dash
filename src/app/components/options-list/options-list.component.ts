@@ -19,9 +19,8 @@ import {
     Input,
     ViewEncapsulation
 } from '@angular/core';
-
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../widget-option';
+import { FieldMetaData } from '../../dataset';
+import { WidgetOption } from '../../widget-option';
 
 @Component({
     selector: 'app-options-list',
@@ -31,39 +30,17 @@ import { WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../w
     changeDetection: ChangeDetectionStrategy.Default
 })
 export class OptionsListComponent {
-    @Input() optionsList: any[];
+    @Input() bindingsList: string[];
+    @Input() fields: FieldMetaData[];
     @Input() index: number;
-    @Input() databases: any[];
-    @Input() fields: any[];
-    @Input() tables: any[];
+    @Input() options: any;
+    @Input() updateOnChange: Function;
 
-    @Input() handleChangeData: Function;
-    @Input() handleChangeDatabase: Function;
-    @Input() handleChangeLimit: Function;
-    @Input() handleChangeFilterField: Function;
-    @Input() handleChangeSubcomponentType: Function;
-    @Input() handleChangeTable: Function;
-    @Input() handleDataChange: Function;
-
-    isLayer: boolean = false;
-    newList: any[];
-    constructor(public widgetService: AbstractWidgetService) {
-        this.newList = [];
+    constructor() {
+        // Do nothing.
     }
 
-    checkOptionType(currentType: string, checkType) {
-        if (currentType === checkType) {
-            return true;
-        }
-        return false;
+    getOption(bindingKey: string): WidgetOption {
+        return this.options.access(bindingKey);
     }
-
-    handleListDataChange(widgetOption, newValue) {
-        if (this.index) {
-            this.handleDataChange(widgetOption, newValue, this.index);
-        } else {
-            this.handleDataChange(widgetOption, newValue, this.index);
-        }
-    }
-
 }
