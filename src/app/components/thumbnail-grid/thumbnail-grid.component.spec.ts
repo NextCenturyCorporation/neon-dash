@@ -488,8 +488,10 @@ describe('Component: ThumbnailGrid', () => {
         let spy1 = spyOn(component, 'addNeonFilter');
         let spy2 = spyOn(component, 'replaceNeonFilter');
         let spy3 = spyOn(component, 'removeAllFilters');
+        let fields = ['test field1'];
+        let neonFilters = getService(FilterService).getFiltersForFields(component.options.database, component.options.table, fields);
 
-        component.createFilter('test text');
+        component.createFilter('test text', component.options.filterField, neonFilters);
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(0);
@@ -500,11 +502,13 @@ describe('Component: ThumbnailGrid', () => {
         let spy1 = spyOn(component, 'addNeonFilter');
         let spy2 = spyOn(component, 'replaceNeonFilter');
         let spy3 = spyOn(component, 'removeAllFilters');
+        let fields = ['test field1', 'test field2'];
 
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.ignoreSelf = false;
+        let neonFilters = getService(FilterService).getFiltersForFields(component.options.database, component.options.table, fields);
 
-        component.createFilter('test text');
+        component.createFilter('test text', component.options.filterField, neonFilters);
 
         expect(component.filters).toEqual([{
             id: undefined,
@@ -532,7 +536,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.ignoreSelf = true;
 
-        component.createFilter('test text');
+        component.createFilter('test text', component.options.filterField, []);
 
         expect(component.filters).toEqual([{
             id: undefined,
@@ -566,7 +570,7 @@ describe('Component: ThumbnailGrid', () => {
             value: 'value1'
         }];
 
-        component.createFilter('test text');
+        component.createFilter('test text', component.options.filterField, []);
 
         expect(component.filters).toEqual([{
             id: 'idA',
@@ -600,7 +604,7 @@ describe('Component: ThumbnailGrid', () => {
             value: 'value1'
         }];
 
-        component.createFilter('test text');
+        component.createFilter('test text', component.options.filterField, []);
 
         expect(component.filters).toEqual([{
             id: 'idA',
@@ -639,7 +643,7 @@ describe('Component: ThumbnailGrid', () => {
             value: 'value2'
         }];
 
-        component.createFilter('test text');
+        component.createFilter('test text', component.options.filterField, []);
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(0);
@@ -701,7 +705,7 @@ describe('Component: ThumbnailGrid', () => {
             value: 'value2'
         }];
 
-        component.createFilter('test text');
+        component.createFilter('test text', component.options.filterField, []);
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(0);
