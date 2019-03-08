@@ -149,6 +149,60 @@ datastores:
                               prettyName: Cluster ID
                         mappings:
                           date: createdAt
+            ldc_il3_text:
+                prettyName: Uyghur LDC Text
+                tables:
+                    ui_output:
+                        prettyName: UI Output
+                        mappings:
+                          date: createdAt
+            ldc_il3_meta:
+                prettyName: Uyghur LDC Meta
+                tables:
+                    ui_output:
+                        prettyName: UI Output
+                        fields:
+                            - columnName: createdAt
+                              prettyName: Date Created
+                            - columnName: LOC
+                              prettyName: Location
+                            - columnName: need
+                              prettyName: Need
+                            - columnName: originalText
+                              prettyName: Original Text
+                            - columnName: translatedText
+                              prettyName: Translated Text
+                            - columnName: cluster
+                              prettyName: Cluster ID
+                        mappings:
+                          date: createdAt
+            elisa_il3_text:
+                prettyName: Elisa Il3 Text
+                tables:
+                    ui_output:
+                        prettyName: UI Output
+                        mappings:
+                          date: createdDate
+            elisa_il3_meta:
+                prettyName: Elisa Il3 Meta
+                tables:
+                    ui_output:
+                        prettyName: UI Output
+                        fields:
+                            - columnName: createdDate
+                              prettyName: Date Created
+                            - columnName: LOC
+                              prettyName: Location
+                            - columnName: need
+                              prettyName: Need
+                            - columnName: originalText
+                              prettyName: Original Text
+                            - columnName: translatedText
+                              prettyName: Translated Text
+                            - columnName: cluster
+                              prettyName: Cluster ID
+                        mappings:
+                          date: createdAt
                       
 dashboards:
     category: 'Select a task...'
@@ -225,6 +279,90 @@ dashboards:
                                 simpleFilter:
                                     tableKey: table_key_1
                                     fieldKey: original_text_key
+                                    placeHolder: Search
+                        uyg_ldc_il3:
+                            name: Uyghur LDC Il3
+                            layout: darpa60-uyghur-ldc
+                            tables:
+                                table_key_1: es1.ldc_il3_text.ui_out
+                                table_key_2: es1.ldc_il3_meta.ui_out
+                            fields:
+                                original_text_key: es1.ldc_il3_text.ui_out.originalText
+                                translated_text_key: es1.ldc_il3_text.ui_out.translatedText
+                                date_field_key: es1.ldc_il3_text.ui_out.createdDate
+                                id_field_key1: es1.ldc_il3_text.ui_out._id
+                                id_field_key2: es1.ldc_il3_meta.ui_out._id
+                                id_field_key3: es1.ldc_il3_text.ui_output.id
+                                id_field_key4: es1.ldc_il3_meta.ui_output.id
+                                filter_field_key: es1.ldc_il3_meta.ui_out.id
+                                group_field_key1: es1.ldc_il3_text.ui_out.topics
+                                group_field_key2: es1.ldc_il3_meta.ui_out.topic
+                                latitude_key: es1.ldc_il3_meta.ui_out.geoLocation.lat
+                                longitude_key: es1.ldc_il3_meta.ui_out.geoLocation.lon
+                                text_cloud_data_key: es1.ldc_il3_meta.ui_out.location
+                            relations:
+                                - es1:
+                                    ldc_il3_text:
+                                        ui_output: 'topics'
+                                    ldc_il3_meta:
+                                        ui_output: 'topic'
+                                - es1:
+                                    ldc_il3_text:
+                                        ui_output: '_id'
+                                    ldc_il3_meta:
+                                        ui_output: '_id'
+                                - es1:
+                                    ldc_il3_text:
+                                        ui_output: 'id'
+                                    ldc_il3_meta:
+                                        ui_output: 'id'
+                            options:
+                                connectOnLoad: true
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: translated_text_key
+                                    placeHolder: Search
+                        elisa_ldc_il3:
+                            name: Elisa LDC Il3
+                            layout: darpa60-uyghur-ldc
+                            tables:
+                                table_key_1: es1.elisa_il3_text.ui_out
+                                table_key_2: es1.elisa_il3_meta.ui_out
+                            fields:
+                                original_text_key: es1.elisa_il3_text.ui_out.originalText
+                                translated_text_key: es1.elisa_il3_text.ui_out.translatedText
+                                date_field_key: es1.elisa_il3_text.ui_out.createdDate
+                                id_field_key1: es1.elisa_il3_text.ui_out._id
+                                id_field_key2: es1.elisa_il3_meta.ui_out._id
+                                id_field_key3: es1.elisa_il3_text.ui_output.id
+                                id_field_key4: es1.elisa_il3_meta.ui_output.id
+                                filter_field_key: es1.elisa_il3_meta.ui_out.id
+                                group_field_key1: es1.elisa_il3_text.ui_out.topics
+                                group_field_key2: es1.elisa_il3_meta.ui_out.topic
+                                latitude_key: es1.elisa_il3_meta.ui_out.geoLocation.lat
+                                longitude_key: es1.elisa_il3_meta.ui_out.geoLocation.lon
+                                text_cloud_data_key: es1.elisa_il3_meta.ui_out.location
+                            relations:
+                                - es1:
+                                    ldc_il3_text:
+                                        ui_output: 'topics'
+                                    ldc_il3_meta:
+                                        ui_output: 'topic'
+                                - es1:
+                                    ldc_il3_text:
+                                        ui_output: '_id'
+                                    ldc_il3_meta:
+                                        ui_output: '_id'
+                                - es1:
+                                    ldc_il3_text:
+                                        ui_output: 'id'
+                                    ldc_il3_meta:
+                                        ui_output: 'id'
+                            options:
+                                connectOnLoad: true
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: translated_text_key
                                     placeHolder: Search
                 vondo:
                     name: 'Macedonia'
@@ -478,6 +616,144 @@ layouts:
               tableKey: table_key_1
               dataField: text_cloud_data_key
               preFilter: false
+    darpa60-uyghur-ldc:
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 1
+          row: 1
+          sizex: 4
+          sizey: 11
+          bindings:
+              title: Tweet
+              tableKey: table_key_1
+              idField: id_field_key1
+              sortField: date_field_key
+              limit: 100
+              allColumnStatus: hide
+              exceptionsToStatus:
+                  - date_field_key
+                  - original_text_key
+              customColumnWidths:
+                  - - date_field_key
+                    - 30
+                  - - original_text_key
+                    - 270
+              filterable: false
+              singleFilter: true
+              ignoreSelf: false
+        - name: Map
+          type: map
+          icon: Map64
+          col: 5
+          row: 1
+          sizex: 5
+          sizey: 11
+          bindings:
+              title: Situation Locations
+              tableKey: table_key_1
+              filterable: true
+              name: EVENTS
+              show: true
+              type: cluster
+              limit: 5000
+              layers:
+                  - title: Map
+                    tableKey: table_key_2
+                    latitudeField: latitude_key
+                    longitudeField: longitude_key
+                    dateField: date_field_key
+                    colorField: text_cloud_data_key
+              mapType: leaflet
+              west: 30.5
+              north: 49
+              east: 127
+              south: 10.6
+        - name: Text Cloud
+          type: textCloud
+          icon: TagCloud64
+          col: 5
+          row: 12
+          sizex: 5
+          sizey: 4
+          selected: true
+          bindings:
+              title: Locations
+              tableKey: table_key_2
+              dataField: text_cloud_data_key
+              preFilter: false
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 10
+          row: 10
+          sizex: 3
+          sizey: 6
+          bindings:
+              title: Situation Needs
+              type: bar-h
+              tableKey: table_key_2
+              xField: text_cloud_data_key
+              limit: 11
+              groupField: text_cloud_data_key
+              sortByAggregation: true
+              ignoreSelf: true
+        - name: Annotation Viewer
+          type: annotationViewer
+          icon: documentViewer64
+          col: 1
+          row: 12
+          sizex: 2
+          sizey: 4
+          bindings:
+              title: Original Text
+              tableKey: table_key_1
+              linkField: original_text_key
+              idField: id_field_key1
+              respondMode: true
+        - name: Annotation Viewer
+          type: annotationViewer
+          icon: documentViewer64
+          col: 3
+          row: 12
+          sizex: 2
+          sizey: 4
+          bindings:
+              title: Translated Text
+              tableKey: table_key_1
+              linkField: translated_text_key
+              idField: id_field_key1
+              respondMode: true
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 10
+          row: 1
+          sizex: 3
+          sizey: 9
+          bindings:
+              title: Situation Frames
+              tableKey: table_key_2
+              idField: id_field_key2
+              sortField: id_field_key2
+              limit: 100
+              allColumnStatus: hide
+              exceptionsToStatus:
+                  - id_field_key4
+                  - group_field_key2
+                  - text_cloud_data_key
+              customColumnWidths:
+                  - - id_field_key4
+                      30
+                  - - group_field_key2
+                    - 70
+                  - - text_cloud_data_key
+                    - 170
+              filterable: true
+              filterFields:
+                  - id_field_key4
+              singleFilter: true
+              ignoreSelf: false
     elisa_macedonia:
         - name: Data Table
           type: dataTable
