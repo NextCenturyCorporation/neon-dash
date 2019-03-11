@@ -187,9 +187,9 @@ export class LeafletNeonMap extends AbstractMap {
 
         if (hiddenPoints) {
             let layerGroup = this.layerGroups.get(layer);
+
             hiddenPoints = hiddenPoints.filter((circle) => {
-                let matches = circle.options.colorByField === layer.colorField.columnName &&
-                        circle.options.colorByValue === value;
+                let matches = circle.options.colorByValue === value;
 
                 if (matches) {
                     layerGroup.addLayer(circle);

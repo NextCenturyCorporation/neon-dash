@@ -419,7 +419,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         if (currentlyActive) {
             for (let layer of this.options.layers) {
                 if (layer.colorField.columnName === fieldName) {
-                    this.mapObject.hidePoints(layer, value);
+                    this.mapObject.hidePoints(layer._id, value);
                 }
             }
 
