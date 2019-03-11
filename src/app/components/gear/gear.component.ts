@@ -64,15 +64,15 @@ export class GearComponent implements OnInit, OnDestroy {
     private requiredListNonField: string[] = [];
     private optionalList: string[] = [];
     private optionalListNonField: string[] = [];
-    private componentThis: any;
 
-    private createLayer: Function;
-    private deleteLayer: Function;
-    private finalizeCreateLayer: Function;
-    private finalizeDeleteLayer: Function;
-    private handleChangeData: Function;
-    private handleChangeFilterData: Function;
-    private handleChangeSubcomponentType: Function;
+    private createLayer: (options: any, layerBinding?: any) => any;
+    private deleteLayer: (options: any, layerOptions: any) => void;
+    private exportCallbacks: (() => { name: string, data: any }[])[] = [];
+    private finalizeCreateLayer: (layerOptions: any) => void;
+    private finalizeDeleteLayer: (layerOptions: any) => void;
+    private handleChangeData: (options?: any) => void;
+    private handleChangeFilterData: (options?: any) => void;
+    private handleChangeSubcomponentType: (options?: any) => void;
 
     private changeSubcomponentType: boolean = false;
     public changeMade: boolean = false;
@@ -388,7 +388,7 @@ export class GearComponent implements OnInit, OnDestroy {
         this.handleChangeData = message.changeData;
         this.handleChangeFilterData = message.changeFilterData;
         this.handleChangeSubcomponentType = message.handleChangeSubcomponentType;
-        this.componentThis = message.componentThis;
+        this.exportCallbacks = [message.exportData];
 
         this.resetOptions();
         this.constructOptions();
