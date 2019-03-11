@@ -51,6 +51,8 @@ export class GearComponent implements OnInit, OnDestroy {
 
     private messenger: neon.eventing.Messenger;
     private originalOptions: any;
+
+    // Set to a stub object to stop initialization errors.
     public modifiedOptions: any = {
         databases: [],
         fields: [],
@@ -75,7 +77,7 @@ export class GearComponent implements OnInit, OnDestroy {
     private changeSubcomponentType: boolean = false;
     public changeMade: boolean = false;
     public collapseOptionalOptions: boolean = true;
-    public layerVisible: Map<string, boolean> = new Map<string, boolean>();
+    public layerHidden: Map<string, boolean> = new Map<string, boolean>();
 
     constructor(
         private changeDetection: ChangeDetectorRef,
@@ -86,10 +88,14 @@ export class GearComponent implements OnInit, OnDestroy {
         this.messenger = new neon.eventing.Messenger();
     }
 
+    private closeSidenav() {
+        this.sideNavRight.close();
+    }
+
     /**
      * Constructs requiredList & optionalList at the same time
      */
-    createGearMenuData() {
+    private constructOptions() {
         this.modifiedOptions = this.originalOptions.copy();
 
         let optionList: WidgetOption[] = this.modifiedOptions.list();
@@ -131,21 +137,22 @@ export class GearComponent implements OnInit, OnDestroy {
         this.optionalListNonField = optionalFieldList.map((option) => option.bindingKey);
     }
 
-    createEmptyField(): FieldMetaData {
-        return new FieldMetaData();
-    }
-
     /**
      * Returns the icon for the filter for the layer with the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {string}
      */
-    getIconForFilter(options: any): string {
-        return this.layerVisible.get(options._id) ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
+    public getIconForFilter(options: any): string {
+        return this.layerHidden.get(options._id) ? 'keyboard_arrow_down' : 'keyboard_arrow_up';
     }
 
-    getIconForOptions() {
+    /**
+     * Returns the icon for the optional options.
+     *
+     * @return {string}
+     */
+    public getIconForOptions() {
         let icon: string;
         if (this.collapseOptionalOptions) {
             icon = 'keyboard_arrow_down';
@@ -155,7 +162,13 @@ export class GearComponent implements OnInit, OnDestroy {
         return icon;
     }
 
-    getLayerList(layer: any): string[] {
+    /**
+     * Returns the list of binding keys for the given layer.
+     *
+     * @arg {any} layer
+     * @return {string[]}
+     */
+    public getLayerList(layer: any): string[] {
         // TODO THOR-1062
         let optionList: WidgetOption[] = layer.list();
         optionList = this.removeOptionsByEnableInMenu(optionList, false);
@@ -169,7 +182,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * Applys the list of changes in the changeList and calls the
      * handleChange functions accordingly.
      */
-    handleApplyClick() {
+    public handleApplyClick() {
         let filterDataChange = this.originalOptions.database.name !== this.modifiedOptions.database.name ||
             this.originalOptions.table.name !== this.modifiedOptions.table.name;
 
@@ -215,9 +228,7 @@ export class GearComponent implements OnInit, OnDestroy {
             this.handleChangeData();
         }
 
-        this.sideNavRight.close();
-        this.resetList();
-        this.changeDetection.detectChanges();
+        this.resetOptionsAndClose();
     }
 
     /**
@@ -240,6 +251,24 @@ export class GearComponent implements OnInit, OnDestroy {
         this.changeMade = true;
     }
 
+    /**
+     * Creates a new layer.
+     */
+    public handleCreateLayer() {
+        let layer: any = this.createLayer(this.modifiedOptions);
+        this.layerHidden.set(layer._id, false);
+        this.changeMade = true;
+    }
+
+    /**
+     * Deletes the given layer.
+     */
+    public handleDeleteLayer(layer: any) {
+        this.deleteLayer(this.modifiedOptions, layer);
+        this.layerHidden.delete(layer._id);
+        this.changeMade = true;
+    }
+
     private isFilterData(optionType: OptionType): boolean {
         return optionType === OptionType.DATABASE || optionType === OptionType.TABLE || optionType === OptionType.FIELD ||
             optionType === OptionType.FIELD_ARRAY;
@@ -251,7 +280,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * @arg {any} item
      * @return {boolean}
      */
-    isNumber(item: any): boolean {
+    private isNumber(item: any): boolean {
         return !isNaN(parseFloat(item)) && isFinite(item);
     }
 
@@ -264,17 +293,7 @@ export class GearComponent implements OnInit, OnDestroy {
         this.changeDetection.detectChanges();
     }
 
-    /**
-     * Runs any needed behavior after a new layer was added.
-     *
-     * @arg {any} options
-     * @override
-     */
-    postAddLayer(options: any) {
-        this.layerVisible.set(options._id, true);
-    }
-
-    removeOptionsByBindingKey(list: any[], bindingKey: string): any[] {
+    private removeOptionsByBindingKey(list: any[], bindingKey: string): any[] {
         let newList = list;
         newList = newList.filter(function(field) {
             return field.bindingKey !== bindingKey;
@@ -282,7 +301,7 @@ export class GearComponent implements OnInit, OnDestroy {
         return newList;
     }
 
-    removeOptionsByEnableInMenu(list: any[], enableInMenu: boolean): any[] {
+    private removeOptionsByEnableInMenu(list: any[], enableInMenu: boolean): any[] {
         let newList = list;
         newList = newList.filter(function(field) {
             return field.enableInMenu !== enableInMenu;
@@ -290,7 +309,7 @@ export class GearComponent implements OnInit, OnDestroy {
         return newList;
     }
 
-    removeOptionsByType(list: any[], optionType: string): any[] {
+    private removeOptionsByType(list: any[], optionType: string): any[] {
         let newList = list;
         newList = newList.filter(function(field) {
             return field.optionType !== optionType;
@@ -298,20 +317,32 @@ export class GearComponent implements OnInit, OnDestroy {
         return newList;
     }
 
-    resetChangeList() {
-        this.createGearMenuData();
-        this.sideNavRight.close();
-        this.resetList();
+    /**
+     * Resets the data and closes the menu.
+     */
+    public resetOptionsAndClose() {
+        this.closeSidenav();
+        this.resetOptions();
         this.changeDetection.detectChanges();
     }
 
-    resetList() {
+    private resetOptions() {
         this.changeMade = false;
         this.changeSubcomponentType = false;
+        this.collapseOptionalOptions = true;
+        this.layerHidden = new Map<string, boolean>();
+
         this.requiredList = [];
         this.requiredListNonField = [];
         this.optionalList = [];
         this.optionalListNonField = [];
+
+        this.modifiedOptions = {
+            databases: [],
+            fields: [],
+            layers: [],
+            tables: []
+        };
     }
 
     /**
@@ -319,14 +350,14 @@ export class GearComponent implements OnInit, OnDestroy {
      *
      * @arg {any} options A WidgetOptionCollection object.
      */
-    toggleFilter(options: any): void {
-        this.layerVisible.set(options._id, !(this.layerVisible.get(options._id)));
+    public toggleFilter(options: any): void {
+        this.layerHidden.set(options._id, !(this.layerHidden.get(options._id)));
     }
 
     /**
      * Toggles the visibility of the optional options
      */
-    toggleOptionalOptions(): void {
+    public toggleOptionalOptions(): void {
         this.collapseOptionalOptions = !this.collapseOptionalOptions;
     }
 
@@ -335,7 +366,7 @@ export class GearComponent implements OnInit, OnDestroy {
      *
      * @arg {string} bindingKey
      */
-    updateGearMenuOnDataChange(bindingKey: string) {
+    public updateOnChange(bindingKey: string) {
         this.changeMade = true;
         // TODO THOR-1061
         if (bindingKey === 'type') {
@@ -343,21 +374,12 @@ export class GearComponent implements OnInit, OnDestroy {
         }
     }
 
-    handleAddLayer() {
-        this.createLayer(this.modifiedOptions);
-        this.changeMade = true;
-    }
-
-    handleRemoveLayer(layer: any) {
-        this.deleteLayer(this.modifiedOptions, layer);
-        this.changeMade = true;
-    }
-
     /**
-     *  Receives the message object with the WidgetOptionCollection object and callbacks from the widget
+     * Receives the message object with the WidgetOptionCollection object and callbacks from the widget
+     *
      * @arg {message} message
      */
-    updateOptions(message) {
+    private updateOptions(message) {
         this.createLayer = message.createLayer;
         this.deleteLayer = message.deleteLayer;
         this.finalizeCreateLayer = message.finalizeCreateLayer;
@@ -368,7 +390,8 @@ export class GearComponent implements OnInit, OnDestroy {
         this.handleChangeSubcomponentType = message.handleChangeSubcomponentType;
         this.componentThis = message.componentThis;
 
-        this.createGearMenuData();
+        this.resetOptions();
+        this.constructOptions();
     }
 
 }
