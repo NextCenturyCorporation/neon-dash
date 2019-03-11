@@ -505,6 +505,7 @@ describe('Component: ThumbnailGrid', () => {
         let fields = ['test field1', 'test field2'];
 
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.idField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.ignoreSelf = false;
         let neonFilters = getService(FilterService).getFiltersForFields(component.options.database, component.options.table, fields);
 
@@ -534,6 +535,7 @@ describe('Component: ThumbnailGrid', () => {
         let spy3 = spyOn(component, 'removeAllFilters');
 
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.idField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.ignoreSelf = true;
 
         component.createFilter('test text', component.options.filterField, []);
@@ -562,6 +564,7 @@ describe('Component: ThumbnailGrid', () => {
         let spy3 = spyOn(component, 'removeAllFilters');
 
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.idField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.ignoreSelf = false;
         component.filters = [{
             id: 'idA',
@@ -596,6 +599,7 @@ describe('Component: ThumbnailGrid', () => {
         let spy3 = spyOn(component, 'removeAllFilters');
 
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.idField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.ignoreSelf = true;
         component.filters = [{
             id: 'idA',
@@ -630,6 +634,7 @@ describe('Component: ThumbnailGrid', () => {
         let spy3 = spyOn(component, 'removeAllFilters');
 
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.idField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.ignoreSelf = false;
         component.filters = [{
             id: 'idA',
@@ -692,6 +697,7 @@ describe('Component: ThumbnailGrid', () => {
         let spy3 = spyOn(component, 'removeAllFilters');
 
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.idField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.ignoreSelf = true;
         component.filters = [{
             id: 'idA',
