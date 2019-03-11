@@ -40,7 +40,13 @@ export class OptionsListComponent {
         // Do nothing.
     }
 
-    getOption(bindingKey: string): WidgetOption {
+    /**
+     * Returns the WidgetOption at the given binding key.
+     *
+     * @arg {string} bindingKey
+     * @return {WidgetOption}
+     */
+    public getOption(bindingKey: string): WidgetOption {
         return this.options.access(bindingKey);
     }
 }
