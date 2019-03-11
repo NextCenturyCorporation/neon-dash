@@ -21,7 +21,6 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Inje
 import { FormsModule } from '@angular/forms';
 import {} from 'jasmine-core';
 
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
@@ -79,7 +78,6 @@ describe('Component: TaxonomyViewer', () => {
     initializeTestBed('Taxonomy', {
         declarations: [
             TaxonomyViewerComponent,
-            ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [

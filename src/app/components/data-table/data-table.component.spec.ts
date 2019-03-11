@@ -24,7 +24,6 @@ import { } from 'jasmine-core';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { DataTableComponent } from './data-table.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
@@ -48,7 +47,6 @@ describe('Component: DataTable', () => {
     initializeTestBed('Data Table', {
         declarations: [
             DataTableComponent,
-            ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [

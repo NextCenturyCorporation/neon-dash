@@ -129,15 +129,15 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with non-field change does update originalOptions and call handleChangeData', () => {
-        let calledChangeData: number = 0;
+        let calledChangeData = 0;
         (component as any).handleChangeData = () => {
             calledChangeData++;
         };
-        let calledChangeFilterData: number = 0;
+        let calledChangeFilterData = 0;
         (component as any).handleChangeFilterData = () => {
             calledChangeFilterData++;
         };
-        let calledCloseSidenav: number = 0;
+        let calledCloseSidenav = 0;
         (component as any).closeSidenav = () => {
             calledCloseSidenav++;
         };
@@ -174,15 +174,15 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with field change does update originalOptions and call handleChangeFilterData', () => {
-        let calledChangeData: number = 0;
+        let calledChangeData = 0;
         (component as any).handleChangeData = () => {
             calledChangeData++;
         };
-        let calledChangeFilterData: number = 0;
+        let calledChangeFilterData = 0;
         (component as any).handleChangeFilterData = () => {
             calledChangeFilterData++;
         };
-        let calledCloseSidenav: number = 0;
+        let calledCloseSidenav = 0;
         (component as any).closeSidenav = () => {
             calledCloseSidenav++;
         };
@@ -219,15 +219,15 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with database change does update originalOptions and call handleChangeFilterData', () => {
-        let calledChangeData: number = 0;
+        let calledChangeData = 0;
         (component as any).handleChangeData = () => {
             calledChangeData++;
         };
-        let calledChangeFilterData: number = 0;
+        let calledChangeFilterData = 0;
         (component as any).handleChangeFilterData = () => {
             calledChangeFilterData++;
         };
-        let calledCloseSidenav: number = 0;
+        let calledCloseSidenav = 0;
         (component as any).closeSidenav = () => {
             calledCloseSidenav++;
         };
@@ -260,15 +260,15 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with table change does update originalOptions and call handleChangeFilterData', () => {
-        let calledChangeData: number = 0;
+        let calledChangeData = 0;
         (component as any).handleChangeData = () => {
             calledChangeData++;
         };
-        let calledChangeFilterData: number = 0;
+        let calledChangeFilterData = 0;
         (component as any).handleChangeFilterData = () => {
             calledChangeFilterData++;
         };
-        let calledCloseSidenav: number = 0;
+        let calledCloseSidenav = 0;
         (component as any).closeSidenav = () => {
             calledCloseSidenav++;
         };
@@ -301,23 +301,23 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with created layer does update originalOptions and call handleChangeData', () => {
-        let calledChangeData: number = 0;
+        let calledChangeData = 0;
         (component as any).handleChangeData = () => {
             calledChangeData++;
         };
-        let calledChangeFilterData: number = 0;
+        let calledChangeFilterData = 0;
         (component as any).handleChangeFilterData = () => {
             calledChangeFilterData++;
         };
-        let calledCloseSidenav: number = 0;
+        let calledCloseSidenav = 0;
         (component as any).closeSidenav = () => {
             calledCloseSidenav++;
         };
-        let calledFinalizeCreate: number = 0;
+        let calledFinalizeCreate = 0;
         (component as any).finalizeCreateLayer = () => {
             calledFinalizeCreate++;
         };
-        let calledFinalizeDelete: number = 0;
+        let calledFinalizeDelete = 0;
         (component as any).finalizeDeleteLayer = () => {
             calledFinalizeDelete++;
         };
@@ -360,23 +360,23 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with changed layer does update originalOptions and call handleChangeData', () => {
-        let calledChangeData: number = 0;
+        let calledChangeData = 0;
         (component as any).handleChangeData = () => {
             calledChangeData++;
         };
-        let calledChangeFilterData: number = 0;
+        let calledChangeFilterData = 0;
         (component as any).handleChangeFilterData = () => {
             calledChangeFilterData++;
         };
-        let calledCloseSidenav: number = 0;
+        let calledCloseSidenav = 0;
         (component as any).closeSidenav = () => {
             calledCloseSidenav++;
         };
-        let calledFinalizeCreate: number = 0;
+        let calledFinalizeCreate = 0;
         (component as any).finalizeCreateLayer = () => {
             calledFinalizeCreate++;
         };
-        let calledFinalizeDelete: number = 0;
+        let calledFinalizeDelete = 0;
         (component as any).finalizeDeleteLayer = () => {
             calledFinalizeDelete++;
         };
@@ -426,23 +426,23 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with deleted layer does update originalOptions and call handleChangeData', () => {
-        let calledChangeData: number = 0;
+        let calledChangeData = 0;
         (component as any).handleChangeData = () => {
             calledChangeData++;
         };
-        let calledChangeFilterData: number = 0;
+        let calledChangeFilterData = 0;
         (component as any).handleChangeFilterData = () => {
             calledChangeFilterData++;
         };
-        let calledCloseSidenav: number = 0;
+        let calledCloseSidenav = 0;
         (component as any).closeSidenav = () => {
             calledCloseSidenav++;
         };
-        let calledFinalizeCreate: number = 0;
+        let calledFinalizeCreate = 0;
         (component as any).finalizeCreateLayer = () => {
             calledFinalizeCreate++;
         };
-        let calledFinalizeDelete: number = 0;
+        let calledFinalizeDelete = 0;
         (component as any).finalizeDeleteLayer = () => {
             calledFinalizeDelete++;
         };
@@ -484,23 +484,23 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with many changes does update originalOptions and call expected function', () => {
-        let calledChangeData: number = 0;
+        let calledChangeData = 0;
         (component as any).handleChangeData = () => {
             calledChangeData++;
         };
-        let calledChangeFilterData: number = 0;
+        let calledChangeFilterData = 0;
         (component as any).handleChangeFilterData = () => {
             calledChangeFilterData++;
         };
-        let calledCloseSidenav: number = 0;
+        let calledCloseSidenav = 0;
         (component as any).closeSidenav = () => {
             calledCloseSidenav++;
         };
-        let calledFinalizeCreate: number = 0;
+        let calledFinalizeCreate = 0;
         (component as any).finalizeCreateLayer = () => {
             calledFinalizeCreate++;
         };
-        let calledFinalizeDelete: number = 0;
+        let calledFinalizeDelete = 0;
         (component as any).finalizeDeleteLayer = () => {
             calledFinalizeDelete++;
         };
@@ -562,7 +562,7 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleChangeDatabase does update tables', () => {
-        let called: number = 0;
+        let called = 0;
         let options: any = {
             updateTables: () => {
                 called++;
@@ -575,7 +575,7 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleChangeTable does update fields', () => {
-        let called: number = 0;
+        let called = 0;
         let options: any = {
             updateFields: () => {
                 called++;
@@ -588,7 +588,7 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleCreateLayer does call createLayer', () => {
-        let called: number = 0;
+        let called = 0;
         (component as any).createLayer = () => {
             called++;
             return {
@@ -604,7 +604,7 @@ describe('Component: Gear Component', () => {
 
     it('handleDeleteLayer does call deleteLayer', () => {
         component.layerHidden.set('testId1', true);
-        let called: number = 0;
+        let called = 0;
         (component as any).deleteLayer = () => {
             called++;
         };
