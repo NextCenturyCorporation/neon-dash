@@ -13,22 +13,22 @@
  * limitations under the License.
  *
  */
-import { Component } from "@angular/core";
+import { Component } from '@angular/core';
 
-import * as neon from "neon-framework";
+import * as neon from 'neon-framework';
 
-import { ConnectionService } from "../../services/connection.service";
-import { DatasetService } from "../../services/dataset.service";
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
 
-import { CustomConnectionStep } from "./custom-connection-step";
-import { DatabaseMetaData, TableMetaData, FieldMetaData } from "../../dataset";
+import { CustomConnectionStep } from './custom-connection-step';
+import { DatabaseMetaData, TableMetaData, FieldMetaData } from '../../dataset';
 
 // TODO It's likely worth removing the extends here. I don't do it now just in case we do want to add steps as we iterate.
 
 @Component({
-    selector: "app-custom-connection-simple-setup-step",
-    templateUrl: "simple-setup.component.html",
-    styleUrls: ["simple-setup.component.scss"]
+    selector: 'app-custom-connection-simple-setup-step',
+    templateUrl: 'simple-setup.component.html',
+    styleUrls: ['simple-setup.component.scss']
 })
 export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionStep {
     // this.data is inherited from the superclass
@@ -38,7 +38,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     public isLoading: boolean = false;
     public isConnected: boolean = false;
     public error: boolean = false;
-    public tooltip: string = "";
+    public tooltip: string = '';
 
     //Variables associated with selecting databases and tables.
     public selectedDatabase: {
@@ -63,7 +63,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
         super();
         this.selected = true;
         this.stepNumber = 1;
-        this.title = "Connect to Database";
+        this.title = 'Connect to Database';
 
         this.resetSelectedDatabase();
         this.customDatabases = [];
@@ -80,13 +80,13 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
 
     onComplete(): void {
         this.data.selectedDatabases = this.customDatabases.map(
-            customDatabase => {
+            (customDatabase) => {
                 let database = new DatabaseMetaData(
                     customDatabase.database.name,
                     customDatabase.database.prettyName
                 );
                 database.tables = customDatabase.customTables.map(
-                    customTable => customTable.table
+                    (customTable) => customTable.table
                 );
                 return database;
             }
@@ -94,8 +94,8 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     }
 
     validateDatasetName(): void {
-        this.datasetNameIsValid = this.data.datasetName !== "";
-        this.datasetService.getDatasets().forEach(dataset => {
+        this.datasetNameIsValid = this.data.datasetName !== '';
+        this.datasetService.getDatasets().forEach((dataset) => {
             this.datasetNameIsValid =
                 this.datasetNameIsValid &&
                 dataset.name !== this.data.datasetName;
@@ -122,8 +122,8 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
         this.data.allDatabases = [];
 
         connection.getDatabaseNames(
-            databaseNames => {
-                databaseNames.forEach(databaseName => {
+            (databaseNames) => {
+                databaseNames.forEach((databaseName) => {
                     this.data.allDatabases.push(
                         new DatabaseMetaData(databaseName, databaseName, [])
                     );
@@ -145,7 +145,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
         let database = this.data.allDatabases[index];
         connection.getTableNamesAndFieldNames(
             database.name,
-            tableNamesAndFieldNames => {
+            (tableNamesAndFieldNames) => {
                 let tableNames = Object.keys(tableNamesAndFieldNames);
                 let tablesDone = 0;
                 if (
@@ -154,9 +154,9 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
                 ) {
                     this.tableDone(tablesDone, tableNames, connection, index);
                 }
-                tableNames.forEach(tableName => {
+                tableNames.forEach((tableName) => {
                     let table = new TableMetaData(tableName, tableName, []);
-                    tableNamesAndFieldNames[tableName].forEach(fieldName => {
+                    tableNamesAndFieldNames[tableName].forEach((fieldName) => {
                         table.fields.push(
                             new FieldMetaData(fieldName, fieldName)
                         );
@@ -165,7 +165,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
                     connection.getFieldTypes(
                         database.name,
                         table.name,
-                        types => {
+                        (types) => {
                             for (let f of table.fields) {
                                 if (types && types[f.columnName]) {
                                     f.type = types[f.columnName];
@@ -215,12 +215,12 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
 
     addNewCustomDatabase() {
         let customDatabase = this.customDatabases.find(
-            database =>
+            (database) =>
                 database.database.name === this.selectedDatabase.database.name
         );
         if (customDatabase) {
             let customTable = customDatabase.customTables.find(
-                table =>
+                (table) =>
                     table.table.name ===
                     this.selectedDatabase.selectedTable.table.name
             );
