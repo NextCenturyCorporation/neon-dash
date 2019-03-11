@@ -18,7 +18,6 @@ import { FormsModule } from '@angular/forms';
 import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
 import * as neon from 'neon-framework';
 import { NetworkGraphComponent } from './network-graph.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { DatasetService } from '../../services/dataset.service';
 import { FieldMetaData } from '../../dataset';
 import { FilterService } from '../../services/filter.service';
@@ -46,7 +45,6 @@ describe('Component: NetworkGraph', () => {
         declarations: [
             LegendComponent,
             NetworkGraphComponent,
-            ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [

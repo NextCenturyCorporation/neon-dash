@@ -26,7 +26,6 @@ import {
 
 import { MapComponent } from './map.component';
 import { LegendComponent } from '../legend/legend.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -238,8 +237,7 @@ describe('Component: Map', () => {
     initializeTestBed('Map', {
         declarations: [
             TestMapComponent,
-            LegendComponent,
-            ExportControlComponent
+            LegendComponent
         ],
         providers: [
             DatasetService,
@@ -887,8 +885,7 @@ describe('Component: Map with config', () => {
     initializeTestBed('Map', {
         declarations: [
             TestMapComponent,
-            LegendComponent,
-            ExportControlComponent
+            LegendComponent
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },

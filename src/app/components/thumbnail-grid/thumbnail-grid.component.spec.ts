@@ -25,7 +25,6 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import {} from 'jasmine-core';
 import * as neon from 'neon-framework';
 
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
@@ -78,7 +77,6 @@ describe('Component: ThumbnailGrid', () => {
             TitleThumbnailSubComponent,
             DetailsThumbnailSubComponent,
             ThumbnailGridComponent,
-            ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [
@@ -1485,7 +1483,6 @@ describe('Component: ThumbnailGrid with config', () => {
             TitleThumbnailSubComponent,
             DetailsThumbnailSubComponent,
             ThumbnailGridComponent,
-            ExportControlComponent,
             UnsharedFilterComponent
         ],
 

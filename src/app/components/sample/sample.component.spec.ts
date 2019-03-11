@@ -24,7 +24,6 @@ import { SampleComponent } from './sample.component';
 import { AbstractSubcomponent, SubcomponentListener } from './subcomponent.abstract';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
@@ -128,7 +127,6 @@ describe('Component: Sample', () => {
     initializeTestBed('Sample', {
         declarations: [
             TestSampleComponent,
-            ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [
@@ -966,71 +964,11 @@ describe('Component: Sample', () => {
         expect(header.nativeElement.textContent).toContain('Sample');
     });
 
-    it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', () => {
-        (component as any).layerIdToElementCount.set(component.options._id, 10);
-
-        // Force the component to update all its ngFor and ngIf elements.
-        component.changeDetection.detectChanges();
-
-        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
-        expect(dataInfoTextInToolbar).not.toBeNull();
-        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Results');
-
-        let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
-        expect(dataInfoTextInSidenav).not.toBeNull();
-        expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('10 Results');
-
-        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
-        expect(errorMessageInToolbar).toBeNull();
-    });
-
-    it('does show error-message in toolbar and sidenav if errorMessage is defined', () => {
-        (component as any).errorMessage = 'Test Error Message';
-
-        // Force the component to update all its ngFor and ngIf elements.
-        component.changeDetection.detectChanges();
-
-        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
-        expect(dataInfoTextInToolbar).toBeNull();
-
-        let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
-        expect(dataInfoIconInSidenav).toBeNull();
-
-        let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
-        expect(dataInfoTextInSidenav).toBeNull();
-
-        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
-        expect(errorMessageInToolbar).not.toBeNull();
-        expect(errorMessageInToolbar.nativeElement.textContent).toContain('Test Error Message');
-
-        let errorIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
-        expect(errorIconInSidenav).not.toBeNull();
-        expect(errorIconInSidenav.nativeElement.textContent).toEqual('error');
-
-        let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
-        expect(errorMessageInSidenav).not.toBeNull();
-        expect(errorMessageInSidenav.nativeElement.textContent).toContain('Test Error Message');
-    });
-
     it('does show settings icon button in toolbar', () => {
         let button = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button'));
 
         let icon = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button mat-icon'));
         expect(icon.nativeElement.textContent).toEqual('settings');
-    });
-
-    it('does show sidenav options menu', () => {
-        let menu = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav mat-card'));
-        expect(menu).not.toBeNull();
-
-        let content = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content'));
-        expect(content).not.toBeNull();
-    });
-
-    it('does show export control in sidenav options menu', () => {
-        let exportControl = fixture.debugElement.query(By.css(
-            'mat-sidenav-container mat-sidenav mat-card mat-card-content app-export-control'));
-        expect(exportControl).not.toBeNull();
     });
 
     it('does hide loading overlay by default', () => {
@@ -1152,7 +1090,6 @@ describe('Component: Sample with config', () => {
     initializeTestBed('Sample', {
         declarations: [
             TestSampleComponent,
-            ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [

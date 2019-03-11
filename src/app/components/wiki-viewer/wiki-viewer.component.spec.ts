@@ -27,7 +27,6 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import {} from 'jasmine-core';
 import * as neon from 'neon-framework';
 
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { WikiViewerComponent } from './wiki-viewer.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
@@ -45,8 +44,7 @@ describe('Component: WikiViewer', () => {
 
     initializeTestBed('Wiki Viewer', {
         declarations: [
-            WikiViewerComponent,
-            ExportControlComponent
+            WikiViewerComponent
         ],
         providers: [
             DatasetService,
@@ -205,8 +203,7 @@ describe('Component: WikiViewer with mock HTTP', () => {
 
     initializeTestBed('Wiki Viewer', {
         declarations: [
-            WikiViewerComponent,
-            ExportControlComponent
+            WikiViewerComponent
         ],
         providers: [
             DatasetService,
@@ -378,8 +375,7 @@ describe('Component: WikiViewer with config', () => {
 
     initializeTestBed('Wiki Viewer', {
         declarations: [
-            WikiViewerComponent,
-            ExportControlComponent
+            WikiViewerComponent
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },

@@ -24,7 +24,6 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import * as neon from 'neon-framework';
 
 import { DocumentViewerComponent } from './document-viewer.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -43,8 +42,7 @@ describe('Component: DocumentViewer', () => {
 
     initializeTestBed('Document Viewer', {
         declarations: [
-            DocumentViewerComponent,
-            ExportControlComponent
+            DocumentViewerComponent
         ],
         providers: [
             DatasetService,
@@ -915,8 +913,7 @@ describe('Component: Document Viewer with Config', () => {
 
     initializeTestBed('Document Viewer', {
         declarations: [
-            DocumentViewerComponent,
-            ExportControlComponent
+            DocumentViewerComponent
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
