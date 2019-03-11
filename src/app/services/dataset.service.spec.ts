@@ -14,10 +14,11 @@
  *
  */
 import { TestBed, inject } from '@angular/core/testing';
-import { Datastore } from '../dataset';
+import { Dashboard, DashboardOptions, Datastore } from '../dataset';
 import { DatasetService } from './dataset.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
+import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
 
 describe('Service: DatasetService', () => {
     let testConfig = new NeonGTDConfig();
@@ -29,13 +30,12 @@ describe('Service: DatasetService', () => {
         ]
     });
 
-    it('should be injectable', inject([DatasetService], (service: DatasetService) => {
-        expect(service).toBeTruthy();
+    it('should have no active datastores at creation', inject([DatasetService], (service: DatasetService) => {
+        expect(service.getDataset()).toEqual(new Datastore());
     }));
 
-    it('should have no active datastores at creation',
-        inject([DatasetService], (service: DatasetService) => {
-        expect(service.getDataset()).toEqual(new Datastore());
+    it('should have no active dashboards at creation', inject([DatasetService], (service: DatasetService) => {
+        expect(service.getCurrentDashboard()).not.toBeDefined();
     }));
 
     it('should return datastores by name',
@@ -49,5 +49,24 @@ describe('Service: DatasetService', () => {
             name: 'd1',
             databases: []
         });
+    }));
+
+    it('getCurrentDatabase does return expected object', inject([DatasetService], (service: DatasetService) => {
+        expect(service.getCurrentDatabase()).not.toBeDefined();
+    }));
+});
+
+describe('Service: mock DatasetService with mock data', () => {
+    let testConfig = new NeonGTDConfig();
+
+    initializeTestBed({
+        providers: [
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: 'config', useValue: testConfig }
+        ]
+    });
+
+    it('getCurrentDatabase does return expected object', inject([DatasetService], (service: DatasetService) => {
+        expect(service.getCurrentDatabase()).toEqual(DatasetServiceMock.DATABASES[0]);
     }));
 });
