@@ -334,11 +334,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     /**
-     * Creates and returns the neon filter object using the given bounding box, latitude field, and longitude field.
+     * Creates and returns the neon filter clause object using the given arguments
      *
-     * @arg {BoundingBoxByDegrees} boundingBox
-     * @arg {string} latitudeField
-     * @arg {string} longitudeField
+     * @arg {string} idField
+     * @arg {array} idValues
      * @return {neon.query.WherePredicate}
      */
     createNeonFieldFilter(idField: string, idValues: string[]): neon.query.WherePredicate {
