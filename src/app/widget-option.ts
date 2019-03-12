@@ -242,9 +242,7 @@ export class WidgetOptionCollection {
     public database: DatabaseMetaData = null;
     public databases: DatabaseMetaData[] = [];
     public fields: FieldMetaData[] = [];
-    public isMultiLayerWidget: boolean = false;
     public layers: WidgetOptionCollection[] = [];
-    public layeredWidget: boolean = false;
     public table: TableMetaData = null;
     public tables: TableMetaData[] = [];
 
@@ -303,9 +301,7 @@ export class WidgetOptionCollection {
         copy.database = this.database;
         copy.databases = this.databases;
         copy.fields = this.fields;
-        copy.isMultiLayerWidget = this.isMultiLayerWidget;
         copy.layers = this.layers.map((layer) => layer.copy());
-        copy.layeredWidget = this.layeredWidget;
         copy.table = this.table;
         copy.tables = this.tables;
         this.list().forEach((option: WidgetOption) => {
