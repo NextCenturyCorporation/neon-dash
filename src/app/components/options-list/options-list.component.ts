@@ -41,6 +41,15 @@ export class OptionsListComponent {
     }
 
     /**
+     * Creates and returns a new empty field object.
+     *
+     * @return {FieldMetaData}
+     */
+    public createEmptyField(): FieldMetaData {
+        return new FieldMetaData();
+    }
+
+    /**
      * Returns the WidgetOption at the given binding key.
      *
      * @arg {string} bindingKey
