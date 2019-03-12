@@ -38,6 +38,7 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
+import { neonEvents } from '../../../app/neon-namespaces';
 
 @Component({
     selector: 'app-filter-builder',
@@ -77,6 +78,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             injector,
             ref
         );
+
+        this.messenger.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearFilterBuilder.bind(this));
     }
 
     /**
@@ -84,8 +87,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     addBlankFilterClause() {
         let clause: FilterClauseMetaData = this.updateDatabasesInOptions(new FilterClauseMetaData());
-        clause.database = this.options.database;
-        clause.table = this.options.table;
         clause.field = this.createEmptyField();
         clause.operator = this.operators[0];
         clause.value = '';
@@ -139,6 +140,13 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                 onError.bind(this)
             );
         }
+    }
+
+    clearFilterBuilder() {
+        this.clauses.forEach((clause) => {
+            this.removeClause(clause);
+        });
+        this.changeDetection.detectChanges();
     }
 
     createClauseBindings(): any[] {
