@@ -130,7 +130,7 @@ datastores:
                                 terrorism: Terrorism
                                 regimechange: Regime Change
             elisa_macedonia:
-                prettyName: VONDO 2018
+                prettyName: VODNO 2018
                 tables:
                     ui_output:
                         prettyName: UI Output
@@ -364,12 +364,12 @@ dashboards:
                                     tableKey: table_key_1
                                     fieldKey: translated_text_key
                                     placeHolder: Search
-                vondo:
+                vodno:
                     name: 'Macedonia'
                     category: 'Select a datastore...'
                     choices:
                       elisa_macedonia:
-                          name: VONDO 2018
+                          name: VODNO 2018
                           layout: elisa_macedonia
                           tables:
                               table_key_1: es1.elisa_macedonia.ui_output
@@ -638,7 +638,7 @@ layouts:
                   - - date_field_key
                     - 30
                   - - original_text_key
-                    - 270
+                    - 370
               filterable: false
               singleFilter: true
               ignoreSelf: false
@@ -693,9 +693,9 @@ layouts:
               title: Situation Needs
               type: bar-h
               tableKey: table_key_2
-              xField: text_cloud_data_key
+              xField: group_field_key2
               limit: 11
-              groupField: text_cloud_data_key
+              groupField: group_field_key2
               sortByAggregation: true
               ignoreSelf: true
         - name: Annotation Viewer
@@ -739,12 +739,9 @@ layouts:
               limit: 100
               allColumnStatus: hide
               exceptionsToStatus:
-                  - id_field_key4
                   - group_field_key2
                   - text_cloud_data_key
               customColumnWidths:
-                  - - id_field_key4
-                      30
                   - - group_field_key2
                     - 70
                   - - text_cloud_data_key
@@ -850,7 +847,7 @@ layouts:
               type: bar-v
               tableKey: table_key_1
               xField: cluster_field_key
-              limit: 10
+              limit: 100
               groupField: group_field_key
               sortByAggregation: true
         - name: Annotation Viewer
