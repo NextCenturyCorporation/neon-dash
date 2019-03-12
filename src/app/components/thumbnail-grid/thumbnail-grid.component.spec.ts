@@ -754,6 +754,166 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy3.calls.count()).toEqual(1);
     });
 
+    it('manageFieldFilters does not get called if filterField equals idField', () => {
+        let spy1 = spyOn(component, 'manageFieldFilters');
+        let filterField = new FieldMetaData('testIdField', 'Test ID Field');
+        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
+
+        component.createFilter('test text', filterField, []);
+
+        expect(spy1.calls.count()).toEqual(0);
+    });
+
+    it('manageFieldFilters gets called if filterField does not equal idField', () => {
+        let spy1 = spyOn(component, 'manageFieldFilters');
+        let filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
+
+        component.createFilter('test text', filterField, []);
+
+        expect(spy1.calls.count()).toEqual(1);
+    });
+
+    it('manageFieldFilters with no existing filters does add a new filter', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+
+        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.idField = new FieldMetaData('testIDField', 'Test ID Field');
+        component.options.ignoreSelf = false;
+
+        let filter = {
+            id: undefined,
+            field: 'testFilterField',
+            prettyField: 'Test Filter Field',
+            value: 'test text'
+        };
+        component.manageFieldFilters(filter, [], !component.options.ignoreSelf);
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {
+            id: undefined,
+            field: 'testFilterField',
+            prettyField: 'Test Filter Field',
+            value: 'test text'
+        }, neon.query.or.apply(neon.query, [
+           neon.query.where('testFilterField', '=', 'test text')
+        ])]);
+
+        expect(spy2.calls.count()).toEqual(0);
+    });
+
+    it('createFilter with ignoreSelf=true and no existing filters does not query', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+
+        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.idField = new FieldMetaData('testIDField', 'Test ID Field');
+        component.options.ignoreSelf = true;
+
+        let filter = {
+            id: undefined,
+            field: 'testFilterField',
+            prettyField: 'Test Filter Field',
+            value: 'test text'
+        };
+        component.manageFieldFilters(filter, [], !component.options.ignoreSelf);
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([component.options, false, {
+            id: undefined,
+            field: 'testFilterField',
+            prettyField: 'Test Filter Field',
+            value: 'test text'
+        }, neon.query.or.apply(neon.query, [
+            neon.query.where('testFilterField', '=', 'test text')
+        ])]);
+        expect(spy2.calls.count()).toEqual(0);
+    });
+
+    it('createFilter with one existing filter does replace an existing filter', () => {
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testFilterField', '!=', null), 'testFilterName1');
+
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let fields = ['testFilterField'];
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
+        component.options.ignoreSelf = false;
+
+        let neonFilters = getService(FilterService).getFiltersForFields(component.options.database.name, component.options.table.name,
+            fields);
+
+        let filter = {
+            id: 'idA',
+            field: 'testFilterField',
+            prettyField: 'Test Filter Field',
+            value: 'test text'
+        };
+
+        component.manageFieldFilters(filter, neonFilters, !component.options.ignoreSelf);
+
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([component.options, true, {
+            id: 'idA',
+            field: 'testFilterField',
+            prettyField: 'Test Filter Field',
+            value: 'test text'
+        }, neon.query.or.apply(neon.query, [
+            neon.query.where('testFilterField', '=', 'test text')
+        ])]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((f) => {
+            return f.id;
+        }));
+    });
+
+    it('createFilter with ignoreSelf=true and one existing filter does not query', () => {
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testFilterField', '!=', null), 'testFilterName1');
+
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let fields = ['testFilterField'];
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
+        component.options.ignoreSelf = true;
+
+        let neonFilters = getService(FilterService).getFiltersForFields(component.options.database.name, component.options.table.name,
+            fields);
+
+        let filter = {
+            id: undefined,
+            field: 'testFilterField',
+            prettyField: 'Test Filter Field',
+            value: 'test text'
+        };
+        component.manageFieldFilters(filter, neonFilters, !component.options.ignoreSelf);
+
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([component.options, false, {
+            id: undefined,
+            field: 'testFilterField',
+            prettyField: 'Test Filter Field',
+            value: 'test text'
+        },  neon.query.or.apply(neon.query, [
+            neon.query.where('testFilterField', '=', 'test text')
+        ])]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((f) => {
+            return f.id;
+        }));
+    });
+
     it('finalizeVisualizationQuery does return expected query', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
@@ -935,7 +1095,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.filterFields = [new FieldMetaData('testFilterField', 'Test Filter Field')];
         component.options.ignoreSelf = false;
 
         expect(component.getFiltersToIgnore()).toEqual(null);
@@ -952,7 +1112,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.filterFields = [new FieldMetaData('testFilterField', 'Test Filter Field')];
         component.options.ignoreSelf = true;
 
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
@@ -972,7 +1132,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.filterFields = [new FieldMetaData('testFilterField', 'Test Filter Field')];
         component.options.ignoreSelf = true;
 
         expect(component.getFiltersToIgnore()).toEqual(null);
@@ -989,14 +1149,14 @@ describe('Component: ThumbnailGrid', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = new FieldMetaData('testField', 'Test Field');
+        component.options.filterFields = [new FieldMetaData('testField', 'Test Field')];
         component.options.ignoreSelf = true;
 
         // Test matching database/table but not field.
         expect(component.getFiltersToIgnore()).toEqual(null);
 
         component.options.database = DatasetServiceMock.DATABASES[1];
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.filterFields = [new FieldMetaData('testFilterField', 'Test Filter Field')];
 
         // Test matching database/field but not table.
         expect(component.getFiltersToIgnore()).toEqual(null);
@@ -1006,7 +1166,6 @@ describe('Component: ThumbnailGrid', () => {
 
         // Test matching table/field but not database.
         expect(component.getFiltersToIgnore()).toEqual(null);
-
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
         }));
@@ -1150,10 +1309,6 @@ describe('Component: ThumbnailGrid', () => {
         component.options.openOnMouseClick = false;
         expect(component.isSelectable()).toEqual(false);
 
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        expect(component.isSelectable()).toEqual(true);
-        component.options.filterField = new FieldMetaData();
-
         component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
         expect(component.isSelectable()).toEqual(true);
         component.options.idField = new FieldMetaData();
@@ -1166,30 +1321,30 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.isSelected({})).toEqual(false);
 
         expect(component.isSelected({
-            testFilterField: 'testFilterValue'
+            testIdField: 'testIdValue'
         })).toEqual(false);
 
         component.filters = [{
             id: undefined,
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'testFilterValue'
+            field: 'testIdField',
+            prettyField: 'Test ID Field',
+            value: 'testIdValue'
         }];
 
         expect(component.isSelected({
-            testFilterField: 'testFilterValue'
+            testIdField: 'testIdValue'
         })).toEqual(false);
 
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
 
         expect(component.isSelected({
-            testFilterField: 'testFilterValue'
+            testIdField: 'testIdValue'
         })).toEqual(true);
 
         component.filters = [];
 
         expect(component.isSelected({
-            testFilterField: 'testFilterValue'
+            testIdField: 'testIdValue'
         })).toEqual(false);
     });
 
@@ -1212,7 +1367,7 @@ describe('Component: ThumbnailGrid', () => {
     it('transformVisualizationQueryResults with aggregation query data does return expected data', () => {
         component.options.categoryField = new FieldMetaData('testCategoryField', 'Test Category Field');
         component.options.compareField = new FieldMetaData('testCompareField', 'Test Compare Field');
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.filterFields = [new FieldMetaData('testFilterField', 'Test Filter Field')];
         component.options.idField = new FieldMetaData('_id', 'Test ID Field');
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
@@ -1395,21 +1550,22 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy.calls.argsFor(0)).toEqual(['id1']);
     });
 
-    it('selectGridItem does call createFilter if filterField is set', () => {
+    it('selectGridItem does call createFilter if filterFields is set', () => {
         let spy = spyOn(component, 'createFilter');
 
         component.selectGridItem({
             testFilterField: 'filter1'
         });
+
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.filterFields = [new FieldMetaData('testFilterField', 'Test Filter Field')];
 
         component.selectGridItem({
             testFilterField: 'filter1'
         });
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['filter1']);
+        expect(spy.calls.argsFor(0)).toEqual(['filter1', component.options.filterFields[0], []]);
     });
 
     it('isValideMediaType does return true if a MediaType is valid', () => {
@@ -1428,7 +1584,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
 
         component.setupFilters();
         expect(component.filters).toEqual([]);
@@ -1441,7 +1597,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
 
         component.setupFilters();
         expect(component.filters).toEqual([{
@@ -1497,7 +1653,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
 
         component.setupFilters();
         expect(component.filters).toEqual([{
@@ -1519,7 +1675,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
         component.filters = [{
             id: 'idA',
             field: 'testFilterField',

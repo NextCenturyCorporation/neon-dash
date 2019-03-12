@@ -198,7 +198,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @arg {boolean} runQuery
      */
     manageFieldFilters(filter, neonFilters, runQuery) {
-        let filterClause = this.createClause(filter.field, filter.value);
+        let value = Array.isArray(filter.value) ? filter.value : [filter.value];
+        let filterClause = this.createClause(filter.field, value);
+
         if (neonFilters && neonFilters.length) {
             this.replaceNeonFilter(this.options, runQuery, filter, filterClause);
         } else {
@@ -363,8 +365,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             return null;
         }
 
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
-            this.options.table.name, this.options.filterFields.map((fieldsObject) => fieldsObject.columnName));
+        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
+            this.options.filterFields.length ? this.options.filterFields.map((fieldsObject) => fieldsObject.columnName) : undefined);
 
         let ignoredFilterIds = neonFilters.filter((neonFilter) => {
             return !neonFilter.filter.whereClause.whereClauses;
@@ -564,8 +566,13 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @return {boolean}
      */
     isSelected(item) {
-        return (!!this.options.id.columnName &&
-            this.filterExists(this.options.id.columnName, item[this.options.id.columnName]));
+        if (!item) {
+            return;
+        }
+
+        return (!!this.options.idField.columnName &&
+            this.filterExists(this.options.idField.columnName, item[this.options.idField.columnName]));
+
     }
 
     /**
@@ -887,8 +894,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     setupFilters() {
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
-            this.options.table.name, this.options.filterFields.map((fieldsObject) => fieldsObject.columnName));
+        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
+            this.options.filterFields.length ? this.options.filterFields.map((fieldsObject) => fieldsObject.columnName) : []);
+
         this.filters = [];
 
         for (let neonFilter of neonFilters) {
