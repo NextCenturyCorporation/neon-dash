@@ -1022,7 +1022,7 @@
                     "openOnMouseClick": true,
                     "hideUnfiltered": true,
                     "sortField": "docDate",
-                    "filterField": "kbid",
+                    "filterFields": ["kbid", "docIds"],
                     "ascending": false,
                     "canvasSize": 180.00,
                     "viewType": "card",
