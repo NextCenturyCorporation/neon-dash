@@ -41,6 +41,7 @@ import {
     MapPoint,
     MapType,
     MapTypePairs,
+    Region,
     whiteString
 } from './map.type.abstract';
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
@@ -222,12 +223,19 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         this.filterBoundingBox = box;
 
         let fieldsByLayer = this.options.layers.map((layer) => {
-            return {
-                latitude: layer.latitudeField.columnName,
-                longitude: layer.longitudeField.columnName,
-                prettyLatitude: layer.latitudeField.prettyName,
-                prettyLongitude: layer.longitudeField.prettyName
-            };
+            if (!layer.showRegions) {
+                return {
+                    latitude: layer.latitudeField.columnName,
+                    longitude: layer.longitudeField.columnName,
+                    prettyLatitude: layer.latitudeField.prettyName,
+                    prettyLongitude: layer.longitudeField.prettyName
+                };
+            } else {
+                return {
+                    geoname: layer.geonameField.columnName,
+                    geojsonlocation: layer.geojsonlocationField.columnName
+                };
+            }
         });
         let localLayerName = this.getFilterTextByFields(box, fieldsByLayer);
         let localFilters = this.createFilter(fieldsByLayer, localLayerName);
@@ -235,7 +243,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         for (let i = 0; i < localFilters.fieldsByLayer.length; i++) {
             let neonFilters = this.filterService.getFiltersByOwner(this.id);
             let neonFilter = this.createNeonBoxFilter(this.filterBoundingBox, localFilters.fieldsByLayer[i].latitude,
-                localFilters.fieldsByLayer[i].longitude);
+                localFilters.fieldsByLayer[i].longitude,
+                localFilters.fieldsByLayer[i].geojsonlocation,
+                this.options.layers[i].showRegions);
 
             if (neonFilters && neonFilters.length) {
                 this.filterHistory.push(neonFilters[0]);
@@ -306,14 +316,41 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @arg {string} longitudeField
      * @return {neon.query.WherePredicate}
      */
-    createNeonBoxFilter(boundingBox: BoundingBoxByDegrees, latitudeField: string, longitudeField: string): neon.query.WherePredicate {
-        let filterClauses = [
-            neon.query.where(latitudeField, '>=', boundingBox.south),
-            neon.query.where(latitudeField, '<=', boundingBox.north),
-            neon.query.where(longitudeField, '>=', boundingBox.west),
-            neon.query.where(longitudeField, '<=', boundingBox.east)
-        ];
-        return neon.query.and.apply(neon.query, filterClauses);
+    createNeonBoxFilter(boundingBox: BoundingBoxByDegrees, latitudeField: string, longitudeField: string,  regions: boolean): neon.query.WherePredicate {
+               let filterClauses = [];
+        // Neon Filter based on the bounding box
+        if (!regions) {
+            // Point based
+            filterClauses.push(neon.query.where(latitudeField, '>=', boundingBox.south));
+            filterClauses.push(neon.query.where(latitudeField, '<=', boundingBox.north));
+            filterClauses.push(neon.query.where(longitudeField, '>=', boundingBox.west));
+            filterClauses.push(neon.query.where(longitudeField, '<=', boundingBox.east));
+            return neon.query.and.apply(neon.query, filterClauses);
+        } else {
+            // Region based
+            // Create the points in a rectangle to represent the bounding box NW , NE , SE , SW
+
+            let points: neon.util.LatLon[][] = [];
+            // RightHand Rule for Geojson
+            // [0] = NW, [1] = NE, [2] = SE, [3] = SW
+            points.push([new neon.util.LatLon(boundingBox.north, boundingBox.west)]);
+            points.push([new neon.util.LatLon(boundingBox.north, boundingBox.east)]);
+            points.push([new neon.util.LatLon(boundingBox.south, boundingBox.east)]);
+            points.push([new neon.util.LatLon(boundingBox.south, boundingBox.west)]);
+            // Create an geointersection/geowithin clause
+            // TODO wierd interaction with neon intersectionClause
+            // let intersection = new neon.query.intersectionClause(
+            //     geolocation,
+            //     points as any,
+            //     'Polygon' as any,
+            //     'blank');
+            let intersection = new neon.query.withinClause(
+                geolocation,
+                points as any
+            );
+            filterClauses.push(intersection);
+            return neon.query.or.apply(neon.query, filterClauses);
+        }
     }
 
     createNeonPointFilter(lat: number, lon: number, latitudeField: string, longitudeField: string): neon.query.WherePredicate {
@@ -388,7 +425,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @override
      */
     validateVisualizationQuery(options: any): boolean {
+     if (!options.layers[layerIndex].showRegions) {
         return !!(options.database.name && options.table.name && options.latitudeField.columnName && options.longitudeField.columnName);
+        }
+         return !!(options.database.name && options.table.name && options.geojsonlocationField.columnName);
     }
 
     /**
@@ -402,8 +442,13 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      */
     finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
         let filters: NeonFilterClause[] = [
+        if (!options.showRegions) {
             this.searchService.buildFilterClause(options.latitudeField.columnName, '!=', null),
             this.searchService.buildFilterClause(options.longitudeField.columnName, '!=', null)
+            } else {
+            this.searchService.buildFilterClause(options.geojsonlocationField.columnName, '!=', null),
+            this.searchService.buildFilterClause(options.geonameField.columnName, '!=', null)
+            }
         ];
 
         this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filters)));

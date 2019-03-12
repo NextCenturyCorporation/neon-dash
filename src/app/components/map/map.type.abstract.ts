@@ -49,6 +49,25 @@ export class MapPoint {
     ) {}
 }
 
+
+export class Region {
+    constructor(
+        public name: string,
+        public geojson: GeoObject,
+        public count: number,
+        public cssColorString: string,
+        public description: string,
+        public colorByField: string,
+        public colorByValue: string
+    ) {}
+}
+
+export interface GeoObject {
+    type: any;
+    coordinates: any[];
+}
+
+
 export interface FilterListener {
     filterByLocation(box: BoundingBoxByDegrees);
     filterByMapPoint(lat: number, lng: number);
@@ -78,6 +97,7 @@ export abstract class AbstractMap {
 
     // Drawing
     abstract addPoints(points: MapPoint[], layer?: any, cluster?: boolean);
+    abstract addRegions(regions: Region[], layer?: any);
     abstract clearLayer(layer: any);
 
     sizeChanged() {

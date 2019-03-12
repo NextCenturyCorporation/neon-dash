@@ -17,6 +17,7 @@ import { AbstractMap, BoundingBoxByDegrees, MapPoint, whiteString } from './map.
 import { ElementRef } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
+import { GeoJsonObject, GeometryObject } from 'geojson';
 
 export class LeafletNeonMap extends AbstractMap {
     private leafletOptions: L.MapOptions = {
@@ -141,6 +142,97 @@ export class LeafletNeonMap extends AbstractMap {
             }
 
             layerGroup.addLayer(circle);
+        }
+    }
+    
+    
+    addRegions(regions: Region[], layer?: any) {
+        for (let region of regions) {
+            this.addRegion(region, layer);
+        }
+    }
+
+    addRegion(r: Region, layer?: any) {
+
+        r.geojson.type = this.EStoGeojson(r.geojson.type);
+        if (r.geojson.type === 'Point') {
+            if (layer) {
+                let layergroup = this.getGroup(layer);
+                layergroup.addLayer(L.geoJSON(r.geojson, {
+                    pointToLayer: function(feature, latlng) {
+                    return L.circleMarker(latlng, {
+                        color:  !(r.cssColorString === undefined)  ?  r.cssColorString : '#54c8cd',
+                                weight: 5,
+                                radius:  !(r.count === undefined) ? Math.max(Math.floor(6 * Math.pow(r.count, .5)), 15) : 5
+                            });
+                }
+            }));
+            } else {
+                L.geoJSON(r.geojson, {
+                    pointToLayer: function(feature, latlng) {
+                    return L.circleMarker(latlng, {
+                           color:  !(r.cssColorString === undefined)  ?  r.cssColorString : '#54c8cd',
+                                   weight: 5,
+                                   radius:  !(r.count === undefined) ? Math.max(Math.floor(6 * Math.pow(r.count, .5)), 15) : 5
+                            });
+                }
+            }).addTo(this.map);
+            }
+        } else {
+
+        let georegion = L.geoJSON(r.geojson, {
+            style: (feature) => {
+                return {
+                    color:  !(r.cssColorString === undefined)   ?  r.cssColorString : '#54c8cd'
+                };
+            }
+        });
+
+        if (layer) {
+            let layergroup = this.getGroup(layer);
+            layergroup.addLayer(georegion);
+        } else {
+            georegion.addTo(this.map);
+        }
+        }
+    }
+
+    EStoGeojson(type: string) {
+        switch (type) {
+            case 'point':
+            case 'Point':
+            {
+                return 'Point';
+            }
+            case 'multipoint':
+            case 'MultiPoint':
+            {
+                return 'MultiPoint';
+            }
+            case 'linestring':
+            case 'LineString':
+            {
+                return 'LineString';
+            }
+            case 'polygon':
+            case 'Polygon':
+            {
+                return 'Polygon';
+            }
+            case 'multipolygon':
+            case 'MultiPolygon':
+            {
+                return 'MultiPolygon';
+            }
+            case 'geometrycollection':
+            case 'GeometryCollection':
+            {
+                return 'GeometryCollection';
+            }
+            default: {
+                // ('Invalid Elasticsearch Conversion to GEOjson');
+                return null;
+            }
         }
     }
 
