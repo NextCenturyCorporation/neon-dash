@@ -527,6 +527,28 @@ export class DatasetService {
     }
 
     /**
+     * Returns the database with the given Dashboard name or an Object with an empty name if no such database exists in the dataset.
+     * @param {String} The dashboard name
+     * @return {Object} The database containing {String} name, {Array} fields, and {Object} mappings if a match exists
+     * or undefined otherwise.
+     * Dashboard name only includes part of the database pretty name
+     */
+    public getCurrentDatabase(): DatabaseMetaData {
+        if (!this.getCurrentDashboard()) {
+            return undefined;
+        }
+        let tableKeys = this.getCurrentDashboard().tables;
+
+        let keyArray = Object.keys(tableKeys);
+
+        if (keyArray.length) {
+            let databaseName = this.getDatabaseNameFromCurrentDashboardByKey(keyArray[0]);
+            return this.getDatabaseWithName(databaseName);
+        }
+        return undefined;
+    }
+
+    /**
      * Returns the tables for the database with the given name in the active dataset.
      * @param {String} The database name
      * @return {Array} An array of table Objects containing {String} name, {Array} fields, and {Array} mappings.
