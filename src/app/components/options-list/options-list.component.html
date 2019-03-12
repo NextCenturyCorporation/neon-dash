@@ -11,7 +11,9 @@
     <!-- Field Option Type-->
     <mat-form-field class="option-container" *ngIf="getOption(bindingKey).optionType == 'FIELD'">
         <mat-select placeholder={{getOption(bindingKey).prettyName}} [(ngModel)]="options[bindingKey]"
+            required="getOption(bindingKey).isRequired"
             [name]="options._id + '_' + bindingKey" (ngModelChange)="updateOnChange(bindingKey)">
+            <mat-option *ngIf="!getOption(bindingKey).isRequired" [value]="createEmptyField()">(None)</mat-option>
             <mat-option *ngFor="let field of fields" [value]="field">{{ field.prettyName }}</mat-option>
         </mat-select>
     </mat-form-field>
