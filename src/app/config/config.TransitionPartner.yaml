@@ -365,7 +365,7 @@ dashboards:
                                     fieldKey: translated_text_key
                                     placeHolder: Search
                 vodno:
-                    name: 'Macedonia'
+                    name: 'SIMPOST'
                     category: 'Select a datastore...'
                     choices:
                       elisa_macedonia:
@@ -380,6 +380,7 @@ dashboards:
                               id_field_key: es1.elisa_macedonia.ui_output._id
                               group_field_key: es1.elisa_macedonia.ui_output.type
                               cluster_field_key: es1.elisa_macedonia.ui_output.cluster
+                              cluster_name_field_key: es1.elisa_macedonia.ui_output.clusterName
                               latitude_key: es1.elisa_macedonia.ui_output.geoLocation.lat
                               longitude_key: es1.elisa_macedonia.ui_output.geoLocation.lon
                               text_cloud_data_key: es1.elisa_macedonia.ui_output.LOC
@@ -844,9 +845,9 @@ layouts:
           sizey: 5
           bindings:
               title: Situation Clusters
-              type: bar-v
+              type: bar-h
               tableKey: table_key_1
-              xField: cluster_field_key
+              xField: cluster_name_field_key
               limit: 100
               groupField: group_field_key
               sortByAggregation: true
