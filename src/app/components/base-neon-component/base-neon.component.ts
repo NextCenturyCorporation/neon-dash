@@ -1073,11 +1073,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             changeFilterData: this.handleChangeFilterField.bind(this),
             createLayer: this.createLayer.bind(this),
             deleteLayer: this.deleteLayer.bind(this),
+            exportData: this.createExportData.bind(this),
             finalizeCreateLayer: this.finalizeCreateLayer.bind(this),
             finalizeDeleteLayer: this.finalizeDeleteLayer.bind(this),
             handleChangeSubcomponentType: this.handleChangeSubcomponentType.bind(this),
-            options: this.options,
-            componentThis: this
+            options: this.options
         });
     }
 
