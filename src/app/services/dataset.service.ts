@@ -1159,4 +1159,22 @@ export class DatasetService {
             return DatasetService.getFieldNameByKey(currentConfig, key);
         }
     }
+
+    /**
+     * If field key is referenced in config file, find field value using current dashboard.
+     *
+     * @arg {string} fieldKey
+     * @return {string}
+     */
+    public translateFieldKeyToValue(fieldKey: string): string {
+        let currentDashboard = this.getCurrentDashboard();
+
+        // If the field key does exist in the dashboard...
+        if (fieldKey && currentDashboard && currentDashboard.fields && currentDashboard.fields[fieldKey]) {
+            return this.getFieldNameFromCurrentDashboardByKey(fieldKey);
+        }
+
+        // If the field key is just a field name or does not exist in the dashboard...
+        return fieldKey;
+    }
 }

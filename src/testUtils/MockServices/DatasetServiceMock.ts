@@ -15,7 +15,7 @@
  */
 import * as neon from 'neon-framework';
 
-import { DatabaseMetaData, FieldMetaData, TableMetaData, DashboardOptions } from '../../app/dataset';
+import { Dashboard, DashboardOptions, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../../app/dataset';
 import { DatasetService } from '../../app/services/dataset.service';
 import { NeonGTDConfig } from '../../app/neon-gtd-config';
 
@@ -69,49 +69,48 @@ export class DatasetServiceMock extends DatasetService {
 
     constructor() {
         super(new NeonGTDConfig());
-        this.setActiveDataset({
-            databases: DatasetServiceMock.DATABASES,
-            name: 'datastore1',
-            type: 'testDatastore',
-            host: 'testHostname'
-        });
+        let datastore: Datastore = new Datastore('datastore1', 'testHostname', 'testDatastore');
+        datastore.databases = DatasetServiceMock.DATABASES;
+        this.setActiveDataset(datastore);
+
+        let dashboard: Dashboard = new Dashboard();
 
         let dashboardTableKeys: {[key: string]: string} = {};
         dashboardTableKeys.table_key_1 = 'datastore1.testDatabase1.testTable1';
         dashboardTableKeys.table_key_2 = 'datastore1.testDatabase2.testTable2';
+        dashboard.tables = dashboardTableKeys;
 
         let dashboardFieldKeys: {[key: string]: string} = {};
         dashboardFieldKeys.field_key_1 = 'datastore1.testDatabase1.testTable1.testFieldKeyField';
+        dashboard.fields = dashboardFieldKeys;
 
         let visTitles: {[key: string]: string} = {};
         visTitles.dataTableTitle = 'Documents';
+        dashboard.visualizationTitles = visTitles;
 
-        this.setCurrentDashboard({
-            name: 'Test Discovery Config',
-            layout: 'DISCOVERY',
-            tables: dashboardTableKeys,
-            fields: dashboardFieldKeys,
-            visualizationTitles: visTitles,
-            options: new DashboardOptions(),
-            relations: [{
-                datastore1: {
-                    testDatabase1: {
-                        testTable1: 'testRelationFieldA'
-                    },
-                    testDatabase2: {
-                        testTable2: 'testRelationFieldA'
-                    }
+        dashboard.relations = [{
+            datastore1: {
+                testDatabase1: {
+                    testTable1: 'testRelationFieldA'
+                },
+                testDatabase2: {
+                    testTable2: 'testRelationFieldA'
                 }
-            }, {
-                datastore1: {
-                    testDatabase1: {
-                        testTable1: 'testRelationFieldB'
-                    },
-                    testDatabase2: {
-                        testTable2: 'testRelationFieldB'
-                    }
+            }
+        }, {
+            datastore1: {
+                testDatabase1: {
+                    testTable1: 'testRelationFieldB'
+                },
+                testDatabase2: {
+                    testTable2: 'testRelationFieldB'
                 }
-            }]
-        });
+            }
+        }];
+
+        dashboard.name = 'Test Discovery Config';
+        dashboard.layout = 'DISCOVERY';
+        dashboard.options = new DashboardOptions();
+        this.setCurrentDashboard(dashboard);
     }
 }

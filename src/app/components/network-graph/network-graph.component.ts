@@ -28,9 +28,9 @@ import {
 
 import {
     AbstractSearchService,
-    BoolFilterType,
-    NeonFilterClause,
-    NeonQueryPayload,
+    CompoundFilterType,
+    FilterClause,
+    QueryPayload,
     SortOrder
 } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -556,12 +556,12 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         let names: string[];
         let sortFieldName: string;
         let sortOrder: SortOrder = SortOrder.DESCENDING;
@@ -584,10 +584,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 sortOrder = SortOrder.ASCENDING;
         }
 
-        let filter: NeonFilterClause = this.searchService.buildBoolFilterClause(names.map((name) =>
-            this.searchService.buildFilterClause(name, '!=', null)), BoolFilterType.OR);
+        let filter: FilterClause = this.searchService.buildCompoundFilterClause(names.map((name) =>
+            this.searchService.buildFilterClause(name, '!=', null)), CompoundFilterType.OR);
 
-        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filter)))
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
             .updateSort(query, sortFieldName, sortOrder);
 
         return query;
@@ -655,7 +655,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.filters = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 let myFilter = {
                     id: neonFilter.id,

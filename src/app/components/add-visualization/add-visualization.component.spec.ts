@@ -74,7 +74,7 @@ describe('Component: AddVisualization', () => {
     let debugElement: DebugElement;
     let spyOnInit;
 
-    initializeTestBed({
+    initializeTestBed('Add Visualization', {
         declarations: [
             TestAddVisualizationComponent
         ],

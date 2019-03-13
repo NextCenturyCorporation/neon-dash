@@ -221,7 +221,7 @@ export class SaveStateComponent implements OnInit {
     handleStateFailure(response) {
         this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
             error: null,
-            message: response.responseJSON.error
+            message: response.responseJSON ? response.responseJSON.error : undefined
         });
     }
 
@@ -248,7 +248,7 @@ export class SaveStateComponent implements OnInit {
             this.stateNames = [];
             this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
                 error: null,
-                message: response.responseJSON.error
+                message: response.responseJSON ? response.responseJSON.error : undefined
             });
         });
     }
@@ -285,8 +285,7 @@ export class SaveStateComponent implements OnInit {
         let message = 'State "' + stateName + '" has been ' + actionName;
         this.snackBar.open(message, 'x', {
             duration: 5000,
-            verticalPosition: 'top',
-            panelClass: [this.widgetService.getTheme(), 'simpleSnackBar']
+            verticalPosition: 'top'
          });
     }
 }

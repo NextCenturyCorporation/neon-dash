@@ -15,6 +15,7 @@
  */
 import {
     AfterViewInit,
+    ChangeDetectorRef,
     Component,
     Inject,
     OnInit,
@@ -63,9 +64,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     @ViewChild(NgGrid) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
-
-    @Input() sidenav = MatSidenav;
-    // Used to determine which pane is show in the right sidenav
+    @ViewChild('sideNavRight') sideNavRight: MatSidenav;
 
     public currentPanel: string = 'dashboardLayouts';
     public showCustomConnectionButton: boolean = false;
@@ -74,9 +73,16 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     //Toolbar
     public showVisShortcut: boolean = true;
     public showDashboardSelector: boolean = false;
+    public toggleGear: boolean = true;
 
     public rightPanelTitle: string = 'Dashboard Layouts';
 
+    public createAboutNeon: boolean = false;
+    public createAddVis: boolean = false;
+    public createDashboardLayouts: boolean = true;
+    public createGear: boolean = true;
+    public createSavedState: boolean = false;
+    public createSettings: boolean = false;
     public createFiltersComponent: boolean = false; //This is used to create the Filters Component later
 
     public widgetGridItems: NeonGridItem[] = [];
@@ -117,6 +123,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public messenger: neon.eventing.Messenger;
 
     constructor(
+        public changeDetection: ChangeDetectorRef,
         public datasetService: DatasetService,
         public dialog: MatDialog,
         private domSanitizer: DomSanitizer,
@@ -138,7 +145,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         if (neonConfig.errors && neonConfig.errors.length > 0) {
             let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
-                panelClass: this.widgetService.getTheme(),
                 viewContainerRef: this.viewContainerRef
             });
             snackBarRef.instance.snackBarRef = snackBarRef;
@@ -264,10 +270,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         return true;
     }
 
-    checkPanel(panel: string) {
-        return this.currentPanel === panel;
-    }
-
     /**
      * Clears the grid.
      */
@@ -298,6 +300,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
                 this.widgetGridItems.splice(i, 1);
             }
         }
+    }
+
+    disableClose(): boolean {
+        return this.currentPanel === 'gear';
     }
 
     /**
@@ -403,7 +409,18 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngAfterViewInit() {
-        // child is set
+        let gearContainer: HTMLElement = document.getElementById('gear');
+
+        gearContainer.setAttribute('style', 'display: none');
+        /* NOTE:
+         * The gear component is created when the app component is created because if it is created when
+         * a component sends its option object in the messenger channel, it is too late.
+         * The gear component is created too late to receive the option object in the meseenger channel,
+         * as a result you would have had to click the gear option in the component twice to see any
+         * object values.
+         * Another workaround might be sending the option object in the messenger channel after a feedback
+         * from the app component after the toggleGear is received.
+         */
         /* NOTE:
          * There was an issue with Angular Material beta 12 and angular2-grid,
          * where the grid would initially be multiple times larger than the rest of the page
@@ -421,6 +438,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     ngOnInit(): void {
         this.messenger.subscribe('showVisShortcut', (message) => this.updateShowVisShortcut(message));
         this.messenger.subscribe('showFiltersComponentIcon', (message) => this.updateShowFiltersComponentIcon(message));
+        this.messenger.subscribe('toggleGear', (message) => this.updateToggleGear(message));
     }
 
     onDragStop(i, event) {
@@ -438,7 +456,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     openCustomConnectionDialog() {
         let config = new MatDialogConfig();
-        config.panelClass = this.widgetService.getTheme();
         config.viewContainerRef = this.viewContainerRef;
 
         this.customConnectionDialogRef = this.dialog.open(CustomConnectionComponent, config);
@@ -489,7 +506,47 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         }
     }
 
+    resetAllPanel() {
+        let aboutNeonContainer: HTMLElement = document.getElementById('aboutNeon');
+        let addVisContainer: HTMLElement = document.getElementById('addVis');
+        let dashboardLayoutsContainer: HTMLElement = document.getElementById('dashboardLayouts');
+        let gearContainer: HTMLElement = document.getElementById('gear');
+        let savedStateContainer: HTMLElement = document.getElementById('savedState');
+        let settingsContainer: HTMLElement = document.getElementById('settings');
+
+        let containerList = [
+            aboutNeonContainer,
+            addVisContainer,
+            dashboardLayoutsContainer,
+            gearContainer,
+            savedStateContainer,
+            settingsContainer
+        ];
+
+        containerList.forEach((element) => {
+            if (element) {
+                element.setAttribute('style', 'display: none');
+            }
+        });
+    }
+
     setPanel(newPanel: string, newTitle: string) {
+        this.resetAllPanel();
+        let rightPanelContainer: HTMLElement = document.getElementById(newPanel);
+
+        if (newPanel === 'aboutNeon' && !this.createAboutNeon) {
+            this.createAboutNeon = true;
+        } else if (newPanel === 'addVis' && !this.createAddVis) {
+            this.createAddVis = true;
+        } else if (newPanel === 'savedState' && !this.createSavedState) {
+            this.createSavedState = true;
+        } else if (newPanel === 'settings' && !this.createSettings) {
+            this.createSettings = true;
+        }
+
+        if (rightPanelContainer) {
+            rightPanelContainer.setAttribute('style', 'display: show');
+        }
         this.currentPanel = newPanel;
         this.rightPanelTitle = newTitle;
     }
@@ -529,6 +586,14 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     updateShowFiltersComponentIcon(message) {
         this.showFiltersComponentIcon = message.showFiltersComponentIcon;
+    }
+
+    updateToggleGear(message) {
+        this.toggleGear = message.toggleGear;
+        if (this.toggleGear) {
+            this.setPanel('gear', 'Component Settings');
+            this.sideNavRight.toggle();
+        }
     }
 
     /**

@@ -24,7 +24,6 @@ import { } from 'jasmine-core';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { DataTableComponent } from './data-table.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
@@ -45,10 +44,9 @@ describe('Component: DataTable', () => {
         getDebug = (selector: string) => fixture.debugElement.query(By.css(selector)),
         getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Data Table', {
         declarations: [
             DataTableComponent,
-            ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [
@@ -377,12 +375,12 @@ describe('Component: DataTable', () => {
         expect(component.getHeaderByName('notFound', headers)).toEqual(null);
     }));
 
-    it('closeColumnSelector does hide column selector and call detectChanges', (() => {
-        let spy = spyOn(component.changeDetection, 'detectChanges');
-        component.showColumnSelector = 'show';
+    it('closeColumnSelector does hide column selector and call refreshVisualization', (() => {
+        let spy = spyOn(component, 'refreshVisualization');
+        component.options.showColumnSelector = 'show';
 
         component.closeColumnSelector();
-        expect(component.showColumnSelector).toEqual('hide');
+        expect(component.options.showColumnSelector).toEqual('hide');
         expect(spy).toHaveBeenCalled();
     }));
 

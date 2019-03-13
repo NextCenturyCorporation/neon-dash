@@ -68,7 +68,7 @@ let dashboards = {
 };
 
 describe('Component: DashboardDropdown with input', () => {
-    initializeTestBed({
+    initializeTestBed('Dashboard Dropdown', {
         declarations: [
             DashboardDropdownComponent
         ],
@@ -164,7 +164,7 @@ describe('Component: DashboardDropdown with input', () => {
 });
 
 describe('Component: DashboardDropdown with no inputs', () => {
-    initializeTestBed({
+    initializeTestBed('Dashboard Dropdown', {
         declarations: [
             DashboardDropdownComponent
         ],

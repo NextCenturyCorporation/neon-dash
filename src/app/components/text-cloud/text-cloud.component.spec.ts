@@ -20,7 +20,6 @@ import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
 import { TextCloudComponent } from './text-cloud.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService, AggregationType } from '../../services/abstract.search.service';
@@ -44,10 +43,9 @@ describe('Component: TextCloud', () => {
     let fixture: ComponentFixture<TextCloudComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Text Cloud', {
         declarations: [
             TextCloudComponent,
-            ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [
