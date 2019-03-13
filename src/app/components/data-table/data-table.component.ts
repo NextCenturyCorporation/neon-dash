@@ -26,7 +26,7 @@ import {
     HostListener
 } from '@angular/core';
 
-import { AbstractSearchService, NeonFilterClause, NeonQueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
@@ -40,6 +40,7 @@ import {
     WidgetFreeTextOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
+    WidgetOptionCollection,
     WidgetSelectOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
@@ -73,7 +74,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     public headerWidths: Map<string, number> = new Map<string, number>();
     public headers: any[] = [];
     public selected: any[] = [];
-    public showColumnSelector: string = 'hide';
     public styleRules: string[] = [];
     public styleSheet: any;
 
@@ -136,7 +136,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new WidgetFieldOption('colorField', 'Color Field', false),
             new WidgetFieldOption('heatmapField', 'Heatmap Field', false),
             new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', false),
+            new WidgetFieldOption('sortField', 'Sort Field', true),
             new WidgetFieldArrayOption('filterFields', 'Filter Field(s)', false)
         ];
     }
@@ -152,7 +152,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new WidgetSelectOption('filterable', 'Filterable', false, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('singleFilter', 'Filter Multiple', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable),
             // TODO THOR-949 Rename option and change to boolean.
-            new WidgetSelectOption('arrayFilterOperator', 'Filter Operator', true, [{
+            new WidgetSelectOption('arrayFilterOperator', 'Filter Operator', 'and', [{
                 prettyName: 'OR',
                 variable: 'or'
             }, {
@@ -162,7 +162,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.NoFalseYesTrue, this.optionsFilterable),
             new WidgetFreeTextOption('heatmapDivisor', 'Heatmap Divisor', '0', this.optionsHeatmapTable),
             new WidgetSelectOption('reorderable', 'Make Columns Reorderable', true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('showColumnSelector', 'Show Column Selector', false, [{
+            new WidgetSelectOption('showColumnSelector', 'Show Column Selector', 'hide', [{
                 prettyName: 'Yes',
                 variable: 'show'
             }, {
@@ -184,8 +184,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 prettyName: 'Skinny',
                 variable: true
             }]),
-            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', []),
-            new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', []),
+            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', [], false),
+            new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', [], false),
             new WidgetNonPrimitiveOption('fieldsConfig', 'Fields Config', {})
         ];
     }
@@ -262,7 +262,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     initializeHeadersFromFieldsConfig() {
         let existingFields = [];
         for (let fieldConfig of this.options.fieldsConfig) {
-            let fieldObject = this.findField(this.options.fields, fieldConfig.name);
+            let fieldObject = this.options.findField(fieldConfig.name);
             if (fieldObject && fieldObject.columnName) {
                 existingFields.push(fieldObject.columnName);
                 this.headers.push({
@@ -295,7 +295,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getColumnWidth(fieldConfig) {
         for (let miniArray of this.options.customColumnWidths) {
-            let name = this.translateFieldKeyToValue(miniArray[0]);
+            let name = this.datasetService.translateFieldKeyToValue(miniArray[0]);
             if (fieldConfig === name) {
                 return miniArray[1];
             }
@@ -334,7 +334,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         } else {
             this.initializeHeadersFromExceptionsToStatus();
         }
-
         this.recalculateActiveHeaders();
     }
 
@@ -342,7 +341,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let colName = header.columnName;
         let pName = header.prettyName;
         for (let exception of this.options.exceptionsToStatus) {
-            let name = this.translateFieldKeyToValue(exception);
+            let name = this.datasetService.translateFieldKeyToValue(exception);
             if (colName === name || pName === name) {
                 return true;
             }
@@ -353,7 +352,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     sortOrderedHeaders(unordered) {
         let sorted = [];
         for (let exception of this.options.exceptionsToStatus) {
-            let header = this.translateFieldKeyToValue(exception);
+            let header = this.datasetService.translateFieldKeyToValue(exception);
             let headerToPush = this.getHeaderByName(header, unordered);
             if (headerToPush !== null) {
                 sorted.push(headerToPush);
@@ -421,7 +420,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     closeColumnSelector() {
-        this.showColumnSelector = 'hide';
+        this.options.showColumnSelector = 'hide';
+        this.refreshVisualization();
         this.changeDetection.detectChanges();
     }
 
@@ -491,17 +491,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
-        let filter: NeonFilterClause = this.searchService.buildFilterClause(options.sortField.columnName, '!=', null);
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let filter: FilterClause = this.searchService.buildFilterClause(options.sortField.columnName, '!=', null);
 
         // Override the default query fields because we want to find all fields.
         this.searchService.updateFieldsToMatchAll(query)
-            .updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filter)))
+            .updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
             .updateSort(query, options.sortField.columnName, options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
 
         return query;
@@ -593,7 +593,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.filters = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 this.addLocalFilter({
                     id: neonFilter.id,
@@ -732,7 +732,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 obj[this.options.idField.columnName] === selected[0][this.options.idField.columnName])[0];
 
             this.options.filterFields.forEach((filterField: any) => {
-                let filterFieldObject = this.findField(this.options.fields, filterField.columnName);
+                let filterFieldObject = this.options.findField(filterField.columnName);
                 let value = (this.options.idField.columnName.length === 0) ? selected[0][filterFieldObject.columnName] :
                     dataObject[filterFieldObject.columnName];
                 let filter = this.createFilterObject(filterFieldObject.columnName, value, filterFieldObject.prettyName);
@@ -917,5 +917,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     public getTableRowData(): any {
         let activeData: TransformedVisualizationData = this.getActiveData(this.options);
         return activeData ? activeData.data : [];
+    }
+
+    getShowColumnSelector(): boolean {
+        return this.options.showColumnSelector === 'show';
     }
 }

@@ -6,16 +6,19 @@
             </mat-toolbar>
 
             <div class="right-panel-container">
-                <div class="about-neon-container" *ngIf="checkPanel('aboutNeon')">
+                <div id="aboutNeon" class="about-neon-container" *ngIf="createAboutNeon">
                     <app-about-neon></app-about-neon>
                 </div>
-                <div class="add-visualization-container" *ngIf="checkPanel('addVis')">
+                <div id="addVis" class="add-visualization-container" *ngIf="createAddVis">
                     <app-add-visualization></app-add-visualization>
                 </div>
-                <div class="saved-state-container" *ngIf="checkPanel('saveState')">
+                <div id="gear" class="gear-container" *ngIf="createGear">
+                    <app-gear [sideNavRight]="sideNavRight"></app-gear>
+                </div>
+                <div id="savedState" class="saved-state-container" *ngIf="createSavedState">
                     <app-save-state [sidenav]="sideNavRight" [widgetGridItems]="widgetGridItems" [widgets]="widgets"></app-save-state>
                 </div>
-                <div class="setting-container" *ngIf="checkPanel('settings')">
+                <div id="settings" class="setting-container" *ngIf="createSettings">
                     <app-settings [widgets]="widgets"></app-settings>
                 </div>
             </div>
@@ -25,7 +28,7 @@
     <mat-toolbar class="neon-toolbar-large neon-toolbar-wide titlebar-header-text" color="primary" layout-align="space-between center" flex>
         <span>{{ datasetService.getCurrentDashboardTitle() || "Choose Dashboard..." }}</span>
         <span class="fill-remaining"></span>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" matTooltipPosition="below" id="showVisShortcutButton"
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below" id="showVisShortcutButton"
             matTooltip="Add a New Visualization" (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()" *ngIf="showVisShortcut">
             <mat-icon class="neon-icon-large">add_circle</mat-icon>
         </button>
@@ -49,7 +52,7 @@
         <mat-menu #appMenu="matMenu" [backdropClass]="widgetService.getTheme()" yPosition="below" [overlapTrigger]="false">
             <button mat-menu-item (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()">
                 <mat-icon color="secondary">add_circle</mat-icon>Visualizations</button>
-            <button mat-menu-item (click)="setPanel('saveState', 'Save States'); sideNavRight.toggle()">
+            <button mat-menu-item (click)="setPanel('savedState', 'Save States'); sideNavRight.toggle()">
                 <mat-icon color="secondary">save</mat-icon>Saved States</button>
             <button mat-menu-item (click)="setPanel('settings', 'Settings'); sideNavRight.toggle()">
                 <mat-icon color="secondary">settings</mat-icon>Settings

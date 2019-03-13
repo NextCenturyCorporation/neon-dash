@@ -34,7 +34,7 @@ import * as neon from 'neon-framework';
   styleUrls: ['./export-control.component.scss']
 })
 export class ExportControlComponent {
-    @Input() widgets: BaseNeonComponent | Map<string, BaseNeonComponent>;
+    @Input() exportCallbacks: (() => { name: string, data: any }[])[];
 
     public exportFormatList: any[] = [{
         name: 'csv',
@@ -82,7 +82,7 @@ export class ExportControlComponent {
     }
 
     getExportButtonText(): string {
-        return (this.widgets instanceof Map) ? 'Export All Visualizations' : 'Export to File';
+        return (this.exportCallbacks.length > 1) ? 'Export All Visualizations' : 'Export to File';
     }
 
     handleExportClick() {
@@ -92,7 +92,7 @@ export class ExportControlComponent {
         config.viewContainerRef = this.viewContainerRef;
         let data = {
             // TODO Change this hardcoded value to something like a user ID.
-            name: ((this.widgets instanceof Map) ? 'All_Widgets' : 'Export'),
+            name: ((this.exportCallbacks.length > 1) ? 'All_Widgets' : 'Export'),
             data: []
         };
 
@@ -101,8 +101,7 @@ export class ExportControlComponent {
             return;
         }
 
-        let widgetExportDataList: ({ name: string, data: any }[])[] = ((this.widgets instanceof Map) ? Array.from(this.widgets.values()) :
-            [this.widgets]).map((widget) => widget.createExportData());
+        let widgetExportDataList: ({ name: string, data: any }[])[] = this.exportCallbacks.map((callback) => callback());
 
         for (let widgetExportData of widgetExportDataList) {
             for (let widgetExportItem of widgetExportData) {

@@ -14,7 +14,7 @@
  *
  */
 import { Injectable } from '@angular/core';
-import { NeonRequest } from '../connection';
+import { RequestWrapper } from '../connection';
 
 export enum AggregationType {
     AVG = 'avg',
@@ -24,7 +24,7 @@ export enum AggregationType {
     SUM = 'sum'
 }
 
-export enum BoolFilterType {
+export enum CompoundFilterType {
     AND = 'and',
     OR = 'or'
 }
@@ -43,11 +43,11 @@ export enum TimeInterval {
 }
 
 /* tslint:disable:no-empty-interface */
-export interface NeonFilterClause {}
+export interface FilterClause {}
 
-export interface NeonQueryGroup {}
+export interface QueryGroup {}
 
-export interface NeonQueryPayload {}
+export interface QueryPayload {}
 /* tslint:enable:no-empty-interface */
 
 /**
@@ -60,25 +60,25 @@ export interface NeonQueryPayload {}
 export abstract class AbstractSearchService {
 
     /**
-     * Returns a new boolean filter clause using the given list of filter clauses.  If only one filter clause is given, just return that
+     * Returns a new compound filter clause using the given list of filter clauses.  If only one filter clause is given, just return that
      * filter clause.
      *
-     * @arg {NeonFilterClause[]} filterClauses
-     * @arg {BoolFilterType} [type]
-     * @return {NeonFilterClause}
+     * @arg {FilterClause[]} filterClauses
+     * @arg {CompoundFilterType} [type]
+     * @return {FilterClause}
      * @abstract
      */
-    public abstract buildBoolFilterClause(filterClauses: NeonFilterClause[], type?: BoolFilterType): NeonFilterClause;
+    public abstract buildCompoundFilterClause(filterClauses: FilterClause[], type?: CompoundFilterType): FilterClause;
 
     /**
      * Returns a new query group using the given group date field and time interval.
      *
      * @arg {string} groupField
      * @arg {TimeInterval} interval
-     * @return {NeonQueryGroup}
+     * @return {QueryGroup}
      * @abstract
      */
-    public abstract buildDateQueryGroup(groupField: string, interval: TimeInterval): NeonQueryGroup;
+    public abstract buildDateQueryGroup(groupField: string, interval: TimeInterval): QueryGroup;
 
     /**
      * Returns a new filter clause using the given field, operator, and value.
@@ -86,19 +86,19 @@ export abstract class AbstractSearchService {
      * @arg {string} field
      * @arg {string} operator
      * @arg {string} value
-     * @return {NeonFilterClause}
+     * @return {FilterClause}
      * @abstract
      */
-    public abstract buildFilterClause(field: string, operator: string, value: string): NeonFilterClause;
+    public abstract buildFilterClause(field: string, operator: string, value: string): FilterClause;
 
     /**
      * Returns a new query group using the given group field.
      *
      * @arg {string} groupField
-     * @return {NeonQueryGroup}
+     * @return {QueryGroup}
      * @abstract
      */
-    public abstract buildQueryGroup(groupField: string): NeonQueryGroup;
+    public abstract buildQueryGroup(groupField: string): QueryGroup;
 
     /**
      * Returns a new search query payload using the given database, table, and field names.
@@ -106,17 +106,17 @@ export abstract class AbstractSearchService {
      * @arg {string} databaseName
      * @arg {string} tableName
      * @arg {string[]} [fieldNames]
-     * @return {NeonQueryPayload}
+     * @return {QueryPayload}
      * @abstract
      */
-    public abstract buildQueryPayload(databaseName: string, tableName: string, fieldNames?: string[]): NeonQueryPayload;
+    public abstract buildQueryPayload(databaseName: string, tableName: string, fieldNames?: string[]): QueryPayload;
 
     /**
      * Returns whether the given datastore type and host can run a search.
      *
      * @arg {string} datastoreType
      * @arg {string} datastoreHost
-     * @return {NeonRequest}
+     * @return {RequestWrapper}
      * @abstract
      */
     public abstract canRunSearch(datastoreType: string, datastoreHost: string): boolean;
@@ -126,112 +126,112 @@ export abstract class AbstractSearchService {
      *
      * @arg {string} datastoreType
      * @arg {string} datastoreHost
-     * @arg {NeonQueryPayload} queryPayload
-     * @return {NeonRequest}
+     * @arg {QueryPayload} queryPayload
+     * @return {RequestWrapper}
      * @abstract
      */
-    public abstract runSearch(datastoreType: string, datastoreHost: string, queryPayload: NeonQueryPayload): NeonRequest;
+    public abstract runSearch(datastoreType: string, datastoreHost: string, queryPayload: QueryPayload): RequestWrapper;
 
     /**
      * Transforms the values in the filter clauses in the given search query payload using the given map of keys-to-values-to-labels.
      *
-     * @arg {NeonQueryPayload} queryPayload
+     * @arg {QueryPayload} queryPayload
      * @arg {{ [key: string]: { [value: string]: label } }} keysToValuesToLabels
-     * @return {NeonQueryPayload}
+     * @return {QueryPayload}
      * @abstract
      */
-    public abstract transformFilterClauseValues(queryPayload: NeonQueryPayload, keysToValuesToLabels:
-        { [key: string]: { [value: string]: string } }): NeonQueryPayload;
+    public abstract transformFilterClauseValues(queryPayload: QueryPayload, keysToValuesToLabels:
+        { [key: string]: { [value: string]: string } }): QueryPayload;
 
     /**
      * Transforms the given search query payload into an object to export.
      *
-     * @arg {NeonQueryPayload} queryPayload
+     * @arg {QueryPayload} queryPayload
      * @return {any}
      * @abstract
      */
-    public abstract transformQueryPayloadToExport(queryPayload: NeonQueryPayload): any;
+    public abstract transformQueryPayloadToExport(queryPayload: QueryPayload): any;
 
     /**
      * Sets the aggregation data on the given search query payload.
      *
-     * @arg {NeonQueryPayload} queryPayload
+     * @arg {QueryPayload} queryPayload
      * @arg {AggregationType} type
      * @arg {string} name
      * @arg {string} field
      * @return {AbstractSearchService}
      * @abstract
      */
-    public abstract updateAggregation(queryPayload: NeonQueryPayload, type: AggregationType, name: string,
+    public abstract updateAggregation(queryPayload: QueryPayload, type: AggregationType, name: string,
         field: string): AbstractSearchService;
 
     /**
      * Sets the fields data in the given search query payload.
      *
-     * @arg {NeonQueryPayload} queryPayload
+     * @arg {QueryPayload} queryPayload
      * @arg {string[]} fields
      * @return {AbstractSearchService}
      * @abstract
      */
-    public abstract updateFields(queryPayload: NeonQueryPayload, fields: string[]): AbstractSearchService;
+    public abstract updateFields(queryPayload: QueryPayload, fields: string[]): AbstractSearchService;
 
     /**
      * Sets the fields data in the given search query payload to match all fields.
      *
-     * @arg {NeonQueryPayload} queryPayload
+     * @arg {QueryPayload} queryPayload
      * @return {AbstractSearchService}
      * @abstract
      */
-    public abstract updateFieldsToMatchAll(queryPayload: NeonQueryPayload): AbstractSearchService;
+    public abstract updateFieldsToMatchAll(queryPayload: QueryPayload): AbstractSearchService;
 
     /**
      * Sets the filter clause data on the given search query payload.
      *
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause} filterClause
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause} filterClause
      * @return {AbstractSearchService}
      * @abstract
      */
-    public abstract updateFilter(queryPayload: NeonQueryPayload, filterClause: NeonFilterClause): AbstractSearchService;
+    public abstract updateFilter(queryPayload: QueryPayload, filterClause: FilterClause): AbstractSearchService;
 
     /**
      * Sets the group data on the given search query payload.
      *
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonQueryGroup[]} groups
+     * @arg {QueryPayload} queryPayload
+     * @arg {QueryGroup[]} groups
      * @return {AbstractSearchService}
      * @abstract
      */
-    public abstract updateGroups(queryPayload: NeonQueryPayload, groups: NeonQueryGroup[]): AbstractSearchService;
+    public abstract updateGroups(queryPayload: QueryPayload, groups: QueryGroup[]): AbstractSearchService;
 
     /**
      * Sets the limit data on the given search query payload.
      *
-     * @arg {NeonQueryPayload} queryPayload
+     * @arg {QueryPayload} queryPayload
      * @arg {number} limit
      * @return {AbstractSearchService}
      * @abstract
      */
-    public abstract updateLimit(queryPayload: NeonQueryPayload, limit: number): AbstractSearchService;
+    public abstract updateLimit(queryPayload: QueryPayload, limit: number): AbstractSearchService;
 
     /**
      * Sets the offset data on the given search query payload.
      *
-     * @arg {NeonQueryPayload} queryPayload
+     * @arg {QueryPayload} queryPayload
      * @arg {number} offset
      * @return {AbstractSearchService}
      * @abstract
      */
-    public abstract updateOffset(queryPayload: NeonQueryPayload, offset: number): AbstractSearchService;
+    public abstract updateOffset(queryPayload: QueryPayload, offset: number): AbstractSearchService;
 
     /**
      * Sets the sort data on the given search query payload.
      *
-     * @arg {NeonQueryPayload} queryPayload
+     * @arg {QueryPayload} queryPayload
      * @arg {string} field
      * @arg {SortOrder} [order]
      * @return {AbstractSearchService}
      * @abstract
      */
-    public abstract updateSort(queryPayload: NeonQueryPayload, field: string, order?: SortOrder): AbstractSearchService;
+    public abstract updateSort(queryPayload: QueryPayload, field: string, order?: SortOrder): AbstractSearchService;
 }

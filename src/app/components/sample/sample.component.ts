@@ -28,8 +28,8 @@ import {
 import {
     AbstractSearchService,
     AggregationType,
-    NeonFilterClause,
-    NeonQueryPayload,
+    FilterClause,
+    QueryPayload,
     SortOrder
 } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -175,16 +175,16 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         // TODO Change this behavior as needed to create your visualization query.  Here is a sample of a count aggregation query.
 
         // TODO Add or remove filters as needed.
-        let filters: NeonFilterClause[] = [this.searchService.buildFilterClause(this.options.sampleRequiredField.columnName, '!=', null)];
+        let filters: FilterClause[] = [this.searchService.buildFilterClause(this.options.sampleRequiredField.columnName, '!=', null)];
 
         // Only add the optional field if it is defined.
         if (this.options.sampleOptionalField.columnName) {
@@ -197,7 +197,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             groups.push(this.searchService.buildQueryGroup(options.sampleOptionalField.columnName));
         }
 
-        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filters)))
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
             .updateGroups(query, groups).updateAggregation(query, AggregationType.COUNT, '_count', '*')
             .updateSort(query, '_count', SortOrder.DESCENDING);
 
@@ -479,7 +479,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
 
             // This will ignore a filter with multiple clauses.
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 if (this.isVisualizationFilterUnique(field.columnName, value)) {
                     this.addVisualizationFilter(this.createVisualizationFilter(neonFilter.id, field.columnName, field.prettyName, value));

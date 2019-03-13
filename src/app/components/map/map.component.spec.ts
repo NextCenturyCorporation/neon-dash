@@ -26,7 +26,6 @@ import {
 
 import { MapComponent } from './map.component';
 import { LegendComponent } from '../legend/legend.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -167,7 +166,7 @@ function updateMapLayer1(component: TestMapComponent) {
     (component as any).layerIdToActiveData.set('testLayer1', new TransformedVisualizationData([{}]));
     (component as any).layerIdToElementCount.set('testLayer1', 1);
 
-    component.options.layers[0] = new WidgetOptionCollection(undefined, {});
+    component.options.layers[0] = new WidgetOptionCollection(() => [], undefined, {});
     component.options.layers[0]._id = 'testLayer1';
     component.options.layers[0].databases = [];
     component.options.layers[0].database = new DatabaseMetaData('testDatabase1');
@@ -192,7 +191,7 @@ function updateMapLayer2(component: TestMapComponent) {
     (component as any).layerIdToActiveData.set('testLayer2', new TransformedVisualizationData([{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]));
     (component as any).layerIdToElementCount.set('testLayer2', 10);
 
-    component.options.layers[1] = new WidgetOptionCollection(undefined, {});
+    component.options.layers[1] = new WidgetOptionCollection(() => [], undefined, {});
     component.options.layers[1]._id = 'testLayer2';
     component.options.layers[1].databases = [];
     component.options.layers[1].database = new DatabaseMetaData('testDatabase2');
@@ -235,11 +234,10 @@ describe('Component: Map', () => {
             component.filterByLocation(box);
         };
 
-    initializeTestBed({
+    initializeTestBed('Map', {
         declarations: [
             TestMapComponent,
-            LegendComponent,
-            ExportControlComponent
+            LegendComponent
         ],
         providers: [
             DatasetService,
@@ -273,7 +271,6 @@ describe('Component: Map', () => {
         expect(component.options.hoverSelect).toEqual(null);
         expect(component.options.limit).toEqual(1000);
         expect(component.options.minClusterSize).toEqual(5);
-        expect(component.options.showPointDataOnHover).toEqual(false);
         expect(component.options.singleColor).toEqual(false);
         expect(component.options.title).toEqual('Map');
         expect(component.options.type).toEqual(MapType.Leaflet);
@@ -311,14 +308,13 @@ describe('Component: Map', () => {
         expect(getDebug('.leaflet-container')).toBeTruthy();
     });
 
-    it('should change map type to Cesium', () => {
+    it('does have expected map element', () => {
         if (webgl_support()) {
-            component.handleChangeMapType(MapType.Cesium);
+            component.handleChangeMapType();
             let mapElement = getDebug('.leaflet-container'),
                 el = mapElement && mapElement.nativeElement,
                 cesium = el && el.firstChild;
             expect(cesium).toBeTruthy('MapElement should have at least 1 child');
-            expect(cesium.className).toBe('cesium-viewer', 'Failed to create cesium map');
         }
     });
 
@@ -412,14 +408,14 @@ describe('Component: Map', () => {
         let mapPoints1 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category',
             new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset1.data);
         expect(mapPoints1).toEqual(dataset1.expected);
-        let mapPoints2 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category',
-            new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset2.data);
+        let mapPoints2 = component.getMapPoints(
+            'myDatabase', 'myTable', 'id', 'lng', 'lat', 'category', new FieldMetaData(), dataset2.data);
         expect(mapPoints2).toEqual(dataset2.expected);
-        let mapPoints3 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category',
-            new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset3.data);
+        let mapPoints3 = component.getMapPoints(
+            'myDatabase', 'myTable', 'id', 'lng', 'lat', 'category', new FieldMetaData(), dataset3.data);
         expect(mapPoints3).toEqual(dataset3.expected);
-        let mapPoints4 = component.getMapPoints('myDatabase', 'myTable', 'id', 'lng', 'lat', 'category',
-            new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset4.data);
+        let mapPoints4 = component.getMapPoints(
+            'myDatabase', 'myTable', 'id', 'lng', 'lat', 'category', new FieldMetaData(), dataset4.data);
         expect(mapPoints4).toEqual(dataset4.expected);
     });
 
@@ -464,13 +460,6 @@ describe('Component: Map', () => {
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
         }));
-    });
-
-    it('should add layer when new layer button is clicked', () => {
-        let addEl = getDebug('a');
-        addEl.triggerEventHandler('click', null);
-        fixture.detectChanges();
-        expect(component.options.layers.length).toBe(2);
     });
 
     it('constructVisualization does call mapObject.initialize', () => {
@@ -893,11 +882,10 @@ describe('Component: Map with config', () => {
     let component: TestMapComponent;
     let fixture: ComponentFixture<TestMapComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Map', {
         declarations: [
             TestMapComponent,
-            LegendComponent,
-            ExportControlComponent
+            LegendComponent
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
@@ -924,7 +912,6 @@ describe('Component: Map with config', () => {
             { provide: 'disableCtrlZoom', useValue: true },
             { provide: 'hoverSelect', useValue: { hoverTime: 5 } },
             { provide: 'minClusterSize', useValue: 10 },
-            { provide: 'showPointDataOnHover', useValue: true },
             { provide: 'singleColor', useValue: true },
             { provide: 'west', useValue: 1 },
             { provide: 'east', useValue: 2 },
@@ -957,7 +944,6 @@ describe('Component: Map with config', () => {
         });
         expect(component.options.limit).toEqual(9999);
         expect(component.options.minClusterSize).toEqual(10);
-        expect(component.options.showPointDataOnHover).toEqual(true);
         expect(component.options.singleColor).toEqual(true);
         expect(component.options.title).toEqual('Test Title');
         expect(component.options.type).toEqual(MapType.Leaflet);

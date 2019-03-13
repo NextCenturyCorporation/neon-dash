@@ -27,7 +27,7 @@ import {
 
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { AbstractSearchService, NeonFilterClause, NeonQueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
@@ -205,7 +205,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue),
             new WidgetNonPrimitiveOption('textMap', 'Text Map', {}),
             new WidgetNonPrimitiveOption('typeMap', 'Type Map', {}),
-            new WidgetSelectOption('viewType', 'View', '', [{
+            new WidgetSelectOption('viewType', 'View', ViewType.TITLE, [{
                 prettyName: 'Title',
                 variable: ViewType.TITLE
             }, {
@@ -225,18 +225,18 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
-        let filters: NeonFilterClause[] = [
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let filters: FilterClause[] = [
             this.searchService.buildFilterClause(options.linkField.columnName, '!=', null),
             this.searchService.buildFilterClause(options.linkField.columnName, '!=', '')
         ];
 
-        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filters)))
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
             .updateSort(query, options.sortField.columnName, options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
 
         return query;
@@ -823,7 +823,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 let filter = {
                     id: neonFilter.id,

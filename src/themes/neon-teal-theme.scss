@@ -101,8 +101,7 @@ $teal-theme: (
     background: $teal-theme-background
 );
 
-.neon-teal,
-.neon-teal + * .cdk-overlay-pane {
+.neon-teal {
     @include angular-material-theme($teal-theme);
 
     /* DO NOT USE SASS VARIABLES ($VAR) HERE!  YOU MUST HARDCODE ALL COLORS! */
@@ -113,6 +112,7 @@ $teal-theme: (
     --color-primary-contrast: #F2F2F2;
     --color-primary-transparent: rgba(54, 117, 136, 0.33);
     --color-background: #F2F2F2;
+    --color-background-white: #FFFFFF;
     --color-background-contrast: #D7D7D7;
     --color-text-header: #666666;
     --color-text-main: #333333;

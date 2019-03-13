@@ -15,7 +15,9 @@
  */
 import { Injector } from '@angular/core';
 import { AggregationType } from './services/abstract.search.service';
+import { DatasetService } from './services/dataset.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from './dataset';
+import * as _ from 'lodash';
 import * as uuidv4 from 'uuid/v4';
 
 type OptionCallback = (options: any) => boolean;
@@ -237,19 +239,30 @@ export class WidgetOptionCollection {
     private _collection: { [bindingKey: string]: WidgetOption; } = {};
 
     public _id: string;
+    public database: DatabaseMetaData = null;
     public databases: DatabaseMetaData[] = [];
     public fields: FieldMetaData[] = [];
+    public isMultiLayerWidget: boolean = false;
     public layers: WidgetOptionCollection[] = [];
+    public layeredWidget: boolean = false;
+    public table: TableMetaData = null;
     public tables: TableMetaData[] = [];
 
     /**
      * @constructor
+     * @arg {function} createFieldOptionsCallback A callback function to create the field options.
      * @arg {Injector} [injector] An injector with bindings; if undefined, uses config.
      * @arg {any} [config] An object with bindings; used if injector is undefined.
      */
-    constructor(protected injector?: Injector, protected config?: any) {
+    constructor(
+        protected createFieldOptionsCallback: () => (WidgetFieldOption | WidgetFieldArrayOption)[],
+        protected injector?: Injector,
+        protected config?: any
+    ) {
         // TODO Do not use a default _id.  Throw an error if undefined!
         this._id = (this.injector ? this.injector.get('_id', uuidv4()) : ((this.config || {})._id || uuidv4()));
+        this.append(new WidgetDatabaseOption(), new DatabaseMetaData());
+        this.append(new WidgetTableOption(), new TableMetaData());
     }
 
     /**
@@ -280,6 +293,73 @@ export class WidgetOptionCollection {
     }
 
     /**
+     * Returns a copy of this object.
+     *
+     * @return {WidgetOptionCollection}
+     */
+    public copy(): WidgetOptionCollection {
+        let copy = new WidgetOptionCollection(this.createFieldOptionsCallback, this.injector, this.config);
+        copy._id = this._id;
+        copy.database = this.database;
+        copy.databases = this.databases;
+        copy.fields = this.fields;
+        copy.isMultiLayerWidget = this.isMultiLayerWidget;
+        copy.layers = this.layers.map((layer) => layer.copy());
+        copy.layeredWidget = this.layeredWidget;
+        copy.table = this.table;
+        copy.tables = this.tables;
+        this.list().forEach((option: WidgetOption) => {
+            copy.append(_.cloneDeep(option), option.valueCurrent);
+        });
+        return copy;
+    }
+
+    /**
+     * Returns the field object with the given column name or undefinied if the field does not exist.
+     *
+     * @arg {string} columnName
+     * @return {FieldMetaData}
+     */
+    public findField(columnName: string): FieldMetaData {
+        let outputFields = !columnName ? [] : this.fields.filter((field: FieldMetaData) => field.columnName === columnName);
+
+        if (!outputFields.length && this.fields.length) {
+            // Check if the column name is actually an array index rather than a name.
+            let fieldIndex = parseInt(columnName, 10);
+            if (!isNaN(fieldIndex) && fieldIndex < this.fields.length) {
+                outputFields = [this.fields[fieldIndex]];
+            }
+        }
+
+        return outputFields.length ? outputFields[0] : undefined;
+    }
+
+    /**
+     * Returns the field object for the given binding key or an empty field object.
+     *
+     * @arg {DatasetService} datasetService
+     * @arg {string} bindingKey
+     * @return {FieldMetaData}
+     */
+    public findFieldObject(datasetService: DatasetService, bindingKey: string): FieldMetaData {
+        let fieldKey = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, '') : '');
+        return this.findField(datasetService.translateFieldKeyToValue(fieldKey)) || new FieldMetaData();
+    }
+
+    /**
+     * Returns the array of field objects for the given binding key or an array of empty field objects.
+     *
+     * @arg {DatasetService} datasetService
+     * @arg {string} bindingKey
+     * @return {FieldMetaData[]}
+     */
+    public findFieldObjects(datasetService: DatasetService, bindingKey: string): FieldMetaData[] {
+        let bindings = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, []) : []);
+        return (Array.isArray(bindings) ? bindings : []).map((fieldKey) => this.findField(datasetService.translateFieldKeyToValue(
+            fieldKey))).filter((fieldsObject) => !!fieldsObject);
+    }
+
+    /**
      * Injects the given option(s) into this collection.
      *
      * @arg {WidgetOption|WidgetOption[]} options
@@ -299,6 +379,93 @@ export class WidgetOptionCollection {
     public list(): WidgetOption[] {
         return Object.keys(this._collection).map((property) => this.access(property));
     }
+
+    /**
+     * Updates all the databases, tables, and fields in the options.
+     *
+     * @arg {DatasetService} datasetService
+     */
+    public updateDatabases(datasetService: DatasetService): void {
+        this.databases = datasetService.getDatabases();
+        this.database = datasetService.getCurrentDatabase() || this.databases[0] || this.database;
+
+        if (this.databases.length) {
+            let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
+            let currentDashboard = datasetService.getCurrentDashboard();
+            let configDatabase: any;
+
+            if (tableKey && currentDashboard && currentDashboard.tables && currentDashboard.tables[tableKey]) {
+                configDatabase = datasetService.getDatabaseNameFromCurrentDashboardByKey(tableKey);
+
+                if (configDatabase) {
+                    for (let database of this.databases) {
+                        if (configDatabase === database.name) {
+                            this.database = database;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return this.updateTables(datasetService);
+    }
+
+    /**
+     * Updates all the fields in the options.
+     *
+     * @arg {DatasetService} datasetService
+     */
+    public updateFields(datasetService: DatasetService): void {
+        if (this.database && this.table) {
+            // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
+            this.fields = datasetService.getSortedFields(this.database.name, this.table.name, true).filter((field) => {
+                return (field && field.columnName);
+            });
+
+            // Create the field options and assign the default value as FieldMetaData objects.
+            this.createFieldOptionsCallback().forEach((fieldsOption) => {
+                if (fieldsOption.optionType === OptionType.FIELD) {
+                    this.append(fieldsOption, this.findFieldObject(datasetService, fieldsOption.bindingKey));
+                }
+                if (fieldsOption.optionType === OptionType.FIELD_ARRAY) {
+                    this.append(fieldsOption, this.findFieldObjects(datasetService, fieldsOption.bindingKey));
+                }
+            });
+        }
+    }
+
+    /**
+     * Updates all the tables and fields in the options.
+     *
+     * @arg {DatasetService} datasetService
+     */
+    public updateTables(datasetService: DatasetService): void {
+        this.tables = this.database ? datasetService.getTables(this.database.name) : [];
+        this.table = this.tables[0] || this.table;
+
+        if (this.tables.length > 0) {
+            let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
+            let currentDashboard = datasetService.getCurrentDashboard();
+            let configTable: any;
+
+            if (tableKey && currentDashboard && currentDashboard.tables && currentDashboard.tables[tableKey]) {
+                configTable = datasetService.getTableNameFromCurrentDashboardByKey(tableKey);
+
+                if (configTable) {
+                    for (let table of this.tables) {
+                        if (configTable === table.name) {
+                            this.table = table;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return this.updateFields(datasetService);
+    }
+
 }
 
 export namespace OptionChoices {

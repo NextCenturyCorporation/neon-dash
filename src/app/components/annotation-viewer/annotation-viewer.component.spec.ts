@@ -34,7 +34,6 @@ import { FormsModule } from '@angular/forms';
 import {} from 'jasmine-core';
 
 import { AnnotationViewerComponent } from './annotation-viewer.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { Color } from '../../color';
@@ -59,9 +58,8 @@ describe('Component: AnnotationViewer', () => {
     let fixture: ComponentFixture<AnnotationViewerComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Annotation Viewer', {
           declarations: [
-              ExportControlComponent,
               LegendComponent,
               AnnotationViewerComponent,
               UnsharedFilterComponent

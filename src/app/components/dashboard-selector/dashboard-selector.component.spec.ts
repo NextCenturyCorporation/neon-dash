@@ -32,7 +32,7 @@ describe('Component: DashboardSelector', () => {
     let fixture: ComponentFixture<DashboardSelectorComponent>;
     let component: DashboardSelectorComponent;
 
-    initializeTestBed({
+    initializeTestBed('Dataset Selector', {
         declarations: [
             DashboardDropdownComponent,
             DashboardSelectorComponent

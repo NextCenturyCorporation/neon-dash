@@ -54,6 +54,7 @@ import { CurrentFiltersComponent } from './components/current-filters/current-fi
 import { LegendComponent } from './components/legend/legend.component';
 import { MapComponent } from './components/map/map.component';
 import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
+import { OptionsListComponent } from './components/options-list/options-list.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { SaveStateComponent } from './components/save-state/save-state.component';
 import { SettingsComponent } from './components/settings/settings.component';
@@ -81,8 +82,9 @@ import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
 import { CustomConnectionSimpleSetupStepComponent } from './components/custom-connection/simple-setup.component';
-import { MatAutocompleteModule } from '@angular/material';
+import { MatAutocompleteModule, MatFormFieldModule, MatInputModule } from '@angular/material';
 import { QueryBarComponent } from './components/query-bar/query-bar.component';
+import { GearComponent } from './components/gear/gear.component';
 
 export function getAppConfig() {
     /* tslint:disable:no-string-literal */
@@ -112,11 +114,13 @@ export function getAppConfig() {
         FilterBuilderComponent,
         FiltersComponent,
         CurrentFiltersComponent,
+        GearComponent,
         LegendComponent,
         MapComponent,
         MediaViewerComponent,
         NetworkGraphComponent,
         NewsFeedComponent,
+        OptionsListComponent,
         QueryBarComponent,
         SampleComponent,
         SaveStateComponent,
@@ -176,6 +180,7 @@ export function getAppConfig() {
         CustomConnectionComponent,
         DocumentViewerSingleItemComponent,
         CurrentFiltersComponent,
+        GearComponent,
         SaveStateComponent,
         SettingsComponent,
         SnackBarComponent

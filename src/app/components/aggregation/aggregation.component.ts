@@ -31,9 +31,9 @@ import { Color } from '../../color';
 import {
     AbstractSearchService,
     AggregationType,
-    NeonFilterClause,
-    NeonQueryGroup,
-    NeonQueryPayload,
+    FilterClause,
+    QueryGroup,
+    QueryPayload,
     SortOrder,
     TimeInterval
 } from '../../services/abstract.search.service';
@@ -202,9 +202,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public xList: any[] = [];
     public yList: any[] = [];
 
-    // TODO THOR-349 Move into future widget option menu component
-    public newType: string = '';
-
     constructor(
         datasetService: DatasetService,
         filterService: FilterService,
@@ -304,14 +301,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
-        let groups: NeonQueryGroup[] = [];
-        let filters: NeonFilterClause[] = [this.searchService.buildFilterClause(options.xField.columnName, '!=', null)];
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let groups: QueryGroup[] = [];
+        let filters: FilterClause[] = [this.searchService.buildFilterClause(options.xField.columnName, '!=', null)];
 
         if (options.xField.type === 'date') {
             switch (options.granularity) {
@@ -352,7 +349,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             groups.push(this.searchService.buildQueryGroup(options.groupField.columnName));
         }
 
-        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filters)))
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
             .updateGroups(query, groups);
 
         return query;
@@ -668,18 +665,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     /**
      * Updates the sub-component and reruns the visualization query.
+     * @override
      */
     handleChangeSubcomponentType() {
-        if (this.options.type !== this.newType) {
-            this.options.type = this.newType;
-            if (!this.optionsTypeIsDualViewCompatible(this.options)) {
-                this.options.dualView = '';
-            }
-            if (this.optionsTypeIsContinuous(this.options)) {
-                this.options.sortByAggregation = false;
-            }
-            this.redrawSubcomponents();
+        if (!this.optionsTypeIsDualViewCompatible(this.options)) {
+            this.options.dualView = '';
         }
+        if (this.optionsTypeIsContinuous(this.options)) {
+            this.options.sortByAggregation = false;
+        }
+        this.redrawSubcomponents();
     }
 
     /**
@@ -707,8 +702,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     initializeProperties() {
-        this.newType = this.options.type;
-
         // Check for the boolean value true (not just any truthy value) and fix it.
         this.options.dualView = ('' + this.options.dualView) === 'true' ? 'on' : this.options.dualView;
         if (!this.optionsTypeIsDualViewCompatible(this.options)) {
@@ -1134,7 +1127,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         // Update the zoom if dualView is truthy.  It will show both the unfiltered and filtered data.
-        if (this.subcomponentZoom && this.options.dualView) {
+        if (this.options.dualView) {
+            if (!this.subcomponentZoom) {
+                this.subcomponentZoom = this.initializeSubcomponent(this.subcomponentZoomElementRef, true);
+            }
             this.subcomponentZoom.draw(this.getActiveData(this.options).data, meta);
         }
 

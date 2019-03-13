@@ -81,6 +81,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
         }
     }
 
+    getExportCallbacks(widgets: Map<string, BaseNeonComponent>): (() => { name: string, data: any }[])[] {
+        return Array.from(widgets.values()).map((widget) => widget.createExportData);
+    }
+
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
     }
@@ -113,8 +117,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
             height: '80%',
             width: '80%',
             hasBackdrop: true,
-            disableClose: true,
-            panelClass: this.widgetService.getTheme()
+            disableClose: true
         };
         let dialogRef = this.dialog.open(ConfigEditorComponent, dConfig);
     }

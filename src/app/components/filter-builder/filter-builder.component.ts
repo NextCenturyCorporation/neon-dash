@@ -23,7 +23,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, NeonFilterClause, NeonQueryPayload } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
@@ -35,6 +35,7 @@ import {
     WidgetFieldOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
+    WidgetOptionCollection,
     WidgetSelectOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
@@ -61,8 +62,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         { value: '<=', prettyName: '<=' }
     ];
 
-    public counter: number = 0;
-
     constructor(
         datasetService: DatasetService,
         filterService: FilterService,
@@ -86,12 +85,12 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * Adds a blank filter clause to the global list.
      */
     addBlankFilterClause() {
-        let clause: FilterClauseMetaData = this.updateDatabasesInOptions(new FilterClauseMetaData());
+        let clause: FilterClauseMetaData = new FilterClauseMetaData(() => []);
+        clause.updateDatabases(this.datasetService);
         clause.field = this.createEmptyField();
         clause.operator = this.operators[0];
         clause.value = '';
         clause.active = false;
-        clause.id = ++this.counter;
         clause.changeDatabase = clause.database;
         clause.changeTable = clause.table;
         clause.changeField = clause.field;
@@ -243,12 +242,12 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         // Does not run a visualization query.
         return null;
     }
@@ -341,7 +340,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
         clause.active = false;
         clause.database = clause.changeDatabase;
-        this.updateTablesInOptions(clause);
+        clause.updateTables(this.datasetService);
         clause.changeTable = clause.table;
 
         if (this.databaseTableFieldKeysToFilterIds.get(databaseTableFieldKey)) {
@@ -391,7 +390,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
         clause.active = false;
         clause.table = clause.changeTable;
-        this.updateFieldsInOptions(clause);
+        clause.updateFields(this.datasetService);
 
         if (this.databaseTableFieldKeysToFilterIds.get(databaseTableFieldKey)) {
             this.updateFiltersOfKey(databaseTableFieldKey);
@@ -417,15 +416,16 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         });
 
         this.options.clauseConfig.forEach((clauseConfig) => {
-            let clause: FilterClauseMetaData = this.updateDatabasesInOptions(new FilterClauseMetaData());
+            let clause: FilterClauseMetaData = new FilterClauseMetaData(() => []);
+            clause.updateDatabases(this.datasetService);
             clause.database = clause.databases.find((database) => {
                 return database.name === clauseConfig.database;
             });
-            this.updateTablesInOptions(clause);
+            clause.updateTables(this.datasetService);
             clause.table = clause.tables.find((table) => {
                 return table.name === clauseConfig.table;
             });
-            this.updateFieldsInOptions(clause);
+            clause.updateFields(this.datasetService);
             clause.field = clause.fields.find((field) => {
                 return field.columnName === clauseConfig.field;
             });
@@ -434,7 +434,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             });
             clause.value = clauseConfig.value;
             clause.active = true;
-            clause.id = ++this.counter;
             clause.changeDatabase = clause.database;
             clause.changeTable = clause.table;
             clause.changeField = clause.field;
@@ -469,7 +468,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     removeClause(clause: FilterClauseMetaData) {
         this.clauses = this.clauses.filter((clauseFromList) => {
-            return clause.id !== clauseFromList.id;
+            return clause._id !== clauseFromList._id;
         });
 
         let databaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name,
@@ -636,19 +635,13 @@ class OperatorMetaData {
     prettyName: string;
 }
 
-class FilterClauseMetaData {
+class FilterClauseMetaData extends WidgetOptionCollection {
     active: boolean;
     changeDatabase: DatabaseMetaData;
     changeTable: TableMetaData;
     changeField: FieldMetaData;
-    database: DatabaseMetaData;
-    databases: DatabaseMetaData[] = [];
     field: FieldMetaData;
-    fields: FieldMetaData[] = [];
-    id: number;
     operator: OperatorMetaData;
-    table: TableMetaData;
-    tables: TableMetaData[] = [];
     value: string;
 }
 
