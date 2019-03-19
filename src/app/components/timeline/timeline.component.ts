@@ -286,7 +286,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
             .updateGroups(query, groups).updateAggregation(query, AggregationType.MIN, '_date', options.dateField.columnName)
-            .updateSort(query, '_date').updateAggregation(query, AggregationType.COUNT, '_aggregation', '*');
+            .updateSort(query, '_date').updateAggregation(query, AggregationType.COUNT, '_aggregation', '_date');
 
         return query;
     }

@@ -179,7 +179,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         let filter: FilterClause = this.searchService.buildFilterClause(options.dataField.columnName, '!=', null);
 
-        let aggregationField = options.aggregation === AggregationType.COUNT ? '*' : options.sizeField.columnName;
+        let aggregationField = options.aggregation === AggregationType.COUNT ? options.dataField.columnName : options.sizeField.columnName;
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
             .updateGroups(query, [this.searchService.buildQueryGroup(options.dataField.columnName)])
