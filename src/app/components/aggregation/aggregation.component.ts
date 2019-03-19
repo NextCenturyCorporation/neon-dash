@@ -309,6 +309,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         let groups: QueryGroup[] = [];
         let filters: FilterClause[] = [this.searchService.buildFilterClause(options.xField.columnName, '!=', null)];
+        let countField = options.xField.columnName;
 
         if (options.xField.type === 'date') {
             switch (options.granularity) {
@@ -329,6 +330,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     /* falls through */
             }
             this.searchService.updateAggregation(query, AggregationType.MIN, '_date', options.xField.columnName).updateSort(query, '_date');
+            countField = '_date';
         } else if (!options.sortByAggregation) {
             groups.push(this.searchService.buildQueryGroup(options.xField.columnName));
             this.searchService.updateSort(query, options.xField.columnName);
@@ -342,7 +344,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             filters.push(this.searchService.buildFilterClause(options.yField.columnName, '!=', null));
         } else {
             this.searchService.updateAggregation(query, options.aggregation, '_aggregation',
-                (options.aggregation === AggregationType.COUNT ? '*' : options.aggregationField.columnName));
+                (options.aggregation === AggregationType.COUNT ? countField : options.aggregationField.columnName));
         }
 
         if (options.groupField.columnName) {

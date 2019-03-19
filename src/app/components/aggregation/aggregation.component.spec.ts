@@ -581,14 +581,14 @@ describe('Component: Aggregation', () => {
         expect(spy3.calls.count()).toEqual(0);
     });
 
-    it('finalizeVisualizationQuery does return expected aggregation query', () => {
+    it('finalizeVisualizationQuery does return expected count aggregation query', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.xField = DatasetServiceMock.X_FIELD;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
-                field: '*',
+                field: 'testXField',
                 name: '_aggregation',
                 type: 'count'
             }],
@@ -605,7 +605,7 @@ describe('Component: Aggregation', () => {
         });
     });
 
-    it('finalizeVisualizationQuery does return expected aggregation query with optional fields', () => {
+    it('finalizeVisualizationQuery does return expected non-count aggregation query with optional fields', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.aggregation = AggregationType.SUM;
@@ -663,7 +663,51 @@ describe('Component: Aggregation', () => {
         });
     });
 
-    it('finalizeVisualizationQuery does return expected aggregation query with filters', () => {
+    it('finalizeVisualizationQuery does return expected count aggregation query with filters', () => {
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+
+        expect(component.finalizeVisualizationQuery(component.options, {}, [{
+            field: 'testConfigFilterField',
+            operator: '=',
+            value: 'testConfigFilterValue'
+        }, {
+            field: 'testFilterField',
+            operator: '=',
+            value: 'testFilterValue'
+        }])).toEqual({
+            aggregation: [{
+                field: 'testXField',
+                name: '_aggregation',
+                type: 'count'
+            }],
+            filter: {
+                filters: [{
+                    field: 'testConfigFilterField',
+                    operator: '=',
+                    value: 'testConfigFilterValue'
+                }, {
+                    field: 'testFilterField',
+                    operator: '=',
+                    value: 'testFilterValue'
+                }, {
+                    field: 'testXField',
+                    operator: '!=',
+                    value: null
+                }],
+                type: 'and'
+            },
+            groups: ['testXField', 'testCategoryField'],
+            sort: {
+                field: 'testXField',
+                order: 1
+            }
+        });
+    });
+
+    it('finalizeVisualizationQuery does return expected non-count aggregation query with filters', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.aggregation = AggregationType.SUM;
@@ -754,7 +798,39 @@ describe('Component: Aggregation', () => {
         });
     });
 
-    it('finalizeVisualizationQuery does return expected date aggregation query', () => {
+    it('finalizeVisualizationQuery does return expected date count aggregation query', () => {
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
+
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            aggregation: [{
+                field: 'testDateField',
+                name: '_date',
+                type: 'min'
+            }, {
+                field: '_date',
+                name: '_aggregation',
+                type: 'count'
+            }],
+            filter: {
+                field: 'testDateField',
+                operator: '!=',
+                value: null
+            },
+            groups: [{
+                field: 'testDateField',
+                type: 'year'
+            }, 'testCategoryField'],
+            sort: {
+                field: '_date',
+                order: 1
+            }
+        });
+    });
+
+    it('finalizeVisualizationQuery does return expected date non-count aggregation query', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.aggregation = AggregationType.SUM;

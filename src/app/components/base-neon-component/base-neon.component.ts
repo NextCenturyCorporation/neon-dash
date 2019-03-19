@@ -669,6 +669,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             if (this.visualizationQueryPaginates && !this.showingZeroOrMultipleElementsPerResult) {
                 let countQuery: QueryPayload = this.createCompleteVisualizationQuery(options);
                 if (countQuery) {
+                    // Add a count aggregation on '*' to get the total hit count.
                     // Do not add a limit or an offset!
                     this.searchService.updateAggregation(countQuery, AggregationType.COUNT, '_count', '*');
                     let filtersToIgnore = this.getFiltersToIgnore();

@@ -160,7 +160,7 @@ describe('Component: TextCloud', () => {
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
-                field: '*',
+                field: 'testTextField',
                 name: '_aggregation',
                 type: 'count'
             }],
