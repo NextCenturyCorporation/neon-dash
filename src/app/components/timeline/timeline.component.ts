@@ -283,10 +283,13 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.YEAR));
             /* falls through */
         }
+        groups.push(this.searchService.buildQueryGroup('docIds'));
 
         this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filter)))
             .updateGroups(query, groups).updateAggregation(query, AggregationType.MIN, '_date', options.dateField.columnName)
-            .updateSort(query, '_date').updateAggregation(query, AggregationType.COUNT, '_aggregation', '*');
+            .updateSort(query, '_date')
+            .updateAggregation(query, AggregationType.COUNT, '_countById', 'docIds')
+            .updateAggregation(query, AggregationType.COUNT, '_countByDate', '_month');
 
         return query;
     }
@@ -319,14 +322,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         // Convert all the dates into Date objects
         let data: { value: number, date: Date }[] = results.map((item) => {
             return {
-                value: item._aggregation,
+                value: item._countByDate,
                 date: new Date(item._date)
             };
         });
 
         this.filterAndRefreshData(data);
 
-        return new TransformedTimelineAggregationData(data);
+        return new TransformedTimelineAggregationData(this.timelineData.data.length ? this.timelineData.data[0].data : []);
     }
 
     /**
@@ -386,7 +389,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                     let bucketIndex = this.timelineData.bucketizer.getBucketIndex(row.date);
 
                     if (series.data[bucketIndex]) {
-                        series.data[bucketIndex].value += row.value;
+                        series.data[bucketIndex].value = row.value;
                     }
                 }
             } else {
@@ -570,7 +573,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     getVisualizationDefaultLimit(): number {
-        return 10;
+        return 1000;
     }
 
     /**
