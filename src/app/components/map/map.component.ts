@@ -121,8 +121,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             ref
         );
 
-        this.isMultiLayerWidget = true;
-
         (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
 
         this.updateOnSelectId = true;
@@ -154,7 +152,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     initializeProperties() {
         // Backwards compatibility (mapType deprecated and replaced by type).
         this.options.type = this.injector.get('mapType', this.options.type);
-        this.options.isMultiLayerWidget = true;
     }
 
     /**
@@ -943,5 +940,15 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      */
     getVisualizationDefaultTitle(): string {
         return 'Map';
+    }
+
+    /**
+     * Returns whether to create a default layer if no layers are configured.
+     *
+     * @return {boolean}
+     * @override
+     */
+    protected shouldCreateDefaultLayer(): boolean {
+        return true;
     }
 }

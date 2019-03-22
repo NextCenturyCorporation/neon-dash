@@ -256,7 +256,6 @@ describe('BaseNeonComponent', () => {
 
         expect((component as any).errorMessage).toEqual('');
         expect((component as any).initializing).toEqual(false);
-        expect((component as any).isMultiLayerWidget).toEqual(false);
         expect((component as any).loadingCount).toEqual(0);
         expect((component as any).redrawOnResize).toEqual(false);
         expect((component as any).selectedDataId).toEqual('');
@@ -308,7 +307,7 @@ describe('BaseNeonComponent', () => {
     });
 
     it('ngAfterViewInit on multi layer widget does work as expected', () => {
-        (component as any).isMultiLayerWidget = true;
+        component.addLayer(component.options);
         let spyConstruct = spyOn(component, 'constructVisualization');
         let spyExecute = spyOn(component, 'executeAllQueryChain');
         component.ngAfterViewInit();
@@ -513,7 +512,6 @@ describe('BaseNeonComponent', () => {
 
     it('createExportData with multiple layers does return expected data', () => {
         // Setup:  Create multiple layers
-        (component as any).isMultiLayerWidget = true;
         component.addLayer(component.options);
         component.addLayer(component.options);
         expect(component.options.layers.length).toEqual(2);
@@ -658,22 +656,27 @@ describe('BaseNeonComponent', () => {
 
     it('deleteLayer does work as expected', () => {
         component.addLayer(component.options);
+        let id1 = component.options.layers[0]._id;
         expect(component.options.layers.length).toEqual(1);
 
-        (component as any).deleteLayer(component.options, component.options.layers[0]);
-        expect(component.options.layers.length).toEqual(0);
+        let result = (component as any).deleteLayer(component.options, component.options.layers[0]);
+        expect(component.options.layers.length).toEqual(1);
+        expect(component.options.layers[0]._id).toEqual(id1);
+        expect(result).toEqual(false);
 
         component.addLayer(component.options);
-        component.addLayer(component.options);
+        let id2 = component.options.layers[1]._id;
         expect(component.options.layers.length).toEqual(2);
-        let expectedId = component.options.layers[1]._id;
 
-        (component as any).deleteLayer(component.options, component.options.layers[0]);
+        result = (component as any).deleteLayer(component.options, component.options.layers[0]);
         expect(component.options.layers.length).toEqual(1);
-        expect(component.options.layers[0]._id).toEqual(expectedId);
+        expect(component.options.layers[0]._id).toEqual(id2);
+        expect(result).toEqual(true);
 
-        (component as any).deleteLayer(component.options, component.options.layers[0]);
-        expect(component.options.layers.length).toEqual(0);
+        result = (component as any).deleteLayer(component.options, component.options.layers[0]);
+        expect(component.options.layers.length).toEqual(1);
+        expect(component.options.layers[0]._id).toEqual(id2);
+        expect(result).toEqual(false);
     });
 
     it('executeAllQueryChain does call executeQueryChain', () => {
@@ -683,7 +686,6 @@ describe('BaseNeonComponent', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([component.options]);
 
-        (component as any).isMultiLayerWidget = true;
         component.addLayer(component.options);
         component.addLayer(component.options);
         expect(component.options.layers.length).toEqual(2);
@@ -701,7 +703,6 @@ describe('BaseNeonComponent', () => {
         (component as any).executeAllQueryChain();
         expect(spy.calls.count()).toEqual(0);
 
-        (component as any).isMultiLayerWidget = true;
         component.addLayer(component.options);
         component.addLayer(component.options);
         expect(component.options.layers.length).toEqual(2);
@@ -976,8 +977,6 @@ describe('BaseNeonComponent', () => {
     });
 
     it('getButtonText with multiple layers does return expected string', () => {
-        (component as any).isMultiLayerWidget = true;
-
         expect(component.getButtonText()).toEqual('');
 
         let layerA: any = new WidgetOptionCollection(() => [], undefined, {});

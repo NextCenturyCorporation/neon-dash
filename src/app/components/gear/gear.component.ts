@@ -30,13 +30,16 @@ import {
     QueryList
 } from '@angular/core';
 
-import { OptionsListComponent } from '../options-list/options-list.component';
-import { FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
-import { DatasetService } from '../../services/dataset.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import * as neon from 'neon-framework';
-import { OptionType, WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../widget-option';
 import { MatSidenav } from '@angular/material';
+
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
+import { OptionType, WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../widget-option';
+import { OptionsListComponent } from '../options-list/options-list.component';
+
+import { neonEvents } from '../../neon-namespaces';
+import * as neon from 'neon-framework';
 
 @Component({
     selector: 'app-gear',
@@ -66,7 +69,7 @@ export class GearComponent implements OnInit, OnDestroy {
     private optionalListNonField: string[] = [];
 
     private createLayer: (options: any, layerBinding?: any) => any;
-    private deleteLayer: (options: any, layerOptions: any) => void;
+    private deleteLayer: (options: any, layerOptions: any) => boolean;
     private exportCallbacks: (() => { name: string, data: any }[])[] = [];
     private finalizeCreateLayer: (layerOptions: any) => void;
     private finalizeDeleteLayer: (layerOptions: any) => void;
@@ -264,9 +267,15 @@ export class GearComponent implements OnInit, OnDestroy {
      * Deletes the given layer.
      */
     public handleDeleteLayer(layer: any) {
-        this.deleteLayer(this.modifiedOptions, layer);
-        this.layerHidden.delete(layer._id);
-        this.changeMade = true;
+        let successful: boolean = this.deleteLayer(this.modifiedOptions, layer);
+        if (successful) {
+            this.layerHidden.delete(layer._id);
+            this.changeMade = true;
+        } else {
+            this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+                message: 'Cannot delete final layer of ' + this.modifiedOptions.title + ' (' + layer.title + ')'
+            });
+        }
     }
 
     private isFilterData(optionType: OptionType): boolean {

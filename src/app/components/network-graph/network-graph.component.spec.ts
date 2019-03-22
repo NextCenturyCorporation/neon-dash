@@ -275,7 +275,7 @@ describe('Component: NetworkGraph', () => {
         options.isReified = false;
         options.limit = 3;
 
-        component.initializeProperties(); //need isMultiLayerWidget to be true
+        component.initializeProperties();
         component.transformVisualizationQueryResults(options.layers[0], [{
             testNodeIdField: 'nodeId1',
             testNodeNameField: 'nodeName1',
