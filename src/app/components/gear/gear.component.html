@@ -93,10 +93,12 @@
 </form>
 
 <div class="button-footer" align="right">
-    <button mat-raised-button class="neon-button-large" color="primary" (click)="resetOptionsAndClose()">
+    <button mat-raised-button class="neon-button-large" color="primary"
+    matTooltipPosition="below" matTooltip="Cancel all field changes" (click)="resetOptionsAndClose()">
         Cancel
     </button>
-    <button mat-raised-button class="neon-button-large" color="primary" [disabled]="!changeMade" (click)="handleApplyClick()">
+    <button mat-raised-button class="neon-button-large" color="primary"
+    matTooltipPosition="below" matTooltip="Apply all field changes" [disabled]="!changeMade" (click)="handleApplyClick()">
         Apply Changes
     </button>
 </div>
