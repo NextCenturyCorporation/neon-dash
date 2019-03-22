@@ -27,7 +27,7 @@ import {
 
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-import { AbstractSearchService, NeonFilterClause, NeonQueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
@@ -49,7 +49,6 @@ export interface MediaTab {
     // TODO Add a way for the user to select other items from the list.
     loaded: boolean;
     name: string;
-    slider: number;
     selected: {
         border: string,
         link: string,
@@ -265,13 +264,13 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
-        let filters: NeonFilterClause[] = options.linkFields.map((linkField) =>
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let filters: FilterClause[] = options.linkFields.map((linkField) =>
             this.searchService.buildFilterClause(linkField.columnName, '!=', null)
         );
 
@@ -283,7 +282,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             this.searchService.updateSort(query, options.sortField.columnName, SortOrder.ASCENDING);
         }
 
-        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filters)));
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)));
 
         return query;
     }
@@ -302,7 +301,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     createTabs(links: any, masks: any, names: any[], types: any[], oneTabName: string = ''): MediaTab[] {
         let oneTab: MediaTab = {
             selected: undefined,
-            slider: Number.parseInt(this.options.sliderValue),
             name: oneTabName,
             loaded: false,
             list: []
@@ -327,7 +325,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 if (!this.options.oneTabPerArray) {
                     tab = {
                         selected: undefined,
-                        slider: Number.parseInt(this.options.sliderValue),
                         name: (links.length > 1 ? ((index + 1) + ': ') : '') + name,
                         loaded: false,
                         list: []
@@ -554,7 +551,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             }
 
             if (options.nameField.columnName) {
-                names = neonUtilities.deepFind(result, options.nameField.columnName) || '';
+                names = neonUtilities.deepFind(result, options.nameField.columnName);
+                names = typeof names === 'undefined' ? [] : names;
                 names = this.transformToStringArray(names, options.delimiter);
             }
 
@@ -584,11 +582,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     /**
      * Changes the selected source image in the given tab to the element in the tab's list at the given index.
      *
-     * @arg {any} tab
-     * @arg {number} percent
+     * @arg {number} percentage
      */
-    onSliderChange(tab: any, percent: number) {
-        tab.slider = percent;
+    onSliderChange(percentage: number) {
+        this.options.sliderValue = percentage;
         this.refreshVisualization();
     }
 
@@ -598,6 +595,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     initializeProperties() {
+        this.options.sliderValue = Number.parseInt(this.options.sliderValue);
+
         // Backwards compatibility (linkField deprecated and replaced by linkFields).
         if (this.options.linkField.columnName && !this.options.linkFields.length) {
             this.options.linkFields.push(this.options.linkField);
@@ -651,8 +650,15 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * Ensures that the source image loads before the mask.
      *
      * @arg {any} tab
+     * @arg {number} index
      */
-    setTabLoaded(tab: any) {
+    setTabLoaded(tab: any, index: number) {
+        let base = this.visualization.nativeElement.querySelector('#medium' + index);
+        let mask = this.visualization.nativeElement.querySelector('#mask' + index);
+        if (base && mask) {
+            mask.height = base.clientHeight;
+            mask.width = base.clientWidth;
+        }
         tab.loaded = true;
     }
 
@@ -689,7 +695,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
         let frames = this.visualization.nativeElement.querySelectorAll('.frame');
         let images = this.visualization.nativeElement.querySelectorAll('.image');
-        let videos = this.visualization.nativeElement.querySelectorAll('.video');
         let audios = this.visualization.nativeElement.querySelectorAll('.audio');
 
         if (!this.options.resize) {
@@ -700,10 +705,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             images.forEach((image) => {
                 image.style.maxHeight = '';
                 image.style.maxWidth = '';
-            });
-            videos.forEach((video) => {
-                video.style.maxHeight = '';
-                video.style.maxWidth = '';
             });
             audios.forEach((audio) => {
                 audio.style.maxHeight = '';
@@ -731,12 +732,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             image.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         });
 
-        videos.forEach((video) => {
-            video.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            video.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        });
-
         audios.forEach((audio) => {
             audio.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
                 this.MEDIA_PADDING - sliderHeight - 5) + 'px';
@@ -759,5 +754,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         } else {
             this.addEventLinks(fields, metadata, name);
         }
+    }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.transformVisualizationQueryResults(options, []);
     }
 }

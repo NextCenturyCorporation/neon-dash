@@ -24,9 +24,8 @@ $footer-height: 35px;
     border-radius: 5px;
 
     .header.text {
-        font-size: 18px;
-        font-weight: bold;
-        line-height: 20px;
+        font-size: 14px;
+        font-weight: 500;
         margin: 0 5px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -35,6 +34,8 @@ $footer-height: 35px;
     }
 
     .info.text {
+        font-size: 14px;
+        font-weight: 500;
         margin: 0 5px;
         overflow: hidden;
         text-align: right;
@@ -93,7 +94,7 @@ $footer-height: 35px;
     }
 
     .footer {
-        border-top: 5px solid var(--color-accent, lightgrey);
+        border-top: 2px solid var(--color-accent, lightgrey);
         position: absolute;
         bottom: 0;
         height: #{$footer-height};
@@ -108,7 +109,8 @@ $footer-height: 35px;
             .pagination-button {
                 flex: 1 0 0;
                 /* Copied font size, height, and line height from neon-button-small in styles.scss */
-                font-size: 12px !important;
+                font-size: 14px !important;
+                font-weight: 500 !important;
                 height: 25px !important;
                 line-height: 15px !important;
                 margin: 0 5px;

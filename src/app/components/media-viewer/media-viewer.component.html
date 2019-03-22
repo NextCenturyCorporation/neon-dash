@@ -8,118 +8,10 @@
             </span>
             <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
-        <button *ngIf="options.url == ''" mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below" (click)="optionsMenu.toggle();">
+        <button *ngIf="options.url == ''" mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
-
-    <mat-sidenav #optionsMenu position="end" class="visualization-sidenav-options">
-        <mat-card align="left">
-            <mat-card-content>
-                <div *ngIf="errorMessage">
-                    <label class="icon-with-text error-message" [matTooltip]="errorMessage" tooltip-position="below">
-                        <mat-icon class="neon-icon-small">error</mat-icon>
-                        <span>{{ errorMessage }}</span>
-                    </label>
-                    <p></p>
-                </div>
-
-                <div *ngIf="getButtonText()">
-                    <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
-                        <mat-icon class="neon-icon-small">info</mat-icon>
-                        <span>{{ getButtonText() }}</span>
-                    </label>
-                    <p></p>
-                </div>
-
-                <mat-form-field>
-                    <input matInput placeholder="Title" [(ngModel)]="options.title" required="false">
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Database" [(ngModel)]="options.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="options.databases.length < 2">
-                        <mat-option *ngFor="let database of options.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Table" [(ngModel)]="options.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="options.tables.length < 2">
-                        <mat-option *ngFor="let table of options.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="ID Field" [(ngModel)]="options.idField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Link Fields" [(ngModel)]="options.linkFields" required="true"
-                                (ngModelChange)="handleChangeFilterField()" multiple [disabled]="options.fields.length < 1">
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Name Field" [(ngModel)]="options.nameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option [value]="createEmptyField()">(None)</mat-option>
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Type Field" [(ngModel)]="options.typeField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option [value]="createEmptyField()">(None)</mat-option>
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <input matInput placeholder="Border" [(ngModel)]="options.border" required="false">
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <input matInput placeholder="ID" [(ngModel)]="options.id" required="false">
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <input matInput placeholder="Link Prefix" [(ngModel)]="options.linkPrefix" required="false">
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <input matInput placeholder="URL" [(ngModel)]="options.url" required="false">
-                </mat-form-field>
-                <p></p>
-
-                <span class="toggle-text">One Tab Per Array:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.oneTabPerArray" (ngModelChange)="updateOnResize()">
-                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-                    <mat-button-toggle [value]="false">No</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <span class="toggle-text">Resize:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.resize" (ngModelChange)="updateOnResize()">
-                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-                    <mat-button-toggle [value]="false">No</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <app-export-control [widgets]="this"></app-export-control>
-            </mat-card-content>
-        </mat-card>
-    </mat-sidenav>
 
     <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
         <mat-spinner></mat-spinner>
@@ -129,27 +21,25 @@
         <div *ngIf="noDataId && tabsAndMedia.length == 0" class="viewer-text">No Data: {{ noDataId }}</div>
 
         <mat-tab-group *ngIf="tabsAndMedia.length > 1" [(selectedIndex)]="selectedTabIndex" (selectedTabChange)="updateOnResize($event)">
-            <mat-tab class="tab" *ngFor="let tab of tabsAndMedia" [label]="tab.name">
+            <mat-tab class="tab" *ngFor="let tab of tabsAndMedia; let i = index" [label]="tab.name">
                 <div [ngSwitch]="tab.selected.type">
+                    <!-- TODO Move into a subcomponent shared with the single-tab behavior -->
                     <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
-                        <img *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name"
-                             [style.opacity]="calculateOpacity(tab.slider)" (load)="setTabLoaded(tab)"
+                        <img *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name" [id]="'medium' + i"
+                             [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setTabLoaded(tab, i)"
                              [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' medium') : 'image medium'">
-                        <img *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" [hidden]="!tab.loaded"
+                        <img *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" [id]="'mask' + i" [hidden]="!tab.loaded"
                              [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
-                        <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]="tab.slider"
-                                    (input)="onSliderChange(tab, $event.value)"></mat-slider>
+                        <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]="options.sliderValue"
+                                    (input)="onSliderChange($event.value)"></mat-slider>
                     </div>
                     <img *ngSwitchCase="mediaTypes.image" [src]="tab.selected.link" [alt]="tab.selected.name"
                         [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">
-                    <video *ngSwitchCase="mediaTypes.video" controls
-                        [class]="tab.selected.border ? ('video with-border border-mat-' + tab.selected.border) : 'video'">
-                        <source [src]="tab.selected.link">
-                    </video>
                     <audio *ngSwitchCase="mediaTypes.audio" controls [attr.autoplay]='options.autoplay ? true : null'
                         [class]="tab.selected.border ? ('audio with-border border-mat-' + tab.selected.border) : 'audio'">
                         <source [src]="tab.selected.link">
                     </audio>
+                    <!-- Use iframe for mediaTypes.video and other types -->
                     <iframe *ngSwitchDefault [src]="sanitize(tab.selected.link)" frameborder="0"
                         [class]="tab.selected.border ? ('frame with-border border-mat-' + tab.selected.border) : 'frame'">
                     </iframe>
@@ -157,32 +47,33 @@
             </mat-tab>
         </mat-tab-group>
 
-        <div class="full-height single-medium" *ngIf="tabsAndMedia.length == 1 && tabsAndMedia[0].selected"
-            [ngSwitch]="tabsAndMedia[0].selected.type">
-
-            <div class="viewer-text">{{ tabsAndMedia[0].name }}</div>
-            <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
-                <img *ngIf="tabsAndMedia[0].selected.link" [src]="tabsAndMedia[0].selected.link" [alt]="tabsAndMedia[0].selected.name"
-                     [style.opacity]="calculateOpacity(tabsAndMedia[0].slider)" (load)="setTabLoaded(tabsAndMedia[0])"
-                     [class]="tabsAndMedia[0].selected.border ? ('image with-border border-mat-' + tabsAndMedia[0].selected.border + ' medium') : 'image medium'">
-                <img *ngIf="tabsAndMedia[0].selected.mask" [src]="tabsAndMedia[0].selected.mask" [alt]="tabsAndMedia[0].selected.name" [hidden]="!tabsAndMedia[0].loaded"
-                     [class]="tabsAndMedia[0].selected.border ? ('image with-border border-mat-' + tabsAndMedia[0].selected.border + ' mask') : 'image mask'">
-                <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]="tabsAndMedia[0].slider"
-                            (input)="onSliderChange(tabsAndMedia[0], $event.value)"></mat-slider>
+        <div class="full-height single-medium" *ngIf="tabsAndMedia.length == 1 && tabsAndMedia[0].selected">
+            <!-- Use an ngFor to force the widget to reload and redraw its media elements -->
+            <div *ngFor="let tab of tabsAndMedia">
+                <div class="viewer-text">{{ tab.name }}</div>
+                <div [ngSwitch]="tab.selected.type">
+                    <!-- TODO Move into a subcomponent shared with the multiple-tab behavior -->
+                    <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
+                        <img *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name" id="medium0"
+                             [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setTabLoaded(tab, 0)"
+                             [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' medium') : 'image medium'">
+                        <img *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" id="mask0" [hidden]="!tab.loaded"
+                             [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
+                        <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]="options.sliderValue"
+                                    (input)="onSliderChange($event.value)"></mat-slider>
+                    </div>
+                    <img *ngSwitchCase="mediaTypes.image" [src]="tab.selected.link" [alt]="tab.selected.name"
+                        [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">
+                    <audio *ngSwitchCase="mediaTypes.audio" controls [attr.autoplay]='options.autoplay ? true : null'
+                        [class]="tab.selected.border ? ('audio with-border border-mat-' + tab.selected.border) : 'audio'">
+                        <source [src]="tab.selected.link">
+                    </audio>
+                    <!-- Use iframe for mediaTypes.video and other types -->
+                    <iframe *ngSwitchDefault [src]="sanitize(tab.selected.link)" frameborder="0"
+                        [class]="tab.selected.border ? ('frame with-border border-mat-' + tab.selected.border) : 'frame'">
+                    </iframe>
+                </div>
             </div>
-            <img *ngSwitchCase="mediaTypes.image" [src]="tabsAndMedia[0].selected.link" [alt]="tabsAndMedia[0].selected.name"
-                [class]="tabsAndMedia[0].selected.border ? ('image with-border border-mat-' + tabsAndMedia[0].selected.border) : 'image'">
-            <video *ngSwitchCase="mediaTypes.video" controls
-                [class]="tabsAndMedia[0].selected.border ? ('video with-border border-mat-' + tabsAndMedia[0].selected.border) : 'video'">
-                <source [src]="tabsAndMedia[0].selected.link">
-            </video>
-            <audio *ngSwitchCase="mediaTypes.audio" controls [attr.autoplay]='options.autoplay ? true : null'
-                [class]="tabsAndMedia[0].selected.border ? ('audio with-border border-mat-' + tabsAndMedia[0].selected.border) : 'audio'">
-                <source [src]="tabsAndMedia[0].selected.link">
-            </audio>
-            <iframe *ngSwitchDefault [src]="sanitize(tabsAndMedia[0].selected.link)" frameborder="0"
-                [class]="tabsAndMedia[0].selected.border ? ('frame with-border border-mat-' + tabsAndMedia[0].selected.border) : 'frame'">
-            </iframe>
         </div>
     </div>
 

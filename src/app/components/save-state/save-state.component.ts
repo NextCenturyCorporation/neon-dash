@@ -105,8 +105,8 @@ export class SaveStateComponent implements OnInit {
             stateParams.stateName = name;
         }
 
-        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
-            this.datasetService.getHostname());
+        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastoreType(),
+            this.datasetService.getDatastoreHost());
         if (connection) {
             // Get each visualization's bindings and save them to our dashboard state parameter
             stateParams.dashboard = this.widgetGridItems.map((widgetGridItem) => {
@@ -153,8 +153,8 @@ export class SaveStateComponent implements OnInit {
         if (this.validateName(name)) {
             return;
         }
-        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
-            this.datasetService.getHostname());
+        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastoreType(),
+            this.datasetService.getDatastoreHost());
         if (connection) {
             let stateParams = {
                 stateName: name
@@ -187,8 +187,8 @@ export class SaveStateComponent implements OnInit {
         if (this.validateName(name)) {
             return;
         }
-        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
-            this.datasetService.getHostname());
+        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastoreType(),
+            this.datasetService.getDatastoreHost());
         if (connection) {
             connection.deleteState(this.formData.stateToDelete, (stateIds) => {
                 this.loadStateNames();
@@ -226,7 +226,7 @@ export class SaveStateComponent implements OnInit {
     handleStateFailure(response) {
         this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
             error: null,
-            message: response.responseJSON.error
+            message: response.responseJSON ? response.responseJSON.error : undefined
         });
     }
 
@@ -237,11 +237,11 @@ export class SaveStateComponent implements OnInit {
     loadStateNames() {
         this.formData.stateToDelete = '';
         this.formData.stateToLoad = '';
-        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
-            this.datasetService.getHostname());
+        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastoreType(),
+            this.datasetService.getDatastoreHost());
         if (!connection) {
-            connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
-                this.datasetService.getHostname());
+            connection = this.connectionService.createActiveConnection(this.datasetService.getDatastoreType(),
+                this.datasetService.getDatastoreHost());
         }
 
         this.isLoading = true;
@@ -253,7 +253,7 @@ export class SaveStateComponent implements OnInit {
             this.stateNames = [];
             this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
                 error: null,
-                message: response.responseJSON.error
+                message: response.responseJSON ? response.responseJSON.error : undefined
             });
         });
     }
@@ -290,8 +290,7 @@ export class SaveStateComponent implements OnInit {
         let message = 'State "' + stateName + '" has been ' + actionName;
         this.snackBar.open(message, 'x', {
             duration: 5000,
-            verticalPosition: 'top',
-            panelClass: [this.widgetService.getTheme(), 'simpleSnackBar']
+            verticalPosition: 'top'
          });
     }
 }

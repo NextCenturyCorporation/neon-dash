@@ -31,9 +31,9 @@ import { Color } from '../../color';
 import {
     AbstractSearchService,
     AggregationType,
-    NeonFilterClause,
-    NeonQueryGroup,
-    NeonQueryPayload,
+    FilterClause,
+    QueryGroup,
+    QueryPayload,
     SortOrder,
     TimeInterval
 } from '../../services/abstract.search.service';
@@ -80,7 +80,7 @@ class Filter {
 }
 
 export class TransformedAggregationData extends TransformedVisualizationData {
-    constructor(data: any[]) {
+    constructor(data: any[], public options: any) {
         super(data);
     }
 
@@ -91,6 +91,9 @@ export class TransformedAggregationData extends TransformedVisualizationData {
      * @override
      */
     public count(): number {
+        if (this.options.countByAggregation) {
+            return this._data.length;
+        }
         return this._data.reduce((count, element) => count + element.y, 0);
     }
 }
@@ -199,9 +202,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public xList: any[] = [];
     public yList: any[] = [];
 
-    // TODO THOR-349 Move into future widget option menu component
-    public newType: string = '';
-
     constructor(
         datasetService: DatasetService,
         filterService: FilterService,
@@ -301,14 +301,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
-        let groups: NeonQueryGroup[] = [];
-        let filters: NeonFilterClause[] = [this.searchService.buildFilterClause(options.xField.columnName, '!=', null)];
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let groups: QueryGroup[] = [];
+        let filters: FilterClause[] = [this.searchService.buildFilterClause(options.xField.columnName, '!=', null)];
 
         if (options.xField.type === 'date') {
             switch (options.granularity) {
@@ -349,7 +349,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             groups.push(this.searchService.buildQueryGroup(options.groupField.columnName));
         }
 
-        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filters)))
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
             .updateGroups(query, groups);
 
         return query;
@@ -380,6 +380,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         return [
             new WidgetSelectOption('aggregation', 'Aggregation', AggregationType.COUNT, OptionChoices.Aggregation,
                 this.optionsTypeIsNotXY),
+            new WidgetSelectOption('countByAggregation', 'Count Aggregations', false, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('timeFill', 'Date Fill', false, OptionChoices.NoFalseYesTrue, this.optionsXFieldIsDate),
             new WidgetSelectOption('granularity', 'Date Granularity', 'year', OptionChoices.DateGranularity, this.optionsXFieldIsDate),
             new WidgetSelectOption('dualView', 'Dual View', '', [{
@@ -600,6 +601,43 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Returns the label for the objects that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        let label = 'Result';
+        if (this.options.countByAggregation) {
+            switch (this.options.type) {
+                case 'bar-h':
+                case 'bar-v':
+                case 'histogram':
+                    label = 'Bar';
+                    break;
+                case 'doughnut':
+                case 'pie':
+                    label = 'Slice';
+                    break;
+                case 'list':
+                    label = 'Row';
+                    break;
+                case 'line':
+                case 'line-xy':
+                    label = 'Line';
+                    break;
+                case 'scatter':
+                case 'scatter-xy':
+                    label = 'Point';
+                    break;
+            }
+        }
+        return label + (count === 1 ? '' : 's');
+    }
+
+    /**
      * Returns the label for the X Field in the gear option menu using the given subcomponent type.
      *
      * @arg {string} type
@@ -627,18 +665,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     /**
      * Updates the sub-component and reruns the visualization query.
+     * @override
      */
     handleChangeSubcomponentType() {
-        if (this.options.type !== this.newType) {
-            this.options.type = this.newType;
-            if (!this.optionsTypeIsDualViewCompatible(this.options)) {
-                this.options.dualView = '';
-            }
-            if (this.optionsTypeIsContinuous(this.options)) {
-                this.options.sortByAggregation = false;
-            }
-            this.redrawSubcomponents();
+        if (!this.optionsTypeIsDualViewCompatible(this.options)) {
+            this.options.dualView = '';
         }
+        if (this.optionsTypeIsContinuous(this.options)) {
+            this.options.sortByAggregation = false;
+        }
+        this.redrawSubcomponents();
     }
 
     /**
@@ -666,8 +702,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     initializeProperties() {
-        this.newType = this.options.type;
-
         // Check for the boolean value true (not just any truthy value) and fix it.
         this.options.dualView = ('' + this.options.dualView) === 'true' ? 'on' : this.options.dualView;
         if (!this.optionsTypeIsDualViewCompatible(this.options)) {
@@ -770,7 +804,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 color: findGroupColor(group),
                 group: group,
                 x: item[options.xField.columnName],
-                y: isXY ? item[options.yField.columnName] : item._aggregation
+                y: isXY ? item[options.yField.columnName] : (Math.round((item._aggregation) * 10000) / 10000)
             };
         };
 
@@ -902,7 +936,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         this.xList = options.savePrevious && this.xList.length ? this.xList : xList;
         this.yList = yList;
-        return new TransformedAggregationData(shownResults);
+        return new TransformedAggregationData(shownResults, this.options);
     }
 
     /**
@@ -1093,7 +1127,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         // Update the zoom if dualView is truthy.  It will show both the unfiltered and filtered data.
-        if (this.subcomponentZoom && this.options.dualView) {
+        if (this.options.dualView) {
+            if (!this.subcomponentZoom) {
+                this.subcomponentZoom = this.initializeSubcomponent(this.subcomponentZoomElementRef, true);
+            }
             this.subcomponentZoom.draw(this.getActiveData(this.options).data, meta);
         }
 

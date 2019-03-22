@@ -103,8 +103,7 @@ $green-theme: (
     background: $green-theme-background
 );
 
-.neon-green,
-.neon-green + * .cdk-overlay-pane {
+.neon-green {
     @include angular-material-theme($green-theme);
 
     /* DO NOT USE SASS VARIABLES ($VAR) HERE!  YOU MUST HARDCODE ALL COLORS! */

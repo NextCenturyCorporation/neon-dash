@@ -14,18 +14,61 @@
  *
  */
 import { ReflectiveInjector } from '@angular/core';
-import { WidgetSelectOption, WidgetOptionCollection } from './widget-option';
+import { inject } from '@angular/core/testing';
+
+import { DatabaseMetaData, FieldMetaData, TableMetaData } from './dataset';
+import { DatasetService } from './services/dataset.service';
+import {
+    WidgetDatabaseOption,
+    WidgetFieldOption,
+    WidgetFieldArrayOption,
+    WidgetSelectOption,
+    WidgetOptionCollection,
+    WidgetTableOption
+} from './widget-option';
+
+import { initializeTestBed } from '../testUtils/initializeTestBed';
+import { DatasetServiceMock } from '../testUtils/MockServices/DatasetServiceMock';
+
+import * as _ from 'lodash';
 
 describe('WidgetOptionCollection', () => {
     let options: any;
 
+    initializeTestBed('Widget Collection', {
+        providers: [
+            { provide: DatasetService, useClass: DatasetServiceMock }
+        ]
+    });
+
     beforeEach(() => {
-        options = new WidgetOptionCollection(ReflectiveInjector.resolveAndCreate([{
+        options = new WidgetOptionCollection(() => [], ReflectiveInjector.resolveAndCreate([{
             provide: 'keyA',
             useValue: 'provideA'
         }, {
             provide: 'keyB',
             useValue: 'provideB'
+        }, {
+            provide: 'testDate',
+            useValue: 'testDateField'
+        }, {
+            provide: 'testFake',
+            useValue: 'testFakeField'
+        }, {
+            provide: 'testList',
+            useValue: ['testDateField', 'testFakeField', 'testNameField', 'testSizeField']
+        }, {
+            provide: 'testName',
+            useValue: 'testNameField'
+        }, {
+            provide: 'testSize',
+            useValue: 'testSizeField'
+        }, {
+            provide: 'testFieldKey',
+            useValue: 'field_key_1'
+        }, {
+            provide: 'testListWithFieldKey',
+            useValue: ['field_key_1', 'testNameField']
         }]));
     });
 
@@ -66,6 +109,69 @@ describe('WidgetOptionCollection', () => {
         options.keyA = 'newA';
         expect(options.keyA).toEqual('newA');
     });
+
+    it('find field functions do not error if fields are not set', inject([DatasetService], (datasetService: DatasetService) => {
+        expect(options.findField('testNameField')).toEqual(undefined);
+        expect(options.findFieldObject(datasetService, 'testName')).toEqual(new FieldMetaData());
+        expect(options.findFieldObjects(datasetService, 'testList')).toEqual([]);
+    }));
+
+    it('findField does return expected object or undefined', () => {
+        options.fields = DatasetServiceMock.FIELDS;
+
+        expect(options.findField('testDateField')).toEqual(DatasetServiceMock.DATE_FIELD);
+        expect(options.findField('testNameField')).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(options.findField('testSizeField')).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(options.findField('testFakeField')).toEqual(undefined);
+    });
+
+    it('findField does work as expected if given an array index', () => {
+        options.fields = DatasetServiceMock.FIELDS;
+
+        let dateIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => {
+            return fieldObject.columnName === 'testDateField';
+        });
+        let nameIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => {
+            return fieldObject.columnName === 'testNameField';
+        });
+        let sizeIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => {
+            return fieldObject.columnName === 'testSizeField';
+        });
+
+        expect(options.findField('' + dateIndex)).toEqual(DatasetServiceMock.DATE_FIELD);
+        expect(options.findField('' + nameIndex)).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(options.findField('' + sizeIndex)).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(options.findField('' + DatasetServiceMock.FIELDS.length)).toEqual(undefined);
+        expect(options.findField('-1')).toEqual(undefined);
+        expect(options.findField('abcd')).toEqual(undefined);
+    });
+
+    it('findFieldObject does return expected object', inject([DatasetService], (datasetService: DatasetService) => {
+        options.fields = DatasetServiceMock.FIELDS;
+
+        expect(options.findFieldObject(datasetService, 'testDate')).toEqual(DatasetServiceMock.DATE_FIELD);
+        expect(options.findFieldObject(datasetService, 'testName')).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(options.findFieldObject(datasetService, 'testSize')).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(options.findFieldObject(datasetService, 'testFieldKey')).toEqual(DatasetServiceMock.FIELD_KEY_FIELD);
+        expect(options.findFieldObject(datasetService, 'testFake')).toEqual(new FieldMetaData());
+        expect(options.findFieldObject(datasetService, 'fakeBind')).toEqual(new FieldMetaData());
+    }));
+
+    it('findFieldObjects does return expected array', inject([DatasetService], (datasetService: DatasetService) => {
+        options.fields = DatasetServiceMock.FIELDS;
+
+        expect(options.findFieldObjects(datasetService, 'testList')).toEqual([
+            DatasetServiceMock.DATE_FIELD,
+            DatasetServiceMock.NAME_FIELD,
+            DatasetServiceMock.SIZE_FIELD
+        ]);
+        expect(options.findFieldObjects(datasetService, 'testListWithFieldKey')).toEqual([
+            DatasetServiceMock.FIELD_KEY_FIELD,
+            DatasetServiceMock.NAME_FIELD
+        ]);
+        expect(options.findFieldObjects(datasetService, 'testName')).toEqual([]);
+        expect(options.findFieldObjects(datasetService, 'fakeBind')).toEqual([]);
+    }));
 
     it('inject does add given widget option with provided binding', () => {
         options.inject(new WidgetSelectOption('keyA', 'labelA', 'defaultA', []));
@@ -137,6 +243,12 @@ describe('WidgetOptionCollection', () => {
     });
 
     it('list does return an array of all widget options', () => {
+        let databaseOption = new WidgetDatabaseOption();
+        databaseOption.valueCurrent = new DatabaseMetaData();
+        let tableOption = new WidgetTableOption();
+        tableOption.valueCurrent = new TableMetaData();
+        expect(options.list()).toEqual([databaseOption, tableOption]);
+
         let widgetOption1 = new WidgetSelectOption('key1', 'label1', 'default1', []);
         let widgetOption2 = new WidgetSelectOption('key2', 'label2', 'default2', []);
 
@@ -146,6 +258,221 @@ describe('WidgetOptionCollection', () => {
         expect(widgetOption1.valueCurrent).toEqual('current1');
         expect(widgetOption2.valueCurrent).toEqual('current2');
 
-        expect(options.list()).toEqual([widgetOption1, widgetOption2]);
+        expect(options.list()).toEqual([databaseOption, tableOption, widgetOption1, widgetOption2]);
     });
+
+    it('updateDatabases does update databases, tables, and fields', inject([DatasetService], (datasetService: DatasetService) => {
+        options.databases = [];
+        options.database = new DatabaseMetaData();
+        options.tables = [];
+        options.table = new TableMetaData();
+        options.fields = [];
+
+        options.updateDatabases(datasetService);
+
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+    }));
+
+    it('updateFields does update fields', inject([DatasetService], (datasetService: DatasetService) => {
+        options.databases = DatasetServiceMock.DATABASES;
+        options.database = DatasetServiceMock.DATABASES[0];
+        options.tables = DatasetServiceMock.TABLES;
+        options.table = DatasetServiceMock.TABLES[0];
+        options.fields = [];
+
+        options.updateFields(datasetService);
+
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+    }));
+
+    it('updateTables does update tables and fields', inject([DatasetService], (datasetService: DatasetService) => {
+        options.databases = DatasetServiceMock.DATABASES;
+        options.database = DatasetServiceMock.DATABASES[0];
+        options.tables = [];
+        options.table = new TableMetaData();
+        options.fields = [];
+
+        options.updateTables(datasetService);
+
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+    }));
+});
+
+describe('WidgetOptionCollection with custom fields', () => {
+    let options: any;
+
+    initializeTestBed('Widget Collection', {
+        providers: [
+            { provide: DatasetService, useClass: DatasetServiceMock }
+        ]
+    });
+
+    beforeEach(() => {
+        options = new WidgetOptionCollection(() => {
+            return [
+                new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
+                new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false)
+            ];
+        }, ReflectiveInjector.resolveAndCreate([]));
+    });
+
+    it('updateDatabases does update databases, tables, and fields', inject([DatasetService], (datasetService: DatasetService) => {
+        options.databases = [];
+        options.database = new DatabaseMetaData();
+        options.tables = [];
+        options.table = new TableMetaData();
+        options.fields = [];
+        options.testCustomField = null;
+        options.testCustomFieldArray = null;
+
+        options.updateDatabases(datasetService);
+
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(options.testCustomField).toEqual(new FieldMetaData());
+        expect(options.testCustomFieldArray).toEqual([]);
+    }));
+
+    it('updateFields does update fields', inject([DatasetService], (datasetService: DatasetService) => {
+        options.databases = DatasetServiceMock.DATABASES;
+        options.database = DatasetServiceMock.DATABASES[0];
+        options.tables = DatasetServiceMock.TABLES;
+        options.table = DatasetServiceMock.TABLES[0];
+        options.fields = [];
+        options.testCustomField = null;
+        options.testCustomFieldArray = null;
+
+        options.updateFields(datasetService);
+
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(options.testCustomField).toEqual(new FieldMetaData());
+        expect(options.testCustomFieldArray).toEqual([]);
+    }));
+
+    it('updateTables does update tables and fields', inject([DatasetService], (datasetService: DatasetService) => {
+        options.databases = DatasetServiceMock.DATABASES;
+        options.database = DatasetServiceMock.DATABASES[0];
+        options.tables = [];
+        options.table = new TableMetaData();
+        options.fields = [];
+        options.testCustomField = null;
+        options.testCustomFieldArray = null;
+
+        options.updateTables(datasetService);
+
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(options.testCustomField).toEqual(new FieldMetaData());
+        expect(options.testCustomFieldArray).toEqual([]);
+    }));
+});
+
+describe('WidgetOptionCollection with bindings and custom fields', () => {
+    let options: any;
+
+    initializeTestBed('Widget Collection', {
+        providers: [
+            { provide: DatasetService, useClass: DatasetServiceMock }
+        ]
+    });
+
+    beforeEach(() => {
+        options = new WidgetOptionCollection(() => {
+            return [
+                new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
+                new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false)
+            ];
+        }, ReflectiveInjector.resolveAndCreate([{
+            provide: 'tableKey',
+            useValue: 'table_key_2'
+        }, {
+            provide: 'testCustomField',
+            useValue: 'testTextField'
+        }, {
+            provide: 'testCustomFieldArray',
+            useValue: ['testNameField', 'testTypeField']
+        }]));
+    });
+
+    it('updateDatabases does update databases, tables, and fields', inject([DatasetService], (datasetService: DatasetService) => {
+        options.databases = [];
+        options.database = new DatabaseMetaData();
+        options.tables = [];
+        options.table = new TableMetaData();
+        options.fields = [];
+        options.testCustomField = null;
+        options.testCustomFieldArray = null;
+
+        options.updateDatabases(datasetService);
+
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(options.testCustomField).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(options.testCustomFieldArray).toEqual([DatasetServiceMock.NAME_FIELD, DatasetServiceMock.TYPE_FIELD]);
+    }));
+
+    it('updateFields does update fields', inject([DatasetService], (datasetService: DatasetService) => {
+        options.databases = DatasetServiceMock.DATABASES;
+        options.database = DatasetServiceMock.DATABASES[1];
+        options.tables = DatasetServiceMock.TABLES;
+        options.table = DatasetServiceMock.TABLES[1];
+        options.fields = [];
+        options.testCustomField = null;
+        options.testCustomFieldArray = null;
+
+        options.updateFields(datasetService);
+
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(options.testCustomField).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(options.testCustomFieldArray).toEqual([DatasetServiceMock.NAME_FIELD, DatasetServiceMock.TYPE_FIELD]);
+    }));
+
+    it('updateTables does update tables and fields', inject([DatasetService], (datasetService: DatasetService) => {
+        options.databases = DatasetServiceMock.DATABASES;
+        options.database = DatasetServiceMock.DATABASES[1];
+        options.tables = [];
+        options.table = new TableMetaData();
+        options.fields = [];
+        options.testCustomField = null;
+        options.testCustomFieldArray = null;
+
+        options.updateTables(datasetService);
+
+        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(options.database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(options.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(options.testCustomField).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(options.testCustomFieldArray).toEqual([DatasetServiceMock.NAME_FIELD, DatasetServiceMock.TYPE_FIELD]);
+    }));
 });

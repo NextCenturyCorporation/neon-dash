@@ -142,7 +142,7 @@ export class CesiumNeonMap extends AbstractMap {
 
         this.cesiumViewer = viewer;
 
-        this.popupEntity = this.mapOptions.showPointDataOnHover && this.cesiumViewer.entities.add({
+        this.popupEntity = this.mapOptions.hoverPopupEnabled && this.cesiumViewer.entities.add({
                 label: {
                     show: false,
                     showBackground: true,
@@ -369,11 +369,11 @@ export class CesiumNeonMap extends AbstractMap {
         if (this.selection.selectionDown && end) {
             this.setEndPos(end);
             this.drawSelection();
-        } else if (end && (this.mapOptions.showPointDataOnHover || this.mapOptions.hoverSelect)) {
+        } else if (end && (this.mapOptions.hoverPopupEnabled || this.mapOptions.hoverSelect)) {
             let viewer = this.cesiumViewer,
                 objectsAtLocation = viewer.scene.drillPick(end); // get all entities under mouse
 
-            if (this.mapOptions.showPointDataOnHover) {
+            if (this.mapOptions.hoverPopupEnabled) {
                 let popup = this.popupEntity;
 
                 // ensure that an object exists at cursor and that it isn't one of the map-feature entities (eg. popup)

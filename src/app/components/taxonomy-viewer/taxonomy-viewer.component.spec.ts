@@ -21,7 +21,6 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Inje
 import { FormsModule } from '@angular/forms';
 import {} from 'jasmine-core';
 
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
@@ -76,10 +75,9 @@ describe('Component: TaxonomyViewer', () => {
             testCategoryField: ['testCategoryI', 'testCategoryIIII']
         }];
 
-    initializeTestBed({
+    initializeTestBed('Taxonomy', {
         declarations: [
             TaxonomyViewerComponent,
-            ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [
@@ -242,7 +240,7 @@ describe('Component: TaxonomyViewer', () => {
 
     }));
 
-    it('does create filter when a parent node in the taxonomy is unselected', (() => {
+    it('does create filter when a parent node in the taxonomy is unselected', async(() => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
@@ -265,7 +263,7 @@ describe('Component: TaxonomyViewer', () => {
         });
     }));
 
-    it('does remove parent filter and create a new filter when a child node in the taxonomy is selected', (() => {
+    it('does remove parent filter and create a new filter when a child node in the taxonomy is selected', async(() => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
@@ -290,7 +288,7 @@ describe('Component: TaxonomyViewer', () => {
         });
     }));
 
-    it('does remove and create a new filter when a child node in the taxonomy is unselected', (() => {
+    it('does remove and create a new filter when a child node in the taxonomy is unselected', async(() => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
@@ -313,7 +311,7 @@ describe('Component: TaxonomyViewer', () => {
         });
     }));
 
-    it('does select child nodes when a parent nodes is selected in the taxonomy', (() => {
+    it('does select child nodes when a parent nodes is selected in the taxonomy', async(() => {
         let refs = component.getElementRefs();
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
@@ -333,7 +331,7 @@ describe('Component: TaxonomyViewer', () => {
         });
     }));
 
-    it('does update parent node when child node is selected in the taxonomy', (() => {
+    it('does update parent node when child node is selected in the taxonomy', async(() => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
@@ -360,7 +358,7 @@ describe('Component: TaxonomyViewer', () => {
         expect(component.setupFilters).toBeDefined();
     }));
 
-    it('onEvent does trigger when node is double clicked', (() => {
+    it('onEvent does trigger when node is double clicked', async(() => {
         let spy = spyOn(component, 'onEvent');
 
         fixture.detectChanges();

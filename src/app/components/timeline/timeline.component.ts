@@ -30,8 +30,8 @@ import {
 import {
     AbstractSearchService,
     AggregationType,
-    NeonFilterClause,
-    NeonQueryPayload,
+    FilterClause,
+    QueryPayload,
     TimeInterval
 } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -256,13 +256,13 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
-        let filter: NeonFilterClause = this.searchService.buildFilterClause(this.options.dateField.columnName, '!=', null);
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let filter: FilterClause = this.searchService.buildFilterClause(this.options.dateField.columnName, '!=', null);
 
         let groups = [];
         switch (options.granularity) {
@@ -284,7 +284,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             /* falls through */
         }
 
-        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filter)))
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
             .updateGroups(query, groups).updateAggregation(query, AggregationType.MIN, '_date', options.dateField.columnName)
             .updateSort(query, '_date').updateAggregation(query, AggregationType.COUNT, '_aggregation', '*');
 
@@ -581,5 +581,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     getVisualizationDefaultTitle(): string {
         return 'Timeline';
+    }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.transformVisualizationQueryResults(options, []);
     }
 }

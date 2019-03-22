@@ -55,6 +55,7 @@ export class WidgetService extends AbstractWidgetService {
         super();
         this.messenger = new neon.eventing.Messenger();
         this.messenger.subscribe(neonEvents.NEW_DATASET, this.resetColorMap.bind(this));
+        document.body.className = this.currentThemeId;
     }
 
     /**
@@ -154,23 +155,26 @@ export class WidgetService extends AbstractWidgetService {
      */
     public resetColorMap() {
         this.colorKeyToColorSet = new Map<string, ColorSet>();
-        let datasetOptions = this.datasetService.getActiveDatasetOptions();
-        let colorMaps = datasetOptions.colorMaps || {};
-        Object.keys(colorMaps).forEach((databaseName) => {
-            Object.keys(colorMaps[databaseName]).forEach((tableName) => {
-                Object.keys(colorMaps[databaseName][tableName]).forEach((fieldName) => {
-                    let valueToColor = new Map<string, Color>();
-                    Object.keys(colorMaps[databaseName][tableName][fieldName]).forEach((valueName) => {
-                        let color = colorMaps[databaseName][tableName][fieldName][valueName];
-                        let isRGB = (color.indexOf('#') < 0);
-                        valueToColor.set(valueName, isRGB ? Color.fromRgbString(color) : Color.fromHexString(color));
+        if (this.datasetService.getCurrentDashboardOptions()) {
+            let dashboardOptions = this.datasetService.getCurrentDashboardOptions();
+            let colorMaps = dashboardOptions.colorMaps || {};
+            Object.keys(colorMaps).forEach((databaseName) => {
+                Object.keys(colorMaps[databaseName]).forEach((tableName) => {
+                    Object.keys(colorMaps[databaseName][tableName]).forEach((fieldName) => {
+                        let valueToColor = new Map<string, Color>();
+                        Object.keys(colorMaps[databaseName][tableName][fieldName]).forEach((valueName) => {
+                            let color = colorMaps[databaseName][tableName][fieldName][valueName];
+                            let isRGB = (color.indexOf('#') < 0);
+                            valueToColor.set(valueName, isRGB ? Color.fromRgbString(color) : Color.fromHexString(color));
+                        });
+                        let colorKey = this.getColorKey(databaseName, tableName, fieldName);
+                        let colorSet = new ColorSet(colorKey, databaseName, tableName, fieldName, valueToColor);
+                        this.colorKeyToColorSet.set(colorKey, colorSet);
                     });
-                    let colorKey = this.getColorKey(databaseName, tableName, fieldName);
-                    let colorSet = new ColorSet(colorKey, databaseName, tableName, fieldName, valueToColor);
-                    this.colorKeyToColorSet.set(colorKey, colorSet);
                 });
             });
-        });
+        }
+
     }
 
     /**
@@ -181,5 +185,6 @@ export class WidgetService extends AbstractWidgetService {
      */
     public setTheme(id: string): void {
         this.currentThemeId = id;
+        document.body.className = this.currentThemeId;
     }
 }

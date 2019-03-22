@@ -79,7 +79,7 @@ describe('Component: Settings', () => {
         getService = (type: any) => fixture.debugElement.injector.get(type);
     let debugElement: DebugElement;
 
-    initializeTestBed({
+    initializeTestBed('Settings', {
         declarations: [
             TestSettingsComponent
         ],
