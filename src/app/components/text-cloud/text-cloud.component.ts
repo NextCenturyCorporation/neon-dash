@@ -28,8 +28,8 @@ import {
 import {
     AbstractSearchService,
     AggregationType,
-    NeonFilterClause,
-    NeonQueryPayload,
+    FilterClause,
+    QueryPayload,
     SortOrder
 } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -171,17 +171,17 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
-        let filter: NeonFilterClause = this.searchService.buildFilterClause(options.dataField.columnName, '!=', null);
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let filter: FilterClause = this.searchService.buildFilterClause(options.dataField.columnName, '!=', null);
 
         let aggregationField = options.aggregation === AggregationType.COUNT ? '*' : options.sizeField.columnName;
 
-        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filter)))
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
             .updateGroups(query, [this.searchService.buildQueryGroup(options.dataField.columnName)])
             .updateAggregation(query, options.aggregation, '_aggregation', aggregationField)
             .updateSort(query, '_aggregation', SortOrder.DESCENDING);
@@ -287,7 +287,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.filters = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 let filter = {
                     id: neonFilter.id,
@@ -394,5 +394,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             headerText: this.headerText,
             infoText: this.infoText
         };
+    }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.transformVisualizationQueryResults(options, []);
     }
 }

@@ -70,7 +70,7 @@ export class AddVisualizationComponent implements OnInit {
         this.snackBar.open('Visualization Added', 'x', {
             duration: 5000,
             verticalPosition: 'top',
-            panelClass: [this.widgetService.getTheme(), 'simpleSnackBar']
+            panelClass: ['simpleSnackBar']
          });
     }
 

@@ -40,7 +40,7 @@ describe('Component: AboutNeonComponent', () => {
         }
     };
 
-    initializeTestBed({
+    initializeTestBed('About Neon', {
         declarations: [
             AboutNeonComponent
         ],

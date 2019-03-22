@@ -29,7 +29,7 @@ import {
 
 import { Color } from '../../color';
 
-import { AbstractSearchService, NeonFilterClause, NeonQueryPayload } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -120,8 +120,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             injector,
             ref
         );
-
-        this.isMultiLayerWidget = true;
 
         (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
 
@@ -395,18 +393,18 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
-        let filters: NeonFilterClause[] = [
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let filters: FilterClause[] = [
             this.searchService.buildFilterClause(options.latitudeField.columnName, '!=', null),
             this.searchService.buildFilterClause(options.longitudeField.columnName, '!=', null)
         ];
 
-        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filters)));
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)));
 
         return query;
     }
@@ -419,7 +417,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         if (currentlyActive) {
             for (let layer of this.options.layers) {
                 if (layer.colorField.columnName === fieldName) {
-                    this.mapObject.hidePoints(layer, value);
+                    this.mapObject.hidePoints(layer._id, value);
                 }
             }
 
@@ -545,7 +543,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         this.mapObject.unhideAllPoints(options._id);
 
         this.mapObject.clearLayer(options._id);
-        this.mapObject.addPoints(mapPoints, options._id, true);
+        this.mapObject.addPoints(mapPoints, options._id, options.cluster);
 
         this.filterMapForLegend();
         this.updateLegend();
@@ -718,14 +716,19 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      *
      * @arg {MapType} mapType
      */
-    handleChangeMapType(mapType: MapType) {
-        if (this.options.type !== mapType) {
-            this.options.type = mapType;
-            if (this.mapObject) {
-                this.mapObject.destroy();
-            }
-            this.ngAfterViewInit(); // re-initialize map
+    handleChangeMapType() {
+        if (this.mapObject) {
+            this.mapObject.destroy();
         }
+        this.ngAfterViewInit(); // re-initialize map
+    }
+
+    /**
+     * @override
+     * @param {MapType} mapType
+     */
+    handleChangeSubcomponentType() {
+        this.handleChangeMapType();
     }
 
     /**
@@ -884,7 +887,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @override
      */
     createLayerNonFieldOptions(): WidgetOption[] {
-        return [];
+        return [
+            new WidgetSelectOption('cluster', 'Cluster', false, OptionChoices.NoFalseYesTrue)
+        ];
     }
 
     /**
@@ -935,5 +940,15 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      */
     getVisualizationDefaultTitle(): string {
         return 'Map';
+    }
+
+    /**
+     * Returns whether to create a default layer if no layers are configured.
+     *
+     * @return {boolean}
+     * @override
+     */
+    protected shouldCreateDefaultLayer(): boolean {
+        return true;
     }
 }

@@ -38,6 +38,16 @@
 }
 
 .modal__datasource-list-item {
-  font-size: 0.8rem;
+  font-size: 14px;
   padding: 6px 6px 0 6px;
+}
+
+button {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+select, input {
+    font-size: 14px;
+    font-weight: 400;
 }

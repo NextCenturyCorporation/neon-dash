@@ -10,7 +10,7 @@
                                 <img class="neon-svg-icon" src="./assets/icons/{{item.icon}}.svg">
                             </div>
                             <div class="center-contents">
-                                <span class="text-uppercase">{{ item.name }}</span>
+                                <span class="content-text">{{ item.name }}</span>
                             </div>
                         </div>
                     </div>
@@ -19,7 +19,7 @@
         </mat-grid-list>
         <mat-divider class="divider"></mat-divider>
     </div>
-    <div class="checkmark-container">
+    <div class="checkmark-container content-text">
         <input type="checkbox" [checked]="showVisShortcut" (change)="publishShowVisShortcut()">
         Show shortcut
     </div>

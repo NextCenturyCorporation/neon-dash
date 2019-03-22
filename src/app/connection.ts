@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-export interface NeonRequest {
+export interface RequestWrapper {
     abort(): void;
     always(callback: Function): void;
     done(callback: Function): void;

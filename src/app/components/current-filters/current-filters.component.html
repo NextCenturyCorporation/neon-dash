@@ -1,13 +1,20 @@
+<div class="delete-all-filters" *ngIf="filters.formatted.length">
+    <button mat-icon-button aria-label="Reset" matTooltip="Remove All Filters" matTooltipPosition="below"
+            (click)="removeAllFilters()">
+        <mat-icon>delete_sweep</mat-icon>
+    </button>
+</div>
+
 <div>
     <div mat-fill>
         <mat-list>
-            <mat-list-item *ngFor="let filter of filters.formatted" class="current-filters-item">
+            <mat-list-item *ngFor="let filter of filters.formatted" class="current-filters-item filter-text">
                 <button mat-icon-button matTooltip="Remove filter" matTooltipPosition="below" (click)="removeFilter(filter.ids)">
                     <mat-icon>delete</mat-icon>
                 </button>
                 <div>{{ filter.name }}</div>
             </mat-list-item>
-            <mat-list-item *ngIf="!filters.formatted.length">No Filters Set</mat-list-item>
+            <mat-list-item *ngIf="!filters.formatted.length" class="filter-text">No Filters Set</mat-list-item>
         </mat-list>
     </div>
 

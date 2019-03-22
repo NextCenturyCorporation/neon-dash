@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By, DomSanitizer } from '@angular/platform-browser';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation } from '@angular/core';
@@ -25,7 +25,6 @@ import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from
 import { ChartJsData } from './subcomponent.chartjs.abstract';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { LegendComponent } from '../legend/legend.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
@@ -53,10 +52,9 @@ describe('Component: Aggregation', () => {
     let COLOR_1 = new Color('var(--color-set-1)', 'var(--color-set-1-transparency-medium)', 'var(--color-set-1-transparency-high)');
     let COLOR_2 = new Color('var(--color-set-2)', 'var(--color-set-2-transparency-medium)', 'var(--color-set-2-transparency-high)');
 
-    initializeTestBed({
+    initializeTestBed('Aggregation', {
         declarations: [
             AggregationComponent,
-            ExportControlComponent,
             LegendComponent,
             UnsharedFilterComponent
         ],
@@ -111,9 +109,8 @@ describe('Component: Aggregation', () => {
         expect(component.options.showLegend).toEqual(true);
         expect(component.options.sortByAggregation).toEqual(false);
         expect(component.options.timeFill).toEqual(false);
-        expect(component.options.type).toEqual('line');
         expect(component.options.yPercentage).toEqual(0.3);
-        expect(component.newType).toEqual('line');
+        expect(component.options.type).toEqual('line');
     });
 
     it('class properties are set to expected defaults', () => {
@@ -1261,7 +1258,7 @@ describe('Component: Aggregation', () => {
 
     it('handleChangeSubcomponentType does update subcomponent type and call expected functions', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.newType = 'line-xy';
+        component.options.type = 'line-xy';
 
         component.handleChangeSubcomponentType();
 
@@ -1270,21 +1267,9 @@ describe('Component: Aggregation', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
-    it('handleChangeSubcomponentType does not call expected functions if new type equals subcomponent type', () => {
-        let spy = spyOn(component, 'redrawSubcomponents');
-        component.newType = 'line';
-        component.options.sortByAggregation = true;
-
-        component.handleChangeSubcomponentType();
-
-        expect(component.options.sortByAggregation).toEqual(true);
-        expect(component.options.type).toEqual('line');
-        expect(spy.calls.count()).toEqual(0);
-    });
-
     it('handleChangeSubcomponentType does not update dualView if new type is allowed to have dual views', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.newType = 'line-xy';
+        component.options.type = 'line-xy';
         component.options.dualView = 'on';
 
         component.handleChangeSubcomponentType();
@@ -1296,7 +1281,7 @@ describe('Component: Aggregation', () => {
 
     it('handleChangeSubcomponentType does update dualView if new type is not allowed to have dual views', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.newType = 'bar-h';
+        component.options.type = 'bar-h';
         component.options.dualView = 'on';
 
         component.handleChangeSubcomponentType();
@@ -1308,7 +1293,7 @@ describe('Component: Aggregation', () => {
 
     it('handleChangeSubcomponentType does update sortByAggregation if new type is not sortable by aggregation', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.newType = 'line-xy';
+        component.options.type = 'line-xy';
         component.options.sortByAggregation = true;
 
         component.handleChangeSubcomponentType();
@@ -1320,7 +1305,7 @@ describe('Component: Aggregation', () => {
 
     it('handleChangeSubcomponentType does not update sortByAggregation if new type is sortable by aggregation', () => {
         let spy = spyOn(component, 'redrawSubcomponents');
-        component.newType = 'bar-h';
+        component.options.type = 'bar-h';
         component.options.sortByAggregation = true;
 
         component.handleChangeSubcomponentType();
@@ -2154,7 +2139,7 @@ describe('Component: Aggregation', () => {
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([], component.options));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2177,7 +2162,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -2213,7 +2198,7 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([], component.options));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2236,7 +2221,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
@@ -2270,7 +2255,7 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.xField = DatasetServiceMock.DATE_FIELD;
         component.options.yField = DatasetServiceMock.DATE_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([], component.options));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2293,7 +2278,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
@@ -2327,7 +2312,7 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.xField = DatasetServiceMock.TEXT_FIELD;
         component.options.yField = DatasetServiceMock.TEXT_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([]));
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([], component.options));
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2350,7 +2335,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
@@ -2393,7 +2378,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -2496,7 +2481,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -2565,7 +2550,7 @@ describe('Component: Aggregation', () => {
         }, {
             x: 3,
             y: 4
-        }]));
+        }], component.options));
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -3401,6 +3386,7 @@ describe('Component: Aggregation', () => {
             aggregation: AggregationType.COUNT,
             axisLabelX: '',
             axisLabelY: 'count',
+            countByAggregation: false,
             dualView: '',
             granularity: 'year',
             hideGridLines: false,
@@ -3431,6 +3417,7 @@ describe('Component: Aggregation', () => {
         component.options.yField = DatasetServiceMock.Y_FIELD;
 
         component.options.aggregation = AggregationType.SUM;
+        component.options.countByAggregation = true;
         component.options.dualView = 'on';
         component.options.granularity = 'day';
         component.options.hideGridLines = true;
@@ -3473,6 +3460,7 @@ describe('Component: Aggregation', () => {
             aggregation: AggregationType.SUM,
             axisLabelX: '',
             axisLabelY: 'count',
+            countByAggregation: true,
             dualView: 'on',
             granularity: 'day',
             hideGridLines: true,
@@ -3628,231 +3616,169 @@ describe('Component: Aggregation', () => {
         expect(component.selectedAreaOffset.y).toBeDefined();
     });
 
-    it('does show toolbar and sidenav and body-container', () => {
-        let container = fixture.debugElement.query(By.css('mat-sidenav-container'));
-        expect(container).not.toBeNull();
-        let toolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar'));
+    it('does show toolbar and body-container', () => {
+        let toolbar = fixture.debugElement.query(By.css('mat-toolbar'));
         expect(toolbar).not.toBeNull();
-        let sidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav'));
-        expect(sidenav).not.toBeNull();
-        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container'));
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container'));
         expect(bodyContainer).not.toBeNull();
     });
 
     it('does show header in toolbar with visualization title', () => {
-        let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
+        let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Aggregation');
     });
 
-    it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', async(() => {
+    it('does show data-info and hide error-message in toolbar if errorMessage is undefined', async(() => {
         (component as any).layerIdToElementCount.set(component.options._id, 10);
 
-        // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        // Force the component to update all its elements.
+        component.changeDetection.detectChanges();
 
-            let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
-            expect(dataInfoTextInToolbar).not.toBeNull();
-            expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Results');
+        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-toolbar .data-info'));
+        expect(dataInfoTextInToolbar).not.toBeNull();
+        expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Results');
 
-            let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
-            expect(dataInfoIconInSidenav).not.toBeNull();
-            expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
-
-            let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
-            expect(dataInfoTextInSidenav).not.toBeNull();
-            expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('10 Results');
-
-            let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
-            expect(errorMessageInToolbar).toBeNull();
-
-            let errorIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
-            expect(errorIconInSidenav).toBeNull();
-
-            let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
-            expect(errorMessageInSidenav).toBeNull();
-        });
+        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-toolbar .error-message'));
+        expect(errorMessageInToolbar).toBeNull();
     }));
 
     it('does show error-message and hide data-info in toolbar and sidenav if errorMessage is defined', async(() => {
         (component as any).errorMessage = 'Test Error Message';
 
-        // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        // Force the component to update all its elements.
+        component.changeDetection.detectChanges();
 
-            let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
-            expect(dataInfoTextInToolbar).toBeNull();
+        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-toolbar .data-info'));
+        expect(dataInfoTextInToolbar).toBeNull();
 
-            let dataInfoIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info mat-icon'));
-            expect(dataInfoIconInSidenav).toBeNull();
-
-            let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
-            expect(dataInfoTextInSidenav).toBeNull();
-
-            let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
-            expect(errorMessageInToolbar).not.toBeNull();
-            expect(errorMessageInToolbar.nativeElement.textContent).toContain('Test Error Message');
-
-            let errorIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
-            expect(errorIconInSidenav).not.toBeNull();
-            expect(errorIconInSidenav.nativeElement.textContent).toEqual('error');
-
-            let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
-            expect(errorMessageInSidenav).not.toBeNull();
-            expect(errorMessageInSidenav.nativeElement.textContent).toContain('Test Error Message');
-        });
+        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-toolbar .error-message'));
+        expect(errorMessageInToolbar).not.toBeNull();
+        expect(errorMessageInToolbar.nativeElement.textContent).toContain('Test Error Message');
     }));
 
     it('does show settings icon button in toolbar', () => {
-        let button = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button'));
+        let button = fixture.debugElement.query(By.css('mat-toolbar button'));
 
-        let icon = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button mat-icon'));
+        let icon = fixture.debugElement.query(By.css('mat-toolbar button mat-icon'));
         expect(icon.nativeElement.textContent).toEqual('settings');
     });
 
-    it('does show sidenav options menu', () => {
-        let menu = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav mat-card'));
-        expect(menu).not.toBeNull();
-
-        let content = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content'));
-        expect(content).not.toBeNull();
-    });
-
-    it('does show unshared filter in sidenav options menu', () => {
-        let unsharedFilter = fixture.debugElement.query(By.css(
-            'mat-sidenav-container mat-sidenav mat-card mat-card-content app-unshared-filter'));
-        expect(unsharedFilter).not.toBeNull();
-        expect(unsharedFilter.componentInstance.meta).toEqual(component.options);
-        expect(unsharedFilter.componentInstance.unsharedFilterChanged).toBeDefined();
-        expect(unsharedFilter.componentInstance.unsharedFilterRemoved).toBeDefined();
-    });
-
-    it('does show export control in sidenav options menu', () => {
-        let exportControl = fixture.debugElement.query(By.css(
-            'mat-sidenav-container mat-sidenav mat-card mat-card-content app-export-control'));
-        expect(exportControl).not.toBeNull();
-    });
-
     it('does hide loading overlay by default', () => {
-        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
+        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('.not-loading-overlay'));
         expect(hiddenLoadingOverlay).not.toBeNull();
 
-        let hiddenSpinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
+        let hiddenSpinner = fixture.debugElement.query(By.css('.not-loading-overlay mat-spinner'));
         expect(hiddenSpinner).not.toBeNull();
     });
 
     it('does show loading overlay if loadingCount is positive', async(() => {
         (component as any).loadingCount = 1;
 
-        // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        // Force the component to update all its elements.
+        component.changeDetection.detectChanges();
 
-            let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
-            expect(loadingOverlay).not.toBeNull();
+        let loadingOverlay = fixture.debugElement.query(By.css('.loading-overlay'));
+        expect(loadingOverlay).not.toBeNull();
 
-            let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
-            expect(spinner).not.toBeNull();
-        });
+        let spinner = fixture.debugElement.query(By.css('.loading-overlay mat-spinner'));
+        expect(spinner).not.toBeNull();
+    }));
+
+    it('does show filter-container and legend on initialization because showLegend is true', async(() => {
+        let filterContainer = fixture.debugElement.query(By.css('.filter-container'));
+        expect(filterContainer).not.toBeNull();
+
+        let legend = fixture.debugElement.query(By.css('.filter-container app-legend'));
+        expect(legend).not.toBeNull();
+
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-filter'));
+        expect(bodyContainer).not.toBeNull();
     }));
 
     it('does show filter-container and legend if type is line', async(() => {
+        component.options.showLegend = false;
         component.options.type = 'line-xy';
 
-        // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        // Force the component to update all its elements.
+        component.changeDetection.detectChanges();
 
-            let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
-            expect(filterContainer).not.toBeNull();
+        let filterContainer = fixture.debugElement.query(By.css('.filter-container'));
+        expect(filterContainer).not.toBeNull();
 
-            let legend = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container app-legend'));
-            expect(legend).not.toBeNull();
+        let legend = fixture.debugElement.query(By.css('.filter-container app-legend'));
+        expect(legend).not.toBeNull();
 
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
-            expect(bodyContainer).not.toBeNull();
-        });
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-filter'));
+        expect(bodyContainer).not.toBeNull();
     }));
 
     it('does show filter-container and legend if type is scatter', async(() => {
+        component.options.showLegend = false;
         component.options.type = 'scatter-xy';
 
-        // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        // Force the component to update all its elements.
+        component.changeDetection.detectChanges();
 
-            let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
-            expect(filterContainer).not.toBeNull();
+        let filterContainer = fixture.debugElement.query(By.css('.filter-container'));
+        expect(filterContainer).not.toBeNull();
 
-            let legend = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container app-legend'));
-            expect(legend).not.toBeNull();
+        let legend = fixture.debugElement.query(By.css('.filter-container app-legend'));
+        expect(legend).not.toBeNull();
 
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
-            expect(bodyContainer).not.toBeNull();
-        });
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-filter'));
+        expect(bodyContainer).not.toBeNull();
     }));
 
     it('does not show filter-container with no filters or legend if type is not line or scatter', async(() => {
+        component.options.showLegend = false;
         component.options.type = 'bar-h';
 
-        // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        // Force the component to update all its elements.
+        component.changeDetection.detectChanges();
 
-            let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
-            expect(filterContainer).toBeNull();
+        let filterContainer = fixture.debugElement.query(By.css('.filter-container'));
+        expect(filterContainer).toBeNull();
 
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
-            expect(bodyContainer).toBeNull();
-        });
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-filter'));
+        expect(bodyContainer).toBeNull();
     }));
 
     it('does not show filter-container if legendGroups is single-element array', async(() => {
+        component.options.showLegend = false;
         component.options.type = 'bar-h';
         component.legendGroups = ['a'];
 
-        // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        // Force the component to update all its elements.
+        component.changeDetection.detectChanges();
 
-            let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
-            expect(filterContainer).toBeNull();
+        let filterContainer = fixture.debugElement.query(By.css('.filter-container'));
+        expect(filterContainer).toBeNull();
 
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
-            expect(bodyContainer).toBeNull();
-        });
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-filter'));
+        expect(bodyContainer).toBeNull();
     }));
 
     it('does show filter-container and legend if legendGroups is multiple-element array', async(() => {
+        component.options.showLegend = true;
         component.options.type = 'bar-h';
         component.legendGroups = ['a', 'b'];
 
-        // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        // Force the component to update all its elements.
+        component.changeDetection.detectChanges();
 
-            let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
-            expect(filterContainer).not.toBeNull();
+        let filterContainer = fixture.debugElement.query(By.css('.filter-container'));
+        expect(filterContainer).not.toBeNull();
 
-            let legend = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container app-legend'));
-            expect(legend).not.toBeNull();
+        let legend = fixture.debugElement.query(By.css('.filter-container app-legend'));
+        expect(legend).not.toBeNull();
 
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
-            expect(bodyContainer).not.toBeNull();
-        });
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-filter'));
+        expect(bodyContainer).not.toBeNull();
     }));
 
     it('does show filter-container and filter-reset elements if groupFilters or valueFilters are non-empty array', async(() => {
+        component.options.showLegend = false;
         component.options.type = 'bar-h';
         component.groupFilters = [{
             field: 'field1',
@@ -3869,52 +3795,49 @@ describe('Component: Aggregation', () => {
             value: 'value2'
         }];
 
-        // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        // Force the component to update all its elements.
+        component.changeDetection.detectChanges();
 
-            let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
-            expect(filterContainer).not.toBeNull();
+        let filterContainer = fixture.debugElement.query(By.css('.filter-container'));
+        expect(filterContainer).not.toBeNull();
 
-            let legend = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container app-legend'));
-            expect(legend).toBeNull();
+        let legend = fixture.debugElement.query(By.css('.filter-container app-legend'));
+        expect(legend).toBeNull();
 
-            let filterResets = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container .filter-reset'));
-            expect(filterResets.length).toEqual(2);
+        let filterResets = fixture.debugElement.queryAll(By.css('.filter-container .filter-reset'));
+        expect(filterResets.length).toEqual(2);
 
-            let filterLabels = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container .filter-label'));
-            expect(filterLabels.length).toEqual(2);
+        let filterLabels = fixture.debugElement.queryAll(By.css('.filter-container .filter-label'));
+        expect(filterLabels.length).toEqual(2);
 
-            expect(filterLabels[0].nativeElement.textContent).toContain('value1');
-            expect(filterLabels[1].nativeElement.textContent).toContain('value2');
+        expect(filterLabels[0].nativeElement.textContent).toContain('value1');
+        expect(filterLabels[1].nativeElement.textContent).toContain('value2');
 
-            let filterButtons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container .filter-reset button'));
-            expect(filterButtons.length).toEqual(2);
+        let filterButtons = fixture.debugElement.queryAll(By.css('.filter-container .filter-reset button'));
+        expect(filterButtons.length).toEqual(2);
 
-            let filterIcons = fixture.debugElement.queryAll(By.css(
-                'mat-sidenav-container .filter-container .filter-reset button mat-icon'));
-            expect(filterIcons.length).toEqual(2);
+        let filterIcons = fixture.debugElement.queryAll(By.css(
+            '.filter-container .filter-reset button mat-icon'));
+        expect(filterIcons.length).toEqual(2);
 
-            expect(filterIcons[0].nativeElement.textContent).toEqual('close');
-            expect(filterIcons[1].nativeElement.textContent).toEqual('close');
+        expect(filterIcons[0].nativeElement.textContent).toEqual('close');
+        expect(filterIcons[1].nativeElement.textContent).toEqual('close');
 
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
-            expect(bodyContainer).not.toBeNull();
-        });
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-filter'));
+        expect(bodyContainer).not.toBeNull();
     }));
 
     it('does show subcomponent-container and subcomponent-element', () => {
-        let container = fixture.debugElement.query(By.css('mat-sidenav-container .body-container .subcomponent-container'));
+        let container = fixture.debugElement.query(By.css('.body-container .subcomponent-container'));
         expect(container).not.toBeNull();
         let element = fixture.debugElement.query(By.css(
-            'mat-sidenav-container .body-container .subcomponent-container .subcomponent-element'));
+            '.body-container .subcomponent-container .subcomponent-element'));
         expect(element).not.toBeNull();
     });
 
     it('does not show subcomponent-selection if selectedArea is null', () => {
         let selection = fixture.debugElement.query(By.css(
-            'mat-sidenav-container .body-container .subcomponent-container .subcomponent-selection'));
+            '.body-container .subcomponent-container .subcomponent-selection'));
         expect(selection).toBeNull();
     });
 
@@ -3926,179 +3849,11 @@ describe('Component: Aggregation', () => {
             y: 2
         };
 
-        // Force the component to update all its ngFor and ngIf elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        // Force the component to update all its elements.
+        component.changeDetection.detectChanges();
 
-            let selection = fixture.debugElement.query(By.css(
-                'mat-sidenav-container .body-container .subcomponent-container .subcomponent-selection'));
-            expect(selection).not.toBeNull();
-        });
-    }));
-
-    it('does show elements in sidenav options menu that have expected options', async(() => {
-        // Force the component to update all its selected elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let inputs = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(9);
-
-            let n = 0;
-            expect(inputs[n].attributes.placeholder).toBe('Title');
-            expect(inputs[n++].nativeElement.value).toContain('Aggregation');
-
-            expect(inputs[n].attributes.placeholder).toBe('Limit');
-            expect(inputs[n++].nativeElement.value).toContain('10');
-
-            expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('');
-
-            expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('');
-
-            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
-            expect(inputs[n++].nativeElement.value).toEqual('');
-
-            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Max');
-            expect(inputs[n++].nativeElement.value).toEqual('');
-
-            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Min');
-            expect(inputs[n++].nativeElement.value).toEqual('');
-
-            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Max');
-            expect(inputs[n++].nativeElement.value).toEqual('');
-
-            let selects = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toEqual(11);
-            let options;
-
-            expect(selects[0].componentInstance.disabled).toEqual(false);
-            expect(selects[0].componentInstance.placeholder).toEqual('Subcomponent Type');
-            expect(selects[0].componentInstance.required).toEqual(true);
-            options = selects[0].componentInstance.options.toArray();
-            expect(options.length).toEqual(10);
-            expect(options[0].getLabel()).toEqual('Bar, Horizontal (Aggregations)');
-            expect(options[1].getLabel()).toEqual('Bar, Vertical (Aggregations)');
-            expect(options[2].getLabel()).toEqual('Doughnut (Aggregations)');
-            expect(options[3].getLabel()).toEqual('Histogram (Aggregations)');
-            expect(options[4].getLabel()).toEqual('Line (Aggregations)');
-            expect(options[5].getLabel()).toEqual('Line (Points)');
-            expect(options[6].getLabel()).toEqual('Pie (Aggregations)');
-            expect(options[7].getLabel()).toEqual('Scatter (Aggregations)');
-            expect(options[8].getLabel()).toEqual('Scatter (Points)');
-            expect(options[9].getLabel()).toEqual('Text List (Aggregations)');
-
-            expect(selects[1].componentInstance.disabled).toEqual(false);
-            expect(selects[1].componentInstance.placeholder).toEqual('Database');
-            expect(selects[1].componentInstance.required).toEqual(true);
-            options = selects[1].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Test Database 1');
-            expect(options[0].selected).toEqual(true);
-            expect(options[1].getLabel()).toEqual('Test Database 2');
-            expect(options[1].selected).toEqual(false);
-
-            expect(selects[2].componentInstance.disabled).toEqual(false);
-            expect(selects[2].componentInstance.placeholder).toEqual('Table');
-            expect(selects[2].componentInstance.required).toEqual(true);
-            options = selects[2].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Test Table 1');
-            expect(options[0].selected).toEqual(true);
-            expect(options[1].getLabel()).toEqual('Test Table 2');
-            expect(options[1].selected).toEqual(false);
-
-            expect(selects[3].componentInstance.disabled).toEqual(false);
-            expect(selects[3].componentInstance.placeholder).toEqual('X Field');
-            expect(selects[3].componentInstance.required).toEqual(true);
-            options = selects[3].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i].selected).toEqual(false);
-            }
-
-            expect(selects[4].componentInstance.disabled).toEqual(false);
-            expect(selects[4].componentInstance.placeholder).toEqual('Aggregation');
-            expect(selects[4].componentInstance.required).toEqual(true);
-            options = selects[4].componentInstance.options.toArray();
-            expect(options.length).toEqual(5);
-            expect(options[0].getLabel()).toEqual('Count');
-            expect(options[1].getLabel()).toEqual('Average');
-            expect(options[2].getLabel()).toEqual('Max');
-            expect(options[3].getLabel()).toEqual('Min');
-            expect(options[4].getLabel()).toEqual('Sum');
-
-            expect(selects[5].componentInstance.disabled).toEqual(false);
-            expect(selects[5].componentInstance.placeholder).toEqual('Aggregation Field');
-            expect(selects[5].componentInstance.required).toEqual(true);
-            options = selects[5].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
-            expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(false);
-            }
-
-            expect(selects[6].componentInstance.disabled).toEqual(false);
-            expect(selects[6].componentInstance.placeholder).toEqual('Dual View');
-            expect(selects[6].componentInstance.required).toEqual(false);
-            options = selects[6].componentInstance.options.toArray();
-            expect(options.length).toEqual(3);
-            expect(options[0].getLabel()).toEqual('Always Off');
-            expect(options[0].selected).toEqual(true);
-            expect(options[1].getLabel()).toEqual('Always On');
-            expect(options[1].selected).toEqual(false);
-            expect(options[2].getLabel()).toEqual('Only On Filter');
-            expect(options[2].selected).toEqual(false);
-
-            expect(selects[7].componentInstance.disabled).toEqual(false);
-            expect(selects[7].componentInstance.placeholder).toEqual('Group Field');
-            expect(selects[7].componentInstance.required).toEqual(false);
-            options = selects[7].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
-            expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(false);
-            }
-
-            expect(selects[8].componentInstance.disabled).toEqual(false);
-            expect(selects[8].componentInstance.placeholder).toEqual('Line Curve Tension');
-            expect(selects[8].componentInstance.required).toEqual(false);
-            options = selects[8].componentInstance.options.toArray();
-            expect(options.length).toEqual(10);
-            expect(options[0].getLabel()).toEqual('0%');
-            expect(options[1].getLabel()).toEqual('10%');
-            expect(options[2].getLabel()).toEqual('20%');
-            expect(options[3].getLabel()).toEqual('30%');
-            expect(options[4].getLabel()).toEqual('40%');
-            expect(options[5].getLabel()).toEqual('50%');
-            expect(options[6].getLabel()).toEqual('60%');
-            expect(options[7].getLabel()).toEqual('70%');
-            expect(options[8].getLabel()).toEqual('80%');
-            expect(options[9].getLabel()).toEqual('90%');
-
-            expect(selects[9].componentInstance.disabled).toEqual(false);
-            expect(selects[9].componentInstance.placeholder).toEqual('Y-Axis Max Width');
-            expect(selects[9].componentInstance.required).toEqual(false);
-            options = selects[9].componentInstance.options.toArray();
-            expect(options.length).toEqual(5);
-            expect(options[0].getLabel()).toEqual('10%');
-            expect(options[1].getLabel()).toEqual('20%');
-            expect(options[2].getLabel()).toEqual('30%');
-            expect(options[3].getLabel()).toEqual('40%');
-            expect(options[4].getLabel()).toEqual('50%');
-
-            let toggles = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(18);
-        });
+        let selection = fixture.debugElement.query(By.css('.body-container .subcomponent-container .subcomponent-selection'));
+        expect(selection).not.toBeNull();
     }));
 });
 
@@ -4107,10 +3862,9 @@ describe('Component: Aggregation with config', () => {
     let fixture: ComponentFixture<AggregationComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Aggregation', {
         declarations: [
             AggregationComponent,
-            ExportControlComponent,
             LegendComponent,
             UnsharedFilterComponent
         ],
@@ -4121,10 +3875,9 @@ describe('Component: Aggregation with config', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: 'database', useValue: 'testDatabase2' },
+            { provide: 'tableKey', useValue: 'table_key_2'},
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
-            { provide: 'table', useValue: 'testTable2' },
             { provide: 'title', useValue: 'Test Title' },
             { provide: 'aggregationField', useValue: 'testSizeField' },
             { provide: 'groupField', useValue: 'testCategoryField' },
@@ -4166,7 +3919,7 @@ describe('Component: Aggregation with config', () => {
         fixture.detectChanges();
     });
 
-    it('superclass properties are set to expected values from config', () => {
+    it('class options properties are set to expected values from config', () => {
         expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
         expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
         expect(component.options.limit).toEqual(1234);
@@ -4176,9 +3929,7 @@ describe('Component: Aggregation with config', () => {
             operator: '=',
             rhs: 'testConfigFilterValue'
         });
-    });
 
-    it('class options properties are set to expected values from config', () => {
         expect(component.options.aggregationField).toEqual(DatasetServiceMock.SIZE_FIELD);
         expect(component.options.groupField).toEqual(DatasetServiceMock.CATEGORY_FIELD);
         expect(component.options.xField).toEqual(DatasetServiceMock.X_FIELD);
@@ -4202,7 +3953,6 @@ describe('Component: Aggregation with config', () => {
         expect(component.options.scaleMinY).toEqual('11');
         expect(component.options.showHeat).toEqual(true);
         expect(component.options.showLegend).toEqual(true);
-        expect(component.newType).toEqual('scatter');
         expect(component.options.sortByAggregation).toEqual(true);
         expect(component.options.timeFill).toEqual(true);
         expect(component.options.type).toEqual('scatter');
@@ -4211,166 +3961,10 @@ describe('Component: Aggregation with config', () => {
     });
 
     it('does show header in toolbar with visualization title from config', () => {
-        let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
+        let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Test Title');
     });
-
-    it('does show elements in sidenav options menu that have expected options from config', async(() => {
-        // Force the component to update all its selected elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let inputs = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(9);
-
-            let n = 0;
-            expect(inputs[n].attributes.placeholder).toBe('Title');
-            expect(inputs[n++].nativeElement.value).toContain('Test Title');
-
-            expect(inputs[n].attributes.placeholder).toBe('Limit');
-            expect(inputs[n++].nativeElement.value).toContain('1234');
-
-            expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('Test X Field');
-
-            expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('sum');
-
-            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
-            expect(inputs[n++].nativeElement.value).toContain('');
-
-            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Max');
-            expect(inputs[n++].nativeElement.value).toContain('');
-
-            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Min');
-            expect(inputs[n++].nativeElement.value).toContain('');
-
-            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Max');
-            expect(inputs[n++].nativeElement.value).toContain('');
-
-            let selects = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toEqual(9);
-            let options;
-
-            expect(selects[0].componentInstance.disabled).toEqual(false);
-            expect(selects[0].componentInstance.placeholder).toEqual('Subcomponent Type');
-            expect(selects[0].componentInstance.required).toEqual(true);
-            options = selects[0].componentInstance.options.toArray();
-            expect(options.length).toEqual(10);
-            expect(options[0].getLabel()).toEqual('Bar, Horizontal (Aggregations)');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('Bar, Vertical (Aggregations)');
-            expect(options[1].selected).toEqual(false);
-            expect(options[2].getLabel()).toEqual('Doughnut (Aggregations)');
-            expect(options[2].selected).toEqual(false);
-            expect(options[3].getLabel()).toEqual('Histogram (Aggregations)');
-            expect(options[3].selected).toEqual(false);
-            expect(options[4].getLabel()).toEqual('Line (Aggregations)');
-            expect(options[4].selected).toEqual(false);
-            expect(options[5].getLabel()).toEqual('Line (Points)');
-            expect(options[5].selected).toEqual(false);
-            expect(options[6].getLabel()).toEqual('Pie (Aggregations)');
-            expect(options[6].selected).toEqual(false);
-            expect(options[7].getLabel()).toEqual('Scatter (Aggregations)');
-            expect(options[7].selected).toEqual(true);
-            expect(options[8].getLabel()).toEqual('Scatter (Points)');
-            expect(options[8].selected).toEqual(false);
-            expect(options[9].getLabel()).toEqual('Text List (Aggregations)');
-            expect(options[9].selected).toEqual(false);
-
-            expect(selects[1].componentInstance.disabled).toEqual(false);
-            expect(selects[1].componentInstance.placeholder).toEqual('Database');
-            expect(selects[1].componentInstance.required).toEqual(true);
-            options = selects[1].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Test Database 1');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('Test Database 2');
-            expect(options[1].selected).toEqual(true);
-
-            expect(selects[2].componentInstance.disabled).toEqual(false);
-            expect(selects[2].componentInstance.placeholder).toEqual('Table');
-            expect(selects[2].componentInstance.required).toEqual(true);
-            options = selects[2].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Test Table 1');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('Test Table 2');
-            expect(options[1].selected).toEqual(true);
-
-            expect(selects[3].componentInstance.disabled).toEqual(false);
-            expect(selects[3].componentInstance.placeholder).toEqual('X Field');
-            expect(selects[3].componentInstance.required).toEqual(true);
-            options = selects[3].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testXField');
-            }
-
-            expect(selects[4].componentInstance.disabled).toEqual(false);
-            expect(selects[4].componentInstance.placeholder).toEqual('Aggregation');
-            expect(selects[4].componentInstance.required).toEqual(true);
-            options = selects[4].componentInstance.options.toArray();
-            expect(options.length).toEqual(5);
-            expect(options[0].getLabel()).toEqual('Count');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('Average');
-            expect(options[1].selected).toEqual(false);
-            expect(options[2].getLabel()).toEqual('Max');
-            expect(options[2].selected).toEqual(false);
-            expect(options[3].getLabel()).toEqual('Min');
-            expect(options[3].selected).toEqual(false);
-            expect(options[4].getLabel()).toEqual('Sum');
-            expect(options[4].selected).toEqual(true);
-
-            expect(selects[5].componentInstance.disabled).toEqual(false);
-            expect(selects[5].componentInstance.placeholder).toEqual('Aggregation Field');
-            expect(selects[5].componentInstance.required).toEqual(true);
-            options = selects[5].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
-            expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testSizeField');
-            }
-
-            expect(selects[6].componentInstance.disabled).toEqual(false);
-            expect(selects[6].componentInstance.placeholder).toEqual('Group Field');
-            expect(selects[6].componentInstance.required).toEqual(false);
-            options = selects[6].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
-            expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testCategoryField');
-            }
-
-            expect(selects[7].componentInstance.disabled).toEqual(false);
-            expect(selects[7].componentInstance.placeholder).toEqual('Y-Axis Max Width');
-            expect(selects[7].componentInstance.required).toEqual(false);
-            options = selects[7].componentInstance.options.toArray();
-            expect(options.length).toEqual(5);
-            expect(options[0].getLabel()).toEqual('10%');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('20%');
-            expect(options[1].selected).toEqual(false);
-            expect(options[2].getLabel()).toEqual('30%');
-            expect(options[2].selected).toEqual(false);
-            expect(options[3].getLabel()).toEqual('40%');
-            expect(options[3].selected).toEqual(false);
-            expect(options[4].getLabel()).toEqual('50%');
-            expect(options[4].selected).toEqual(true);
-
-            let toggles = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(16);
-        });
-    }));
 });
 
 describe('Component: Aggregation with XY config', () => {
@@ -4378,10 +3972,9 @@ describe('Component: Aggregation with XY config', () => {
     let fixture: ComponentFixture<AggregationComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Aggregation', {
         declarations: [
             AggregationComponent,
-            ExportControlComponent,
             LegendComponent,
             UnsharedFilterComponent
         ],
@@ -4392,10 +3985,9 @@ describe('Component: Aggregation with XY config', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: 'database', useValue: 'testDatabase2' },
+            { provide: 'tableKey', useValue: 'table_key_2'},
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
-            { provide: 'table', useValue: 'testTable2' },
             { provide: 'title', useValue: 'Test Title' },
             { provide: 'aggregationField', useValue: 'testSizeField' },
             { provide: 'groupField', useValue: 'testCategoryField' },
@@ -4431,150 +4023,58 @@ describe('Component: Aggregation with XY config', () => {
         ]
     });
 
+    it('class options properties are set to expected values from config', () => {
+        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(component.options.limit).toEqual(1234);
+        expect(component.options.title).toEqual('Test Title');
+        expect(component.options.filter).toEqual({
+            lhs: 'testConfigFilterField',
+            operator: '=',
+            rhs: 'testConfigFilterValue'
+        });
+
+        expect(component.options.aggregationField).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(component.options.groupField).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect(component.options.xField).toEqual(DatasetServiceMock.X_FIELD);
+        expect(component.options.yField).toEqual(DatasetServiceMock.Y_FIELD);
+
+        expect(component.options.aggregation).toEqual(AggregationType.SUM);
+        expect(component.options.granularity).toEqual('day');
+        expect(component.options.hideGridLines).toEqual(true);
+        expect(component.options.hideGridTicks).toEqual(true);
+        expect(component.options.ignoreSelf).toEqual(true);
+        expect(component.options.lineCurveTension).toEqual(0);
+        expect(component.options.lineFillArea).toEqual(true);
+        expect(component.options.logScaleX).toEqual(true);
+        expect(component.options.logScaleY).toEqual(true);
+        expect(component.options.notFilterable).toEqual(true);
+        expect(component.options.requireAll).toEqual(true);
+        expect(component.options.savePrevious).toEqual(true);
+        expect(component.options.scaleMaxX).toEqual('44');
+        expect(component.options.scaleMaxY).toEqual('33');
+        expect(component.options.scaleMinX).toEqual('22');
+        expect(component.options.scaleMinY).toEqual('11');
+        expect(component.options.showHeat).toEqual(true);
+        expect(component.options.showLegend).toEqual(true);
+        expect(component.options.sortByAggregation).toEqual(true);
+        expect(component.options.timeFill).toEqual(true);
+        expect(component.options.type).toEqual('scatter-xy');
+        expect(component.options.yPercentage).toEqual(0.5);
+        expect(component.subcomponentMain.constructor.name).toEqual(ChartJsScatterSubcomponent.name);
+    });
+
+    it('does show header in toolbar with visualization title from config', () => {
+        let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
+        expect(header).not.toBeNull();
+        expect(header.nativeElement.textContent).toContain('Test Title');
+    });
+
     beforeEach(() => {
         fixture = TestBed.createComponent(AggregationComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
-
-    it('does show elements in sidenav options menu that have expected options if subcomponent type is XY', async(() => {
-        // Force the component to update all its selected elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let inputs = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(9);
-
-            let n = 0;
-            expect(inputs[n].attributes.placeholder).toBe('Title');
-            expect(inputs[n++].nativeElement.value).toContain('Test Title');
-
-            expect(inputs[n].attributes.placeholder).toBe('Limit');
-            expect(inputs[n++].nativeElement.value).toContain('1234');
-
-            expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('Test X Field');
-
-            expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('sum');
-
-            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
-            expect(inputs[n++].nativeElement.value).toContain('');
-
-            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Max');
-            expect(inputs[n++].nativeElement.value).toContain('');
-
-            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Min');
-            expect(inputs[n++].nativeElement.value).toContain('');
-
-            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Max');
-            expect(inputs[n++].nativeElement.value).toContain('');
-
-            let selects = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toEqual(8);
-            let options;
-
-            expect(selects[0].componentInstance.disabled).toEqual(false);
-            expect(selects[0].componentInstance.placeholder).toEqual('Subcomponent Type');
-            expect(selects[0].componentInstance.required).toEqual(true);
-            options = selects[0].componentInstance.options.toArray();
-            expect(options.length).toEqual(10);
-            expect(options[0].getLabel()).toEqual('Bar, Horizontal (Aggregations)');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('Bar, Vertical (Aggregations)');
-            expect(options[1].selected).toEqual(false);
-            expect(options[2].getLabel()).toEqual('Doughnut (Aggregations)');
-            expect(options[2].selected).toEqual(false);
-            expect(options[3].getLabel()).toEqual('Histogram (Aggregations)');
-            expect(options[3].selected).toEqual(false);
-            expect(options[4].getLabel()).toEqual('Line (Aggregations)');
-            expect(options[4].selected).toEqual(false);
-            expect(options[5].getLabel()).toEqual('Line (Points)');
-            expect(options[5].selected).toEqual(false);
-            expect(options[6].getLabel()).toEqual('Pie (Aggregations)');
-            expect(options[6].selected).toEqual(false);
-            expect(options[7].getLabel()).toEqual('Scatter (Aggregations)');
-            expect(options[7].selected).toEqual(false);
-            expect(options[8].getLabel()).toEqual('Scatter (Points)');
-            expect(options[8].selected).toEqual(true);
-            expect(options[9].getLabel()).toEqual('Text List (Aggregations)');
-            expect(options[9].selected).toEqual(false);
-
-            expect(selects[1].componentInstance.disabled).toEqual(false);
-            expect(selects[1].componentInstance.placeholder).toEqual('Database');
-            expect(selects[1].componentInstance.required).toEqual(true);
-            options = selects[1].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Test Database 1');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('Test Database 2');
-            expect(options[1].selected).toEqual(true);
-
-            expect(selects[2].componentInstance.disabled).toEqual(false);
-            expect(selects[2].componentInstance.placeholder).toEqual('Table');
-            expect(selects[2].componentInstance.required).toEqual(true);
-            options = selects[2].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Test Table 1');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('Test Table 2');
-            expect(options[1].selected).toEqual(true);
-
-            expect(selects[3].componentInstance.disabled).toEqual(false);
-            expect(selects[3].componentInstance.placeholder).toEqual('X Field');
-            expect(selects[3].componentInstance.required).toEqual(true);
-            options = selects[3].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testXField');
-            }
-
-            expect(selects[4].componentInstance.disabled).toEqual(false);
-            expect(selects[4].componentInstance.placeholder).toEqual('Y Field');
-            expect(selects[4].componentInstance.required).toEqual(true);
-            options = selects[4].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testYField');
-            }
-
-            expect(selects[5].componentInstance.disabled).toEqual(false);
-            expect(selects[5].componentInstance.placeholder).toEqual('Group Field');
-            expect(selects[5].componentInstance.required).toEqual(false);
-            options = selects[5].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
-            expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testCategoryField');
-            }
-
-            expect(selects[6].componentInstance.disabled).toEqual(false);
-            expect(selects[6].componentInstance.placeholder).toEqual('Y-Axis Max Width');
-            expect(selects[6].componentInstance.required).toEqual(false);
-            options = selects[6].componentInstance.options.toArray();
-            expect(options.length).toEqual(5);
-            expect(options[0].getLabel()).toEqual('10%');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('20%');
-            expect(options[1].selected).toEqual(false);
-            expect(options[2].getLabel()).toEqual('30%');
-            expect(options[2].selected).toEqual(false);
-            expect(options[3].getLabel()).toEqual('40%');
-            expect(options[3].selected).toEqual(false);
-            expect(options[4].getLabel()).toEqual('50%');
-            expect(options[4].selected).toEqual(true);
-
-            let toggles = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(16);
-        });
-    }));
 });
 
 describe('Component: Aggregation with date config', () => {
@@ -4582,10 +4082,9 @@ describe('Component: Aggregation with date config', () => {
     let fixture: ComponentFixture<AggregationComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Aggregation', {
         declarations: [
             AggregationComponent,
-            ExportControlComponent,
             LegendComponent,
             UnsharedFilterComponent
         ],
@@ -4596,10 +4095,9 @@ describe('Component: Aggregation with date config', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: 'database', useValue: 'testDatabase2' },
+            { provide: 'tableKey', useValue: 'table_key_2'},
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
-            { provide: 'table', useValue: 'testTable2' },
             { provide: 'title', useValue: 'Test Title' },
             { provide: 'aggregationField', useValue: 'testSizeField' },
             { provide: 'groupField', useValue: 'testCategoryField' },
@@ -4641,175 +4139,50 @@ describe('Component: Aggregation with date config', () => {
         fixture.detectChanges();
     });
 
-    it('does show elements in sidenav options menu that have expected options if X field is date type', async(() => {
-        // Force the component to update all its selected elements.
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let inputs = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(9);
-
-            let n = 0;
-            expect(inputs[n].attributes.placeholder).toBe('Title');
-            expect(inputs[n++].nativeElement.value).toContain('Test Title');
-
-            expect(inputs[n].attributes.placeholder).toBe('Limit');
-            expect(inputs[n++].nativeElement.value).toContain('1234');
-
-            expect(inputs[n].attributes.placeholder).toBe('Label of X-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('Test Date Field');
-
-            expect(inputs[n].attributes.placeholder).toBe('Label of Y-Axis');
-            expect(inputs[n++].nativeElement.value).toEqual('sum');
-
-            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Min');
-            expect(inputs[n++].nativeElement.value).toContain('');
-
-            expect(inputs[n].attributes.placeholder).toBe('X-Axis Scale Max');
-            expect(inputs[n++].nativeElement.value).toContain('');
-
-            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Min');
-            expect(inputs[n++].nativeElement.value).toContain('');
-
-            expect(inputs[n].attributes.placeholder).toBe('Y-Axis Scale Max');
-            expect(inputs[n++].nativeElement.value).toContain('');
-
-            let selects = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toEqual(10);
-            let options;
-
-            expect(selects[0].componentInstance.disabled).toEqual(false);
-            expect(selects[0].componentInstance.placeholder).toEqual('Subcomponent Type');
-            expect(selects[0].componentInstance.required).toEqual(true);
-            options = selects[0].componentInstance.options.toArray();
-            expect(options.length).toEqual(10);
-            expect(options[0].getLabel()).toEqual('Bar, Horizontal (Aggregations)');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('Bar, Vertical (Aggregations)');
-            expect(options[1].selected).toEqual(false);
-            expect(options[2].getLabel()).toEqual('Doughnut (Aggregations)');
-            expect(options[2].selected).toEqual(false);
-            expect(options[3].getLabel()).toEqual('Histogram (Aggregations)');
-            expect(options[3].selected).toEqual(false);
-            expect(options[4].getLabel()).toEqual('Line (Aggregations)');
-            expect(options[4].selected).toEqual(false);
-            expect(options[5].getLabel()).toEqual('Line (Points)');
-            expect(options[5].selected).toEqual(false);
-            expect(options[6].getLabel()).toEqual('Pie (Aggregations)');
-            expect(options[6].selected).toEqual(false);
-            expect(options[7].getLabel()).toEqual('Scatter (Aggregations)');
-            expect(options[7].selected).toEqual(true);
-            expect(options[8].getLabel()).toEqual('Scatter (Points)');
-            expect(options[8].selected).toEqual(false);
-            expect(options[9].getLabel()).toEqual('Text List (Aggregations)');
-            expect(options[9].selected).toEqual(false);
-
-            expect(selects[1].componentInstance.disabled).toEqual(false);
-            expect(selects[1].componentInstance.placeholder).toEqual('Database');
-            expect(selects[1].componentInstance.required).toEqual(true);
-            options = selects[1].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Test Database 1');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('Test Database 2');
-            expect(options[1].selected).toEqual(true);
-
-            expect(selects[2].componentInstance.disabled).toEqual(false);
-            expect(selects[2].componentInstance.placeholder).toEqual('Table');
-            expect(selects[2].componentInstance.required).toEqual(true);
-            options = selects[2].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Test Table 1');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('Test Table 2');
-            expect(options[1].selected).toEqual(true);
-
-            expect(selects[3].componentInstance.disabled).toEqual(false);
-            expect(selects[3].componentInstance.placeholder).toEqual('X Field');
-            expect(selects[3].componentInstance.required).toEqual(true);
-            options = selects[3].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testDateField');
-            }
-
-            expect(selects[4].componentInstance.disabled).toEqual(false);
-            expect(selects[4].componentInstance.placeholder).toEqual('Aggregation');
-            expect(selects[4].componentInstance.required).toEqual(true);
-            options = selects[4].componentInstance.options.toArray();
-            expect(options.length).toEqual(5);
-            expect(options[0].getLabel()).toEqual('Count');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('Average');
-            expect(options[1].selected).toEqual(false);
-            expect(options[2].getLabel()).toEqual('Max');
-            expect(options[2].selected).toEqual(false);
-            expect(options[3].getLabel()).toEqual('Min');
-            expect(options[3].selected).toEqual(false);
-            expect(options[4].getLabel()).toEqual('Sum');
-            expect(options[4].selected).toEqual(true);
-
-            expect(selects[5].componentInstance.disabled).toEqual(false);
-            expect(selects[5].componentInstance.placeholder).toEqual('Aggregation Field');
-            expect(selects[5].componentInstance.required).toEqual(true);
-            options = selects[5].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
-            expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testSizeField');
-            }
-
-            expect(selects[6].componentInstance.disabled).toEqual(false);
-            expect(selects[6].componentInstance.placeholder).toEqual('Date Granularity');
-            expect(selects[6].componentInstance.required).toEqual(true);
-            options = selects[6].componentInstance.options.toArray();
-            expect(options.length).toEqual(5);
-            expect(options[0].getLabel()).toEqual('Year');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('Month');
-            expect(options[1].selected).toEqual(false);
-            expect(options[2].getLabel()).toEqual('Day');
-            expect(options[2].selected).toEqual(true);
-            expect(options[3].getLabel()).toEqual('Hour');
-            expect(options[3].selected).toEqual(false);
-            expect(options[4].getLabel()).toEqual('Minute');
-            expect(options[4].selected).toEqual(false);
-
-            expect(selects[7].componentInstance.disabled).toEqual(false);
-            expect(selects[7].componentInstance.placeholder).toEqual('Group Field');
-            expect(selects[7].componentInstance.required).toEqual(false);
-            options = selects[7].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
-            expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testCategoryField');
-            }
-
-            expect(selects[8].componentInstance.disabled).toEqual(false);
-            expect(selects[8].componentInstance.placeholder).toEqual('Y-Axis Max Width');
-            expect(selects[8].componentInstance.required).toEqual(false);
-            options = selects[8].componentInstance.options.toArray();
-            expect(options.length).toEqual(5);
-            expect(options[0].getLabel()).toEqual('10%');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('20%');
-            expect(options[1].selected).toEqual(false);
-            expect(options[2].getLabel()).toEqual('30%');
-            expect(options[2].selected).toEqual(false);
-            expect(options[3].getLabel()).toEqual('40%');
-            expect(options[3].selected).toEqual(false);
-            expect(options[4].getLabel()).toEqual('50%');
-            expect(options[4].selected).toEqual(true);
-
-            let toggles = fixture.debugElement.queryAll(
-                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(18);
+    it('class options properties are set to expected values from config', () => {
+        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(component.options.limit).toEqual(1234);
+        expect(component.options.title).toEqual('Test Title');
+        expect(component.options.filter).toEqual({
+            lhs: 'testConfigFilterField',
+            operator: '=',
+            rhs: 'testConfigFilterValue'
         });
-    }));
+
+        expect(component.options.aggregationField).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(component.options.groupField).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect(component.options.xField).toEqual(DatasetServiceMock.DATE_FIELD);
+        expect(component.options.yField).toEqual(DatasetServiceMock.Y_FIELD);
+
+        expect(component.options.aggregation).toEqual(AggregationType.SUM);
+        expect(component.options.granularity).toEqual('day');
+        expect(component.options.hideGridLines).toEqual(true);
+        expect(component.options.hideGridTicks).toEqual(true);
+        expect(component.options.ignoreSelf).toEqual(true);
+        expect(component.options.lineCurveTension).toEqual(0);
+        expect(component.options.lineFillArea).toEqual(true);
+        expect(component.options.logScaleX).toEqual(true);
+        expect(component.options.logScaleY).toEqual(true);
+        expect(component.options.notFilterable).toEqual(true);
+        expect(component.options.requireAll).toEqual(true);
+        expect(component.options.savePrevious).toEqual(true);
+        expect(component.options.scaleMaxX).toEqual('44');
+        expect(component.options.scaleMaxY).toEqual('33');
+        expect(component.options.scaleMinX).toEqual('22');
+        expect(component.options.scaleMinY).toEqual('11');
+        expect(component.options.showHeat).toEqual(true);
+        expect(component.options.showLegend).toEqual(true);
+        expect(component.options.sortByAggregation).toEqual(true);
+        expect(component.options.timeFill).toEqual(true);
+        expect(component.options.type).toEqual('scatter');
+        expect(component.options.yPercentage).toEqual(0.5);
+        expect(component.subcomponentMain.constructor.name).toEqual(ChartJsScatterSubcomponent.name);
+    });
+
+    it('does show header in toolbar with visualization title from config', () => {
+        let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
+        expect(header).not.toBeNull();
+        expect(header.nativeElement.textContent).toContain('Test Title');
+    });
 });
