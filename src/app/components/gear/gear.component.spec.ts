@@ -607,6 +607,7 @@ describe('Component: Gear Component', () => {
         let called = 0;
         (component as any).deleteLayer = () => {
             called++;
+            return true;
         };
 
         component.handleDeleteLayer({
@@ -615,6 +616,22 @@ describe('Component: Gear Component', () => {
         expect(called).toEqual(1);
         expect(component.layerHidden.has('testId1')).toEqual(false);
         expect(component.changeMade).toEqual(true);
+    });
+
+    it('handleDeleteLayer does not delete a layer if deleteLayer returned false', () => {
+        component.layerHidden.set('testId1', true);
+        let called = 0;
+        (component as any).deleteLayer = () => {
+            called++;
+            return false;
+        };
+
+        component.handleDeleteLayer({
+            _id: 'testId1'
+        });
+        expect(called).toEqual(1);
+        expect(component.layerHidden.get('testId1')).toEqual(true);
+        expect(component.changeMade).toEqual(false);
     });
 
     it('toggleFilter does update layerHidden', () => {

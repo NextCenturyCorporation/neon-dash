@@ -264,8 +264,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * @override
      */
     initializeProperties() {
-        this.isMultiLayerWidget = !!this.options.layers.length;
-
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
         this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
 
@@ -719,7 +717,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.neonFilters = this.filterService.getFiltersForFields(options.database.name, options.table.name,
             options.filterFields.map((fieldsObject) => fieldsObject.columnName));
 
-        if (this.isMultiLayerWidget) {
+        if (this.options.layers.length) {
             //TODO: clean up node labels for layers
             this.responseData.push({ options: options, results: results });
 
@@ -773,7 +771,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.loadingCount++;
 
         let graphProperties = this.options.isReified ? this.createReifiedGraphProperties() :
-            this.isMultiLayerWidget ? this.createMultiTableGraphProperties() :
+            this.options.layers.length ? this.createMultiTableGraphProperties() :
                 this.createTabularGraphProperties();
 
         if (graphProperties) {

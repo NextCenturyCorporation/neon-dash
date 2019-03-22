@@ -83,7 +83,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public loadingCount: number = 0;
 
     protected initializing: boolean = false;
-    protected isMultiLayerWidget: boolean = false;
     protected redrawOnResize: boolean = false;
     protected selectedDataId: string = '';
     protected showingZeroOrMultipleElementsPerResult: boolean = false;
@@ -129,7 +128,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.messenger.subscribe('filters_changed', this.handleFiltersChangedEvent.bind(this));
         this.messenger.subscribe('select_id', (eventMessage) => {
             if (this.updateOnSelectId) {
-                (this.isMultiLayerWidget ? this.options.layers : [this.options]).forEach((layer) => {
+                (this.options.layers.length ? this.options.layers : [this.options]).forEach((layer) => {
                     if (eventMessage.database === layer.database.name && eventMessage.table === layer.table.name) {
                         let eventMessageId = Array.isArray(eventMessage.id) ? eventMessage.id[0] : eventMessage.id;
                         if (eventMessageId !== this.selectedDataId) {
@@ -211,8 +210,14 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.postAddLayer(layerOptions);
     }
 
-    private deleteLayer(options: any, layerOptions: any): void {
-        options.layers = options.layers.filter((layer) => layer._id !== layerOptions._id);
+    private deleteLayer(options: any, layerOptions: any): boolean {
+        let layers: any[] = options.layers.filter((layer) => layer._id !== layerOptions._id);
+        // Do not delete the final layer!
+        if (layers.length) {
+            options.layers = layers;
+            return true;
+        }
+        return false;
     }
 
     private finalizeDeleteLayer(layerOptions: any): void {
@@ -258,7 +263,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {{name:string,data:any}[]}
      */
     public createExportData(): { name: string, data: any }[] {
-        return (this.isMultiLayerWidget ? this.options.layers : [this.options]).map((options) => {
+        return (this.options.layers.length ? this.options.layers : [this.options]).map((options) => {
             let query: QueryPayload = this.createCompleteVisualizationQuery(options);
             return query ? this.createExportOptions(options, query) : [];
         }).filter((exportObject) => !!exportObject);
@@ -485,7 +490,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     private executeAllQueryChain(): void {
         if (!this.initializing) {
             this.beforeExecuteAllQueryChain();
-            for (let options of (this.isMultiLayerWidget ? this.options.layers : [this.options])) {
+            for (let options of (this.options.layers.length ? this.options.layers : [this.options])) {
                 this.executeQueryChain(options);
             }
         }
@@ -1015,7 +1020,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {string}
      */
     public getButtonText(): string {
-        if (!this.isMultiLayerWidget) {
+        if (!this.options.layers.length) {
             return this.createButtonText(this.options, this.options.limit);
         }
 
@@ -1023,14 +1028,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             return this.createButtonText(this.options.layers[0], this.options.limit);
         }
 
-        if (this.options.layers.length) {
-            return this.options.layers.map((layer) => {
-                let text = this.createButtonText(layer, this.options.limit);
-                return text ? (layer.title + ' (' + text + ')') : '';
-            }).filter((text) => !!text).join(', ');
-        }
-
-        return '';
+        return this.options.layers.map((layer) => {
+            let text = this.createButtonText(layer, this.options.limit);
+            return text ? (layer.title + ' (' + text + ')') : '';
+        }).filter((text) => !!text).join(', ');
     }
 
     /**
@@ -1278,11 +1279,21 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         });
 
         // Add a new empty layer if needed.
-        if (this.isMultiLayerWidget && !options.layers.length) {
+        if (!options.layers.length && this.shouldCreateDefaultLayer()) {
             this.addLayer(options);
         }
 
         return options;
+    }
+
+    /**
+     * Returns whether to create a default layer if no layers are configured.
+     *
+     * @return {boolean}
+     */
+    protected shouldCreateDefaultLayer(): boolean {
+        // Override if needed.
+        return false;
     }
 
     /**
@@ -1313,7 +1324,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             bindings[option.bindingKey] = option.getValueToSaveInBindings();
             return bindings;
         }, {
-            layers: this.isMultiLayerWidget ? (options || this.options).layers.map((layer) => this.getBindings(layer)) : undefined
+            layers: (options || this.options).layers.length ? (options || this.options).layers.map((layer) => this.getBindings(layer)) :
+                undefined
         });
     }
 
