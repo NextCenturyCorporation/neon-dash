@@ -17,6 +17,8 @@
 
 $filter-container-height: 40px;
 $footer-height: 35px;
+$attribution-height: 20px;
+$footer-and-attribution-height: 55px;
 
 .visualization-sidenav {
     height: 100%;
@@ -53,6 +55,10 @@ $footer-height: 35px;
         &.with-filter {
             height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - 5px);
             top: calc(#{$vis-title-expected-height} + #{$filter-container-height});
+
+            &.with-attribution {
+                height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - #{$attribution-height} - 10px);
+            }
         }
 
         &.with-footer {
@@ -61,6 +67,14 @@ $footer-height: 35px;
             &.with-filter {
                 height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - #{$footer-height} - 10px);
             }
+
+            //&.with-attribution {
+                //height: calc(100% - #{$vis-title-expected-height} - #{$footer-height} - #{$attribution-height} - 10px);
+            //}
+        }
+
+        &.with-attribution {
+            height: calc(100% - #{$vis-title-expected-height} - #{$attribution-height} - 5px);
         }
 
         .chart-container {
@@ -93,6 +107,7 @@ $footer-height: 35px;
         @extend %filter-container-shared;
     }
 
+    // TODO: 305: need one footer with attribution and one without, and attribution on its own?
     .footer {
         border-top: 2px solid var(--color-accent, lightgrey);
         position: absolute;
@@ -121,6 +136,21 @@ $footer-height: 35px;
                 background-color: #dcdcdc !important;
                 color: #adadad !important;
             }
+        }
+    }
+
+    .attribution-text {
+        position: absolute;
+        bottom: 0;
+        height: #{$attribution-height};
+        width: 100%;
+
+        .attribution-text-container {
+            display: flex;
+            align-items: center;
+            margin: 2px;
+            font-size: 10px;
+            font-weight: 500;
         }
     }
 

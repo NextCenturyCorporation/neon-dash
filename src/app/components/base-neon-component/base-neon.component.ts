@@ -1403,4 +1403,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected clearVisualizationData(options: any): void {
         // TODO THOR-985 Temporary function.  Override as needed.
     }
+
+    protected showAttribution() {
+        // TODO: 305: put this value in the config and check for it here
+        return true;
+    }
 }
