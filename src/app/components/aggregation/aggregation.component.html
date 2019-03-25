@@ -47,7 +47,7 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="showHeaderContainer()">
+    <div class="body-container" [class.with-filter]="showHeaderContainer()" [class.with-attribution]="showAttribution()">
         <div class="subcomponent-container zoom" [class.hide]="!showBothViews()" [style.minHeight.px]="minimumDimensionsZoom.height"
             [style.minWidth.px]="minimumDimensionsZoom.width" (click)="stopEventPropagation($event)">
 
@@ -66,4 +66,10 @@
     </div>
 
     <canvas #hiddenCanvas class="hidden-canvas"></canvas>
+
+    <div class="attribution-text">
+            <div class="attribution-text-container">
+                ATTRIBUTION LINK TEXT HERE
+            </div>
+        </div>
 </mat-sidenav-container>

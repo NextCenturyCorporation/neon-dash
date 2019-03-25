@@ -27,12 +27,18 @@
         </div>
     </div>
 
-    <div class="text-cloud body-container" [class.with-filter]="getCloseableFilters().length" mat-fill layout="col">
+    <div class="text-cloud body-container" [class.with-filter]="getCloseableFilters().length" [class.with-attribution]="showAttribution()" mat-fill layout="col">
         <a (click)="onClick(item)" class="text" [class.paragraphs]="options.paragraphs" *ngFor="let item of textCloudData"
             [matTooltip]="item.key + ': ' + item.value" tooltip-position="below" [rel]="item.value"
             [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
             <span [class.filter]="isFiltered(item.key)">{{ item.key }}</span>
             <span [class.filter]="isFiltered(item.key)" *ngIf="options.showCounts">({{ item.value }})</span>
         </a>
+    </div>
+
+    <div class="attribution-text">
+        <div class="attribution-text-container">
+            ATTRIBUTION LINK TEXT HERE
+        </div>
     </div>
 </mat-sidenav-container>
