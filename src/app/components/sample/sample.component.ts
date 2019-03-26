@@ -48,6 +48,7 @@ import {
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
 import * as neon from 'neon-framework';
+import { MatDialog } from '@angular/material';
 
 // TODO Name your visualization!
 @Component({
@@ -87,14 +88,16 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        dialog: MatDialog
     ) {
         super(
             datasetService,
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
     }
 

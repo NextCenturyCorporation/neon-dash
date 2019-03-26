@@ -48,6 +48,7 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import { MatDialog } from '@angular/material';
 
 function webgl_support(): any {
     try {
@@ -74,7 +75,8 @@ class TestMapComponent extends MapComponent {
         searchService: AbstractSearchService,
         injector: Injector,
         widgetService: AbstractWidgetService,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        dialog: MatDialog
     ) {
         super(
             datasetService,
@@ -82,7 +84,8 @@ class TestMapComponent extends MapComponent {
             searchService,
             injector,
             widgetService,
-            ref
+            ref,
+            dialog
         );
     }
 

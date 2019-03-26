@@ -60,6 +60,7 @@ import {
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import * as geohash from 'geo-hash';
+import { MatDialog } from '@angular/material';
 
 class UniqueLocationPoint {
     constructor(public idField: string, public idList: string[], public lat: number, public lng: number, public count: number,
@@ -111,14 +112,16 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         searchService: AbstractSearchService,
         injector: Injector,
         protected widgetService: AbstractWidgetService,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        dialog: MatDialog
     ) {
         super(
             datasetService,
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
 
         (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
