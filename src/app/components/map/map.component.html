@@ -17,7 +17,7 @@
         <mat-spinner></mat-spinner>
     </div>
 
-    <div class="body-container" (click)="stopEventPropagation($event)">
+    <div class="body-container" (click)="stopEventPropagation($event)" [class.with-attribution]="showAttribution()">
         <div class="map-container" (click)="stopEventPropagation($event)" mouseWheel (mouseWheelUp)="mouseWheelUp($event)" (mouseWheelDown)="mouseWheelDown($event)">
             <div #mapOverlay class="overlay"> {{ getOverlayText() }} </div>
             <div #mapElement id="mapElement" (click)="stopEventPropagation($event)"></div>
@@ -36,6 +36,14 @@
                     <mat-icon class="neon-icon-small">close</mat-icon>
                 </button>
             </div>
+        </div>
+    </div>
+
+    <div class="attribution-text">
+        <div class="attribution-text-container">
+            <a (click)="openAttributionDialog()">
+                ATTRIBUTION LINK TEXT HERE
+            </a>
         </div>
     </div>
 </mat-sidenav-container>
