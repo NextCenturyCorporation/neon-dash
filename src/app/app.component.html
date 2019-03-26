@@ -80,14 +80,14 @@
         </mat-tab-group>
 
         <div class="neon-grid">
-        <div [ngGrid]="gridConfig" #grid>
-                <div *ngFor="let widgetGridItem of tabbedGrid[selectedTabIndex].list; let i = index;" [(ngGridItem)]="widgetGridItem.config"
-                    name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
-                    (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
-                <app-visualization-container [visualization]="widgetGridItem"></app-visualization-container>
-                <ng-content></ng-content>
+            <div [ngGrid]="gridConfig" #grid>
+                    <div *ngFor="let widgetGridItem of tabbedGrid[selectedTabIndex].list; let i = index;" [(ngGridItem)]="widgetGridItem.config"
+                        name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
+                        (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
+                    <app-visualization-container [visualization]="widgetGridItem"></app-visualization-container>
+                    <ng-content></ng-content>
+                </div>
             </div>
         </div>
-    </div>
     </div>
 </mat-sidenav-container>
