@@ -26,6 +26,26 @@ import * as neon from 'neon-framework';
 })
 export class AttributionDialogComponent {//implements OnInit, OnDestroy {
 
+    // TODO: 305: replace test data here with config references
+    public data = [
+        {
+            orgName: 'Some Organization',
+            abbrev: 'SO',
+            piTeamLead: 'PI/Team Lead Name',
+            contactInfo: 'Contact Information',
+            website: '<a href="">Company Website</a>',
+            logo: 'verdi-favicon'
+        },
+        {
+            orgName: 'Some Organization',
+            abbrev: 'SO',
+            piTeamLead: 'PI/Team Lead Name',
+            contactInfo: 'Contact Information',
+            website: '<a href="">Company Website</a>',
+            logo: 'verdi-favicon'
+        }
+    ];
+
     //@Inject(MAT_DIALOG_DATA) data: any,
     constructor(public dialogRef: MatDialogRef<AttributionDialogComponent>) {}
 

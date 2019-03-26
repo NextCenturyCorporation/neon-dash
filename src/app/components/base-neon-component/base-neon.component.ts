@@ -36,7 +36,7 @@ import {
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import { AttributionDialogComponent } from '../attribution-dialog/attribution-dialog.component';
-import { MatDialogRef, MatDialog } from '@angular/material';
+import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material';
 
 export class TransformedVisualizationData {
     constructor(protected _data: any = []) {}
@@ -1416,7 +1416,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     // TODO: 305
     protected openAttributionDialog() {
-        this.contributorsRef = this.dialog.open(AttributionDialogComponent);
+        let config = new MatDialogConfig();
+        config = {width: '400px', minHeight: '200px'};
+
+        this.contributorsRef = this.dialog.open(AttributionDialogComponent, config);
         this.contributorsRef.afterClosed().subscribe(() => {
             this.contributorsRef = null;
         });
