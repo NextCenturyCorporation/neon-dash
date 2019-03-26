@@ -54,6 +54,7 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import * as _ from 'lodash';
+import { MatDialog } from '@angular/material';
 
 @Component({
     selector: 'app-test-base-neon',
@@ -70,14 +71,16 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        changeDetection: ChangeDetectorRef
+        changeDetection: ChangeDetectorRef,
+        dialog: MatDialog
     ) {
         super(
             datasetService,
             filterService,
             searchService,
             injector,
-            changeDetection
+            changeDetection,
+            dialog
         );
     }
 

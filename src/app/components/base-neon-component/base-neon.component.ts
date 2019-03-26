@@ -35,6 +35,8 @@ import {
 
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
+import { AttributionDialogComponent } from '../attribution-dialog/attribution-dialog.component';
+import { MatDialogRef, MatDialog } from '@angular/material';
 
 export class TransformedVisualizationData {
     constructor(protected _data: any = []) {}
@@ -97,12 +99,15 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     // A WidgetOptionCollection object.  Must use "any" type to avoid typescript errors.
     public options: any;
 
+    private contributorsRef: MatDialogRef<AttributionDialogComponent>;
+
     constructor(
         protected datasetService: DatasetService,
         protected filterService: FilterService,
         protected searchService: AbstractSearchService,
         protected injector: Injector,
-        public changeDetection: ChangeDetectorRef
+        public changeDetection: ChangeDetectorRef,
+        public dialog: MatDialog
     ) {
         this.messenger = new neon.eventing.Messenger();
     }
@@ -1407,5 +1412,13 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected showAttribution() {
         // TODO: 305: put this value in the config and check for it here
         return true;
+    }
+
+    // TODO: 305
+    protected openAttributionDialog() {
+        this.contributorsRef = this.dialog.open(AttributionDialogComponent);
+        this.contributorsRef.afterClosed().subscribe(() => {
+            this.contributorsRef = null;
+        });
     }
 }

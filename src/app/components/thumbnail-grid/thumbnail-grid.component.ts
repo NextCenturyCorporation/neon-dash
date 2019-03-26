@@ -44,6 +44,7 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
+import { MatDialog } from '@angular/material';
 
 export const ViewType = {
     CARD: 'card',
@@ -89,14 +90,16 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        private sanitizer: DomSanitizer
+        private sanitizer: DomSanitizer,
+        dialog: MatDialog
     ) {
         super(
             datasetService,
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
 
         this.visualizationQueryPaginates = true;

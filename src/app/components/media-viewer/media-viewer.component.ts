@@ -44,6 +44,7 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
+import { MatDialog } from '@angular/material';
 
 export interface MediaTab {
     // TODO Add a way for the user to select other items from the list.
@@ -99,7 +100,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        private sanitizer: DomSanitizer
+        private sanitizer: DomSanitizer,
+        dialog: MatDialog
     ) {
 
         super(
@@ -107,7 +109,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
 
         this.updateOnSelectId = true;

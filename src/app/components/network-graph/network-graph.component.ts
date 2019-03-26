@@ -53,6 +53,7 @@ import * as d3shape from 'd3-shape';
 import 'd3-transition';
 import * as neon from 'neon-framework';
 import * as vis from 'vis';
+import { MatDialog } from '@angular/material';
 
 class GraphData {
     constructor(
@@ -242,7 +243,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         searchService: AbstractSearchService,
         injector: Injector,
         protected widgetService: AbstractWidgetService,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        dialog: MatDialog
     ) {
 
         super(
@@ -250,7 +252,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
 
         this.graphData = new GraphData();
