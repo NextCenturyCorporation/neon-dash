@@ -36,10 +36,10 @@
         </a>
     </div>
 
-    <div class="contribution-text">
+    <div class="contribution-text" *ngIf="showContribution()">
         <div class="contribution-text-container">
             <a (click)="openContributionDialog()">
-                ATTRIBUTION LINK TEXT HERE
+                {{ getContributors() }}
             </a>
         </div>
     </div>
