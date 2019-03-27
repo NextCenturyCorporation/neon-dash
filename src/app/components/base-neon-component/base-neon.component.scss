@@ -17,8 +17,8 @@
 
 $filter-container-height: 40px;
 $footer-height: 35px;
-$attribution-height: 20px;
-$footer-and-attribution-height: 55px;
+$contribution-height: 20px;
+$footer-and-contribution-height: 55px;
 
 .visualization-sidenav {
     height: 100%;
@@ -56,8 +56,8 @@ $footer-and-attribution-height: 55px;
             height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - 5px);
             top: calc(#{$vis-title-expected-height} + #{$filter-container-height});
 
-            &.with-attribution {
-                height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - #{$attribution-height} - 10px);
+            &.with-contribution {
+                height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - #{$contribution-height} - 10px);
             }
         }
 
@@ -68,13 +68,13 @@ $footer-and-attribution-height: 55px;
                 height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - #{$footer-height} - 10px);
             }
 
-            //&.with-attribution {
-                //height: calc(100% - #{$vis-title-expected-height} - #{$footer-height} - #{$attribution-height} - 10px);
+            //&.with-contribution {
+                //height: calc(100% - #{$vis-title-expected-height} - #{$footer-height} - #{$contribution-height} - 10px);
             //}
         }
 
-        &.with-attribution {
-            height: calc(100% - #{$vis-title-expected-height} - #{$attribution-height} - 5px);
+        &.with-contribution {
+            height: calc(100% - #{$vis-title-expected-height} - #{$contribution-height} - 5px);
         }
 
         .chart-container {
@@ -107,7 +107,7 @@ $footer-and-attribution-height: 55px;
         @extend %filter-container-shared;
     }
 
-    // TODO: 305: need one footer with attribution and one without, and attribution on its own?
+    // TODO: 305: need one footer with contributors and one without, and contributors on its own?
     .footer {
         border-top: 2px solid var(--color-accent, lightgrey);
         position: absolute;
@@ -139,15 +139,15 @@ $footer-and-attribution-height: 55px;
         }
     }
 
-    .attribution-text {
+    .contribution-text {
         border-top: 2px solid var(--color-accent, lightgrey);
         //background-color: var(--color-background-contrast, lightgrey);
         position: absolute;
         bottom: 0;
-        height: #{$attribution-height};
+        height: #{$contribution-height};
         width: 100%;
 
-        .attribution-text-container {
+        .contribution-text-container {
             cursor: pointer;
             display: flex;
             align-items: center;

@@ -35,7 +35,7 @@ import {
 
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-import { AttributionDialogComponent } from '../attribution-dialog/attribution-dialog.component';
+import { ContributionDialogComponent } from '../contribution-dialog/contribution-dialog.component';
 import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material';
 
 export class TransformedVisualizationData {
@@ -99,7 +99,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     // A WidgetOptionCollection object.  Must use "any" type to avoid typescript errors.
     public options: any;
 
-    private contributorsRef: MatDialogRef<AttributionDialogComponent>;
+    private contributorsRef: MatDialogRef<ContributionDialogComponent>;
 
     constructor(
         protected datasetService: DatasetService,
@@ -1409,17 +1409,17 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         // TODO THOR-985 Temporary function.  Override as needed.
     }
 
-    protected showAttribution() {
+    protected showContribution() {
         // TODO: 305: put this value in the config and check for it here
         return true;
     }
 
     // TODO: 305
-    protected openAttributionDialog() {
+    protected openContributionDialog() {
         let config = new MatDialogConfig();
         config = {width: '400px', minHeight: '200px'};
 
-        this.contributorsRef = this.dialog.open(AttributionDialogComponent, config);
+        this.contributorsRef = this.dialog.open(ContributionDialogComponent, config);
         this.contributorsRef.afterClosed().subscribe(() => {
             this.contributorsRef = null;
         });
