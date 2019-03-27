@@ -121,6 +121,7 @@ export class Dashboard {
     public pathFromTop?: string[]; // added to dashboard in validateDashboards() - contains keys
     // (sans choices object references) needed to traverse back up Dashboard object
     public relations?: {[key: string]: any}[];
+    public contributors?: {[key: string]: Contributor} = {};
 }
 
 /**
@@ -131,6 +132,15 @@ export class DashboardOptions {
     public colorMaps?: Object;
     public requeryInterval?: number;
     public simpleFilter?: SimpleFilter;
+}
+
+export class Contributor {
+    public orgName: String;
+    public abbreviation: String;
+    public piTeamLead: String;
+    public contactInfo: String;
+    public website: String;
+    public logo: String;
 }
 
 export const MediaTypes = {

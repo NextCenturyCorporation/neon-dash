@@ -13,47 +13,33 @@
  * limitations under the License.
  *
  */
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
-import { neonUtilities } from '../../neon-namespaces';
-import * as neon from 'neon-framework';
+import { Contributor } from '../../../app/dataset';
 
 @Component({
     selector: 'app-contribution-dialog',
     templateUrl: './contribution-dialog.component.html',
     styleUrls: ['./contribution-dialog.component.scss']
 })
-export class ContributionDialogComponent {//implements OnInit, OnDestroy {
+export class ContributionDialogComponent {
 
-    // TODO: 305: replace test data here with config references
-    public data = [
-        {
-            orgName: 'Some Organization',
-            abbrev: 'SO',
-            piTeamLead: 'PI/Team Lead Name',
-            contactInfo: 'Contact Information',
-            website: '<a href="">Company Website</a>',
-            logo: 'verdi-favicon'
-        },
-        {
-            orgName: 'Some Organization',
-            abbrev: 'SO',
-            piTeamLead: 'PI/Team Lead Name',
-            contactInfo: 'Contact Information',
-            website: '<a href="">Company Website</a>',
-            logo: 'verdi-favicon'
+    protected data: {[key: string]: Contributor};
+
+    constructor(@Inject(MAT_DIALOG_DATA) data: {[key: string]: Contributor}, public dialogRef: MatDialogRef<ContributionDialogComponent>) {
+        this.data = data;
+    }
+
+    getContributorKeys() {
+        if (this.data) {
+            return Object.keys(this.data);
         }
-    ];
+    }
 
-    //@Inject(MAT_DIALOG_DATA) data: any,
-    constructor(public dialogRef: MatDialogRef<ContributionDialogComponent>) {}
-
-    //ngOnInit() {
-        // Do nothing.
-    //}
-
-   // ngOnDestroy() {
-        // Do nothing.
-   // }
+    getContributorByKey(key: string): Contributor {
+        if (this.data) {
+            return this.data[key];
+        }
+    }
 }

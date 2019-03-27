@@ -1410,14 +1410,32 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     protected showContribution() {
-        // TODO: 305: put this value in the config and check for it here
-        return true;
+        // TODO: 305: add contributors check in dashboard validation
+        if (this.datasetService.getCurrentDashboard()
+            && this.datasetService.getCurrentDashboard().contributors
+            && Object.keys(this.datasetService.getCurrentDashboard().contributors).length) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    // TODO: 305
+    protected getContributors() {
+        let contributors = this.datasetService.getCurrentDashboard().contributors;
+        let contributorKeys = Object.keys(this.datasetService.getCurrentDashboard().contributors);
+        let contributorAbbreviations = [];
+
+        for (let key of contributorKeys) {
+            contributorAbbreviations.push(contributors[key].abbreviation);
+        }
+
+        return contributorAbbreviations.join(', ');
+    }
+
     protected openContributionDialog() {
         let config = new MatDialogConfig();
-        config = {width: '400px', minHeight: '200px'};
+        let contributors = this.datasetService.getCurrentDashboard().contributors;
+        config = {width: '400px', minHeight: '200px', data: contributors};
 
         this.contributorsRef = this.dialog.open(ContributionDialogComponent, config);
         this.contributorsRef.afterClosed().subscribe(() => {
