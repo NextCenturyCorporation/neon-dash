@@ -85,7 +85,7 @@ import { CustomConnectionSimpleSetupStepComponent } from './components/custom-co
 import { MatAutocompleteModule, MatFormFieldModule, MatInputModule } from '@angular/material';
 import { QueryBarComponent } from './components/query-bar/query-bar.component';
 import { GearComponent } from './components/gear/gear.component';
-import { AttributionDialogComponent } from './components/attribution-dialog/attribution-dialog.component';
+import { ContributionDialogComponent } from './components/contribution-dialog/contribution-dialog.component';
 
 export function getAppConfig() {
     /* tslint:disable:no-string-literal */
@@ -100,10 +100,10 @@ export function getAppConfig() {
         AnnotationViewerComponent,
         AppComponent,
         AggregationComponent,
-        AttributionDialogComponent,
         CardThumbnailSubComponent,
         ConfigEditorComponent,
         ConfirmationDialogComponent,
+        ContributionDialogComponent,
         CustomConnectionComponent,
         CustomConnectionSimpleSetupStepComponent,
         DashboardDropdownComponent,
@@ -177,9 +177,9 @@ export function getAppConfig() {
     entryComponents: [
         AppComponent,
         AddVisualizationComponent,
-        AttributionDialogComponent,
         ConfigEditorComponent,
         ConfirmationDialogComponent,
+        ContributionDialogComponent,
         CustomConnectionComponent,
         DocumentViewerSingleItemComponent,
         CurrentFiltersComponent,

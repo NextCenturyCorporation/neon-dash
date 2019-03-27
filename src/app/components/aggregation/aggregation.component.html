@@ -47,7 +47,7 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="showHeaderContainer()" [class.with-attribution]="showAttribution()">
+    <div class="body-container" [class.with-filter]="showHeaderContainer()" [class.with-contribution]="showContribution()">
         <div class="subcomponent-container zoom" [class.hide]="!showBothViews()" [style.minHeight.px]="minimumDimensionsZoom.height"
             [style.minWidth.px]="minimumDimensionsZoom.width" (click)="stopEventPropagation($event)">
 
@@ -67,10 +67,10 @@
 
     <canvas #hiddenCanvas class="hidden-canvas"></canvas>
 
-    <div class="attribution-text">
-        <div class="attribution-text-container">
-            <a (click)="openAttributionDialog()">
-                ATTRIBUTION LINK TEXT HERE
+    <div class="contribution-text">
+        <div class="contribution-text-container">
+            <a (click)="openContributionDialog()">
+                CONTRIBUTION LINK TEXT HERE
             </a>
         </div>
     </div>

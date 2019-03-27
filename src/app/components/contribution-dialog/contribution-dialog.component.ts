@@ -20,11 +20,11 @@ import { neonUtilities } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 
 @Component({
-    selector: 'app-attribution-dialog',
-    templateUrl: './attribution-dialog.component.html',
-    styleUrls: ['./attribution-dialog.component.scss']
+    selector: 'app-contribution-dialog',
+    templateUrl: './contribution-dialog.component.html',
+    styleUrls: ['./contribution-dialog.component.scss']
 })
-export class AttributionDialogComponent {//implements OnInit, OnDestroy {
+export class ContributionDialogComponent {//implements OnInit, OnDestroy {
 
     // TODO: 305: replace test data here with config references
     public data = [
@@ -47,7 +47,7 @@ export class AttributionDialogComponent {//implements OnInit, OnDestroy {
     ];
 
     //@Inject(MAT_DIALOG_DATA) data: any,
-    constructor(public dialogRef: MatDialogRef<AttributionDialogComponent>) {}
+    constructor(public dialogRef: MatDialogRef<ContributionDialogComponent>) {}
 
     //ngOnInit() {
         // Do nothing.
