@@ -17,7 +17,8 @@
         <mat-spinner></mat-spinner>
     </div>
 
-    <mat-list class="document-viewer-list-container body-container" [class.with-footer]="showPagination()">
+    <mat-list class="document-viewer-list-container body-container" [class.with-footer]="showPagination()"
+        [class.with-contribution]="showContribution()">
         <div *ngIf="getActiveData(options) != null">
             <div class="mat-list-item-text document-viewer-list-item" *ngFor="let activeItem of getActiveData(options).data">
                 <table class="document-viewer-table" *ngIf="activeItem.rows.length > 0">
@@ -51,7 +52,8 @@
         </div>
     </mat-list>
 
-    <div class="footer" *ngIf="showPagination()">
+    <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
+    <div class="footer" *ngIf="showPagination() && !showContribution()">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="page == 1" class="pagination-button" color="primary" (click)="goToPreviousPage()">
                 Previous
@@ -62,4 +64,31 @@
             </button>
         </div>
     </div>
+
+    <div class="footer-with-contribution" *ngIf="showPagination() && showContribution()">
+        <div class="footer-button-container">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button" color="primary" (click)="goToPreviousPage()">
+                Previous
+            </button>
+            <span class="pagination-button-spacer"></span>
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button" color="primary" (click)="goToNextPage()">
+                Next
+            </button>
+        </div>
+
+        <div class="contribution-text-container">
+            <a (click)="openContributionDialog()">
+                {{ getContributors() }}
+            </a>
+        </div>
+    </div>
+
+    <div class="contribution-text" *ngIf="showContribution() && !showPagination()">
+        <div class="contribution-text-container">
+            <a (click)="openContributionDialog()">
+                {{ getContributors() }}
+            </a>
+        </div>
+    </div>
+
 </mat-sidenav-container>
