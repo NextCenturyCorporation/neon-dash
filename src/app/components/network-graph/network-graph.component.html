@@ -17,7 +17,7 @@
         <mat-spinner></mat-spinner>
     </div>
 
-    <div class="body-container" (click)="stopEventPropagation($event)">
+    <div class="body-container" (click)="stopEventPropagation($event)" [class.with-contribution]="showContribution()">
         <div class="graph-container" (click)="stopEventPropagation($event)" [hidden]="!displayGraph">
             <div #graphElement id="graphElement" (click)="stopEventPropagation($event)"></div>
             <div class="graph-selection" *ngIf="false" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
@@ -40,4 +40,11 @@
         <app-legend *ngIf="!options.legendFiltering" [colorKeys]="colorKeys"  [filteringOn]="options.legendFiltering"></app-legend>
     </div>
 
+    <div class="contribution-text" *ngIf="showContribution()">
+        <div class="contribution-text-container">
+            <a (click)="openContributionDialog()">
+                {{ getContributors() }}
+            </a>
+        </div>
+    </div>
 </mat-sidenav-container>
