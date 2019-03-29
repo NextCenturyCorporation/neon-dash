@@ -6,13 +6,13 @@
 </div>
 <div class="contribution-body">
     <div>The following organizations contributed to this display:</div>
-    <div *ngFor="let key of getContributorKeys()" class="contributor">
-        <img class="contributor-logo" src="./assets/images/{{getContributorByKey(key).logo}}.ico">
+    <div *ngFor="let item of data" class="contributor">
+        <img class="contributor-logo" src="./assets/images/{{item.logo}}.ico">
         <div class="details">
-            <div>{{ getContributorByKey(key).orgName }}</div>
-            <div>{{ getContributorByKey(key).piTeamLead }}</div>
-            <div>{{ getContributorByKey(key).contactInfo }}</div>
-            <div [innerHtml]="getContributorByKey(key).website"></div><!-- TODO: 305: is this the correct way to render the link? -->
+            <div>{{ item.orgName }}</div>
+            <div>{{ item.piTeamLead }}</div>
+            <div>{{ item.contactInfo }}</div>
+            <div [innerHtml]="item.website"></div><!-- TODO: 305: is this the correct way to render the link? -->
         </div>
     </div>
 </div>

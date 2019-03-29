@@ -25,21 +25,9 @@ import { Contributor } from '../../../app/dataset';
 })
 export class ContributionDialogComponent {
 
-    protected data: {[key: string]: Contributor};
+    protected data: Contributor[];
 
-    constructor(@Inject(MAT_DIALOG_DATA) data: {[key: string]: Contributor}, public dialogRef: MatDialogRef<ContributionDialogComponent>) {
+    constructor(@Inject(MAT_DIALOG_DATA) data: Contributor[], public dialogRef: MatDialogRef<ContributionDialogComponent>) {
         this.data = data;
-    }
-
-    getContributorKeys() {
-        if (this.data) {
-            return Object.keys(this.data);
-        }
-    }
-
-    getContributorByKey(key: string): Contributor {
-        if (this.data) {
-            return this.data[key];
-        }
     }
 }
