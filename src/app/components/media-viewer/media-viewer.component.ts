@@ -80,6 +80,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     protected MEDIA_PADDING: number = 10;
     protected SLIDER_HEIGHT: number = 30;
     protected TAB_HEIGHT: number = 30;
+    protected CONTRIBUTION_FOOTER_HEIGHT: number = 20;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
@@ -721,23 +722,45 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             this.mediaTypes.maskImage) ? this.SLIDER_HEIGHT : 0);
 
         frames.forEach((frame) => {
-            frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            if (this.showContribution()) {
+                frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
+                    this.CONTRIBUTION_FOOTER_HEIGHT - this.TAB_HEIGHT -
+                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+                frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
+                    this.CONTRIBUTION_FOOTER_HEIGHT - this.TAB_HEIGHT -
+                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            } else {
+                frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+                frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            }
+
             frame.style.width = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
             frame.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
+
         });
 
         images.forEach((image) => {
-            image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            if (this.showContribution()) {
+                image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
+                    this.CONTRIBUTION_FOOTER_HEIGHT - this.TAB_HEIGHT -
+                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            } else {
+                image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            }
             image.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         });
 
         audios.forEach((audio) => {
-            audio.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            if (this.showContribution()) {
+                audio.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                    this.CONTRIBUTION_FOOTER_HEIGHT - this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            } else {
+                audio.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            }
             audio.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         });
     }
