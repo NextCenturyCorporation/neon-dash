@@ -106,7 +106,6 @@ $contribution-height: 20px;
         @extend %filter-container-shared;
     }
 
-    // TODO: 305: need one footer with contributors and one without, and contributors on its own?
     .footer {
         border-top: 2px solid var(--color-accent, lightgrey);
         position: absolute;
