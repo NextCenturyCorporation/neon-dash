@@ -1272,6 +1272,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         options.inject(new WidgetFreeTextOption('title', 'Title', visualizationTitle));
         options.inject(new WidgetFreeTextOption('unsharedFilterValue', 'Unshared Filter Value', ''));
 
+        options.inject(new WidgetNonPrimitiveOption('contributionKeys', 'Contribution Keys', null, false));
+
         // Backwards compatibility (configFilter deprecated and renamed to filter).
         options.filter = options.filter || this.injector.get('configFilter', null);
 
@@ -1411,22 +1413,42 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     protected showContribution() {
         // TODO: 305: add contributors check in dashboard validation
-        if (this.datasetService.getCurrentDashboard()
+        if ((this.options.contributionKeys && this.options.contributionKeys.length !== 0)
+            || (this.options.contributionKeys === null
+            && this.datasetService.getCurrentDashboard()
             && this.datasetService.getCurrentDashboard().contributors
-            && Object.keys(this.datasetService.getCurrentDashboard().contributors).length) {
+            && Object.keys(this.datasetService.getCurrentDashboard().contributors).length)) {
             return true;
         } else {
             return false;
         }
     }
 
-    protected getContributors() {
+    protected getContributorsForComponent() {
+        let allContributors = this.datasetService.getCurrentDashboard().contributors;
+        let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys
+            : Object.keys(this.datasetService.getCurrentDashboard().contributors);
+        let contributors = [];
+
+        for (let key of contributorKeys) {
+            if (allContributors[key]) {
+                contributors.push(allContributors[key]);
+            }
+        }
+
+        return contributors;
+    }
+
+    protected getContributorAbbreviations() {
         let contributors = this.datasetService.getCurrentDashboard().contributors;
-        let contributorKeys = Object.keys(this.datasetService.getCurrentDashboard().contributors);
+        let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys
+            : Object.keys(this.datasetService.getCurrentDashboard().contributors);
         let contributorAbbreviations = [];
 
         for (let key of contributorKeys) {
-            contributorAbbreviations.push(contributors[key].abbreviation);
+            if (contributors[key] && contributors[key].abbreviation) {
+                contributorAbbreviations.push(contributors[key].abbreviation);
+            }
         }
 
         return contributorAbbreviations.join(', ');
@@ -1434,8 +1456,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     protected openContributionDialog() {
         let config = new MatDialogConfig();
-        let contributors = this.datasetService.getCurrentDashboard().contributors;
-        config = {width: '400px', minHeight: '200px', data: contributors};
+        config = {width: '400px', minHeight: '200px', data: this.getContributorsForComponent()};
 
         this.contributorsRef = this.dialog.open(ContributionDialogComponent, config);
         this.contributorsRef.afterClosed().subscribe(() => {

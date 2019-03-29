@@ -84,7 +84,7 @@
 
         <div class="contribution-text-container">
             <a (click)="openContributionDialog()">
-                {{ getContributors() }}
+                {{ getContributorAbbreviations() }}
             </a>
         </div>
     </div>
@@ -92,7 +92,7 @@
     <div class="contribution-text" *ngIf="showContribution() && !showPagination()">
         <div class="contribution-text-container">
             <a (click)="openContributionDialog()">
-                {{ getContributors() }}
+                {{ getContributorAbbreviations() }}
             </a>
         </div>
     </div>
