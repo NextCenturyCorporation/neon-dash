@@ -1412,7 +1412,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     protected showContribution() {
-        // TODO: 305: add contributors check in dashboard validation
         if ((this.options.contributionKeys && this.options.contributionKeys.length !== 0)
             || (this.options.contributionKeys === null
             && this.datasetService.getCurrentDashboard()
