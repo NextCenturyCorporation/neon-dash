@@ -85,6 +85,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected initializing: boolean = false;
     protected redrawOnResize: boolean = false;
     protected selectedDataId: string = '';
+    protected showNoData: boolean = false;
     protected showingZeroOrMultipleElementsPerResult: boolean = false;
     protected updateOnSelectId: boolean = false;
     protected visualizationQueryPaginates: boolean = false;
@@ -660,6 +661,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             // TODO THOR-985 Don't call transformVisualizationQueryResults
             this.transformVisualizationQueryResults(options, []);
             this.errorMessage = 'No Data';
+            //this.showNoData = true;
             this.layerIdToActiveData.set(options._id, new TransformedVisualizationData());
             this.layerIdToElementCount.set(options._id, 0);
             this.clearVisualizationData(options);
@@ -743,6 +745,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.refreshVisualization();
         this.changeDetection.detectChanges();
         this.updateHeaderTextStyles();
+        this.noDataCheck();
     }
 
     /**
@@ -1402,5 +1405,17 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     protected clearVisualizationData(options: any): void {
         // TODO THOR-985 Temporary function.  Override as needed.
+    }
+
+    private noDataCheck() {
+        if (this.filterService.getFilters().length > 0) {
+            let activeData = this.getActiveData();
+            if (!activeData || !activeData.data || !activeData.data.length) {
+                this.showNoData = true;
+            } else {
+                this.showNoData = false;
+            }
+            this.changeDetection.detectChanges();
+        }
     }
 }
