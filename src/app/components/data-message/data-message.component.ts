@@ -37,7 +37,6 @@ import * as _ from 'lodash';
     encapsulation: ViewEncapsulation.Emulated
 })
 export class DataMessageComponent implements OnInit {
-    @Input() visualizationName: string;
     public chartsAndGraph: any[];
     public visualizations: any[];
     public currentVisualization: any;
@@ -52,9 +51,6 @@ export class DataMessageComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.currentVisualization = neonVisualizations.filter((visualization) => {
-            return visualization.name === this.visualizationName;
-        });
         this.changeDetection.detectChanges();
     }
 
