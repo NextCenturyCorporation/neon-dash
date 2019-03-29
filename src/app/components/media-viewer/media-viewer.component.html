@@ -47,7 +47,7 @@
             </mat-tab>
         </mat-tab-group>
 
-        <div class="full-height single-medium" *ngIf="tabsAndMedia.length == 1 && tabsAndMedia[0].selected">
+        <div class="full-height single-medium" *ngIf="tabsAndMedia.length == 1 && tabsAndMedia[0].selected" [class.with-contribution]="showContribution()">
             <!-- Use an ngFor to force the widget to reload and redraw its media elements -->
             <div *ngFor="let tab of tabsAndMedia">
                 <div class="viewer-text">{{ tab.name }}</div>
@@ -77,7 +77,16 @@
         </div>
     </div>
 
-    <div class="full-height" *ngIf="options.url != ''">
+    <div class="full-height" *ngIf="options.url != ''" [class.with-contribution]="showContribution()">
         <iframe [src]="sanitize(options.url)" frameborder="0"></iframe>
     </div>
+
+    <div class="contribution-text" *ngIf="showContribution()">
+        <div class="contribution-text-container">
+            <a (click)="openContributionDialog()">
+                {{ getContributors() }}
+            </a>
+        </div>
+    </div>
+
 </mat-sidenav-container>
