@@ -242,7 +242,7 @@ dashboards:
                                     abbreviation: 'LDC'
                                     piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                                     contactInfo: 'TBD'
-                                    website: '<a href="https://www.ldc.upenn.edu/language-resources" target="_blank">Company Website</a>'
+                                    website: '<a href="https://www.ldc.upenn.edu/language-resources" target="_blank">Website</a>'
                                     logo: 'verdi-favicon' # TODO: 305: get logos
                         uyg_elisa:
                             name: Uyghur ELISA
@@ -271,14 +271,14 @@ dashboards:
                                     abbreviation: 'RPI'
                                     piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                                     contactInfo: 'TBD'
-                                    website: '<a href="https://www.rpi.edu/" target="_blank">Company Website</a>'
+                                    website: '<a href="https://www.rpi.edu/" target="_blank">Website</a>'
                                     logo: 'verdi-favicon' # TODO: 305: get logos
                                 elisa-isi:
                                     orgName: 'University of Southern California, Information Sciences Institute'
                                     abbreviation: 'USC/ISI'
                                     piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                                     contactInfo: 'TBD'
-                                    website: '<a href="https://www.isi.edu/" target="_blank">Company Website</a>'
+                                    website: '<a href="https://www.isi.edu/" target="_blank">Website</a>'
                                     logo: 'verdi-favicon' # TODO: 305: get logos
                         nepal_elisa:
                             name: Nepal ELISA
@@ -309,14 +309,14 @@ dashboards:
                                     abbreviation: 'RPI'
                                     piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                                     contactInfo: 'TBD'
-                                    website: '<a href="https://www.rpi.edu/" target="_blank">Company Website</a>'
+                                    website: '<a href="https://www.rpi.edu/" target="_blank">Website</a>'
                                     logo: 'verdi-favicon' # TODO: 305: get logos
                                 isi:
                                     orgName: 'University of Southern California, Information Sciences Institute'
                                     abbreviation: 'USC/ISI'
                                     piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                                     contactInfo: 'TBD'
-                                    website: '<a href="https://www.isi.edu/" target="_blank">Company Website</a>'
+                                    website: '<a href="https://www.isi.edu/" target="_blank">Website</a>'
                                     logo: 'verdi-favicon' # TODO: 305: get logos
                         uyg_ldc_il3:
                             name: Uyghur LDC Il3
@@ -366,7 +366,7 @@ dashboards:
                                     abbreviation: 'LDC'
                                     piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                                     contactInfo: 'TBD'
-                                    website: '<a href="https://www.ldc.upenn.edu/language-resources" target="_blank">Company Website</a>'
+                                    website: '<a href="https://www.ldc.upenn.edu/language-resources" target="_blank">Website</a>'
                                     logo: 'verdi-favicon' # TODO: 305: get logos
                         elisa_ldc_il3:
                             name: Elisa LDC Il3
@@ -416,14 +416,14 @@ dashboards:
                                     abbreviation: 'RPI'
                                     piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                                     contactInfo: 'TBD'
-                                    website: '<a href="https://www.rpi.edu/" target="_blank">Company Website</a>'
+                                    website: '<a href="https://www.rpi.edu/" target="_blank">Website</a>'
                                     logo: 'verdi-favicon' # TODO: 305: get logos
                                 isi:
                                     orgName: 'University of Southern California, Information Sciences Institute'
                                     abbreviation: 'USC/ISI'
                                     piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                                     contactInfo: 'TBD'
-                                    website: '<a href="https://www.isi.edu/" target="_blank">Company Website</a>'
+                                    website: '<a href="https://www.isi.edu/" target="_blank">Website</a>'
                                     logo: 'verdi-favicon' # TODO: 305: get logos
                 vodno:
                     name: 'SIMPOST'
@@ -457,7 +457,7 @@ dashboards:
                                     abbreviation: 'MIT/LL'
                                     piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                                     contactInfo: 'TBD'
-                                    website: '<a href="https://www.ll.mit.edu/" target="_blank">Company Website</a>'
+                                    website: '<a href="https://www.ll.mit.edu/" target="_blank">Website</a>'
                                     logo: 'verdi-favicon' # TODO: 305: get logos
                 w5:
                     name: 'W5'
@@ -495,14 +495,14 @@ dashboards:
                                     abbreviation: 'RPI'
                                     piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                                     contactInfo: 'TBD'
-                                    website: '<a href="https://www.rpi.edu/" target="_blank">Company Website</a>'
+                                    website: '<a href="https://www.rpi.edu/" target="_blank">Website</a>'
                                     logo: 'verdi-favicon' # TODO: 305: get logos
                                 isi:
                                     orgName: 'University of Southern California, Information Sciences Institute'
                                     abbreviation: 'USC/ISI'
                                     piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                                     contactInfo: 'TBD'
-                                    website: '<a href="https://www.isi.edu/" target="_blank">Company Website</a>'
+                                    website: '<a href="https://www.isi.edu/" target="_blank">Website</a>'
                                     logo: 'verdi-favicon' # TODO: 305: get logos
                         car_elisa_discovery:
                             name: Central African Republic ELISA
@@ -540,14 +540,14 @@ dashboards:
                                     abbreviation: 'RPI'
                                     piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                                     contactInfo: 'TBD'
-                                    website: '<a href="https://www.rpi.edu/" target="_blank">Company Website</a>'
+                                    website: '<a href="https://www.rpi.edu/" target="_blank">Website</a>'
                                     logo: 'verdi-favicon' # TODO: 305: get logos
                                 isi:
                                     orgName: 'University of Southern California, Information Sciences Institute'
                                     abbreviation: 'USC/ISI'
                                     piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                                     contactInfo: 'TBD'
-                                    website: '<a href="https://www.isi.edu/" target="_blank">Company Website</a>'
+                                    website: '<a href="https://www.isi.edu/" target="_blank">Website</a>'
                                     logo: 'verdi-favicon' # TODO: 305: get logos
                         uyg_elisa:
                             name: Uyghur ELISA
@@ -579,14 +579,14 @@ dashboards:
                                     abbreviation: 'RPI'
                                     piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                                     contactInfo: 'TBD'
-                                    website: '<a href="https://www.rpi.edu/" target="_blank">Company Website</a>'
+                                    website: '<a href="https://www.rpi.edu/" target="_blank">Website</a>'
                                     logo: 'verdi-favicon' # TODO: 305: get logos
                                 isi:
                                     orgName: 'University of Southern California, Information Sciences Institute'
                                     abbreviation: 'USC/ISI'
                                     piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                                     contactInfo: 'TBD'
-                                    website: '<a href="https://www.isi.edu/" target="_blank">Company Website</a>'
+                                    website: '<a href="https://www.isi.edu/" target="_blank">Website</a>'
                                     logo: 'verdi-favicon' # TODO: 305: get logos
 
 layouts:
