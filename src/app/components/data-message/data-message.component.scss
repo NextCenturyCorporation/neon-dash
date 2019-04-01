@@ -18,8 +18,10 @@
 .data-message-container {
     height: 100%;
     margin: 10px;
+    padding-top: 48px;
     overflow-y: auto;
     padding-right: 10px;
+    z-index: 999999;
 }
 
 .center-contents {

@@ -28,6 +28,10 @@
     </div>
 
     <div class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="showPagination()">
+        <div class="data-message-container" *ngIf="showNoData">
+            <app-data-message> </app-data-message>
+        </div>
+        
         <div class="table-container">
             <ngx-datatable #table class="material table"[class.skinny]="this.options.skinny"
                 [class.selectable]="options.filterable || options.idField.columnName"

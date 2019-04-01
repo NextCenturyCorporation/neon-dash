@@ -46,6 +46,7 @@ describe('Component: TextCloud', () => {
 
     initializeTestBed('Text Cloud', {
         declarations: [
+            DataMessageComponent,
             TextCloudComponent,
             UnsharedFilterComponent
         ],
