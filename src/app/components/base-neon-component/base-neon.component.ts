@@ -661,7 +661,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             // TODO THOR-985 Don't call transformVisualizationQueryResults
             this.transformVisualizationQueryResults(options, []);
             this.errorMessage = 'No Data';
-            //this.showNoData = true;
             this.layerIdToActiveData.set(options._id, new TransformedVisualizationData());
             this.layerIdToElementCount.set(options._id, 0);
             this.clearVisualizationData(options);
@@ -1407,7 +1406,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         // TODO THOR-985 Temporary function.  Override as needed.
     }
 
-    private noDataCheck() {
+    public noDataCheck() {
         if (this.filterService.getFilters().length > 0) {
             let activeData = this.getActiveData();
             if (!activeData || !activeData.data || !activeData.data.length) {
