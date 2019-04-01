@@ -47,10 +47,11 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="showHeaderContainer()">
-        <div class="data-message-container" *ngIf="showNoData">
-            <app-data-message> </app-data-message>
+    <div class="data-message-container" *ngIf="showNoData">
+        <app-data-message> </app-data-message>
     </div>
+    
+    <div class="body-container" [class.with-filter]="showHeaderContainer()">
 
         <div class="subcomponent-container zoom" [class.hide]="!showBothViews()" [style.minHeight.px]="minimumDimensionsZoom.height"
             [style.minWidth.px]="minimumDimensionsZoom.width" (click)="stopEventPropagation($event)">
