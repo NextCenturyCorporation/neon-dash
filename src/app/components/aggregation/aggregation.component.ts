@@ -1363,6 +1363,20 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Toggles the body container if the data message component is present
+     * @override
+     */
+    toggleBodyContainer() {
+        let bodyContainer: HTMLElement = document.getElementById('body-container');
+
+        if (this.showNoData) {
+            bodyContainer.setAttribute('style', 'display: none');
+        } else {
+            bodyContainer.setAttribute('style', 'display: show');
+        }
+    }
+
+    /**
      * Toggles the given filter in the given filter list and recreates or removes the neon filter.
      *
      * @arg {Filter} filter
