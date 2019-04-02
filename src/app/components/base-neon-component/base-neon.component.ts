@@ -1414,7 +1414,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             } else {
                 this.showNoData = false;
             }
-            this.changeDetection.detectChanges();
+        } else {
+            this.showNoData = false;
         }
+        this.changeDetection.detectChanges();
     }
 }
