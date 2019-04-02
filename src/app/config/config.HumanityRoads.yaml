@@ -102,7 +102,7 @@ dashboards:
                             piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                             contactInfo: 'TBD'
                             website: '<a href="https://www.ldc.upenn.edu/language-resources" target="_blank">Website</a>'
-                            logo: 'verdi-favicon' # TODO: 305: get logos
+                            logo: 'LDC-logo.png'
                 nepal_elisa_discovery:
                     name: Nepal ELISA
                     layout: nepal-elisa-sd
@@ -123,14 +123,14 @@ dashboards:
                             piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                             contactInfo: 'TBD'
                             website: '<a href="https://www.rpi.edu/" target="_blank">Website</a>'
-                            logo: 'verdi-favicon' # TODO: 305: get logos
+                            logo: 'RPI-logo.png'
                         isi:
                             orgName: 'University of Southern California, Information Sciences Institute'
                             abbreviation: 'USC/ISI'
                             piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
                             contactInfo: 'TBD'
                             website: '<a href="https://www.isi.edu/" target="_blank">Website</a>'
-                            logo: 'verdi-favicon' # TODO: 305: get logos
+                            logo: 'ISI-logo.png'
 
 layouts:
     nepal-elisa-sd:
