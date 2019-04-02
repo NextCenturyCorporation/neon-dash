@@ -1329,7 +1329,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     subcomponentRequestsRedraw(event?) {
-        this.noDataCheck();
         if (event) {
             this.stopEventPropagation(event);
         }
