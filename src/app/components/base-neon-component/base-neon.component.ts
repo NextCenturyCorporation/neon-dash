@@ -1406,7 +1406,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         // TODO THOR-985 Temporary function.  Override as needed.
     }
 
-    public noDataCheck() {
+    /**
+     * Checks wheather there are any filters and returns no data.
+     */
+    private noDataCheck() {
         if (this.filterService.getFilters().length > 0) {
             let activeData = this.getActiveData();
             if (!activeData || !activeData.data || !activeData.data.length) {
@@ -1418,5 +1421,14 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.showNoData = false;
         }
         this.changeDetection.detectChanges();
+        this.toggleBodyContainer();
+    }
+
+    /**
+     * Method to be overrided in components where the body container wants to be hidden
+     * if showNoData is true
+     */
+    private toggleBodyContainer() {
+        //Will be override in the aggregation component
     }
 }
