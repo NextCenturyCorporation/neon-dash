@@ -3386,6 +3386,7 @@ describe('Component: Aggregation', () => {
             aggregation: AggregationType.COUNT,
             axisLabelX: '',
             axisLabelY: 'count',
+            contributionKeys: null,
             countByAggregation: false,
             dualView: '',
             granularity: 'year',
@@ -3442,6 +3443,7 @@ describe('Component: Aggregation', () => {
         component.options.yPercentage = 0.5;
 
         expect(component.getBindings()).toEqual({
+            contributionKeys: null,
             customEventsToPublish: [],
             customEventsToReceive: [],
             database: 'testDatabase1',

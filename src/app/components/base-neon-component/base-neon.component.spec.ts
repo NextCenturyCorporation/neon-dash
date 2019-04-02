@@ -931,6 +931,7 @@ describe('BaseNeonComponent', () => {
 
     it('getBindings does return expected object', () => {
         expect(component.getBindings()).toEqual({
+            contributionKeys: null,
             customEventsToPublish: [],
             customEventsToReceive: [],
             database: 'testDatabase1',
@@ -947,6 +948,7 @@ describe('BaseNeonComponent', () => {
         component.options.append(new WidgetFieldOption('testField', 'Test Field', false), new FieldMetaData());
         component.options.append(new WidgetFreeTextOption('testValue', 'Test Value', ''), '');
         expect(component.getBindings()).toEqual({
+            contributionKeys: null,
             customEventsToPublish: [],
             customEventsToReceive: [],
             database: 'testDatabase1',
@@ -1583,6 +1585,7 @@ describe('Advanced BaseNeonComponent with config', () => {
             Injector,
             { provide: 'config', useValue: testConfig },
             { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
+            { provide: 'contributionKeys', useValue: ['organization1', 'organization2'] },
             { provide: 'customEventsToPublish', useValue: [ { id: 'testPublishId', fields: [ { columnName: 'testPublishColumnName',
                 prettyName: 'testPublishPrettyName' } ] } ] },
             { provide: 'customEventsToReceive', useValue: [ { id: 'testReceiveId', fields: [ { columnName: 'testReceiveColumnName',
@@ -1691,6 +1694,7 @@ describe('Advanced BaseNeonComponent with config', () => {
 
     it('getBindings does return expected object', () => {
         expect(component.getBindings()).toEqual({
+            contributionKeys: ['organization1', 'organization2'],
             customEventsToPublish: [{
                 id: 'testPublishId',
                 fields: [{
