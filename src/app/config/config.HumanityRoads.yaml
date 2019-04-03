@@ -99,9 +99,9 @@ dashboards:
                         ldc:
                             orgName: 'Linguistic Data Consortium'
                             abbreviation: 'LDC'
-                            piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                            contactInfo: 'TBD'
-                            website: '<a href="https://www.ldc.upenn.edu/language-resources" target="_blank">Website</a>'
+                            contactName: 'Stephanie Strassel'
+                            contactEmail: 'strassel@ldc.upenn.edu'
+                            website: 'https://www.ldc.upenn.edu/language-resources'
                             logo: 'LDC-logo.png'
                 nepal_elisa_discovery:
                     name: Nepal ELISA
@@ -120,16 +120,16 @@ dashboards:
                         rpi:
                             orgName: 'Rensselaer Polytechnic Institute'
                             abbreviation: 'RPI'
-                            piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                            contactInfo: 'TBD'
-                            website: '<a href="https://www.rpi.edu/" target="_blank">Website</a>'
+                            contactName: 'Heng Ji'
+                            contactEmail: 'jih@rpi.edu'
+                            website: 'http://nlp.cs.rpi.edu/'
                             logo: 'RPI-logo.png'
                         isi:
                             orgName: 'University of Southern California, Information Sciences Institute'
                             abbreviation: 'USC/ISI'
-                            piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                            contactInfo: 'TBD'
-                            website: '<a href="https://www.isi.edu/" target="_blank">Website</a>'
+                            contactName: 'Jonathan May'
+                            contactEmail: 'jonmay@isi.edu'
+                            website: 'https://www.isi.edu/'
                             logo: 'ISI-logo.png'
 
 layouts:
