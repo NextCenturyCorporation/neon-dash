@@ -147,7 +147,6 @@ $contribution-height: 20px;
 
     .contribution-text {
         border-top: 2px solid var(--color-accent, lightgrey);
-        //background-color: var(--color-background-contrast, lightgrey);
         position: absolute;
         bottom: 0;
         height: #{$contribution-height};
@@ -162,7 +161,6 @@ $contribution-height: 20px;
         font-size: 10px;
         font-weight: 500;
         color: var(--color-primary, lightgrey) !important;
-        //color: var(--color-text-header, grey);
 
         &:hover {
             text-decoration: underline;
