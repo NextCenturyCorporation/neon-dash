@@ -31,7 +31,7 @@ export class ContributionDialogComponent {
         this.data = data;
     }
 
-    getEmailLink(emailString: string) {
+    protected getEmailLink(emailString: string) {
         return 'mailto:' + emailString;
     }
 }
