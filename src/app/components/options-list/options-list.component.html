@@ -1,0 +1,45 @@
+<div *ngFor="let bindingKey of bindingsList">
+    <!-- Select Option Type-->
+    <mat-form-field class="option-container" *ngIf="getOption(bindingKey).optionType == 'SELECT'">
+        <mat-select placeholder={{getOption(bindingKey).prettyName}} [(ngModel)]="options[bindingKey]"
+            [name]="options._id + '_' + bindingKey" (ngModelChange)="updateOnChange(bindingKey)">
+            <mat-option *ngFor="let choice of getOption(bindingKey).valueChoices" [value]="choice.variable">
+                {{ choice.prettyName }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <!-- Field Option Type-->
+    <mat-form-field class="option-container" *ngIf="getOption(bindingKey).optionType == 'FIELD'">
+        <mat-select placeholder={{getOption(bindingKey).prettyName}} [(ngModel)]="options[bindingKey]"
+            required="getOption(bindingKey).isRequired"
+            [name]="options._id + '_' + bindingKey" (ngModelChange)="updateOnChange(bindingKey)">
+            <mat-option *ngIf="!getOption(bindingKey).isRequired" [value]="createEmptyField()">(None)</mat-option>
+            <mat-option *ngFor="let field of fields" [value]="field">{{ field.prettyName }}</mat-option>
+        </mat-select>
+    </mat-form-field>
+    <!-- Free Text Option Type-->
+    <div mat-fill class="flex center" *ngIf="getOption(bindingKey).optionType == 'FREE_TEXT'">
+        <mat-form-field class='option-container'>
+            <input matInput placeholder={{getOption(bindingKey).prettyName}} [(ngModel)]="options[bindingKey]"
+                [name]="options._id + '_' + bindingKey" (ngModelChange)="updateOnChange(bindingKey)" required="true">
+        </mat-form-field>
+    </div>
+    <!-- Field Array Option Type-->
+    <div mat-fill class="flex center" *ngIf="getOption(bindingKey).optionType == 'FIELD_ARRAY'">
+        <mat-form-field class='option-container'>
+            <mat-select placeholder={{getOption(bindingKey).prettyName}} [(ngModel)]="options[bindingKey]"
+                [name]="options._id + '_' + bindingKey" (ngModelChange)="updateOnChange(bindingKey)" multiple>
+                <mat-option *ngFor="let field of fields" [value]="field">{{ field.prettyName }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <!-- Multiple Select Option Type-->
+    <div mat-fill class="flex center" *ngIf="getOption(bindingKey).optionType == 'MULTIPLE_SELECT'">
+        <mat-form-field class='option-container'>
+            <mat-select placeholder={{getOption(bindingKey).prettyName}} [(ngModel)]="options[bindingKey]"
+                [name]="options._id + '_' + bindingKey" (ngModelChange)="updateOnChange(bindingKey)" multiple>
+                <mat-option *ngFor="let field of fields" [value]="field">{{ field }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+</div>

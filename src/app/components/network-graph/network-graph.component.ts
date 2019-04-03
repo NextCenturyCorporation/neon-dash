@@ -165,6 +165,10 @@ export class TransformedGraphData extends TransformedVisualizationData {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit {
+    static FONT = 'Roboto, sans-serif';
+    static EDGE_FONT_SIZE: number = 14;
+    static NODE_FONT_SIZE: number = 14;
+
     @ViewChild('graphElement') graphElement: ElementRef;
     @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
@@ -260,8 +264,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * @override
      */
     initializeProperties() {
-        this.isMultiLayerWidget = !!this.options.layers.length;
-
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
         this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
 
@@ -651,7 +653,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.filters = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 let myFilter = {
                     id: neonFilter.id,
@@ -715,11 +717,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.neonFilters = this.filterService.getFiltersForFields(options.database.name, options.table.name,
             options.filterFields.map((fieldsObject) => fieldsObject.columnName));
 
-        if (this.isMultiLayerWidget) {
+        if (this.options.layers.length) {
             //TODO: clean up node labels for layers
             this.responseData.push({ options: options, results: results });
 
-        } else if (!this.responseData.length) {
+        } else {
 
             // TODO THOR-985
             this.responseData = results;
@@ -769,7 +771,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.loadingCount++;
 
         let graphProperties = this.options.isReified ? this.createReifiedGraphProperties() :
-            this.isMultiLayerWidget ? this.createMultiTableGraphProperties() :
+            this.options.layers.length ? this.createMultiTableGraphProperties() :
                 this.createTabularGraphProperties();
 
         if (graphProperties) {
@@ -847,7 +849,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let graph = new GraphProperties(),
             limit = this.options.limit,
             nodeColor = this.options.nodeColor,
-            nodeTextObject = {size: 14, face: 'Roboto, sans-serif', color: this.options.fontColor},
+            nodeTextObject = {
+                size: NetworkGraphComponent.NODE_FONT_SIZE,
+                face: NetworkGraphComponent.FONT,
+                color: this.options.fontColor
+            },
             nodeShape = this.options.nodeShape;
 
         for (const entry of this.responseData) {
@@ -870,7 +876,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     private addTriple(graph: GraphProperties, subject: string, predicate: string, object: string, nodeColor?: string,
         nodeTextObject?: any, nodeShape?: string) {
-        let edgeTextObject = {size: 14, face: 'Roboto, sans-serif'};
+        let edgeTextObject = {
+            size: NetworkGraphComponent.EDGE_FONT_SIZE,
+            face: NetworkGraphComponent.FONT
+        };
 
         graph.addNode(new Node(subject, subject, '', null, nodeColor, false, nodeTextObject, nodeShape));
         graph.addNode(new Node(object, object, '', null, nodeColor, false, nodeTextObject, nodeShape));
@@ -880,7 +889,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string,
         colorValue?: string, edgeColorField?: string) {
         let edgeColor = { color: colorValue, highlight: colorValue };
-        let edgeTextObject = {size: 14, face: 'Roboto, sans-serif'};
+        let edgeTextObject = {
+            size: NetworkGraphComponent.EDGE_FONT_SIZE,
+            face: NetworkGraphComponent.FONT
+        };
+
         //TODO: edgeWidth being passed into Edge class is currently breaking directed arrows, removing for now
         // let edgeWidth = this.options.edgeWidth;
         if (Array.isArray(linkField)) {
@@ -949,6 +962,10 @@ private getAllNodes(data: any[], idField: string, nameField: string, colorField:
         let ret: Edge[] = [];
         let colorMapVal = originalColorMapVal;
         let color = originalColor;
+        let edgeTextObject = {
+            size: NetworkGraphComponent.EDGE_FONT_SIZE,
+            face: NetworkGraphComponent.FONT
+        };
 
         // if there is a valid colorField and no modifications to the legend labels, override the default colorString
         if (colorField && this.prettifiedEdgeLabels.length === 0) {
@@ -975,7 +992,8 @@ private getAllNodes(data: any[], idField: string, nameField: string, colorField:
                 }
             }
 
-            ret.push(new Edge(source, destinations[i], names[i], { to: this.options.isDirected }, 1, colorObject, colorMapVal));
+            ret.push(new Edge(source, destinations[i], names[i], { to: this.options.isDirected }, 1, colorObject, colorMapVal,
+                edgeTextObject));
         }
         return ret;
     }
@@ -1034,8 +1052,11 @@ private getAllNodes(data: any[], idField: string, nameField: string, colorField:
             nodeColor = this.options.nodeColor,
             edgeColor = this.options.edgeColor,
             linkColor = this.options.linkColor,
-            nodeTextObject = {size: 14, face: 'Roboto, sans-serif', color: this.options.fontColor},
-            edgeTextObject = {size: 14, face: 'Roboto, sans-serif'},
+            nodeTextObject = {
+                size: NetworkGraphComponent.NODE_FONT_SIZE,
+                face: NetworkGraphComponent.FONT,
+                color: this.options.fontColor
+            },
             limit = this.options.limit,
             nodeShape = this.options.nodeShape,
             xPositionField = this.options.xPositionField.columnName,

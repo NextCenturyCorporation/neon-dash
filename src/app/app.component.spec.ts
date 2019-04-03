@@ -26,15 +26,17 @@ import { AppComponent } from './app.component';
 import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
-import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
+import { DashboardSelectorComponent } from './components/dashboard-selector/dashboard-selector.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
 import { ExportControlComponent } from './components/export-control/export-control.component';
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
 import { FiltersComponent } from './components/filters/filters.component';
 import { CurrentFiltersComponent } from './components/current-filters/current-filters.component';
+import { GearComponent } from './components/gear/gear.component';
 import { LegendComponent } from './components/legend/legend.component';
 import { MapComponent } from './components//map/map.component';
+import { OptionsListComponent } from './components/options-list/options-list.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { SaveStateComponent } from './components/save-state/save-state.component';
 import { SettingsComponent } from './components/settings/settings.component';
@@ -73,6 +75,7 @@ import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-gr
 import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 import { MatAutocompleteModule } from '@angular/material';
 import { QueryBarComponent } from './components/query-bar/query-bar.component';
+import { DashboardDropdownComponent } from './components/dashboard-dropdown/dashboard-dropdown.component';
 import { DetailsThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.details-view';
 import { TitleThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.title-view';
 import { CardThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.card-view';
@@ -98,19 +101,22 @@ describe('App', () => {
               AggregationComponent,
               AnnotationViewerComponent,
               CardThumbnailSubComponent,
-              DatasetSelectorComponent,
+              DashboardDropdownComponent,
+              DashboardSelectorComponent,
               DataTableComponent,
               DetailsThumbnailSubComponent,
               DocumentViewerComponent,
               ExportControlComponent,
               FilterBuilderComponent,
               FiltersComponent,
+              GearComponent,
               CurrentFiltersComponent,
               LegendComponent,
               MapComponent,
               MediaViewerComponent,
               NetworkGraphComponent,
               NewsFeedComponent,
+              OptionsListComponent,
               QueryBarComponent,
               SampleComponent,
               SaveStateComponent,
@@ -160,13 +166,9 @@ describe('App', () => {
         debugElement = fixture.debugElement;
     });
 
-    afterEach(() => {
-        fixture.detectChanges();
-    });
-
     it('should include top level layout components', async(() => {
         expect(debugElement.nativeElement.querySelectorAll('mat-sidenav-container')).toBeTruthy();
-        expect(debugElement.nativeElement.querySelectorAll('app-dataset-selector')).toBeTruthy();
+        expect(debugElement.nativeElement.querySelectorAll('app-dashboard-selector')).toBeTruthy();
         // Since the about pane and options pane are rendered only after a user opens their sidenav area,
         // these should not exist upon initial render.
         expect(debugElement.nativeElement.querySelectorAll('app-right-panel')).toBeTruthy();
@@ -187,7 +189,7 @@ describe('App', () => {
         expect(component.filtersIcon).toEqual('filters');
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '=', 'value1'), 'testFilterField');
-        fixture.detectChanges();
+        component.changeDetection.detectChanges();
         expect(component.filtersIcon).toEqual('filters_active');
     }));
 
@@ -255,36 +257,32 @@ describe('App', () => {
         component.updateShowVisShortcut({
             showVisShortcut: false
         });
-        fixture.detectChanges();
+        component.changeDetection.detectChanges();
         expect(component.showVisShortcut).toEqual(false);
         expect(debugElement.query(By.css('#showVisShortcutButton'))).toBeNull();
         component.updateShowVisShortcut({
             showVisShortcut: true
         });
-        fixture.detectChanges();
+        component.changeDetection.detectChanges();
         expect(component.showVisShortcut).toEqual(true);
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-            expect(debugElement.query(By.css('#showVisShortcutButton'))).not.toBeNull();
-        });
+        component.changeDetection.detectChanges();
+        expect(debugElement.query(By.css('#showVisShortcutButton'))).not.toBeNull();
     }));
 
     it('updateShowFiltersComponentIcon does update showFiltersComponent', async(() => {
         component.updateShowFiltersComponentIcon({
             showFiltersComponentIcon: false
         });
-        fixture.detectChanges();
+        component.changeDetection.detectChanges();
         expect(component.showFiltersComponentIcon).toEqual(false);
         expect(debugElement.query(By.css('#showFiltersComponentIcon'))).toBeNull();
         component.updateShowFiltersComponentIcon({
             showFiltersComponentIcon: true
         });
-        fixture.detectChanges();
+        component.changeDetection.detectChanges();
         expect(component.showFiltersComponentIcon).toEqual(true);
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-            expect(debugElement.query(By.css('#showFiltersComponentIcon'))).not.toBeNull();
-        });
+        component.changeDetection.detectChanges();
+        expect(debugElement.query(By.css('#showFiltersComponentIcon'))).not.toBeNull();
     }));
 
     it('addWidget does add the given widget with specified position to the grid', async(() => {

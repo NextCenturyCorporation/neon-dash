@@ -695,7 +695,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
         let frames = this.visualization.nativeElement.querySelectorAll('.frame');
         let images = this.visualization.nativeElement.querySelectorAll('.image');
-        let videos = this.visualization.nativeElement.querySelectorAll('.video');
         let audios = this.visualization.nativeElement.querySelectorAll('.audio');
 
         if (!this.options.resize) {
@@ -706,10 +705,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             images.forEach((image) => {
                 image.style.maxHeight = '';
                 image.style.maxWidth = '';
-            });
-            videos.forEach((video) => {
-                video.style.maxHeight = '';
-                video.style.maxWidth = '';
             });
             audios.forEach((audio) => {
                 audio.style.maxHeight = '';
@@ -735,12 +730,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
                 this.MEDIA_PADDING - sliderHeight - 5) + 'px';
             image.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        });
-
-        videos.forEach((video) => {
-            video.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            video.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         });
 
         audios.forEach((audio) => {

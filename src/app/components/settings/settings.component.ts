@@ -23,7 +23,7 @@ import { BehaviorSubject } from 'rxjs';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
-import { DatasetOptions, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
+import { FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -70,7 +70,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     changeSimpleSearchFilter() {
-        this.datasetService.setActiveDatasetSimpleFilterFieldName(this.searchField);
+        this.datasetService.setCurrentDashboardSimpleFilterFieldName(this.searchField);
     }
 
     checkSimpleFilter() {
@@ -79,6 +79,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
         } else {
             this.showSimpleSearch = false;
         }
+    }
+
+    getExportCallbacks(widgets: Map<string, BaseNeonComponent>): (() => { name: string, data: any }[])[] {
+        return Array.from(widgets.values()).map((widget) => widget.createExportData);
     }
 
     ngOnDestroy() {
@@ -113,8 +117,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
             height: '80%',
             width: '80%',
             hasBackdrop: true,
-            disableClose: true,
-            panelClass: this.widgetService.getTheme()
+            disableClose: true
         };
         let dialogRef = this.dialog.open(ConfigEditorComponent, dConfig);
     }
@@ -147,16 +150,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     validateDatasetService() {
-        if (this.datasetService.getActiveDatasetOptions()) {
-            this.simpleSearch = this.datasetService.getActiveDatasetOptions();
+        if (this.datasetService.getCurrentDashboardOptions()) {
+            this.simpleSearch = this.datasetService.getCurrentDashboardOptions();
         }
         if (this.datasetService.getActiveFields()) {
             this.options = this.datasetService.getActiveFields();
         }
 
-        if (this.datasetService.getActiveDatasetSimpleFilterFieldName()) {
-            this.searchField = new FieldMetaData(this.datasetService.getActiveDatasetSimpleFilterFieldName(),
-                this.datasetService.getActiveDatasetSimpleFilterFieldName());
+        if (this.datasetService.getCurrentDashboardSimpleFilterFieldName()) {
+            this.searchField = new FieldMetaData(this.datasetService.getCurrentDashboardSimpleFilterFieldName(),
+                this.datasetService.getCurrentDashboardSimpleFilterFieldName());
         }
     }
 

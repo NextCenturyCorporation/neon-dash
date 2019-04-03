@@ -202,9 +202,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public xList: any[] = [];
     public yList: any[] = [];
 
-    // TODO THOR-349 Move into future widget option menu component
-    public newType: string = '';
-
     constructor(
         datasetService: DatasetService,
         filterService: FilterService,
@@ -668,18 +665,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     /**
      * Updates the sub-component and reruns the visualization query.
+     * @override
      */
     handleChangeSubcomponentType() {
-        if (this.options.type !== this.newType) {
-            this.options.type = this.newType;
-            if (!this.optionsTypeIsDualViewCompatible(this.options)) {
-                this.options.dualView = '';
-            }
-            if (this.optionsTypeIsContinuous(this.options)) {
-                this.options.sortByAggregation = false;
-            }
-            this.redrawSubcomponents();
+        if (!this.optionsTypeIsDualViewCompatible(this.options)) {
+            this.options.dualView = '';
         }
+        if (this.optionsTypeIsContinuous(this.options)) {
+            this.options.sortByAggregation = false;
+        }
+        this.redrawSubcomponents();
     }
 
     /**
@@ -707,8 +702,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     initializeProperties() {
-        this.newType = this.options.type;
-
         // Check for the boolean value true (not just any truthy value) and fix it.
         this.options.dualView = ('' + this.options.dualView) === 'true' ? 'on' : this.options.dualView;
         if (!this.optionsTypeIsDualViewCompatible(this.options)) {
@@ -1134,7 +1127,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         // Update the zoom if dualView is truthy.  It will show both the unfiltered and filtered data.
-        if (this.subcomponentZoom && this.options.dualView) {
+        if (this.options.dualView) {
+            if (!this.subcomponentZoom) {
+                this.subcomponentZoom = this.initializeSubcomponent(this.subcomponentZoomElementRef, true);
+            }
             this.subcomponentZoom.draw(this.getActiveData(this.options).data, meta);
         }
 

@@ -1,6 +1,6 @@
 <form class="settings-container" #optionsForm="ngForm">
     <h3 class="header"> Export Format</h3>
-    <app-export-control [widgets]="widgets"></app-export-control>
+    <app-export-control [exportCallbacks]="getExportCallbacks(widgets)"></app-export-control>
 
     <mat-divider class="divider"></mat-divider>
     <h3 class="header">Themes</h3>

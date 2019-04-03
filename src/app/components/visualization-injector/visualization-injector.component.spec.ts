@@ -22,7 +22,6 @@ import { AggregationComponent } from '../aggregation/aggregation.component';
 import { AnnotationViewerComponent } from '../annotation-viewer/annotation-viewer.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { LegendComponent } from '../legend/legend.component';
 import { MapComponent } from '../map/map.component';
@@ -60,7 +59,6 @@ describe('Component: VisualizationInjector', () => {
             DataTableComponent,
             DetailsThumbnailSubComponent,
             DocumentViewerComponent,
-            ExportControlComponent,
             FilterBuilderComponent,
             LegendComponent,
             MapComponent,

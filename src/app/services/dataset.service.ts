@@ -16,7 +16,8 @@
 import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
-import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData, Relation, SimpleFilter } from '../dataset';
+import { Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
+    TableMetaData, TableMappings, FieldMetaData, SimpleFilter } from '../dataset';
 import { Subscription, Observable, interval } from 'rxjs';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { neonEvents } from '../neon-namespaces';
@@ -28,10 +29,20 @@ export class DatasetService {
     // The Dataset Service may ask the visualizations to update their data.
     static UPDATE_DATA_CHANNEL: string = 'update_data';
 
-    private datasets: Dataset[] = [];
+    private static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
+
+    private datasets: Datastore[] = [];
 
     // The active dataset.
-    private dataset: Dataset = new Dataset();
+    // TODO: THOR-1062: This will probably need to be an array/map of active datastores
+    // since a dashboard can reference multiple datastores.
+    private dataset: Datastore = new Datastore();
+
+    private dashboards: Dashboard;
+
+    // The currently selected dashboard.
+    private currentDashboard: Dashboard;
+    private layout: string = '';
 
     // Use the Dataset Service to save settings for specific databases/tables and
     // publish messages to all visualizations if those settings change.
@@ -93,9 +104,167 @@ export class DatasetService {
         this.removeFromArray(dataset.databases, indexListToRemove);
     }
 
+    /**
+     * Validate top level category of dashboards object in the config, then call
+     * separate function to check the choices within recursively.
+     * @param {any} dashboards config dashboards object
+     */
+    static validateDashboards(dashboards: any): void {
+        let dashboardKeys = dashboards.choices ? Object.keys(dashboards.choices) : [];
+
+        if (!dashboards.category) {
+            dashboards.category = this.DASHBOARD_CATEGORY_DEFAULT;
+        }
+
+        this.validateDashboardChoices(dashboards.choices, dashboardKeys);
+    }
+
+    /**
+     * Validate the choices map within each level of dashboards object, and make appropriate
+     * changes when expected values are missing. Also used to translate tableKey/fieldKey
+     * values into databaseName, tableName, and fieldName.
+     *
+     * @param {[key: string]: Dashboard} dashboardChoices
+     * @param {string[]} keys for dashboardChoices map
+     * @param {string} pathFromTop path to append to current dashboard object
+     * @param {string} title title to append to current dashboard object
+     */
+    static validateDashboardChoices(dashboardChoices: {[key: string]: Dashboard}, keys: string[],
+        pathFromTop?: string[], title?: string): void {
+        if (!keys.length) {
+            return;
+        }
+
+        keys.forEach((choiceKey) => {
+            let fullTitle = title ? title + ' ' + dashboardChoices[choiceKey].name : dashboardChoices[choiceKey].name;
+            let fullPathFromTop = pathFromTop ? pathFromTop.concat(choiceKey) : [choiceKey];
+
+            dashboardChoices[choiceKey].fullTitle = fullTitle;
+            dashboardChoices[choiceKey].pathFromTop = fullPathFromTop;
+
+            let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
+
+            if (!nestedChoiceKeys.length) {
+                // If no choices are present, then this might be the last level of nested choices,
+                // which should instead have table keys and a layout specified. If not, delete choice.
+                if (!dashboardChoices[choiceKey].layout || !dashboardChoices[choiceKey].tables) {
+                    delete dashboardChoices[choiceKey];
+                }
+            }
+
+            if (dashboardChoices[choiceKey]) {
+                if (!dashboardChoices[choiceKey].name) {
+                    dashboardChoices[choiceKey].name = choiceKey;
+                }
+
+                // If simpleFilter present in config, make sure to translate keys to database, table, and
+                // field names.
+                if (dashboardChoices[choiceKey].options
+                    && dashboardChoices[choiceKey].options.simpleFilter
+                    && dashboardChoices[choiceKey].options.simpleFilter.tableKey) {
+
+                    let tableKey = dashboardChoices[choiceKey].options.simpleFilter.tableKey;
+
+                    let databaseName = this.getDatabaseNameByKey(dashboardChoices[choiceKey], tableKey);
+                    let tableName = this.getTableNameByKey(dashboardChoices[choiceKey], tableKey);
+
+                    dashboardChoices[choiceKey].options.simpleFilter.databaseName = databaseName;
+                    dashboardChoices[choiceKey].options.simpleFilter.tableName = tableName;
+
+                    if (dashboardChoices[choiceKey].options.simpleFilter.fieldKey) {
+                        let fieldKey = dashboardChoices[choiceKey].options.simpleFilter.fieldKey;
+                        let fieldName = this.getFieldNameByKey(dashboardChoices[choiceKey], fieldKey);
+
+                        dashboardChoices[choiceKey].options.simpleFilter.fieldName = fieldName;
+                    } else {
+                        dashboardChoices[choiceKey].options.simpleFilter.fieldName = '';
+                    }
+                } else if (dashboardChoices[choiceKey].options && dashboardChoices[choiceKey].options.simpleFilter) {
+                    // delete simpleFilter from config if no tableKey present
+                    delete dashboardChoices[choiceKey].options.simpleFilter;
+                }
+
+                // Only auto fill category if this is not the last level of nesting
+                if (!dashboardChoices[choiceKey].category && !dashboardChoices[choiceKey].tables) {
+                    dashboardChoices[choiceKey].category = this.DASHBOARD_CATEGORY_DEFAULT;
+                }
+
+                this.validateDashboardChoices(dashboardChoices[choiceKey].choices, nestedChoiceKeys,
+                    fullPathFromTop, dashboardChoices[choiceKey].fullTitle);
+            }
+        });
+    }
+
+    /**
+     * Returns database name from matching table key within the dashboard passed in.
+     * @param {Dashboard} dashboard
+     * @param {String} key
+     * @return {String}
+     */
+    static getDatabaseNameByKey(dashboard: Dashboard, key: string) {
+        return dashboard.tables[key].split('.')[1];
+    }
+
+    /**
+     * Returns table name from matching table key within the dashboard passed in.
+     * @param {Dashboard} dashboard
+     * @param {String} key
+     * @return {String}
+     */
+    static getTableNameByKey(dashboard: Dashboard, key: string) {
+        return dashboard.tables[key].split('.')[2];
+    }
+
+    /**
+     * Returns field name from matching field key within the dashboard passed in.
+     * @param {Dashboard} dashboard
+     * @param {String} key
+     * @return {String}
+     */
+    static getFieldNameByKey(dashboard: Dashboard, key: string) {
+        return dashboard.fields[key].split('.').slice(3).join('.');
+    }
+
     constructor(@Inject('config') private config: NeonGTDConfig) {
-        this.datasets = (config.datasets ? config.datasets : []);
+        this.datasets = [];
+        let datastores = (config.datastores ? config.datastores : {});
+        this.dashboards = (config.dashboards ? config.dashboards : {category: 'No Options', choices: {}});
+
+        DatasetService.validateDashboards(this.dashboards);
+
+        // convert datastore key/value pairs into an array
+        Object.keys(datastores).forEach((datastoreKey) => {
+            let datastore = datastores[datastoreKey];
+            datastore.name = datastoreKey;
+
+            let databases = (datastore.databases ? datastore.databases : {});
+            let newDatabasesArray: DatabaseMetaData[] = [];
+
+            Object.keys(databases).forEach((databaseKey) => {
+                let database = databases[databaseKey];
+                database.name = databaseKey;
+
+                let tables = (database.tables ? database.tables : {});
+                let newTablesArray: TableMetaData[] = [];
+
+                Object.keys(tables).forEach((tableKey) => {
+                    let table = tables[tableKey];
+                    table.name = tableKey;
+                    newTablesArray.push(table);
+                });
+
+                database.tables = newTablesArray;
+                newDatabasesArray.push(database);
+            });
+
+            datastore.databases = newDatabasesArray;
+
+            // then push converted object onto datasets array
+            this.datasets.push(datastore);
+        });
+
         this.messenger = new neon.eventing.Messenger();
+
         this.datasets.forEach((dataset) => {
             DatasetService.validateDatabases(dataset);
         });
@@ -116,6 +285,7 @@ export class DatasetService {
     /**
      * Updates the dataset that matches the active dataset.
      */
+    // TODO: THOR-1062: may need to change to account for multiple datastores later
     private updateDataset(): void {
         for (let i = 0; i < this.datasets.length; ++i) {
             if (this.datasets[i].name === this.dataset.name) {
@@ -128,7 +298,7 @@ export class DatasetService {
      * Returns the list of datasets maintained by this service
      * @return {Array}
      */
-    public getDatasets(): Dataset[] {
+    public getDatasets(): Datastore[] {
         return this.datasets;
     }
 
@@ -136,7 +306,7 @@ export class DatasetService {
      * Adds the given dataset to the list of datasets maintained by this service and returns the new list.
      * @return {Array}
      */
-    public addDataset(dataset): Dataset[] {
+    public addDataset(dataset): Datastore[] {
         DatasetService.validateDatabases(dataset);
         this.datasets.push(dataset);
         return this.datasets;
@@ -145,22 +315,36 @@ export class DatasetService {
     /**
      * Sets the active dataset to the given dataset.
      * @param {Object} The dataset containing {String} name, {String} layout, {String} datastore, {String} hostname,
-     * and {Array} databases.  Each database is an Object containing {String} name, {Array} tables, and {Array}
-     * relations.  Each table is an Object containing {String} name, {Array} fields, and {Object} mappings.  Each
+     * and {Array} databases.  Each database is an Object containing {String} name and {Array} tables.
+     * Each table is an Object containing {String} name, {Array} fields, and {Object} mappings.  Each
      * field is an Object containing {String} columnName and {String} prettyName.  Each mapping key is a unique
-     * identifier used by the visualizations and each value is a field name.  Each relation is an Object with table
-     * names as keys and field names as values.
+     * identifier used by the visualizations and each value is a field name.
      */
+    // TODO: THOR-1062: this will likely be more like "set active dashboard/config" to allow
+    // to connect to multiple datasets
     public setActiveDataset(dataset): void {
         this.dataset.name = dataset.name || 'Unknown Dataset';
-        this.dataset.layout = dataset.layout || '';
-        this.dataset.datastore = dataset.datastore || '';
-        this.dataset.hostname = dataset.hostname || '';
-        this.dataset.title = dataset.title || '';
-        this.dataset.icon = dataset.icon || '';
+        this.dataset.type = dataset.type || '';
+        this.dataset.host = dataset.host || '';
         this.dataset.databases = dataset.databases || [];
-        this.dataset.options = dataset.options || {};
-        this.dataset.relations = dataset.relations || [];
+    }
+
+    /**
+     * Returns the current dashboard config title.
+     * @return {string}
+     */
+    public getCurrentDashboardTitle(): string {
+        if (this.currentDashboard) {
+            return this.currentDashboard.fullTitle;
+        }
+    }
+
+    /**
+     * Sets the current dashboard config.
+     * @param {Dashboard} config
+     */
+    public setCurrentDashboard(config: Dashboard) {
+        this.currentDashboard = config;
 
         // Shutdown any previous update intervals.
         if (this.updateInterval) {
@@ -168,8 +352,9 @@ export class DatasetService {
             delete this.updateSubscription;
             delete this.updateInterval;
         }
-        if (this.dataset.options.requeryInterval) {
-            let delay = Math.max(0.5, this.dataset.options.requeryInterval) * 60000;
+
+        if (this.currentDashboard.options.requeryInterval) {
+            let delay = Math.max(0.5, this.currentDashboard.options.requeryInterval) * 60000;
             this.updateInterval = interval(delay);
             this.updateSubscription = this.updateInterval.subscribe(() => {
                 this.publishUpdateData();
@@ -180,22 +365,41 @@ export class DatasetService {
     }
 
     /**
+     * Returns the current dashboard config.
+     * @return {Dashboard}
+     */
+    public getCurrentDashboard(): Dashboard {
+        return this.currentDashboard;
+    }
+
+    /**
+     * Returns all of the dashboards.
+     * @return {Dashboard}
+     */
+    public getDashboards(): Dashboard {
+        return this.dashboards;
+    }
+
+    /**
      *
      * @param simpleField The new field for the simple search
      */
-    public setActiveDatasetSimpleFilterFieldName(simpleField: FieldMetaData) {
+    public setCurrentDashboardSimpleFilterFieldName(simpleField: FieldMetaData) {
         this.createSimpleFilter();
-        this.dataset.options.simpleFilter.fieldName = simpleField.columnName;
+        this.currentDashboard.options.simpleFilter.fieldName = simpleField.columnName;
     }
 
     /**
      * Creates a simpleFilter if it doesn't exist
      */
     public createSimpleFilter() {
-        if (!this.dataset.options.simpleFilter) {
-            this.dataset.options.simpleFilter = new SimpleFilter(
-                this.dataset.databases[0].name,
-                this.dataset.databases[0].tables[0].name,
+        if (!this.currentDashboard.options.simpleFilter) {
+
+            let tableKey = Object.keys(this.currentDashboard.tables)[0];
+
+            this.currentDashboard.options.simpleFilter = new SimpleFilter(
+                this.getDatabaseNameFromCurrentDashboardByKey(tableKey),
+                this.getTableNameFromCurrentDashboardByKey(tableKey),
                 ''
             );
         }
@@ -205,9 +409,9 @@ export class DatasetService {
      * returns the simple search field
      * @return {string}
      */
-    public getActiveDatasetSimpleFilterFieldName(): string {
+    public getCurrentDashboardSimpleFilterFieldName(): string {
         this.createSimpleFilter();
-        return this.dataset.options.simpleFilter.fieldName;
+        return this.currentDashboard.options.simpleFilter.fieldName;
     }
 
     /**
@@ -222,7 +426,7 @@ export class DatasetService {
      * Returns the active dataset object
      * @return {Object}
      */
-    public getDataset(): Dataset {
+    public getDataset(): Datastore {
         return this.getDatasetWithName(this.dataset.name) || this.dataset;
     }
 
@@ -231,7 +435,7 @@ export class DatasetService {
      * @return {Boolean}
      */
     public hasDataset(): boolean {
-        return (this.dataset.datastore && this.dataset.hostname && (this.dataset.databases.length > 0));
+        return (this.dataset.type && this.dataset.host && (this.dataset.databases.length > 0));
     }
 
     /**
@@ -243,17 +447,18 @@ export class DatasetService {
     }
 
     /**
-     * Returns the layout name for the active dataset.
+     * Returns the layout name for the currently selected dashboard.
      * @return {String}
      */
     public getLayout(): string {
-        return this.dataset.layout;
+        return this.currentDashboard.layout;
     }
 
     /**
      * Returns all of the layouts.
+     * @return {[key: string]: any}
      */
-    public getLayouts(): { [key: string]: any } {
+    public getLayouts(): {[key: string]: any} {
         return this.config.layouts;
     }
 
@@ -262,24 +467,24 @@ export class DatasetService {
      * @param {String} layoutName
      */
     public setLayout(layoutName: string): void {
-        this.dataset.layout = layoutName;
+        this.currentDashboard.layout = layoutName;
         this.updateDataset();
     }
 
     /**
-     * Returns the datastore for the active dataset.
+     * Returns the datastore type for the active datastore (elasticsearchrest, mongo, etc)
      * @return {String}
      */
-    public getDatastore(): string {
-        return this.dataset.datastore;
+    public getDatastoreType(): string {
+        return this.dataset.type;
     }
 
     /**
-     * Returns the hostname for the active dataset.
+     * Returns the hostname for the active datastore.
      * @return {String}
      */
-    public getHostname(): string {
-        return this.dataset.hostname;
+    public getDatastoreHost(): string {
+        return this.dataset.host;
     }
 
     /**
@@ -295,7 +500,7 @@ export class DatasetService {
      * @param {String} The dataset name
      * @return {Object} The dataset object if a match exists or undefined otherwise.
      */
-    public getDatasetWithName(datasetName: string): Dataset {
+    public getDatasetWithName(datasetName: string): Datastore {
         for (let dataset of this.datasets) {
             if (dataset.name === datasetName) {
                 return dataset;
@@ -318,6 +523,28 @@ export class DatasetService {
             }
         }
 
+        return undefined;
+    }
+
+    /**
+     * Returns the database with the given Dashboard name or an Object with an empty name if no such database exists in the dataset.
+     * @param {String} The dashboard name
+     * @return {Object} The database containing {String} name, {Array} fields, and {Object} mappings if a match exists
+     * or undefined otherwise.
+     * Dashboard name only includes part of the database pretty name
+     */
+    public getCurrentDatabase(): DatabaseMetaData {
+        if (!this.getCurrentDashboard()) {
+            return undefined;
+        }
+        let tableKeys = this.getCurrentDashboard().tables;
+
+        let keyArray = Object.keys(tableKeys);
+
+        if (keyArray.length) {
+            let databaseName = this.getDatabaseNameFromCurrentDashboardByKey(keyArray[0]);
+            return this.getDatabaseWithName(databaseName);
+        }
         return undefined;
     }
 
@@ -524,114 +751,7 @@ export class DatasetService {
         table.mappings[key] = fieldName;
     }
 
-    /**
-     * Returns an array of relations for the given database, table, and fields.  The given table is related to another table if
-     * the database contains relations mapping each given field name to the other table.
-     * @param {String} The database name
-     * @param {String} The table name
-     * @param {Array} The array of field names
-     * @return {Array} The array of relation objects which contain the table name ({String} table) and a mapping of
-     * the given field names to the field names in the other tables ({Object} fields).  This array will also contain
-     * the relation object for the table and fields given in the arguments
-     */
-    public getRelations(databaseName: string, tableName: string, fieldNames: string[]): any[] {
-        let relations = this.dataset.relations;
-
-        let initializeMapAsNeeded = (map, key1, key2) => {
-            if (!(map[key1])) {
-                map[key1] = {};
-            }
-            if (!(map[key1][key2])) {
-                map[key1][key2] = [];
-            }
-            return map;
-        };
-
-        // First we create a mapping of a relation's database/table/field to its related fields.
-        let relationToFields = {};
-
-        // Iterate through each field to find its relations.
-        fieldNames.forEach((fieldName) => {
-            // Iterate through each relation to compare with the current field.
-            relations.forEach((relation) => {
-                let relationFieldNamesForInput = relation[databaseName] ? relation[databaseName][tableName] : [];
-                relationFieldNamesForInput = _.isArray(relationFieldNamesForInput) ?
-                    relationFieldNamesForInput : [relationFieldNamesForInput];
-                // If the current relation contains a match for the input database/table/field,
-                // iterate through the elements in the current relation.
-                if (relationFieldNamesForInput.indexOf(fieldName) >= 0) {
-                    let databaseNames = Object.keys(relation);
-                    // Add each database/table/field in the current relation to the map.
-                    // Note that this will include the input database/table/field.
-                    databaseNames.forEach((relationDatabaseName) => {
-                        let tableNames = Object.keys(relation[relationDatabaseName]);
-                        tableNames.forEach((relationTableName) => {
-                            let relationFieldNames = relation[relationDatabaseName][relationTableName];
-                            relationFieldNames = _.isArray(relationFieldNames) ? relationFieldNames : [relationFieldNames];
-                            relationToFields = initializeMapAsNeeded(relationToFields, relationDatabaseName, relationTableName);
-
-                            let existingFieldIndex = relationToFields[relationDatabaseName][relationTableName].map((object) => {
-                                return object.initial;
-                            }).indexOf(fieldName);
-
-                            // If the database/table/field exists in the relation...
-                            if (existingFieldIndex >= 0) {
-                                relationFieldNames.forEach((relationFieldName) => {
-                                    // If the relation fields do not exist in the relation, add them to the mapping.
-                                    if (relationToFields[relationDatabaseName][relationTableName][existingFieldIndex].related.indexOf(relationFieldName) < 0) { /* tslint:disable:max-line-length */
-                                        relationToFields[relationDatabaseName][relationTableName][existingFieldIndex].related.push(relationFieldName); /* tslint:disable:max-line-length */
-                                    }
-                                });
-                            } else {
-                                // Else create a new object in the mapping for the database/table/field in the relation and
-                                // add its related fields.
-                                relationToFields[relationDatabaseName][relationTableName].push({
-                                    initial: fieldName,
-                                    related: [].concat(relationFieldNames)
-                                });
-                            }
-                        });
-                    });
-                }
-            });
-        });
-
-        let resultDatabaseNames = Object.keys(relationToFields);
-        if (resultDatabaseNames.length) {
-            let results = [];
-            // Iterate through the relations for each relation's database/table/field
-            // and add a relation object for each database/table pair to the final list of results.
-            resultDatabaseNames.forEach((resultDatabaseName) => {
-                let resultTableNames = Object.keys(relationToFields[resultDatabaseName]);
-                resultTableNames.forEach((resultTableName) => {
-                    results.push({
-                        database: resultDatabaseName,
-                        table: resultTableName,
-                        fields: relationToFields[resultDatabaseName][resultTableName]
-                    });
-                });
-            });
-            return results;
-        }
-
-        // If the input fields do not have any related fields in other tables,
-        // return a list containing a relation object for the input database/table/fields.
-        let result = {
-            database: databaseName,
-            table: tableName,
-            fields: []
-        };
-
-        fieldNames.forEach((fieldName) => {
-            result.fields.push({
-                initial: fieldName,
-                related: [fieldName]
-            });
-        });
-
-        return [result];
-    }
-
+    // TODO: THOR-1063: need to add datastore to Filter object later
     public findMentionedFields(filter: neon.query.Filter): { database: string, table: string, field: string }[] {
         let findMentionedFieldsHelper = (clause: neon.query.WherePredicate) => {
             switch (clause.type) {
@@ -664,16 +784,21 @@ export class DatasetService {
         });
     }
 
-    public getEquivalentFields(database: string,
+    public getEquivalentFields(datastore: string,
+        database: string,
         table: string,
         field: string,
-        mapping: Map<string, Map<string, { database: string, table: string, field: string }[]>>):
-        Map<string, Map<string, { database: string, table: string, field: string }[]>> {
+        mapping: Map<string, Map<string, { datastore: string, database: string, table: string, field: string }[]>>):
+        Map<string, Map<string, { datastore: string, database: string, table: string, field: string }[]>> {
         let relatedFields: any = mapping;
 
-        let found = this.findValueInRelations(database, table, field);
+        // TODO: THOR-1063: filters will need datastore info eventually - more of a backend task,
+        // but leaving a TODO to help track this later.
+
+        let found = this.findValueInRelations(datastore, database, table, field);
+
         found.forEach((value) => {
-            this.addRelatedFieldToMapping(relatedFields, field, value.database, value.table, value.field);
+            this.addRelatedFieldToMapping(relatedFields, field, datastore, value.database, value.table, value.field);
         });
 
         // Recursively check for equivalents to the fields we already have until we don't find anything new.
@@ -683,16 +808,19 @@ export class DatasetService {
             for (let kvPair of relatedFields) {
                 for (let relatedField of kvPair[1].fields[field]) {
                     if (!relatedField.hasBeenChecked) {
-                        let values = this.findValueInRelations(kvPair[1].database, kvPair[1].table, relatedField);
+                        // TODO: THOR-1062: need to account for possibility of multiple datastores within a dashboard later on
+                        let values = this.findValueInRelations(datastore, kvPair[1].database, kvPair[1].table, relatedField);
                         for (let newValue of values) {
-                            valueAdded = valueAdded || this.addRelatedFieldToMapping(relatedFields, field, newValue.database, newValue.table, newValue.field);
+                            valueAdded = valueAdded ||
+                                this.addRelatedFieldToMapping(relatedFields, field, datastore, newValue.database,
+                                    newValue.table, newValue.field);
                         }
                         relatedField.hasBeenChecked = true;
                     }
                 }
             }
         } while (valueAdded);
-        let initialFieldDbAndTableKey = this.makeDbAndTableKey(database, table);
+        let initialFieldDbAndTableKey = this.makeDatastoreDbAndTableKey(datastore, database, table);
         if (relatedFields.get(initialFieldDbAndTableKey) && relatedFields.get(initialFieldDbAndTableKey).get(field) !== undefined) {
             let fields = relatedFields.get(initialFieldDbAndTableKey).get(field);
             for (let index = fields.length - 1; index >= 0; index--) {
@@ -710,35 +838,40 @@ export class DatasetService {
         return relatedFields;
     }
 
-    // Internal helper method to create a mapping key for a database and table.
-    private makeDbAndTableKey(database: string, table: string): string {
-        return database + '_' + table;
+    // Internal helper method to create a mapping key for a datastore, database, and table.
+    private makeDatastoreDbAndTableKey(datastore: string, database: string, table: string): string {
+        return datastore + '_' + database + '_' + table;
     }
     // Internal helper method to add a related field to the mapping of related fields, and returns true if it was added and false otherwise.
-    private addRelatedFieldToMapping(mapping: Map<string, Map<string, { database: string, table: string, field: string }[]>>,
+    private addRelatedFieldToMapping(mapping: Map<string, Map<string, { datastore: string,
+        database: string, table: string, field: string }[]>>,
         baseField: string,
+        datastore: string,
         database: string,
         table: string,
         field: string): boolean {
-        let dbAndTableKey = this.makeDbAndTableKey(database, table);
-        if (mapping.get(dbAndTableKey) === undefined) {
-            let newMap = new Map<string, { database: string, table: string, field: string }[]>();
+        let key = this.makeDatastoreDbAndTableKey(datastore, database, table);
+        if (mapping.get(key) === undefined) {
+            let newMap = new Map<string, { datastore: string, database: string, table: string, field: string }[]>();
             newMap.set(baseField, [{
+                datastore: datastore,
                 database: database,
                 table: table,
                 field: field
             }]);
-            mapping.set(dbAndTableKey, newMap);
+            mapping.set(key, newMap);
             return true;
-        } else if (mapping.get(dbAndTableKey).get(baseField) === undefined) {
-            mapping.get(dbAndTableKey).set(baseField, [{
+        } else if (mapping.get(key).get(baseField) === undefined) {
+            mapping.get(key).set(baseField, [{
+                datastore: datastore,
                 database: database,
                 table: table,
                 field: field
             }]);
             return true;
-        } else if (mapping.get(dbAndTableKey).get(baseField).find((elem) => elem.field === field) === undefined) {
-            mapping.get(dbAndTableKey).get(baseField).push({
+        } else if (mapping.get(key).get(baseField).find((elem) => elem.field === field) === undefined) {
+            mapping.get(key).get(baseField).push({
+                datastore: datastore,
                 database: database,
                 table: table,
                 field: field
@@ -751,37 +884,37 @@ export class DatasetService {
 
     // Internal helper method to find a field in relations.
     // Returns every member of every relation that contains the given database/table/field combination.
-    private findValueInRelations(db: string, t: string, f: string): { database: string, table: string, field: string }[] {
+    private findValueInRelations(datastore: string, db: string, t: string,
+        f: string): { datastore: string, database: string, table: string, field: string }[] {
         let values = [];
-        this.dataset.relations.forEach((relation) => {
-            for (let x = relation.members.length - 1; x >= 0; x--) {
-                if (relation.members[x].database === db && relation.members[x].table === t) {
-                    if (relation.members[x].field === f) {
-                        values = values.concat(relation.members);
-                        return; // Return from this instance of forEach so we don't add the contents of this relation multiple times.
-                    }
-                    // Allow wildcard matches on nested fields (only works with one nested level).  EX:  A.B matches A.*
-                    let fieldSeparatorIndex = f.indexOf('.');
-                    let relationFieldSeparatorIndex = relation.members[x].field.indexOf('.');
-                    if (fieldSeparatorIndex >= 0 && relationFieldSeparatorIndex >= 0) {
-                        let fieldParent = f.substring(0, fieldSeparatorIndex);
-                        let relationFieldParent = relation.members[x].field.substring(0, relationFieldSeparatorIndex);
-                        let relationFieldChildren = relation.members[x].field.substring(relationFieldSeparatorIndex + 1);
-                        if (fieldParent === relationFieldParent && relationFieldChildren === '*') {
-                            let relationValueClone = _.cloneDeep(relation.members);
-                            // Clone the relation and replace the wildcard fields with the real field.
-                            relationValueClone.forEach((relationCopy) => {
-                                if (relationCopy.field === (fieldParent + '.*')) {
-                                    relationCopy.field = f;
-                                }
-                            });
-                            values = values.concat(relationValueClone);
-                            return;
-                        }
-                    }
-                }
-            }
+        let relations = this.getCurrentDashboard().relations;
+
+        let relationMatch = _.find(relations, (relation: any) => {
+            return relation[datastore] && relation[datastore][db]
+                && relation[datastore][db][t] && relation[datastore][db][t] === f;
         });
+
+        if (relationMatch) {
+            let datastoreKeys = Object.keys(relationMatch);
+
+            datastoreKeys.forEach((datastoreKey) => {
+                let databaseKeys = Object.keys(relationMatch[datastoreKey]);
+
+                databaseKeys.forEach((databaseKey) => {
+                    let tableKeys = Object.keys(relationMatch[datastoreKey][databaseKey]);
+
+                    tableKeys.forEach((tableKey) => {
+                        values.push({
+                            datastore: datastoreKey,
+                            database: databaseKey,
+                            table: tableKey,
+                            field: relationMatch[datastoreKey][databaseKey][tableKey]
+                        });
+                    });
+                });
+            });
+        }
+
         return values;
     }
 
@@ -791,74 +924,136 @@ export class DatasetService {
      * @param {Object} connection
      * @param {Function} callback (optional)
      * @param {Number} index (optional)
-     * @private
      */
-    public updateDatabases(dataset: Dataset, connection: neon.query.Connection, callback?: Function, index?: number): void {
-        let databaseIndex = index ? index : 0;
-        let database = dataset.databases[databaseIndex];
-        let pendingTypesRequests = 0;
-        connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
-            Object.keys(tableNamesAndFieldNames).forEach((tableName: string) => {
-                let table = _.find(database.tables, (item: TableMetaData) => {
-                    return item.name === tableName;
-                });
+    public updateDatabases(dataset: Datastore, connection: neon.query.Connection): any {
+        let promiseArray = [];
 
-                if (table) {
-                    let hasField = {};
-                    table.fields.forEach((field: FieldMetaData) => {
-                        hasField[field.columnName] = true;
-                    });
-                    tableNamesAndFieldNames[tableName].forEach((fieldName: string) => {
-                        if (!hasField[fieldName]) {
-                            let newField: FieldMetaData = new FieldMetaData(fieldName, fieldName, false);
-                            table.fields.push(newField);
-                        }
-                    });
-                    pendingTypesRequests++;
-                    connection.getFieldTypes(database.name, table.name, (types) => {
-                        for (let f of table.fields) {
-                            if (types && types[f.columnName]) {
-                                f.type = types[f.columnName];
-                            }
-                        }
-                        pendingTypesRequests--;
-                        if (dataset.hasUpdatedFields && pendingTypesRequests === 0) {
-                            callback(dataset);
-                        }
-                    });
-                }
-            });
-            if (++databaseIndex < dataset.databases.length) {
-                this.updateDatabases(dataset, connection, callback, databaseIndex);
-            } else if (callback) {
+        for (let database of dataset.databases) {
+            promiseArray.push(this.getTableNamesAndFieldNames(connection, database));
+        }
+
+        return new Promise<any>((resolve) => {
+            Promise.all(promiseArray).then((response) => {
                 dataset.hasUpdatedFields = true;
-                if (pendingTypesRequests === 0) {
-                    callback(dataset);
-                }
-            }
+                resolve(dataset);
+            });
         });
     }
 
     /**
-     * Returns the options for the active dataset.
-     * @method getActiveDatasetOptions
-     * @return {Object}
+     * Wraps connection.getTableNamesAndFieldNames() in a promise object. If a database not found error occurs,
+     * associated dashboards are deleted. Any other error will return a rejected promise.
+     * @param {neon.query.Connection} connection
+     * @param {DatabaseMetaData} database
+     * @return {Promise}
+     * @private
      */
-    public getActiveDatasetOptions(): DatasetOptions {
-        return this.dataset.options;
+    private getTableNamesAndFieldNames(connection: neon.query.Connection, database: DatabaseMetaData): Promise<any> {
+        let promiseFields = [];
+        return new Promise<any>((resolve, reject) => {
+            connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
+                Object.keys(tableNamesAndFieldNames).forEach((tableName: string) => {
+                    let table = _.find(database.tables, (item: TableMetaData) => {
+                        return item.name === tableName;
+                    });
+
+                    if (table) {
+                        let hasField = {};
+                        table.fields.forEach((field: FieldMetaData) => {
+                            hasField[field.columnName] = true;
+                        });
+                        tableNamesAndFieldNames[tableName].forEach((fieldName: string) => {
+                            if (!hasField[fieldName]) {
+                                let newField: FieldMetaData = new FieldMetaData(fieldName, fieldName, false);
+                                table.fields.push(newField);
+                            }
+                        });
+
+                        promiseFields.push(this.getFieldTypes(connection, database, table));
+                    }
+                });
+
+                Promise.all(promiseFields).then((response) => {
+                    resolve(response);
+                });
+            }).fail((error) => {
+                if (error.status === 404) {
+                    console.warn('Database ' + database.name + ' does not exist; deleting associated dashboards.');
+                    let keys = this.dashboards && this.dashboards.choices ? Object.keys(this.dashboards.choices) : [];
+
+                    Promise.all(this.deleteInvalidDashboards(this.dashboards.choices, keys, database.name)).then((response) => {
+                        resolve(response);
+                    });
+                } else {
+                    reject(error);
+                }
+            });
+        });
     }
 
     /**
-     * Returns the color maps option for the database, table, and field in the active dataset with the given names.
-     * @param {String} databaseName
-     * @param {String} tableName
-     * @param {String} fieldName
-     * @method getActiveDatasetColorMaps
-     * @return {Object}
+     * Wraps connection.getFieldTypes() in a promise object.
+     * @param {neon.query.Connection} connection
+     * @param {DatabaseMetaData} database
+     * @param {TableMetaData} table
+     * @return {Promise<FieldMetaData[]>}
+     * @private
      */
-    public getActiveDatasetColorMaps(databaseName: string, tableName: string, fieldName: string): Object {
-        let colorMaps = this.getActiveDatasetOptions().colorMaps || {};
-        return colorMaps[databaseName] && colorMaps[databaseName][tableName] ? colorMaps[databaseName][tableName][fieldName] || {} : {};
+    private getFieldTypes(connection: neon.query.Connection, database: DatabaseMetaData,
+        table: TableMetaData): Promise<FieldMetaData[]> {
+        return new Promise<FieldMetaData[]>((resolve) => connection.getFieldTypes(database.name, table.name, (types) => {
+            for (let f of table.fields) {
+                if (types && types[f.columnName]) {
+                    f.type = types[f.columnName];
+                }
+            }
+            resolve(table.fields);
+        }));
+    }
+
+    /**
+     * If a database is not found in updateDatabases(), delete dashboards associated with that database so that
+     * the user cannot select them.
+     * @param {[key: string]: Dashboard} dashboardChoices
+     * @param {String[]} keys
+     * @param {String} invalidDatabaseName
+     * @return {Promise}
+     * @private
+     */
+    private deleteInvalidDashboards(dashboardChoices: {[key: string]: Dashboard}, keys: string[],
+        invalidDatabaseName: string): any {
+        if (!keys.length) {
+            return Promise.resolve();
+        }
+
+        return Promise.resolve(keys.forEach((choiceKey) => {
+            if (dashboardChoices[choiceKey].tables) {
+                let tableKeys = Object.keys(dashboardChoices[choiceKey].tables);
+
+                tableKeys.forEach((tableKey) => {
+                    let databaseName = DatasetService.getDatabaseNameByKey(dashboardChoices[choiceKey], tableKey);
+
+                    if (databaseName === invalidDatabaseName) {
+                        delete dashboardChoices[choiceKey];
+                    }
+                });
+            } else {
+                let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
+                this.deleteInvalidDashboards(dashboardChoices[choiceKey].choices, nestedChoiceKeys, invalidDatabaseName);
+            }
+        }));
+    }
+
+    /**
+     * Returns the options for the current dashboard.
+     * @method getCurrentDashboardOptions
+     * @return {Object}
+     *
+     */
+    public getCurrentDashboardOptions(): DashboardOptions {
+        if (this.currentDashboard) {
+            return this.currentDashboard.options;
+        }
     }
 
     /**
@@ -899,5 +1094,87 @@ export class DatasetService {
             }
         });
         return name;
+    }
+
+    // used to link layouts with dashboards
+    /**
+     * Returns entire value of matching table key from current dashboard.
+     * @param {String} key
+     * @return {String}
+     */
+    public getTableFromCurrentDashboardByKey(key: string): string {
+        let currentConfig = this.getCurrentDashboard();
+        if (currentConfig) {
+            return currentConfig.tables[key];
+        }
+    }
+
+    /**
+     * Returns entire value of matching field key from current dashboard.
+     * @param {String} key
+     * @return {String}
+     */
+    public getFieldFromCurrentDashboardByKey(key: string): string {
+        let currentConfig = this.getCurrentDashboard();
+        if (currentConfig) {
+            return currentConfig.fields[key];
+        }
+    }
+
+    // TODO: THOR-1062: entire key may be more important later when
+    // connecting to multiple databases -- for now we can just
+    // use a partial key
+    /**
+     * Returns database name from matching table key from current dashboard.
+     * @param {String} key
+     * @return {String}
+     */
+    public getDatabaseNameFromCurrentDashboardByKey(key: string): string {
+        let currentConfig = this.getCurrentDashboard();
+        if (currentConfig) {
+            return DatasetService.getDatabaseNameByKey(currentConfig, key);
+        }
+    }
+
+    /**
+     * Returns table name from matching table key from current dashboard.
+     * @param {String} key
+     * @return {String}
+     */
+    public getTableNameFromCurrentDashboardByKey(key: string): string {
+        let currentConfig = this.getCurrentDashboard();
+        if (currentConfig) {
+            return DatasetService.getTableNameByKey(currentConfig, key);
+        }
+    }
+
+    /**
+     * Returns field name from matching field key from current dashboard.
+     * @param {String} key
+     * @return {String}
+     */
+    public getFieldNameFromCurrentDashboardByKey(key: string): string {
+        let currentConfig = this.getCurrentDashboard();
+        if (currentConfig) {
+            return DatasetService.getFieldNameByKey(currentConfig, key);
+        }
+    }
+
+    /**
+     * If field key is referenced in config file, find field value using current dashboard.
+     *
+     * @arg {string} fieldKey
+     * @return {string}
+     */
+    public translateFieldKeyToValue(fieldKey: string): string {
+        let currentDashboard = this.getCurrentDashboard();
+
+        // If the field key does exist in the dashboard...
+        if (fieldKey && currentDashboard && currentDashboard.fields && currentDashboard.fields[fieldKey]) {
+            return this.getFieldNameFromCurrentDashboardByKey(fieldKey);
+        }
+
+        // If the field key is just a field name or does not exist in the dashboard...
+        return fieldKey;
     }
 }

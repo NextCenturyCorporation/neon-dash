@@ -150,7 +150,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      */
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [
-            new WidgetFieldOption('documentTextField', 'Document Text Field', false),
+            new WidgetFieldOption('documentTextField', 'Document Text Field', true),
             new WidgetFieldOption('endCharacterField', 'End Character Field', false),
             new WidgetFieldOption('idField', 'ID Field', false),
             new WidgetFieldOption('linkField', 'Link Field', false),
@@ -876,7 +876,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
             // This will ignore a filter with multiple clauses.
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 if (this.isVisualizationFilterUnique(field.columnName, value)) {
                     this.addVisualizationFilter(this.createVisualizationFilter(neonFilter.id, field.columnName, field.prettyName, value));
