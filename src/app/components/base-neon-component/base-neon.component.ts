@@ -81,11 +81,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     public errorMessage: string = '';
     public loadingCount: number = 0;
+    public showNoData: boolean = false;
 
     protected initializing: boolean = false;
     protected redrawOnResize: boolean = false;
     protected selectedDataId: string = '';
-    protected showNoData: boolean = false;
     protected showingZeroOrMultipleElementsPerResult: boolean = false;
     protected updateOnSelectId: boolean = false;
     protected visualizationQueryPaginates: boolean = false;
@@ -1409,7 +1409,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     /**
      * Checks wheather there are any filters and returns no data.
      */
-    private noDataCheck() {
+    public noDataCheck() {
         if (this.filterService.getFilters().length > 0) {
             let activeData = this.getActiveData();
             if (!activeData || !activeData.data || !activeData.data.length) {
