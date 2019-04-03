@@ -920,10 +920,19 @@ describe('BaseNeonComponent', () => {
     it('finishQueryExecution does work as expected', () => {
         let spyUpdateHeader = spyOn(component, 'updateHeaderTextStyles');
         let spyRefreshVisualization = spyOn(component, 'refreshVisualization');
+        let spyNoData = spyOn(component, 'noDataCheck');
+
         (component as any).finishQueryExecution();
         expect((component as any).loadingCount).toEqual(-1);
         expect(spyUpdateHeader.calls.count()).toEqual(1);
         expect(spyRefreshVisualization.calls.count()).toEqual(1);
+        expect(spyNoData.calls.count()).toEqual(1);
+    });
+
+    it('noDataCheck works as intended', () => {
+        component.setupFilters();
+        component.noDataCheck();
+        expect(component.showNoData).toEqual(false);
     });
 
     it('getBindings does return expected object', () => {
