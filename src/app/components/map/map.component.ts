@@ -121,8 +121,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             ref
         );
 
-        this.isMultiLayerWidget = true;
-
         (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
 
         this.updateOnSelectId = true;
@@ -419,7 +417,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         if (currentlyActive) {
             for (let layer of this.options.layers) {
                 if (layer.colorField.columnName === fieldName) {
-                    this.mapObject.hidePoints(layer, value);
+                    this.mapObject.hidePoints(layer._id, value);
                 }
             }
 
@@ -718,14 +716,19 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      *
      * @arg {MapType} mapType
      */
-    handleChangeMapType(mapType: MapType) {
-        if (this.options.type !== mapType) {
-            this.options.type = mapType;
-            if (this.mapObject) {
-                this.mapObject.destroy();
-            }
-            this.ngAfterViewInit(); // re-initialize map
+    handleChangeMapType() {
+        if (this.mapObject) {
+            this.mapObject.destroy();
         }
+        this.ngAfterViewInit(); // re-initialize map
+    }
+
+    /**
+     * @override
+     * @param {MapType} mapType
+     */
+    handleChangeSubcomponentType() {
+        this.handleChangeMapType();
     }
 
     /**
@@ -937,5 +940,15 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      */
     getVisualizationDefaultTitle(): string {
         return 'Map';
+    }
+
+    /**
+     * Returns whether to create a default layer if no layers are configured.
+     *
+     * @return {boolean}
+     * @override
+     */
+    protected shouldCreateDefaultLayer(): boolean {
+        return true;
     }
 }

@@ -15,9 +15,9 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | @angular/platform-server@7.1.0 | [MIT](https://github.com/angular/angular) |
 | @angular/router@7.1.0 | [MIT](https://github.com/angular/angular) |
 | @angular/upgrade@7.1.0 | [MIT](https://github.com/angular/angular) |
-| @swimlane/ngx-charts@10.0.0 | [MIT](https://github.com/swimlane/ngx-charts/raw/master/LICENSE.md) |
+| @swimlane/ngx-charts@10.1.0 | [MIT](https://github.com/swimlane/ngx-charts/raw/master/LICENSE.md) |
 | @swimlane/ngx-datatable@14.0.0 | [MIT](https://github.com/swimlane/ngx-datatable/raw/master/LICENSE) |
-| @swimlane/ngx-graph@5.4.1 | [MIT](https://github.com/swimlane/ngx-graph/raw/master/LICENSE) |
+| @swimlane/ngx-graph@5.5.0 | [MIT](https://github.com/swimlane/ngx-graph/raw/master/LICENSE) |
 | ajv-keywords@1.5.1 | [MIT](https://github.com/epoberezkin/ajv-keywords/raw/master/LICENSE) |
 | ajv@5.2.0 | [MIT](https://github.com/epoberezkin/ajv/raw/master/LICENSE) |
 | angular-core@0.0.5 | [ISC](undefined) |
@@ -30,7 +30,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | classlist.js@1.1.20150312 | [Dedicated to the public domain](https://github.com/eligrey/classList.js/raw/master/LICENSE.md) |
 | core-js@2.5.7 | [MIT](https://github.com/zloirock/core-js/raw/master/LICENSE) |
 | d3-selection@1.4.0 | [BSD-3-Clause](https://github.com/d3/d3-selection/raw/master/LICENSE) |
-| d3-shape@1.3.3 | [BSD-3-Clause](https://github.com/d3/d3-shape/raw/master/LICENSE) |
+| d3-shape@1.3.4 | [BSD-3-Clause](https://github.com/d3/d3-shape/raw/master/LICENSE) |
 | d3-transition@1.2.0 | [BSD-3-Clause](https://github.com/d3/d3-transition/raw/master/LICENSE) |
 | dagre@0.8.4 | [MIT](https://github.com/dagrejs/dagre/raw/master/LICENSE) |
 | fast-deep-equal@1.0.0 | [MIT](https://github.com/epoberezkin/fast-deep-equal/raw/master/LICENSE) |

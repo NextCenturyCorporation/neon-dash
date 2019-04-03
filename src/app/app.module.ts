@@ -42,7 +42,8 @@ import { AppComponent } from './app.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
 import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
-import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
+import { DashboardDropdownComponent } from './components/dashboard-dropdown/dashboard-dropdown.component';
+import { DashboardSelectorComponent } from './components/dashboard-selector/dashboard-selector.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
 import { DocumentViewerSingleItemComponent } from './components/document-viewer-single-item/document-viewer-single-item.component';
@@ -53,6 +54,7 @@ import { CurrentFiltersComponent } from './components/current-filters/current-fi
 import { LegendComponent } from './components/legend/legend.component';
 import { MapComponent } from './components/map/map.component';
 import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
+import { OptionsListComponent } from './components/options-list/options-list.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { SaveStateComponent } from './components/save-state/save-state.component';
 import { SettingsComponent } from './components/settings/settings.component';
@@ -80,8 +82,9 @@ import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
 import { CustomConnectionSimpleSetupStepComponent } from './components/custom-connection/simple-setup.component';
-import { MatAutocompleteModule } from '@angular/material';
+import { MatAutocompleteModule, MatFormFieldModule, MatInputModule } from '@angular/material';
 import { QueryBarComponent } from './components/query-bar/query-bar.component';
+import { GearComponent } from './components/gear/gear.component';
 
 export function getAppConfig() {
     /* tslint:disable:no-string-literal */
@@ -101,7 +104,8 @@ export function getAppConfig() {
         ConfirmationDialogComponent,
         CustomConnectionComponent,
         CustomConnectionSimpleSetupStepComponent,
-        DatasetSelectorComponent,
+        DashboardDropdownComponent,
+        DashboardSelectorComponent,
         DataTableComponent,
         DetailsThumbnailSubComponent,
         DocumentViewerComponent,
@@ -110,11 +114,13 @@ export function getAppConfig() {
         FilterBuilderComponent,
         FiltersComponent,
         CurrentFiltersComponent,
+        GearComponent,
         LegendComponent,
         MapComponent,
         MediaViewerComponent,
         NetworkGraphComponent,
         NewsFeedComponent,
+        OptionsListComponent,
         QueryBarComponent,
         SampleComponent,
         SaveStateComponent,
@@ -174,6 +180,7 @@ export function getAppConfig() {
         CustomConnectionComponent,
         DocumentViewerSingleItemComponent,
         CurrentFiltersComponent,
+        GearComponent,
         SaveStateComponent,
         SettingsComponent,
         SnackBarComponent

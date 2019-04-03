@@ -205,7 +205,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue),
             new WidgetNonPrimitiveOption('textMap', 'Text Map', {}),
             new WidgetNonPrimitiveOption('typeMap', 'Type Map', {}),
-            new WidgetSelectOption('viewType', 'View', '', [{
+            new WidgetSelectOption('viewType', 'View', ViewType.TITLE, [{
                 prettyName: 'Title',
                 variable: ViewType.TITLE
             }, {
@@ -823,7 +823,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 let filter = {
                     id: neonFilter.id,

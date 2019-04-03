@@ -22,7 +22,7 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { SimpleFilterComponent } from './simple-filter.component';
-import { DatasetOptions, SimpleFilter } from '../../dataset';
+import { DashboardOptions, Dashboard, SimpleFilter } from '../../dataset';
 import {
     ChangeDetectorRef,
     ChangeDetectionStrategy,
@@ -52,14 +52,25 @@ class MockFilterService extends FilterServiceMock {
 }
 
 class MockDatasetService extends DatasetService {
-    options = new DatasetOptions();
+    options = new DashboardOptions();
     constructor() {
         super(new NeonGTDConfig());
-        this.options.simpleFilter = new SimpleFilter(databaseName, tableName, fieldName);
-    }
 
-    getActiveDatasetOptions() {
-        return this.options;
+        let dashboardTableKeys: {[key: string]: string} = {};
+        dashboardTableKeys.tableKey = 'datastore1.' + databaseName + '.' + tableName;
+
+        let dashboardFieldKeys: {[key: string]: string} = {};
+        dashboardFieldKeys.fieldKey = 'datastore1.' + databaseName + '.' + tableName + '.' + fieldName;
+
+        let dashboard = {
+            name: 'Test Discovery Config',
+            layout: 'DISCOVERY',
+            tables: dashboardTableKeys,
+            fields: dashboardFieldKeys,
+            options: new DashboardOptions()
+        };
+        dashboard.options.simpleFilter = new SimpleFilter(databaseName, tableName, fieldName, 'Search', '', 'tableKey', 'fieldKey');
+        this.setCurrentDashboard(dashboard);
     }
 }
 @Component({

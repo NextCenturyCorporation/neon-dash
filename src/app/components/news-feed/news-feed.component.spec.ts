@@ -24,8 +24,6 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import {} from 'jasmine-core';
 import * as neon from 'neon-framework';
 
-import { ExportControlComponent } from '../export-control/export-control.component';
-
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -44,8 +42,7 @@ describe('Component: NewsFeed', () => {
     //may need to add or remove some initializations (copied from media-viewer.component)
     initializeTestBed('News Feed', {
         declarations: [
-            NewsFeedComponent,
-            ExportControlComponent
+            NewsFeedComponent
         ],
         providers: [
             DatasetService,

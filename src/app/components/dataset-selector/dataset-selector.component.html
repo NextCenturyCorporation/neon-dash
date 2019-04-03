@@ -1,7 +1,0 @@
-<mat-nav-list class="dataset-selector-container" mat-layout="column" mat-fill>
-    <mat-list-item  mat-2-line *ngFor="let dataset of datasets; let i = index;" (click)="connectToPreset(i, false)"
-        [class.accent]="(activeDataset.name === dataset.name)">
-        <h3 matLine>{{ dataset.name }}</h3>
-        <p matLine>{{ dataset.databases.length }} {{ dataset.databases.length === 1 ? 'Database' : 'Databases' }}</p>
-    </mat-list-item>
-</mat-nav-list>
