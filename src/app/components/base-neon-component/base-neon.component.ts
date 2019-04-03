@@ -1428,7 +1428,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Method to be overrided in components where the body container wants to be hidden
      * if showNoData is true
      */
-    private toggleBodyContainer() {
+    public toggleBodyContainer() {
         //Will be override in the aggregation component
     }
 }
