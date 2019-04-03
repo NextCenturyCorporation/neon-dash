@@ -240,9 +240,9 @@ dashboards:
                                 ldc:
                                     orgName: 'Linguistic Data Consortium'
                                     abbreviation: 'LDC'
-                                    piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                                    contactInfo: 'TBD'
-                                    website: '<a href="https://www.ldc.upenn.edu/language-resources" target="_blank">Website</a>'
+                                    contactName: 'Stephanie Strassel'
+                                    contactEmail: 'strassel@ldc.upenn.edu'
+                                    website: 'https://www.ldc.upenn.edu/language-resources'
                                     logo: 'LDC-logo.png'
                         uyg_elisa:
                             name: Uyghur ELISA
@@ -269,16 +269,16 @@ dashboards:
                                 elisa-rpi:
                                     orgName: 'Rensselaer Polytechnic Institute'
                                     abbreviation: 'RPI'
-                                    piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                                    contactInfo: 'TBD'
-                                    website: '<a href="https://www.rpi.edu/" target="_blank">Website</a>'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
                                     logo: 'RPI-logo.png'
                                 elisa-isi:
                                     orgName: 'University of Southern California, Information Sciences Institute'
                                     abbreviation: 'USC/ISI'
-                                    piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                                    contactInfo: 'TBD'
-                                    website: '<a href="https://www.isi.edu/" target="_blank">Website</a>'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
                                     logo: 'ISI-logo.png'
                         nepal_elisa:
                             name: Nepal ELISA
@@ -307,16 +307,16 @@ dashboards:
                                 rpi:
                                     orgName: 'Rensselaer Polytechnic Institute'
                                     abbreviation: 'RPI'
-                                    piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                                    contactInfo: 'TBD'
-                                    website: '<a href="https://www.rpi.edu/" target="_blank">Website</a>'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
                                     logo: 'RPI-logo.png'
                                 isi:
                                     orgName: 'University of Southern California, Information Sciences Institute'
                                     abbreviation: 'USC/ISI'
-                                    piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                                    contactInfo: 'TBD'
-                                    website: '<a href="https://www.isi.edu/" target="_blank">Website</a>'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
                                     logo: 'ISI-logo.png'
                         uyg_ldc_il3:
                             name: Uyghur LDC Il3
@@ -364,9 +364,9 @@ dashboards:
                                 ldc:
                                     orgName: 'Linguistic Data Consortium'
                                     abbreviation: 'LDC'
-                                    piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                                    contactInfo: 'TBD'
-                                    website: '<a href="https://www.ldc.upenn.edu/language-resources" target="_blank">Website</a>'
+                                    contactName: 'Stephanie Strassel'
+                                    contactEmail: 'strassel@ldc.upenn.edu'
+                                    website: 'https://www.ldc.upenn.edu/language-resources'
                                     logo: 'LDC-logo.png'
                         elisa_ldc_il3:
                             name: Elisa LDC Il3
@@ -414,16 +414,16 @@ dashboards:
                                 rpi:
                                     orgName: 'Rensselaer Polytechnic Institute'
                                     abbreviation: 'RPI'
-                                    piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                                    contactInfo: 'TBD'
-                                    website: '<a href="https://www.rpi.edu/" target="_blank">Website</a>'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
                                     logo: 'RPI-logo.png'
                                 isi:
                                     orgName: 'University of Southern California, Information Sciences Institute'
                                     abbreviation: 'USC/ISI'
-                                    piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                                    contactInfo: 'TBD'
-                                    website: '<a href="https://www.isi.edu/" target="_blank">Website</a>'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
                                     logo: 'ISI-logo.png'
                 vodno:
                     name: 'SIMPOST'
@@ -453,11 +453,11 @@ dashboards:
                                     placeHolder: Search
                           contributors:
                                 mit-ll:
-                                    orgName: 'MIT Lincoln Laboratory'
+                                    orgName: 'Massachusettes Institute of Technology Lincoln Laboratory'
                                     abbreviation: 'MIT/LL'
-                                    piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                                    contactInfo: 'TBD'
-                                    website: '<a href="https://www.ll.mit.edu/" target="_blank">Website</a>'
+                                    contactName: 'Doug Jones'
+                                    contactEmail: 'daj@ll.mit.edu'
+                                    website: 'https://www.ll.mit.edu/'
                                     logo: 'mit-lincoln-laboratory.jpg'
                 w5:
                     name: 'W5'
@@ -493,16 +493,16 @@ dashboards:
                                 rpi:
                                     orgName: 'Rensselaer Polytechnic Institute'
                                     abbreviation: 'RPI'
-                                    piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                                    contactInfo: 'TBD'
-                                    website: '<a href="https://www.rpi.edu/" target="_blank">Website</a>'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
                                     logo: 'RPI-logo.png'
                                 isi:
                                     orgName: 'University of Southern California, Information Sciences Institute'
                                     abbreviation: 'USC/ISI'
-                                    piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                                    contactInfo: 'TBD'
-                                    website: '<a href="https://www.isi.edu/" target="_blank">Website</a>'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
                                     logo: 'ISI-logo.png'
                         car_elisa_discovery:
                             name: Central African Republic ELISA
@@ -538,16 +538,16 @@ dashboards:
                                 rpi:
                                     orgName: 'Rensselaer Polytechnic Institute'
                                     abbreviation: 'RPI'
-                                    piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                                    contactInfo: 'TBD'
-                                    website: '<a href="https://www.rpi.edu/" target="_blank">Website</a>'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
                                     logo: 'RPI-logo.png'
                                 isi:
                                     orgName: 'University of Southern California, Information Sciences Institute'
                                     abbreviation: 'USC/ISI'
-                                    piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                                    contactInfo: 'TBD'
-                                    website: '<a href="https://www.isi.edu/" target="_blank">Website</a>'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
                                     logo: 'ISI-logo.png'
                         uyg_elisa:
                             name: Uyghur ELISA
@@ -577,16 +577,16 @@ dashboards:
                                 rpi:
                                     orgName: 'Rensselaer Polytechnic Institute'
                                     abbreviation: 'RPI'
-                                    piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                                    contactInfo: 'TBD'
-                                    website: '<a href="https://www.rpi.edu/" target="_blank">Website</a>'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
                                     logo: 'RPI-logo.png'
                                 isi:
                                     orgName: 'University of Southern California, Information Sciences Institute'
                                     abbreviation: 'USC/ISI'
-                                    piTeamLead: 'TBD' # TODO: 305: get team lead and contact info (when applicable)
-                                    contactInfo: 'TBD'
-                                    website: '<a href="https://www.isi.edu/" target="_blank">Website</a>'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
                                     logo: 'ISI-logo.png'
 
 layouts:

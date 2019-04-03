@@ -13,9 +13,9 @@
 
         <div class="details">
             <div>{{ item.orgName }}</div>
-            <div>{{ item.piTeamLead }}</div>
-            <div>{{ item.contactInfo }}</div>
-            <div [innerHtml]="item.website"></div>
+            <div>{{ item.contactName }}</div>
+            <div><a [href]="getEmailLink(item.contactEmail)">{{ item.contactEmail }}</a></div>
+            <div><a [href]="item.website" target="_blank">{{ item.website }}</a></div>
         </div>
     </div>
 </div>

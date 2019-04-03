@@ -137,8 +137,8 @@ export class DashboardOptions {
 export class Contributor {
     public orgName: String;
     public abbreviation: String;
-    public piTeamLead: String;
-    public contactInfo: String;
+    public contactName: String;
+    public contactEmail: String;
     public website: String;
     public logo: String;
 }
