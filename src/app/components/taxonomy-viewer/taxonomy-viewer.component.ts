@@ -117,6 +117,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             new WidgetFieldOption('linkField', 'Link Field', false),
             new WidgetFieldOption('typeField', 'Type Field', false),
             new WidgetFieldOption('subTypeField', 'Sub Type Field', false),
+            new WidgetFieldOption('valueField', 'Value Field', false),
             new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
         ];
     }
@@ -352,7 +353,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         results.forEach((d) => {
             let categories: string[],
                 types: string[],
-                subTypes: string[];
+                subTypes: string[],
+                value: string;
 
             categories = neonUtilities.deepFind(d, this.options.categoryField.columnName);
 
@@ -363,6 +365,12 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             //TODO: Not fully implemented because subTypes do not currently exist, but might need to be in the future THOR-908
             if (this.options.subTypeField.columnName) {
                 subTypes = neonUtilities.deepFind(d, this.options.typeField.columnName);
+            }
+
+            if (this.options.valueField.columnName) {
+                value = neonUtilities.deepFind(d, this.options.valueField.columnName) ?
+                    neonUtilities.deepFind(d, this.options.valueField.columnName) :
+                    neonUtilities.deepFind(d, this.options.idField.columnName);
             }
 
             for (let category of categories) {
@@ -394,20 +402,44 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                                 type.includes('.') ? type.split('.')[0] : type);
                         }
 
+                        let valueObject = {
+                            id: counter++, name: value, lineage: category,
+                            description: this.options.valueField.columnName
+                        };
+
                         if (foundType && foundType.object) {
                             if (subTypeNeeded) {
                                 let foundSubType = this.getTaxonomyObject(foundType.object.children, type);
 
                                 if (!foundSubType.object) {
                                     let subTypeObject = {
-                                        id: counter++, name: type, lineage: category,
+                                        id: counter++, name: type, children: [valueObject], lineage: category,
                                         description: this.options.subTypeField.columnName, checked: true
                                     };
 
                                     this.taxonomyGroups[foundCategory.index].children[foundType.index]
                                         .children.push(subTypeObject);
+                                } /*else {
+
+                                    let foundValue = this.getTaxonomyObject(foundSubType.object.children, value);
+
+                                    if (!foundValue.object) {
+                                        this.taxonomyGroups[foundCategory.index].children[foundType.index].children[foundSubType.index]
+                                            .children.push(valueObject);
+                                    }
+
                                 }
-                            }
+
+                                this.sortTaxonomyArrays(this.taxonomyGroups[foundCategory.index].children[foundType.index]
+                                    .children[foundSubType.index].children);*/
+                            } /*else {
+                                let foundValue = this.getTaxonomyObject(foundType.object.children, value);
+
+                                if (!foundValue.object) {
+                                    this.taxonomyGroups[foundCategory.index].children[foundType.index]
+                                        .children.push(valueObject);
+                                }
+                            }*/
                         } else {
                             let setType = type.includes('.') ? type.split('.')[0] : type,
                                 typeObject = {
@@ -415,27 +447,21 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                                     description: this.options.typeField.columnName, checked: true
                                 };
 
-                            foundType.index = 0;
                             this.taxonomyGroups[foundCategory.index].children.push(typeObject);
-
-                            if (this.taxonomyGroups[foundCategory.index].children &&
-                                this.taxonomyGroups[foundCategory.index].children.length > 1) {
-                                for (let i = 0; i < this.taxonomyGroups[foundCategory.index].children.length; i++) {
-                                    if (type.includes(this.taxonomyGroups[foundCategory.index].children[i].name)) {
-                                        foundType.index = i;
-                                    }
-                                }
-                            }
+                            foundType.index = this.taxonomyGroups[foundCategory.index].children.length - 1;
 
                             if (subTypeNeeded) {
                                 let subTypeObject = {
-                                    id: counter++, name: type, lineage: category,
+                                    id: counter++, name: type, children: [valueObject], lineage: category,
                                     description: this.options.subTypeField.columnName, checked: true
                                 };
 
                                 this.taxonomyGroups[foundCategory.index].children[foundType.index].children.push(subTypeObject);
+                            } else {
+                                    this.taxonomyGroups[foundCategory.index].children[foundType.index].children.push(valueObject);
                             }
                         }
+
                         this.sortTaxonomyArrays(this.taxonomyGroups[foundCategory.index].children[foundType.index].children);
                     }//end types loop
                 }
@@ -448,6 +474,17 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         this.sortTaxonomyArrays(this.taxonomyGroups);
 
         return new TransformedVisualizationData(this.taxonomyGroups);
+    }
+
+    setClassForTreePosition(node, classString){
+        let nodeClass = classString + node.level;
+        //adds a styling class for the values of types or subTypes
+        if ((node.level === 2 && node.hasChildren && !node.children[0].hasChildren) || node.level === 3) {
+            nodeClass =  nodeClass + ' lowest-node-level';
+
+        }
+
+        return nodeClass;
     }
 
     /**
@@ -464,17 +501,20 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             let count = 0;
             group.nodeIds = [];
             group.sourceIds = [];
+            group.values = [];
 
             data.forEach((d) => {
                 let id = neonUtilities.deepFind(d, this.options.idField.columnName);
                 let sourceIds = neonUtilities.deepFind(d, this.options.sourceIdField.columnName);
                 let description = neonUtilities.deepFind(d, group.description);
+                let value = neonUtilities.deepFind(d, this.options.valueField.columnName);
                 let nameExists = description instanceof Array ?
                     description.find((s) => s.includes(group.name)) : description.includes(group.name);
 
                 if (!!nameExists && !group.nodeIds.includes(id)) {
                     group.nodeIds.push(id);
                     group.sourceIds.push(sourceIds);
+                    group.values.push(value);
                     count++;
                 }
             });
