@@ -35,17 +35,7 @@
     font-size: 14px;
 }
 
-
-/deep/ tree-node > .tree-node > .tree-children{
-    border-right: solid 1px red !important;
-}
-
-.toggle-children {
-    z-index: 1;
-}
-
-
-/deep/ tree-node-children > div > tree-node-collection > div > tree-node > .lowest-node-level > tree-node-children > div{
+/deep/ tree-node-children > div > tree-node-collection > div > tree-node > .leaf-node-level > tree-node-children > div{
     border: 1px solid var(--color-text-header, grey);
     max-height: 200px;
     overflow-y: auto;
