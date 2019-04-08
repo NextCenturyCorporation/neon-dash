@@ -665,7 +665,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @private
      */
     private getArrayValues(value) {
-        return value ? (Array.isArray(value) ?  value : value.toString().search(/,/g) > -1 ?  value.toString().split(',') : [value]) : [];
+        return value ? (Array.isArray(value) ? value : value.toString().search(/,/g) > -1 ? value.toString().split(',') : [value]) : [];
     }
 
     /**
@@ -690,110 +690,111 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             thumbnail.fillStyle = '#ffffff';
             thumbnail.fillRect(0, 0, this.options.canvasSize, this.options.canvasSize);
 
-            switch (type) {
-                case this.mediaTypes.image : {
-                    let image: HTMLImageElement = new Image();
-                    image.src = link;
-                    image.onload = () => {
-                        switch (this.options.cropAndScale) {
-                            case 'both' : {
-                                // Use the MIN to crop the scale
-                                let size = Math.min(image.width, image.height);
-                                let multiplier = this.options.canvasSize / size;
-                                thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
-                                break;
-                            }
-                            case 'crop' : {
-                                thumbnail.drawImage(image, 0, 0, image.width, image.height);
-                                break;
-                            }
-                            case 'scale' : {
-                                // Use the MAX to scale
-                                let size = Math.max(image.width, image.height);
-                                let multiplier = this.options.canvasSize / size;
-                                thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
-                                break;
-                            }
-                            default : {
-                                thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
-                            }
-                        }
-                    };
-                    break;
-                }
-                case this.mediaTypes.video : {
-                    let video: HTMLVideoElement = document.createElement('video');
-                    video.src = link + '#t=1,1.1'; //1 second starting place for video screenshot
-
-                    video.onloadeddata = () => {
-                        switch (this.options.cropAndScale) {
-                            case 'both' : {
-                                // Use the MIN to crop the scale
-                                let size = Math.min(video.width, video.height);
-                                let multiplier = this.options.canvasSize / size;
-                                thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
-                                break;
-                            }
-                            case 'crop' : {
-                                thumbnail.drawImage(video, 0, 0, video.width, video.height);
-                                break;
-                            }
-                            case 'scale' : {
-                                // Use the MAX to scale
-                                let size = Math.max(video.width, video.height);
-                                let multiplier = this.options.canvasSize / size;
-                                thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
-                                break;
-                            }
-                            default : {
-                                thumbnail.drawImage(video, 0, 0, this.options.canvasSize, this.options.canvasSize);
-                            }
-                        }
-                    };
-
-                    video.onerror = () => {
-                        if (link.includes('youtube')) {
-                            let img: HTMLImageElement = new Image();
-                            img.src = './assets/images/youtube_logo.png';
-                            img.onload = () => {
-                                thumbnail.drawImage(img, 2, 40, img.width - 12, img.height);
-                            };
-                        }
-                    };
-
-                    break;
-                }
-                case this.mediaTypes.audio : {
-                    let image: HTMLImageElement = new Image();
-                    image.src = '/assets/images/volume_up.svg';
-                    image.onclick = () => this.displayMediaTab(grid);
-                    image.onload = () => {
-                        thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
-                    };
-
-                    break;
-                }
-                default : {
-                    if (link === 'n/a') {
-                        let img: HTMLImageElement = new Image();
-                        img.src = './assets/icons/document_viewer.svg';
-
-                        img.onload = () => {
-                            if (this.options.viewType === ViewType.CARD) {
-                                thumbnail.drawImage(img, this.options.canvasSize * .41, this.options.canvasSize * .25,
-                                    img.width + 2, img.height + 6);
-                            } else {
-                                thumbnail.drawImage(img, this.options.canvasSize * .37, this.options.canvasSize * .35,
-                                    img.width - 4 , img.height);
+            if (link && link !== 'n/a') {
+                switch (type) {
+                    case this.mediaTypes.image : {
+                        let image: HTMLImageElement = new Image();
+                        image.src = link;
+                        image.onload = () => {
+                            switch (this.options.cropAndScale) {
+                                case 'both' : {
+                                    // Use the MIN to crop the scale
+                                    let size = Math.min(image.width, image.height);
+                                    let multiplier = this.options.canvasSize / size;
+                                    thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
+                                    break;
+                                }
+                                case 'crop' : {
+                                    thumbnail.drawImage(image, 0, 0, image.width, image.height);
+                                    break;
+                                }
+                                case 'scale' : {
+                                    // Use the MAX to scale
+                                    let size = Math.max(image.width, image.height);
+                                    let multiplier = this.options.canvasSize / size;
+                                    thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
+                                    break;
+                                }
+                                default : {
+                                    thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
+                                }
                             }
                         };
-                    } else {
+                        break;
+                    }
+                    case this.mediaTypes.video : {
+                        let video: HTMLVideoElement = document.createElement('video');
+                        video.src = link + '#t=1,1.1'; //1 second starting place for video screenshot
+
+                        video.onloadeddata = () => {
+                            switch (this.options.cropAndScale) {
+                                case 'both' : {
+                                    // Use the MIN to crop the scale
+                                    let size = Math.min(video.width, video.height);
+                                    let multiplier = this.options.canvasSize / size;
+                                    thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
+                                    break;
+                                }
+                                case 'crop' : {
+                                    thumbnail.drawImage(video, 0, 0, video.width, video.height);
+                                    break;
+                                }
+                                case 'scale' : {
+                                    // Use the MAX to scale
+                                    let size = Math.max(video.width, video.height);
+                                    let multiplier = this.options.canvasSize / size;
+                                    thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
+                                    break;
+                                }
+                                default : {
+                                    thumbnail.drawImage(video, 0, 0, this.options.canvasSize, this.options.canvasSize);
+                                }
+                            }
+                        };
+
+                        video.onerror = () => {
+                            if (link.includes('youtube')) {
+                                let img: HTMLImageElement = new Image();
+                                img.src = './assets/images/youtube_logo.png';
+                                img.onload = () => {
+                                    thumbnail.drawImage(img, 2, 40, img.width - 12, img.height);
+                                };
+                            }
+                        };
+
+                        break;
+                    }
+                    case this.mediaTypes.audio : {
+                        let image: HTMLImageElement = new Image();
+                        image.src = '/assets/images/volume_up.svg';
+                        image.onclick = () => this.displayMediaTab(grid);
+                        image.onload = () => {
+                            thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
+                        };
+
+                        break;
+                    }
+                    default : {
                         // todo: get thumbnails of documents, pdf, and other similar types of media.
                         thumbnail.fillStyle = '#111111';
                         thumbnail.font = '20px Helvetica Neue';
                         thumbnail.fillText(fileType.toUpperCase(), 10, 30);
+
                     }
                 }
+            } else {
+                let img: HTMLImageElement = new Image();
+                img.src = './assets/icons/document_viewer.svg';
+
+                img.onload = () => {
+                    if (this.options.viewType === ViewType.CARD) {
+                        thumbnail.drawImage(img, this.options.canvasSize * .41, this.options.canvasSize * .25,
+                            img.width + 2, img.height + 6);
+                    } else {
+                        thumbnail.drawImage(img, this.options.canvasSize * .37, this.options.canvasSize * .35,
+                            img.width - 4, img.height);
+                    }
+                };
             }
 
             // TODO Move this to a separate function and unit test all behavior.
