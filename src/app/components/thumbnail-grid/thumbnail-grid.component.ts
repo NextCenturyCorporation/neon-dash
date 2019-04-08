@@ -457,7 +457,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         results.forEach((d) => {
             let item = {},
-                 links = [];
+                links = [];
 
             if (options.linkField.columnName) {
                 links = this.getArrayValues(neonUtilities.deepFind(d, options.linkField.columnName) || '');
@@ -774,10 +774,25 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     break;
                 }
                 default : {
-                    // todo: get thumbnails of documents, pdf, and other similar types of media.
-                    thumbnail.fillStyle = '#111111';
-                    thumbnail.font = '20px Helvetica Neue';
-                    thumbnail.fillText(fileType.toUpperCase(), 10, 30);
+                    if (link === 'n/a') {
+                        let img: HTMLImageElement = new Image();
+                        img.src = './assets/icons/document_viewer.svg';
+
+                        img.onload = () => {
+                            if (this.options.viewType === ViewType.CARD) {
+                                thumbnail.drawImage(img, this.options.canvasSize * .41, this.options.canvasSize * .25,
+                                    img.width + 2, img.height + 6);
+                            } else {
+                                thumbnail.drawImage(img, this.options.canvasSize * .37, this.options.canvasSize * .35,
+                                    img.width - 4 , img.height);
+                            }
+                        };
+                    } else {
+                        // todo: get thumbnails of documents, pdf, and other similar types of media.
+                        thumbnail.fillStyle = '#111111';
+                        thumbnail.font = '20px Helvetica Neue';
+                        thumbnail.fillText(fileType.toUpperCase(), 10, 30);
+                    }
                 }
             }
 
