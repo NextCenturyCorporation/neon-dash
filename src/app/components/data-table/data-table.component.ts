@@ -186,7 +186,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }]),
             new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', [], false),
             new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', [], false),
-            new WidgetNonPrimitiveOption('fieldsConfig', 'Fields Config', {})
+            new WidgetNonPrimitiveOption('fieldsConfig', 'Fields Config', {}),
+            new WidgetSelectOption('databaseOrTableChange', 'Database or Table Updated', false, OptionChoices.NoFalseYesTrue, false)
         ];
     }
 
@@ -921,5 +922,31 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     getShowColumnSelector(): boolean {
         return this.options.showColumnSelector === 'show';
+    }
+
+    /**
+     * Updates elements and properties whenever the widget config is changed.
+     *
+     * @override
+     */
+    onChangeData() {
+        // if database or table has been updated, need to update list of available headers/fields
+        if (this.options.databaseOrTableChange) {
+            let initialHeaderLimit = 25;
+            let unorderedHeaders = [];
+            let show = true; // show all columns up to the limit, since now the user will need to decide what to show/not show
+
+            for (let fieldObject of this.options.fields) {
+                unorderedHeaders.push({
+                    cellClass: this.getCellClassFunction(),
+                    prop: fieldObject.columnName,
+                    name: fieldObject.prettyName,
+                    active: show && unorderedHeaders.length < initialHeaderLimit,
+                    style: {},
+                    width: this.getColumnWidth(fieldObject.columnName)
+                });
+            }
+            this.headers = unorderedHeaders;
+        }
     }
 }

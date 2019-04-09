@@ -189,6 +189,9 @@ export class GearComponent implements OnInit, OnDestroy {
         let filterDataChange = this.originalOptions.database.name !== this.modifiedOptions.database.name ||
             this.originalOptions.table.name !== this.modifiedOptions.table.name;
 
+        let databaseOrTableChange = this.originalOptions.database !== this.modifiedOptions.database ||
+            this.originalOptions.table !== this.modifiedOptions.table;
+
         this.originalOptions.database = this.modifiedOptions.database;
         this.originalOptions.databases = this.modifiedOptions.databases;
         this.originalOptions.table = this.modifiedOptions.table;
@@ -223,6 +226,12 @@ export class GearComponent implements OnInit, OnDestroy {
         // TODO THOR-1061
         if (this.changeSubcomponentType) {
             this.handleChangeSubcomponentType();
+        }
+
+        if (databaseOrTableChange && this.originalOptions.databaseOrTableChange !== undefined) {
+            this.originalOptions.databaseOrTableChange = true;
+        } else if (this.originalOptions.databaseOrTableChange) {
+            this.originalOptions.databaseOrTableChange = false;
         }
 
         if (filterDataChange) {
