@@ -1779,4 +1779,58 @@ describe('Component: DataTable', () => {
         expect(component.getTableHeaderHeight()).toEqual(20);
         expect(component.getTableRowHeight()).toEqual(20);
     });
+
+    it('onChangeData does not update headers if database or table is unchanged', () => {
+        expect(component.headers.length).toEqual(16);
+        expect(component.options.databaseOrTableChange).toBeFalsy();
+
+        component.options.fields = [
+            new FieldMetaData('category', 'Category'),
+            new FieldMetaData('field1', 'Field 1'),
+            new FieldMetaData('field2', 'Field 2'),
+            new FieldMetaData('date', 'Date')
+        ];
+
+        component.onChangeData();
+
+        expect(component.headers.length).toEqual(16);
+    });
+
+    it('onChangeData does update headers if database or table is updated', () => {
+        component.options.databaseOrTableChange = true;
+        component.options.fields = [
+            new FieldMetaData('category', 'Category'),
+            new FieldMetaData('field1', 'Field 1'),
+            new FieldMetaData('field2', 'Field 2'),
+            new FieldMetaData('date', 'Date')
+        ];
+
+        component.onChangeData();
+
+        expect(component.headers.length).toEqual(4);
+        expect(component.headers[0].prop).toEqual('category');
+        expect(component.headers[0].name).toEqual('Category');
+        expect(component.headers[0].active).toEqual(true);
+        expect(component.headers[0].style).toEqual({});
+        expect(component.headers[0].cellClass).toBeDefined();
+        expect(component.headers[0].width).toEqual(150);
+        expect(component.headers[1].prop).toEqual('field1');
+        expect(component.headers[1].name).toEqual('Field 1');
+        expect(component.headers[1].active).toEqual(true);
+        expect(component.headers[1].style).toEqual({});
+        expect(component.headers[1].cellClass).toBeDefined();
+        expect(component.headers[1].width).toEqual(150);
+        expect(component.headers[2].prop).toEqual('field2');
+        expect(component.headers[2].name).toEqual('Field 2');
+        expect(component.headers[2].active).toEqual(true);
+        expect(component.headers[2].style).toEqual({});
+        expect(component.headers[2].cellClass).toBeDefined();
+        expect(component.headers[2].width).toEqual(150);
+        expect(component.headers[3].prop).toEqual('date');
+        expect(component.headers[3].name).toEqual('Date');
+        expect(component.headers[3].active).toEqual(true);
+        expect(component.headers[3].style).toEqual({});
+        expect(component.headers[3].cellClass).toBeDefined();
+        expect(component.headers[3].width).toEqual(150);
+    });
 });
