@@ -248,7 +248,7 @@
         {
             "title": "VERDI",
             "name": "Seedling LDC TA3 Events",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "layout": "verdi-ta3-events",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -396,7 +396,7 @@
         {
             "title": "VERDI",
             "name": "Seedling LDC TA2 Tabs",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "layout": "verdi-ta2-tabs",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -488,7 +488,7 @@
         {
             "title": "VERDI",
             "name": "Seedling LDC TA3 Tabs",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "layout": "verdi-ta3-tabs",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -629,8 +629,8 @@
                     "table": "seedling",
                     "typeField": "types",
                     "subTypeField": "types",
-                    "categoryField": "categories",
                     "valueField": "name",
+                    "categoryField": "categories",
                     "sourceIdField": "docIds",
                     "filterFields": [
                         "categories",
@@ -765,6 +765,7 @@
                     "table": "seedling",
                     "typeField": "types",
                     "subTypeField": "types",
+                    "valueField": "name",
                     "categoryField": "categories",
                     "sourceIdField": "docIds",
                     "filterFields": [
@@ -903,6 +904,7 @@
                     "table": "seedling",
                     "typeField": "types",
                     "subTypeField": "types",
+                    "valueField": "name",
                     "categoryField": "categories",
                     "sourceIdField": "docIds",
                     "filterFields": [
@@ -1510,6 +1512,7 @@
                         "table": "seedling",
                         "typeField": "types",
                         "subTypeField": "types",
+                        "valueField": "name",
                         "categoryField": "categories",
                         "sourceIdField": "docIds",
                         "filterFields": [
@@ -1645,6 +1648,7 @@
                         "table": "seedling",
                         "typeField": "types",
                         "subTypeField": "types",
+                        "valueField": "name",
                         "categoryField": "categories",
                         "sourceIdField": "docIds",
                         "filterFields": [
@@ -1770,6 +1774,7 @@
                         "table": "seedling",
                         "typeField": "types",
                         "subTypeField": "types",
+                        "valueField": "name",
                         "categoryField": "categories",
                         "sourceIdField": "docIds",
                         "filterFields": [
