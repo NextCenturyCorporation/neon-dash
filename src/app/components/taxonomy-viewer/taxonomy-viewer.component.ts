@@ -359,7 +359,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             categories = neonUtilities.deepFind(d, this.options.categoryField.columnName);
 
             if (this.options.typeField.columnName) {
-                types = neonUtilities.deepFind(d, this.options.typeField.columnName);
+                types = neonUtilities.deepFind(d, this.options.typeField.columnName) instanceof Array ?
+                    neonUtilities.deepFind(d, this.options.typeField.columnName) :
+                    [neonUtilities.deepFind(d, this.options.typeField.columnName)];
             }
 
             //TODO: Not fully implemented because subTypes do not currently exist, but might need to be in the future THOR-908
@@ -413,7 +415,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                         if (subTypeNeeded) {
                             subTypeObject = {
                                 id: counter++, name: type, children: [], lineage: category,
-                                description: this.options.subTypeField.columnName, checked: true
+                                description: this.options.subTypeField.columnName ?
+                                    this.options.subTypeField.columnName : this.options.typeField.columnName,
+                                checked: true
                             };
 
                             if (valueObject) {
@@ -514,8 +518,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                 let id = neonUtilities.deepFind(d, this.options.idField.columnName);
                 let sourceIds = neonUtilities.deepFind(d, this.options.sourceIdField.columnName);
                 let description = neonUtilities.deepFind(d, group.description);
-                let nameExists = description instanceof Array ?
-                    description.find((s) => s.includes(group.name)) : description.includes(group.name);
+                let nameExists = description instanceof Array ? description.find((s) => s.includes(group.name)) :
+                    description instanceof String ? description.includes(group.name) : '';
 
                 if (!!nameExists && !group.nodeIds.includes(id)) {
                     group.nodeIds.push(id);
