@@ -1412,43 +1412,28 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     protected showContribution() {
-        if ((this.options.contributionKeys && this.options.contributionKeys.length !== 0)
+        return ((this.options.contributionKeys && this.options.contributionKeys.length !== 0)
             || (this.options.contributionKeys === null
             && this.datasetService.getCurrentDashboard()
             && this.datasetService.getCurrentDashboard().contributors
-            && Object.keys(this.datasetService.getCurrentDashboard().contributors).length)) {
-            return true;
-        } else {
-            return false;
-        }
+            && Object.keys(this.datasetService.getCurrentDashboard().contributors).length));
     }
 
     protected getContributorsForComponent() {
         let allContributors = this.datasetService.getCurrentDashboard().contributors;
         let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys
             : Object.keys(this.datasetService.getCurrentDashboard().contributors);
-        let contributors = [];
 
-        for (let key of contributorKeys) {
-            if (allContributors[key]) {
-                contributors.push(allContributors[key]);
-            }
-        }
-
-        return contributors;
+        return contributorKeys.filter((key) => !!allContributors[key]).map((key) => allContributors[key]);
     }
 
     protected getContributorAbbreviations() {
         let contributors = this.datasetService.getCurrentDashboard().contributors;
         let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys
             : Object.keys(this.datasetService.getCurrentDashboard().contributors);
-        let contributorAbbreviations = [];
 
-        for (let key of contributorKeys) {
-            if (contributors[key] && contributors[key].abbreviation) {
-                contributorAbbreviations.push(contributors[key].abbreviation);
-            }
-        }
+        let contributorAbbreviations = contributorKeys.filter((key) =>
+            !!(contributors[key] && contributors[key].abbreviation)).map((key) => contributors[key].abbreviation);
 
         return contributorAbbreviations.join(', ');
     }
