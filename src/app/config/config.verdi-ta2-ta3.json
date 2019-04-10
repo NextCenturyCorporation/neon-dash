@@ -3,7 +3,7 @@
         {
             "title": "VERDI",
             "name": "Seedling LDC TA2 Network",
-            "connectOnLoad": false,
+            "connectOnLoad": true,
             "icon": "assets/images/verdi-favicon.ico",
             "layout": "verdi-ta2-network",
             "datastore": "elasticsearch",
@@ -11,7 +11,7 @@
             "databases": [
                 {
                     "name": "verdi-rdf",
-                    "prettyName": "VERDI RDF",
+                    "prettyName": "Documents",
                     "tables": [
                         {
                             "name": "normal",
@@ -21,11 +21,11 @@
                 },
                 {
                     "name": "kb-simple",
-                    "prettyName": "VERDI SIMPLIFIED",
+                    "prettyName": "Network",
                     "tables": [
                         {
                             "name": "seedling",
-                            "prettyName": "Knowledge Base Simplified"
+                            "prettyName": "seedling"
                         }
                     ]
                 }
@@ -73,7 +73,7 @@
             "databases": [
                 {
                     "name": "verdi-rdf",
-                    "prettyName": "VERDI RDF",
+                    "prettyName": "Documents",
                     "tables": [
                         {
                             "name": "normal",
@@ -83,11 +83,11 @@
                 },
                 {
                     "name": "kb-events",
-                    "prettyName": "VERDI EVENTS",
+                    "prettyName": "Events",
                     "tables": [
                         {
                             "name": "seedling",
-                            "prettyName": "Knowledge Base Events"
+                            "prettyName": "seedling"
                         }
                     ]
                 }
@@ -119,7 +119,7 @@
             "databases": [
                 {
                     "name": "verdi-rdf",
-                    "prettyName": "VERDI RDF",
+                    "prettyName": "Documents",
                     "tables": [
                         {
                             "name": "normal",
@@ -129,11 +129,11 @@
                 },
                 {
                     "name": "kb-geo",
-                    "prettyName": "VERDI CLEAN GEOLOCATION",
+                    "prettyName": "Geolocation",
                     "tables": [
                         {
                             "name": "seedling",
-                            "prettyName": "Knowledge Base Geolocation"
+                            "prettyName": "seedling"
                         }
                     ]
                 }
@@ -165,25 +165,25 @@
             "databases": [
                 {
                     "name": "verdi-support",
-                    "prettyName": "VERDI",
+                   "prettyName": "Support",
                     "tables": [
                         {
                             "name": "hypothesis_info",
-                            "prettyName": "Hypothesis Info"
+                            "prettyName": "hypotheses"
                         },
                         {
                             "name": "parent_children",
-                            "prettyName": "Parent Children"
+                            "prettyName": "parent children documents"
                         }
                     ]
                 },
                 {
                     "name": "kb-simple",
-                    "prettyName": "VERDI SIMPLIFIED",
+                    "prettyName": "Network",
                     "tables": [
                         {
                             "name": "seedling",
-                            "prettyName": "Knowledge Base Simplified"
+                            "prettyName": "seedling"
                         }
                     ]
                 }
@@ -248,32 +248,32 @@
         {
             "title": "VERDI",
             "name": "Seedling LDC TA3 Events",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "layout": "verdi-ta3-events",
             "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases": [
                 {
                     "name": "verdi-support",
-                    "prettyName": "VERDI",
+                    "prettyName": "Support",
                     "tables": [
                         {
                             "name": "hypothesis_info",
-                            "prettyName": "Hypothesis Info"
+                            "prettyName": "hypotheses"
                         },
                         {
                             "name": "parent_children",
-                            "prettyName": "Parent Children"
+                            "prettyName": "parent children documents"
                         }
                     ]
                 },
                 {
                     "name": "kb-events",
-                    "prettyName": "VERDI EVENTS",
+                    "prettyName": "Events",
                     "tables": [
                         {
                             "name": "seedling",
-                            "prettyName": "Knowledge Base Events"
+                            "prettyName": "seedling"
                         }
                     ]
                 }
@@ -329,25 +329,25 @@
             "databases": [
                 {
                     "name": "verdi-support",
-                    "prettyName": "VERDI SUPPORT",
+                   "prettyName": "Support",
                     "tables": [
                         {
                             "name": "hypothesis_info",
-                            "prettyName": "Hypothesis Info"
+                            "prettyName": "hypotheses"
                         },
                         {
                             "name": "parent_children",
-                            "prettyName": "Parent Children"
+                            "prettyName": "parent children documents"
                         }
                     ]
                 },
                 {
                     "name": "kb-geo",
-                    "prettyName": "VERDI CLEAN GEOLOCATION",
+                    "prettyName": "Geolocation",
                     "tables": [
                         {
                             "name": "seedling",
-                            "prettyName": "Knowledge Base Geolocation"
+                            "prettyName": "seedling"
                         }
                     ]
                 }
@@ -403,7 +403,7 @@
             "databases": [
                 {
                     "name": "verdi-rdf",
-                    "prettyName": "VERDI RDF",
+                    "prettyName": "Documents",
                     "tables": [
                         {
                             "name": "normal",
@@ -413,31 +413,31 @@
                 },
                 {
                     "name": "kb-simple",
-                    "prettyName": "VERDI SIMPLIFIED",
+                    "prettyName": "Network",
                     "tables": [
                         {
                             "name": "seedling",
-                            "prettyName": "Knowledge Base Simplified"
+                            "prettyName": "seedling"
                         }
                     ]
                 },
                 {
                     "name": "kb-events",
-                    "prettyName": "VERDI EVENTS",
+                    "prettyName": "Events",
                     "tables": [
                         {
                             "name": "seedling",
-                            "prettyName": "Knowledge Base Events"
+                            "prettyName": "seedling"
                         }
                     ]
                 },
                 {
                     "name": "kb-geo",
-                    "prettyName": "VERDI CLEAN GEOLOCATION",
+                    "prettyName": "Geolocation",
                     "tables": [
                         {
                             "name": "seedling",
-                            "prettyName": "Knowledge Base Geolocation"
+                            "prettyName": "seedling"
                         }
                     ]
                 }
@@ -495,45 +495,45 @@
             "databases": [
                 {
                     "name": "verdi-support",
-                    "prettyName": "VERDI SUPPORT",
+                   "prettyName": "Support",
                     "tables": [
                         {
                             "name": "hypothesis_info",
-                            "prettyName": "Hypothesis Info"
+                            "prettyName": "hypotheses"
                         },
                         {
                             "name": "parent_children",
-                            "prettyName": "Parent Children"
+                            "prettyName": "parent children documents"
                         }
                     ]
                 },
                 {
                     "name": "kb-simple",
-                    "prettyName": "VERDI SIMPLIFIED",
+                    "prettyName": "Network",
                     "tables": [
                         {
                             "name": "seedling",
-                            "prettyName": "Knowledge Base Simplified"
+                            "prettyName": "seedling"
                         }
                     ]
                 },
                 {
                     "name": "kb-events",
-                    "prettyName": "VERDI EVENTS",
+                    "prettyName": "Events",
                     "tables": [
                         {
                             "name": "seedling",
-                            "prettyName": "Knowledge Base Events"
+                            "prettyName": "seedling"
                         }
                     ]
                 },
                 {
                     "name": "kb-geo",
-                    "prettyName": "VERDI CLEAN GEOLOCATION",
+                    "prettyName": "Geolocation",
                     "tables": [
                         {
                             "name": "seedling",
-                            "prettyName": "Knowledge Base Geolocation"
+                            "prettyName": "seedling"
                         }
                     ]
                 }
@@ -702,8 +702,6 @@
                     "title": "Document Timeline",
                     "database": "verdi-rdf",
                     "table": "normal",
-                    "idField": "@id",
-                    "filterField": "@id",
                     "dateField": "date",
                     "granularity": "month",
                     "hideUnfiltered": false
@@ -804,17 +802,11 @@
                     "openOnMouseClick": true,
                     "hideUnfiltered": false,
                     "sortField": "docDate",
-                    "filterFields": [
-                        "kbid",
-                        "docIds"
-                    ],
+                    "filterField": "kbid",
                     "ascending": false,
                     "canvasSize": 180.00,
                     "viewType": "card",
-                    "truncateLabel": {
-                        "value": true,
-                        "length": 35
-                    },
+                    "truncateLabel": {"value":true, "length":35},
                     "limit": 12,
                     "typeMap": {
                         "jpg": "img",
@@ -840,8 +832,6 @@
                     "title": "Event Timeline",
                     "database": "kb-events",
                     "table": "seedling",
-                    "idField": "kbid",
-                    "filterField": "docIds",
                     "dateField": "docDate",
                     "granularity": "month",
                     "hideUnfiltered": false
@@ -934,23 +924,18 @@
                     "hideUnfiltered": false,
                     "showPointDataOnHover": true,
                     "name": "Documents",
-                    "layers": [
-                        {
-                            "title": "Map",
-                            "database": "kb-geo",
-                            "table": "seedling",
-                            "latitudeField": "geoLocation.lat",
-                            "longitudeField": "geoLocation.lon",
-                            "hoverPopupField": "name",
-                            "dateField": "docDate",
-                            "idField": "kbid",
-                            "filterFields": [
-                                "kbid",
-                                "docIds"
-                            ],
-                            "colorField": "types"
-                        }
-                    ]
+                    "layers": [{
+                        "title": "Map",
+                        "database": "kb-geo",
+                        "table": "seedling",
+                        "latitudeField": "geoLocation.lat",
+                        "longitudeField": "geoLocation.lon",
+                        "hoverPopupField": "name",
+                        "dateField": "docDate",
+                        "idField": "kbid",
+                        "filterFields": ["kbid", "docIds"],
+                        "colorField": "types"
+                    }]
                 },
                 "row": 2,
                 "col": 4
@@ -965,8 +950,6 @@
                     "title": "Map Timeline",
                     "database": "kb-geo",
                     "table": "seedling",
-                    "idField": "kbid",
-                    "filterField": "docIds",
                     "dateField": "docDate",
                     "granularity": "month",
                     "hideUnfiltered": false
@@ -1072,7 +1055,7 @@
                 "type": "networkGraph",
                 "sizex": 7,
                 "sizey": 12,
-                "bindings": {
+                "bindings":{
                     "title": "Network Graph",
                     "database": "kb-simple",
                     "table": "seedling",
@@ -1169,8 +1152,6 @@
                     "title": "Document Timeline",
                     "database": "verdi-support",
                     "table": "parent_children",
-                    "idField": "id",
-                    "filterField": "id",
                     "dateField": "download_date",
                     "granularity": "month",
                     "hideUnfiltered": true
@@ -1261,17 +1242,11 @@
                     "openOnMouseClick": true,
                     "hideUnfiltered": true,
                     "sortField": "docDate",
-                    "filterFields": [
-                        "kbid",
-                        "docIds"
-                    ],
+                    "filterFields": ["kbid", "docIds"],
                     "ascending": false,
                     "canvasSize": 180.00,
                     "viewType": "card",
-                    "truncateLabel": {
-                        "value": true,
-                        "length": 35
-                    },
+                    "truncateLabel": {"value":true, "length":35},
                     "limit": 12,
                     "typeMap": {
                         "jpg": "img",
@@ -1339,9 +1314,9 @@
                     "database": "kb-events",
                     "table": "seedling",
                     "dateField": "docDate",
-                    "idField": "kbid",
-                    "filterField": "docIds",
+                    "filterFields": ["docIds"],
                     "granularity": "month",
+                    "limit": 1000,
                     "hideUnfiltered": true
                 }
             }
@@ -1416,23 +1391,18 @@
                     "hideUnfiltered": true,
                     "showPointDataOnHover": true,
                     "name": "Documents",
-                    "layers": [
-                        {
-                            "title": "Map",
-                            "database": "kb-geo",
-                            "table": "seedling",
-                            "latitudeField": "geoLocation.lat",
-                            "longitudeField": "geoLocation.lon",
-                            "hoverPopupField": "name",
-                            "dateField": "docDate",
-                            "idField": "kbid",
-                            "filterFields": [
-                                "kbid",
-                                "docIds"
-                            ],
-                            "colorField": "types"
-                        }
-                    ]
+                    "layers": [{
+                        "title": "Map",
+                        "database": "kb-geo",
+                        "table": "seedling",
+                        "latitudeField": "geoLocation.lat",
+                        "longitudeField": "geoLocation.lon",
+                        "hoverPopupField": "name",
+                        "dateField": "docDate",
+                        "idField": "kbid",
+                        "filterFields": ["kbid", "docIds"],
+                        "colorField": "types"
+                    }]
                 },
                 "row": 2,
                 "col": 4
@@ -1488,8 +1458,6 @@
                     "title": "Map Timeline",
                     "database": "kb-geo",
                     "table": "seedling",
-                    "idField": "kbid",
-                    "filterField": "docIds",
                     "dateField": "docDate",
                     "granularity": "month",
                     "hideUnfiltered": true
@@ -1497,33 +1465,32 @@
             }
         ],
         "verdi-ta2-tabs": {
-            "Network Graph": [
-                {
-                    "type": "taxonomyViewer",
-                    "sizex": 3,
-                    "sizey": 16,
-                    "bindings": {
-                        "id": "_id",
-                        "title": "Ontology",
-                        "database": "kb-simple",
-                        "table": "seedling",
-                        "typeField": "types",
-                        "subTypeField": "types",
-                        "categoryField": "categories",
-                        "sourceIdField": "docIds",
-                        "filterFields": [
-                            "categories",
-                            "types",
-                            "docIds"
-                        ],
-                        "ignoreSelf": true,
-                        "idField": "kbid",
-                        "linkField": "",
-                        "ascending": true
-                    },
-                    "row": 2,
-                    "col": 1
+            "Network Graph": [{
+                "type": "taxonomyViewer",
+                "sizex": 3,
+                "sizey": 16,
+                "bindings": {
+                    "id": "_id",
+                    "title": "Ontology",
+                    "database": "kb-simple",
+                    "table": "seedling",
+                    "typeField": "types",
+                    "subTypeField": "types",
+                    "categoryField": "categories",
+                    "sourceIdField": "docIds",
+                    "filterFields": [
+                        "categories",
+                        "types",
+                        "docIds"
+                    ],
+                    "ignoreSelf": true,
+                    "idField": "kbid",
+                    "linkField": "",
+                    "ascending": true
                 },
+                "row": 2,
+                "col": 1
+            },
                 {
                     "type": "networkGraph",
                     "sizex": 7,
@@ -1582,8 +1549,6 @@
                         "title": "Document Timeline",
                         "database": "verdi-rdf",
                         "table": "normal",
-                        "idField": "@id",
-                        "filterField": "@id",
                         "dateField": "date",
                         "granularity": "month",
                         "hideUnfiltered": false
@@ -1630,35 +1595,33 @@
                     },
                     "row": 2,
                     "col": 11
-                }
-            ],
-            "Map": [
-                {
-                    "type": "taxonomyViewer",
-                    "sizex": 3,
-                    "sizey": 16,
-                    "bindings": {
-                        "id": "_id",
-                        "title": "Ontology",
-                        "database": "kb-geo",
-                        "table": "seedling",
-                        "typeField": "types",
-                        "subTypeField": "types",
-                        "categoryField": "categories",
-                        "sourceIdField": "docIds",
-                        "filterFields": [
-                            "categories",
-                            "types",
-                            "docIds"
-                        ],
-                        "ignoreSelf": true,
-                        "idField": "kbid",
-                        "linkField": "",
-                        "ascending": true
-                    },
-                    "row": 2,
-                    "col": 1
+                }],
+            "Map": [{
+                "type": "taxonomyViewer",
+                "sizex": 3,
+                "sizey": 16,
+                "bindings": {
+                    "id": "_id",
+                    "title": "Ontology",
+                    "database": "kb-geo",
+                    "table": "seedling",
+                    "typeField": "types",
+                    "subTypeField": "types",
+                    "categoryField": "categories",
+                    "sourceIdField": "docIds",
+                    "filterFields": [
+                        "categories",
+                        "types",
+                        "docIds"
+                    ],
+                    "ignoreSelf": true,
+                    "idField": "kbid",
+                    "linkField": "",
+                    "ascending": true
                 },
+                "row": 2,
+                "col": 1
+            },
                 {
                     "type": "map",
                     "sizex": 7,
@@ -1676,23 +1639,18 @@
                         "hideUnfiltered": false,
                         "showPointDataOnHover": true,
                         "name": "Documents",
-                        "layers": [
-                            {
-                                "title": "Map",
-                                "database": "kb-geo",
-                                "table": "seedling",
-                                "latitudeField": "geoLocation.lat",
-                                "longitudeField": "geoLocation.lon",
-                                "hoverPopupField": "name",
-                                "dateField": "docDate",
-                                "idField": "kbid",
-                                "filterFields": [
-                                    "kbid",
-                                    "docIds"
-                                ],
-                                "colorField": "types"
-                            }
-                        ]
+                        "layers": [{
+                            "title": "Map",
+                            "database": "kb-geo",
+                            "table": "seedling",
+                            "latitudeField": "geoLocation.lat",
+                            "longitudeField": "geoLocation.lon",
+                            "hoverPopupField": "name",
+                            "dateField": "docDate",
+                            "idField": "kbid",
+                            "filterFields": ["kbid", "docIds"],
+                            "colorField": "types"
+                        }]
                     },
                     "row": 2,
                     "col": 4
@@ -1707,8 +1665,6 @@
                         "title": "Map Timeline",
                         "database": "kb-geo",
                         "table": "seedling",
-                        "idField": "kbid",
-                        "filterField": "docIds",
                         "dateField": "docDate",
                         "granularity": "month",
                         "hideUnfiltered": false
@@ -1755,35 +1711,33 @@
                     },
                     "row": 2,
                     "col": 11
-                }
-            ],
-            "Events": [
-                {
-                    "type": "taxonomyViewer",
-                    "sizex": 3,
-                    "sizey": 16,
-                    "bindings": {
-                        "id": "_id",
-                        "title": "Ontology",
-                        "database": "kb-events",
-                        "table": "seedling",
-                        "typeField": "types",
-                        "subTypeField": "types",
-                        "categoryField": "categories",
-                        "sourceIdField": "docIds",
-                        "filterFields": [
-                            "categories",
-                            "types",
-                            "docIds"
-                        ],
-                        "ignoreSelf": true,
-                        "idField": "kbid",
-                        "linkField": "",
-                        "ascending": true
-                    },
-                    "row": 2,
-                    "col": 1
+                }],
+            "Events": [ {
+                "type": "taxonomyViewer",
+                "sizex": 3,
+                "sizey": 16,
+                "bindings": {
+                    "id": "_id",
+                    "title": "Ontology",
+                    "database": "kb-events",
+                    "table": "seedling",
+                    "typeField": "types",
+                    "subTypeField": "types",
+                    "categoryField": "categories",
+                    "sourceIdField": "docIds",
+                    "filterFields": [
+                        "categories",
+                        "types",
+                        "docIds"
+                    ],
+                    "ignoreSelf": true,
+                    "idField": "kbid",
+                    "linkField": "",
+                    "ascending": true
                 },
+                "row": 2,
+                "col": 1
+            },
                 {
                     "type": "thumbnailGrid",
                     "sizex": 7,
@@ -1809,17 +1763,11 @@
                         "openOnMouseClick": true,
                         "hideUnfiltered": false,
                         "sortField": "docDate",
-                        "filterFields": [
-                            "kbid",
-                            "docIds"
-                        ],
+                        "filterField": "kbid",
                         "ascending": false,
                         "canvasSize": 180.00,
                         "viewType": "card",
-                        "truncateLabel": {
-                            "value": true,
-                            "length": 35
-                        },
+                        "truncateLabel": {"value":true, "length":35},
                         "limit": 12,
                         "typeMap": {
                             "jpg": "img",
@@ -1845,8 +1793,6 @@
                         "title": "Event Timeline",
                         "database": "kb-events",
                         "table": "seedling",
-                        "idField": "kbid",
-                        "filterField": "docIds",
                         "dateField": "docDate",
                         "granularity": "month",
                         "hideUnfiltered": false
@@ -1893,40 +1839,38 @@
                     },
                     "row": 2,
                     "col": 11
-                }
-            ]
+                }]
         },
         "verdi-ta3-tabs": {
-            "Network Graph": [
-                {
-                    "type": "queryBar",
-                    "sizex": 12,
-                    "sizey": 1,
-                    "bindings": {
-                        "database": "verdi-support",
-                        "table": "hypothesis_info",
-                        "idField": "hypothesis_id",
-                        "filterField": "query",
-                        "placeHolder": "Query Hypotheses",
-                        "extendedFilter": true,
-                        "extensionFields": [
-                            {
-                                "database": "verdi-support",
-                                "table": "hypothesis_info",
-                                "idField": "hypothesis_id",
-                                "filterField": "query"
-                            },
-                            {
-                                "database": "kb-simple",
-                                "table": "seedling",
-                                "idField": "docIds",
-                                "filterField": "hypotheses"
-                            }
-                        ]
-                    },
-                    "row": 1,
-                    "col": 1
+            "Network Graph": [{
+                "type": "queryBar",
+                "sizex": 12,
+                "sizey": 1,
+                "bindings": {
+                    "database": "verdi-support",
+                    "table": "hypothesis_info",
+                    "idField": "hypothesis_id",
+                    "filterField": "query",
+                    "placeHolder": "Query Hypotheses",
+                    "extendedFilter": true,
+                    "extensionFields": [
+                        {
+                            "database": "verdi-support",
+                            "table": "hypothesis_info",
+                            "idField": "hypothesis_id",
+                            "filterField": "query"
+                        },
+                        {
+                            "database": "kb-simple",
+                            "table": "seedling",
+                            "idField": "docIds",
+                            "filterField": "hypotheses"
+                        }
+                    ]
                 },
+                "row": 1,
+                "col": 1
+            },
                 {
                     "type": "newsFeed",
                     "sizex": 3,
@@ -1954,7 +1898,7 @@
                     "type": "networkGraph",
                     "sizex": 7,
                     "sizey": 12,
-                    "bindings": {
+                    "bindings":{
                         "title": "Network Graph",
                         "database": "kb-simple",
                         "table": "seedling",
@@ -2051,44 +1995,40 @@
                         "title": "Document Timeline",
                         "database": "verdi-support",
                         "table": "parent_children",
-                        "idField": "id",
-                        "filterField": "id",
                         "dateField": "download_date",
                         "granularity": "month",
                         "hideUnfiltered": true
                     }
-                }
-            ],
-            "Map": [
-                {
-                    "type": "queryBar",
-                    "sizex": 12,
-                    "sizey": 1,
-                    "bindings": {
-                        "database": "verdi-support",
-                        "table": "hypothesis_info",
-                        "idField": "hypothesis_id",
-                        "filterField": "query",
-                        "placeHolder": "Query Hypotheses",
-                        "extendedFilter": true,
-                        "extensionFields": [
-                            {
-                                "database": "verdi-support",
-                                "table": "hypothesis_info",
-                                "idField": "hypothesis_id",
-                                "filterField": "query"
-                            },
-                            {
-                                "database": "kb-geo",
-                                "table": "seedling",
-                                "idField": "docIds",
-                                "filterField": "hypotheses"
-                            }
-                        ]
-                    },
-                    "row": 1,
-                    "col": 1
+                }],
+            "Map": [{
+                "type": "queryBar",
+                "sizex": 12,
+                "sizey": 1,
+                "bindings": {
+                    "database": "verdi-support",
+                    "table": "hypothesis_info",
+                    "idField": "hypothesis_id",
+                    "filterField": "query",
+                    "placeHolder": "Query Hypotheses",
+                    "extendedFilter": true,
+                    "extensionFields": [
+                        {
+                            "database": "verdi-support",
+                            "table": "hypothesis_info",
+                            "idField": "hypothesis_id",
+                            "filterField": "query"
+                        },
+                        {
+                            "database": "kb-geo",
+                            "table": "seedling",
+                            "idField": "docIds",
+                            "filterField": "hypotheses"
+                        }
+                    ]
                 },
+                "row": 1,
+                "col": 1
+            },
                 {
                     "type": "newsFeed",
                     "sizex": 3,
@@ -2201,50 +2141,46 @@
                         "title": "Map Timeline",
                         "database": "kb-geo",
                         "table": "seedling",
-                        "idField": "kbid",
-                        "filterField": "docIds",
                         "dateField": "docDate",
                         "granularity": "month",
                         "hideUnfiltered": true
                     }
-                }
-            ],
-            "Events": [
-                {
-                    "type": "queryBar",
-                    "sizex": 12,
-                    "sizey": 1,
-                    "bindings": {
-                        "database": "verdi-support",
-                        "table": "hypothesis_info",
-                        "idField": "hypothesis_id",
-                        "filterField": "query",
-                        "placeHolder": "Query Hypotheses",
-                        "extendedFilter": true,
-                        "extensionFields": [
-                            {
-                                "database": "verdi-support",
-                                "table": "hypothesis_info",
-                                "idField": "hypothesis_id",
-                                "filterField": "query"
-                            },
-                            {
-                                "database": "kb-events",
-                                "table": "seedling",
-                                "idField": "kbid",
-                                "filterField": "hypotheses"
-                            },
-                            {
-                                "database": "kb-events",
-                                "table": "seedling",
-                                "idField": "docIds",
-                                "filterField": "hypotheses"
-                            }
-                        ]
-                    },
-                    "row": 1,
-                    "col": 1
+                }],
+            "Events": [{
+                "type": "queryBar",
+                "sizex": 12,
+                "sizey": 1,
+                "bindings": {
+                    "database": "verdi-support",
+                    "table": "hypothesis_info",
+                    "idField": "hypothesis_id",
+                    "filterField": "query",
+                    "placeHolder": "Query Hypotheses",
+                    "extendedFilter": true,
+                    "extensionFields": [
+                        {
+                            "database": "verdi-support",
+                            "table": "hypothesis_info",
+                            "idField": "hypothesis_id",
+                            "filterField": "query"
+                        },
+                        {
+                            "database": "kb-events",
+                            "table": "seedling",
+                            "idField": "kbid",
+                            "filterField": "hypotheses"
+                        },
+                        {
+                            "database": "kb-events",
+                            "table": "seedling",
+                            "idField": "docIds",
+                            "filterField": "hypotheses"
+                        }
+                    ]
                 },
+                "row": 1,
+                "col": 1
+            },
                 {
                     "type": "newsFeed",
                     "sizex": 3,
@@ -2293,17 +2229,11 @@
                         "openOnMouseClick": true,
                         "hideUnfiltered": true,
                         "sortField": "docDate",
-                        "filterFields": [
-                            "kbid",
-                            "docIds"
-                        ],
+                        "filterFields": ["kbid", "docIds"],
                         "ascending": false,
                         "canvasSize": 180.00,
                         "viewType": "card",
-                        "truncateLabel": {
-                            "value": true,
-                            "length": 35
-                        },
+                        "truncateLabel": {"value":true, "length":35},
                         "limit": 12,
                         "typeMap": {
                             "jpg": "img",
@@ -2371,14 +2301,12 @@
                         "database": "kb-events",
                         "table": "seedling",
                         "dateField": "docDate",
-                        "idField": "kbid",
-                        "filterField": "docIds",
+                        "filterFields": ["docIds"],
                         "granularity": "month",
                         "limit": 1000,
                         "hideUnfiltered": true
                     }
-                }
-            ]
+                }]
         }
     }
 }
