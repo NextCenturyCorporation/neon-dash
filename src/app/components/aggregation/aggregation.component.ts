@@ -1450,4 +1450,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             (options.aggregation !== AggregationType.COUNT ? options.aggregationField.columnName : true);
         return !!(options.database.name && options.table.name && validFields);
     }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.onChangeData();
+    }
 }
