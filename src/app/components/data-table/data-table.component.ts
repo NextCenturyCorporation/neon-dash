@@ -186,8 +186,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }]),
             new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', [], false),
             new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', [], false),
-            new WidgetNonPrimitiveOption('fieldsConfig', 'Fields Config', {}),
-            new WidgetSelectOption('databaseOrTableChange', 'Database or Table Updated', false, OptionChoices.NoFalseYesTrue, false)
+            new WidgetNonPrimitiveOption('fieldsConfig', 'Fields Config', {})
         ];
     }
 
@@ -929,9 +928,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      *
      * @override
      */
-    onChangeData() {
+    onChangeData(databaseOrTableChange?: boolean) {
         // if database or table has been updated, need to update list of available headers/fields
-        if (this.options.databaseOrTableChange) {
+        if (databaseOrTableChange) {
             let initialHeaderLimit = 25;
             let unorderedHeaders = [];
             let show = true; // show all columns up to the limit, since now the user will need to decide what to show/not show

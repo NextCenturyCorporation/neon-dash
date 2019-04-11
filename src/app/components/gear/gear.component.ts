@@ -73,8 +73,8 @@ export class GearComponent implements OnInit, OnDestroy {
     private exportCallbacks: (() => { name: string, data: any }[])[] = [];
     private finalizeCreateLayer: (layerOptions: any) => void;
     private finalizeDeleteLayer: (layerOptions: any) => void;
-    private handleChangeData: (options?: any) => void;
-    private handleChangeFilterData: (options?: any) => void;
+    private handleChangeData: (options?: any, databaseOrTableChange?: boolean) => void;
+    private handleChangeFilterData: (options?: any, databaseOrTableChange?: boolean) => void;
     private handleChangeSubcomponentType: (options?: any) => void;
 
     private changeSubcomponentType: boolean = false;
@@ -228,16 +228,10 @@ export class GearComponent implements OnInit, OnDestroy {
             this.handleChangeSubcomponentType();
         }
 
-        if (databaseOrTableChange && this.originalOptions.databaseOrTableChange !== undefined) {
-            this.originalOptions.databaseOrTableChange = true;
-        } else if (this.originalOptions.databaseOrTableChange) {
-            this.originalOptions.databaseOrTableChange = false;
-        }
-
         if (filterDataChange) {
-            this.handleChangeFilterData();
+            this.handleChangeFilterData(undefined, databaseOrTableChange);
         } else {
-            this.handleChangeData();
+            this.handleChangeData(undefined, databaseOrTableChange);
         }
 
         this.resetOptionsAndClose();

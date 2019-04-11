@@ -1782,7 +1782,6 @@ describe('Component: DataTable', () => {
 
     it('onChangeData does not update headers if database or table is unchanged', () => {
         expect(component.headers.length).toEqual(16);
-        expect(component.options.databaseOrTableChange).toBeFalsy();
 
         component.options.fields = [
             new FieldMetaData('category', 'Category'),
@@ -1797,7 +1796,6 @@ describe('Component: DataTable', () => {
     });
 
     it('onChangeData does update headers if database or table is updated', () => {
-        component.options.databaseOrTableChange = true;
         component.options.fields = [
             new FieldMetaData('category', 'Category'),
             new FieldMetaData('field1', 'Field 1'),
@@ -1805,7 +1803,7 @@ describe('Component: DataTable', () => {
             new FieldMetaData('date', 'Date')
         ];
 
-        component.onChangeData();
+        component.onChangeData(true);
 
         expect(component.headers.length).toEqual(4);
         expect(component.headers[0].prop).toEqual('category');
