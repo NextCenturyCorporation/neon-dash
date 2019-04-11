@@ -55,6 +55,8 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
+import { ContributionDialogComponent } from '../contribution-dialog/contribution-dialog.component';
+import { of } from 'rxjs';
 
 @Component({
     selector: 'app-test-base-neon',
@@ -1562,12 +1564,44 @@ describe('BaseNeonComponent', () => {
         (component as any).updateHeaderTextStyles();
         expect(elementRefs.headerText.nativeElement.style.maxWidth).toEqual('839px');
     });
+
+    it('showContribution() returns false', () => {
+        expect((component as any).showContribution()).toBeFalsy();
+    });
+
+    it('getContributorsForComponent() returns empty array', () => {
+        expect((component as any).getContributorsForComponent()).toEqual([]);
+    });
+
+    it('getContributorAbbreviations() returns empty string', () => {
+        expect((component as any).getContributorAbbreviations()).toEqual('');
+    });
 });
 
 describe('Advanced BaseNeonComponent with config', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: BaseNeonComponent;
     let fixture: ComponentFixture<BaseNeonComponent>;
+
+    let datasetService = new DatasetServiceMock();
+    datasetService.getCurrentDashboard().contributors = {
+        organization1: {
+            orgName: 'Organization 1',
+            abbreviation: 'ORG ONE',
+            contactName: 'Test Name 1',
+            contactEmail: 'test1@email.com',
+            website: 'https://localhost:4200/1',
+            logo: 'fake-logo-1.jpg'
+        },
+        organization2: {
+            orgName: 'Organization 2',
+            abbreviation: 'ORG TWO',
+            contactName: 'Test Name 2',
+            contactEmail: 'test2@email.com',
+            website: 'https://localhost:4200/2',
+            logo: 'fake-logo-2.jpg'
+        }
+    };
 
     initializeTestBed('Base Neon', {
         declarations: [
@@ -1579,7 +1613,7 @@ describe('Advanced BaseNeonComponent with config', () => {
             FormsModule
         ],
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DatasetService, useValue: datasetService },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
@@ -1757,6 +1791,45 @@ describe('Advanced BaseNeonComponent with config', () => {
 
     it('hasUnsharedFilter does return expected boolean', () => {
         expect((component as any).hasUnsharedFilter()).toEqual(true);
+    });
+
+    it('showContribution() returns true', () => {
+        expect((component as any).showContribution()).toBeTruthy();
+    });
+
+    it('getContributorsForComponent() returns array of correct values', () => {
+        expect((component as any).getContributorsForComponent()).toEqual([{
+            orgName: 'Organization 1',
+            abbreviation: 'ORG ONE',
+            contactName: 'Test Name 1',
+            contactEmail: 'test1@email.com',
+            website: 'https://localhost:4200/1',
+            logo: 'fake-logo-1.jpg'
+        }, {
+            orgName: 'Organization 2',
+            abbreviation: 'ORG TWO',
+            contactName: 'Test Name 2',
+            contactEmail: 'test2@email.com',
+            website: 'https://localhost:4200/2',
+            logo: 'fake-logo-2.jpg'
+        }]);
+    });
+
+    it('getContributorAbbreviations() returns correctly formatted string', () => {
+        expect((component as any).getContributorAbbreviations()).toEqual('ORG ONE, ORG TWO');
+    });
+
+    it('openContributionDialog() has expected behavior', () => {
+        expect((component as any).contributorsRef).toBeUndefined();
+
+        let contributors = (component as any).getContributorsForComponent();
+        let config = {width: '400px', minHeight: '200px', data: contributors};
+        spyOn(component.dialog, 'open').and.returnValue({afterClosed: () => of({isSuccess: true})});
+
+        (component as any).openContributionDialog();
+
+        expect(component.dialog.open).toHaveBeenCalledWith(ContributionDialogComponent, config);
+        expect((component as any).contributorsRef).toBeNull();
     });
 });
 
