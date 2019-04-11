@@ -1115,7 +1115,7 @@ describe('BaseNeonComponent', () => {
         // Call the callback
         args[4]();
         expect(spyChangeData.calls.count()).toEqual(1);
-        expect(spyChangeData.calls.argsFor(0)).toEqual([component.options]);
+        expect(spyChangeData.calls.argsFor(0)).toEqual([component.options, undefined]);
     });
 
     it('handleChangeData does work as expected', () => {

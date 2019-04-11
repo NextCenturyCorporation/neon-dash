@@ -837,19 +837,21 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Updates filters whenever a filter field is changed and then runs the visualization query.
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
+     * @arg {boolean} databaseOrTableChange
      */
-    public handleChangeFilterField(options?: any): void {
+    public handleChangeFilterField(options?: any, databaseOrTableChange?: boolean): void {
         let optionsToUpdate = options || this.options;
         this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), false, false, () => {
             this.setupFilters();
-            this.handleChangeData(optionsToUpdate);
+            this.handleChangeData(optionsToUpdate, databaseOrTableChange);
         });
     }
 
     /**
      * Updates elements and properties whenever the widget config is changed.
+     * @arg {boolean} databaseOrTableChange
      */
-    protected onChangeData() {
+    protected onChangeData(databaseOrTableChange?: boolean) {
         // Override if needed.
     }
 
@@ -857,8 +859,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Handles any behavior needed whenever the widget config is changed and then runs the visualization query.
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
+     * @arg {boolean} databaseOrTableChange
      */
-    public handleChangeData(options?: any): void {
+    public handleChangeData(options?: any, databaseOrTableChange?: boolean): void {
         this.layerIdToActiveData.delete((options || this.options)._id);
         this.layerIdToElementCount.set((options || this.options)._id, 0);
 
@@ -867,7 +870,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.page = 1;
         this.showingZeroOrMultipleElementsPerResult = false;
 
-        this.onChangeData();
+        this.onChangeData(databaseOrTableChange);
 
         if (!options) {
             this.executeAllQueryChain();
