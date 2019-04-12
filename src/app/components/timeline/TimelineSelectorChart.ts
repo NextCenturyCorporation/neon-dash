@@ -626,12 +626,6 @@ export class TimelineSelectorChart {
             })
             .on('mouseout', () => {
                 this.onHoverEnd();
-            })
-            .on('click', () => {
-                let index = this.findHoverIndexInData(this.data.primarySeries.data, this.xContext);
-                if (index >= 0 && index < this.data.primarySeries.data.length) {
-                    this.data.primarySeries.selectedData = [this.data.primarySeries.data[index]];
-                }
             });
 
         gBrush.append('rect')
@@ -885,6 +879,12 @@ export class TimelineSelectorChart {
                 _.debounce(() => {
                     // Update the chart
                     this.redrawChart();
+                    for (let data of this.data.data[0].data) {
+                        if (data.date >= this.data.extent[0] && data.date <= this.data.extent[1]) {
+                            this.data.primarySeries.selectedData.push(data);
+                        }
+                    }
+
                     this.tlComponent.onTimelineSelection(this.data.extent[0], this.data.extent[1], this.data.primarySeries.selectedData);
                 }, 500)();
             }

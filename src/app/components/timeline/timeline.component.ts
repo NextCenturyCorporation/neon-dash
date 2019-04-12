@@ -153,8 +153,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     createNonFieldOptions(): WidgetOption[] {
         return [
             new WidgetSelectOption('granularity', 'Date Granularity', 'year', OptionChoices.DateGranularity),
-            new WidgetFreeTextOption('yLabel', 'Count', ''),
-            new WidgetFreeTextOption('limit', 'Limit', '')
+            new WidgetFreeTextOption('yLabel', 'Count', '')
         ];
     }
 
@@ -240,7 +239,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     createNeonFilter(filter: any): neon.query.WherePredicate {
         let filterClauses = [
             neon.query.where(filter.field, '>=', filter.startDate),
-            neon.query.where(filter.field, '<', filter.endDate)
+            neon.query.where(filter.field, '<=', filter.endDate)
         ];
         return neon.query.and.apply(neon.query, filterClauses);
     }
@@ -272,6 +271,12 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     manageFieldFilters(filter, neonFilters, runQuery) {
         let filterClause = this.createNeonFieldFilter(filter.field, filter.value);
         if (neonFilters && neonFilters.length) {
+            let fieldFilter = neonFilters.find((f) => {
+                if (f.filter.whereClause.whereClauses[0].lhs === filter.field) {
+                    return f;
+                }
+            });
+            filter.id = fieldFilter.id;
             this.replaceNeonFilter(this.options, runQuery, filter, filterClause);
         } else {
             this.addNeonFilter(this.options, runQuery, filter, filterClause);
