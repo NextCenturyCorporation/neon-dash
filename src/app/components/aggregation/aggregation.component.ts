@@ -1368,12 +1368,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     toggleBodyContainer() {
         let bodyContainer: HTMLElement = document.getElementById('body-container');
-
-        if (this.showNoData) {
-            bodyContainer.setAttribute('style', 'display: none');
-        } else {
-            bodyContainer.setAttribute('style', 'display: show');
-        }
+        bodyContainer.setAttribute('style', 'display: ' + (this.showNoData ? 'none' : 'show'));
     }
 
     /**
