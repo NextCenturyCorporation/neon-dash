@@ -16,17 +16,13 @@
 import { ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    ElementRef,
-    Input,
     OnInit,
     ViewEncapsulation
 } from '@angular/core';
 import { MatDialogRef, MatSnackBar } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { neonEvents, neonVisualizations } from '../../neon-namespaces';
 
-import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 
 @Component({
@@ -37,12 +33,6 @@ import * as _ from 'lodash';
     encapsulation: ViewEncapsulation.Emulated
 })
 export class DataMessageComponent implements OnInit {
-    public chartsAndGraph: any[];
-    public visualizations: any[];
-    public currentVisualization: any;
-
-    public messenger: neon.eventing.Messenger;
-
     constructor(
         private changeDetection: ChangeDetectorRef,
         public snackBar: MatSnackBar,
@@ -52,9 +42,5 @@ export class DataMessageComponent implements OnInit {
 
     ngOnInit() {
         this.changeDetection.detectChanges();
-    }
-
-    getIconPath() {
-        return './assets/icons/' + this.currentVisualization[0].icon + '.svg';
     }
 }

@@ -1412,11 +1412,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public noDataCheck() {
         if (this.filterService.getFilters().length > 0) {
             let activeData = this.getActiveData();
-            if (!activeData || !activeData.data || !activeData.data.length) {
-                this.showNoData = true;
-            } else {
-                this.showNoData = false;
-            }
+            this.showNoData = !activeData || !activeData.data || !activeData.data.length;
         } else {
             this.showNoData = false;
         }
@@ -1429,6 +1425,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * if showNoData is true
      */
     public toggleBodyContainer() {
-        //Will be override in the aggregation component
+        //
     }
 }

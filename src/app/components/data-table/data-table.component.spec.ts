@@ -23,7 +23,6 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { } from 'jasmine-core';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { DataMessageComponent } from '../data-message/data-message.component';
 import { DataTableComponent } from './data-table.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
@@ -47,7 +46,6 @@ describe('Component: DataTable', () => {
 
     initializeTestBed('Data Table', {
         declarations: [
-            DataMessageComponent,
             DataTableComponent,
             UnsharedFilterComponent
         ],
