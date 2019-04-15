@@ -27,6 +27,7 @@ import { AnnotationViewerComponent } from './components/annotation-viewer/annota
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
 import { DashboardSelectorComponent } from './components/dashboard-selector/dashboard-selector.component';
+import { DataMessageComponent } from './components/data-message/data-message.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
 import { ExportControlComponent } from './components/export-control/export-control.component';
@@ -103,6 +104,7 @@ describe('App', () => {
               CardThumbnailSubComponent,
               DashboardDropdownComponent,
               DashboardSelectorComponent,
+              DataMessageComponent,
               DataTableComponent,
               DetailsThumbnailSubComponent,
               DocumentViewerComponent,

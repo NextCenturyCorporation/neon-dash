@@ -19,6 +19,7 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
+import { DataMessageComponent } from '../data-message/data-message.component';
 import { TextCloudComponent } from './text-cloud.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
@@ -45,6 +46,7 @@ describe('Component: TextCloud', () => {
 
     initializeTestBed('Text Cloud', {
         declarations: [
+            DataMessageComponent,
             TextCloudComponent,
             UnsharedFilterComponent
         ],
