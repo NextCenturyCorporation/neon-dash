@@ -70,6 +70,7 @@ import { YearBucketizer } from '../bucketizers/YearBucketizer';
 import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
 import * as neon from 'neon-framework';
+import { MatDialog } from '@angular/material';
 
 class Filter {
     public field: string | { x: string, y: string };
@@ -208,6 +209,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
+        dialog: MatDialog,
         protected widgetService: AbstractWidgetService
     ) {
 
@@ -216,7 +218,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
     }
 

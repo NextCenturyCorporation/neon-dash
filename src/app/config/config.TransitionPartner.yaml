@@ -203,7 +203,7 @@ datastores:
                               prettyName: Cluster ID
                         mappings:
                           date: createdAt
-                      
+
 dashboards:
     category: 'Select a task...'
     choices:
@@ -236,6 +236,14 @@ dashboards:
                                     tableKey: table_key_1
                                     fieldKey: translated_text_key
                                     placeHolder: Search
+                            contributors:
+                                ldc:
+                                    orgName: 'Linguistic Data Consortium'
+                                    abbreviation: 'LDC'
+                                    contactName: 'Stephanie Strassel'
+                                    contactEmail: 'strassel@ldc.upenn.edu'
+                                    website: 'https://www.ldc.upenn.edu/language-resources'
+                                    logo: 'LDC-logo.png'
                         uyg_elisa:
                             name: Uyghur ELISA
                             layout: darpa60-uyghur-sd
@@ -257,6 +265,21 @@ dashboards:
                                     tableKey: table_key_1
                                     fieldKey: translated_text_key
                                     placeHolder: Search
+                            contributors:
+                                elisa-rpi:
+                                    orgName: 'Rensselaer Polytechnic Institute'
+                                    abbreviation: 'RPI'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
+                                    logo: 'RPI-logo.png'
+                                elisa-isi:
+                                    orgName: 'University of Southern California, Information Sciences Institute'
+                                    abbreviation: 'USC/ISI'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
+                                    logo: 'ISI-logo.png'
                         nepal_elisa:
                             name: Nepal ELISA
                             layout: darpa60-nepal
@@ -280,6 +303,21 @@ dashboards:
                                     tableKey: table_key_1
                                     fieldKey: original_text_key
                                     placeHolder: Search
+                            contributors:
+                                rpi:
+                                    orgName: 'Rensselaer Polytechnic Institute'
+                                    abbreviation: 'RPI'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
+                                    logo: 'RPI-logo.png'
+                                isi:
+                                    orgName: 'University of Southern California, Information Sciences Institute'
+                                    abbreviation: 'USC/ISI'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
+                                    logo: 'ISI-logo.png'
                         uyg_ldc_il3:
                             name: Uyghur LDC Il3
                             layout: darpa60-uyghur-ldc
@@ -322,6 +360,14 @@ dashboards:
                                     tableKey: table_key_1
                                     fieldKey: translated_text_key
                                     placeHolder: Search
+                            contributors:
+                                ldc:
+                                    orgName: 'Linguistic Data Consortium'
+                                    abbreviation: 'LDC'
+                                    contactName: 'Stephanie Strassel'
+                                    contactEmail: 'strassel@ldc.upenn.edu'
+                                    website: 'https://www.ldc.upenn.edu/language-resources'
+                                    logo: 'LDC-logo.png'
                         elisa_ldc_il3:
                             name: Elisa LDC Il3
                             layout: darpa60-uyghur-ldc
@@ -364,6 +410,21 @@ dashboards:
                                     tableKey: table_key_1
                                     fieldKey: translated_text_key
                                     placeHolder: Search
+                            contributors:
+                                rpi:
+                                    orgName: 'Rensselaer Polytechnic Institute'
+                                    abbreviation: 'RPI'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
+                                    logo: 'RPI-logo.png'
+                                isi:
+                                    orgName: 'University of Southern California, Information Sciences Institute'
+                                    abbreviation: 'USC/ISI'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
+                                    logo: 'ISI-logo.png'
                 vodno:
                     name: 'SIMPOST'
                     category: 'Select a datastore...'
@@ -390,6 +451,14 @@ dashboards:
                                     tableKey: table_key_1
                                     fieldKey: original_text_key
                                     placeHolder: Search
+                          contributors:
+                                mit-ll:
+                                    orgName: 'Massachusettes Institute of Technology Lincoln Laboratory'
+                                    abbreviation: 'MIT/LL'
+                                    contactName: 'Doug Jones'
+                                    contactEmail: 'daj@ll.mit.edu'
+                                    website: 'https://www.ll.mit.edu/'
+                                    logo: 'mit-lincoln-laboratory.jpg'
                 w5:
                     name: 'W5'
                     category: 'Select a datastore...'
@@ -420,6 +489,21 @@ dashboards:
                                     tableKey: table_key_1
                                     fieldKey: original_text_key
                                     placeHolder: Search
+                            contributors:
+                                rpi:
+                                    orgName: 'Rensselaer Polytechnic Institute'
+                                    abbreviation: 'RPI'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
+                                    logo: 'RPI-logo.png'
+                                isi:
+                                    orgName: 'University of Southern California, Information Sciences Institute'
+                                    abbreviation: 'USC/ISI'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
+                                    logo: 'ISI-logo.png'
                         car_elisa_discovery:
                             name: Central African Republic ELISA
                             layout: car-elisa-sd
@@ -450,6 +534,21 @@ dashboards:
                                                 ORG: '#FF9896'
                                                 PER: '#AEC7E8'
                                                 GPE: '#98DF8A'
+                            contributors:
+                                rpi:
+                                    orgName: 'Rensselaer Polytechnic Institute'
+                                    abbreviation: 'RPI'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
+                                    logo: 'RPI-logo.png'
+                                isi:
+                                    orgName: 'University of Southern California, Information Sciences Institute'
+                                    abbreviation: 'USC/ISI'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
+                                    logo: 'ISI-logo.png'
                         uyg_elisa:
                             name: Uyghur ELISA
                             layout: uyghur-elisa-w5
@@ -474,6 +573,21 @@ dashboards:
                                     tableKey: table_key_1
                                     fieldKey: translated_text_key
                                     placeHolder: Search
+                            contributors:
+                                rpi:
+                                    orgName: 'Rensselaer Polytechnic Institute'
+                                    abbreviation: 'RPI'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
+                                    logo: 'RPI-logo.png'
+                                isi:
+                                    orgName: 'University of Southern California, Information Sciences Institute'
+                                    abbreviation: 'USC/ISI'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
+                                    logo: 'ISI-logo.png'
 
 layouts:
     darpa60-uyghur-sd:
@@ -504,6 +618,11 @@ layouts:
                   - filter_field_key
               singleFilter: true
               ignoreSelf: false
+              # same layout has different contributors based on datastore being used
+              contributionKeys:
+                - ldc
+                - elisa-rpi
+                - elisa-isi
         - name: Map
           type: map
           icon: Map64
@@ -531,6 +650,11 @@ layouts:
               north: 49
               east: 127
               south: 10.6
+              # same layout has different contributors based on datastore being used
+              contributionKeys:
+                - ldc
+                - elisa-rpi
+                - elisa-isi
         - name: Bar Chart
           type: aggregation
           icon: bar_chart
@@ -547,6 +671,10 @@ layouts:
               groupField: group_field_key
               sortByAggregation: true
               ignoreSelf: true
+              # same layout has different contributors based on datastore being used
+              contributionKeys:
+                - ldc
+                - elisa-isi
         - name: Data Table
           type: dataTable
           icon: ViewData64
@@ -577,6 +705,11 @@ layouts:
                   - filter_field_key
               singleFilter: true
               ignoreSelf: false
+              # same layout has different contributors based on datastore being used
+              contributionKeys:
+                - ldc
+                - elisa-rpi
+                - elisa-isi
         - name: Annotation Viewer
           type: annotationViewer
           icon: documentViewer64
@@ -590,6 +723,11 @@ layouts:
               linkField: original_text_key
               idField: id_field_key
               respondMode: true
+              # same layout has different contributors based on datastore being used
+              contributionKeys:
+                - ldc
+                - elisa-rpi
+                - elisa-isi
         - name: Annotation Viewer
           type: annotationViewer
           icon: documentViewer64
@@ -603,6 +741,11 @@ layouts:
               linkField: translated_text_key
               idField: id_field_key
               respondMode: true
+              # same layout has different contributors based on datastore being used
+              contributionKeys:
+                - ldc
+                - elisa-rpi
+                - elisa-isi
         - name: Text Cloud
           type: textCloud
           icon: TagCloud64
@@ -617,6 +760,10 @@ layouts:
               tableKey: table_key_1
               dataField: text_cloud_data_key
               preFilter: false
+              # same layout has different contributors based on datastore being used
+              contributionKeys:
+                - ldc
+                - elisa-rpi
     darpa60-uyghur-ldc:
         - name: Data Table
           type: dataTable
@@ -643,6 +790,11 @@ layouts:
               filterable: false
               singleFilter: true
               ignoreSelf: false
+              # same layout has different contributors based on datastore being used
+              contributionKeys:
+                - ldc
+                - rpi
+                - isi
         - name: Map
           type: map
           icon: Map64
@@ -670,6 +822,10 @@ layouts:
               north: 49
               east: 127
               south: 10.6
+              contributionKeys:
+                - ldc
+                - rpi
+                - isi
         - name: Text Cloud
           type: textCloud
           icon: TagCloud64
@@ -683,6 +839,9 @@ layouts:
               tableKey: table_key_2
               dataField: text_cloud_data_key
               preFilter: false
+              contributionKeys:
+                - ldc
+                - rpi
         - name: Bar Chart
           type: aggregation
           icon: bar_chart
@@ -699,6 +858,9 @@ layouts:
               groupField: group_field_key2
               sortByAggregation: true
               ignoreSelf: true
+              contributionKeys:
+                - ldc
+                - isi
         - name: Annotation Viewer
           type: annotationViewer
           icon: documentViewer64
@@ -712,6 +874,10 @@ layouts:
               linkField: original_text_key
               idField: id_field_key1
               respondMode: true
+              contributionKeys:
+                - ldc
+                - rpi
+                - isi
         - name: Annotation Viewer
           type: annotationViewer
           icon: documentViewer64
@@ -725,6 +891,10 @@ layouts:
               linkField: translated_text_key
               idField: id_field_key1
               respondMode: true
+              contributionKeys:
+                - ldc
+                - rpi
+                - isi
         - name: Data Table
           type: dataTable
           icon: ViewData64
@@ -752,6 +922,10 @@ layouts:
                   - id_field_key4
               singleFilter: true
               ignoreSelf: false
+              contributionKeys:
+                - ldc
+                - rpi
+                - isi
     elisa_macedonia:
         - name: Data Table
           type: dataTable
@@ -905,6 +1079,9 @@ layouts:
                   - filter_field_key
               singleFilter: true
               ignoreSelf: false
+              contributionKeys:
+                - rpi
+                - isi
         - name: Map
           type: map
           icon: Map64
@@ -928,6 +1105,9 @@ layouts:
                     dateField: date_field_key
                     colorField: group_field_key
               mapType: leaflet
+              contributionKeys:
+                - rpi
+                - isi
         - name: Bar Chart
           type: aggregation
           icon: bar_chart
@@ -944,6 +1124,8 @@ layouts:
               groupField: group_field_key
               sortByAggregation: true
               ignoreSelf: true
+              contributionKeys:
+                - isi
         - name: Data Table
           type: dataTable
           icon: ViewData64
@@ -977,6 +1159,9 @@ layouts:
                   - filter_field_key
               singleFilter: true
               ignoreSelf: false
+              contributionKeys:
+                - rpi
+                - isi
         - name: Annotation Viewer
           type: annotationViewer
           icon: documentViewer64
@@ -990,6 +1175,9 @@ layouts:
               linkField: original_text_key
               idField: id_field_key
               respondMode: true
+              contributionKeys:
+                - rpi
+                - isi
         - name: Media Viewer
           type: mediaViewer
           icon: mediaViewer
@@ -1011,6 +1199,9 @@ layouts:
                   jpg: img
                   jpeg: img
                   png: img
+              contributionKeys:
+                - rpi
+                - isi
         - name: Text Cloud
           type: textCloud
           icon: TagCloud64
@@ -1025,6 +1216,8 @@ layouts:
               tableKey: table_key_1
               dataField: text_cloud_data_key
               preFilter: false
+              contributionKeys:
+                - rpi
     w5-nepal-elisa-sd:
         - name: Data Table
           type: dataTable
@@ -1054,6 +1247,9 @@ layouts:
               singleFilter: true
               sortDescending: true
               ignoreSelf: false
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 7
@@ -1081,6 +1277,9 @@ layouts:
                     dateField: date_field_key
                     colorField: group_field_key
               mapType: leaflet
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 6
@@ -1100,6 +1299,8 @@ layouts:
               limit: 10
               groupField: group_field_key
               sortByAggregation: true
+              contributionKeys:
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 4
@@ -1137,6 +1338,9 @@ layouts:
                   - filter_field_key
               singleFilter: true
               ignoreSelf: false
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 7
@@ -1154,6 +1358,9 @@ layouts:
               linkField: original_text_key
               idField: id_field_key
               respondMode: true
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 2
@@ -1179,6 +1386,9 @@ layouts:
                   jpg: img
                   jpeg: img
                   png: img
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 4
@@ -1197,6 +1407,8 @@ layouts:
               tableKey: table_key_1
               dataField: text_cloud_data_key
               preFilter: false
+              contributionKeys:
+                - rpi
           id: 431a862e-2b4d-4c4d-92c6-5c4c54515ea7
           minPixelx: 320
           minPixely: 240
@@ -1216,6 +1428,9 @@ layouts:
               xField: x_field_key_2
               limit: 10
               sortByAggregation: false
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 4
@@ -1234,6 +1449,9 @@ layouts:
               xField: x_field_key_3
               limit: 10
               sortByAggregation: false
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 4
@@ -1252,6 +1470,9 @@ layouts:
               xField: x_field_key_4
               limit: 10
               sortByAggregation: false
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 4
@@ -1285,6 +1506,9 @@ layouts:
               singleFilter: true
               sortDescending: true
               ignoreSelf: false
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 7
@@ -1312,6 +1536,9 @@ layouts:
                     dateField: date_field_key
                     colorField: group_field_key
               mapType: leaflet
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 6
@@ -1331,6 +1558,8 @@ layouts:
               limit: 10
               groupField: group_field_key
               sortByAggregation: true
+              contributionKeys:
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 4
@@ -1368,6 +1597,9 @@ layouts:
                   - filter_field_key
               singleFilter: true
               ignoreSelf: false
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 7
@@ -1385,6 +1617,9 @@ layouts:
               linkField: text_field_key
               idField: id_field_key
               respondMode: true
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 2
@@ -1403,6 +1638,8 @@ layouts:
               tableKey: table_key_1
               dataField: location_field_key
               preFilter: false
+              contributionKeys:
+                - rpi
           id: 431a862e-2b4d-4c4d-92c6-5c4c54515ea7
           minPixelx: 320
           minPixely: 240
@@ -1422,6 +1659,9 @@ layouts:
               xField: x_field_key_2
               limit: 10
               sortByAggregation: true
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 4
@@ -1455,6 +1695,9 @@ layouts:
               singleFilter: true
               sortDescending: true
               ignoreSelf: false
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 7
@@ -1482,6 +1725,9 @@ layouts:
                     dateField: date_field_key
                     colorField: group_field_key
               mapType: leaflet
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 6
@@ -1501,6 +1747,8 @@ layouts:
               limit: 10
               groupField: group_field_key
               sortByAggregation: true
+              contributionKeys:
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 4
@@ -1536,6 +1784,9 @@ layouts:
                   - filter_field_key
               singleFilter: true
               ignoreSelf: false
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 7
@@ -1553,6 +1804,9 @@ layouts:
               linkField: translated_text_key
               idField: id_field_key
               respondMode: true
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 2
@@ -1571,6 +1825,8 @@ layouts:
               tableKey: table_key_1
               dataField: text_cloud_data_key
               preFilter: false
+              contributionKeys:
+                - rpi
           id: 431a862e-2b4d-4c4d-92c6-5c4c54515ea7
           minPixelx: 320
           minPixely: 240
@@ -1590,6 +1846,9 @@ layouts:
               xField: x_field_key_2
               limit: 10
               sortByAggregation: false
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 4
@@ -1608,6 +1867,9 @@ layouts:
               xField: x_field_key_3
               limit: 10
               sortByAggregation: false
+              contributionKeys:
+                - rpi
+                - isi
           minPixelx: 320
           minPixely: 240
           minSizex: 4

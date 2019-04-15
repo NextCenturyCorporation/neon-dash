@@ -44,6 +44,7 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
+import { MatDialog } from '@angular/material';
 
 @Component({
     selector: 'app-data-table',
@@ -101,14 +102,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        dialog: MatDialog
     ) {
         super(
             datasetService,
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
 
         this.redrawOnResize = true;

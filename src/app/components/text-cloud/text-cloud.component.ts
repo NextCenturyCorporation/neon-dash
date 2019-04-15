@@ -47,6 +47,7 @@ import {
 } from '../../widget-option';
 import { TextCloud, SizeOptions, ColorOptions } from './text-cloud-namespace';
 import * as neon from 'neon-framework';
+import { MatDialog } from '@angular/material';
 
 @Component({
     selector: 'app-text-cloud',
@@ -81,14 +82,16 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        protected widgetService: AbstractWidgetService
+        protected widgetService: AbstractWidgetService,
+        dialog: MatDialog
     ) {
         super(
             datasetService,
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
     }
 

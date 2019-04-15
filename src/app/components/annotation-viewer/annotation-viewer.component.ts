@@ -46,6 +46,7 @@ import {
 import * as neon from 'neon-framework';
 import { ANNOTATIONS } from '@angular/core/src/util/decorators';
 import * as _ from 'lodash';
+import { MatDialog } from '@angular/material';
 
 export class Annotation {
     annotationLabel: string;
@@ -128,14 +129,16 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        dialog: MatDialog
     ) {
         super(
             datasetService,
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
 
         this.updateOnSelectId = true;
