@@ -38,6 +38,7 @@ import {
 import WherePredicate = neon.query.WherePredicate;
 
 import * as neon from 'neon-framework';
+import { MatDialog } from '@angular/material';
 
 @Component({
     selector: 'app-query-bar',
@@ -68,7 +69,8 @@ export class QueryBarComponent  extends BaseNeonComponent {
         searchService: AbstractSearchService,
         injector: Injector,
         protected widgetService: AbstractWidgetService,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        dialog: MatDialog
     ) {
 
         super(
@@ -76,7 +78,8 @@ export class QueryBarComponent  extends BaseNeonComponent {
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
 
         this.filterFormControl = new FormControl();

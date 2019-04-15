@@ -37,8 +37,8 @@
     </div>
 
     <!-- TODO Remove the with-filter and/or with-footer classes if you don't need them. -->
-    <div class="body-container" [class.with-filter]="showFilterContainer()" [class.with-footer]="showPagination()">
-        <mat-list class="annotation-viewer-list-container body-container">
+    <div class="body-container" [class.with-filter]="showFilterContainer()" [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
+        <mat-list class="annotation-viewer-list-container">
             <div class="mat-list-item-text annotation-viewer-list-item" layout="column">
                 <!-- TODO Do not use <table> elements!  Use flex styling! -->
                 <ul class="annotation-viewer-table">
@@ -58,7 +58,8 @@
         </mat-list>
     </div>
 
-    <div class="footer" *ngIf="showPagination()">
+    <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
+    <div class="footer" *ngIf="showPagination() && !showContribution()">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
                 Previous
@@ -69,4 +70,31 @@
             </button>
         </div>
     </div>
+
+    <div class="footer-with-contribution" *ngIf="showPagination() && showContribution()">
+        <div class="footer-button-container">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
+                Previous
+            </button>
+            <span class="pagination-button-spacer"></span>
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary" (click)="goToNextPage()">
+                Next
+            </button>
+        </div>
+
+        <div class="contribution-text-container">
+            <a (click)="openContributionDialog()">
+                {{ getContributorAbbreviations() }}
+            </a>
+        </div>
+    </div>
+
+    <div class="contribution-text" *ngIf="showContribution() && !showPagination()">
+        <div class="contribution-text-container">
+            <a (click)="openContributionDialog()">
+                {{ getContributorAbbreviations() }}
+            </a>
+        </div>
+    </div>
+
 </mat-sidenav-container>

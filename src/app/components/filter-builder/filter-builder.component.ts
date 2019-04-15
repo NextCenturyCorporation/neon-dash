@@ -40,6 +40,7 @@ import {
 } from '../../widget-option';
 import * as neon from 'neon-framework';
 import { neonEvents } from '../../../app/neon-namespaces';
+import { MatDialog } from '@angular/material';
 
 @Component({
     selector: 'app-filter-builder',
@@ -67,7 +68,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        dialog: MatDialog
     ) {
 
         super(
@@ -75,7 +77,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
 
         this.messenger.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearFilterBuilder.bind(this));

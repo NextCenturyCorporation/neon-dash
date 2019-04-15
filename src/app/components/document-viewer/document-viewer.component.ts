@@ -79,7 +79,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
 
         this.visualizationQueryPaginates = true;

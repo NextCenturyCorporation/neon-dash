@@ -57,6 +57,7 @@ import { YearBucketizer } from '../bucketizers/YearBucketizer';
 
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
+import { MatDialog } from '@angular/material';
 
 declare let d3;
 
@@ -115,7 +116,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        protected widgetService: AbstractWidgetService
+        protected widgetService: AbstractWidgetService,
+        dialog: MatDialog
     ) {
 
         super(
@@ -123,7 +125,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
 
         console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');

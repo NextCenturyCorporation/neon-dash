@@ -35,6 +35,8 @@ import {
 
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
+import { ContributionDialogComponent } from '../contribution-dialog/contribution-dialog.component';
+import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material';
 
 export class TransformedVisualizationData {
     constructor(protected _data: any = []) {}
@@ -98,12 +100,15 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     // A WidgetOptionCollection object.  Must use "any" type to avoid typescript errors.
     public options: any;
 
+    private contributorsRef: MatDialogRef<ContributionDialogComponent>;
+
     constructor(
         protected datasetService: DatasetService,
         protected filterService: FilterService,
         protected searchService: AbstractSearchService,
         protected injector: Injector,
-        public changeDetection: ChangeDetectorRef
+        public changeDetection: ChangeDetectorRef,
+        public dialog: MatDialog
     ) {
         this.messenger = new neon.eventing.Messenger();
     }
@@ -1269,6 +1274,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         options.inject(new WidgetFreeTextOption('title', 'Title', visualizationTitle));
         options.inject(new WidgetFreeTextOption('unsharedFilterValue', 'Unshared Filter Value', ''));
 
+        options.inject(new WidgetNonPrimitiveOption('contributionKeys', 'Contribution Keys', null, false));
+
         // Backwards compatibility (configFilter deprecated and renamed to filter).
         options.filter = options.filter || this.injector.get('configFilter', null);
 
@@ -1426,5 +1433,42 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public toggleBodyContainer() {
         //
+    }
+
+    protected showContribution() {
+        return ((this.options.contributionKeys && this.options.contributionKeys.length !== 0)
+            || (this.options.contributionKeys === null
+            && this.datasetService.getCurrentDashboard()
+            && this.datasetService.getCurrentDashboard().contributors
+            && Object.keys(this.datasetService.getCurrentDashboard().contributors).length));
+    }
+
+    protected getContributorsForComponent() {
+        let allContributors = this.datasetService.getCurrentDashboard().contributors;
+        let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys
+            : Object.keys(this.datasetService.getCurrentDashboard().contributors);
+
+        return contributorKeys.filter((key) => !!allContributors[key]).map((key) => allContributors[key]);
+    }
+
+    protected getContributorAbbreviations() {
+        let contributors = this.datasetService.getCurrentDashboard().contributors;
+        let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys
+            : Object.keys(this.datasetService.getCurrentDashboard().contributors);
+
+        let contributorAbbreviations = contributorKeys.filter((key) =>
+            !!(contributors[key] && contributors[key].abbreviation)).map((key) => contributors[key].abbreviation);
+
+        return contributorAbbreviations.join(', ');
+    }
+
+    protected openContributionDialog() {
+        let config = new MatDialogConfig();
+        config = {width: '400px', minHeight: '200px', data: this.getContributorsForComponent()};
+
+        this.contributorsRef = this.dialog.open(ContributionDialogComponent, config);
+        this.contributorsRef.afterClosed().subscribe(() => {
+            this.contributorsRef = null;
+        });
     }
 }

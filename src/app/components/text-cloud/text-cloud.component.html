@@ -27,7 +27,7 @@
         </div>
     </div>
 
-    <div class="text-cloud body-container" [class.with-filter]="getCloseableFilters().length" mat-fill layout="col">
+    <div class="text-cloud body-container" [class.with-filter]="getCloseableFilters().length" [class.with-contribution]="showContribution()" mat-fill layout="col">
         <div class="data-message-container" *ngIf="showNoData">
             <app-data-message> </app-data-message>
         </div>
@@ -37,5 +37,13 @@
             <span [class.filter]="isFiltered(item.key)">{{ item.key }}</span>
             <span [class.filter]="isFiltered(item.key)" *ngIf="options.showCounts">({{ item.value }})</span>
         </a>
+    </div>
+
+    <div class="contribution-text" *ngIf="showContribution()">
+        <div class="contribution-text-container">
+            <a (click)="openContributionDialog()">
+                {{ getContributorAbbreviations() }}
+            </a>
+        </div>
     </div>
 </mat-sidenav-container>

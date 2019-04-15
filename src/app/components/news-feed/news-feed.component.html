@@ -28,7 +28,8 @@
             </div>
         </div>
 
-        <div #newsFeed class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="showPagination()">
+        <div #newsFeed class="body-container" [class.with-filter]="getCloseableFilters().length"
+            [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
             <div class="news-feed-container" *ngIf="getActiveData(options) != null" [hidden]="!getActiveData(options).count()">
                 <div class="news-feed-div" *ngFor="let item of getActiveData(options).data"
                      (click)="selectGridItem(item)" [class.selectable]="isSelectable()" [class.selected]="isSelected(item)">
@@ -44,7 +45,8 @@
             </div>
        </div>
 
-    <div class="footer" *ngIf="showPagination()">
+    <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
+    <div class="footer" *ngIf="showPagination() && !showContribution()">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
                     (click)="goToPreviousPage()">
@@ -55,6 +57,34 @@
                     (click)="goToNextPage()">
                 Next
             </button>
+        </div>
+    </div>
+
+    <div class="footer-with-contribution" *ngIf="showPagination() && showContribution()">
+        <div class="footer-button-container">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
+                    (click)="goToPreviousPage()">
+                Previous
+            </button>
+            <span class="pagination-button-spacer"></span>
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary"
+                    (click)="goToNextPage()">
+                Next
+            </button>
+        </div>
+
+        <div class="contribution-text-container">
+            <a (click)="openContributionDialog()">
+                {{ getContributorAbbreviations() }}
+            </a>
+        </div>
+    </div>
+
+    <div class="contribution-text" *ngIf="showContribution() && !showPagination()">
+        <div class="contribution-text-container">
+            <a (click)="openContributionDialog()">
+                {{ getContributorAbbreviations() }}
+            </a>
         </div>
     </div>
 
