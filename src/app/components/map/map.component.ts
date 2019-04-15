@@ -106,6 +106,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
     public disabledSet: [string[]] = [] as any;
 
+    public mapLayerIdsToTitles: Map<string, string> = new Map<string, string>();
+
     constructor(
         datasetService: DatasetService,
         filterService: FilterService,
@@ -546,7 +548,15 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         this.mapObject.unhideAllPoints(options._id);
 
         this.mapObject.clearLayer(options._id);
-        this.mapObject.addPoints(mapPoints, options._id, options.cluster);
+
+        let existingLayerTitle = this.mapLayerIdsToTitles.get(options._id);
+
+        if ((existingLayerTitle && existingLayerTitle !== options.title) || !existingLayerTitle) {
+            this.mapLayerIdsToTitles.set(options._id, options.title);
+            this.mapObject.addPoints(mapPoints, options._id, options.cluster, options.title);
+        } else {
+            this.mapObject.addPoints(mapPoints, options._id, options.cluster, undefined);
+        }
 
         this.filterMapForLegend();
         this.updateLegend();
