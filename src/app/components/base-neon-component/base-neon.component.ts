@@ -81,6 +81,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     public errorMessage: string = '';
     public loadingCount: number = 0;
+    public showNoData: boolean = false;
 
     protected initializing: boolean = false;
     protected redrawOnResize: boolean = false;
@@ -743,6 +744,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.refreshVisualization();
         this.changeDetection.detectChanges();
         this.updateHeaderTextStyles();
+        this.noDataCheck();
     }
 
     /**
@@ -1402,5 +1404,27 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     protected clearVisualizationData(options: any): void {
         // TODO THOR-985 Temporary function.  Override as needed.
+    }
+
+    /**
+     * Checks wheather there are any filters and returns no data.
+     */
+    public noDataCheck() {
+        if (this.filterService.getFilters().length > 0) {
+            let activeData = this.getActiveData();
+            this.showNoData = !activeData || !activeData.data || !activeData.data.length;
+        } else {
+            this.showNoData = false;
+        }
+        this.changeDetection.detectChanges();
+        this.toggleBodyContainer();
+    }
+
+    /**
+     * Method to be overrided in components where the body container wants to be hidden
+     * if showNoData is true
+     */
+    public toggleBodyContainer() {
+        //
     }
 }

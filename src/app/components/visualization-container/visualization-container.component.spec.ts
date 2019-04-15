@@ -18,6 +18,7 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { AggregationComponent } from '../aggregation/aggregation.component';
 import { AnnotationViewerComponent } from '../annotation-viewer/annotation-viewer.component';
+import { DataMessageComponent } from '../data-message/data-message.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
@@ -60,6 +61,7 @@ describe('Component: VisualizationContainer', () => {
             AnnotationViewerComponent,
             AggregationComponent,
             CardThumbnailSubComponent,
+            DataMessageComponent,
             DataTableComponent,
             DetailsThumbnailSubComponent,
             DocumentViewerComponent,

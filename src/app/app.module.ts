@@ -44,6 +44,7 @@ import { ConfigEditorComponent } from './components/config-editor/config-editor.
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { DashboardDropdownComponent } from './components/dashboard-dropdown/dashboard-dropdown.component';
 import { DashboardSelectorComponent } from './components/dashboard-selector/dashboard-selector.component';
+import { DataMessageComponent } from './components/data-message/data-message.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
 import { DocumentViewerSingleItemComponent } from './components/document-viewer-single-item/document-viewer-single-item.component';
@@ -106,6 +107,7 @@ export function getAppConfig() {
         CustomConnectionSimpleSetupStepComponent,
         DashboardDropdownComponent,
         DashboardSelectorComponent,
+        DataMessageComponent,
         DataTableComponent,
         DetailsThumbnailSubComponent,
         DocumentViewerComponent,
@@ -178,6 +180,7 @@ export function getAppConfig() {
         ConfigEditorComponent,
         ConfirmationDialogComponent,
         CustomConnectionComponent,
+        DataMessageComponent,
         DocumentViewerSingleItemComponent,
         CurrentFiltersComponent,
         GearComponent,
