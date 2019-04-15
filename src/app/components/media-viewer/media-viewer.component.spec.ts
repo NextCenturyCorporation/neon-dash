@@ -25,6 +25,7 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import {} from 'jasmine-core';
 import * as neon from 'neon-framework';
 
+import { DataMessageComponent } from '../data-message/data-message.component';
 import { MediaViewerComponent } from './media-viewer.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
@@ -42,6 +43,7 @@ describe('Component: MediaViewer', () => {
 
     initializeTestBed('Media Viewer', {
         declarations: [
+            DataMessageComponent,
             MediaViewerComponent
         ],
         providers: [
@@ -1257,6 +1259,7 @@ describe('Component: MediaViewer with config', () => {
 
     initializeTestBed('Media Viewer', {
         declarations: [
+            DataMessageComponent,
             MediaViewerComponent
         ],
         providers: [

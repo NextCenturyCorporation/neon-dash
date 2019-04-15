@@ -1366,6 +1366,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Toggles the body container if the data message component is present
+     * @override
+     */
+    toggleBodyContainer() {
+        let bodyContainer: HTMLElement = document.getElementById('body-container');
+        bodyContainer.setAttribute('style', 'display: ' + (this.showNoData ? 'none' : 'show'));
+    }
+
+    /**
      * Toggles the given filter in the given filter list and recreates or removes the neon filter.
      *
      * @arg {Filter} filter
@@ -1438,5 +1447,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let validFields = options.xField.columnName && (this.optionsTypeIsXY(options) ? options.yField.columnName : true) &&
             (options.aggregation !== AggregationType.COUNT ? options.aggregationField.columnName : true);
         return !!(options.database.name && options.table.name && validFields);
+    }
+
+    protected clearVisualizationData(options: any): void {
+        // TODO THOR-985 Temporary function.
+        this.onChangeData();
     }
 }

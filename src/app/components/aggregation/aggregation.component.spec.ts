@@ -25,6 +25,7 @@ import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from
 import { ChartJsData } from './subcomponent.chartjs.abstract';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
+import { DataMessageComponent } from '../data-message/data-message.component';
 import { LegendComponent } from '../legend/legend.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
@@ -55,6 +56,7 @@ describe('Component: Aggregation', () => {
     initializeTestBed('Aggregation', {
         declarations: [
             AggregationComponent,
+            DataMessageComponent,
             LegendComponent,
             UnsharedFilterComponent
         ],
@@ -3867,6 +3869,7 @@ describe('Component: Aggregation with config', () => {
     initializeTestBed('Aggregation', {
         declarations: [
             AggregationComponent,
+            DataMessageComponent,
             LegendComponent,
             UnsharedFilterComponent
         ],
@@ -3977,6 +3980,7 @@ describe('Component: Aggregation with XY config', () => {
     initializeTestBed('Aggregation', {
         declarations: [
             AggregationComponent,
+            DataMessageComponent,
             LegendComponent,
             UnsharedFilterComponent
         ],
@@ -4087,6 +4091,7 @@ describe('Component: Aggregation with date config', () => {
     initializeTestBed('Aggregation', {
         declarations: [
             AggregationComponent,
+            DataMessageComponent,
             LegendComponent,
             UnsharedFilterComponent
         ],
