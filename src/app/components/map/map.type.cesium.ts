@@ -187,7 +187,7 @@ export class CesiumNeonMap extends AbstractMap {
         }
     }
 
-    addPoints(points: MapPoint[], layer?: any, cluster: boolean = false) {
+    addPoints(points: MapPoint[], layer?: any, cluster: boolean = false, layerTitle?: string) {
         let ds = this.getDataSource(layer),
             entities = ds.entities;
 

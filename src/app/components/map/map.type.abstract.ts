@@ -77,7 +77,7 @@ export abstract class AbstractMap {
     abstract removeFilterBox();
 
     // Drawing
-    abstract addPoints(points: MapPoint[], layer?: any, cluster?: boolean);
+    abstract addPoints(points: MapPoint[], layer?: any, cluster?: boolean, layerTitle?: string);
     abstract clearLayer(layer: any);
 
     sizeChanged() {
