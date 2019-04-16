@@ -39,15 +39,19 @@ export abstract class AbstractChartJsDataset {
     public abstract finalizeData();
 
     public getColorBackground(): string {
-        return this.color.getComputedCssTransparencyHigh(this.elementRef);
+        return this.color.getComputedCss(this.elementRef);
     }
 
     public getColorDeselected(): string {
-        return this.color.getComputedCssTransparencyMedium(this.elementRef);
+        return this.color.getComputedCssTransparencyHigh(this.elementRef);
     }
 
     public getColorSelected(): string {
         return this.color.getComputedCss(this.elementRef);
+    }
+
+    public getColorHover(): string {
+        return this.color.getComputedCssHoverColor(this.elementRef);
     }
 
     public getLabels(): any[] {

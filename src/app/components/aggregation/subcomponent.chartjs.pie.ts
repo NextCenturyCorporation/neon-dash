@@ -26,7 +26,7 @@ export class ChartJsPieDataset extends AbstractChartJsDataset {
     public borderColor: string;
     public borderWidth: number = 3;
     public hoverBackgroundColor: string;
-    public hoverBorderColor: string;
+    public hoverBorderColor: string; // TODO: 1026
     public hoverBorderWidth: number = 3;
     public slices: any[] = [];
 

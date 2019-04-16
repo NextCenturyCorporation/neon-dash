@@ -67,8 +67,8 @@ describe('Color', () => {
 });
 
 describe('ColorSet', () => {
-    let color1: Color = new Color('var(--color-set-1)', 'var(--color-set-1-transparency-medium)', 'var(--color-set-1-transparency-high)');
-    let color2: Color = new Color('var(--color-set-2)', 'var(--color-set-2-transparency-medium)', 'var(--color-set-2-transparency-high)');
+    let color1: Color = new Color('var(--color-set-1)', 'var(--color-set-dark-1)', 'var(--color-set-1-transparency-high)');
+    let color2: Color = new Color('var(--color-set-2)', 'var(--color-set-dark-2)', 'var(--color-set-2-transparency-high)');
 
     it('getColorForValue does set new color for new value', () => {
         let colorSet = new ColorSet('testColorKey', 'testDatabase', 'testTable', 'testColorField');
