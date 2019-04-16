@@ -128,7 +128,7 @@ class TestMapComponent extends MapComponent {
 
 /* tslint:disable:component-class-suffix */
 class TestMap extends AbstractMap {
-    addPoints(points: MapPoint[], layer?: any, cluster?: boolean) {
+    addPoints(points: MapPoint[], layer?: any, cluster?: boolean, layerTitle?: string) {
         /* NO-OP */
     }
     clearLayer(layer: any) {
