@@ -154,10 +154,10 @@ export class Color {
         if (colorCss.indexOf('var(--') === 0) {
             let css = colorCss.substring(4, colorCss.length - 1);
             css = css.indexOf(',') >= 0 ? css.substring(0, css.indexOf(',')) : css;
-            return getComputedStyle(elementRef.nativeElement).getPropertyValue(css);
+            return getComputedStyle(elementRef.nativeElement).getPropertyValue(css).trim();
         }
         if (colorCss.indexOf('--') === 0) {
-            return getComputedStyle(elementRef.nativeElement).getPropertyValue(colorCss);
+            return getComputedStyle(elementRef.nativeElement).getPropertyValue(colorCss).trim();
         }
         return colorCss;
     }

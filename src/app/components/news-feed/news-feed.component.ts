@@ -44,6 +44,7 @@ import {
 } from '../../widget-option';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
+import { MatDialog } from '@angular/material';
 
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
@@ -76,14 +77,16 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        private sanitizer: DomSanitizer
+        private sanitizer: DomSanitizer,
+        dialog: MatDialog
     ) {
         super(
             datasetService,
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
 
         this.visualizationQueryPaginates = true;

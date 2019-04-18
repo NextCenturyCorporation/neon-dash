@@ -44,6 +44,7 @@ import { ConfigEditorComponent } from './components/config-editor/config-editor.
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { DashboardDropdownComponent } from './components/dashboard-dropdown/dashboard-dropdown.component';
 import { DashboardSelectorComponent } from './components/dashboard-selector/dashboard-selector.component';
+import { DataMessageComponent } from './components/data-message/data-message.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
 import { DocumentViewerSingleItemComponent } from './components/document-viewer-single-item/document-viewer-single-item.component';
@@ -85,6 +86,7 @@ import { CustomConnectionSimpleSetupStepComponent } from './components/custom-co
 import { MatAutocompleteModule, MatFormFieldModule, MatInputModule } from '@angular/material';
 import { QueryBarComponent } from './components/query-bar/query-bar.component';
 import { GearComponent } from './components/gear/gear.component';
+import { ContributionDialogComponent } from './components/contribution-dialog/contribution-dialog.component';
 
 export function getAppConfig() {
     /* tslint:disable:no-string-literal */
@@ -102,10 +104,12 @@ export function getAppConfig() {
         CardThumbnailSubComponent,
         ConfigEditorComponent,
         ConfirmationDialogComponent,
+        ContributionDialogComponent,
         CustomConnectionComponent,
         CustomConnectionSimpleSetupStepComponent,
         DashboardDropdownComponent,
         DashboardSelectorComponent,
+        DataMessageComponent,
         DataTableComponent,
         DetailsThumbnailSubComponent,
         DocumentViewerComponent,
@@ -177,7 +181,9 @@ export function getAppConfig() {
         AddVisualizationComponent,
         ConfigEditorComponent,
         ConfirmationDialogComponent,
+        ContributionDialogComponent,
         CustomConnectionComponent,
+        DataMessageComponent,
         DocumentViewerSingleItemComponent,
         CurrentFiltersComponent,
         GearComponent,

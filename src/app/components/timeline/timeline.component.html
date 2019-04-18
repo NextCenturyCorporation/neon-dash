@@ -27,10 +27,18 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="getCloseableFilters().length">
+    <div class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-contribution]="showContribution()">
         <!-- Timeline chart div -->
         <div #svg class="timeline-selector-chart"></div>
         <div class ="xlabel"> {{ options.granularity }}</div>
         <div class ="ylabel">{{ options.yLabel }}</div>
+    </div>
+
+    <div class="contribution-text" *ngIf="showContribution()">
+        <div class="contribution-text-container">
+            <a (click)="openContributionDialog()">
+                {{ getContributorAbbreviations() }}
+            </a>
+        </div>
     </div>
 </mat-sidenav-container>
