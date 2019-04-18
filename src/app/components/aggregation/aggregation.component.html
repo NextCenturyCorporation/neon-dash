@@ -47,7 +47,12 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="showHeaderContainer()">
+    <div class="data-message-container" *ngIf="showNoData">
+        <app-data-message> </app-data-message>
+    </div>
+    
+    <div class="body-container" id="body-container" [class.with-filter]="showHeaderContainer()" [class.with-contribution]="showContribution()">
+
         <div class="subcomponent-container zoom" [class.hide]="!showBothViews()" [style.minHeight.px]="minimumDimensionsZoom.height"
             [style.minWidth.px]="minimumDimensionsZoom.width" (click)="stopEventPropagation($event)">
 
@@ -66,4 +71,12 @@
     </div>
 
     <canvas #hiddenCanvas class="hidden-canvas"></canvas>
+
+    <div class="contribution-text" *ngIf="showContribution()">
+        <div class="contribution-text-container">
+            <a (click)="openContributionDialog()">
+                {{ getContributorAbbreviations() }}
+            </a>
+        </div>
+    </div>
 </mat-sidenav-container>

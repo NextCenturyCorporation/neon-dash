@@ -40,6 +40,7 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
+import { MatDialog } from '@angular/material';
 
 @Component({
     selector: 'app-taxonomy-viewer',
@@ -91,7 +92,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        dialog: MatDialog
     ) {
 
         super(
@@ -99,7 +101,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
     }
 

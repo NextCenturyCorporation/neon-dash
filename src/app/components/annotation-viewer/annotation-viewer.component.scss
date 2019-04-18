@@ -51,25 +51,4 @@
 }
 
 
-.visualization-sidenav {
-    overflow: hidden !important;
 
-    .body-container {
-
-        top: calc(#{$vis-title-expected-height} - 25px);
-        height: calc(100% - 20px);
-
-        &.with-filter {
-            top: calc(#{$vis-title-expected-height} + 20px);
-            height: calc(100% - #{$vis-title-expected-height} - 25px);
-        }
-
-        &.with-footer {
-            height: calc(100% - #{$footer-height} - 25px);
-
-            &.with-filter {
-                height: calc(100% - #{$vis-title-expected-height} - #{$footer-height} - 25px);
-            }
-        }
-    }
-}
