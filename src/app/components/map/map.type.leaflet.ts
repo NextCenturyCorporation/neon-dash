@@ -83,8 +83,16 @@ export class LeafletNeonMap extends AbstractMap {
         }
     }
 
-    addPoints(points: MapPoint[], layer?: any, cluster?: boolean) {
+    addPoints(points: MapPoint[], layer?: any, cluster?: boolean, layerTitle?: string) {
         let layerGroup = this.layerGroups.get(layer);
+
+        // if title is updated for an existing layerGroup, we need to
+        // remove and add layer back to the control layer with the new title
+        if (layerGroup && layerTitle) {
+            this.layerControl.removeLayer(layerGroup);
+            this.layerControl.addOverlay(layerGroup, layerTitle);
+        }
+
         if (!layerGroup) {
             layerGroup = !cluster ? new L.LayerGroup() : (<any> L).markerClusterGroup({
                 // Override default function to add neon-cluster class to cluster icons.
@@ -104,7 +112,7 @@ export class LeafletNeonMap extends AbstractMap {
                 }
             });
             this.layerGroups.set(layer, layerGroup);
-            this.layerControl.addOverlay(layerGroup, layer.title);
+            this.layerControl.addOverlay(layerGroup, layerTitle);
             this.map.addLayer(layerGroup);
         }
 

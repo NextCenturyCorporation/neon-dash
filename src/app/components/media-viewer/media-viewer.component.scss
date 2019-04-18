@@ -18,6 +18,10 @@
 .full-height,
 .mat-tab-group {
     height: calc(100% - #{$vis-title-expected-height});
+
+    &.with-contribution {
+        height: calc(100% - #{$vis-title-expected-height} - #{$contribution-height} - 5px);
+    }
 }
 
 .viewer-text {

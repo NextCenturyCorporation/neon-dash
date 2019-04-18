@@ -54,6 +54,9 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import * as _ from 'lodash';
+import { MatDialog } from '@angular/material';
+import { ContributionDialogComponent } from '../contribution-dialog/contribution-dialog.component';
+import { of } from 'rxjs';
 
 @Component({
     selector: 'app-test-base-neon',
@@ -70,14 +73,16 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        changeDetection: ChangeDetectorRef
+        changeDetection: ChangeDetectorRef,
+        dialog: MatDialog
     ) {
         super(
             datasetService,
             filterService,
             searchService,
             injector,
-            changeDetection
+            changeDetection,
+            dialog
         );
     }
 
@@ -920,14 +925,24 @@ describe('BaseNeonComponent', () => {
     it('finishQueryExecution does work as expected', () => {
         let spyUpdateHeader = spyOn(component, 'updateHeaderTextStyles');
         let spyRefreshVisualization = spyOn(component, 'refreshVisualization');
+        let spyNoData = spyOn(component, 'noDataCheck');
+
         (component as any).finishQueryExecution();
         expect((component as any).loadingCount).toEqual(-1);
         expect(spyUpdateHeader.calls.count()).toEqual(1);
         expect(spyRefreshVisualization.calls.count()).toEqual(1);
+        expect(spyNoData.calls.count()).toEqual(1);
+    });
+
+    it('noDataCheck works as intended', () => {
+        component.setupFilters();
+        component.noDataCheck();
+        expect(component.showNoData).toEqual(false);
     });
 
     it('getBindings does return expected object', () => {
         expect(component.getBindings()).toEqual({
+            contributionKeys: null,
             customEventsToPublish: [],
             customEventsToReceive: [],
             database: 'testDatabase1',
@@ -944,6 +959,7 @@ describe('BaseNeonComponent', () => {
         component.options.append(new WidgetFieldOption('testField', 'Test Field', false), new FieldMetaData());
         component.options.append(new WidgetFreeTextOption('testValue', 'Test Value', ''), '');
         expect(component.getBindings()).toEqual({
+            contributionKeys: null,
             customEventsToPublish: [],
             customEventsToReceive: [],
             database: 'testDatabase1',
@@ -1115,7 +1131,7 @@ describe('BaseNeonComponent', () => {
         // Call the callback
         args[4]();
         expect(spyChangeData.calls.count()).toEqual(1);
-        expect(spyChangeData.calls.argsFor(0)).toEqual([component.options]);
+        expect(spyChangeData.calls.argsFor(0)).toEqual([component.options, undefined]);
     });
 
     it('handleChangeData does work as expected', () => {
@@ -1557,12 +1573,44 @@ describe('BaseNeonComponent', () => {
         (component as any).updateHeaderTextStyles();
         expect(elementRefs.headerText.nativeElement.style.maxWidth).toEqual('839px');
     });
+
+    it('showContribution() returns false', () => {
+        expect((component as any).showContribution()).toBeFalsy();
+    });
+
+    it('getContributorsForComponent() returns empty array', () => {
+        expect((component as any).getContributorsForComponent()).toEqual([]);
+    });
+
+    it('getContributorAbbreviations() returns empty string', () => {
+        expect((component as any).getContributorAbbreviations()).toEqual('');
+    });
 });
 
 describe('Advanced BaseNeonComponent with config', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: BaseNeonComponent;
     let fixture: ComponentFixture<BaseNeonComponent>;
+
+    let datasetService = new DatasetServiceMock();
+    datasetService.getCurrentDashboard().contributors = {
+        organization1: {
+            orgName: 'Organization 1',
+            abbreviation: 'ORG ONE',
+            contactName: 'Test Name 1',
+            contactEmail: 'test1@email.com',
+            website: 'https://localhost:4200/1',
+            logo: 'fake-logo-1.jpg'
+        },
+        organization2: {
+            orgName: 'Organization 2',
+            abbreviation: 'ORG TWO',
+            contactName: 'Test Name 2',
+            contactEmail: 'test2@email.com',
+            website: 'https://localhost:4200/2',
+            logo: 'fake-logo-2.jpg'
+        }
+    };
 
     initializeTestBed('Base Neon', {
         declarations: [
@@ -1574,12 +1622,13 @@ describe('Advanced BaseNeonComponent with config', () => {
             FormsModule
         ],
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DatasetService, useValue: datasetService },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: testConfig },
             { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
+            { provide: 'contributionKeys', useValue: ['organization1', 'organization2'] },
             { provide: 'customEventsToPublish', useValue: [ { id: 'testPublishId', fields: [ { columnName: 'testPublishColumnName',
                 prettyName: 'testPublishPrettyName' } ] } ] },
             { provide: 'customEventsToReceive', useValue: [ { id: 'testReceiveId', fields: [ { columnName: 'testReceiveColumnName',
@@ -1688,6 +1737,7 @@ describe('Advanced BaseNeonComponent with config', () => {
 
     it('getBindings does return expected object', () => {
         expect(component.getBindings()).toEqual({
+            contributionKeys: ['organization1', 'organization2'],
             customEventsToPublish: [{
                 id: 'testPublishId',
                 fields: [{
@@ -1750,6 +1800,45 @@ describe('Advanced BaseNeonComponent with config', () => {
 
     it('hasUnsharedFilter does return expected boolean', () => {
         expect((component as any).hasUnsharedFilter()).toEqual(true);
+    });
+
+    it('showContribution() returns true', () => {
+        expect((component as any).showContribution()).toBeTruthy();
+    });
+
+    it('getContributorsForComponent() returns array of correct values', () => {
+        expect((component as any).getContributorsForComponent()).toEqual([{
+            orgName: 'Organization 1',
+            abbreviation: 'ORG ONE',
+            contactName: 'Test Name 1',
+            contactEmail: 'test1@email.com',
+            website: 'https://localhost:4200/1',
+            logo: 'fake-logo-1.jpg'
+        }, {
+            orgName: 'Organization 2',
+            abbreviation: 'ORG TWO',
+            contactName: 'Test Name 2',
+            contactEmail: 'test2@email.com',
+            website: 'https://localhost:4200/2',
+            logo: 'fake-logo-2.jpg'
+        }]);
+    });
+
+    it('getContributorAbbreviations() returns correctly formatted string', () => {
+        expect((component as any).getContributorAbbreviations()).toEqual('ORG ONE, ORG TWO');
+    });
+
+    it('openContributionDialog() has expected behavior', () => {
+        expect((component as any).contributorsRef).toBeUndefined();
+
+        let contributors = (component as any).getContributorsForComponent();
+        let config = {width: '400px', minHeight: '200px', data: contributors};
+        spyOn(component.dialog, 'open').and.returnValue({afterClosed: () => of({isSuccess: true})});
+
+        (component as any).openContributionDialog();
+
+        expect(component.dialog.open).toHaveBeenCalledWith(ContributionDialogComponent, config);
+        expect((component as any).contributorsRef).toBeNull();
     });
 });
 

@@ -44,6 +44,7 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
+import { MatDialog } from '@angular/material';
 
 @Component({
     selector: 'app-data-table',
@@ -101,14 +102,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        dialog: MatDialog
     ) {
         super(
             datasetService,
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
 
         this.redrawOnResize = true;
@@ -921,5 +924,31 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     getShowColumnSelector(): boolean {
         return this.options.showColumnSelector === 'show';
+    }
+
+    /**
+     * Updates elements and properties whenever the widget config is changed.
+     *
+     * @override
+     */
+    onChangeData(databaseOrTableChange?: boolean) {
+        // if database or table has been updated, need to update list of available headers/fields
+        if (databaseOrTableChange) {
+            let initialHeaderLimit = 25;
+            let unorderedHeaders = [];
+            let show = true; // show all columns up to the limit, since now the user will need to decide what to show/not show
+
+            for (let fieldObject of this.options.fields) {
+                unorderedHeaders.push({
+                    cellClass: this.getCellClassFunction(),
+                    prop: fieldObject.columnName,
+                    name: fieldObject.prettyName,
+                    active: show && unorderedHeaders.length < initialHeaderLimit,
+                    style: {},
+                    width: this.getColumnWidth(fieldObject.columnName)
+                });
+            }
+            this.headers = unorderedHeaders;
+        }
     }
 }

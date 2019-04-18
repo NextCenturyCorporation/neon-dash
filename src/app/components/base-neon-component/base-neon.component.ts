@@ -37,6 +37,8 @@ import {
 
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
+import { ContributionDialogComponent } from '../contribution-dialog/contribution-dialog.component';
+import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material';
 
 export class TransformedVisualizationData {
     constructor(protected _data: any = []) {}
@@ -83,6 +85,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     public errorMessage: string = '';
     public loadingCount: number = 0;
+    public showNoData: boolean = false;
 
     protected initializing: boolean = false;
     protected redrawOnResize: boolean = false;
@@ -99,12 +102,15 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     // A WidgetOptionCollection object.  Must use "any" type to avoid typescript errors.
     public options: any;
 
+    private contributorsRef: MatDialogRef<ContributionDialogComponent>;
+
     constructor(
         protected datasetService: DatasetService,
         protected filterService: FilterService,
         protected searchService: AbstractSearchService,
         protected injector: Injector,
-        public changeDetection: ChangeDetectorRef
+        public changeDetection: ChangeDetectorRef,
+        public dialog: MatDialog
     ) {
         this.messenger = new neon.eventing.Messenger();
     }
@@ -744,6 +750,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.refreshVisualization();
         this.changeDetection.detectChanges();
         this.updateHeaderTextStyles();
+        this.noDataCheck();
     }
 
     /**
@@ -838,19 +845,21 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Updates filters whenever a filter field is changed and then runs the visualization query.
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
+     * @arg {boolean} databaseOrTableChange
      */
-    public handleChangeFilterField(options?: any): void {
+    public handleChangeFilterField(options?: any, databaseOrTableChange?: boolean): void {
         let optionsToUpdate = options || this.options;
         this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), false, false, () => {
             this.setupFilters();
-            this.handleChangeData(optionsToUpdate);
+            this.handleChangeData(optionsToUpdate, databaseOrTableChange);
         });
     }
 
     /**
      * Updates elements and properties whenever the widget config is changed.
+     * @arg {boolean} databaseOrTableChange
      */
-    protected onChangeData() {
+    protected onChangeData(databaseOrTableChange?: boolean) {
         // Override if needed.
     }
 
@@ -858,8 +867,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Handles any behavior needed whenever the widget config is changed and then runs the visualization query.
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
+     * @arg {boolean} databaseOrTableChange
      */
-    public handleChangeData(options?: any): void {
+    public handleChangeData(options?: any, databaseOrTableChange?: boolean): void {
         this.layerIdToActiveData.delete((options || this.options)._id);
         this.layerIdToElementCount.set((options || this.options)._id, 0);
 
@@ -868,7 +878,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.page = 1;
         this.showingZeroOrMultipleElementsPerResult = false;
 
-        this.onChangeData();
+        this.onChangeData(databaseOrTableChange);
 
         if (!options) {
             this.executeAllQueryChain();
@@ -1268,6 +1278,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         options.inject(new WidgetFreeTextOption('title', 'Title', visualizationTitle));
         options.inject(new WidgetFreeTextOption('unsharedFilterValue', 'Unshared Filter Value', ''));
 
+        options.inject(new WidgetNonPrimitiveOption('contributionKeys', 'Contribution Keys', null, false));
+
         // Backwards compatibility (configFilter deprecated and renamed to filter).
         options.filter = options.filter || this.injector.get('configFilter', null);
 
@@ -1403,5 +1415,64 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     protected clearVisualizationData(options: any): void {
         // TODO THOR-985 Temporary function.  Override as needed.
+    }
+
+    /**
+     * Checks wheather there are any filters and returns no data.
+     */
+    public noDataCheck() {
+        if (this.filterService.getFilters().length > 0) {
+            let activeData = this.getActiveData();
+            this.showNoData = !activeData || !activeData.data || !activeData.data.length;
+        } else {
+            this.showNoData = false;
+        }
+        this.changeDetection.detectChanges();
+        this.toggleBodyContainer();
+    }
+
+    /**
+     * Method to be overrided in components where the body container wants to be hidden
+     * if showNoData is true
+     */
+    public toggleBodyContainer() {
+        //
+    }
+
+    protected showContribution() {
+        return ((this.options.contributionKeys && this.options.contributionKeys.length !== 0)
+            || (this.options.contributionKeys === null
+            && this.datasetService.getCurrentDashboard()
+            && this.datasetService.getCurrentDashboard().contributors
+            && Object.keys(this.datasetService.getCurrentDashboard().contributors).length));
+    }
+
+    protected getContributorsForComponent() {
+        let allContributors = this.datasetService.getCurrentDashboard().contributors;
+        let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys
+            : Object.keys(this.datasetService.getCurrentDashboard().contributors);
+
+        return contributorKeys.filter((key) => !!allContributors[key]).map((key) => allContributors[key]);
+    }
+
+    protected getContributorAbbreviations() {
+        let contributors = this.datasetService.getCurrentDashboard().contributors;
+        let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys
+            : Object.keys(this.datasetService.getCurrentDashboard().contributors);
+
+        let contributorAbbreviations = contributorKeys.filter((key) =>
+            !!(contributors[key] && contributors[key].abbreviation)).map((key) => contributors[key].abbreviation);
+
+        return contributorAbbreviations.join(', ');
+    }
+
+    protected openContributionDialog() {
+        let config = new MatDialogConfig();
+        config = {width: '400px', minHeight: '200px', data: this.getContributorsForComponent()};
+
+        this.contributorsRef = this.dialog.open(ContributionDialogComponent, config);
+        this.contributorsRef.afterClosed().subscribe(() => {
+            this.contributorsRef = null;
+        });
     }
 }

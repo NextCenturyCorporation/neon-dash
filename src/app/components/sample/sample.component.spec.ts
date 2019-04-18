@@ -41,6 +41,7 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { MatDialog } from '@angular/material';
 
 // Helper functions.
 
@@ -86,7 +87,8 @@ class TestSampleComponent extends SampleComponent {
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        dialog: MatDialog
     ) {
 
         super(
@@ -94,7 +96,8 @@ class TestSampleComponent extends SampleComponent {
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
     }
 
