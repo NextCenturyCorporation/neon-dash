@@ -43,6 +43,7 @@ import {
     WidgetOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
+import { MatDialog } from '@angular/material';
 
 export class WikiData {
     constructor(public name: string, public text: SafeHtml) {}
@@ -72,7 +73,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         injector: Injector,
         ref: ChangeDetectorRef,
         protected http: HttpClient,
-        protected sanitizer: DomSanitizer
+        protected sanitizer: DomSanitizer,
+        dialog: MatDialog
     ) {
 
         super(
@@ -80,7 +82,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
 
         this.updateOnSelectId = true;
