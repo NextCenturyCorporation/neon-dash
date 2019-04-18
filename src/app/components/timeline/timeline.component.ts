@@ -52,7 +52,7 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import { TimelineSelectorChart, TimelineSeries, TimelineData } from './TimelineSelectorChart';
+import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
 
 import * as neon from 'neon-framework';
@@ -185,7 +185,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         }
     }
 
-    onTimelineSelection(startDate: Date, endDate: Date, selectedData: any[]): void {
+    onTimelineSelection(startDate: Date, endDate: Date, selectedData: TimelineItem[]): void {
         let neonFilters = this.filterService.getFiltersByOwner(this.id);
 
         let filter = {
@@ -207,7 +207,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         }
 
         // Update the charts
-        this.filterAndRefreshData(this.getActiveData(this.options).data);
+        let activeData = this.getActiveData(this.options);
+        this.filterAndRefreshData(activeData ? activeData.data : []);
 
         //Add additional filters
         if (this.options.filterField.columnName && selectedData && selectedData.length) {
@@ -239,7 +240,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     createNeonFilter(filter: any): neon.query.WherePredicate {
         let filterClauses = [
             neon.query.where(filter.field, '>=', filter.startDate),
-            neon.query.where(filter.field, '<=', filter.endDate)
+            neon.query.where(filter.field, '<', filter.endDate)
         ];
         return neon.query.and.apply(neon.query, filterClauses);
     }
@@ -251,11 +252,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      * @arg {array} idValues
      * @return {neon.query.WherePredicate}
      */
-    createNeonFieldFilter(idField: string, idValues: string[]): neon.query.WherePredicate {
+    createNeonFieldFilter(filterField: string, filterValues: string[]): neon.query.WherePredicate {
         let clauses = [];
 
-        for (let value of idValues) {
-            clauses.push(neon.query.where(idField, '=', value));
+        for (let value of filterValues) {
+            clauses.push(neon.query.where(filterField, '=', value));
         }
 
         return neon.query.or.apply(neon.query, clauses);
@@ -272,7 +273,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         let filterClause = this.createNeonFieldFilter(filter.field, filter.value);
         if (neonFilters && neonFilters.length) {
             let fieldFilter = neonFilters.find((f) => {
-                if (f.filter.whereClause.whereClauses[0].lhs === filter.field) {
+                let clauses = f.filter.whereClause.whereClauses ?
+                    f.filter.whereClause.whereClauses[0] :
+                    f.filter.whereClause;
+
+                if (clauses.lhs === filter.field) {
                     return f;
                 }
             });
@@ -370,12 +375,12 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     getFiltersToIgnore() {
         let ignoredFilterIds = [];
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.options.dateField.columnName].concat(this.options.filterField.columnName));
+            [this.options.dateField.columnName]);
 
         for (let neonFilter of neonFilters) {
             // The data we want is in the whereClause's subclauses
             let whereClause = neonFilter.filter.whereClause;
-            if (whereClause && whereClause.whereClauses.length === 2) {
+            if (whereClause && whereClause.whereClauses && whereClause.whereClauses.length === 2) {
                 ignoredFilterIds.push(neonFilter.id);
             }
         }
@@ -478,6 +483,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                     break;
                 case 'month':
                     prevItem = previousItems.find((o) => {
+
                         let prevMonth = new Date(o.origDate).getUTCMonth(),
                             prevYear = new Date(o.origDate).getUTCFullYear();
                         if (prevMonth === currentMonth && prevYear === currentYear) {
@@ -652,7 +658,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             // The data we want is in the whereClause's subclauses
             let whereClause = neonFilter.filter.whereClause;
             if (whereClause && whereClause.length > 0 && whereClause.whereClauses.length === 2) {
-                let field = this.options.findField(whereClause[0].lhs);
+                let field = this.options.findField(this.options.dateField, whereClause[0].lhs);
                 this.addLocalFilter(neonFilter.id, field.columnName, field.prettyName, whereClause.whereClauses[0].rhs,
                     whereClause.whereClauses[1].rhs);
             }
@@ -756,7 +762,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     getVisualizationDefaultLimit(): number {
-        return 1000;
+        return 3000;
     }
 
     /**

@@ -46,7 +46,7 @@ const DEFAULT_DATA = [
 export class TimelineItem {
     public date: Date;
     public value: number;
-    public filters: any[];
+    public filters: string[];
 }
 
 /**
