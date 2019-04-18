@@ -23,22 +23,26 @@ import * as _ from 'lodash';
 // http://www.chartjs.org/docs/latest/charts/bar.html#dataset-properties
 export class ChartJsBarDataset extends AbstractChartJsDataset {
     public backgroundColor: string[] = [];
-    public hoverBackgroundColor: string;
+    //public hoverBackgroundColor: string;
+    // TODO: 1026: not sure if this needs to be a string array or not
+    public hoverBackgroundColor: string[] = [];
 
     constructor(elementRef: ElementRef, color: Color, label: string, xList: any[], public xSelected: any[],
         public horizontal: boolean = false) {
 
         super(elementRef, color, label, xList);
-        this.hoverBackgroundColor = this.getColorHover();
+        //this.hoverBackgroundColor = this.getColorHover();
     }
 
     public finalizeData() {
         Array.from(this.xToY.keys()).forEach((x) => {
             let yList = this.xToY.get(x);
             (yList.length ? yList : [null]).forEach((y) => {
-                this.hoverBackgroundColor = this.getColorHover();
+                //this.hoverBackgroundColor = this.getColorHover();
                 this.backgroundColor.push(this.xSelected.length > 0 &&
                     this.xSelected.indexOf(x) < 0 ? this.getColorDeselected() : this.getColorSelected());
+                this.hoverBackgroundColor.push(this.xSelected.length > 0 &&
+                    this.xSelected.indexOf(x) < 0 ? this.getColorSelected() : this.getColorHover());
 
                 this.data.push({
                     x: this.horizontal ? y : x,
