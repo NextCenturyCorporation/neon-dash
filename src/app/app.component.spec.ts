@@ -189,8 +189,7 @@ describe('App', () => {
 
     it('should be showing correct filter icons', async(() => {
         expect(component.filtersIcon).toEqual('filters');
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testFilterField', '=', 'value1'), 'testFilterField');
+        (component as any).isFiltered = () => true;
         component.changeDetection.detectChanges();
         expect(component.filtersIcon).toEqual('filters_active');
     }));

@@ -14,12 +14,17 @@
  *
  */
 import { inject } from '@angular/core/testing';
+
+import { AbstractSearchService } from './abstract.search.service';
 import { ConnectionService } from './connection.service';
 import { DatasetService } from './dataset.service';
 import { FilterService } from './filter.service';
-import { NeonGTDConfig } from '../neon-gtd-config';
 import { ParameterService } from './parameter.service';
+
+import { NeonGTDConfig } from '../neon-gtd-config';
+
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
+import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 
 describe('Service: Parameter', () => {
     let service;
@@ -27,6 +32,7 @@ describe('Service: Parameter', () => {
     initializeTestBed('Parameter Service', {
         providers: [
             ParameterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             ConnectionService,
             DatasetService,
             FilterService,
