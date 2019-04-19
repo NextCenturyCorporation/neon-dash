@@ -23,26 +23,24 @@ import * as _ from 'lodash';
 // http://www.chartjs.org/docs/latest/charts/bar.html#dataset-properties
 export class ChartJsBarDataset extends AbstractChartJsDataset {
     public backgroundColor: string[] = [];
-    public borderColor: string;
-    public borderWidth: number = 3;
-    public hoverBackgroundColor: string;
-    public hoverBorderColor: string;
-    public hoverBorderWidth: number = 3;
+    public hoverBackgroundColor: string[] = [];
 
     constructor(elementRef: ElementRef, color: Color, label: string, xList: any[], public xSelected: any[],
         public horizontal: boolean = false) {
 
         super(elementRef, color, label, xList);
-        this.borderColor = this.getColorSelected();
-        this.hoverBackgroundColor = this.getColorSelected();
-        this.hoverBorderColor = this.getColorSelected();
     }
 
     public finalizeData() {
         Array.from(this.xToY.keys()).forEach((x) => {
             let yList = this.xToY.get(x);
             (yList.length ? yList : [null]).forEach((y) => {
-                this.backgroundColor.push(this.xSelected.indexOf(x) < 0 ? this.getColorDeselected() : this.getColorSelected());
+                this.backgroundColor.push(this.xSelected.length > 0 &&
+                    this.xSelected.indexOf(x) < 0 ? this.getColorDeselected() : this.getColorSelected());
+
+                this.hoverBackgroundColor.push(this.xSelected.length > 0 &&
+                    this.xSelected.indexOf(x) < 0 ? this.getColorSelected() : this.getColorHover());
+
                 this.data.push({
                     x: this.horizontal ? y : x,
                     y: this.horizontal ? x : y
@@ -92,7 +90,9 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
     protected dataDeselect(chart: any) {
         chart.data.datasets.forEach((dataset) => {
             dataset.backgroundColor = dataset.backgroundColor.map(() => dataset.getColorDeselected());
+            dataset.hoverBackgroundColor = dataset.backgroundColor.map(() => dataset.getColorSelected());
         });
+        this.redraw();
     }
 
     /**
@@ -106,7 +106,10 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
         items.forEach((item) => {
             let dataset = chart.data.datasets[item._datasetIndex];
             dataset.backgroundColor[item._index] = dataset.getColorSelected();
+            dataset.hoverBackgroundColor[item._index] = dataset.getColorHover();
         });
+
+        this.redraw();
     }
 
     /**
