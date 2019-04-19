@@ -100,14 +100,6 @@ export abstract class AbstractAggregationSubcomponent {
     ) {}
 
     /**
-     * Deselects the given item or all the subcomponent elements.
-     *
-     * @arg {any} [item]
-     * @abstract
-     */
-    public abstract deselect(item?: any);
-
-    /**
      * Destroys all the subcomponent elements.
      *
      * @abstract
@@ -139,6 +131,13 @@ export abstract class AbstractAggregationSubcomponent {
      * @abstract
      */
     public abstract getVisualizationElementLabel(count: number): string;
+
+    /**
+     * Configures the visualization to ignore any of the user's "select" events.
+     *
+     * @abstract
+     */
+    public abstract ignoreSelectEvents(): void;
 
     /**
      * Initializes all the subcomponent elements.
@@ -182,6 +181,14 @@ export abstract class AbstractAggregationSubcomponent {
      * @abstract
      */
     public abstract redraw();
+
+    /**
+     * Selects the given items and deselects all other items.
+     *
+     * @arg {any[]} items
+     * @abstract
+     */
+    public abstract select(items: any[]): void;
 
     /**
      * Returns the given date or string as a pretty date long string.

@@ -20,38 +20,16 @@
         <mat-spinner></mat-spinner>
     </div>
 
-    <div class="filter-container" *ngIf="showHeaderContainer()">
-        <app-legend *ngIf="showLegend()" [activeList]="legendActiveGroups" [colorKeys]="colorKeys"
+    <div class="filter-container" *ngIf="showLegend()">
+        <app-legend [activeList]="legendActiveGroups" [colorKeys]="colorKeys"
                 (itemSelected)="handleLegendItemSelected($event)"></app-legend>
-
-        <div class="filter-reset" *ngFor="let filter of groupFilters">
-            <span class="filter-label" [matTooltip]="createFilterPrettyText(filter)" tooltip-position="below">
-                {{ filter.label || 'Filter' }}
-            </span>
-            <button mat-icon-button class="neon-icon-button-small" aria-label="Close"
-                [matTooltip]="'Delete Filter ' + createFilterPrettyText(filter)" tooltip-position="below"
-                (click)="toggleFilter(groupFilters, filter)">
-                <mat-icon class="neon-icon-small">close</mat-icon>
-            </button>
-        </div>
-
-        <div class="filter-reset" *ngFor="let filter of valueFilters">
-            <span class="filter-label" [matTooltip]="createFilterPrettyText(filter)" tooltip-position="below">
-                {{ filter.label || 'Filter' }}
-            </span>
-            <button mat-icon-button class="neon-icon-button-small" aria-label="Close"
-                [matTooltip]="'Delete Filter ' + createFilterPrettyText(filter)" tooltip-position="below"
-                (click)="toggleFilter(valueFilters, filter)">
-                <mat-icon class="neon-icon-small">close</mat-icon>
-            </button>
-        </div>
     </div>
 
     <div class="data-message-container" *ngIf="showNoData">
         <app-data-message> </app-data-message>
     </div>
     
-    <div class="body-container" id="body-container" [class.with-filter]="showHeaderContainer()" [class.with-contribution]="showContribution()">
+    <div class="body-container" id="body-container" [class.with-filter]="showLegend()" [class.with-contribution]="showContribution()">
 
         <div class="subcomponent-container zoom" [class.hide]="!showBothViews()" [style.minHeight.px]="minimumDimensionsZoom.height"
             [style.minWidth.px]="minimumDimensionsZoom.width" (click)="stopEventPropagation($event)">
@@ -71,12 +49,4 @@
     </div>
 
     <canvas #hiddenCanvas class="hidden-canvas"></canvas>
-
-    <div class="contribution-text" *ngIf="showContribution()">
-        <div class="contribution-text-container">
-            <a (click)="openContributionDialog()">
-                {{ getContributorAbbreviations() }}
-            </a>
-        </div>
-    </div>
 </mat-sidenav-container>

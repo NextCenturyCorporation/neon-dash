@@ -17,8 +17,22 @@ import { ElementRef } from '@angular/core';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { ChartJsBarSubcomponent, ChartJsBarDataset } from './subcomponent.chartjs.bar';
 import { Color } from '../../color';
+import { SelectMode } from './subcomponent.chartjs.abstract';
 
 export class ChartJsHistogramSubcomponent extends ChartJsBarSubcomponent {
+    /**
+     * @constructor
+     * @arg {any} options
+     * @arg {AggregationSubcomponentListener} listener
+     * @arg {ElementRef} elementRef
+     * @arg {boolean} [horizontal=false]
+     */
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
+        protected horizontal: boolean = false) {
+
+        super(options, listener, elementRef, horizontal, SelectMode.DOMAIN);
+    }
+
     /**
      * Returns the width of the given chart element.
      *
@@ -55,31 +69,5 @@ export class ChartJsHistogramSubcomponent extends ChartJsBarSubcomponent {
      */
     public getVisualizationElementLabel(count: number): string {
         return 'Bin' + (count === 1 ? '' : 's');
-    }
-
-    /**
-     * Handles the given click event as needed by this subcomponent.
-     *
-     * @arg {event} event
-     * @arg {any[]} items
-     * @arg {any} chart
-     * @override
-     */
-    protected handleClickEvent(event, items: any[], chart: any) {
-        // Do nothing.
-    }
-
-    /**
-     * Handles the given hover event as needed by this subcomponent.
-     *
-     * @arg {event} event
-     * @arg {any[]} items
-     * @arg {any} chart
-     * @override
-     */
-    protected handleHoverEvent(event, items: any[], chart: any) {
-        if (this.isSelectable(items)) {
-            this.selectDomain(event, items, chart);
-        }
     }
 }
