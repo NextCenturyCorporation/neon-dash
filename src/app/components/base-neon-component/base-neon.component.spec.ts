@@ -27,9 +27,9 @@ import {
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 
-import { AbstractSearchService, AggregationType } from '../../services/abstract.search.service';
+import { AbstractSearchService, AggregationType, FilterClause } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
@@ -86,6 +86,10 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         );
     }
 
+    designEachFilterWithNoValues(): FilterBehavior[] {
+        return [];
+    }
+
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [];
     }
@@ -94,25 +98,8 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         return [];
     }
 
-    getCloseableFilters() {
-        return [];
-    }
-
     getElementRefs() {
         return {};
-    }
-
-    getFiltersToIgnore() {
-        let ignoredFilterIds = [];
-        return ignoredFilterIds;
-    }
-
-    getFilterText(filter) {
-        if (filter && filter.filterName) {
-            return filter.filterName;
-          } else {
-            return 'Test Filter';
-        }
     }
 
     getVisualizationDefaultLimit(): number {
@@ -139,32 +126,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     }
 
     refreshVisualization() {
-        //
-    }
-
-    removeFilter() {
-        //
-    }
-
-    setupFilters() {
-        let database = 'test database';
-        let table = 'test table';
-        let fields = ['test field'];
-        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
-        if (neonFilters && neonFilters.length > 0) {
-            for (let filter of neonFilters) {
-                let key = filter.filter.whereClause.lhs;
-                let value = filter.filter.whereClause.rhs;
-                let f = {
-                    id: filter.id,
-                    key: key,
-                    value: value,
-                    prettyKey: key
-                };
-            }
-        } else {
-            this.filters = [];
-        }
         //
     }
 }
@@ -249,6 +210,11 @@ describe('BaseNeonComponent', () => {
         fixture = TestBed.createComponent(TestBaseNeonComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+    });
+
+    afterEach(() => {
+        // Unsubscribe
+        component.ngOnDestroy();
     });
 
     it('does have expected properties', () => {
@@ -657,6 +623,70 @@ describe('BaseNeonComponent', () => {
             operator: '=',
             value: 'testValue2'
         }]);
+
+        component.options.unsharedFilterField = null;
+        component.options.unsharedFilterValue = null;
+
+        spyOn((component as any), 'getGlobalFilterClauses').and.returnValue([{
+            field: 'testField1',
+            operator: '>',
+            value: 'testValue1'
+        }, {
+            field: 'testField2',
+            operator: '<',
+            value: 'testValue2'
+        }]);
+
+        expect(component.createSharedFilters(component.options)).toEqual([{
+            field: 'testField1',
+            operator: '>',
+            value: 'testValue1'
+        }, {
+            field: 'testField2',
+            operator: '<',
+            value: 'testValue2'
+        }]);
+
+        component.options.filter = {
+            lhs: 'testField3',
+            operator: '!=',
+            rhs: 'testValue3'
+        };
+
+        expect(component.createSharedFilters(component.options)).toEqual([{
+            field: 'testField1',
+            operator: '>',
+            value: 'testValue1'
+        }, {
+            field: 'testField2',
+            operator: '<',
+            value: 'testValue2'
+        }, {
+            field: 'testField3',
+            operator: '!=',
+            value: 'testValue3'
+        }]);
+
+        component.options.unsharedFilterField = new FieldMetaData('testField4');
+        component.options.unsharedFilterValue = 'testValue4';
+
+        expect(component.createSharedFilters(component.options)).toEqual([{
+            field: 'testField1',
+            operator: '>',
+            value: 'testValue1'
+        }, {
+            field: 'testField2',
+            operator: '<',
+            value: 'testValue2'
+        }, {
+            field: 'testField3',
+            operator: '!=',
+            value: 'testValue3'
+        }, {
+            field: 'testField4',
+            operator: '=',
+            value: 'testValue4'
+        }]);
     });
 
     it('deleteLayer does work as expected', () => {
@@ -786,28 +816,6 @@ describe('BaseNeonComponent', () => {
         expect(spy.calls.argsFor(1)[3]).toBeDefined();
     });
 
-    // TODO THOR-946
-    it('executeQueryChain with filters to ignore does call executeQuery', () => {
-        let spy = spyOn(component, 'executeQuery');
-        component.getFiltersToIgnore = () => {
-            return ['testFilter1', 'testFilter2'];
-        };
-        component.validateVisualizationQuery = () => {
-            return true;
-        };
-        (component as any).executeQueryChain();
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)[0]).toEqual(component.options);
-        expect(spy.calls.argsFor(0)[1]).toEqual({
-            database: 'testDatabase1',
-            table: 'testTable1',
-            fields: ['*'],
-            limit: 1000
-        });
-        expect(spy.calls.argsFor(0)[2]).toEqual('default visualization query');
-        expect(spy.calls.argsFor(0)[3]).toBeDefined();
-    });
-
     it('executeQueryChain with advanced options does call executeQuery', () => {
         component.options.database = DatasetServiceMock.DATABASES[1];
         component.options.table = DatasetServiceMock.TABLES[1];
@@ -935,7 +943,6 @@ describe('BaseNeonComponent', () => {
     });
 
     it('noDataCheck works as intended', () => {
-        component.setupFilters();
         component.noDataCheck();
         expect(component.showNoData).toEqual(false);
     });
@@ -1065,6 +1072,108 @@ describe('BaseNeonComponent', () => {
         }]);
     });
 
+    it('getGlobalFilterClauses does return expected array', () => {
+        expect((component as any).getGlobalFilterClauses(component.options)).toEqual([]);
+
+        spyOn((component as any).filterService, 'getFiltersToSearch').and.returnValue([{
+            field: 'testField1',
+            operator: '!=',
+            value: 'testValue1'
+        }, {
+            field: 'testField2',
+            operator: '=',
+            value: 'testValue2'
+        }]);
+
+        expect((component as any).getGlobalFilterClauses(component.options)).toEqual([{
+            field: 'testField1',
+            operator: '!=',
+            value: 'testValue1'
+        }, {
+            field: 'testField2',
+            operator: '=',
+            value: 'testValue2'
+        }]);
+    });
+
+    it('getGlobalFilterClauses with cached filters and shouldFilterSelf()=>false does call getFiltersToSearch with expected list', () => {
+        let called = 0;
+        spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
+        spyOn((component as any).cachedFilters, 'getDataSources').and.returnValue(['key1', 'key2']);
+        spyOn((component as any).cachedFilters, 'getFilters').and.callFake((key) => {
+            if (key === 'key1') {
+                return [{
+                    toDesign: () => ({
+                        field: 'testField1',
+                        operator: '!=',
+                        value: 'testValue1'
+                    })
+                }];
+            }
+            if (key === 'key2') {
+                return [{
+                    toDesign: () => ({
+                        field: 'testField2',
+                        operator: '=',
+                        value: 'testValue2'
+                    })
+                }];
+            }
+            return [];
+        });
+        spyOn((component as any).filterService, 'getFiltersToSearch').and.callFake((datastore, database, table, ignoreList) => {
+            ++called;
+            expect(ignoreList).toEqual([{
+                field: 'testField1',
+                operator: '!=',
+                value: 'testValue1'
+            }, {
+                field: 'testField2',
+                operator: '=',
+                value: 'testValue2'
+            }]);
+            return [];
+        });
+
+        (component as any).getGlobalFilterClauses(component.options);
+        expect(called).toEqual(1);
+    });
+
+    it('getGlobalFilterClauses with cached filters and shouldFilterSelf()=>true does call getFiltersToSearch with expected list', () => {
+        let called = 0;
+        spyOn((component as any), 'shouldFilterSelf').and.returnValue(true);
+        spyOn((component as any).cachedFilters, 'getDataSources').and.returnValue(['key1', 'key2']);
+        spyOn((component as any).cachedFilters, 'getFilters').and.callFake((key) => {
+            if (key === 'key1') {
+                return [{
+                    toDesign: () => [{
+                        field: 'testField1',
+                        operator: '!=',
+                        value: 'testValue1'
+                    }]
+                }];
+            }
+            if (key === 'key2') {
+                return [{
+                    toDesign: () => [{
+                        field: 'testField2',
+                        operator: '=',
+                        value: 'testValue2'
+                    }]
+                }];
+            }
+            return [];
+        });
+        spyOn((component as any).filterService, 'getFiltersToSearch').and.callFake((datastore, database, table, ignoreList) => {
+            ++called;
+            expect(ignoreList).toEqual([]);
+            return [];
+        });
+
+        (component as any).getGlobalFilterClauses(component.options);
+        expect(called).toEqual(1);
+    });
+
     it('getVisualizationDefaultLimit does return expected number', () => {
         expect(component.getVisualizationDefaultLimit()).toEqual(1000);
     });
@@ -1116,20 +1225,12 @@ describe('BaseNeonComponent', () => {
     });
 
     it('handleChangeFilterField does work as expected', () => {
-        let spyRemoveFilter = spyOn(component, 'removeAllFilters');
-        component.handleChangeFilterField(component.options);
-
-        expect(spyRemoveFilter.calls.count()).toEqual(1);
-        let args = spyRemoveFilter.calls.argsFor(0);
-        expect(args[0]).toEqual(component.options);
-        expect(args[1]).toEqual([]);
-        expect(args[2]).toEqual(false);
-        expect(args[3]).toEqual(false);
-
+        let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyChangeData = spyOn(component, 'handleChangeData');
 
-        // Call the callback
-        args[4]();
+        component.handleChangeFilterField(component.options);
+
+        expect(spyUpdateFilters.calls.count()).toEqual(1);
         expect(spyChangeData.calls.count()).toEqual(1);
         expect(spyChangeData.calls.argsFor(0)).toEqual([component.options, undefined]);
     });
@@ -1454,6 +1555,19 @@ describe('BaseNeonComponent', () => {
         expect((component as any).hasUnsharedFilter()).toEqual(false);
     });
 
+    it('isFiltered does call filterService.isFiltered', () => {
+        let expectedFilterDesign = {};
+        let spy = spyOn((component as any).filterService, 'isFiltered').and.returnValue(true);
+
+        (component as any).isFiltered();
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([(component as any).cachedFilters, undefined]);
+
+        (component as any).isFiltered(expectedFilterDesign);
+        expect(spy.calls.count()).toEqual(2);
+        expect(spy.calls.argsFor(1)).toEqual([(component as any).cachedFilters, expectedFilterDesign]);
+    });
+
     it('isNumber does return expected boolean', () => {
         expect(component.isNumber(true)).toEqual(false);
         expect(component.isNumber('a')).toEqual(false);
@@ -1501,6 +1615,12 @@ describe('BaseNeonComponent', () => {
         expect(component.prettifyInteger(123)).toEqual('123');
         expect(component.prettifyInteger(1234)).toEqual('1,234');
         expect(component.prettifyInteger(1234567890)).toEqual('1,234,567,890');
+    });
+
+    it('shouldFilterSelf does return expected boolean', () => {
+        expect((component as any).shouldFilterSelf()).toEqual(true);
+        component.options.ignoreSelf = true;
+        expect((component as any).shouldFilterSelf()).toEqual(false);
     });
 
     it('showPagination does return expected boolean', () => {
@@ -1572,6 +1692,210 @@ describe('BaseNeonComponent', () => {
         component.getElementRefs = () => elementRefs;
         (component as any).updateHeaderTextStyles();
         expect(elementRefs.headerText.nativeElement.style.maxWidth).toEqual('839px');
+    });
+
+    it('updateCollectionWithGlobalCompatibleFilters does call filterService.updateCollectionWithGlobalCompatibleFilters', () => {
+        let spy = spyOn((component as any).filterService, 'updateCollectionWithGlobalCompatibleFilters');
+
+        (component as any).updateCollectionWithGlobalCompatibleFilters();
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([[], (component as any).cachedFilters, (component as any).searchService]);
+
+        let compatibleFilterBehaviorList = [{
+            filterDesign: {},
+            redrawCallback: () => { /* Do nothing */ }
+        }, {
+            filterDesign: {},
+            redrawCallback: () => { /* Do nothing */ }
+        }];
+        spyOn((component as any), 'designEachFilterWithNoValues').and.returnValue(compatibleFilterBehaviorList);
+
+        (component as any).updateCollectionWithGlobalCompatibleFilters();
+        expect(spy.calls.count()).toEqual(2);
+        expect(spy.calls.argsFor(1)).toEqual([compatibleFilterBehaviorList, (component as any).cachedFilters,
+            (component as any).searchService]);
+    });
+
+    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on FILTERS_CHANGED event', () => {
+        (component as any).id = 'testId';
+        spyOn((component as any), 'shouldFilterSelf').and.returnValue(true);
+
+        let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
+        let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
+
+        let messenger = new neon.eventing.Messenger();
+        messenger.publish(neonEvents.FILTERS_CHANGED, {
+            source: 'testSource'
+        });
+
+        expect(spyUpdateFilters.calls.count()).toEqual(1);
+        expect(spyExecuteQuery.calls.count()).toEqual(1);
+    });
+
+    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on FILTERS_CHANGED event if ID=source', () => {
+        (component as any).id = 'testSource';
+        spyOn((component as any), 'shouldFilterSelf').and.returnValue(true);
+
+        let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
+        let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
+
+        let messenger = new neon.eventing.Messenger();
+        messenger.publish(neonEvents.FILTERS_CHANGED, {
+            source: 'testSource'
+        });
+
+        expect(spyUpdateFilters.calls.count()).toEqual(1);
+        expect(spyExecuteQuery.calls.count()).toEqual(1);
+    });
+
+    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on FILTERS_CHANGED event if !filterSelf', () => {
+        (component as any).id = 'testId';
+        spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
+
+        let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
+        let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
+
+        let messenger = new neon.eventing.Messenger();
+        messenger.publish(neonEvents.FILTERS_CHANGED, {
+            source: 'testSource'
+        });
+
+        expect(spyUpdateFilters.calls.count()).toEqual(1);
+        expect(spyExecuteQuery.calls.count()).toEqual(1);
+    });
+
+    it('does not call executeAllQueryChain on FILTERS_CHANGED event if ID equals source AND shouldFilterSelf()=>false', () => {
+        (component as any).id = 'testSource';
+        spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
+
+        let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
+        let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
+
+        let messenger = new neon.eventing.Messenger();
+        messenger.publish(neonEvents.FILTERS_CHANGED, {
+            source: 'testSource'
+        });
+
+        expect(spyUpdateFilters.calls.count()).toEqual(1);
+        expect(spyExecuteQuery.calls.count()).toEqual(0);
+    });
+
+    it('deleteFilters does call filterService.deleteFilters and update savedPages', () => {
+        spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
+        let map = new Map<any, any[]>();
+        map.set('key1', [{
+            id: 'filterId1'
+        }]);
+        let spy = spyOn((component as any).filterService, 'deleteFilters').and.returnValue(map);
+        (component as any).id = 'testId';
+        (component as any).page = 10;
+        (component as any).savedPages.set('filterId1', 5);
+
+        component.deleteFilters();
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', (component as any).searchService, undefined]);
+        expect((component as any).savedPages.has('filterId1')).toEqual(false);
+        expect((component as any).page).toEqual(10);
+    });
+
+    it('deleteFilters does update page if shouldFilterSelf()=>true', () => {
+        spyOn((component as any), 'shouldFilterSelf').and.returnValue(true);
+        let map = new Map<any, any[]>();
+        map.set('key1', [{
+            id: 'filterId1'
+        }]);
+        let spy = spyOn((component as any).filterService, 'deleteFilters').and.returnValue(map);
+        (component as any).id = 'testId';
+        (component as any).page = 10;
+        (component as any).savedPages.set('filterId1', 5);
+
+        component.deleteFilters();
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', (component as any).searchService, undefined]);
+        expect((component as any).savedPages.has('filterId1')).toEqual(false);
+        expect((component as any).page).toEqual(5);
+    });
+
+    it('exchangeFilters does call filterService.exchangeFilters and update savedPages', () => {
+        spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
+        let map = new Map<any, any[]>();
+        map.set('key1', [{
+            id: 'filterId1'
+        }]);
+        let spy = spyOn((component as any).filterService, 'exchangeFilters').and.returnValue(map);
+        (component as any).id = 'testId';
+        (component as any).page = 10;
+
+        let filters = [{}];
+        component.exchangeFilters(filters);
+
+        let relations = (component as any).datasetService.findRelationDataList();
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations, (component as any).searchService, undefined]);
+        expect((component as any).savedPages.get('filterId1')).toEqual(10);
+        expect((component as any).page).toEqual(10);
+    });
+
+    it('exchangeFilters does update page if shouldFilterSelf()=>true', () => {
+        spyOn((component as any), 'shouldFilterSelf').and.returnValue(true);
+        let map = new Map<any, any[]>();
+        map.set('key1', [{
+            id: 'filterId1'
+        }]);
+        let spy = spyOn((component as any).filterService, 'exchangeFilters').and.returnValue(map);
+        (component as any).id = 'testId';
+        (component as any).page = 10;
+
+        let filters = [{}];
+        component.exchangeFilters(filters);
+
+        let relations = (component as any).datasetService.findRelationDataList();
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations, (component as any).searchService, undefined]);
+        expect((component as any).savedPages.get('filterId1')).toEqual(10);
+        expect((component as any).page).toEqual(1);
+    });
+
+    it('toggleFilters does call filterService.toggleFilters and update savedPages', () => {
+        spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
+        let map = new Map<any, any[]>();
+        map.set('key1', [{
+            id: 'filterId1'
+        }]);
+        let spy = spyOn((component as any).filterService, 'toggleFilters').and.returnValue(map);
+        (component as any).id = 'testId';
+        (component as any).page = 10;
+
+        let filters = [{}];
+        component.toggleFilters(filters);
+
+        let relations = (component as any).datasetService.findRelationDataList();
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations, (component as any).searchService]);
+        expect((component as any).savedPages.get('filterId1')).toEqual(10);
+        expect((component as any).page).toEqual(10);
+    });
+
+    it('toggleFilters does update page if shouldFilterSelf()=>true', () => {
+        spyOn((component as any), 'shouldFilterSelf').and.returnValue(true);
+        let map = new Map<any, any[]>();
+        map.set('key1', [{
+            id: 'filterId1'
+        }]);
+        let spy = spyOn((component as any).filterService, 'toggleFilters').and.returnValue(map);
+        (component as any).id = 'testId';
+        (component as any).page = 10;
+
+        let filters = [{}];
+        component.toggleFilters(filters);
+
+        let relations = (component as any).datasetService.findRelationDataList();
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations, (component as any).searchService]);
+        expect((component as any).savedPages.get('filterId1')).toEqual(10);
+        expect((component as any).page).toEqual(1);
     });
 
     it('showContribution() returns false', () => {
@@ -1839,162 +2163,5 @@ describe('Advanced BaseNeonComponent with config', () => {
 
         expect(component.dialog.open).toHaveBeenCalledWith(ContributionDialogComponent, config);
         expect((component as any).contributorsRef).toBeNull();
-    });
-});
-
-describe('BaseNeonComponent filter behavior', () => {
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
-    let component: BaseNeonComponent;
-    let fixture: ComponentFixture<BaseNeonComponent>;
-
-    initializeTestBed('Base Neon', {
-        declarations: [
-            TestBaseNeonComponent
-        ],
-        imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
-        ],
-        providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
-            FilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'config', useValue: testConfig }
-        ]
-    });
-
-    beforeEach(() => {
-        fixture = TestBed.createComponent(TestBaseNeonComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
-
-    it('removeAllFilters does work as expected with single filter', () => {
-        let removeCalls = 0;
-
-        component.removeLocalFilterFromLocalAndNeon = (opts, filter, bool1, bool2, removeMoreFilters) => {
-            removeCalls++;
-            expect(bool1).toEqual(false);
-            expect(bool2).toEqual(false);
-            expect(filter).toEqual({
-                id: 'id1',
-                key: 'key1',
-                value: 'value1',
-                prettyKey: 'prettyKey1'
-            });
-            expect(removeMoreFilters).toEqual(undefined);
-        };
-
-        component.removeAllFilters(component.options, [{
-            id: 'id1',
-            key: 'key1',
-            value: 'value1',
-            prettyKey: 'prettyKey1'
-        }], false, false);
-
-        expect(removeCalls).toEqual(1);
-    });
-
-    it('removeAllFilters does work as expected with multiple filters', () => {
-        let removeCalls = 0;
-
-        component.removeLocalFilterFromLocalAndNeon = (opts, filter, bool1, bool2, removeMoreFilters) => {
-            removeCalls++;
-            expect(bool1).toEqual(false);
-            expect(bool2).toEqual(false);
-            if (removeCalls === 1) {
-                expect(filter).toEqual({
-                    id: 'id1',
-                    key: 'key1',
-                    value: 'value1',
-                    prettyKey: 'prettyKey1'
-                });
-                expect(typeof removeMoreFilters).toEqual('function');
-                removeMoreFilters();
-            } else if (removeCalls === 2) {
-                expect(filter).toEqual({
-                    id: 'id2',
-                    key: 'key2',
-                    value: 'value2',
-                    prettyKey: 'prettyKey2'
-                });
-                expect(removeMoreFilters).toEqual(undefined);
-            }
-        };
-
-        component.removeAllFilters(component.options, [{
-            id: 'id1',
-            key: 'key1',
-            value: 'value1',
-            prettyKey: 'prettyKey1'
-        }, {
-            id: 'id2',
-            key: 'key2',
-            value: 'value2',
-            prettyKey: 'prettyKey2'
-        }], false, false);
-
-        expect(removeCalls).toEqual(2);
-    });
-
-    it('removeAllFilters does work as expected with callback function', () => {
-        let removeCalls = 0;
-        let callbackCalls = 0;
-
-        component.removeLocalFilterFromLocalAndNeon = (opts, filter, bool1, bool2, removeMoreFilters) => {
-            removeCalls++;
-            removeMoreFilters();
-        };
-
-        component.removeAllFilters(component.options, [{
-            id: 'id1',
-            key: 'key1',
-            value: 'value1',
-            prettyKey: 'prettyKey1'
-        }, {
-            id: 'id2',
-            key: 'key2',
-            value: 'value2',
-            prettyKey: 'prettyKey2'
-        }], false, false, () => {
-            callbackCalls++;
-        });
-
-        expect(removeCalls).toEqual(2);
-        expect(callbackCalls).toEqual(1);
-    });
-
-    it('removeAllFilters does not change original array', () => {
-        component.removeLocalFilterFromLocalAndNeon = (opts, filter, bool1, bool2, removeMoreFilters) => {
-            // Do nothing.
-        };
-
-        let filters = [{
-            id: 'id1',
-            key: 'key1',
-            value: 'value1',
-            prettyKey: 'prettyKey1'
-        }, {
-            id: 'id2',
-            key: 'key2',
-            value: 'value2',
-            prettyKey: 'prettyKey2'
-        }];
-
-        component.removeAllFilters(component.options, filters, false, false);
-
-        expect(filters).toEqual([{
-            id: 'id1',
-            key: 'key1',
-            value: 'value1',
-            prettyKey: 'prettyKey1'
-        }, {
-            id: 'id2',
-            key: 'key2',
-            value: 'value2',
-            prettyKey: 'prettyKey2'
-        }]);
     });
 });

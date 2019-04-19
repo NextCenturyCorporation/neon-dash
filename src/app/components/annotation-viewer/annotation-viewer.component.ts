@@ -30,10 +30,10 @@ import { Color } from '../../color';
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, DatabaseMetaData, TableMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { neonMappings, neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -43,7 +43,6 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import * as neon from 'neon-framework';
 import { ANNOTATIONS } from '@angular/core/src/util/decorators';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
@@ -104,14 +103,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     // TODO THOR-985
     public data: Data[] = [];
 
-    // The visualization filters.
-    public filters: {
-        id: string,
-        field: string,
-        prettyField: string,
-        value: string
-    }[] = [];
-
     public annotationVisible: boolean[] = [];
 
     //Either documentTextField or linkField
@@ -143,6 +134,17 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
         this.updateOnSelectId = true;
         this.visualizationQueryPaginates = true;
+    }
+
+    private createFilterDesignOnAnnotationText(value?: any): FilterDesign {
+        return {
+            datastore: '',
+            database: this.options.database.name,
+            table: this.options.table.name,
+            field: this.options.documentTextField.columnName,
+            operator: '=',
+            value: value
+        } as SimpleFilterDesign;
     }
 
     /**
@@ -180,6 +182,33 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     *
+     * @return {FilterBehavior[]}
+     * @override
+     */
+    protected designEachFilterWithNoValues(): FilterBehavior[] {
+        let behaviors: FilterBehavior[] = [];
+
+        if (this.options.documentTextField.columnName) {
+            behaviors.push({
+                filterDesign: this.createFilterDesignOnAnnotationText(),
+                // TODO THOR-1099 Should filtered text have specific HTML styles?
+                redrawCallback: () => { /* Do nothing */ }
+            } as FilterBehavior);
+        }
+
+        // TODO THOR-1098 createFilterDesignOnAnnotationPart
+        // behaviors.push({
+        //     filterDesign: this.createFilterDesignOnAnnotationPart(),
+        //     redrawCallback: () => {}
+        // } as FilterBehavior);
+
+        return behaviors;
+    }
+
+    /**
      * Returns the default limit for the visualization.
      *
      * @return {string}
@@ -200,32 +229,16 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     onClick(item) {
-        let filter = {
-            id: undefined, // This will be set in the success callback of addNeonFilter.
-            field: this.options.documentTextField.columnName,
-            value: item.documents,
-            prettyField: this.options.documentTextField.prettyName
-        };
-        if (this.filterIsUnique(filter) && !this.options.respondMode) {
-            this.addLocalFilter(filter);
-            let whereClause = neon.query.where(filter.field, '=', filter.value);
-            this.addNeonFilter(this.options, true, filter, whereClause);
+        if (!this.options.respondMode) {
+            this.toggleFilters([this.createFilterDesignOnAnnotationText(item.documents)]);
         }
     }
 
     onClickPart(part, item) {
-        let filter = {
-            id: undefined, // This will be set in the success callback of addNeonFilter.
-            field: part.type,
-            value: part.text,
-            prettyField: part.type
-        };
-        if (this.filterIsUnique(filter) && part.annotation) {
-            this.addLocalFilter(filter);
-            let whereClause = neon.query.where(filter.field, '=', filter.value);
-            this.addNeonFilter(this.options, true, filter, whereClause);
-        }
-        if (!part.annotation) {
+        if (part.annotation) {
+            // TODO THOR-1098
+            // this.toggleFilters([this.createFilterDesignOnAnnotationPart(part.type, part.text)]);
+        } else {
             this.onClick(item);
         }
     }
@@ -239,20 +252,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             textField: '',
             typeField: ''
         }];
-    }
-
-    filterIsUnique(filter) {
-        for (let existingFilter of this.filters) {
-            if (existingFilter.value === filter.value && existingFilter.field === filter.field) {
-                return false;
-            }
-        }
-        return true;
-    }
-    addLocalFilter(filter) {
-        this.filters = this.filters.filter((existingFilter) => {
-            return existingFilter.id !== filter.id;
-        }).concat([filter]);
     }
 
     /**
@@ -536,17 +535,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Adds the given filter object to the visualization and removes any existing filter object with ID matching the given filter ID.
-     *
-     * @arg {object} filter
-     */
-    addVisualizationFilter(filter: any) {
-        this.filters = this.filters.filter((existingFilter) => {
-            return existingFilter.id !== filter.id;
-        }).concat(filter);
-    }
-
-    /**
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
@@ -590,42 +578,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Adds a filter for the given item both in neon and for the visualization or replaces all the existing filters if replaceAll is true.
-     *
-     * @arg {object} item
-     * @arg {boolean} [replaceAll=false]
-     */
-    filterOnItem(item: any, replaceAll = false) {
-        let filter = this.createVisualizationFilter(undefined, item.field, item.prettyField, item.value);
-        let neonFilter = neon.query.where(filter.field, '=', filter.value);
-
-        if (replaceAll) {
-            if (this.filters.length === 1) {
-                // If we have a single existing filter, keep the ID and replace the old filter with the new filter.
-                filter.id = this.filters[0].id;
-                this.filters = [filter];
-                this.replaceNeonFilter(this.options, true, filter, neonFilter);
-            } else if (this.filters.length > 1) {
-                // If we have multiple existing filters, remove all the old filters and add the new filter once done.
-                // Use concat to copy the filter list.
-                this.removeAllFilters(this.options, [].concat(this.filters), false, false, () => {
-                    this.filters = [filter];
-                    this.addNeonFilter(this.options, true, filter, neonFilter);
-                });
-            } else {
-                // If we don't have an existing filter, add the new filter.
-                this.filters = [filter];
-                this.addNeonFilter(this.options, true, filter, neonFilter);
-            }
-        } else {
-            // If the new filter is unique, add the filter to the existing filters in both neon and the visualization.
-            if (this.isVisualizationFilterUnique(item.field, item.value)) {
-                this.addNeonFilter(this.options, true, filter, neonFilter);
-            }
-        }
-    }
-
-    /**
      * Creates and returns the text for the settings button and menu.
      *
      * @return {string}
@@ -636,16 +588,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             return '';
         }
         return super.getButtonText();
-    }
-
-    /**
-     * Returns the filter list for the visualization.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters(): any[] {
-        return this.filters;
     }
 
     /**
@@ -660,37 +602,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             headerText: this.headerText,
             infoText: this.infoText
         };
-    }
-
-    /**
-     * Returns the list of filter IDs for the visualization to ignore.
-     *
-     * @return {array}
-     * @override
-     */
-    getFiltersToIgnore(): string[] {
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.displayField]);
-
-        let filterIdsToIgnore = [];
-        for (let neonFilter of neonFilters) {
-            if (!neonFilter.filter.whereClause.whereClauses) {
-                filterIdsToIgnore.push(neonFilter.id);
-            }
-        }
-
-        return filterIdsToIgnore.length ? filterIdsToIgnore : null;
-    }
-
-    /**
-     * Returns the filter text for the given visualization filter object.
-     *
-     * @arg {any} filter
-     * @return {string}
-     * @override
-     */
-    getFilterText(filter: any): string {
-        return filter.prettyField + ' = ' + filter.value;
     }
 
     /**
@@ -724,19 +635,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     validateVisualizationQuery(options: any): boolean {
         return !!(options.database.name && options.table.name && (options.documentTextField.columnName || options.linkField.columnName) &&
             (!options.respondMode || this.selectedDataId));
-    }
-
-    /**
-     * Returns whether a visualization filter object in the filter list matching the given properties exists.
-     *
-     * @arg {string} field
-     * @arg {string} value
-     * @return {boolean}
-     */
-    isVisualizationFilterUnique(field: string, value: string): boolean {
-        return !this.filters.some((existingFilter) => {
-            return existingFilter.field === field && existingFilter.value === value;
-        });
     }
 
     updateLegend() {
@@ -848,53 +746,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      */
     refreshVisualization() {
         //
-    }
-
-    /**
-     * Removes the given visualization filter object from this visualization.
-     *
-     * @arg {object} filter
-     * @override
-     */
-    removeFilter(filter: any) {
-        this.filters = this.filters.filter((existingFilter) => {
-            return existingFilter.id !== filter.id;
-        });
-    }
-
-    /**
-     * Updates the filters for the visualization on initialization or whenever filters are changed externally.
-     *
-     * @override
-     */
-    setupFilters() {
-        // First reset the existing visualization filters.
-        this.filters = [];
-
-        // Get all the neon filters relevant to this visualization.
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.displayField]);
-
-        for (let neonFilter of neonFilters) {
-
-            // This will ignore a filter with multiple clauses.
-            if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
-                let value = neonFilter.filter.whereClause.rhs;
-                if (this.isVisualizationFilterUnique(field.columnName, value)) {
-                    this.addVisualizationFilter(this.createVisualizationFilter(neonFilter.id, field.columnName, field.prettyName, value));
-                }
-            }
-        }
-    }
-
-    /**
-     * Returns whether any components are shown in the filter-container.
-     *
-     * @return {boolean}
-     */
-    showFilterContainer(): boolean {
-        return !!this.getCloseableFilters().length || this.showLegendContainer();
     }
 
     showLegendContainer(): boolean {

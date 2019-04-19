@@ -35,7 +35,6 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { By } from '@angular/platform-browser';
-import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: DataTable', () => {
@@ -70,9 +69,69 @@ describe('Component: DataTable', () => {
         fixture.detectChanges();
     });
 
-    it('exists', (() => {
-        expect(component).toBeTruthy();
-    }));
+    it('designEachFilterWithNoValues does return expected object', () => {
+        expect((component as any).designEachFilterWithNoValues()).toEqual([]);
+
+        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
+        let actual = (component as any).designEachFilterWithNoValues();
+        expect(actual.length).toEqual(2);
+        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign as any).operator).toEqual('=');
+        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[1].filterDesign as any).type).toEqual('and');
+        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
+        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+
+        component.options.arrayFilterOperator = 'or';
+        actual = (component as any).designEachFilterWithNoValues();
+        expect(actual.length).toEqual(2);
+        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign as any).operator).toEqual('=');
+        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[1].filterDesign as any).type).toEqual('or');
+        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
+        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+
+        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD, DatasetServiceMock.TEXT_FIELD];
+        actual = (component as any).designEachFilterWithNoValues();
+        expect(actual.length).toEqual(4);
+        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign as any).operator).toEqual('=');
+        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[1].filterDesign as any).type).toEqual('or');
+        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
+        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[2].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign as any).field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[2].filterDesign as any).operator).toEqual('=');
+        expect((actual[2].filterDesign as any).value).toBeUndefined();
+        expect((actual[3].filterDesign as any).type).toEqual('or');
+        expect((actual[3].filterDesign as any).filters.length).toEqual(1);
+        expect((actual[3].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[3].filterDesign as any).filters[0].operator).toEqual('=');
+        expect((actual[3].filterDesign as any).filters[0].value).toBeUndefined();
+    });
 
     it('onResize does call refreshVisualization', () => {
         let spy = spyOn(component, 'refreshVisualization');
@@ -486,80 +545,6 @@ describe('Component: DataTable', () => {
         expect(spy).toHaveBeenCalled();
     }));
 
-    it('addLocalFilter does add the correct filter', (() => {
-        component.filters = [{
-            id: 'filterId',
-            field: 'someField',
-            value: 'value',
-            prettyField: 'Some Field'
-        }];
-
-        component.addLocalFilter({
-            id: 'newId',
-            field: 'newField',
-            value: 'something else',
-            prettyField: 'New Field'
-        });
-
-        expect(component.filters).toEqual([{
-            id: 'filterId',
-            field: 'someField',
-            value: 'value',
-            prettyField: 'Some Field'
-        }, {
-            id: 'newId',
-            field: 'newField',
-            value: 'something else',
-            prettyField: 'New Field'
-        }]);
-    }));
-
-    it('filterIsUnique does return correct boolean value', (() => {
-        component.filters = [{
-            id: 'notUniqueId',
-            field: 'someField',
-            value: 'value',
-            prettyField: 'Some Field'
-        }];
-
-        expect(component.filterIsUnique({
-            id: 'notUniqueId',
-            field: 'someField',
-            value: 'value',
-            prettyField: 'Some Field'
-        })).toBeFalsy();
-
-        expect(component.filterIsUnique({
-            id: 'newId',
-            field: 'newField',
-            value: 'something else',
-            prettyField: 'New Field'
-        })).toBeTruthy();
-    }));
-
-    it('getFilterText does return correct label', (() => {
-        component.filters = [{
-            id: 'notUniqueId',
-            field: 'someField',
-            value: 'value',
-            prettyField: 'Some Field'
-        }];
-
-        expect(component.getFilterText({
-            id: 'notUniqueId',
-            field: 'someField',
-            value: 'value',
-            prettyField: 'Some Field'
-        })).toEqual('Some Field = value');
-
-        expect(component.getFilterText({
-            id: 'newId',
-            field: 'newField',
-            value: 40,
-            prettyField: 'New Field'
-        })).toEqual('New Field = 40');
-    }));
-
     it('refreshVisualization does call expected functions', ((done) => {
         let recalcHeadersSpy = spyOn(component, 'recalculateActiveHeaders');
         let tableRecalcSpy = spyOn(component.table, 'recalculate');
@@ -671,31 +656,6 @@ describe('Component: DataTable', () => {
         });
     });
 
-    it('getFiltersToIgnore does return null', () => {
-        component.options.ignoreSelf = false;
-
-        expect(component.getFiltersToIgnore()).toBeNull();
-    });
-
-    it('getFiltersToIgnore does return an array', () => {
-        component.options.ignoreSelf = true;
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testFilterField', '=', 'value1'), 'testFilterField');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
-
-        let filtersResult = component.getFiltersToIgnore();
-        expect(filtersResult.length).toEqual(1);
-        expect(filtersResult[0]).toEqual('testDatabase1-testTable1-testFilterField');
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
     it('arrayToString does return the expected string value', () => {
         expect(component.arrayToString(['someElement'])).toEqual('[someElement]');
         expect(component.arrayToString([{key: 'hi'}])).toEqual('[]');
@@ -744,117 +704,6 @@ describe('Component: DataTable', () => {
             {_id: 1, category: 'books', testField: 'test'},
             {_id: 2, category: 'books', testField: 'some other value'}
         ]);
-    });
-
-    it('setupFilters does not do anything if no filter exists', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-
-        component.setupFilters();
-        expect(component.filters).toEqual([]);
-    });
-
-    it('setupFilters does not add neon filter with non-matching database/table/field', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testFilterField', '=', 'value1'), 'testFilterName1');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterFields = [];
-
-        // Test matching database/table but not field.
-        component.setupFilters();
-        expect(component.filters).toEqual([]);
-
-        component.options.database = DatasetServiceMock.DATABASES[1];
-
-        // Test matching database/field but not table.
-        component.setupFilters();
-        expect(component.filters).toEqual([]);
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[1];
-
-        // Test matching table/field but not table.
-        component.setupFilters();
-        expect(component.filters).toEqual([]);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('setupFilters does add neon filter to filters', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testSortField', '=', 'value1'), 'testSortField');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterFields = [DatasetServiceMock.SORT_FIELD];
-
-        component.setupFilters();
-        expect(component.filters).toEqual([{
-            id: 'testDatabase1-testTable1-testSortField',
-            field: 'testSortField',
-            prettyField: 'Test Sort Field',
-            value: 'value1'
-        }]);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('setupFilters does remove previous filters', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testSortField', '=', 'value1'), 'testSortField');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterFields = [DatasetServiceMock.SORT_FIELD];
-
-        component.filters = [{
-            id: 'idA',
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'value2'
-        }];
-
-        component.setupFilters();
-        expect(component.filters).toEqual([{
-            id: 'testDatabase1-testTable1-testSortField',
-            field: 'testSortField',
-            prettyField: 'Test Sort Field',
-            value: 'value1'
-        }]);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('setupFilters does ignore neon filters with multiple clauses', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.and.apply(neon.query, [
-                neon.query.where('testFilterField', '=', 'value1'),
-                neon.query.where('testSortField', '=', 'value2')
-            ]), 'testSortField');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterFields = [DatasetServiceMock.SORT_FIELD];
-
-        component.setupFilters();
-        expect(component.filters).toEqual([]);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
     });
 
     it('isDragging does return expected boolean', () => {
@@ -1172,29 +1021,14 @@ describe('Component: DataTable', () => {
         expect(component.headers[1].style).toEqual({});
     });
 
-    it('getCloseableFilters does return filters', () => {
-        component.filters = [{
-            id: 'filterId',
-            field: 'someField',
-            value: 'value',
-            prettyField: 'Some Field'
-        }];
-
-        expect(component.getCloseableFilters()).toEqual([{
-            id: 'filterId',
-            field: 'someField',
-            value: 'value',
-            prettyField: 'Some Field'
-        }]);
-    });
-
     it('onSelect does update selected array and calls publishAnyCustomEvents, but not publishSelectId', () => {
         let publishIdSpy = spyOn(component, 'publishSelectId');
         let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
-        let addFilterSpy = spyOn(component, 'addFilter');
+        let exchangeFiltersSpy = spyOn(component, 'exchangeFilters');
+        let toggleFiltersSpy = spyOn(component, 'toggleFilters');
         let selected = [{
-            category: 'books',
-            title: 'Test'
+            testCategoryField: 'books',
+            testTextField: 'Test'
         }];
 
         component.onSelect({selected: selected});
@@ -1202,45 +1036,50 @@ describe('Component: DataTable', () => {
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalledTimes(0);
         expect(publishAnySpy).toHaveBeenCalled();
-        expect(addFilterSpy).toHaveBeenCalledTimes(0);
+        expect(exchangeFiltersSpy).toHaveBeenCalledTimes(0);
+        expect(toggleFiltersSpy).toHaveBeenCalledTimes(0);
     });
 
     it('onSelect does update selected array, calls publishSelectId and publishAnyCustomEvents', () => {
         let publishIdSpy = spyOn(component, 'publishSelectId');
         let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
-        let addFilterSpy = spyOn(component, 'addFilter');
+        let exchangeFiltersSpy = spyOn(component, 'exchangeFilters');
+        let toggleFiltersSpy = spyOn(component, 'toggleFilters');
         let selected = [{
-            category: 'books',
-            title: 'Test'
+            testCategoryField: 'books',
+            testTextField: 'Test'
         }];
-        component.options.idField = new FieldMetaData('category');
+        component.options.idField = DatasetServiceMock.CATEGORY_FIELD;
 
         component.onSelect({selected: selected});
 
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalled();
         expect(publishAnySpy).toHaveBeenCalled();
-        expect(addFilterSpy).toHaveBeenCalledTimes(0);
+        expect(exchangeFiltersSpy).toHaveBeenCalledTimes(0);
+        expect(toggleFiltersSpy).toHaveBeenCalledTimes(0);
     });
 
-    it('onSelect does update selected array and filters, calls publishSelectId and publishAnyCustomEvents', () => {
+    it('onSelect does create simple filter and call toggleFilters', () => {
         let publishIdSpy = spyOn(component, 'publishSelectId');
         let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
-        let addFilterSpy = spyOn(component, 'addFilter');
+        let exchangeFiltersSpy = spyOn(component, 'exchangeFilters');
+        let toggleFiltersSpy = spyOn(component, 'toggleFilters');
         let selected = [{
-            category: 'books',
-            title: 'Test'
+            testCategoryField: 'books',
+            testTextField: 'Test'
         }];
-        component.options.idField = new FieldMetaData('category');
-        component.options.fields = [new FieldMetaData('category')];
-        component.options.filterFields = [new FieldMetaData('category')];
+        component.options.idField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.fields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
         component.options.filterable = true;
+        component.options.singleFilter = false;
         (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
-            category: 'books',
-            title: 'Test'
+            testCategoryField: 'books',
+            testTextField: 'Test'
         }, {
-            category: 'test',
-            title: 'Test 2'
+            testCategoryField: 'test',
+            testTextField: 'Test 2'
         }]));
 
         component.onSelect({selected: selected});
@@ -1248,45 +1087,301 @@ describe('Component: DataTable', () => {
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalled();
         expect(publishAnySpy).toHaveBeenCalled();
-        expect(addFilterSpy).toHaveBeenCalled();
+        expect(exchangeFiltersSpy.calls.count()).toEqual(0);
+        expect(toggleFiltersSpy.calls.count()).toEqual(1);
+        expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[{
+            optional: false,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.CATEGORY_FIELD,
+            operator: '=',
+            value: 'books'
+        }]]);
     });
 
-    it('createFilterObject does return expected filter object', () => {
-        expect(component.createFilterObject('someField', 'value', 'Some Field')).toEqual({
-            id: undefined,
-            field: 'someField',
-            value: 'value',
-            prettyField: 'Some Field'
-        });
+    it('onSelect does create simple filter and call exchangeFilters if singleFilter=true', () => {
+        let publishIdSpy = spyOn(component, 'publishSelectId');
+        let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
+        let exchangeFiltersSpy = spyOn(component, 'exchangeFilters');
+        let toggleFiltersSpy = spyOn(component, 'toggleFilters');
+        let selected = [{
+            testCategoryField: 'books',
+            testTextField: 'Test'
+        }];
+        component.options.idField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.fields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.filterable = true;
+        component.options.singleFilter = true;
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+            testCategoryField: 'books',
+            testTextField: 'Test'
+        }, {
+            testCategoryField: 'test',
+            testTextField: 'Test 2'
+        }]));
+
+        component.onSelect({selected: selected});
+
+        expect(component.selected).toEqual(selected);
+        expect(publishIdSpy).toHaveBeenCalled();
+        expect(publishAnySpy).toHaveBeenCalled();
+        expect(exchangeFiltersSpy.calls.count()).toEqual(1);
+        expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[{
+            optional: false,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.CATEGORY_FIELD,
+            operator: '=',
+            value: 'books'
+        }]]);
+        expect(toggleFiltersSpy.calls.count()).toEqual(0);
     });
 
-    it('addFilter should add filter', () => {
-        let filter1 = {
-            id: undefined,
-            field: 'testDataField',
-            prettyField: 'Test Data Field',
-            value: 'Test Value'
-        };
+    it('onSelect does create compound AND filter and call toggleFilters', () => {
+        let publishIdSpy = spyOn(component, 'publishSelectId');
+        let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
+        let exchangeFiltersSpy = spyOn(component, 'exchangeFilters');
+        let toggleFiltersSpy = spyOn(component, 'toggleFilters');
+        let selected = [{
+            testCategoryField: ['books', 'games', 'shows'],
+            testTextField: 'Test'
+        }];
+        component.options.idField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.fields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.filterable = true;
+        component.options.singleFilter = false;
+        component.options.arrayFilterOperator = 'and';
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+            testCategoryField: ['books', 'games', 'shows'],
+            testTextField: 'Test'
+        }, {
+            testCategoryField: 'test',
+            testTextField: 'Test 2'
+        }]));
 
-        component.addFilter(filter1, neon.query.where('testDataField', '=', 'Test Value'));
+        component.onSelect({selected: selected});
 
-        expect(component.getCloseableFilters().length).toBe(1);
-        expect(getService(FilterService).getFilters().length).toBe(1);
+        expect(component.selected).toEqual(selected);
+        expect(publishIdSpy).toHaveBeenCalled();
+        expect(publishAnySpy).toHaveBeenCalled();
+        expect(exchangeFiltersSpy.calls.count()).toEqual(0);
+        expect(toggleFiltersSpy.calls.count()).toEqual(1);
+        expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[{
+            type: 'and',
+            optional: false,
+            filters: [{
+                optional: false,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.CATEGORY_FIELD,
+                operator: '=',
+                value: 'books'
+            }, {
+                optional: false,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.CATEGORY_FIELD,
+                operator: '=',
+                value: 'games'
+            }, {
+                optional: false,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.CATEGORY_FIELD,
+                operator: '=',
+                value: 'shows'
+            }]
+        }]]);
+    });
 
-        //Set another filter. Filter key must be different
-        let filter2 = {
-            id: undefined,
-            field: 'testDataField2',
-            prettyField: 'Test Data Field 2',
-            value: 'Test Value 2'
-        };
+    it('onSelect does create compound OR filter if arrayFilterOperator=or', () => {
+        let publishIdSpy = spyOn(component, 'publishSelectId');
+        let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
+        let exchangeFiltersSpy = spyOn(component, 'exchangeFilters');
+        let toggleFiltersSpy = spyOn(component, 'toggleFilters');
+        let selected = [{
+            testCategoryField: ['books', 'games', 'shows'],
+            testTextField: 'Test'
+        }];
+        component.options.idField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.fields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.filterable = true;
+        component.options.singleFilter = false;
+        component.options.arrayFilterOperator = 'or';
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+            testCategoryField: ['books', 'games', 'shows'],
+            testTextField: 'Test'
+        }, {
+            testCategoryField: 'test',
+            testTextField: 'Test 2'
+        }]));
 
-        component.addFilter(filter2, neon.query.where('testDataField2', '=', 'Test Value 2'));
-        expect(getService(FilterService).getFilters().length).toBe(2);
+        component.onSelect({selected: selected});
 
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
+        expect(component.selected).toEqual(selected);
+        expect(publishIdSpy).toHaveBeenCalled();
+        expect(publishAnySpy).toHaveBeenCalled();
+        expect(exchangeFiltersSpy.calls.count()).toEqual(0);
+        expect(toggleFiltersSpy.calls.count()).toEqual(1);
+        expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[{
+            type: 'or',
+            optional: true,
+            filters: [{
+                optional: true,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.CATEGORY_FIELD,
+                operator: '=',
+                value: 'books'
+            }, {
+                optional: true,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.CATEGORY_FIELD,
+                operator: '=',
+                value: 'games'
+            }, {
+                optional: true,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.CATEGORY_FIELD,
+                operator: '=',
+                value: 'shows'
+            }]
+        }]]);
+    });
+
+    it('onSelect does create compound AND filter and call exchangeFilters if singleFilter=true', () => {
+        let publishIdSpy = spyOn(component, 'publishSelectId');
+        let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
+        let exchangeFiltersSpy = spyOn(component, 'exchangeFilters');
+        let toggleFiltersSpy = spyOn(component, 'toggleFilters');
+        let selected = [{
+            testCategoryField: ['books', 'games', 'shows'],
+            testTextField: 'Test'
+        }];
+        component.options.idField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.fields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.filterable = true;
+        component.options.singleFilter = true;
+        component.options.arrayFilterOperator = 'and';
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+            testCategoryField: ['books', 'games', 'shows'],
+            testTextField: 'Test'
+        }, {
+            testCategoryField: 'test',
+            testTextField: 'Test 2'
+        }]));
+
+        component.onSelect({selected: selected});
+
+        expect(component.selected).toEqual(selected);
+        expect(publishIdSpy).toHaveBeenCalled();
+        expect(publishAnySpy).toHaveBeenCalled();
+        expect(exchangeFiltersSpy.calls.count()).toEqual(1);
+        expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[{
+            type: 'and',
+            optional: false,
+            filters: [{
+                optional: false,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.CATEGORY_FIELD,
+                operator: '=',
+                value: 'books'
+            }, {
+                optional: false,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.CATEGORY_FIELD,
+                operator: '=',
+                value: 'games'
+            }, {
+                optional: false,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.CATEGORY_FIELD,
+                operator: '=',
+                value: 'shows'
+            }]
+        }]]);
+        expect(toggleFiltersSpy.calls.count()).toEqual(0);
+    });
+
+    it('onSelect does create compound OR filter and call exchangeFilters if arrayFilterOperator=or and singleFilter=true', () => {
+        let publishIdSpy = spyOn(component, 'publishSelectId');
+        let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
+        let exchangeFiltersSpy = spyOn(component, 'exchangeFilters');
+        let toggleFiltersSpy = spyOn(component, 'toggleFilters');
+        let selected = [{
+            testCategoryField: ['books', 'games', 'shows'],
+            testTextField: 'Test'
+        }];
+        component.options.idField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.fields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.filterable = true;
+        component.options.singleFilter = true;
+        component.options.arrayFilterOperator = 'or';
+        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+            testCategoryField: ['books', 'games', 'shows'],
+            testTextField: 'Test'
+        }, {
+            testCategoryField: 'test',
+            testTextField: 'Test 2'
+        }]));
+
+        component.onSelect({selected: selected});
+
+        expect(component.selected).toEqual(selected);
+        expect(publishIdSpy).toHaveBeenCalled();
+        expect(publishAnySpy).toHaveBeenCalled();
+        expect(exchangeFiltersSpy.calls.count()).toEqual(1);
+        expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[{
+            type: 'or',
+            optional: false,
+            filters: [{
+                optional: false,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.CATEGORY_FIELD,
+                operator: '=',
+                value: 'books'
+            }, {
+                optional: false,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.CATEGORY_FIELD,
+                operator: '=',
+                value: 'games'
+            }, {
+                optional: false,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.CATEGORY_FIELD,
+                operator: '=',
+                value: 'shows'
+            }]
+        }]]);
+        expect(toggleFiltersSpy.calls.count()).toEqual(0);
     });
 
     it('onTableResize updates headerWidths and calls refreshVisualization', () => {
@@ -1316,65 +1411,6 @@ describe('Component: DataTable', () => {
         expect(component.headerWidths.get('someField')).toEqual(50);
         expect(component.headerWidths.get('testField')).toEqual(200);
         expect(spy).toHaveBeenCalled();
-    });
-
-    it('removeFilter should remove filter', () => {
-        let filter1 = {
-            id: undefined,
-            field: 'testDataField',
-            prettyField: 'Test Data Field',
-            value: 'Test Value'
-        };
-
-        component.addFilter(filter1, neon.query.where('testDataField', '=', 'Test Value'));
-
-        expect(getService(FilterService).getFilters().length).toBe(1);
-        component.removeLocalFilterFromLocalAndNeon(component.options, filter1, true, true);
-        expect(getService(FilterService).getFilters().length).toBe(0);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('should remove filter when clicked', () => {
-        let filter1 = {
-            id: undefined,
-            field: 'testDataField',
-            prettyField: 'Test Data Field',
-            value: 'Test Value'
-        };
-
-        component.addFilter(filter1, neon.query.where('testDataField', '=', 'Test Value'));
-
-        expect(getService(FilterService).getFilters().length).toBe(1);
-        let xEl = getDebug('.datatable-filter-reset .mat-icon-button');
-        xEl.triggerEventHandler('click', null);
-        expect(getService(FilterService).getFilters().length).toBe(0);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('filter-reset element should exist if filter is set', () => {
-        expect(getDebug('.datatablefilter-reset')).toBeNull();
-
-        let filter1 = {
-            id: undefined,
-            field: 'testDataField',
-            prettyField: 'Test Data Field',
-            value: 'Test Value'
-        };
-
-        component.addFilter(filter1, neon.query.where('testDataField', '=', 'Test Value'));
-
-        expect(getDebug('.datatable-filter-reset')).toBeDefined();
-    });
-
-    it('no filter-reset elements should exist if filter is not set', () => {
-        expect(component.getCloseableFilters().length).toBe(0);
-        expect(getDebug('.filter-reset')).toBeNull();
     });
 
     it('getElementRefs does return expected object', () => {
@@ -1546,6 +1582,8 @@ describe('Component: DataTable', () => {
     it('getRowClassFunction function does set active to false', () => {
         let rowClassFunction = component.getRowClassFunction();
 
+        expect((component as any).isFiltered()).toEqual(false);
+
         expect(rowClassFunction({})).toEqual({
             active: false
         });
@@ -1557,7 +1595,7 @@ describe('Component: DataTable', () => {
         });
     });
 
-    it('getRowClassFunction function with filters and filterFields does set active to expected boolean', () => {
+    it('getRowClassFunction function with simple filters and filterFields does set active to expected boolean', () => {
         let rowClassFunction = component.getRowClassFunction();
 
         component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
@@ -1567,20 +1605,19 @@ describe('Component: DataTable', () => {
         });
 
         expect(rowClassFunction({
-            testFilterField: 'testFilterValue'
+            testFilterField: 'testFilterValue1'
         })).toEqual({
             active: false
         });
 
-        component.filters = [{
-            id: undefined,
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'testFilterValue'
-        }];
+        (component as any).isFiltered = (filterDesign) => {
+            return filterDesign.database === component.options.database && filterDesign.table === component.options.table &&
+                filterDesign.field === DatasetServiceMock.FILTER_FIELD && filterDesign.operator === '=' &&
+                (filterDesign.value === 'testFilterValue1' || filterDesign.value === 'testFilterValue2');
+        };
 
         expect(rowClassFunction({
-            testFilterField: 'testFilterValue'
+            testFilterField: 'testFilterValue1'
         })).toEqual({
             active: true
         });
@@ -1588,24 +1625,97 @@ describe('Component: DataTable', () => {
         expect(rowClassFunction({
             testFilterField: 'testFilterValue2'
         })).toEqual({
-            active: false
+            active: true
         });
 
         expect(rowClassFunction({
-            testFilterField2: 'testFilterValue'
+            testFilterField: 'testFilterValue3'
         })).toEqual({
             active: false
         });
 
-        component.filters = [{
-            id: undefined,
-            field: 'testFilterField2',
-            prettyField: 'Test Filter Field 2',
-            value: 'testFilterValue2'
-        }];
+        expect(rowClassFunction({
+            testFilterField2: 'testFilterValue1'
+        })).toEqual({
+            active: false
+        });
+    });
+
+    it('getRowClassFunction function with compound AND filters and filterFields does set active to expected boolean', () => {
+        let rowClassFunction = component.getRowClassFunction();
+
+        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
+        component.options.singleFilter = false;
+        component.options.arrayFilterOperator = 'and';
+
+        (component as any).isFiltered = (filterDesign) => {
+            return filterDesign.type === 'and' && filterDesign.filters && filterDesign.filters.length === 1 &&
+                filterDesign.filters[0].database === component.options.database &&
+                filterDesign.filters[0].table === component.options.table &&
+                filterDesign.filters[0].field === DatasetServiceMock.FILTER_FIELD && filterDesign.filters[0].operator === '=' &&
+                (filterDesign.filters[0].value === 'testFilterValue1' || filterDesign.filters[0].value === 'testFilterValue2');
+        };
 
         expect(rowClassFunction({
-            testFilterField: 'testFilterValue'
+            testFilterField: 'testFilterValue1'
+        })).toEqual({
+            active: true
+        });
+
+        expect(rowClassFunction({
+            testFilterField: 'testFilterValue2'
+        })).toEqual({
+            active: true
+        });
+
+        expect(rowClassFunction({
+            testFilterField: 'testFilterValue3'
+        })).toEqual({
+            active: false
+        });
+
+        expect(rowClassFunction({
+            testFilterField2: 'testFilterValue1'
+        })).toEqual({
+            active: false
+        });
+    });
+
+    it('getRowClassFunction function with compound OR filters and filterFields does set active to expected boolean', () => {
+        let rowClassFunction = component.getRowClassFunction();
+
+        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
+        component.options.singleFilter = false;
+        component.options.arrayFilterOperator = 'or';
+
+        (component as any).isFiltered = (filterDesign) => {
+            return filterDesign.type === 'or' && filterDesign.filters && filterDesign.filters.length === 1 &&
+                filterDesign.filters[0].database === component.options.database &&
+                filterDesign.filters[0].table === component.options.table &&
+                filterDesign.filters[0].field === DatasetServiceMock.FILTER_FIELD && filterDesign.filters[0].operator === '=' &&
+                (filterDesign.filters[0].value === 'testFilterValue1' || filterDesign.filters[0].value === 'testFilterValue2');
+        };
+
+        expect(rowClassFunction({
+            testFilterField: 'testFilterValue1'
+        })).toEqual({
+            active: true
+        });
+
+        expect(rowClassFunction({
+            testFilterField: 'testFilterValue2'
+        })).toEqual({
+            active: true
+        });
+
+        expect(rowClassFunction({
+            testFilterField: 'testFilterValue3'
+        })).toEqual({
+            active: false
+        });
+
+        expect(rowClassFunction({
+            testFilterField2: 'testFilterValue1'
         })).toEqual({
             active: false
         });

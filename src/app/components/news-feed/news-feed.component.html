@@ -18,18 +18,7 @@
         <mat-spinner></mat-spinner>
     </div>
 
-        <div class="filter-container" *ngIf="getCloseableFilters().length">
-            <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
-                <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">{{ filter.value }}</span>
-                <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                        [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(options, filter, true, true)">
-                    <mat-icon class="neon-icon-small">close</mat-icon>
-                </button>
-            </div>
-        </div>
-
-        <div #newsFeed class="body-container" [class.with-filter]="getCloseableFilters().length"
-            [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
+        <div #newsFeed class="body-container" [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
             <div class="news-feed-container" *ngIf="getActiveData(options) != null" [hidden]="!getActiveData(options).count()">
                 <div class="news-feed-div" *ngFor="let item of getActiveData(options).data"
                      (click)="selectGridItem(item)" [class.selectable]="isSelectable()" [class.selected]="isSelected(item)">

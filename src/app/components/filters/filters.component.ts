@@ -24,7 +24,6 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
     styleUrls: ['./filters.component.scss']
 })
 export class FiltersComponent {
-    @Input() widgets: Map<string, BaseNeonComponent>;
     @Output() closeDialog: EventEmitter<boolean> = new EventEmitter<boolean>();
     public showFilterBuilderView: boolean = true; // if false, show current filters instead
 

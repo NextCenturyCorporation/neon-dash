@@ -13,18 +13,22 @@
  * limitations under the License.
  *
  */
+import { AppMaterialModule } from '../../app.material.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed, inject } from '@angular/core/testing';
-import { MatDialogRef } from '@angular/material';
 import { FormsModule } from '@angular/forms';
+import { MatDialogRef } from '@angular/material';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { CurrentFiltersComponent } from './current-filters.component';
-import { FilterService } from '../../services/filter.service';
-import { DatasetService } from '../../services/dataset.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
+
+import { AbstractSearchService } from '../../services/abstract.search.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 describe('Component: CurrentFiltersComponent', () => {
     let fixture: ComponentFixture<CurrentFiltersComponent>;
@@ -36,8 +40,9 @@ describe('Component: CurrentFiltersComponent', () => {
             CurrentFiltersComponent
         ],
         providers: [
-            FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             DatasetService,
+            FilterService,
             { provide: 'config', useValue: testConfig }
         ],
         imports: [
