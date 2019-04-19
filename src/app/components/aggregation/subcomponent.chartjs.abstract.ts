@@ -39,15 +39,19 @@ export abstract class AbstractChartJsDataset {
     public abstract finalizeData();
 
     public getColorBackground(): string {
-        return this.color.getComputedCssTransparencyHigh(this.elementRef);
+        return this.color.getComputedCss(this.elementRef);
     }
 
     public getColorDeselected(): string {
-        return this.color.getComputedCssTransparencyMedium(this.elementRef);
+        return this.color.getComputedCssTransparencyHigh(this.elementRef);
     }
 
     public getColorSelected(): string {
         return this.color.getComputedCss(this.elementRef);
+    }
+
+    public getColorHover(): string {
+        return this.color.getComputedCssHoverColor(this.elementRef);
     }
 
     public getLabels(): any[] {
@@ -1039,10 +1043,11 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             return;
         }
 
+        let firstItemSelected = this.selectedLabels.length === 0;
         let labelGroup = chart.data.datasets[items[0]._datasetIndex].label;
         let labelValue = this.findItemInDataToSelect(items, chart);
         let exchangeFilter = !(event.ctrlKey || event.metaKey);
-        if (exchangeFilter) {
+        if (firstItemSelected || exchangeFilter) {
             this.selectedLabels = [labelValue];
             this.dataDeselect(chart);
         } else {
