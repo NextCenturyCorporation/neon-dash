@@ -17,17 +17,7 @@
         <mat-spinner></mat-spinner>
     </div>
 
-    <div class="datatable-filter-container">
-        <div class="datatable-filter-reset" *ngFor="let filter of getCloseableFilters()">
-            <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(options, filter, true, false)">
-                <mat-icon class="neon-icon-small">close</mat-icon>
-            </button>
-            <span class="datatable-filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.value }}</span>
-        </div>
-    </div>
-
-    <div class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
+    <div class="body-container" [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
         <div class="table-container">
             <ngx-datatable #table class="material table"[class.skinny]="this.options.skinny"
                 [class.selectable]="options.filterable || options.idField.columnName"
@@ -73,8 +63,7 @@
         </div>
     </div>
 
-    <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
-    <div class="footer" *ngIf="showPagination() && !showContribution()">
+    <div class="footer" *ngIf="showPagination()">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="page == 1" class="pagination-button" color="primary" (click)="goToPreviousPage()">
                 Previous
@@ -84,33 +73,6 @@
                     (click)="goToNextPage()">
                 Next
             </button>
-        </div>
-    </div>
-
-    <div class="footer-with-contribution" *ngIf="showPagination() && showContribution()">
-        <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button" color="primary" (click)="goToPreviousPage()">
-                Previous
-            </button>
-            <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="lastPage" class="pagination-button" color="primary"
-                    (click)="goToNextPage()">
-                Next
-            </button>
-        </div>
-
-        <div class="contribution-text-container">
-            <a (click)="openContributionDialog()">
-                {{ getContributorAbbreviations() }}
-            </a>
-        </div>
-    </div>
-
-    <div class="contribution-text" *ngIf="showContribution() && !showPagination()">
-        <div class="contribution-text-container">
-            <a (click)="openContributionDialog()">
-                {{ getContributorAbbreviations() }}
-            </a>
         </div>
     </div>
 </mat-sidenav-container>

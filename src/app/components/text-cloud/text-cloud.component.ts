@@ -34,7 +34,7 @@ import {
 } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { FilterBehavior, FilterService, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
@@ -46,7 +46,6 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import { TextCloud, SizeOptions, ColorOptions } from './text-cloud-namespace';
-import * as neon from 'neon-framework';
 import { MatDialog } from '@angular/material';
 
 @Component({
@@ -65,14 +64,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     // TODO THOR-985
     public textCloudData: any[] = [];
-
-    public filters: {
-        id: string,
-        field: string,
-        value: string,
-        translated: string,
-        prettyField: string
-    }[] = [];
 
     public textColor: string = '#111';
 
@@ -105,7 +96,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.options.aggregation = (this.options.aggregation || this.injector.get('sizeAggregation', AggregationType.COUNT)).toLowerCase();
 
         // This should happen before execute query as #refreshVisualization() depends on this.textCloud
-        this.textColor = this.widgetService.getThemeAccentColorHex();
+        this.textColor = this.widgetService.getThemeMainColorHex();
     }
 
     /**
@@ -119,14 +110,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     refreshVisualization() {
         this.textCloudData = this.textCloud.createTextCloud(this.getActiveData(this.options).data);
-    }
-
-    getFilterText(filter) {
-        return filter.prettyField + ' = ' + filter.value;
-    }
-
-    getFilterDetail(filter) {
-        return filter.translated ? (' (' + filter.translated + ')') : '';
     }
 
     /**
@@ -154,6 +137,18 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         ];
     }
 
+    private createFilterDesignOnText(value?: any): FilterDesign {
+        return {
+            optional: !this.options.andFilters,
+            datastore: '',
+            database: this.options.database,
+            table: this.options.table,
+            field: this.options.dataField as FieldMetaData,
+            operator: '=',
+            value: value
+        } as SimpleFilterDesign;
+    }
+
     /**
      * Creates and returns an array of non-field options for the visualization.
      *
@@ -168,6 +163,26 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             new WidgetSelectOption('paragraphs', 'Show as Paragraphs', false, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('showCounts', 'Show Counts', false, OptionChoices.NoFalseYesTrue)
         ];
+    }
+
+    /**
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     *
+     * @return {FilterBehavior[]}
+     * @override
+     */
+    protected designEachFilterWithNoValues(): FilterBehavior[] {
+        let behaviors: FilterBehavior[] = [];
+
+        if (this.options.dataField.columnName) {
+            behaviors.push({
+                filterDesign: this.createFilterDesignOnText(),
+                redrawCallback: this.redrawText.bind(this)
+            } as FilterBehavior);
+        }
+
+        return behaviors;
     }
 
     /**
@@ -193,6 +208,20 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
+    }
+
+    /**
      * Returns the list of fields to export.
      *
      * @return {{ columnName: string, prettyName: string }[]}
@@ -207,29 +236,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             columnName: 'value',
             prettyName: this.options.sizeField.prettyName || 'Count'
         }];
-    }
-
-    /**
-     * Returns the list of filters for the visualization to ignore.
-     *
-     * @return {any[]}
-     * @override
-     */
-    getFiltersToIgnore() {
-        if (!this.options.ignoreSelf) {
-            return null;
-        }
-
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.options.dataField.columnName]);
-
-        let ignoredFilterIds = neonFilters.filter((neonFilter) => {
-            return !neonFilter.filter.whereClause.whereClauses;
-        }).map((neonFilter) => {
-            return neonFilter.id;
-        });
-
-        return ignoredFilterIds.length ? ignoredFilterIds : null;
     }
 
     /**
@@ -253,6 +259,36 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
+     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
+     * Uses the given count to determine plurality.
+     *
+     * @arg {number} count
+     * @return {string}
+     * @override
+     */
+    public getVisualizationElementLabel(count: number): string {
+        return 'Term' + (count === 1 ? '' : 's');
+    }
+
+    private redrawText(filterDesigns: FilterDesign[]): void {
+        this.textCloudData = this.textCloudData.map((item) => {
+            let itemCopy = {
+                color: item.color,
+                fontSize: item.fontSize,
+                key: item.key,
+                keyTranslated: item.keyTranslated,
+                selected: false,
+                value: item.value
+            };
+            if (this.isFiltered(this.createFilterDesignOnText(item.key))) {
+                itemCopy.selected = true;
+            }
+            return itemCopy;
+        });
+        this.changeDetection.detectChanges();
+    }
+
+    /**
      * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
@@ -261,12 +297,14 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
-        // TODO Create new objects (don't use result objects)
         let data = results.map((item) => {
-            item.key = item[options.dataField.columnName];
-            item.keyTranslated = item.key;
-            item.value = item._aggregation;
-            return item;
+            let key = item[options.dataField.columnName];
+            return {
+                key: key,
+                keyTranslated: key,
+                selected: this.isFiltered(this.createFilterDesignOnText(key)),
+                value: item._aggregation
+            };
         });
 
         return new TransformedVisualizationData(data);
@@ -282,121 +320,14 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return options.aggregation !== AggregationType.COUNT;
     }
 
-    setupFilters() {
-        // Get neon filters
-        // See if any neon filters are local filters and set/clear appropriately
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.options.dataField.columnName]);
-        this.filters = [];
-        for (let neonFilter of neonFilters) {
-            if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
-                let value = neonFilter.filter.whereClause.rhs;
-                let filter = {
-                    id: neonFilter.id,
-                    field: field.columnName,
-                    prettyField: field.prettyName,
-                    translated: '',
-                    value: value
-                };
-                if (this.filterIsUnique(filter)) {
-                    this.filters.push(filter);
-                }
-            }
-        }
-    }
-
-    isFiltered(text: string): boolean {
-        return this.filters.some((filter) => {
-            return filter.value === text;
-        });
-    }
-
     onClick(item) {
-        let filter = {
-            id: undefined, // This will be set in the success callback of addNeonFilter.
-            field: this.options.dataField.columnName,
-            prettyField: this.options.dataField.prettyName,
-            translated: '',
-            value: item.key
-        };
-        if (!this.filters.length) {
-            this.filters.push(filter);
-            let whereClause = neon.query.where(filter.field, '=', filter.value);
-            this.addNeonFilter(this.options, !this.options.ignoreSelf, filter, whereClause);
-        } else if (this.filterIsUnique(filter)) {
-            filter.id = this.filters[0].id;
-            this.filters.push(filter);
-            let whereClauses = this.filters.map((existingFilter) => {
-                return neon.query.where(existingFilter.field, '=', existingFilter.value);
-            });
-            let whereClause = whereClauses.length === 1 ? whereClauses[0] : (this.options.andFilters ? neon.query.and.apply(neon.query,
-                whereClauses) : neon.query.or.apply(neon.query, whereClauses));
-            this.replaceNeonFilter(this.options, !this.options.ignoreSelf, filter, whereClause);
-        }
-    }
-
-    filterIsUnique(filter) {
-        for (let existingFilter of this.filters) {
-            if (existingFilter.value === filter.value && existingFilter.field === filter.field) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Returns the list of filter objects.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters() {
-        return this.filters;
-    }
-
-    /**
-     * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
-     * Uses the given count to determine plurality.
-     *
-     * @arg {number} count
-     * @return {string}
-     * @override
-     */
-    public getVisualizationElementLabel(count: number): string {
-        return 'Term' + (count === 1 ? '' : 's');
-    }
-
-    // filter is a filter from the filter service that the filter to remove corresponds to.
-    removeFilter(filter: any) {
-        // We do it this way instead of using splice() because we have to replace filter array
-        // with a new object for Angular to recognize the change. It doesn't respond to mutation.
-        let newFilters = [];
-        for (let index = this.filters.length - 1; index >= 0; index--) {
-            if (this.filters[index].id !== filter.id) {
-                newFilters.push(this.filters[index]);
-            }
-        }
-        this.filters = newFilters;
+        let filter: FilterDesign = this.createFilterDesignOnText(item.key);
+        this.toggleFilters([filter]);
     }
 
     // These methods must be present for AoT compile
     requestExport() {
         // Do nothing.
-    }
-
-    /**
-     * Returns an object containing the ElementRef objects for the visualization.
-     *
-     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
-     * @override
-     */
-    getElementRefs() {
-        return {
-            visualization: this.visualization,
-            headerText: this.headerText,
-            infoText: this.infoText
-        };
     }
 
     protected clearVisualizationData(options: any): void {

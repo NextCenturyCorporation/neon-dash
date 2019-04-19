@@ -22,14 +22,17 @@
     margin-top: 15px;
     margin-bottom: 15px;
 
-    .mat-icon-button {
-        position: relative;
-        bottom: 1px;
-    }
-
     div {
         margin-left: 5px;
     }
+}
+
+.next-to-button {
+    /* Same as mat-icon-button in src/styles.scss */
+    line-height: 20px;
+    height: 30px;
+    width: 30px;
+    padding: 5px;
 }
 
 .filter-text {

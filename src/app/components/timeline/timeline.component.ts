@@ -30,13 +30,21 @@ import {
 import {
     AbstractSearchService,
     AggregationType,
+    CompoundFilterType,
     FilterClause,
     QueryPayload,
     TimeInterval
 } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import {
+    CompoundFilterDesign,
+    FilterBehavior,
+    FilterDesign,
+    FilterService,
+    FilterUtil,
+    SimpleFilterDesign
+} from '../../services/filter.service';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { Bucketizer } from '../bucketizers/Bucketizer';
@@ -55,7 +63,6 @@ import {
 import { TimelineSelectorChart, TimelineSeries, TimelineData } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
 
-import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
 
@@ -91,14 +98,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     @ViewChild('svg') svg: ElementRef;
 
-    public filters: {
-        id: string,
-        field: string,
-        prettyField: string,
-        startDate: Date,
-        endDate: Date,
-        local: boolean
-    }[] = [];
+    protected selected: Date[] = null;
 
     private chartDefaults: {
         activeColor: string,
@@ -145,6 +145,28 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         ];
     }
 
+    private createFilterDesignOnTimeline(begin?: Date, end?: Date): FilterDesign {
+        return {
+            type: CompoundFilterType.AND,
+            inflexible: true,
+            filters: [{
+                datastore: '',
+                database: this.options.database,
+                table: this.options.table,
+                field: this.options.dateField,
+                operator: '>=',
+                value: begin
+            }, {
+                datastore: '',
+                database: this.options.database,
+                table: this.options.table,
+                field: this.options.dateField,
+                operator: '<=',
+                value: end
+            }] as SimpleFilterDesign[]
+        } as CompoundFilterDesign;
+    }
+
     /**
      * Creates and returns an array of non-field options for the visualization.
      *
@@ -156,6 +178,26 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetSelectOption('granularity', 'Date Granularity', 'year', OptionChoices.DateGranularity),
             new WidgetFreeTextOption('yLabel', 'Count', '')
         ];
+    }
+
+    /**
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     *
+     * @return {FilterBehavior[]}
+     * @override
+     */
+    protected designEachFilterWithNoValues(): FilterBehavior[] {
+        let behaviors: FilterBehavior[] = [];
+
+        if (this.options.dateField.columnName) {
+            behaviors.push({
+                // Match a compound AND filter with one ">=" date filter and one "<=" date filter.
+                filterDesign: this.createFilterDesignOnTimeline(),
+                redrawCallback: this.redrawTimelineFilter.bind(this)
+            });
+        }
+        return behaviors;
     }
 
     /**
@@ -171,63 +213,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.timelineChart = new TimelineSelectorChart(this, this.svg, this.timelineData);
     }
 
-    addLocalFilter(id: string, field: string, prettyField: string, startDate: Date, endDate: Date, local?: boolean) {
-        try {
-            this.filters[0] = {
-                id: id,
-                field: field,
-                prettyField: prettyField,
-                startDate: new Date(startDate),
-                endDate: new Date(endDate),
-                local: local
-            };
-        } catch (e) {
-            // Ignore potential date format errors
-        }
-    }
+    onTimelineSelection(beginDate: Date, endDate: Date): void {
+        let filterDesign: FilterDesign = this.createFilterDesignOnTimeline(beginDate, endDate);
 
-    onTimelineSelection(startDate: Date, endDate: Date): void {
-        let filter = {
-            id: undefined,
-            field: this.options.dateField.columnName,
-            prettyField: this.options.dateField.prettyName,
-            startDate: startDate,
-            endDate: endDate,
-            local: true
-        };
-        if (this.filters.length > 0) {
-            filter.id = this.filters[0].id;
-        }
-        this.filters[0] = filter;
-        if (filter.id === undefined) {
-            this.addNeonFilter(this.options, false, filter, this.createNeonFilter(filter));
-        } else {
-            this.replaceNeonFilter(this.options, false, filter, this.createNeonFilter(filter));
-        }
+        this.selected = [beginDate, endDate];
 
-        // Update the charts
+        this.exchangeFilters([filterDesign]);
+
         this.filterAndRefreshData(this.getActiveData(this.options).data);
-    }
-
-    /**
-     * Creates and returns the neon filter object using the given timeline filter object.
-     *
-     * @arg {object} filter
-     * @return {neon.query.WherePredicate}
-     * @override
-     */
-    createNeonFilter(filter: any): neon.query.WherePredicate {
-        let filterClauses = [
-            neon.query.where(filter.field, '>=', filter.startDate),
-            neon.query.where(filter.field, '<', filter.endDate)
-        ];
-        return neon.query.and.apply(neon.query, filterClauses);
-    }
-
-    getFilterText(filter) {
-        let begin = (filter.startDate.getUTCMonth() + 1) + '/' + filter.startDate.getUTCDate() + '/' + filter.startDate.getUTCFullYear();
-        let end = (filter.endDate.getUTCMonth() + 1) + '/' + filter.endDate.getUTCDate() + '/' + filter.endDate.getUTCFullYear();
-        return filter.prettyField + ' from ' + begin + ' to ' + end;
     }
 
     /**
@@ -294,22 +287,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         return query;
     }
 
-    getFiltersToIgnore() {
-        let ignoredFilterIds = [];
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.options.dateField.columnName]);
-
-        for (let neonFilter of neonFilters) {
-            // The data we want is in the whereClause's subclauses
-            let whereClause = neonFilter.filter.whereClause;
-            if (whereClause && whereClause.whereClauses.length === 2) {
-                ignoredFilterIds.push(neonFilter.id);
-            }
-        }
-
-        return (ignoredFilterIds.length > 0 ? ignoredFilterIds : null);
-    }
-
     /**
      * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
      *
@@ -355,11 +332,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             series.endDate = d3.time[this.options.granularity]
                 .utc.offset(lastDate, 1);
 
-            let filter = null;
-            if (this.filters.length > 0) {
-                filter = this.filters[0];
-            }
-
             // If we have a bucketizer, use it
             if (this.timelineData.bucketizer) {
                 this.timelineData.bucketizer.setStartDate(series.startDate);
@@ -377,8 +349,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 for (let row of data) {
                     // Check if this should be in the focus data
                     // Focus data is not bucketized, just zeroed
-                    if (filter) {
-                        if (filter.startDate <= row.date && filter.endDate >= row.date) {
+                    if (this.selected) {
+                        if (this.selected[0] <= row.date && this.selected[1] >= row.date) {
                             series.focusData.push({
                                 date: this.zeroDate(row.date),
                                 value: row.value
@@ -396,8 +368,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 // No bucketizer, just add the data
                 for (let row of data) {
                     // Check if this should be in the focus data
-                    if (filter) {
-                        if (filter.startDate <= row.date && filter.endDate >= row.date) {
+                    if (this.selected) {
+                        if (this.selected[0] <= row.date && this.selected[1] >= row.date) {
                             series.focusData.push({
                                 date: row.date,
                                 value: row.value
@@ -467,41 +439,44 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         }
     }
 
-    setupFilters() {
-        // Get neon filters
-        // See if any neon filters are local filters and set/clear appropriately
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.options.dateField.columnName]);
+    private redrawTimelineFilter(filters: FilterDesign[]): void {
+        let removeFilter = true;
 
-        for (let neonFilter of neonFilters) {
-            // The data we want is in the whereClause's subclauses
-            let whereClause = neonFilter.filter.whereClause;
-            if (whereClause && whereClause.length > 0 && whereClause.whereClauses.length === 2) {
-                let field = this.options.findField(whereClause[0].lhs);
-                this.addLocalFilter(neonFilter.id, field.columnName, field.prettyName, whereClause.whereClauses[0].rhs,
-                    whereClause.whereClauses[1].rhs);
+        // Find the begin date and end date inside the compound filter with an expected structure like createFilterDesignOnTimeline.
+        // TODO THOR-1105 How should we handle multiple filters?  Should we draw multiple brushes?
+        if (filters.length && FilterUtil.isCompoundFilterDesign(filters[0])) {
+            let timeFilter: CompoundFilterDesign = (filters[0] as CompoundFilterDesign);
+
+            if (timeFilter && timeFilter.filters.length === 2 && FilterUtil.isSimpleFilterDesign(timeFilter.filters[0]) &&
+                FilterUtil.isSimpleFilterDesign(timeFilter.filters[1])) {
+
+                let beginFilter: SimpleFilterDesign = (timeFilter.filters[0] as SimpleFilterDesign);
+                let endFilter: SimpleFilterDesign = (timeFilter.filters[1] as SimpleFilterDesign);
+
+                let beginDate;
+                let endDate;
+
+                if (beginFilter.operator === '>=' && endFilter.operator === '<=') {
+                    beginDate = beginFilter.value;
+                    endDate = endFilter.value;
+                }
+
+                // Switch the filters if needed.
+                if (beginFilter.operator === '<=' && endFilter.operator === '>=') {
+                    beginDate = endFilter.value;
+                    endDate = beginFilter.value;
+                }
+
+                if (beginDate instanceof Date && endDate instanceof Date) {
+                    this.selected = [beginDate, endDate];
+                    removeFilter = false;
+                    // TODO THOR-1106 Update the brush element in the timelineChart.
+                }
             }
-
         }
 
-        if (!neonFilters.length) {
-            this.removeFilter();
-        }
-    }
-
-    /**
-     * Returns the list of filter objects.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters() {
-        return this.filters;
-    }
-
-    removeFilter() {
-        this.filters = [];
-        if (this.timelineChart) {
+        if (removeFilter && this.timelineChart) {
+            this.selected = null;
             this.timelineChart.clearBrush();
         }
     }
@@ -584,6 +559,17 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     getVisualizationDefaultTitle(): string {
         return 'Timeline';
+    }
+
+    /**
+     * Returns whether this visualization should filter itself.
+     *
+     * @return {boolean}
+     * @override
+     */
+    protected shouldFilterSelf(): boolean {
+        // This timeline should never filter itself.
+        return false;
     }
 
     protected clearVisualizationData(options: any): void {

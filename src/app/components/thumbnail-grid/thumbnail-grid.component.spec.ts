@@ -23,7 +23,6 @@ import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import {} from 'jasmine-core';
-import * as neon from 'neon-framework';
 
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
@@ -137,7 +136,6 @@ describe('Component: ThumbnailGrid', () => {
 
     it('does have expected class properties', () => {
         expect(component.gridArray).toEqual([]);
-        expect(component.filters).toEqual([]);
         expect(component.mediaTypes).toEqual({
             image: 'img',
             video: 'vid',
@@ -216,55 +214,6 @@ describe('Component: ThumbnailGrid', () => {
 
         let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
         expect(spinner).not.toBeNull();
-    }));
-
-    it('does not show filter-container if filters is empty array', () => {
-        let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
-        expect(filterContainer).toBeNull();
-
-        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
-        expect(bodyContainer).toBeNull();
-    });
-
-    it('does show filter-container and filter-reset elements if filters is non-empty array', async(() => {
-        component.filters = [{
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }, {
-            id: 'idB',
-            field: 'field2',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        }];
-
-        // Force the component to update all its ngFor and ngIf elements.
-        component.changeDetection.detectChanges();
-
-        let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
-        expect(filterContainer).not.toBeNull();
-
-        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
-        expect(bodyContainer).not.toBeNull();
-
-        let filterResets = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container .filter-reset'));
-        expect(filterResets.length).toEqual(2);
-
-        let filterLabels = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container .filter-label'));
-        expect(filterLabels.length).toEqual(2);
-
-        expect(filterLabels[0].nativeElement.textContent).toContain('value1');
-        expect(filterLabels[1].nativeElement.textContent).toContain('value2');
-
-        let filterButtons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container button'));
-        expect(filterButtons.length).toEqual(2);
-
-        let filterIcons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container button mat-icon'));
-        expect(filterIcons.length).toEqual(2);
-
-        expect(filterIcons[0].nativeElement.textContent).toEqual('close');
-        expect(filterIcons[1].nativeElement.textContent).toEqual('close');
     }));
 
     it('does show body-container', () => {
@@ -407,266 +356,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(footerButtons[1].nativeElement.textContent).toContain('Next');
     }));
 
-    it('createFilter does nothing if filterField is empty', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeAllFilters');
-
-        component.createFilter('test text');
-
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);
-    });
-
-    it('createFilter with no existing filters does add a new filter', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeAllFilters');
-
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.ignoreSelf = false;
-
-        component.createFilter('test text');
-
-        expect(component.filters).toEqual([{
-            id: undefined,
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'test text'
-        }]);
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {
-            id: undefined,
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'test text'
-        }, neon.query.where('testFilterField', '=', 'test text')]);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);
-    });
-
-    it('createFilter with ignoreSelf=true and no existing filters does not query', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeAllFilters');
-
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.ignoreSelf = true;
-
-        component.createFilter('test text');
-
-        expect(component.filters).toEqual([{
-            id: undefined,
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'test text'
-        }]);
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([component.options, false, {
-            id: undefined,
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'test text'
-        }, neon.query.where('testFilterField', '=', 'test text')]);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);
-    });
-
-    it('createFilter with one existing filter does replace an existing filter', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeAllFilters');
-
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.ignoreSelf = false;
-        component.filters = [{
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-
-        component.createFilter('test text');
-
-        expect(component.filters).toEqual([{
-            id: 'idA',
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'test text'
-        }]);
-
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([component.options, true, {
-            id: 'idA',
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'test text'
-        }, neon.query.where('testFilterField', '=', 'test text')]);
-        expect(spy3.calls.count()).toEqual(0);
-    });
-
-    it('createFilter with ignoreSelf=true and one existing filter does not query', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeAllFilters');
-
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.ignoreSelf = true;
-        component.filters = [{
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-
-        component.createFilter('test text');
-
-        expect(component.filters).toEqual([{
-            id: 'idA',
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'test text'
-        }]);
-
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([component.options, false, {
-            id: 'idA',
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'test text'
-        }, neon.query.where('testFilterField', '=', 'test text')]);
-        expect(spy3.calls.count()).toEqual(0);
-    });
-
-    it('createFilter with multiple existing filters does remove all filters and then add a new filter', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeAllFilters');
-
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.ignoreSelf = false;
-        component.filters = [{
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }, {
-            id: 'idB',
-            field: 'field2',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        }];
-
-        component.createFilter('test text');
-
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(1);
-        let args = spy3.calls.argsFor(0);
-        expect(args[0]).toEqual(component.options);
-        expect(args[1]).toEqual([{
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }, {
-            id: 'idB',
-            field: 'field2',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        }]);
-        expect(args[2]).toEqual(false);
-        expect(args[3]).toEqual(false);
-
-        // Run the callback.
-        expect(typeof args[4]).toEqual('function');
-        args[4]();
-
-        expect(component.filters).toEqual([{
-            id: undefined,
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'test text'
-        }]);
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {
-            id: undefined,
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'test text'
-        }, neon.query.where('testFilterField', '=', 'test text')]);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(1);
-    });
-
-    it('createFilter with ignoreSelf=true and multiple existing filters does not query', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeAllFilters');
-
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.ignoreSelf = true;
-        component.filters = [{
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }, {
-            id: 'idB',
-            field: 'field2',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        }];
-
-        component.createFilter('test text');
-
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(1);
-        let args = spy3.calls.argsFor(0);
-        expect(args[0]).toEqual(component.options);
-        expect(args[1]).toEqual([{
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }, {
-            id: 'idB',
-            field: 'field2',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        }]);
-        expect(args[2]).toEqual(false);
-        expect(args[3]).toEqual(false);
-
-        // Run the callback.
-        expect(typeof args[4]).toEqual('function');
-        args[4]();
-
-        expect(component.filters).toEqual([{
-            id: undefined,
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'test text'
-        }]);
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([component.options, false, {
-            id: undefined,
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'test text'
-        }, neon.query.where('testFilterField', '=', 'test text')]);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(1);
-    });
-
     it('finalizeVisualizationQuery does return expected query', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
@@ -674,11 +363,6 @@ describe('Component: ThumbnailGrid', () => {
         component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
 
         let fields = ['testLinkField', 'testSortField'];
-
-        let wherePredicate = neon.query.and.apply(neon.query, [
-            neon.query.where('testLinkField', '!=', null),
-            neon.query.where('testLinkField', '!=', '')
-        ]);
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
@@ -721,236 +405,12 @@ describe('Component: ThumbnailGrid', () => {
         });
     });
 
-    it('filterExists does return expected boolean', () => {
-        expect(component.filterExists('field1', 'value1')).toEqual(false);
-        expect(component.filterExists('field1', 'value2')).toEqual(false);
-        expect(component.filterExists('field2', 'value1')).toEqual(false);
-        expect(component.filterExists('field2', 'value2')).toEqual(false);
-
-        component.filters.push({
-            id: undefined,
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        });
-
-        expect(component.filterExists('field1', 'value1')).toEqual(true);
-        expect(component.filterExists('field1', 'value2')).toEqual(false);
-        expect(component.filterExists('field2', 'value1')).toEqual(false);
-        expect(component.filterExists('field2', 'value2')).toEqual(false);
-
-        component.filters.push({
-            id: undefined,
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value2'
-        });
-
-        expect(component.filterExists('field1', 'value1')).toEqual(true);
-        expect(component.filterExists('field1', 'value2')).toEqual(true);
-        expect(component.filterExists('field2', 'value1')).toEqual(false);
-        expect(component.filterExists('field2', 'value2')).toEqual(false);
-
-        component.filters.push({
-            id: undefined,
-            field: 'field2',
-            prettyField: 'prettyField2',
-            value: 'value1'
-        });
-
-        expect(component.filterExists('field1', 'value1')).toEqual(true);
-        expect(component.filterExists('field1', 'value2')).toEqual(true);
-        expect(component.filterExists('field2', 'value1')).toEqual(true);
-        expect(component.filterExists('field2', 'value2')).toEqual(false);
-
-        component.filters.push({
-            id: undefined,
-            field: 'field2',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        });
-
-        expect(component.filterExists('field1', 'value1')).toEqual(true);
-        expect(component.filterExists('field1', 'value2')).toEqual(true);
-        expect(component.filterExists('field2', 'value1')).toEqual(true);
-        expect(component.filterExists('field2', 'value2')).toEqual(true);
-
-        component.filters = [];
-
-        expect(component.filterExists('field1', 'value1')).toEqual(false);
-        expect(component.filterExists('field1', 'value2')).toEqual(false);
-        expect(component.filterExists('field2', 'value1')).toEqual(false);
-        expect(component.filterExists('field2', 'value2')).toEqual(false);
-    });
-
-    it('getCloseableFilters does return expected array of filters', () => {
-        expect(component.getCloseableFilters()).toEqual([]);
-
-        component.filters.push({
-            id: undefined,
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        });
-
-        expect(component.getCloseableFilters()).toEqual([{
-            id: undefined,
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }]);
-
-        component.filters.push({
-            id: undefined,
-            field: 'field2',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        });
-
-        expect(component.getCloseableFilters()).toEqual([{
-            id: undefined,
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }, {
-            id: undefined,
-            field: 'field2',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        }]);
-    });
-
     it('getElementRefs does return expected object', () => {
         let refs = component.getElementRefs();
         expect(refs.headerText).toBeDefined();
         expect(refs.infoText).toBeDefined();
         expect(refs.thumbnailGrid).toBeDefined();
         expect(refs.visualization).toBeDefined();
-    });
-
-    it('getFiltersToIgnore does return null if no filters are set', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.ignoreSelf = false;
-
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        component.options.ignoreSelf = true;
-
-        expect(component.getFiltersToIgnore()).toEqual(null);
-    });
-
-    it('getFiltersToIgnore with ignoreSelf=false does return null if filters are set', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testFilterField', '!=', null), 'testFilterName1');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.ignoreSelf = false;
-
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFiltersToIgnore with ignoreSelf=true does return expected array of IDs if filters are set matching database/table/field', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testFilterField', '!=', null), 'testFilterName1');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.ignoreSelf = true;
-
-        expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFiltersToIgnore with ignoreSelf=true does return null if filters have multiple clauses', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.and.apply(neon.query, [
-                neon.query.where('testFilterField', '!=', null),
-                neon.query.where('testLinkField', '!=', null)
-            ]), 'testFilterName1');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.ignoreSelf = true;
-
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFiltersToIgnore with ignoreSelf=true does return null if no filters are set matching database/table/field', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testFilterField', '!=', null), 'testFilterName1');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = new FieldMetaData('testField', 'Test Field');
-        component.options.ignoreSelf = true;
-
-        // Test matching database/table but not field.
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        component.options.database = DatasetServiceMock.DATABASES[1];
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-
-        // Test matching database/field but not table.
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[1];
-
-        // Test matching table/field but not database.
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFiltersToIgnore with ignoreSelf=true does return expected array of IDs if no filterField is set', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testField1', '!=', null), 'testFilterName1');
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testField2', '!=', null), 'testFilterName2');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.ignoreSelf = true;
-
-        expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1',
-            'testDatabase1-testTable1-testFilterName2']);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFilterText does return expected string', () => {
-        expect(component.getFilterText({
-            id: undefined,
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        })).toEqual('prettyField1 = value1');
     });
 
     it('getThumbnailLabel does return expected string', () => {
@@ -1059,11 +519,24 @@ describe('Component: ThumbnailGrid', () => {
         })).toEqual('MyNameText : myName, MyPredictionText : myPredictedName, MyActualText : myObjectName');
     });
 
+    it('designEachFilterWithNoValues does return expected object', () => {
+        expect((component as any).designEachFilterWithNoValues()).toEqual([]);
+
+        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
+        let actual = (component as any).designEachFilterWithNoValues();
+        expect(actual.length).toEqual(1);
+        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect((actual[0].filterDesign as any).operator).toEqual('=');
+        expect((actual[0].filterDesign as any).value).toBeUndefined();
+    });
+
     it('isSelectable does return expected boolean', () => {
         component.options.openOnMouseClick = false;
         expect(component.isSelectable()).toEqual(false);
 
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
         expect(component.isSelectable()).toEqual(true);
         component.options.filterField = new FieldMetaData();
 
@@ -1079,30 +552,37 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.isSelected({})).toEqual(false);
 
         expect(component.isSelected({
-            testFilterField: 'testFilterValue'
+            testFilterField: 'testFilterValue1'
         })).toEqual(false);
 
-        component.filters = [{
-            id: undefined,
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'testFilterValue'
-        }];
+        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
 
         expect(component.isSelected({
-            testFilterField: 'testFilterValue'
+            testFilterField: 'testFilterValue1'
         })).toEqual(false);
 
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => {
+            return filterDesign.database === component.options.database && filterDesign.table === component.options.table &&
+                filterDesign.field === component.options.filterField && filterDesign.operator === '=' &&
+                filterDesign.value === 'testFilterValue1';
+        });
 
         expect(component.isSelected({
-            testFilterField: 'testFilterValue'
+            testFilterField: 'testFilterValue1'
         })).toEqual(true);
 
-        component.filters = [];
+        expect(component.isSelected({
+            testFilterField: 'testFilterValue2'
+        })).toEqual(false);
 
         expect(component.isSelected({
-            testFilterField: 'testFilterValue'
+            testNotAFilterField: 'testFilterValue1'
+        })).toEqual(false);
+
+        component.options.filterField = new FieldMetaData();
+
+        expect(component.isSelected({
+            testFilterField: 'testFilterValue1'
         })).toEqual(false);
     });
 
@@ -1247,50 +727,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
-    it('removeFilter does remove objects from filters', () => {
-        let filter1 = {
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        };
-        let filter2 = {
-            id: 'idB',
-            field: 'field2',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        };
-        component.filters = [filter1, filter2];
-
-        component.removeFilter(filter1);
-        expect(component.filters).toEqual([filter2]);
-
-        component.removeFilter(filter2);
-        expect(component.filters).toEqual([]);
-    });
-
-    it('removeFilter does not remove objects from filters with non-matching IDs', () => {
-        component.filters = [{
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-
-        component.removeFilter({
-            id: 'idC',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        });
-        expect(component.filters).toEqual([{
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }]);
-    });
-
     it('selectGridItem does call publishSelectId if idField is set', () => {
         let spy = spyOn(component, 'publishSelectId');
 
@@ -1316,7 +752,7 @@ describe('Component: ThumbnailGrid', () => {
         });
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
 
         component.selectGridItem({
             testFilterField: 'filter1'
@@ -1335,141 +771,6 @@ describe('Component: ThumbnailGrid', () => {
         };
         expect(!component.isValidMediaType(random));
         expect(component.isValidMediaType(correctMedia));
-    });
-
-    it('setupFilters does not do anything if no filter exists', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
-
-        component.setupFilters();
-        expect(component.filters).toEqual([]);
-    });
-
-    it('setupFilters does add neon filter to filters', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testFilterField', '=', 'value1'), 'testFilterName1');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
-
-        component.setupFilters();
-        expect(component.filters).toEqual([{
-            id: 'testDatabase1-testTable1-testFilterName1',
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'value1'
-        }]);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('setupFilters does not add neon filter with non-matching database/table/field', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testFilterField', '=', 'value1'), 'testFilterName1');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-
-        // Test matching database/table but not field.
-        component.setupFilters();
-        expect(component.filters).toEqual([]);
-
-        component.options.database = DatasetServiceMock.DATABASES[1];
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
-
-        // Test matching database/field but not table.
-        component.setupFilters();
-        expect(component.filters).toEqual([]);
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[1];
-
-        // Test matching table/field but not table.
-        component.setupFilters();
-        expect(component.filters).toEqual([]);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('setupFilters does not add neon filter matching existing filter field/value', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testFilterField', '=', 'value1'), 'testFilterName1');
-
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testFilterField', '=', 'value1'), 'testFilterName2');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
-
-        component.setupFilters();
-        expect(component.filters).toEqual([{
-            id: 'testDatabase1-testTable1-testFilterName1',
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'value1'
-        }]);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('setupFilters does remove previous filters', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testFilterField', '=', 'value1'), 'testFilterName1');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
-        component.filters = [{
-            id: 'idA',
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'value2'
-        }];
-
-        component.setupFilters();
-        expect(component.filters).toEqual([{
-            id: 'testDatabase1-testTable1-testFilterName1',
-            field: 'testFilterField',
-            prettyField: 'Test Filter Field',
-            value: 'value1'
-        }]);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('setupFilters does ignore neon filters with multiple clauses', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.and.apply(neon.query, [
-                neon.query.where('testFilterField', '=', 'value1'),
-                neon.query.where('testFilterField', '=', 'value2')
-            ]), 'testFilterName2');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
-
-        component.setupFilters();
-        expect(component.filters).toEqual([]);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
     });
 });
 
