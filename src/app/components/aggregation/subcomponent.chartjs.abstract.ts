@@ -987,11 +987,12 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             return;
         }
 
+        let firstItemSelected = this.selectedLabels.length === 0;
         let labelGroup = chart.data.datasets[items[0]._datasetIndex].label;
         let labelValue = this.findItemInDataToSelect(items, chart);
         let doNotReplace = !!(event.ctrlKey || event.metaKey);
         this.selectedLabels = doNotReplace ? this.selectedLabels.concat(labelValue) : [labelValue];
-        if (!doNotReplace) {
+        if (firstItemSelected || !doNotReplace) {
             this.dataDeselect(chart);
         }
         this.dataSelect(chart, items);
