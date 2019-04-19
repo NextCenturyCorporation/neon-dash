@@ -14,7 +14,7 @@
  *
  */
 import { ElementRef } from '@angular/core';
-import { AbstractChartJsDataset } from './subcomponent.chartjs.abstract';
+import { AbstractChartJsDataset, SelectMode } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { ChartJsLineSubcomponent, ChartJsLineDataset } from './subcomponent.chartjs.line';
 import { Color } from '../../color';
@@ -34,13 +34,10 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
      * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
-     * @arg {boolean} [cannotSelect=false]
      * @arg {boolean} [domainOnly=false]
      */
-    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef, cannotSelect: boolean = false,
-        private domainOnly: boolean = false) {
-
-        super(options, listener, elementRef, cannotSelect);
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef, domainOnly: boolean = false) {
+        super(options, listener, elementRef, (domainOnly ? SelectMode.BOUNDS_DOMAIN : SelectMode.BOUNDS));
     }
 
     /**
@@ -83,20 +80,6 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
     }
 
     /**
-     * Handles the given hover event as needed by this subcomponent.
-     *
-     * @arg {event} event
-     * @arg {any[]} items
-     * @arg {any} chart
-     * @override
-     */
-    protected handleHoverEvent(event, items: any[], chart: any) {
-        if (this.isSelectable(items)) {
-            this.selectBounds(event, items, chart, this.domainOnly);
-        }
-    }
-
-    /**
      * Returns whether the location of the chart with the given items is selectable.
      *
      * @arg {any[]} items
@@ -105,6 +88,6 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
      */
     protected isSelectable(items: any[]): boolean {
         // Ignore whether any items exist at the location of the hover event.
-        return !this.cannotSelect;
+        return this.selectMode !== SelectMode.NONE;
     }
 }

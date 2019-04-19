@@ -32,7 +32,7 @@ import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.comp
 import { AbstractSearchService, AggregationType } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { CompoundFilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { AppMaterialModule } from '../../app.material.module';
@@ -42,7 +42,6 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: Aggregation', () => {
@@ -95,7 +94,7 @@ describe('Component: Aggregation', () => {
         expect(component.options.granularity).toEqual('year');
         expect(component.options.hideGridLines).toEqual(false);
         expect(component.options.hideGridTicks).toEqual(false);
-        expect(component.options.ignoreSelf).toEqual(false);
+        expect(component.options.ignoreSelf).toEqual(true);
         expect(component.options.lineCurveTension).toEqual(0.3);
         expect(component.options.lineFillArea).toEqual(false);
         expect(component.options.logScaleX).toEqual(false);
@@ -117,9 +116,8 @@ describe('Component: Aggregation', () => {
 
     it('class properties are set to expected defaults', () => {
         expect(component.colorKeys).toEqual([]);
-        expect(component.filterToPassToSuperclass).toEqual({});
-        expect(component.groupFilters).toEqual([]);
         expect(component.legendActiveGroups).toEqual([]);
+        expect(component.legendDisabledGroups).toEqual([]);
         expect(component.legendGroups).toEqual([]);
         expect(component.minimumDimensionsMain.height).toBeDefined();
         expect(component.minimumDimensionsMain.width).toBeDefined();
@@ -159,7 +157,6 @@ describe('Component: Aggregation', () => {
             name: 'Text List (Aggregations)',
             type: 'list'
         }]);
-        expect(component.valueFilters).toEqual([]);
 
         // Element Refs
         expect(component.headerText).toBeDefined();
@@ -191,396 +188,99 @@ describe('Component: Aggregation', () => {
         expect(spy.calls.argsFor(1)).toEqual([component.subcomponentZoomElementRef, true]);
     });
 
-    it('createFilterPrettyText does return expected string', () => {
-        expect(component.createFilterPrettyText({
-            field: 'field1',
-            label: '1234',
-            neonFilter: null,
-            prettyField: 'prettyField1',
-            value: 1234
-        })).toEqual('prettyField1 is 1234');
+    it('designEachFilterWithNoValues does return expected object', () => {
+        expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        expect(component.createFilterPrettyText({
-            field: 'field1',
-            label: 'value1',
-            neonFilter: null,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        })).toEqual('prettyField1 is value1');
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        let actual = (component as any).designEachFilterWithNoValues();
+        expect(actual.length).toEqual(1);
+        expect(actual[0].filterDesign.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual[0].filterDesign.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual[0].filterDesign.field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect(actual[0].filterDesign.operator).toEqual('!=');
+        expect(actual[0].filterDesign.value).toBeUndefined();
+        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
 
-        expect(component.createFilterPrettyText({
-            field: 'field1',
-            label: '',
-            neonFilter: null,
-            prettyField: 'prettyField1',
-            value: {
-                beginX: 'beginX1',
-                endX: 'endX1'
-            }
-        })).toEqual('prettyField1 from beginX1 to endX1');
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        actual = (component as any).designEachFilterWithNoValues();
+        expect(actual.length).toEqual(3);
+        expect(actual[0].filterDesign.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual[0].filterDesign.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual[0].filterDesign.field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect(actual[0].filterDesign.operator).toEqual('!=');
+        expect(actual[0].filterDesign.value).toBeUndefined();
+        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
+        expect(actual[1].filterDesign.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual[1].filterDesign.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual[1].filterDesign.field).toEqual(DatasetServiceMock.X_FIELD);
+        expect(actual[1].filterDesign.operator).toEqual('=');
+        expect(actual[1].filterDesign.value).toBeUndefined();
+        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredItems.bind(component).toString());
+        expect((actual[2].filterDesign as any).type).toEqual('and');
+        expect((actual[2].filterDesign as any).filters.length).toEqual(2);
+        expect((actual[2].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual[2].filterDesign as any).filters[0].operator).toEqual('>=');
+        expect((actual[2].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[2].filterDesign as any).filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign as any).filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign as any).filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual[2].filterDesign as any).filters[1].operator).toEqual('<=');
+        expect((actual[2].filterDesign as any).filters[1].value).toBeUndefined();
+        expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawDomain.bind(component).toString());
 
-        expect(component.createFilterPrettyText({
-            field: 'field1',
-            label: '',
-            neonFilter: null,
-            prettyField: {
-                x: 'prettyX1',
-                y: 'prettyY1'
-            },
-            value: {
-                beginX: 'beginX1',
-                beginY: 'beginY1',
-                endX: 'endX1',
-                endY: 'endY1'
-            }
-        })).toEqual('prettyX1 from beginX1 to endX1 and prettyY1 from beginY1 to endY1');
-    });
-
-    it('createFilterPrettyText with date data does return expected string', () => {
-        component.options.xField = DatasetServiceMock.DATE_FIELD;
-
-        expect(component.createFilterPrettyText({
-            field: 'field1',
-            label: '',
-            neonFilter: null,
-            prettyField: 'prettyField1',
-            value: {
-                beginX: '2018-01-01T00:00:00.000Z',
-                endX: '2018-01-03T00:00:00.000Z'
-            }
-        })).toEqual('prettyField1 from Mon, Jan 1, 2018, 12:00:00 AM to Wed, Jan 3, 2018, 12:00:00 AM');
-
-        expect(component.createFilterPrettyText({
-            field: 'field1',
-            label: '',
-            neonFilter: null,
-            prettyField: {
-                x: 'prettyX1',
-                y: 'prettyY1'
-            },
-            value: {
-                beginX: '2018-01-01T00:00:00.000Z',
-                beginY: 'beginY1',
-                endX: '2018-01-03T00:00:00.000Z',
-                endY: 'endY1'
-            }
-        })).toEqual('prettyX1 from Mon, Jan 1, 2018, 12:00:00 AM to Wed, Jan 3, 2018, 12:00:00 AM and prettyY1 from beginY1 to endY1');
-    });
-
-    it('createOrRemoveNeonFilter with no groupFilters, valueFilters, or filterToPassToSuperclass.id does nothing', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
-
-        component.createOrRemoveNeonFilter();
-
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);
-    });
-
-    it('createOrRemoveNeonFilter with groupFilters does work as expected', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
-
-        let neonFilter1 = neon.query.where('field1', '=', 'value1');
-        component.groupFilters = [{
-            field: 'field1',
-            label: '',
-            neonFilter: neonFilter1,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-
-        component.createOrRemoveNeonFilter();
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {}, neonFilter1]);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);
-    });
-
-    it('createOrRemoveNeonFilter with multiple groupFilters does work as expected', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
-
-        let neonFilter1 = neon.query.where('field1', '=', 'value1');
-        let neonFilter2 = neon.query.where('field2', '=', 'value2');
-        component.groupFilters = [{
-            field: 'field1',
-            label: '',
-            neonFilter: neonFilter1,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }, {
-            field: 'field2',
-            label: '',
-            neonFilter: neonFilter2,
-            prettyField: 'prettyField2',
-            value: 'value2'
-        }];
-
-        component.createOrRemoveNeonFilter();
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {}, neon.query.and.apply(neon.query, [neonFilter1, neonFilter2])]);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);
-    });
-
-    it('createOrRemoveNeonFilter with valueFilters does work as expected', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
-
-        let neonFilter1 = neon.query.where('field1', '=', 'value1');
-        component.valueFilters = [{
-            field: 'field1',
-            label: '',
-            neonFilter: neonFilter1,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-
-        component.createOrRemoveNeonFilter();
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {}, neonFilter1]);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);
-    });
-
-    it('createOrRemoveNeonFilter with multiple valueFilters does work as expected', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
-
-        let neonFilter1 = neon.query.where('field1', '=', 'value1');
-        let neonFilter2 = neon.query.where('field2', '=', 'value2');
-        component.valueFilters = [{
-            field: 'field1',
-            label: '',
-            neonFilter: neonFilter1,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }, {
-            field: 'field2',
-            label: '',
-            neonFilter: neonFilter2,
-            prettyField: 'prettyField2',
-            value: 'value2'
-        }];
-
-        component.createOrRemoveNeonFilter();
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {}, neon.query.or.apply(neon.query, [neonFilter1, neonFilter2])]);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);
-    });
-
-    it('createOrRemoveNeonFilter with multiple valueFilters and requireAll=true does work as expected', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
-
-        let neonFilter1 = neon.query.where('field1', '=', 'value1');
-        let neonFilter2 = neon.query.where('field2', '=', 'value2');
-        component.valueFilters = [{
-            field: 'field1',
-            label: '',
-            neonFilter: neonFilter1,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }, {
-            field: 'field2',
-            label: '',
-            neonFilter: neonFilter2,
-            prettyField: 'prettyField2',
-            value: 'value2'
-        }];
-        component.options.requireAll = true;
-
-        component.createOrRemoveNeonFilter();
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {}, neon.query.and.apply(neon.query, [neonFilter1, neonFilter2])]);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);
-    });
-
-    it('createOrRemoveNeonFilter with groupFilters and valueFilters does work as expected', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
-
-        let neonFilter1 = neon.query.where('field1', '=', 'value1');
-        let neonFilter2 = neon.query.where('field2', '=', 'value2');
-
-        component.groupFilters = [{
-            field: 'field1',
-            label: '',
-            neonFilter: neonFilter1,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-
-        component.valueFilters = [{
-            field: 'field2',
-            label: '',
-            neonFilter: neonFilter2,
-            prettyField: 'prettyField2',
-            value: 'value2'
-        }];
-
-        component.createOrRemoveNeonFilter();
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {}, neon.query.and.apply(neon.query, [neonFilter1, neonFilter2])]);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);
-    });
-
-    it('createOrRemoveNeonFilter with multiple groupFilters and valueFilters does work as expected', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
-
-        let neonFilter1 = neon.query.where('field1', '=', 'value1');
-        let neonFilter2 = neon.query.where('field2', '=', 'value2');
-        let neonFilter3 = neon.query.where('field3', '=', 'value3');
-        let neonFilter4 = neon.query.where('field4', '=', 'value4');
-
-        component.groupFilters = [{
-            field: 'field1',
-            label: '',
-            neonFilter: neonFilter1,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }, {
-            field: 'field2',
-            label: '',
-            neonFilter: neonFilter2,
-            prettyField: 'prettyField2',
-            value: 'value2'
-        }];
-
-        component.valueFilters = [{
-            field: 'field3',
-            label: '',
-            neonFilter: neonFilter3,
-            prettyField: 'prettyField3',
-            value: 'value3'
-        }, {
-            field: 'field4',
-            label: '',
-            neonFilter: neonFilter4,
-            prettyField: 'prettyField4',
-            value: 'value4'
-        }];
-
-        component.createOrRemoveNeonFilter();
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([component.options, true, {}, neon.query.and.apply(neon.query, [
-            neon.query.and.apply(neon.query, [neonFilter1, neonFilter2]),
-            neon.query.or.apply(neon.query, [neonFilter3, neonFilter4])
-        ])]);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);
-    });
-
-    it('createOrRemoveNeonFilter with filters and filterToPassToSuperclass.id does work as expected', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
-
-        let neonFilter1 = neon.query.where('field1', '=', 'value1');
-        component.groupFilters = [{
-            field: 'field1',
-            label: '',
-            neonFilter: neonFilter1,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-        component.filterToPassToSuperclass.id = 'testId';
-
-        component.createOrRemoveNeonFilter();
-
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([component.options, true, {
-            id: 'testId'
-        }, neonFilter1]);
-        expect(spy3.calls.count()).toEqual(0);
-    });
-
-    it('createOrRemoveNeonFilter with no filters and filterToPassToSuperclass.id does work as expected', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
-
-        component.filterToPassToSuperclass.id = 'testId';
-
-        component.createOrRemoveNeonFilter();
-
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(1);
-        expect(spy3.calls.argsFor(0)).toEqual([component.options, {
-            id: 'testId'
-        }, true, true]);
-    });
-
-    it('createOrRemoveNeonFilter with groupFilters and ignoreSelf=true does work as expected', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
-
-        let neonFilter1 = neon.query.where('field1', '=', 'value1');
-        component.groupFilters = [{
-            field: 'field1',
-            label: '',
-            neonFilter: neonFilter1,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-        component.options.ignoreSelf = true;
-
-        component.createOrRemoveNeonFilter();
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([component.options, false, {}, neonFilter1]);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);
-    });
-
-    it('createOrRemoveNeonFilter with filters and filterToPassToSuperclass.id and ignoreSelf=true does work as expected', () => {
-        let spy1 = spyOn(component, 'addNeonFilter');
-        let spy2 = spyOn(component, 'replaceNeonFilter');
-        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
-
-        let neonFilter1 = neon.query.where('field1', '=', 'value1');
-        component.groupFilters = [{
-            field: 'field1',
-            label: '',
-            neonFilter: neonFilter1,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-        component.filterToPassToSuperclass.id = 'testId';
-        component.options.ignoreSelf = true;
-
-        component.createOrRemoveNeonFilter();
-
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([component.options, false, {
-            id: 'testId'
-        }, neonFilter1]);
-        expect(spy3.calls.count()).toEqual(0);
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+        actual = (component as any).designEachFilterWithNoValues();
+        expect(actual.length).toEqual(4);
+        expect(actual[0].filterDesign.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual[0].filterDesign.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual[0].filterDesign.field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect(actual[0].filterDesign.operator).toEqual('!=');
+        expect(actual[0].filterDesign.value).toBeUndefined();
+        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
+        expect(actual[1].filterDesign.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual[1].filterDesign.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual[1].filterDesign.field).toEqual(DatasetServiceMock.X_FIELD);
+        expect(actual[1].filterDesign.operator).toEqual('=');
+        expect(actual[1].filterDesign.value).toBeUndefined();
+        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredItems.bind(component).toString());
+        expect((actual[2].filterDesign as any).type).toEqual('and');
+        expect((actual[2].filterDesign as any).filters.length).toEqual(2);
+        expect((actual[2].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual[2].filterDesign as any).filters[0].operator).toEqual('>=');
+        expect((actual[2].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[2].filterDesign as any).filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign as any).filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign as any).filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual[2].filterDesign as any).filters[1].operator).toEqual('<=');
+        expect((actual[2].filterDesign as any).filters[1].value).toBeUndefined();
+        expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawDomain.bind(component).toString());
+        expect((actual[3].filterDesign as any).type).toEqual('and');
+        expect((actual[3].filterDesign as any).filters.length).toEqual(4);
+        expect((actual[3].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual[3].filterDesign as any).filters[0].operator).toEqual('>=');
+        expect((actual[3].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[3].filterDesign as any).filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign as any).filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign as any).filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual[3].filterDesign as any).filters[1].operator).toEqual('<=');
+        expect((actual[3].filterDesign as any).filters[1].value).toBeUndefined();
+        expect((actual[3].filterDesign as any).filters[2].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign as any).filters[2].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign as any).filters[2].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect((actual[3].filterDesign as any).filters[2].operator).toEqual('>=');
+        expect((actual[3].filterDesign as any).filters[2].value).toBeUndefined();
+        expect((actual[3].filterDesign as any).filters[3].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign as any).filters[3].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign as any).filters[3].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect((actual[3].filterDesign as any).filters[3].operator).toEqual('<=');
+        expect((actual[3].filterDesign as any).filters[3].value).toBeUndefined();
+        expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawBounds.bind(component).toString());
     });
 
     it('finalizeVisualizationQuery does return expected aggregation query', () => {
@@ -884,358 +584,11 @@ describe('Component: Aggregation', () => {
         expect(spy2.calls.count()).toEqual(1);
     });
 
-    it('getCloseableFilters does return expected object', () => {
-        expect(component.getCloseableFilters()).toEqual([]);
-
-        component.filterToPassToSuperclass.id = 'testId';
-
-        expect(component.getCloseableFilters()).toEqual([{
-            id: 'testId'
-        }]);
-    });
-
     it('getElementRefs does return expected object', () => {
         let refs = component.getElementRefs();
         expect(refs.headerText).toBeDefined();
         expect(refs.infoText).toBeDefined();
         expect(refs.visualization).toBeDefined();
-    });
-
-    it('getFiltersToIgnore does return null if no filters are set', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.xField = DatasetServiceMock.X_FIELD;
-
-        expect(component.getFiltersToIgnore()).toEqual(null);
-    });
-
-    it('getFiltersToIgnore does return null if service filters are set but local filters are empty and ignoreSelf=false', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testXField', '!=', null), 'testFilterName1');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.xField = DatasetServiceMock.X_FIELD;
-
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFiltersToIgnore does return null if service and local filters are set but ignoreSelf=false', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testXField', '!=', null), 'testFilterName1');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.xField = DatasetServiceMock.X_FIELD;
-        component.filterToPassToSuperclass = {
-            id: 'testDatabase1-testTable1-testFilterName1'
-        };
-
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFiltersToIgnore does return expected array of IDs if service and local filters are set and ignoreSelf=false', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testXField', '!=', null), 'testFilterName1');
-
-        component.options.ignoreSelf = true;
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.xField = DatasetServiceMock.X_FIELD;
-        component.filterToPassToSuperclass = {
-            id: 'testDatabase1-testTable1-testFilterName1'
-        };
-
-        expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFiltersToIgnore does return null if group service filters are set but local filters are empty and ignoreSelf=false', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testCategoryField', '!=', null), 'testFilterName1');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
-
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFiltersToIgnore does return null if group service and local filters are set but ignoreSelf=false', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testCategoryField', '!=', null), 'testFilterName1');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.filterToPassToSuperclass = {
-            id: 'testDatabase1-testTable1-testFilterName1'
-        };
-
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFiltersToIgnore does return expected array of IDs if group service and local filters are set and ignoreSelf=false', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testCategoryField', '!=', null), 'testFilterName1');
-
-        component.options.ignoreSelf = true;
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.filterToPassToSuperclass = {
-            id: 'testDatabase1-testTable1-testFilterName1'
-        };
-
-        expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFiltersToIgnore does return null if XY service filters are set but local filters are empty and ignoreSelf=false', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.and.apply(neon.query, [neon.query.where('testXField', '!=', null), neon.query.where('testYField', '!=', null)]),
-            'testFilterName1');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.xField = DatasetServiceMock.X_FIELD;
-        component.options.type = 'scatter-xy';
-
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        component.options.yField = DatasetServiceMock.Y_FIELD;
-
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFiltersToIgnore does return null if XY service and local filters are set but ignoreSelf=false', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.and.apply(neon.query, [neon.query.where('testXField', '!=', null), neon.query.where('testYField', '!=', null)]),
-            'testFilterName1');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.xField = DatasetServiceMock.X_FIELD;
-        component.options.type = 'scatter-xy';
-        component.filterToPassToSuperclass = {
-            id: 'testDatabase1-testTable1-testFilterName1'
-        };
-
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        component.options.yField = DatasetServiceMock.Y_FIELD;
-
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFiltersToIgnore does return expected array of IDs if XY service and local filters are set and ignoreSelf=true', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.and.apply(neon.query, [neon.query.where('testXField', '!=', null), neon.query.where('testYField', '!=', null)]),
-            'testFilterName1');
-
-        component.options.ignoreSelf = true;
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.xField = DatasetServiceMock.X_FIELD;
-        component.options.type = 'scatter-xy';
-        component.filterToPassToSuperclass = {
-            id: 'testDatabase1-testTable1-testFilterName1'
-        };
-
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        component.options.yField = DatasetServiceMock.Y_FIELD;
-
-        expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFiltersToIgnore does return null if service and local filters are set but are not matching database/table/field', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testXField', '!=', null), 'testFilterName1');
-
-        component.options.ignoreSelf = true;
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.xField = DatasetServiceMock.Y_FIELD;
-        component.filterToPassToSuperclass = {
-            id: 'testDatabase1-testTable1-testFilterName1'
-        };
-
-        // Test matching database/table but not field.
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        component.options.database = DatasetServiceMock.DATABASES[1];
-        component.options.xField = DatasetServiceMock.X_FIELD;
-
-        // Test matching database/field but not table.
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[1];
-
-        // Test matching table/field but not database.
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFilterText with a single filter does return expected string', () => {
-        component.groupFilters = [{
-            field: 'field1',
-            label: 'not group1',
-            neonFilter: null,
-            prettyField: 'prettyField1',
-            value: 'group1'
-        }];
-
-        expect(component.getFilterText({})).toEqual('prettyField1 is not group1');
-
-        component.groupFilters = [];
-
-        component.valueFilters = [{
-            field: 'field1',
-            label: 'value1',
-            neonFilter: null,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-
-        expect(component.getFilterText({})).toEqual('prettyField1 is value1');
-
-        component.valueFilters = [{
-            field: 'field1',
-            label: '',
-            neonFilter: null,
-            prettyField: 'prettyField1',
-            value: {
-                beginX: 'beginX1',
-                endX: 'endX1'
-            }
-        }];
-
-        expect(component.getFilterText({})).toEqual('prettyField1 from beginX1 to endX1');
-
-        component.valueFilters = [{
-            field: 'field1',
-            label: '',
-            neonFilter: null,
-            prettyField: {
-                x: 'prettyX1',
-                y: 'prettyY1'
-            },
-            value: {
-                beginX: 'beginX1',
-                beginY: 'beginY1',
-                endX: 'endX1',
-                endY: 'endY1'
-            }
-        }];
-
-        expect(component.getFilterText({})).toEqual('prettyX1 from beginX1 to endX1 and prettyY1 from beginY1 to endY1');
-    });
-
-    it('getFilterText with multiple filters does return expected string', () => {
-        component.groupFilters = [{
-            field: 'field1',
-            label: 'not group1',
-            neonFilter: null,
-            prettyField: 'prettyField1',
-            value: 'group1'
-        }, {
-            field: 'field1',
-            label: 'not group2',
-            neonFilter: null,
-            prettyField: 'prettyField1',
-            value: 'group2'
-        }];
-
-        expect(component.getFilterText({})).toEqual('2 Filters');
-
-        component.valueFilters = [{
-            field: 'field1',
-            label: '1234',
-            neonFilter: null,
-            prettyField: 'prettyField1',
-            value: 1234
-        }, {
-            field: 'field1',
-            label: 'value1',
-            neonFilter: null,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }, {
-            field: 'field1',
-            label: '',
-            neonFilter: null,
-            prettyField: 'prettyField1',
-            value: {
-                beginX: 'beginX1',
-                endX: 'endX1'
-            }
-        }, {
-            field: 'field1',
-            label: '',
-            neonFilter: null,
-            prettyField: {
-                x: 'prettyX1',
-                y: 'prettyY1'
-            },
-            value: {
-                beginX: 'beginX1',
-                beginY: 'beginY1',
-                endX: 'endX1',
-                endY: 'endY1'
-            }
-        }];
-
-        expect(component.getFilterText({})).toEqual('6 Filters');
     });
 
     it('getHiddenCanvas does return hiddenCanvas', () => {
@@ -1317,27 +670,38 @@ describe('Component: Aggregation', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
-    it('handleLegendItemSelected does call toggleFilter', () => {
-        let spy = spyOn(component, 'toggleFilter');
+    it('handleLegendItemSelected does call toggleFilters', () => {
+        let spy = spyOn(component, 'toggleFilters');
 
-        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
-
+        // Does not work with no groupField.
         component.handleLegendItemSelected({
             value: 'testValue'
         });
+        expect(spy.calls.count()).toEqual(0);
 
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[], {
-            field: 'testCategoryField',
-            label: 'not testValue',
-            neonFilter: neon.query.where('testCategoryField', '!=', 'testValue'),
-            prettyField: 'Test Category Field',
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+
+        // Does not work with no value.
+        component.handleLegendItemSelected({});
+        expect(spy.calls.count()).toEqual(0);
+
+        // Does work with groupField and value.
+        component.handleLegendItemSelected({
             value: 'testValue'
-        }]);
+        });
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([[{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.CATEGORY_FIELD,
+            operator: '!=',
+            value: 'testValue'
+        } as SimpleFilterDesign]]);
     });
 
-    it('handleLegendItemSelected does not call toggleFilter if notFilterable=true', () => {
-        let spy = spyOn(component, 'toggleFilter');
+    it('handleLegendItemSelected does not call toggleFilters if notFilterable=true', () => {
+        let spy = spyOn(component, 'toggleFilters');
 
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.notFilterable = true;
@@ -1349,42 +713,1047 @@ describe('Component: Aggregation', () => {
         expect(spy.calls.count()).toEqual(0);
     });
 
-    it('handleLegendItemSelected with groupFields does call toggleFilter', () => {
-        let spy = spyOn(component, 'toggleFilter');
-
-        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
-
-        component.groupFilters = [{
-            field: 'testCategoryField',
-            label: 'not testOtherValue',
-            neonFilter: neon.query.where('testCategoryField', '!=', 'testOtherValue'),
-            prettyField: 'Test Category Field',
-            value: 'testOtherValue'
-        }];
-
-        component.handleLegendItemSelected({
-            value: 'testValue'
-        });
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[{
-            field: 'testCategoryField',
-            label: 'not testOtherValue',
-            neonFilter: neon.query.where('testCategoryField', '!=', 'testOtherValue'),
-            prettyField: 'Test Category Field',
-            value: 'testOtherValue'
-        }], {
-            field: 'testCategoryField',
-            label: 'not testValue',
-            neonFilter: neon.query.where('testCategoryField', '!=', 'testValue'),
-            prettyField: 'Test Category Field',
-            value: 'testValue'
-        }]);
-    });
-
     it('initializeSubcomponent does return expected object', () => {
         let subcomponentObject = component.initializeSubcomponent(component.subcomponentMainElementRef);
         expect(subcomponentObject.constructor.name).toEqual(ChartJsLineSubcomponent.name);
+    });
+
+    it('onChangeData does work as expected', () => {
+        component.colorKeys = ['red', 'blue' , 'green'];
+        component.legendActiveGroups = ['a'];
+        component.legendDisabledGroups = ['b'];
+        component.legendGroups = ['a', 'b'];
+        component.xList = [1, 2];
+        component.yList = [3, 4];
+
+        component.onChangeData();
+
+        expect(component.colorKeys).toEqual([]);
+        expect(component.legendActiveGroups).toEqual([]);
+        expect(component.legendGroups).toEqual([]);
+        expect(component.xList).toEqual([]);
+        expect(component.yList).toEqual([]);
+
+        // Keep disabled legend groups!
+        expect(component.legendDisabledGroups).toEqual(['b']);
+    });
+
+    it('redrawBounds does call subcomponentMain.select and refreshVisualization', () => {
+        let spySelect = spyOn(component.subcomponentMain, 'select');
+        let spyRedraw = spyOn(component, 'refreshVisualization');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+
+        (component as any).redrawBounds([{
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 56
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '>=',
+                value: 34
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '<=',
+                value: 78
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(1);
+        expect(spySelect.calls.argsFor(0)).toEqual([[{
+            beginX: 12,
+            endX: 56,
+            beginY: 34,
+            endY: 78
+        }]]);
+        expect(spyRedraw.calls.count()).toEqual(1);
+    });
+
+    it('redrawBounds does update selectedArea', () => {
+        // TODO THOR-1057
+    });
+
+    it('redrawBounds does deselect', () => {
+        let spySelect = spyOn(component.subcomponentMain, 'select');
+        let spyRedraw = spyOn(component, 'refreshVisualization');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+        component.selectedArea = {
+            height: 20,
+            width: 10,
+            x: 1,
+            y: 2
+        };
+
+        (component as any).redrawBounds([]);
+
+        expect(spySelect.calls.count()).toEqual(1);
+        expect(spySelect.calls.argsFor(0)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(1);
+        expect(component.selectedArea).toEqual(null);
+    });
+
+    it('redrawBounds does accept filters with rearranged nested filters', () => {
+        let spySelect = spyOn(component.subcomponentMain, 'select');
+        let spyRedraw = spyOn(component, 'refreshVisualization');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+
+        (component as any).redrawBounds([{
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '>=',
+                value: 34
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '<=',
+                value: 78
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 56
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(1);
+        expect(spySelect.calls.argsFor(0)).toEqual([[{
+            beginX: 12,
+            endX: 56,
+            beginY: 34,
+            endY: 78
+        }]]);
+        expect(spyRedraw.calls.count()).toEqual(1);
+
+        (component as any).redrawBounds([{
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '>=',
+                value: 34
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 56
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '<=',
+                value: 78
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(2);
+        expect(spySelect.calls.argsFor(0)).toEqual([[{
+            beginX: 12,
+            endX: 56,
+            beginY: 34,
+            endY: 78
+        }]]);
+        expect(spyRedraw.calls.count()).toEqual(2);
+    });
+
+    it('redrawBounds does ignore filters with incompatible designs', () => {
+        let spySelect = spyOn(component.subcomponentMain, 'select');
+        let spyRedraw = spyOn(component, 'refreshVisualization');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+
+        (component as any).redrawBounds([{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '>=',
+            value: 12
+        } as SimpleFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(1);
+        expect(spySelect.calls.argsFor(0)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(1);
+
+        (component as any).redrawBounds([{
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 56
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(2);
+        expect(spySelect.calls.argsFor(1)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(2);
+
+        (component as any).redrawBounds([{
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 56
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '>=',
+                value: 34
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '<=',
+                value: 78
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(3);
+        expect(spySelect.calls.argsFor(2)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(3);
+
+        (component as any).redrawBounds([{
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 56
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '>=',
+                value: 34
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '<=',
+                value: 78
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '!=',
+                value: 90
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(4);
+        expect(spySelect.calls.argsFor(3)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(4);
+    });
+
+    it('redrawBounds does ignore filters with incompatible databases/tables/fields', () => {
+        let spySelect = spyOn(component.subcomponentMain, 'select');
+        let spyRedraw = spyOn(component, 'refreshVisualization');
+
+        // Different database
+        component.options.database = DatasetServiceMock.DATABASES[1];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+        (component as any).redrawBounds([{
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 56
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '>=',
+                value: 34
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '<=',
+                value: 78
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(1);
+        expect(spySelect.calls.argsFor(0)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(1);
+
+        // Different table
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[1];
+        (component as any).redrawBounds([{
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 56
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '>=',
+                value: 34
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '<=',
+                value: 78
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(2);
+        expect(spySelect.calls.argsFor(1)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(2);
+
+        // Different xField
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.SIZE_FIELD;
+        (component as any).redrawBounds([{
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 56
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '>=',
+                value: 34
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '<=',
+                value: 78
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(3);
+        expect(spySelect.calls.argsFor(2)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(3);
+
+        // Different yField
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.SIZE_FIELD;
+        (component as any).redrawBounds([{
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 56
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '>=',
+                value: 34
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '<=',
+                value: 78
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(4);
+        expect(spySelect.calls.argsFor(3)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(4);
+    });
+
+    it('redrawDomain does call subcomponentMain.select and refreshVisualization', () => {
+        let spySelect = spyOn(component.subcomponentMain, 'select');
+        let spyRedraw = spyOn(component, 'refreshVisualization');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.X_FIELD;
+
+        (component as any).redrawDomain([{
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 34
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(1);
+        expect(spySelect.calls.argsFor(0)).toEqual([[{
+            beginX: 12,
+            endX: 34
+        }]]);
+        expect(spyRedraw.calls.count()).toEqual(1);
+    });
+
+    it('redrawDomain does update selectedArea', () => {
+        // TODO THOR-1057
+    });
+
+    it('redrawDomain does deselect', () => {
+        let spySelect = spyOn(component.subcomponentMain, 'select');
+        let spyRedraw = spyOn(component, 'refreshVisualization');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.selectedArea = {
+            height: 20,
+            width: 10,
+            x: 1,
+            y: 2
+        };
+
+        (component as any).redrawDomain([]);
+
+        expect(spySelect.calls.count()).toEqual(1);
+        expect(spySelect.calls.argsFor(0)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(1);
+        expect(component.selectedArea).toEqual(null);
+    });
+
+    it('redrawDomain does accept filters with rearranged nested filters', () => {
+        let spySelect = spyOn(component.subcomponentMain, 'select');
+        let spyRedraw = spyOn(component, 'refreshVisualization');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.X_FIELD;
+
+        (component as any).redrawDomain([{
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 34
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(1);
+        expect(spySelect.calls.argsFor(0)).toEqual([[{
+            beginX: 12,
+            endX: 34
+        }]]);
+        expect(spyRedraw.calls.count()).toEqual(1);
+    });
+
+    it('redrawDomain does ignore filters with incompatible designs', () => {
+        let spySelect = spyOn(component.subcomponentMain, 'select');
+        let spyRedraw = spyOn(component, 'refreshVisualization');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.X_FIELD;
+
+        (component as any).redrawDomain([{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '>=',
+            value: 12
+        } as SimpleFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(1);
+        expect(spySelect.calls.argsFor(0)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(1);
+
+        (component as any).redrawDomain([{
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 56
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '>=',
+                value: 34
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '<=',
+                value: 78
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(2);
+        expect(spySelect.calls.argsFor(1)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(2);
+    });
+
+    it('redrawDomain does ignore filters with incompatible databases/tables/fields', () => {
+        let spySelect = spyOn(component.subcomponentMain, 'select');
+        let spyRedraw = spyOn(component, 'refreshVisualization');
+
+        // Different database
+        component.options.database = DatasetServiceMock.DATABASES[1];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        (component as any).redrawDomain([{
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 34
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(1);
+        expect(spySelect.calls.argsFor(0)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(1);
+
+        // Different table
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[1];
+        (component as any).redrawDomain([{
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 34
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(2);
+        expect(spySelect.calls.argsFor(1)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(2);
+
+        // Different xField
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.SIZE_FIELD;
+        (component as any).redrawDomain([{
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 34
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(3);
+        expect(spySelect.calls.argsFor(2)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(3);
+    });
+
+    it('redrawFilteredItems does call subcomponentMain.select and refreshVisualization', () => {
+        let spySelect = spyOn(component.subcomponentMain, 'select');
+        let spyRedraw = spyOn(component, 'refreshVisualization');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.X_FIELD;
+
+        (component as any).redrawFilteredItems([{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '=',
+            value: 'testValue1'
+        } as SimpleFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(1);
+        expect(spySelect.calls.argsFor(0)).toEqual([['testValue1']]);
+        expect(spyRedraw.calls.count()).toEqual(1);
+    });
+
+    it('redrawFilteredItems does also work with multiple filters', () => {
+        let spySelect = spyOn(component.subcomponentMain, 'select');
+        let spyRedraw = spyOn(component, 'refreshVisualization');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.X_FIELD;
+
+        (component as any).redrawFilteredItems([{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '=',
+            value: 'testValue1'
+        } as SimpleFilterDesign, {
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '=',
+            value: 'testValue2'
+        } as SimpleFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(1);
+        expect(spySelect.calls.argsFor(0)).toEqual([['testValue1', 'testValue2']]);
+        expect(spyRedraw.calls.count()).toEqual(1);
+    });
+
+    it('redrawFilteredItems does deselect', () => {
+        let spySelect = spyOn(component.subcomponentMain, 'select');
+        let spyRedraw = spyOn(component, 'refreshVisualization');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.X_FIELD;
+
+        (component as any).redrawFilteredItems([]);
+
+        expect(spySelect.calls.count()).toEqual(1);
+        expect(spySelect.calls.argsFor(0)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(1);
+    });
+
+    it('redrawFilteredItems does ignore filters with incompatible databases/tables/fields', () => {
+        let spySelect = spyOn(component.subcomponentMain, 'select');
+        let spyRedraw = spyOn(component, 'refreshVisualization');
+
+        // Different database
+        component.options.database = DatasetServiceMock.DATABASES[1];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        (component as any).redrawFilteredItems([{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '=',
+            value: 'testValue1'
+        } as SimpleFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(1);
+        expect(spySelect.calls.argsFor(0)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(1);
+
+        // Different table
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[1];
+        (component as any).redrawFilteredItems([{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '=',
+            value: 'testValue1'
+        } as SimpleFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(2);
+        expect(spySelect.calls.argsFor(1)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(2);
+
+        // Different xField
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
+        (component as any).redrawFilteredItems([{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '=',
+            value: 'testValue1'
+        } as SimpleFilterDesign]);
+
+        expect(spySelect.calls.count()).toEqual(3);
+        expect(spySelect.calls.argsFor(2)).toEqual([[]]);
+        expect(spyRedraw.calls.count()).toEqual(3);
+    });
+
+    it('redrawFilteredItems does not error if subcomponentMain is not an object', () => {
+        component.subcomponentMain = null;
+        let spyRedraw = spyOn(component, 'refreshVisualization');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.xField = DatasetServiceMock.X_FIELD;
+
+        (component as any).redrawFilteredItems([{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '=',
+            value: 'testValue1'
+        } as SimpleFilterDesign]);
+
+        expect(spyRedraw.calls.count()).toEqual(0);
+    });
+
+    it('redrawLegend does update legendActiveGroups and legendDisabledGroups (but not legendGroups)', () => {
+        component.legendGroups = ['testGroup1', 'testGroup2', 'testGroup3'];
+        component.legendActiveGroups = [];
+        component.legendDisabledGroups = [];
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+
+        (component as any).redrawLegend([{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.CATEGORY_FIELD,
+            operator: '!=',
+            value: 'testGroup2'
+        } as SimpleFilterDesign]);
+
+        expect(component.legendGroups).toEqual(['testGroup1', 'testGroup2', 'testGroup3']);
+        expect(component.legendActiveGroups).toEqual(['testGroup1', 'testGroup3']);
+        expect(component.legendDisabledGroups).toEqual(['testGroup2']);
+    });
+
+    it('redrawLegend does also work with multiple filters', () => {
+        component.legendGroups = ['testGroup1', 'testGroup2', 'testGroup3'];
+        component.legendActiveGroups = [];
+        component.legendDisabledGroups = [];
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+
+        (component as any).redrawLegend([{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.CATEGORY_FIELD,
+            operator: '!=',
+            value: 'testGroup1'
+        } as SimpleFilterDesign, {
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.CATEGORY_FIELD,
+            operator: '!=',
+            value: 'testGroup2'
+        } as SimpleFilterDesign, {
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.CATEGORY_FIELD,
+            operator: '!=',
+            value: 'testGroup3'
+        } as SimpleFilterDesign]);
+
+        expect(component.legendGroups).toEqual(['testGroup1', 'testGroup2', 'testGroup3']);
+        expect(component.legendActiveGroups).toEqual([]);
+        expect(component.legendDisabledGroups).toEqual(['testGroup1', 'testGroup2', 'testGroup3']);
+    });
+
+    it('redrawLegend with no filters does activate all groups', () => {
+        component.legendGroups = ['testGroup1', 'testGroup2', 'testGroup3'];
+        component.legendActiveGroups = ['testGroup2'];
+        component.legendDisabledGroups = ['testGroup1', 'testGroup3'];
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+
+        (component as any).redrawLegend([]);
+
+        expect(component.legendGroups).toEqual(['testGroup1', 'testGroup2', 'testGroup3']);
+        expect(component.legendActiveGroups).toEqual(['testGroup1', 'testGroup2', 'testGroup3']);
+        expect(component.legendDisabledGroups).toEqual([]);
+    });
+
+    it('redrawLegend does change previous legendActiveGroups and legendDisabledGroups (but not legendGroups)', () => {
+        component.legendGroups = ['testGroup1', 'testGroup2', 'testGroup3'];
+        component.legendActiveGroups = ['testGroup1'];
+        component.legendDisabledGroups = ['testGroup2', 'testGroup3'];
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+
+        (component as any).redrawLegend([{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.CATEGORY_FIELD,
+            operator: '!=',
+            value: 'testGroup2'
+        } as SimpleFilterDesign]);
+
+        expect(component.legendGroups).toEqual(['testGroup1', 'testGroup2', 'testGroup3']);
+        expect(component.legendActiveGroups).toEqual(['testGroup1', 'testGroup3']);
+        expect(component.legendDisabledGroups).toEqual(['testGroup2']);
+    });
+
+    it('redrawLegend does ignore filters with incompatible databases/tables/fields', () => {
+        component.legendGroups = ['testGroup1', 'testGroup2', 'testGroup3'];
+        component.legendActiveGroups = [];
+        component.legendDisabledGroups = [];
+
+        // Different database
+        component.options.database = DatasetServiceMock.DATABASES[1];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        (component as any).redrawLegend([{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '!=',
+            value: 'testGroup1'
+        } as SimpleFilterDesign]);
+
+        expect(component.legendGroups).toEqual(['testGroup1', 'testGroup2', 'testGroup3']);
+        expect(component.legendActiveGroups).toEqual(['testGroup1', 'testGroup2', 'testGroup3']);
+        expect(component.legendDisabledGroups).toEqual([]);
+
+        // Different table
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[1];
+        (component as any).redrawLegend([{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '!=',
+            value: 'testGroup1'
+        } as SimpleFilterDesign]);
+
+        expect(component.legendGroups).toEqual(['testGroup1', 'testGroup2', 'testGroup3']);
+        expect(component.legendActiveGroups).toEqual(['testGroup1', 'testGroup2', 'testGroup3']);
+        expect(component.legendDisabledGroups).toEqual([]);
+
+        // Different groupField
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.groupField = DatasetServiceMock.TEXT_FIELD;
+        (component as any).redrawLegend([{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '!=',
+            value: 'testGroup1'
+        } as SimpleFilterDesign]);
+
+        expect(component.legendGroups).toEqual(['testGroup1', 'testGroup2', 'testGroup3']);
+        expect(component.legendActiveGroups).toEqual(['testGroup1', 'testGroup2', 'testGroup3']);
+        expect(component.legendDisabledGroups).toEqual([]);
+    });
+
+    it('shouldFilterSelf does return expected boolean', () => {
+        component.options.ignoreSelf = false;
+        component.options.dualView = false;
+        expect((component as any).shouldFilterSelf()).toEqual(true);
+
+        component.options.ignoreSelf = false;
+        component.options.dualView = true;
+        expect((component as any).shouldFilterSelf()).toEqual(true);
+
+        component.options.ignoreSelf = true;
+        component.options.dualView = true;
+        expect((component as any).shouldFilterSelf()).toEqual(true);
+
+        component.options.ignoreSelf = true;
+        component.options.dualView = false;
+        expect((component as any).shouldFilterSelf()).toEqual(false);
     });
 
     it('validateVisualizationQuery does return expected boolean', () => {
@@ -1580,6 +1949,77 @@ describe('Component: Aggregation', () => {
         }]);
         expect(component.xList).toEqual([1, 3, 5, 7]);
         expect(component.yList).toEqual([2, 4, 6, 8]);
+    });
+
+    it('transformVisualizationQueryResults with disabled legend groups does create expected legend groups', () => {
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+
+        component.legendDisabledGroups = ['a'];
+        component.transformVisualizationQueryResults(component.options, [{
+            testCategoryField: 'a',
+            testXField: 1,
+            testYField: 2
+        }, {
+            testCategoryField: 'a',
+            testXField: 3,
+            testYField: 4
+        }, {
+            testCategoryField: 'b',
+            testXField: 5,
+            testYField: 6
+        }, {
+            testCategoryField: 'c',
+            testXField: 7,
+            testYField: 8
+        }]);
+        expect(component.legendActiveGroups).toEqual(['b', 'c']);
+        expect(component.legendDisabledGroups).toEqual(['a']);
+        expect(component.legendGroups).toEqual(['a', 'b', 'c']);
+
+        component.legendDisabledGroups = ['a', 'b'];
+        component.transformVisualizationQueryResults(component.options, [{
+            _aggregation: 2,
+            testCategoryField: 'a',
+            testXField: 1
+        }, {
+            _aggregation: 4,
+            testCategoryField: 'a',
+            testXField: 3
+        }, {
+            _aggregation: 6,
+            testCategoryField: 'b',
+            testXField: 5
+        }, {
+            _aggregation: 8,
+            testCategoryField: 'c',
+            testXField: 7
+        }]);
+        expect(component.legendActiveGroups).toEqual(['c']);
+        expect(component.legendDisabledGroups).toEqual(['a', 'b']);
+        expect(component.legendGroups).toEqual(['a', 'b', 'c']);
+
+        component.legendDisabledGroups = ['a', 'b', 'c'];
+        component.transformVisualizationQueryResults(component.options, [{
+            testCategoryField: 'a',
+            testXField: 1,
+            testYField: 2
+        }, {
+            testCategoryField: 'a',
+            testXField: 3,
+            testYField: 4
+        }, {
+            testCategoryField: 'b',
+            testXField: 5,
+            testYField: 6
+        }, {
+            testCategoryField: 'c',
+            testXField: 7,
+            testYField: 8
+        }]);
+        expect(component.legendActiveGroups).toEqual([]);
+        expect(component.legendDisabledGroups).toEqual(['a', 'b', 'c']);
+        expect(component.legendGroups).toEqual(['a', 'b', 'c']);
     });
 
     it('transformVisualizationQueryResults with XY date data does return expected data', () => {
@@ -2467,7 +2907,7 @@ describe('Component: Aggregation', () => {
         expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
-    it('refreshVisualization does not draw main data if filterToPassToSuperclass.id is defined unless dualView is falsey', () => {
+    it('refreshVisualization does not draw main data if isFiltered returns true unless dualView is falsey', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
         component.options.aggregation = AggregationType.SUM;
@@ -2475,7 +2915,7 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.dualView = 'on';
-        component.filterToPassToSuperclass.id = 'testId';
+        (component as any).isFiltered = () => true;
 
         (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
             x: 1,
@@ -2544,7 +2984,6 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.dualView = 'on';
-        component.filterToPassToSuperclass.id = 'testId';
 
         (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
             x: 1,
@@ -2598,90 +3037,6 @@ describe('Component: Aggregation', () => {
         expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
-    it('removeFilter does delete filters and call subcomponentMain.deselect', () => {
-        let spy = spyOn(component.subcomponentMain, 'deselect');
-
-        component.filterToPassToSuperclass.id = 'testId';
-        component.groupFilters = [{
-            field: 'field1',
-            label: '',
-            neonFilter: null,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-        component.valueFilters = [{
-            field: 'field2',
-            label: '',
-            neonFilter: null,
-            prettyField: 'prettyField2',
-            value: 'value2'
-        }];
-        component.selectedArea = {
-            height: 4,
-            width: 3,
-            x: 2,
-            y: 1
-        };
-
-        component.removeFilter({
-            id: 'testId'
-        });
-
-        expect(component.filterToPassToSuperclass).toEqual({});
-        expect(component.groupFilters).toEqual([]);
-        expect(component.valueFilters).toEqual([]);
-        expect(component.selectedArea).toEqual(null);
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([]);
-    });
-
-    it('showHeaderContainer does return expected boolean', () => {
-        component.options.type = 'bar-h';
-
-        expect(component.showHeaderContainer()).toEqual(false);
-
-        component.legendGroups = ['a'];
-
-        expect(component.showHeaderContainer()).toEqual(false);
-
-        component.legendGroups = ['a', 'b'];
-
-        expect(component.showHeaderContainer()).toEqual(true);
-
-        component.legendGroups = [];
-        component.groupFilters = [{
-            field: 'field1',
-            label: '',
-            neonFilter: null,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-
-        expect(component.showHeaderContainer()).toEqual(true);
-
-        component.groupFilters = [];
-        component.valueFilters = [{
-            field: 'field1',
-            label: '',
-            neonFilter: null,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-
-        expect(component.showHeaderContainer()).toEqual(true);
-    });
-
-    it('showHeaderContainer does always return true if type is line or scatter', () => {
-        component.options.type = 'line';
-        expect(component.showHeaderContainer()).toEqual(true);
-        component.options.type = 'line-xy';
-        expect(component.showHeaderContainer()).toEqual(true);
-        component.options.type = 'scatter';
-        expect(component.showHeaderContainer()).toEqual(true);
-        component.options.type = 'scatter-xy';
-        expect(component.showHeaderContainer()).toEqual(true);
-    });
-
     it('showLegend does return expected boolean', () => {
         component.options.type = 'bar-h';
 
@@ -2716,7 +3071,7 @@ describe('Component: Aggregation', () => {
         component.options.dualView = 'filter';
         expect(component.showBothViews()).toEqual(false);
 
-        component.filterToPassToSuperclass.id = 'testId';
+        (component as any).isFiltered = () => true;
         expect(component.showBothViews()).toEqual(true);
     });
 
@@ -2733,249 +3088,163 @@ describe('Component: Aggregation', () => {
         expect(component.selectedArea).toEqual(null);
     });
 
-    it('subcomponentRequestsFilterOnBounds with number data does update valueFilters and call createOrRemoveNeonFilter', () => {
+    it('subcomponentRequestsFilterOnBounds with number data does call exchangeFilters', () => {
         component.selectedArea = {
             height: 4,
             width: 3,
             x: 2,
             y: 1
         };
+        component.options.ignoreSelf = false;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        let spy1 = spyOn(component, 'toggleFilter');
-        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
 
         component.subcomponentRequestsFilterOnBounds(12, 34, 56, 78);
-
-        expect(component.selectedArea).toEqual(null);
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(component.valueFilters).toEqual([{
-            field: {
-                x: 'testXField',
-                y: 'testYField'
-            },
-            label: '',
-            neonFilter: neon.query.and.apply(neon.query, [
-                neon.query.where('testXField', '>=', 12), neon.query.where('testYField', '>=', 34),
-                neon.query.where('testXField', '<=', 56), neon.query.where('testYField', '<=', 78)
-            ]),
-            prettyField: {
-                x: 'Test X Field',
-                y: 'Test Y Field'
-            },
-            value: {
-                beginX: 12,
-                beginY: 34,
-                endX: 56,
-                endY: 78
-            }
-        }]);
-    });
-
-    it('subcomponentRequestsFilterOnBounds with string data does update valueFilters and call createOrRemoveNeonFilter', () => {
-        component.selectedArea = {
-            height: 4,
-            width: 3,
-            x: 2,
-            y: 1
-        };
-        component.options.xField = DatasetServiceMock.TEXT_FIELD;
-        component.options.yField = DatasetServiceMock.TEXT_FIELD;
-        let spy1 = spyOn(component, 'toggleFilter');
-        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
-
-        component.subcomponentRequestsFilterOnBounds('testText1', 'testText2', 'testText3', 'testText4');
-
-        expect(component.selectedArea).toEqual(null);
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(component.valueFilters).toEqual([{
-            field: {
-                x: 'testTextField',
-                y: 'testTextField'
-            },
-            label: '',
-            neonFilter: neon.query.and.apply(neon.query, [
-                neon.query.where('testTextField', '>=', 'testText1'), neon.query.where('testTextField', '>=', 'testText2'),
-                neon.query.where('testTextField', '<=', 'testText3'), neon.query.where('testTextField', '<=', 'testText4')
-            ]),
-            prettyField: {
-                x: 'Test Text Field',
-                y: 'Test Text Field'
-            },
-            value: {
-                beginX: 'testText1',
-                beginY: 'testText2',
-                endX: 'testText3',
-                endY: 'testText4'
-            }
-        }]);
-    });
-
-    it('subcomponentRequestsFilterOnBounds does delete previous valueFilters if doNotReplace=false', () => {
-        component.selectedArea = {
-            height: 4,
-            width: 3,
-            x: 2,
-            y: 1
-        };
-        component.options.xField = DatasetServiceMock.X_FIELD;
-        component.options.yField = DatasetServiceMock.Y_FIELD;
-        let spy1 = spyOn(component, 'toggleFilter');
-        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
-
-        component.valueFilters = [{
-            field: {
-                x: 'testXField',
-                y: 'testYField'
-            },
-            label: '',
-            neonFilter: neon.query.and.apply(neon.query, [
-                neon.query.where('testXField', '>=', 21), neon.query.where('testYField', '>=', 43),
-                neon.query.where('testXField', '<=', 65), neon.query.where('testYField', '<=', 87)
-            ]),
-            prettyField: {
-                x: 'Test X Field',
-                y: 'Test Y Field'
-            },
-            value: {
-                beginX: 21,
-                beginY: 43,
-                endX: 65,
-                endY: 87
-            }
-        }];
-
-        component.subcomponentRequestsFilterOnBounds(12, 34, 56, 78);
-
-        expect(component.selectedArea).toEqual(null);
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(component.valueFilters).toEqual([{
-            field: {
-                x: 'testXField',
-                y: 'testYField'
-            },
-            label: '',
-            neonFilter: neon.query.and.apply(neon.query, [
-                neon.query.where('testXField', '>=', 12), neon.query.where('testYField', '>=', 34),
-                neon.query.where('testXField', '<=', 56), neon.query.where('testYField', '<=', 78)
-            ]),
-            prettyField: {
-                x: 'Test X Field',
-                y: 'Test Y Field'
-            },
-            value: {
-                beginX: 12,
-                beginY: 34,
-                endX: 56,
-                endY: 78
-            }
-        }]);
-    });
-
-    it('subcomponentRequestsFilterOnBounds does not delete previous valueFilters and does call toggleFilter if doNotReplace=true', () => {
-        component.selectedArea = {
-            height: 4,
-            width: 3,
-            x: 2,
-            y: 1
-        };
-        component.options.xField = DatasetServiceMock.X_FIELD;
-        component.options.yField = DatasetServiceMock.Y_FIELD;
-        let spy1 = spyOn(component, 'toggleFilter');
-        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
-
-        component.valueFilters = [{
-            field: {
-                x: 'testXField',
-                y: 'testYField'
-            },
-            label: '',
-            neonFilter: neon.query.and.apply(neon.query, [
-                neon.query.where('testXField', '>=', 21), neon.query.where('testYField', '>=', 43),
-                neon.query.where('testXField', '<=', 65), neon.query.where('testYField', '<=', 87)
-            ]),
-            prettyField: {
-                x: 'Test X Field',
-                y: 'Test Y Field'
-            },
-            value: {
-                beginX: 21,
-                beginY: 43,
-                endX: 65,
-                endY: 87
-            }
-        }];
-
-        component.subcomponentRequestsFilterOnBounds(12, 34, 56, 78, true);
 
         expect(component.selectedArea).toEqual(null);
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[{
-            field: {
-                x: 'testXField',
-                y: 'testYField'
-            },
-            label: '',
-            neonFilter: neon.query.and.apply(neon.query, [
-                neon.query.where('testXField', '>=', 21), neon.query.where('testYField', '>=', 43),
-                neon.query.where('testXField', '<=', 65), neon.query.where('testYField', '<=', 87)
-            ]),
-            prettyField: {
-                x: 'Test X Field',
-                y: 'Test Y Field'
-            },
-            value: {
-                beginX: 21,
-                beginY: 43,
-                endX: 65,
-                endY: 87
-            }
-        }], {
-            field: {
-                x: 'testXField',
-                y: 'testYField'
-            },
-            label: '',
-            neonFilter: neon.query.and.apply(neon.query, [
-                neon.query.where('testXField', '>=', 12), neon.query.where('testYField', '>=', 34),
-                neon.query.where('testXField', '<=', 56), neon.query.where('testYField', '<=', 78)
-            ]),
-            prettyField: {
-                x: 'Test X Field',
-                y: 'Test Y Field'
-            },
-            value: {
-                beginX: 12,
-                beginY: 34,
-                endX: 56,
-                endY: 78
-            }
-        }]);
+            type: 'and',
+            inflexible: true,
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 56
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '>=',
+                value: 34
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '<=',
+                value: 78
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.valueFilters).toEqual([{
-            field: {
-                x: 'testXField',
-                y: 'testYField'
-            },
-            label: '',
-            neonFilter: neon.query.and.apply(neon.query, [
-                neon.query.where('testXField', '>=', 21), neon.query.where('testYField', '>=', 43),
-                neon.query.where('testXField', '<=', 65), neon.query.where('testYField', '<=', 87)
-            ]),
-            prettyField: {
-                x: 'Test X Field',
-                y: 'Test Y Field'
-            },
-            value: {
-                beginX: 21,
-                beginY: 43,
-                endX: 65,
-                endY: 87
-            }
-        }]);
+    });
+
+    it('subcomponentRequestsFilterOnBounds with string data does call exchangeFilters', () => {
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
+        component.options.ignoreSelf = false;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
+
+        component.subcomponentRequestsFilterOnBounds('testText1', 'testText2', 'testText3', 'testText4');
+
+        expect(component.selectedArea).toEqual(null);
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([[{
+            type: 'and',
+            inflexible: true,
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 'testText1'
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 'testText3'
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '>=',
+                value: 'testText2'
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '<=',
+                value: 'testText4'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]]);
+        expect(spy2.calls.count()).toEqual(0);
+    });
+
+    it('subcomponentRequestsFilterOnBounds does call toggleFilters if doNotReplace=true', () => {
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
+        component.options.ignoreSelf = false;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
+
+        component.subcomponentRequestsFilterOnBounds(12, 34, 56, 78, true);
+
+        expect(component.selectedArea).toEqual(null);
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([[{
+            type: 'and',
+            inflexible: true,
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 56
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '>=',
+                value: 34
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '<=',
+                value: 78
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]]);
     });
 
     it('subcomponentRequestsFilterOnBounds does not remove selectedArea if ignoreSelf=true', () => {
@@ -2988,6 +3257,8 @@ describe('Component: Aggregation', () => {
         component.options.ignoreSelf = true;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
 
         component.subcomponentRequestsFilterOnBounds(1, 2, 3, 4);
 
@@ -2999,194 +3270,142 @@ describe('Component: Aggregation', () => {
         });
     });
 
-    it('subcomponentRequestsFilterOnBounds does not update valueFilters or call createOrRemoveNeonFilter if notFilterable=true', () => {
+    it('subcomponentRequestsFilterOnBounds does call exchangeFilters or toggleFilters if notFilterable=true', () => {
         component.selectedArea = {
             height: 4,
             width: 3,
             x: 2,
             y: 1
         };
+        component.options.ignoreSelf = false;
         component.options.notFilterable = true;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        let spy1 = spyOn(component, 'toggleFilter');
-        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
 
         component.subcomponentRequestsFilterOnBounds(12, 34, 56, 78);
 
         expect(component.selectedArea).toEqual(null);
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.valueFilters).toEqual([]);
     });
 
-    it('subcomponentRequestsFilterOnDomain with number data does update valueFilters and call createOrRemoveNeonFilter', () => {
+    it('subcomponentRequestsFilterOnDomain with number data does call exchangeFilters', () => {
         component.selectedArea = {
             height: 4,
             width: 3,
             x: 2,
             y: 1
         };
+        component.options.ignoreSelf = false;
         component.options.xField = DatasetServiceMock.X_FIELD;
-        let spy1 = spyOn(component, 'toggleFilter');
-        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
 
-        component.subcomponentRequestsFilterOnDomain(1234, 5678);
-
-        expect(component.selectedArea).toEqual(null);
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(component.valueFilters).toEqual([{
-            field: 'testXField',
-            label: '',
-            neonFilter: neon.query.and.apply(neon.query, [
-                neon.query.where('testXField', '>=', 1234), neon.query.where('testXField', '<=', 5678)
-            ]),
-            prettyField: 'Test X Field',
-            value: {
-                beginX: 1234,
-                endX: 5678
-            }
-        }]);
-    });
-
-    it('subcomponentRequestsFilterOnDomain with string data does update valueFilters and call createOrRemoveNeonFilter', () => {
-        component.selectedArea = {
-            height: 4,
-            width: 3,
-            x: 2,
-            y: 1
-        };
-        component.options.xField = DatasetServiceMock.TEXT_FIELD;
-        let spy1 = spyOn(component, 'toggleFilter');
-        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
-
-        component.subcomponentRequestsFilterOnDomain('testText1', 'testText2');
-
-        expect(component.selectedArea).toEqual(null);
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(component.valueFilters).toEqual([{
-            field: 'testTextField',
-            label: '',
-            neonFilter: neon.query.and.apply(neon.query, [
-                neon.query.where('testTextField', '>=', 'testText1'), neon.query.where('testTextField', '<=', 'testText2')
-            ]),
-            prettyField: 'Test Text Field',
-            value: {
-                beginX: 'testText1',
-                endX: 'testText2'
-            }
-        }]);
-    });
-
-    it('subcomponentRequestsFilterOnDomain does delete previous valueFilters if doNotReplace=false', () => {
-        component.selectedArea = {
-            height: 4,
-            width: 3,
-            x: 2,
-            y: 1
-        };
-        component.options.xField = DatasetServiceMock.TEXT_FIELD;
-        let spy1 = spyOn(component, 'toggleFilter');
-        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
-
-        component.valueFilters = [{
-            field: 'testTextField',
-            label: '',
-            neonFilter: neon.query.and.apply(neon.query, [
-                neon.query.where('testTextField', '>=', 'testText3'), neon.query.where('testTextField', '<=', 'testText4')
-            ]),
-            prettyField: 'Test Text Field',
-            value: {
-                beginX: 'testText3',
-                endX: 'testText4'
-            }
-        }];
-
-        component.subcomponentRequestsFilterOnDomain('testText1', 'testText2');
-
-        expect(component.selectedArea).toEqual(null);
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(component.valueFilters).toEqual([{
-            field: 'testTextField',
-            label: '',
-            neonFilter: neon.query.and.apply(neon.query, [
-                neon.query.where('testTextField', '>=', 'testText1'), neon.query.where('testTextField', '<=', 'testText2')
-            ]),
-            prettyField: 'Test Text Field',
-            value: {
-                beginX: 'testText1',
-                endX: 'testText2'
-            }
-        }]);
-    });
-
-    it('subcomponentRequestsFilterOnDomain does not delete previous valueFilters and does call toggleFilter if doNotReplace=true', () => {
-        component.selectedArea = {
-            height: 4,
-            width: 3,
-            x: 2,
-            y: 1
-        };
-        component.options.xField = DatasetServiceMock.TEXT_FIELD;
-        let spy1 = spyOn(component, 'toggleFilter');
-        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
-
-        component.valueFilters = [{
-            field: 'testTextField',
-            label: '',
-            neonFilter: neon.query.and.apply(neon.query, [
-                neon.query.where('testTextField', '>=', 'testText3'), neon.query.where('testTextField', '<=', 'testText4')
-            ]),
-            prettyField: 'Test Text Field',
-            value: {
-                beginX: 'testText3',
-                endX: 'testText4'
-            }
-        }];
-
-        component.subcomponentRequestsFilterOnDomain('testText1', 'testText2', true);
+        component.subcomponentRequestsFilterOnDomain(12, 34);
 
         expect(component.selectedArea).toEqual(null);
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[{
-            field: 'testTextField',
-            label: '',
-            neonFilter: neon.query.and.apply(neon.query, [
-                neon.query.where('testTextField', '>=', 'testText3'), neon.query.where('testTextField', '<=', 'testText4')
-            ]),
-            prettyField: 'Test Text Field',
-            value: {
-                beginX: 'testText3',
-                endX: 'testText4'
-            }
-        }], {
-            field: 'testTextField',
-            label: '',
-            neonFilter: neon.query.and.apply(neon.query, [
-                neon.query.where('testTextField', '>=', 'testText1'), neon.query.where('testTextField', '<=', 'testText2')
-            ]),
-            prettyField: 'Test Text Field',
-            value: {
-                beginX: 'testText1',
-                endX: 'testText2'
-            }
-        }]);
+            type: 'and',
+            inflexible: true,
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 34
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.valueFilters).toEqual([{
-            field: 'testTextField',
-            label: '',
-            neonFilter: neon.query.and.apply(neon.query, [
-                neon.query.where('testTextField', '>=', 'testText3'), neon.query.where('testTextField', '<=', 'testText4')
-            ]),
-            prettyField: 'Test Text Field',
-            value: {
-                beginX: 'testText3',
-                endX: 'testText4'
-            }
-        }]);
+    });
+
+    it('subcomponentRequestsFilterOnDomain with string data does call exchangeFilters', () => {
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
+        component.options.ignoreSelf = false;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
+
+        component.subcomponentRequestsFilterOnDomain('testText1', 'testText2');
+
+        expect(component.selectedArea).toEqual(null);
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([[{
+            type: 'and',
+            inflexible: true,
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 'testText1'
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 'testText2'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]]);
+        expect(spy2.calls.count()).toEqual(0);
+    });
+
+    it('subcomponentRequestsFilterOnDomain does call toggleFilters if doNotReplace=true', () => {
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
+        component.options.ignoreSelf = false;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
+
+        component.subcomponentRequestsFilterOnDomain(12, 34, true);
+
+        expect(component.selectedArea).toEqual(null);
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([[{
+            type: 'and',
+            inflexible: true,
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>=',
+                value: 12
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<=',
+                value: 34
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]]);
     });
 
     it('subcomponentRequestsFilterOnDomain does not remove selectedArea if ignoreSelf=true', () => {
@@ -3198,8 +3417,10 @@ describe('Component: Aggregation', () => {
         };
         component.options.ignoreSelf = true;
         component.options.xField = DatasetServiceMock.X_FIELD;
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
 
-        component.subcomponentRequestsFilterOnDomain(1, 2);
+        component.subcomponentRequestsFilterOnDomain(12, 34);
 
         expect(component.selectedArea).toEqual({
             height: 4,
@@ -3209,138 +3430,148 @@ describe('Component: Aggregation', () => {
         });
     });
 
-    it('subcomponentRequestsFilterOnDomain does not update valueFilters or call createOrRemoveNeonFilter if notFilterable=true', () => {
+    it('subcomponentRequestsFilterOnDomain does not call exchangeFilters or toggleFilters if notFilterable=true', () => {
         component.selectedArea = {
             height: 4,
             width: 3,
             x: 2,
             y: 1
         };
+        component.options.ignoreSelf = false;
         component.options.notFilterable = true;
         component.options.xField = DatasetServiceMock.X_FIELD;
-        let spy1 = spyOn(component, 'toggleFilter');
-        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
 
-        component.subcomponentRequestsFilterOnDomain(1234, 5678);
+        component.subcomponentRequestsFilterOnDomain(12, 34);
 
         expect(component.selectedArea).toEqual(null);
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.valueFilters).toEqual([]);
     });
 
-    it('subcomponentRequestsFilter with number data does update valueFilters and call createOrRemoveNeonFilter', () => {
+    it('subcomponentRequestsFilter with number data does call exchangeFilters', () => {
+        component.options.ignoreSelf = false;
+        component.options.requireAll = true;
         component.options.xField = DatasetServiceMock.X_FIELD;
-        let spy1 = spyOn(component, 'toggleFilter');
-        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
 
         component.subcomponentRequestsFilter('testCategory', 1234);
-
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(component.valueFilters).toEqual([{
-            field: 'testXField',
-            label: '1234',
-            neonFilter: neon.query.where('testXField', '=', 1234),
-            prettyField: 'Test X Field',
-            value: 1234
-        }]);
-    });
-
-    it('subcomponentRequestsFilter with string data does update valueFilters and call createOrRemoveNeonFilter', () => {
-        component.options.xField = DatasetServiceMock.TEXT_FIELD;
-        let spy1 = spyOn(component, 'toggleFilter');
-        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
-
-        component.subcomponentRequestsFilter('testCategory', 'testText1');
-
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(component.valueFilters).toEqual([{
-            field: 'testTextField',
-            label: 'testText1',
-            neonFilter: neon.query.where('testTextField', '=', 'testText1'),
-            prettyField: 'Test Text Field',
-            value: 'testText1'
-        }]);
-    });
-
-    it('subcomponentRequestsFilter does delete previous valueFilters if doNotReplace=false', () => {
-        component.options.xField = DatasetServiceMock.TEXT_FIELD;
-        let spy1 = spyOn(component, 'toggleFilter');
-        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
-
-        component.valueFilters = [{
-            field: 'testTextField',
-            label: 'testText2',
-            neonFilter: neon.query.where('testTextField', '=', 'testText2'),
-            prettyField: 'Test Text Field',
-            value: 'testText2'
-        }];
-
-        component.subcomponentRequestsFilter('testCategory', 'testText1');
-
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(component.valueFilters).toEqual([{
-            field: 'testTextField',
-            label: 'testText1',
-            neonFilter: neon.query.where('testTextField', '=', 'testText1'),
-            prettyField: 'Test Text Field',
-            value: 'testText1'
-        }]);
-    });
-
-    it('subcomponentRequestsFilter does not delete previous valueFilters and does call toggleFilter if doNotReplace=true', () => {
-        component.options.xField = DatasetServiceMock.TEXT_FIELD;
-        let spy1 = spyOn(component, 'toggleFilter');
-        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
-
-        component.valueFilters = [{
-            field: 'testTextField',
-            label: 'testText2',
-            neonFilter: neon.query.where('testTextField', '=', 'testText2'),
-            prettyField: 'Test Text Field',
-            value: 'testText2'
-        }];
-
-        component.subcomponentRequestsFilter('testCategory', 'testText1', true);
 
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[{
-            field: 'testTextField',
-            label: 'testText2',
-            neonFilter: neon.query.where('testTextField', '=', 'testText2'),
-            prettyField: 'Test Text Field',
-            value: 'testText2'
-        }], {
-            field: 'testTextField',
-            label: 'testText1',
-            neonFilter: neon.query.where('testTextField', '=', 'testText1'),
-            prettyField: 'Test Text Field',
-            value: 'testText1'
-        }]);
+            optional: false,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '=',
+            value: 1234
+        } as SimpleFilterDesign]]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.valueFilters).toEqual([{
-            field: 'testTextField',
-            label: 'testText2',
-            neonFilter: neon.query.where('testTextField', '=', 'testText2'),
-            prettyField: 'Test Text Field',
-            value: 'testText2'
-        }]);
     });
 
-    it('subcomponentRequestsFilter does not update valueFilters or call createOrRemoveNeonFilter if notFilterable=true', () => {
+    it('subcomponentRequestsFilter with string data does update valueFilters and call createOrRemoveNeonFilter', () => {
+        component.options.ignoreSelf = false;
+        component.options.requireAll = true;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
+
+        component.subcomponentRequestsFilter('testCategory', 'testText1');
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([[{
+            optional: false,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '=',
+            value: 'testText1'
+        } as SimpleFilterDesign]]);
+        expect(spy2.calls.count()).toEqual(0);
+    });
+
+    it('subcomponentRequestsFilter does call exchangeFilters with optional filter if requireAll=false', () => {
+        component.options.ignoreSelf = false;
+        component.options.requireAll = false;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
+
+        component.subcomponentRequestsFilter('testCategory', 1234);
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([[{
+            optional: true,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '=',
+            value: 1234
+        } as SimpleFilterDesign]]);
+        expect(spy2.calls.count()).toEqual(0);
+    });
+
+    it('subcomponentRequestsFilter does call toggleFilters if doNotReplace=true', () => {
+        component.options.ignoreSelf = true;
+        component.options.requireAll = true;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
+
+        component.subcomponentRequestsFilter('testCategory', 1234, true);
+
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([[{
+            optional: false,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '=',
+            value: 1234
+        } as SimpleFilterDesign]]);
+    });
+
+    it('subcomponentRequestsFilter does call toggleFilters with optional filter if doNotReplace=true and requireAll=false', () => {
+        component.options.ignoreSelf = true;
+        component.options.requireAll = false;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
+
+        component.subcomponentRequestsFilter('testCategory', 1234, true);
+
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([[{
+            optional: true,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '=',
+            value: 1234
+        } as SimpleFilterDesign]]);
+    });
+
+    it('subcomponentRequestsFilter does not call exchangeFilters or toggleFilters if notFilterable=true', () => {
+        component.options.ignoreSelf = false;
         component.options.notFilterable = true;
         component.options.xField = DatasetServiceMock.X_FIELD;
-        let spy1 = spyOn(component, 'toggleFilter');
-        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
 
         component.subcomponentRequestsFilter('testCategory', 1234);
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(0);
-        expect(component.valueFilters).toEqual([]);
     });
 
     it('subcomponentRequestsRedraw does call stopEventPropagation and changeDetection.detectChanges', () => {
@@ -3394,7 +3625,7 @@ describe('Component: Aggregation', () => {
             granularity: 'year',
             hideGridLines: false,
             hideGridTicks: false,
-            ignoreSelf: false,
+            ignoreSelf: true,
             lineCurveTension: 0.3,
             lineFillArea: false,
             logScaleX: false,
@@ -3425,7 +3656,7 @@ describe('Component: Aggregation', () => {
         component.options.granularity = 'day';
         component.options.hideGridLines = true;
         component.options.hideGridTicks = true;
-        component.options.ignoreSelf = true;
+        component.options.ignoreSelf = false;
         component.options.lineCurveTension = 0;
         component.options.lineFillArea = true;
         component.options.logScaleX = true;
@@ -3469,7 +3700,7 @@ describe('Component: Aggregation', () => {
             granularity: 'day',
             hideGridLines: true,
             hideGridTicks: true,
-            ignoreSelf: true,
+            ignoreSelf: false,
             lineCurveTension: 0,
             lineFillArea: true,
             logScaleX: true,
@@ -3488,116 +3719,6 @@ describe('Component: Aggregation', () => {
             type: 'line-xy',
             yPercentage: 0.5
         });
-    });
-
-    it('toggleFilter does add given filter to given empty array and call createOrRemoveNeonFilter', () => {
-        let spy = spyOn(component, 'createOrRemoveNeonFilter');
-
-        let neonFilter1 = neon.query.where('field1', '=', 'value1');
-        let filter1 = {
-            field: 'field1',
-            label: '',
-            neonFilter: neonFilter1,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        };
-        let filters = [];
-
-        component.toggleFilter(filters, filter1);
-
-        expect(filters).toEqual([filter1]);
-        expect(spy.calls.count()).toEqual(1);
-    });
-
-    it('toggleFilter does add given filter to given non-empty array and call createOrRemoveNeonFilter', () => {
-        let spy = spyOn(component, 'createOrRemoveNeonFilter');
-
-        let neonFilter1 = neon.query.where('field1', '=', 'value1');
-        let filter1 = {
-            field: 'field1',
-            label: '',
-            neonFilter: neonFilter1,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        };
-        let neonFilter2 = neon.query.where('field2', '=', 'value2');
-        let filter2 = {
-            field: 'field2',
-            label: '',
-            neonFilter: neonFilter2,
-            prettyField: 'prettyField2',
-            value: 'value2'
-        };
-        let filters = [filter1];
-
-        component.toggleFilter(filters, filter2);
-
-        expect(filters).toEqual([filter1, filter2]);
-        expect(spy.calls.count()).toEqual(1);
-    });
-
-    it('toggleFilter does remove given filter from given array and call createOrRemoveNeonFilter', () => {
-        let spy1 = spyOn(component, 'createOrRemoveNeonFilter');
-        let spy2 = spyOn(component.subcomponentMain, 'deselect');
-
-        let neonFilter1 = neon.query.where('field1', '=', 'value1');
-        let filter1 = {
-            field: 'field1',
-            label: '',
-            neonFilter: neonFilter1,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        };
-        let filters = [filter1];
-
-        component.toggleFilter(filters, {
-            field: 'field1',
-            label: '',
-            neonFilter: neonFilter1,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        });
-
-        expect(filters).toEqual([]);
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual(['value1']);
-    });
-
-    it('toggleFilter does remove given filter from given multi-element array and call createOrRemoveNeonFilter', () => {
-        let spy1 = spyOn(component, 'createOrRemoveNeonFilter');
-        let spy2 = spyOn(component.subcomponentMain, 'deselect');
-
-        let neonFilter1 = neon.query.where('field1', '=', 'value1');
-        let filter1 = {
-            field: 'field1',
-            label: '',
-            neonFilter: neonFilter1,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        };
-        let neonFilter2 = neon.query.where('field2', '=', 'value2');
-        let filter2 = {
-            field: 'field2',
-            label: '',
-            neonFilter: neonFilter2,
-            prettyField: 'prettyField2',
-            value: 'value2'
-        };
-        let filters = [filter1, filter2];
-
-        component.toggleFilter(filters, {
-            field: 'field1',
-            label: '',
-            neonFilter: neonFilter1,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        });
-
-        expect(filters).toEqual([filter2]);
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual(['value1']);
     });
 
     it('updateOnResize does work as expected', () => {
@@ -3776,56 +3897,6 @@ describe('Component: Aggregation', () => {
 
         let legend = fixture.debugElement.query(By.css('.filter-container app-legend'));
         expect(legend).not.toBeNull();
-
-        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-filter'));
-        expect(bodyContainer).not.toBeNull();
-    }));
-
-    it('does show filter-container and filter-reset elements if groupFilters or valueFilters are non-empty array', async(() => {
-        component.options.showLegend = false;
-        component.options.type = 'bar-h';
-        component.groupFilters = [{
-            field: 'field1',
-            label: 'value1',
-            neonFilter: null,
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-        component.valueFilters = [{
-            field: 'field2',
-            label: 'value2',
-            neonFilter: null,
-            prettyField: 'prettyField2',
-            value: 'value2'
-        }];
-
-        // Force the component to update all its elements.
-        component.changeDetection.detectChanges();
-
-        let filterContainer = fixture.debugElement.query(By.css('.filter-container'));
-        expect(filterContainer).not.toBeNull();
-
-        let legend = fixture.debugElement.query(By.css('.filter-container app-legend'));
-        expect(legend).toBeNull();
-
-        let filterResets = fixture.debugElement.queryAll(By.css('.filter-container .filter-reset'));
-        expect(filterResets.length).toEqual(2);
-
-        let filterLabels = fixture.debugElement.queryAll(By.css('.filter-container .filter-label'));
-        expect(filterLabels.length).toEqual(2);
-
-        expect(filterLabels[0].nativeElement.textContent).toContain('value1');
-        expect(filterLabels[1].nativeElement.textContent).toContain('value2');
-
-        let filterButtons = fixture.debugElement.queryAll(By.css('.filter-container .filter-reset button'));
-        expect(filterButtons.length).toEqual(2);
-
-        let filterIcons = fixture.debugElement.queryAll(By.css(
-            '.filter-container .filter-reset button mat-icon'));
-        expect(filterIcons.length).toEqual(2);
-
-        expect(filterIcons[0].nativeElement.textContent).toEqual('close');
-        expect(filterIcons[1].nativeElement.textContent).toEqual('close');
 
         let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-filter'));
         expect(bodyContainer).not.toBeNull();

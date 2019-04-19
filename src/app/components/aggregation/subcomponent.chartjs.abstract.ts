@@ -62,6 +62,14 @@ export class ChartJsData {
     ) {}
 }
 
+export enum SelectMode {
+    NONE = 'NONE',
+    ITEM = 'ITEM',
+    DOMAIN = 'DOMAIN',
+    BOUNDS_DOMAIN = 'BOUNDS_DOMAIN',
+    BOUNDS = 'BOUNDS'
+}
+
 export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSubcomponent {
     private DEFAULT_CHART_ELEMENT_WIDTH = 10;
     private HORIZONTAL_MARGIN = 10;
@@ -105,10 +113,10 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
-     * @arg {boolean} [cannotSelect=false]
+     * @arg {SelectMode} [selectMode=NONE]
      */
     constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
-        protected cannotSelect: boolean = false) {
+        protected selectMode: SelectMode = SelectMode.NONE) {
 
         super(options, listener, elementRef);
     }
@@ -355,14 +363,13 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     }
 
     /**
-     * Deselects the given items (or all items) in the given chart.
+     * Deselects all the items in the given chart.
      *
      * @arg {any} chart
-     * @arg {any[]} [items]
      * @protected
      */
-    protected dataDeselect(chart: any, items?: any[]) {
-        // Do nothing.
+    protected dataDeselect(chart: any) {
+        // Override as needed.
     }
 
     /**
@@ -373,20 +380,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @protected
      */
     protected dataSelect(chart: any, items: any[]) {
-        // Do nothing.
-    }
-
-    /**
-     * Deselects the given item or all the subcomponent elements.
-     *
-     * @arg {any} [item]
-     * @override
-     */
-    public deselect(item?: any) {
-        this.selectedLabels = item ? this.selectedLabels.filter((existingItem) => {
-            return existingItem !== item;
-        }) : [];
-        this.dataDeselect(this.chart, item ? [item] : undefined);
+        // Override as needed.
     }
 
     /**
@@ -615,10 +609,14 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {event} event
      * @arg {any[]} items
      * @arg {any} chart
-     * @protected
+     * @private
      */
-    protected handleClickEvent(event, items: any[], chart: any) {
-        // Do nothing.
+    private handleClickEvent(event, items: any[], chart: any) {
+        if (this.isSelectable(items)) {
+            if (this.selectMode === SelectMode.ITEM) {
+                this.selectItem(event, items, chart);
+            }
+        }
     }
 
     /**
@@ -627,10 +625,29 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {event} event
      * @arg {any[]} items
      * @arg {any} chart
-     * @protected
+     * @private
      */
-    protected handleHoverEvent(event, items: any[], chart: any) {
-        // Do nothing.
+    private handleHoverEvent(event, items: any[], chart: any) {
+        if (this.isSelectable(items)) {
+            if (this.selectMode === SelectMode.DOMAIN) {
+                this.selectDomain(event, items, chart);
+            }
+            if (this.selectMode === SelectMode.BOUNDS) {
+                this.selectBounds(event, items, chart);
+            }
+            if (this.selectMode === SelectMode.BOUNDS_DOMAIN) {
+                this.selectBounds(event, items, chart, true);
+            }
+        }
+    }
+
+    /**
+     * Configures the visualization to ignore any of the user's "select" events.
+     *
+     * @override
+     */
+    public ignoreSelectEvents(): void {
+        this.selectMode = SelectMode.NONE;
     }
 
     /**
@@ -677,7 +694,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @protected
      */
     protected isSelectable(items: any[]): boolean {
-        return !this.cannotSelect && !!items.length;
+        return this.selectMode !== SelectMode.NONE && !!items.length;
     }
 
     /**
@@ -770,15 +787,52 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     }
 
     /**
+     * Selects the given items and deselects all other items.
+     *
+     * @arg {any[]} items
+     * @override
+     */
+    public select(items: any[]) {
+        // TODO THOR-1057 Deselect all the items in this specific chart before we select the input items.
+        // this.dataDeselect(this.chart);
+
+        // TODO THOR-1057 Delete this code.
+        if (!items.length) {
+            this.dataDeselect(this.chart);
+            this.selectedLabels = [];
+            this.selectedDomain = null;
+            this.selectedBounds = null;
+        }
+
+        if (this.selectMode === SelectMode.ITEM) {
+            // TODO THOR-1057 Select the items in this specific chart.
+            // this.selectedLabels = items;
+            // this.dataSelect(this.chart, items);
+        }
+        if (this.selectMode === SelectMode.DOMAIN) {
+            // TODO THOR-1057 Set the selected labels and domain, then select the items in this specific chart.
+            // this.selectedLabels = [];
+            // this.selectedDomain = null;
+            // this.dataSelect(this.chart, items);
+        }
+        if (this.selectMode === SelectMode.BOUNDS_DOMAIN || this.selectMode === SelectMode.BOUNDS) {
+            // TODO THOR-1057 Set the selected labels and bounds, then select the items in this specific chart.
+            // this.selectedLabels = [];
+            // this.selectedBounds = null;
+            // this.dataSelect(this.chart, items);
+        }
+    }
+
+    /**
      * Selects a bounds using the given event and items.
      *
      * @arg {event} event
      * @arg {any[]} items
      * @arg {any} chart
      * @arg {boolean} [domainOnly=false]
-     * @protected
+     * @private
      */
-    protected selectBounds(event, items: any[], chart: any, domainOnly: boolean = false) {
+    private selectBounds(event, items: any[], chart: any, domainOnly: boolean = false) {
         if (event.type === 'mouseover' && event.buttons > 0) {
             this.ignoreSelect = true;
         }
@@ -872,6 +926,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                 endLabelY = Math.max(beginValueY, endValueY);
             }
 
+            // TODO THOR-1110 If findAxisTypeX is string, filter on individual items rather than domain/bounds.
             if (domainOnly) {
                 this.listener.subcomponentRequestsFilterOnDomain(beginLabelX, endLabelX);
             } else {
@@ -887,9 +942,9 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {event} event
      * @arg {any[]} items
      * @arg {any} chart
-     * @protected
+     * @private
      */
-    protected selectDomain(event, items: any[], chart: any) {
+    private selectDomain(event, items: any[], chart: any) {
         if (event.type === 'mouseover' && event.buttons > 0) {
             this.ignoreSelect = true;
         }
@@ -965,6 +1020,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                 endLabelX = Number(('' + endLabelX).replace(/,/g, ''));
             }
 
+            // TODO THOR-1110 If findAxisTypeX is string, filter on individual items rather than domain.
             this.listener.subcomponentRequestsFilterOnDomain(beginLabelX, endLabelX);
             this.selectedDomain = null;
         }
@@ -976,22 +1032,25 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {event} event
      * @arg {any[]} items
      * @arg {any} chart
-     * @protected
+     * @private
      */
-    protected selectItem(event, items: any[], chart) {
+    private selectItem(event, items: any[], chart) {
         if (!items.length) {
             return;
         }
 
         let labelGroup = chart.data.datasets[items[0]._datasetIndex].label;
         let labelValue = this.findItemInDataToSelect(items, chart);
-        let doNotReplace = !!(event.ctrlKey || event.metaKey);
-        this.selectedLabels = doNotReplace ? this.selectedLabels.concat(labelValue) : [labelValue];
-        if (!doNotReplace) {
+        let exchangeFilter = !(event.ctrlKey || event.metaKey);
+        if (exchangeFilter) {
+            this.selectedLabels = [labelValue];
             this.dataDeselect(chart);
+        } else {
+            this.selectedLabels = this.selectedLabels.indexOf(labelValue) < 0 ? this.selectedLabels.concat(labelValue) :
+                this.selectedLabels.filter((oldLabel) => oldLabel !== labelValue);
         }
         this.dataSelect(chart, items);
-        this.listener.subcomponentRequestsFilter(labelGroup, labelValue, doNotReplace);
+        this.listener.subcomponentRequestsFilter(labelGroup, labelValue, !exchangeFilter);
     }
 
     /**

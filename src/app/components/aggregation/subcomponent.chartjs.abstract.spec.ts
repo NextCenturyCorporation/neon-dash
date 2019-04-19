@@ -16,7 +16,7 @@
 
 'use strict';
 
-import { AbstractChartJsDataset, AbstractChartJsSubcomponent } from './subcomponent.chartjs.abstract';
+import { AbstractChartJsDataset, AbstractChartJsSubcomponent, SelectMode } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '../../color';
 import { ElementRef } from '@angular/core';
@@ -69,18 +69,6 @@ class TestChartJsSubcomponent extends AbstractChartJsSubcomponent {
     public axisTypeX: string = 'string';
     public axisTypeY: string = 'string';
     public horizontal: boolean = false;
-
-    public callSelectBounds(event, items, chart, domainOnly) {
-        this.selectBounds(event, items, chart, domainOnly);
-    }
-
-    public callSelectDomain(event, items, chart) {
-        this.selectDomain(event, items, chart);
-    }
-
-    public callSelectItem(event, items, chart) {
-        this.selectItem(event, items, chart);
-    }
 
     protected createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset {
         return new TestChartJsDataset(this.elementRef, color, label, xList);
@@ -324,7 +312,7 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
@@ -357,19 +345,19 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
         }, [], chart);
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
         }, [], chart);
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 100,
             offsetY: 200
@@ -422,19 +410,19 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
         }, [], chart);
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 100,
             offsetY: 200
         }, [], chart);
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 0
         }, [], chart);
 
@@ -485,19 +473,19 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 100,
             offsetY: 200
         }, [], chart);
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
         }, [], chart);
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 0
         }, [], chart);
 
@@ -547,19 +535,19 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
         }, [], chart);
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 100,
             offsetY: 200
         }, [], chart);
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 0
         }, [], chart);
 
@@ -605,19 +593,19 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
         }, [], chart);
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 100,
             offsetY: 200
         }, [], chart);
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 0
         }, [], chart);
 
@@ -648,13 +636,13 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
         }, [], chart);
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 2,
             offsetX: 100,
             offsetY: 200
@@ -686,7 +674,7 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
@@ -696,7 +684,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 100,
             offsetY: 200
@@ -753,19 +741,19 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
         }, [], chart, true);
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 100,
             offsetY: 200
         }, [], chart, true);
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 0
         }, [], chart, true);
 
@@ -797,7 +785,7 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectBounds({
+        (subcomponent as any).selectBounds({
             buttons: 1,
             offsetX: 10,
             offsetY: 20,
@@ -828,7 +816,7 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 1
         }, [{
             _index: 1,
@@ -863,7 +851,7 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 1
         }, [{
             _index: 1,
@@ -873,7 +861,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 1
         }, [{
             _index: 1,
@@ -883,7 +871,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 1
         }, [{
             _index: 2,
@@ -926,7 +914,7 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 1
         }, [{
             _index: 1,
@@ -936,7 +924,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 1
         }, [{
             _index: 2,
@@ -946,7 +934,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 0
         }, [], chart);
 
@@ -983,7 +971,7 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 1
         }, [{
             _index: 2,
@@ -993,7 +981,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 1
         }, [{
             _index: 1,
@@ -1003,7 +991,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 0
         }, [], chart);
 
@@ -1048,7 +1036,7 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 1
         }, [{
             _index: 1,
@@ -1058,7 +1046,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 1
         }, [{
             _index: 2,
@@ -1068,7 +1056,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 0
         }, [], chart);
 
@@ -1107,7 +1095,7 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 1
         }, [{
             _index: 1,
@@ -1117,7 +1105,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 1
         }, [{
             _index: 2,
@@ -1127,7 +1115,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 0
         }, [], chart);
 
@@ -1156,7 +1144,7 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 1
         }, [{
             _index: 1,
@@ -1166,7 +1154,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 2
         }, [{
             _index: 2,
@@ -1200,7 +1188,7 @@ describe('ChartJsSubcomponent', () => {
             }
         };
 
-        subcomponent.callSelectDomain({
+        (subcomponent as any).selectDomain({
             buttons: 1,
             type: 'mouseover'
         }, [{
@@ -1242,7 +1230,7 @@ describe('ChartJsSubcomponent', () => {
             _index: 0
         };
 
-        subcomponent.callSelectItem({}, [item1], chart);
+        (subcomponent as any).selectItem({}, [item1], chart);
 
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual(['a', 1, false]);
@@ -1302,7 +1290,7 @@ describe('ChartJsSubcomponent', () => {
             _index: 1
         };
 
-        subcomponent.callSelectItem({}, [item1], chart);
+        (subcomponent as any).selectItem({}, [item1], chart);
 
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual(['a', 1, false]);
@@ -1312,7 +1300,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy3.calls.argsFor(0)).toEqual([chart]);
         expect(subcomponent.getSelectedLabels()).toEqual([1]);
 
-        subcomponent.callSelectItem({}, [item2], chart);
+        (subcomponent as any).selectItem({}, [item2], chart);
 
         expect(spy1.calls.count()).toEqual(2);
         expect(spy1.calls.argsFor(1)).toEqual(['a', 3, false]);
@@ -1322,7 +1310,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy3.calls.argsFor(1)).toEqual([chart]);
         expect(subcomponent.getSelectedLabels()).toEqual([3]);
 
-        subcomponent.callSelectItem({}, [item3], chart);
+        (subcomponent as any).selectItem({}, [item3], chart);
 
         expect(spy1.calls.count()).toEqual(3);
         expect(spy1.calls.argsFor(2)).toEqual(['b', 5, false]);
@@ -1332,7 +1320,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy3.calls.argsFor(2)).toEqual([chart]);
         expect(subcomponent.getSelectedLabels()).toEqual([5]);
 
-        subcomponent.callSelectItem({}, [item4], chart);
+        (subcomponent as any).selectItem({}, [item4], chart);
 
         expect(spy1.calls.count()).toEqual(4);
         expect(spy1.calls.argsFor(3)).toEqual(['b', 7, false]);
@@ -1392,7 +1380,7 @@ describe('ChartJsSubcomponent', () => {
             _index: 1
         };
 
-        subcomponent.callSelectItem({
+        (subcomponent as any).selectItem({
             ctrlKey: true
         }, [item1], chart);
 
@@ -1403,7 +1391,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy3.calls.count()).toEqual(0);
         expect(subcomponent.getSelectedLabels()).toEqual([1]);
 
-        subcomponent.callSelectItem({
+        (subcomponent as any).selectItem({
             ctrlKey: true
         }, [item2], chart);
 
@@ -1414,7 +1402,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy3.calls.count()).toEqual(0);
         expect(subcomponent.getSelectedLabels()).toEqual([1, 3]);
 
-        subcomponent.callSelectItem({
+        (subcomponent as any).selectItem({
             metaKey: true
         }, [item3], chart);
 
@@ -1425,7 +1413,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy3.calls.count()).toEqual(0);
         expect(subcomponent.getSelectedLabels()).toEqual([1, 3, 5]);
 
-        subcomponent.callSelectItem({
+        (subcomponent as any).selectItem({
             metaKey: true
         }, [item4], chart);
 
@@ -1488,7 +1476,7 @@ describe('ChartJsSubcomponent', () => {
             _index: 1
         };
 
-        subcomponent.callSelectItem({}, [item1], chart);
+        (subcomponent as any).selectItem({}, [item1], chart);
 
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual(['a', 2, false]);
@@ -1498,7 +1486,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy3.calls.argsFor(0)).toEqual([chart]);
         expect(subcomponent.getSelectedLabels()).toEqual([2]);
 
-        subcomponent.callSelectItem({}, [item2], chart);
+        (subcomponent as any).selectItem({}, [item2], chart);
 
         expect(spy1.calls.count()).toEqual(2);
         expect(spy1.calls.argsFor(1)).toEqual(['a', 4, false]);
@@ -1508,7 +1496,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy3.calls.argsFor(1)).toEqual([chart]);
         expect(subcomponent.getSelectedLabels()).toEqual([4]);
 
-        subcomponent.callSelectItem({}, [item3], chart);
+        (subcomponent as any).selectItem({}, [item3], chart);
 
         expect(spy1.calls.count()).toEqual(3);
         expect(spy1.calls.argsFor(2)).toEqual(['b', 6, false]);
@@ -1518,7 +1506,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy3.calls.argsFor(2)).toEqual([chart]);
         expect(subcomponent.getSelectedLabels()).toEqual([6]);
 
-        subcomponent.callSelectItem({}, [item4], chart);
+        (subcomponent as any).selectItem({}, [item4], chart);
 
         expect(spy1.calls.count()).toEqual(4);
         expect(spy1.calls.argsFor(3)).toEqual(['b', 8, false]);
