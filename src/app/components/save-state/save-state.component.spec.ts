@@ -20,6 +20,7 @@ import { ViewContainerRef } from '@angular/core';
 
 import { SaveStateComponent } from './save-state.component';
 
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -32,6 +33,7 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: SaveStateComponent', () => {
@@ -53,6 +55,7 @@ describe('Component: SaveStateComponent', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             MatSnackBar,
             ParameterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             ViewContainerRef,
             FilterService,

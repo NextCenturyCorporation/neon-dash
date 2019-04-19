@@ -202,6 +202,12 @@ export class SearchService extends AbstractSearchService {
         return (queryPayload as QueryWrapper).query;
     }
 
+    /**
+     * Transforms the values in the given WherePredicate using the given map of keys-to-values-to-labels.
+     *
+     * @arg {neon.query.WherePredicate} wherePredicate
+     * @arg {{ [key: string]: { [value: string]: string } }} keysToValuesToLabels
+     */
     private transformWherePredicateValues(
         wherePredicate: neon.query.WherePredicate,
         keysToValuesToLabels: { [key: string]: { [value: string]: string } }

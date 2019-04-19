@@ -17,6 +17,7 @@ import { Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 import * as $ from 'jquery';
 
+import { AbstractSearchService } from './abstract.search.service';
 import { DatabaseMetaData, TableMetaData, Datastore } from '../dataset';
 import { ConnectionService } from './connection.service';
 import { DatasetService } from './dataset.service';
@@ -54,7 +55,8 @@ export class ParameterService {
     constructor(
         private datasetService: DatasetService,
         private connectionService: ConnectionService,
-        private filterService: FilterService
+        private filterService: FilterService,
+        private searchService: AbstractSearchService
     ) {
         this.messenger = new neon.eventing.Messenger();
         this.parameters = this.findParameters(document.location.search);
@@ -254,6 +256,7 @@ export class ParameterService {
         };
 
         if (args.isParameterValid(parameterValue) && this.isDatasetValid(dataWithMappings, args.mappings)) {
+            /* TODO FIXME THOR-1076
             let filterName = (args.mappings.length > 1 ? args.filterName : dataWithMappings.fields[args.mappings[0]]) +
                     ' ' + (args.operator || '=') + ' ' + parameterValue;
             this.filterService.addFilter(
@@ -265,6 +268,7 @@ export class ParameterService {
                 filterName,
                 callNextFunction,
                 callNextFunction);
+             */
         } else {
             callNextFunction();
         }
@@ -320,7 +324,7 @@ export class ParameterService {
                 // Update dataset fields, then set as active and update the dashboard
                 this.datasetService.updateDatabases(matchingDataset, connection).then((dataset) => {
                     // TODO THOR-1024 Do not expect filters within the dataset.
-                    this.filterService.setFilters((dataset as any).filters || []);
+                    this.filterService.setFilters((dataset as any).filters || [], this.searchService);
 
                     for (let i = 0; i < dataset.databases.length; i++) {
                         for (let j = 0; j < dataset.databases[i].tables.length; j++) {
