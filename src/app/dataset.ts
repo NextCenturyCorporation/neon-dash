@@ -120,7 +120,7 @@ export class Dashboard {
     public fullTitle?: string; // added to dashboard in validateDashboards()
     public pathFromTop?: string[]; // added to dashboard in validateDashboards() - contains keys
     // (sans choices object references) needed to traverse back up Dashboard object
-    public relations?: {[key: string]: any}[];
+    public relations?: (string | string[])[][];
     public contributors?: {[key: string]: Contributor} = {};
 }
 
@@ -151,3 +151,10 @@ export const MediaTypes = {
     audio: 'aud',
     maskImage: 'mask'
 };
+
+export interface SingleField {
+    datastore: string;
+    database: DatabaseMetaData;
+    table: TableMetaData;
+    field: FieldMetaData;
+}
