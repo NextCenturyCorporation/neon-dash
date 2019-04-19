@@ -87,27 +87,204 @@ describe('Service: mock DatasetService with mock data', () => {
         dashboard.fields = {
             field_key_1: 'datastore1.testDatabase1.testTable1.testFieldKeyField'
         };
-        dashboard.relations = [{
-            datastore1: {
-                testDatabase1: {
-                    testTable1: 'testRelationFieldA'
-                },
-                testDatabase2: {
-                    testTable2: 'testRelationFieldA'
-                }
-            }
-        }, {
-            datastore1: {
-                testDatabase1: {
-                    testTable1: 'testRelationFieldB'
-                },
-                testDatabase2: {
-                    testTable2: 'testRelationFieldB'
-                }
-            }
-
-        }];
+        dashboard.relations = [
+            ['datastore1.testDatabase1.testTable1.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldA'],
+            [
+                ['datastore1.testDatabase1.testTable1.testRelationFieldB'],
+                ['datastore1.testDatabase2.testTable2.testRelationFieldB']
+            ]
+        ];
         expect(service.getCurrentDashboard()).toEqual(dashboard);
+    }));
+
+    it('findRelationDataList does not error if relations are undefined', inject([DatasetService], (service: DatasetService) => {
+        spyOn(service, 'getCurrentDashboard').and.returnValue({});
+        expect(service.findRelationDataList()).toEqual([]);
+    }));
+
+    it('findRelationDataList does work with relations in string list structure', inject([DatasetService], (service: DatasetService) => {
+        spyOn(service, 'getCurrentDashboard').and.returnValue({
+            relations: [
+                ['datastore1.testDatabase1.testTable1.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldA'],
+                ['datastore1.testDatabase1.testTable1.testRelationFieldB', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
+            ]
+        });
+
+        expect(service.findRelationDataList()).toEqual([
+            [
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.RELATION_FIELD_A
+                }],
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[1],
+                    table: DatasetServiceMock.TABLES[1],
+                    field: DatasetServiceMock.RELATION_FIELD_A
+                }]
+            ],
+            [
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.RELATION_FIELD_B
+                }],
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[1],
+                    table: DatasetServiceMock.TABLES[1],
+                    field: DatasetServiceMock.RELATION_FIELD_B
+                }]
+            ]
+        ]);
+    }));
+
+    it('findRelationDataList does work with relations in nested list structure', inject([DatasetService], (service: DatasetService) => {
+        spyOn(service, 'getCurrentDashboard').and.returnValue({
+            relations: [
+                [
+                    ['datastore1.testDatabase1.testTable1.testRelationFieldA'],
+                    ['datastore1.testDatabase2.testTable2.testRelationFieldA']
+                ],
+                [
+                    ['datastore1.testDatabase1.testTable1.testRelationFieldA', 'datastore1.testDatabase1.testTable1.testRelationFieldB'],
+                    ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
+                ]
+            ]
+        });
+
+        expect(service.findRelationDataList()).toEqual([
+            [
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.RELATION_FIELD_A
+                }],
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[1],
+                    table: DatasetServiceMock.TABLES[1],
+                    field: DatasetServiceMock.RELATION_FIELD_A
+                }]
+            ],
+            [
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.RELATION_FIELD_A
+                }, {
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.RELATION_FIELD_B
+                }],
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[1],
+                    table: DatasetServiceMock.TABLES[1],
+                    field: DatasetServiceMock.RELATION_FIELD_A
+                }, {
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[1],
+                    table: DatasetServiceMock.TABLES[1],
+                    field: DatasetServiceMock.RELATION_FIELD_B
+                }]
+            ]
+        ]);
+    }));
+
+    it('findRelationDataList does work with relations in both structures', inject([DatasetService], (service: DatasetService) => {
+        spyOn(service, 'getCurrentDashboard').and.returnValue({
+            relations: [
+                ['datastore1.testDatabase1.testTable1.testRelationFieldA', ['datastore1.testDatabase2.testTable2.testRelationFieldA']],
+                [['datastore1.testDatabase1.testTable1.testRelationFieldB'], 'datastore1.testDatabase2.testTable2.testRelationFieldB']
+            ]
+        });
+
+        expect(service.findRelationDataList()).toEqual([
+            [
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.RELATION_FIELD_A
+                }],
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[1],
+                    table: DatasetServiceMock.TABLES[1],
+                    field: DatasetServiceMock.RELATION_FIELD_A
+                }]
+            ],
+            [
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.RELATION_FIELD_B
+                }],
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[1],
+                    table: DatasetServiceMock.TABLES[1],
+                    field: DatasetServiceMock.RELATION_FIELD_B
+                }]
+            ]
+        ]);
+    }));
+
+    it('findRelationDataList does ignore relations on bad databases/tables/fields', inject([DatasetService], (service: DatasetService) => {
+        spyOn(service, 'getCurrentDashboard').and.returnValue({
+            relations: [
+                ['datastore1.fakeDatabase1.testTable1.testRelationFieldA', 'datastore1.fakeDatabase2.testTable2.testRelationFieldA'],
+                ['datastore1.testDatabase1.fakeTable1.testRelationFieldA', 'datastore1.testDatabase2.fakeTable2.testRelationFieldA'],
+                ['datastore1.testDatabase1.testTable1.fakeRelationFieldA', 'datastore1.testDatabase2.testTable2.fakeRelationFieldA'],
+                [
+                    ['datastore1.fakeDatabase1.testTable1.fakeRelationFieldA', 'datastore1.fakeDatabase1.testTable1.fakeRelationFieldA'],
+                    ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
+                ],
+                [
+                    ['datastore1.testDatabase1.fakeTable1.fakeRelationFieldA', 'datastore1.testDatabase1.fakeTable1.fakeRelationFieldA'],
+                    ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
+                ],
+                [
+                    ['datastore1.testDatabase1.testTable1.fakeRelationFieldA', 'datastore1.testDatabase1.testTable1.fakeRelationFieldA'],
+                    ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
+                ]
+            ]
+        });
+
+        expect(service.findRelationDataList()).toEqual([]);
+    }));
+
+    it('findRelationDataList does ignore relations with unequal filter fields', inject([DatasetService], (service: DatasetService) => {
+        spyOn(service, 'getCurrentDashboard').and.returnValue({
+            relations: [
+                [
+                    ['datastore1.testDatabase1.testTable1.testRelationFieldA'],
+                    []
+                ],
+                [
+                    [],
+                    ['datastore1.testDatabase2.testTable2.testRelationFieldA']
+                ],
+                [
+                    ['datastore1.testDatabase1.testTable1.testRelationFieldA', 'datastore1.testDatabase1.testTable1.testRelationFieldB'],
+                    ['datastore1.testDatabase2.testTable2.testRelationFieldA']
+                ],
+                [
+                    ['datastore1.testDatabase1.testTable1.testRelationFieldA'],
+                    ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
+                ]
+            ]
+        });
+
+        expect(service.findRelationDataList()).toEqual([]);
     }));
 
     it('getCurrentDatabase does return expected object', inject([DatasetService], (service: DatasetService) => {
