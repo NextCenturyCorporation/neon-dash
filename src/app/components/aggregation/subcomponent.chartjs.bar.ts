@@ -82,37 +82,6 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
     }
 
     /**
-     * Deselects all the items in the given chart.
-     *
-     * @arg {any} chart
-     * @protected
-     */
-    protected dataDeselect(chart: any) {
-        chart.data.datasets.forEach((dataset) => {
-            dataset.backgroundColor = dataset.backgroundColor.map(() => dataset.getColorDeselected());
-            dataset.hoverBackgroundColor = dataset.backgroundColor.map(() => dataset.getColorSelected());
-        });
-        this.redraw();
-    }
-
-    /**
-     * Selects the given items in the given chart.
-     *
-     * @arg {any} chart
-     * @arg {any[]} items
-     * @protected
-     */
-    protected dataSelect(chart: any, items: any[]) {
-        items.forEach((item) => {
-            let dataset = chart.data.datasets[item._datasetIndex];
-            dataset.backgroundColor[item._index] = dataset.getColorSelected();
-            dataset.hoverBackgroundColor[item._index] = dataset.getColorHover();
-        });
-
-        this.redraw();
-    }
-
-    /**
      * Returns the type of the x-axis as date, number, or string.
      *
      * @return {string}
