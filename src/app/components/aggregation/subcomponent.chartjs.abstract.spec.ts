@@ -1331,7 +1331,8 @@ describe('ChartJsSubcomponent', () => {
         expect(subcomponent.getSelectedLabels()).toEqual([7]);
     });
 
-    it('selectItem with ctrlKey or metaKey does add to existing selectedLabels and does not call dataDeselect', () => {
+    it('selectItem with ctrlKey or metaKey does add to existing selectedLabels and ' +
+        'does not call dataDeselect (unless the item selected is the first item selected)', () => {
         let spy1 = spyOn(listener, 'subcomponentRequestsFilter');
         let spy2 = spyOn(subcomponent, 'dataSelect');
         let spy3 = spyOn(subcomponent, 'dataDeselect');
@@ -1388,7 +1389,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy1.calls.argsFor(0)).toEqual(['a', 1, true]);
         expect(spy2.calls.count()).toEqual(1);
         expect(spy2.calls.argsFor(0)).toEqual([chart, [item1]]);
-        expect(spy3.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(1);
         expect(subcomponent.getSelectedLabels()).toEqual([1]);
 
         (subcomponent as any).selectItem({
@@ -1399,7 +1400,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy1.calls.argsFor(1)).toEqual(['a', 3, true]);
         expect(spy2.calls.count()).toEqual(2);
         expect(spy2.calls.argsFor(1)).toEqual([chart, [item2]]);
-        expect(spy3.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(1);
         expect(subcomponent.getSelectedLabels()).toEqual([1, 3]);
 
         (subcomponent as any).selectItem({
@@ -1410,7 +1411,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy1.calls.argsFor(2)).toEqual(['b', 5, true]);
         expect(spy2.calls.count()).toEqual(3);
         expect(spy2.calls.argsFor(2)).toEqual([chart, [item3]]);
-        expect(spy3.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(1);
         expect(subcomponent.getSelectedLabels()).toEqual([1, 3, 5]);
 
         (subcomponent as any).selectItem({
@@ -1421,7 +1422,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy1.calls.argsFor(3)).toEqual(['b', 7, true]);
         expect(spy2.calls.count()).toEqual(4);
         expect(spy2.calls.argsFor(3)).toEqual([chart, [item4]]);
-        expect(spy3.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(1);
         expect(subcomponent.getSelectedLabels()).toEqual([1, 3, 5, 7]);
     });
 
