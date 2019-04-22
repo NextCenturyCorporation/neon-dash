@@ -86,7 +86,7 @@ export class Color {
     /**
      * @constructor
      * @arg {string} css
-     * @arg {string} transparencyMedium
+     * @arg {string} hoverColor
      * @arg {string} transparencyHigh
      */
     constructor(private css: string, private hoverColor: string, private transparencyHigh: string) {
