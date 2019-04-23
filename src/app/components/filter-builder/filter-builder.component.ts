@@ -62,7 +62,9 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         { value: '>=', prettyName: '>=' },
         { value: '<=', prettyName: '<=' }
     ];
-    public requireAll: boolean = false;
+
+    public compoundTypeIsOr: boolean = false;
+    public filterIsOptional: boolean = false;
 
     constructor(
         datasetService: DatasetService,
@@ -262,12 +264,12 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * Saves a new custom filter using every filter clause in the global list.
      */
     public saveFilter(): void {
-        if (!this.validateFilters(this.filterClauses)) {
+        if (!this.filterClauses.length || !this.validateFilters(this.filterClauses)) {
             return;
         }
 
         // Turn the filter clauses into filter designs.
-        let filterDesigns: FilterDesign[] = this.filterClauses.map((filterClause) => {
+        let filterDesigns: SimpleFilterDesign[] = this.filterClauses.map((filterClause) => {
             let operator: string = filterClause.operator.value;
             let value: any = filterClause.value;
             if (filterClause.operator.value !== 'contains' && filterClause.operator.value !== 'not contains') {
@@ -278,6 +280,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                 }
             }
             return {
+                optional: this.filterIsOptional,
                 datastore: '',
                 database: filterClause.database,
                 table: filterClause.table,
@@ -289,7 +292,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
         // Create a compound filter from multiple filters if needed.
         let filterDesign: FilterDesign = !filterDesigns.length ? null : (filterDesigns.length === 1 ? filterDesigns[0] : {
-            type: this.requireAll ? CompoundFilterType.AND : CompoundFilterType.OR,
+            type: this.compoundTypeIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
+            optional: this.filterIsOptional,
             inflexible: true,
             filters: filterDesigns
         } as CompoundFilterDesign);
