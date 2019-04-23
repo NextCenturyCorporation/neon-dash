@@ -78,7 +78,8 @@ describe('Component: Filter Builder', () => {
         expect(component.filterClauses[0].changeTable).toEqual(DatasetServiceMock.TABLES[0]);
         expect(component.filterClauses[0].changeField).toEqual(new FieldMetaData());
 
-        expect(component.requireAll).toEqual(false);
+        expect(component.compoundTypeIsOr).toEqual(false);
+        expect(component.filterIsOptional).toEqual(false);
     });
 
     it('does show expected HTML elements', () => {
