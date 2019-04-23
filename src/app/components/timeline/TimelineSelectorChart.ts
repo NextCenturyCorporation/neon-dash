@@ -880,7 +880,7 @@ export class TimelineSelectorChart {
                     // Update the chart
                     this.redrawChart();
                     for (let data of this.data.data[0].data) {
-                        if (data.date >= this.data.extent[0] && data.date <= this.data.extent[1]) {
+                        if (data.date >= this.data.extent[0] && data.date < this.data.extent[1]) {
                             this.data.primarySeries.selectedData.push(data);
                         }
                     }
