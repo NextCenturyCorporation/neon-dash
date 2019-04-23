@@ -10,10 +10,16 @@
             <mat-icon>save</mat-icon>
         </button>
 
-        <mat-button-toggle-group #operatorToggle="matButtonToggleGroup" [(ngModel)]="requireAll"
-                class="neon-button-toggle-group-small">
-            <mat-button-toggle [value]="true">AND</mat-button-toggle>
-            <mat-button-toggle [value]="false">OR</mat-button-toggle>
+        <mat-button-toggle-group #operatorToggle="matButtonToggleGroup" [(ngModel)]="filterIsOptional"
+                class="neon-button-toggle-group-small" title="Required or Optional Filter">
+            <mat-button-toggle [value]="false">REQ</mat-button-toggle>
+            <mat-button-toggle [value]="true">OPT</mat-button-toggle>
+        </mat-button-toggle-group>
+
+        <mat-button-toggle-group #operatorToggle="matButtonToggleGroup" [(ngModel)]="compoundTypeIsOr"
+                class="neon-button-toggle-group-small" title="Compound Filter Type" [disabled]="filterClauses.length < 2">
+            <mat-button-toggle [value]="false">AND</mat-button-toggle>
+            <mat-button-toggle [value]="true">OR</mat-button-toggle>
         </mat-button-toggle-group>
 
         <button mat-icon-button aria-label="Clear" matTooltip="Clear Custom Filter" matTooltipPosition="below"
