@@ -16,6 +16,7 @@
 import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
 import { DatasetService } from '../../services/dataset.service';
 import { Datastore } from '../../dataset';
+import { FilterService } from '../../services/filter.service';
 import { MatDialogRef } from '@angular/material';
 import { neonEvents } from '../../neon-namespaces';
 
@@ -41,7 +42,11 @@ export class CustomConnectionComponent implements AfterViewInit {
     private currentStep: CustomConnectionStep;
     private currentStepIndex: number;
 
-    constructor(private datasetService: DatasetService, dialogRef: MatDialogRef<CustomConnectionComponent>) {
+    constructor(
+        private datasetService: DatasetService,
+        private filterService: FilterService,
+        dialogRef: MatDialogRef<CustomConnectionComponent>
+    ) {
         this.dialogRef = dialogRef;
         this.messenger = new neon.eventing.Messenger();
 
@@ -85,7 +90,7 @@ export class CustomConnectionComponent implements AfterViewInit {
         // TODO: THOR-1056: fix so that this uses dashboards properly/incorporate next line
         //this.datasetService.setCurrentDashboard(??)
 
-        this.messenger.clearFiltersSilently();
+        this.filterService.setFilters([], null);
         this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});
         this.datasetCreated.emit(dataset);
         this.dialogRef.close();
