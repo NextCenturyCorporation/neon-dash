@@ -362,7 +362,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         let layout = this.layouts[layoutName] || [];
 
         // Clear any old filters prior to loading the new layout and dataset.
-        this.messenger.clearFiltersSilently();
+        this.filterService.setFilters([], null);
 
         this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});
 
