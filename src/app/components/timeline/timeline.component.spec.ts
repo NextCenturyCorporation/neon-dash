@@ -104,13 +104,25 @@ describe('Component: Timeline', () => {
         expect(neonQuery).toEqual(expected);
     });
 
-    it('createNeonFieldFilter returns where clauses for the filter values', () => {
+    it('createNeonFieldFilter returns whereClauses for the filter values array', () => {
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         let neonQuery = component.createNeonFieldFilter(component.options.filterField.columnName, ['idValue1', 'idValue2']);
 
         let filterClauses = [
                 neon.query.where('testFilterField', '=', 'idValue1'),
                 neon.query.where('testFilterField', '=', 'idValue2')
+            ],
+            expected = neon.query.or.apply(neon.query, filterClauses);
+
+        expect(neonQuery).toEqual(expected);
+    });
+
+    it('createNeonFieldFilter returns empty whereClause for an empty filter values array', () => {
+        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        let neonQuery = component.createNeonFieldFilter(component.options.filterField.columnName, []);
+
+        let filterClauses = [
+                neon.query.where('testFilterField', '=', '')
             ],
             expected = neon.query.or.apply(neon.query, filterClauses);
 

@@ -214,19 +214,18 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         if (this.options.filterField.columnName && selectedData && selectedData.length) {
             let selectedFilters: any[] = [];
             for (let data of selectedData) {
-                    selectedFilters = selectedFilters.concat(data.filters);
-
+                selectedFilters = selectedFilters.concat(data.filters);
             }
 
             selectedFilters = selectedFilters.filter((value, index, array) => array.indexOf(value) === index);
-            let setFilter = {
-                id: undefined,
-                field: this.options.filterField.columnName,
-                prettyField: this.options.filterField.prettyName,
-                value: selectedFilters
-            };
+                let setFilter = {
+                    id: undefined,
+                    field: this.options.filterField.columnName,
+                    prettyField: this.options.filterField.prettyName,
+                    value: selectedFilters
+                };
 
-            this.manageFieldFilters(setFilter, neonFilters, false);
+                this.manageFieldFilters(setFilter, neonFilters, false);
         }
     }
 
@@ -255,8 +254,12 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     createNeonFieldFilter(filterField: string, filterValues: string[]): neon.query.WherePredicate {
         let clauses = [];
 
-        for (let value of filterValues) {
-            clauses.push(neon.query.where(filterField, '=', value));
+        if (!filterValues.length) {
+            clauses.push(neon.query.where(filterField, '=', ''));
+        } else {
+            for (let value of filterValues) {
+                clauses.push(neon.query.where(filterField, '=', value));
+            }
         }
 
         return neon.query.or.apply(neon.query, clauses);
@@ -277,10 +280,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                     f.filter.whereClause.whereClauses[0] :
                     f.filter.whereClause;
 
-                if (clauses.lhs === filter.field) {
+                if (clauses && clauses.lhs === filter.field) {
                     return f;
                 }
             });
+
             filter.id = fieldFilter.id;
             this.replaceNeonFilter(this.options, runQuery, filter, filterClause);
         } else {
@@ -291,11 +295,12 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     getFilterText(filter) {
 
         if (filter.startDate) {
-        let begin = (filter.startDate.getUTCMonth() + 1) + '/' + filter.startDate.getUTCDate() + '/' + filter.startDate.getUTCFullYear();
-        let end = (filter.endDate.getUTCMonth() + 1) + '/' + filter.endDate.getUTCDate() + '/' + filter.endDate.getUTCFullYear();
-        return filter.prettyField + ' from ' + begin + ' to ' + end;
+            let begin = (filter.startDate.getUTCMonth() + 1) + '/' + filter.startDate.getUTCDate() + '/' +
+                filter.startDate.getUTCFullYear();
+            let end = (filter.endDate.getUTCMonth() + 1) + '/' + filter.endDate.getUTCDate() + '/' + filter.endDate.getUTCFullYear();
+            return filter.prettyField + ' from ' + begin + ' to ' + end;
         } else {
-            return filter.prettyField + ' = ' +  filter.value;
+            return filter.prettyField + ' = ' + filter.value;
         }
 
     }
@@ -634,7 +639,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         switch (this.options.granularity.toLowerCase()) {
             case 'minute':
             case 'hour':
-            let bucketizer = new DateBucketizer();
+                let bucketizer = new DateBucketizer();
                 bucketizer.setGranularity(DateBucketizer.HOUR);
                 return bucketizer;
             case 'day':
@@ -726,31 +731,31 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                     columnName: 'minute',
                     prettyName: 'Minute'
                 });
-                /* falls through */
+            /* falls through */
             case 'hour':
                 exportFields.push({
                     columnName: 'hour',
                     prettyName: 'Hour'
                 });
-                /* falls through */
+            /* falls through */
             case 'day':
                 exportFields.push({
                     columnName: 'day',
                     prettyName: 'Day'
                 });
-                /* falls through */
+            /* falls through */
             case 'month':
                 exportFields.push({
                     columnName: 'month',
                     prettyName: 'Month'
                 });
-                /* falls through */
+            /* falls through */
             case 'year':
                 exportFields.push({
                     columnName: 'year',
                     prettyName: 'Year'
                 });
-                /* falls through */
+            /* falls through */
         }
         return exportFields;
     }
