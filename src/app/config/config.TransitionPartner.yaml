@@ -1010,6 +1010,7 @@ layouts:
               limit: 10
               groupField: group_field_key
               sortByAggregation: false
+              ignoreSelf: true
         - name: Bar Chart
           type: aggregation
           icon: bar_chart
@@ -1025,6 +1026,7 @@ layouts:
               limit: 100
               groupField: group_field_key
               sortByAggregation: true
+              ignoreSelf: true
         - name: Annotation Viewer
           type: annotationViewer
           icon: documentViewer64
@@ -1299,6 +1301,7 @@ layouts:
               limit: 10
               groupField: group_field_key
               sortByAggregation: true
+              ignoreSelf: true
               contributionKeys:
                 - isi
           minPixelx: 320
@@ -1428,6 +1431,7 @@ layouts:
               xField: x_field_key_2
               limit: 10
               sortByAggregation: false
+              ignoreSelf: true
               contributionKeys:
                 - rpi
                 - isi
@@ -1449,6 +1453,7 @@ layouts:
               xField: x_field_key_3
               limit: 10
               sortByAggregation: false
+              ignoreSelf: true
               contributionKeys:
                 - rpi
                 - isi
@@ -1470,6 +1475,7 @@ layouts:
               xField: x_field_key_4
               limit: 10
               sortByAggregation: false
+              ignoreSelf: true
               contributionKeys:
                 - rpi
                 - isi
@@ -1558,6 +1564,7 @@ layouts:
               limit: 10
               groupField: group_field_key
               sortByAggregation: true
+              ignoreSelf: true
               contributionKeys:
                 - isi
           minPixelx: 320
@@ -1659,6 +1666,7 @@ layouts:
               xField: x_field_key_2
               limit: 10
               sortByAggregation: true
+              ignoreSelf: true
               contributionKeys:
                 - rpi
                 - isi
@@ -1747,6 +1755,7 @@ layouts:
               limit: 10
               groupField: group_field_key
               sortByAggregation: true
+              ignoreSelf: true
               contributionKeys:
                 - isi
           minPixelx: 320
@@ -1846,6 +1855,7 @@ layouts:
               xField: x_field_key_2
               limit: 10
               sortByAggregation: false
+              ignoreSelf: true
               contributionKeys:
                 - rpi
                 - isi
@@ -1867,6 +1877,7 @@ layouts:
               xField: x_field_key_3
               limit: 10
               sortByAggregation: false
+              ignoreSelf: true
               contributionKeys:
                 - rpi
                 - isi

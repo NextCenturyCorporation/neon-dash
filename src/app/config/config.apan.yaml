@@ -219,6 +219,7 @@ layouts:
               limit: 10
               groupField: group_field_key
               sortByAggregation: false
+              ignoreSelf: true
         - name: Annotation Viewer
           type: annotationViewer
           icon: documentViewer64
@@ -338,6 +339,7 @@ layouts:
               limit: 10
               groupField: topics_field_key
               sortByAggregation: false
+              ignoreSelf: true
               contributionKeys:
                 - apan
                 - isi
