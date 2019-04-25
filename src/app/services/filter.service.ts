@@ -30,6 +30,10 @@ export interface FilterBehavior {
 export interface FilterDesign {
     id?: string;
     name?: string;
+    // By default, each filter is required:  each search result must adhere to each filter.  In searches, each required filter with the
+    // same FilterDataSource is combined into a single compound AND filter on that FilterDataSource.  However, each filter that is
+    // "optional" is instead combined into a single compound OR filter.  This means that each search result must adhere to at least one
+    // optional filter.  A FilterDataSource with both required and optional filters generates two compound filters:  one AND, one OR.
     optional?: boolean;
 }
 
@@ -44,6 +48,12 @@ export interface SimpleFilterDesign extends FilterDesign {
 
 export interface CompoundFilterDesign extends FilterDesign {
     type: CompoundFilterType;
+    // The "inflexible" property is used in comparing two compound filters.  A compound filter is "flexible" by default.  A flexible filter
+    // is equivalent to another compound filter as long as that filter contains one or more nested filters with the same FilterDataSource
+    // as flexible filter.  This is useful with visualizations that can set a variable number of EQUALS or NOT EQUALS filters on one field.
+    // Comparitively, an inflexible filter is equivalent to another compound filter only if that filter contains the specific set of nested
+    // filters (except they can be rearranged).  This is useful with visualizations that filter on a specific range, point, or box.
+    // Regardless, both compound filters must have the same "type".
     inflexible?: boolean;
     filters: FilterDesign[];
 }
