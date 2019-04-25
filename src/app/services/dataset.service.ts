@@ -983,10 +983,30 @@ export class DatasetService {
      * @return {SingleField[][][]}
      */
     public findRelationDataList(): SingleField[][][] {
-        let configRelationDataList: (string | string[])[][] = this.getCurrentDashboard().relations || [];
-
         // Either expect string list structure:  [[a1, a2, a3], [b1, b2]]
         // ....Or expect nested list structure:  [[[x1, y1], [x2, y2], [x3, y3]], [[z1], [z2]]]
+        let configRelationDataList: (string | string[])[][] = this.getCurrentDashboard().relations || [];
+
+        // Each element in the 1st (outermost) list is a separate relation.
+        // Each element in the 2nd list is a relation field.
+        // Each element in the 3rd (innermost) list is an ordered set of relation fields.  A filter must have each relation field within
+        // the ordered set for the relation to be applied.
+        //
+        // EX: [ // relation list
+        //       [ // single relation
+        //         [ // relation fields
+        //           'datastore1.database1.table1.fieldA',
+        //           'datastore1.database1.table1.fieldB'
+        //         ],
+        //         [ // relation fields
+        //           'datastore2.database2.table2.fieldX',
+        //           'datastore2.database2.table2.fieldY'
+        //         ]
+        //       ]
+        //     ]
+        // Whenever a filter contains both fieldA and fieldB, create a relation filter by replacing fieldA with fieldX and fieldB with
+        // fieldY.  Do the reverse whenever a filter contains both fieldX and fieldY.  Do not create a relation filter if a filter contains
+        // just fieldA, or just fieldB, or just fieldX, or just fieldY, or more than fieldA and fieldB, or more than fieldX and fieldY.
         return configRelationDataList.map((configRelationData) => {
             return configRelationData.map((configRelationFilterFields) => {
                 // A relation is an array of arrays.  The elements in the outer array are the fields-to-substitute and the elements in the
