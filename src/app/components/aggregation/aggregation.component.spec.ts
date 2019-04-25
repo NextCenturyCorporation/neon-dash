@@ -39,7 +39,6 @@ import { AppMaterialModule } from '../../app.material.module';
 import { Color } from '../../color';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -62,7 +61,7 @@ describe('Component: Aggregation', () => {
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
@@ -3947,7 +3946,7 @@ describe('Component: Aggregation with config', () => {
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
@@ -4058,7 +4057,7 @@ describe('Component: Aggregation with XY config', () => {
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
@@ -4169,7 +4168,7 @@ describe('Component: Aggregation with date config', () => {
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },

@@ -36,7 +36,6 @@ import { TransformedVisualizationData } from '../base-neon-component/base-neon.c
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 describe('Component: TextCloud', () => {
@@ -56,7 +55,7 @@ describe('Component: TextCloud', () => {
                 provide: DatasetService,
                 useClass: DatasetServiceMock
             },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }

@@ -32,7 +32,6 @@ import { FilterService } from '../../services/filter.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { By } from '@angular/platform-browser';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -50,7 +49,7 @@ describe('Component: DataTable', () => {
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
