@@ -218,14 +218,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             }
 
             selectedFilters = selectedFilters.filter((value, index, array) => array.indexOf(value) === index);
-                let setFilter = {
-                    id: undefined,
-                    field: this.options.filterField.columnName,
-                    prettyField: this.options.filterField.prettyName,
-                    value: selectedFilters
-                };
+            let setFilter = {
+                id: undefined,
+                field: this.options.filterField.columnName,
+                prettyField: this.options.filterField.prettyName,
+                value: selectedFilters
+            };
 
-                this.manageFieldFilters(setFilter, neonFilters, false);
+            this.manageFieldFilters(setFilter, neonFilters, false);
         }
     }
 
@@ -254,6 +254,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     createNeonFieldFilter(filterField: string, filterValues: string[]): neon.query.WherePredicate {
         let clauses = [];
 
+        //TODO: NEON-36 The "filterField equals empty string" behavior may not work as expected with every dataset.
         if (!filterValues.length) {
             clauses.push(neon.query.where(filterField, '=', ''));
         } else {
