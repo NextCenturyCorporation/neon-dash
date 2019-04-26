@@ -3,6 +3,26 @@ datastores:
         host: localhost
         type: elasticsearchrest
         databases:
+            elisa_macedonia:
+                prettyName: VODNO 2018
+                tables:
+                    ui_output:
+                        prettyName: UI Output
+                        fields:
+                            - columnName: createdAt
+                              prettyName: Date Created
+                            - columnName: LOC
+                              prettyName: Location
+                            - columnName: need
+                              prettyName: Need
+                            - columnName: originalText
+                              prettyName: Original Text
+                            - columnName: translatedText
+                              prettyName: Translated Text
+                            - columnName: cluster
+                              prettyName: Cluster ID
+                        mappings:
+                          date: createdAt
             ariel_simpost:
                 prettyName: ARIEL VODNO 2018
                 tables:
@@ -46,6 +66,36 @@ dashboards:
             name: 'SIMPOST'
             category: 'Select a datastore...'
             choices:
+                elisa_macedonia:
+                    name: ELISA VODNO 2018
+                    layout: elisa_macedonia
+                    tables:
+                        table_key_1: es1.elisa_macedonia.ui_output
+                    fields:
+                        original_text_key: es1.elisa_macedonia.ui_output.originalText
+                        translated_text_key: es1.elisa_macedonia.ui_output.translatedText
+                        date_field_key: es1.elisa_macedonia.ui_output.createdAt
+                        id_field_key: es1.elisa_macedonia.ui_output._id
+                        group_field_key: es1.elisa_macedonia.ui_output.type
+                        cluster_field_key: es1.elisa_macedonia.ui_output.cluster
+                        cluster_name_field_key: es1.elisa_macedonia.ui_output.clusterName
+                        latitude_key: es1.elisa_macedonia.ui_output.geoLocation.lat
+                        longitude_key: es1.elisa_macedonia.ui_output.geoLocation.lon
+                        text_cloud_data_key: es1.elisa_macedonia.ui_output.LOC
+                    options:
+                        connectOnLoad: true
+                        simpleFilter:
+                            tableKey: table_key_1
+                            fieldKey: original_text_key
+                            placeHolder: Search
+                    contributors:
+                        mit-ll:
+                            orgName: 'Massachusettes Institute of Technology Lincoln Laboratory'
+                            abbreviation: 'MIT/LL'
+                            contactName: 'Doug Jones'
+                            contactEmail: 'daj@ll.mit.edu'
+                            website: 'https://www.ll.mit.edu/'
+                            logo: 'mit-lincoln-laboratory.jpg'
                 ariel_simpost:
                     name: ARIEL VODNO 2018
                     layout: ariel_simpost
@@ -106,7 +156,7 @@ dashboards:
                         text_cloud_data_key_GPE: es1.apan.ui_output.GPE
                         text_cloud_data_key_ORG: es1.apan.ui_output.ORG
                     options:
-                        connectOnLoad: true
+                        connectOnLoad: false
                         simpleFilter:
                             tableKey: table_key_1
                             fieldKey: original_text_key
@@ -373,3 +423,128 @@ layouts:
               contributionKeys:
                 - apan
                 - rpi
+    elisa_macedonia:
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 1
+          row: 1
+          sizex: 4
+          sizey: 10
+          bindings:
+            title: Tweets
+            tableKey: table_key_1
+            idField: id_field_key
+            sortField: date_field_key
+            limit: 100
+            allColumnStatus: hide
+            exceptionsToStatus:
+                - date_field_key
+                - original_text_key
+                - group_field_key
+            customColumnWidths:
+                - - date_field_key
+                  - 25
+                - - original_text_key
+                  - 300
+                - - group_field_key
+                  - 15
+            filterable: false
+            singleFilter: true
+            ignoreSelf: false
+        - name: Map
+          type: map
+          icon: Map64
+          col: 5
+          row: 1
+          sizex: 5
+          sizey: 10
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              filterable: true
+              name: EVENTS
+              show: true
+              type: cluster
+              limit: 5000
+              layers:
+                  - title: Map
+                    tableKey: table_key_1
+                    latitudeField: latitude_key
+                    longitudeField: longitude_key
+                    dateField: date_field_key
+                    colorField: group_field_key
+              mapType: leaflet
+              west: 21.3
+              north: 42.2
+              east: 21.6
+              south: 41.8
+        - name: Text Cloud
+          type: textCloud
+          icon: TagCloud64
+          col: 5
+          row: 11
+          sizex: 5
+          sizey: 4
+          selected: true
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              dataField: text_cloud_data_key
+              preFilter: false
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 10
+          row: 1
+          sizex: 3
+          sizey: 9
+          bindings:
+              title: Needs
+              type: bar-h
+              tableKey: table_key_1
+              xField: group_field_key
+              limit: 10
+              groupField: group_field_key
+              sortByAggregation: false
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 10
+          row: 10
+          sizex: 3
+          sizey: 5
+          bindings:
+              title: Situation Clusters
+              type: bar-h
+              tableKey: table_key_1
+              xField: cluster_name_field_key
+              limit: 100
+              groupField: group_field_key
+              sortByAggregation: true
+        - name: Annotation Viewer
+          type: annotationViewer
+          icon: documentViewer64
+          col: 1
+          row: 11
+          sizex: 2
+          sizey: 4
+          bindings:
+              title: Original Text
+              tableKey: table_key_1
+              linkField: original_text_key
+              idField: id_field_key
+              respondMode: true
+        - name: Annotation Viewer
+          type: annotationViewer
+          icon: documentViewer64
+          col: 3
+          row: 11
+          sizex: 2
+          sizey: 4
+          bindings:
+              title: Translated Text
+              tableKey: table_key_1
+              linkField: translated_text_key
+              idField: id_field_key
+              respondMode: true
