@@ -24,7 +24,6 @@ import {
     CompoundFilterDesign,
     DualListFilterCollection,
     FilterBehavior,
-    FilterClauseDataSource,
     FilterDataSource,
     FilterService,
     FilterUtil,
@@ -49,232 +48,232 @@ describe('FilterUtil', () => {
         /* tslint:enable:no-console */
     });
 
-    it('areFilterClauseDataSourcesEquivalent should return expected boolean', () => {
-        expect(FilterUtil.areFilterClauseDataSourcesEquivalent({
+    it('areFilterDataSourcesEquivalent should return expected boolean', () => {
+        expect(FilterUtil.areFilterDataSourcesEquivalent({
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'datastore2',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource)).toEqual(false);
+        } as FilterDataSource)).toEqual(false);
 
-        expect(FilterUtil.areFilterClauseDataSourcesEquivalent({
+        expect(FilterUtil.areFilterDataSourcesEquivalent({
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'datastore1',
             databaseName: 'database2',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource)).toEqual(false);
+        } as FilterDataSource)).toEqual(false);
 
-        expect(FilterUtil.areFilterClauseDataSourcesEquivalent({
+        expect(FilterUtil.areFilterDataSourcesEquivalent({
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table2',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource)).toEqual(false);
+        } as FilterDataSource)).toEqual(false);
 
-        expect(FilterUtil.areFilterClauseDataSourcesEquivalent({
+        expect(FilterUtil.areFilterDataSourcesEquivalent({
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field2',
             operator: '='
-        } as FilterClauseDataSource)).toEqual(false);
+        } as FilterDataSource)).toEqual(false);
 
-        expect(FilterUtil.areFilterClauseDataSourcesEquivalent({
+        expect(FilterUtil.areFilterDataSourcesEquivalent({
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: 'contains'
-        } as FilterClauseDataSource)).toEqual(false);
+        } as FilterDataSource)).toEqual(false);
 
-        expect(FilterUtil.areFilterClauseDataSourcesEquivalent({
+        expect(FilterUtil.areFilterDataSourcesEquivalent({
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource)).toEqual(true);
+        } as FilterDataSource)).toEqual(true);
     });
 
-    it('areFilterClauseDataSourcesEquivalent with ignoreOperator=true should return expected boolean', () => {
-        expect(FilterUtil.areFilterClauseDataSourcesEquivalent({
+    it('areFilterDataSourcesEquivalent with ignoreOperator=true should return expected boolean', () => {
+        expect(FilterUtil.areFilterDataSourcesEquivalent({
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: 'contains'
-        } as FilterClauseDataSource, true)).toEqual(true);
+        } as FilterDataSource, true)).toEqual(true);
     });
 
-    it('areFilterClauseDataSourceListsEquivalent should return expected boolean', () => {
-        expect(FilterUtil.areFilterClauseDataSourceListsEquivalent([{
+    it('areFilterDataSourceListsEquivalent should return expected boolean', () => {
+        expect(FilterUtil.areFilterDataSourceListsEquivalent([{
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource], [{
+        } as FilterDataSource], [{
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource])).toEqual(true);
+        } as FilterDataSource])).toEqual(true);
 
-        expect(FilterUtil.areFilterClauseDataSourceListsEquivalent([{
+        expect(FilterUtil.areFilterDataSourceListsEquivalent([{
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource], [{
+        } as FilterDataSource], [{
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: 'contains'
-        } as FilterClauseDataSource])).toEqual(false);
+        } as FilterDataSource])).toEqual(false);
 
-        expect(FilterUtil.areFilterClauseDataSourceListsEquivalent([{
+        expect(FilterUtil.areFilterDataSourceListsEquivalent([{
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource], [{
+        } as FilterDataSource], [{
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: 'contains'
-        } as FilterClauseDataSource])).toEqual(false);
+        } as FilterDataSource])).toEqual(false);
 
-        expect(FilterUtil.areFilterClauseDataSourceListsEquivalent([{
+        expect(FilterUtil.areFilterDataSourceListsEquivalent([{
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: 'contains'
-        } as FilterClauseDataSource], [{
+        } as FilterDataSource], [{
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: 'contains'
-        } as FilterClauseDataSource])).toEqual(false);
+        } as FilterDataSource])).toEqual(false);
 
-        expect(FilterUtil.areFilterClauseDataSourceListsEquivalent([{
+        expect(FilterUtil.areFilterDataSourceListsEquivalent([{
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: 'contains'
-        } as FilterClauseDataSource], [{
+        } as FilterDataSource], [{
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: 'contains'
-        } as FilterClauseDataSource])).toEqual(true);
+        } as FilterDataSource])).toEqual(true);
 
-        expect(FilterUtil.areFilterClauseDataSourceListsEquivalent([{
+        expect(FilterUtil.areFilterDataSourceListsEquivalent([{
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: 'contains'
-        } as FilterClauseDataSource], [{
+        } as FilterDataSource], [{
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: 'contains'
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'datastore1',
             databaseName: 'database1',
             tableName: 'table1',
             fieldName: 'field1',
             operator: '='
-        } as FilterClauseDataSource])).toEqual(true);
+        } as FilterDataSource])).toEqual(true);
     });
 
-    it('createFilterClauseDataSourceList should return expected array', () => {
-        expect(FilterUtil.createFilterClauseDataSourceList({
+    it('createFilterDataSourceListFromDesign should return expected array', () => {
+        expect(FilterUtil.createFilterDataSourceListFromDesign({
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -287,9 +286,9 @@ describe('FilterUtil', () => {
             tableName: 'testTable1',
             fieldName: 'testIdField',
             operator: '='
-        } as FilterClauseDataSource]);
+        } as FilterDataSource]);
 
-        expect(FilterUtil.createFilterClauseDataSourceList({
+        expect(FilterUtil.createFilterDataSourceListFromDesign({
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
@@ -312,15 +311,15 @@ describe('FilterUtil', () => {
             tableName: 'testTable1',
             fieldName: 'testXField',
             operator: '>'
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'testDatastore1',
             databaseName: 'testDatabase1',
             tableName: 'testTable1',
             fieldName: 'testXField',
             operator: '<'
-        } as FilterClauseDataSource]);
+        } as FilterDataSource]);
 
-        expect(FilterUtil.createFilterClauseDataSourceList({
+        expect(FilterUtil.createFilterDataSourceListFromDesign({
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
@@ -343,15 +342,15 @@ describe('FilterUtil', () => {
             tableName: 'testTable1',
             fieldName: 'testXField',
             operator: '='
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'testDatastore1',
             databaseName: 'testDatabase1',
             tableName: 'testTable1',
             fieldName: 'testYField',
             operator: '='
-        } as FilterClauseDataSource]);
+        } as FilterDataSource]);
 
-        expect(FilterUtil.createFilterClauseDataSourceList({
+        expect(FilterUtil.createFilterDataSourceListFromDesign({
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
@@ -384,23 +383,23 @@ describe('FilterUtil', () => {
             tableName: 'testTable1',
             fieldName: 'testIdField',
             operator: '='
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'testDatastore1',
             databaseName: 'testDatabase1',
             tableName: 'testTable1',
             fieldName: 'testXField',
             operator: '='
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'testDatastore1',
             databaseName: 'testDatabase1',
             tableName: 'testTable1',
             fieldName: 'testYField',
             operator: '='
-        } as FilterClauseDataSource]);
+        } as FilterDataSource]);
     });
 
-    it('createFilterClauseDataSourceList should ignore clauses in compound filters with equivalent non-value properties', () => {
-        expect(FilterUtil.createFilterClauseDataSourceList({
+    it('createFilterDataSourceListFromDesign should ignore clauses in compound filters with equivalent non-value properties', () => {
+        expect(FilterUtil.createFilterDataSourceListFromDesign({
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
@@ -423,9 +422,9 @@ describe('FilterUtil', () => {
             tableName: 'testTable1',
             fieldName: 'testIdField',
             operator: '='
-        } as FilterClauseDataSource]);
+        } as FilterDataSource]);
 
-        expect(FilterUtil.createFilterClauseDataSourceList({
+        expect(FilterUtil.createFilterDataSourceListFromDesign({
             type: 'or',
             filters: [{
                 type: 'or',
@@ -468,17 +467,17 @@ describe('FilterUtil', () => {
             tableName: 'testTable1',
             fieldName: 'testXField',
             operator: '='
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'testDatastore1',
             databaseName: 'testDatabase1',
             tableName: 'testTable1',
             fieldName: 'testYField',
             operator: '='
-        } as FilterClauseDataSource]);
+        } as FilterDataSource]);
     });
 
-    it('createFilterClauseDataSourceList with ignoreOperator=true should ignore operator properties', () => {
-        expect(FilterUtil.createFilterClauseDataSourceList({
+    it('createFilterDataSourceListFromDesign with ignoreOperator=true should ignore operator properties', () => {
+        expect(FilterUtil.createFilterDataSourceListFromDesign({
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
@@ -501,9 +500,9 @@ describe('FilterUtil', () => {
             tableName: 'testTable1',
             fieldName: 'testXField',
             operator: undefined
-        } as FilterClauseDataSource]);
+        } as FilterDataSource]);
 
-        expect(FilterUtil.createFilterClauseDataSourceList({
+        expect(FilterUtil.createFilterDataSourceListFromDesign({
             type: 'or',
             filters: [{
                 type: 'or',
@@ -546,13 +545,13 @@ describe('FilterUtil', () => {
             tableName: 'testTable1',
             fieldName: 'testXField',
             operator: undefined
-        } as FilterClauseDataSource, {
+        } as FilterDataSource, {
             datastoreName: 'testDatastore1',
             databaseName: 'testDatabase1',
             tableName: 'testTable1',
             fieldName: 'testYField',
             operator: undefined
-        } as FilterClauseDataSource]);
+        } as FilterDataSource]);
     });
 
     it('isCompoundFilterDesign should return expected boolean', () => {
@@ -619,8 +618,8 @@ describe('FilterUtil', () => {
 describe('SingleListFilterCollection', () => {
     let singleListCollection: SingleListFilterCollection;
     let searchService: AbstractSearchService;
-    let source1: FilterDataSource;
-    let source2: FilterDataSource;
+    let source1: FilterDataSource[];
+    let source2: FilterDataSource[];
     let filter1A: any;
     let filter1B: any;
     let filter2A: any;
@@ -633,30 +632,26 @@ describe('SingleListFilterCollection', () => {
 
     beforeEach(inject([AbstractSearchService], (_searchService) => {
         searchService = _searchService;
-        source1 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
-        source2 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '>'
-            } as FilterClauseDataSource, {
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '<'
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        source1 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+        source2 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '>'
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '<'
+        } as FilterDataSource];
         filter1A = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
@@ -701,8 +696,8 @@ describe('SingleListFilterCollection', () => {
         expect((testCollection as any).data.size).toEqual(0);
     });
 
-    it('findFilterDataSource should return data source from collection', () => {
-        expect(singleListCollection.findFilterDataSource({
+    it('findFilterDataSources should return data source from collection', () => {
+        expect(singleListCollection.findFilterDataSources({
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -711,7 +706,7 @@ describe('SingleListFilterCollection', () => {
             value: 'testId1'
         } as SimpleFilterDesign)).toEqual(source1);
 
-        expect(singleListCollection.findFilterDataSource({
+        expect(singleListCollection.findFilterDataSources({
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
@@ -731,8 +726,8 @@ describe('SingleListFilterCollection', () => {
         } as CompoundFilterDesign)).toEqual(source2);
     });
 
-    it('findFilterDataSource should return new data source and add to collection', () => {
-        let actual = singleListCollection.findFilterDataSource({
+    it('findFilterDataSources should return new data source and add to collection', () => {
+        let actual = singleListCollection.findFilterDataSources({
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -741,15 +736,13 @@ describe('SingleListFilterCollection', () => {
             value: 'testId1'
         } as SimpleFilterDesign);
 
-        expect(actual).toEqual({
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource);
+        expect(actual).toEqual([{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource]);
 
         expect((singleListCollection as any).data.get(actual)).toEqual([]);
     });
@@ -757,15 +750,13 @@ describe('SingleListFilterCollection', () => {
     it('getDataSources should return expected array', () => {
         expect(singleListCollection.getDataSources()).toEqual([source1, source2]);
 
-        let testDataSource = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
 
         (singleListCollection as any).data.set(testDataSource, []);
 
@@ -774,76 +765,64 @@ describe('SingleListFilterCollection', () => {
 
     it('getFilters should create and return empty array if data source is not in collection', () => {
         // Different datastore
-        let testDataSource1 = {
-            list: [{
-                datastoreName: 'testDatastore2',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource1 = [{
+            datastoreName: 'testDatastore2',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
         // Different database
-        let testDataSource2 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[1].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource2 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[1].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
         // Different table
-        let testDataSource3 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[1].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource3 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[1].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
         // Different field
-        let testDataSource4 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource4 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
         // Different operator
-        let testDataSource5 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource5 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
 
         // Different operators (compound)
-        let testDataSource6 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource, {
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource6 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
 
         expect(singleListCollection.getFilters(testDataSource1)).toEqual([]);
         expect(singleListCollection.getFilters(testDataSource2)).toEqual([]);
@@ -866,31 +845,27 @@ describe('SingleListFilterCollection', () => {
     });
 
     it('getFilters should return array from similar data source object in collection', () => {
-        let testDataSource1 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource1 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
-        let testDataSource2 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '>'
-            } as FilterClauseDataSource, {
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '<'
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource2 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '>'
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '<'
+        } as FilterDataSource];
 
         expect(singleListCollection.getFilters(testDataSource1)).toEqual([filter1A, filter1B]);
         expect(singleListCollection.getFilters(testDataSource2)).toEqual([filter2A]);
@@ -900,15 +875,13 @@ describe('SingleListFilterCollection', () => {
     });
 
     it('setFilters should save filters with input data source if it is not in collection', () => {
-        let testDataSource = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
 
         let testFilter = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
@@ -950,15 +923,13 @@ describe('SingleListFilterCollection', () => {
     });
 
     it('setFilters should save filters with similar data source object in collection', () => {
-        let testDataSource = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
         expect(singleListCollection.setFilters(testDataSource, [filter1A], searchService)).toEqual(source1);
         expect((singleListCollection as any).data.get(source1)).toEqual([filter1A]);
@@ -990,8 +961,8 @@ describe('SingleListFilterCollection', () => {
 describe('DualListFilterCollection', () => {
     let dualListCollection: DualListFilterCollection;
     let searchService: AbstractSearchService;
-    let source1: FilterDataSource;
-    let source2: FilterDataSource;
+    let source1: FilterDataSource[];
+    let source2: FilterDataSource[];
     let filter1A: any;
     let filter1B: any;
     let filter1C: any;
@@ -1008,30 +979,26 @@ describe('DualListFilterCollection', () => {
 
     beforeEach(inject([AbstractSearchService], (_searchService) => {
         searchService = _searchService;
-        source1 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
-        source2 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '>'
-            } as FilterClauseDataSource, {
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '<'
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        source1 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+        source2 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '>'
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '<'
+        } as FilterDataSource];
         filter1A = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
@@ -1104,8 +1071,8 @@ describe('DualListFilterCollection', () => {
         expect((testCollection as any).data.size).toEqual(0);
     });
 
-    it('findFilterDataSource should return data source from collection', () => {
-        expect(dualListCollection.findFilterDataSource({
+    it('findFilterDataSources should return data source from collection', () => {
+        expect(dualListCollection.findFilterDataSources({
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -1114,7 +1081,7 @@ describe('DualListFilterCollection', () => {
             value: 'testId1'
         } as SimpleFilterDesign)).toEqual(source1);
 
-        expect(dualListCollection.findFilterDataSource({
+        expect(dualListCollection.findFilterDataSources({
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
@@ -1134,8 +1101,8 @@ describe('DualListFilterCollection', () => {
         } as CompoundFilterDesign)).toEqual(source2);
     });
 
-    it('findFilterDataSource should return new data source and add to collection', () => {
-        let actual = dualListCollection.findFilterDataSource({
+    it('findFilterDataSources should return new data source and add to collection', () => {
+        let actual = dualListCollection.findFilterDataSources({
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -1144,15 +1111,13 @@ describe('DualListFilterCollection', () => {
             value: 'testId1'
         } as SimpleFilterDesign);
 
-        expect(actual).toEqual({
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource);
+        expect(actual).toEqual([{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource]);
 
         expect((dualListCollection as any).data.get(actual)).toEqual([null, null]);
     });
@@ -1160,15 +1125,13 @@ describe('DualListFilterCollection', () => {
     it('getDataSources should return expected array', () => {
         expect(dualListCollection.getDataSources()).toEqual([source1, source2]);
 
-        let testDataSource = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
 
         (dualListCollection as any).data.set(testDataSource, [null, null]);
 
@@ -1176,31 +1139,27 @@ describe('DualListFilterCollection', () => {
     });
 
     it('getFiltersInSingleList should create and return empty array if data source is not in collection', () => {
-        let testDataSource1 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource1 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
 
-        let testDataSource2 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource, {
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource2 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
 
         expect(dualListCollection.getFiltersInSingleList(testDataSource1)).toEqual([]);
         expect(dualListCollection.getFiltersInSingleList(testDataSource2)).toEqual([]);
@@ -1215,31 +1174,27 @@ describe('DualListFilterCollection', () => {
     });
 
     it('getFiltersInSingleList should return array from similar data source object in collection', () => {
-        let testDataSource1 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource1 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
-        let testDataSource2 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '>'
-            } as FilterClauseDataSource, {
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '<'
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource2 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '>'
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '<'
+        } as FilterDataSource];
 
         expect(dualListCollection.getFiltersInSingleList(testDataSource1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
         expect(dualListCollection.getFiltersInSingleList(testDataSource2)).toEqual([filter2A]);
@@ -1249,31 +1204,27 @@ describe('DualListFilterCollection', () => {
     });
 
     it('getFiltersFromOptionalList should create and return empty array if data source is not in collection', () => {
-        let testDataSource1 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource1 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
 
-        let testDataSource2 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource, {
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource2 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
 
         expect(dualListCollection.getFiltersFromOptionalList(testDataSource1)).toEqual([]);
         expect(dualListCollection.getFiltersFromOptionalList(testDataSource2)).toEqual([]);
@@ -1288,31 +1239,27 @@ describe('DualListFilterCollection', () => {
     });
 
     it('getFiltersFromOptionalList should return array from similar data source object in collection', () => {
-        let testDataSource1 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource1 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
-        let testDataSource2 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '>'
-            } as FilterClauseDataSource, {
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '<'
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource2 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '>'
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '<'
+        } as FilterDataSource];
 
         expect(dualListCollection.getFiltersFromOptionalList(testDataSource1)).toEqual([filter1C, filter1D]);
         expect(dualListCollection.getFiltersFromOptionalList(testDataSource2)).toEqual([]);
@@ -1322,31 +1269,27 @@ describe('DualListFilterCollection', () => {
     });
 
     it('getFiltersFromRequiredList should create and return empty array if data source is not in collection', () => {
-        let testDataSource1 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource1 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
 
-        let testDataSource2 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource, {
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource2 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
 
         expect(dualListCollection.getFiltersFromRequiredList(testDataSource1)).toEqual([]);
         expect(dualListCollection.getFiltersFromRequiredList(testDataSource2)).toEqual([]);
@@ -1361,31 +1304,27 @@ describe('DualListFilterCollection', () => {
     });
 
     it('getFiltersFromRequiredList should return array from similar data source object in collection', () => {
-        let testDataSource1 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource1 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
-        let testDataSource2 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '>'
-            } as FilterClauseDataSource, {
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '<'
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource2 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '>'
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '<'
+        } as FilterDataSource];
 
         expect(dualListCollection.getFiltersFromRequiredList(testDataSource1)).toEqual([filter1A, filter1B]);
         expect(dualListCollection.getFiltersFromRequiredList(testDataSource2)).toEqual([filter2A]);
@@ -1395,31 +1334,27 @@ describe('DualListFilterCollection', () => {
     });
 
     it('getFiltersToSearch should create and return empty array if data source is not in collection', () => {
-        let testDataSource1 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource1 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
 
-        let testDataSource2 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource, {
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource2 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
 
         expect(dualListCollection.getFiltersToSearch(testDataSource1)).toEqual([]);
         expect(dualListCollection.getFiltersToSearch(testDataSource2)).toEqual([]);
@@ -1434,31 +1369,27 @@ describe('DualListFilterCollection', () => {
     });
 
     it('getFiltersToSearch should return array from similar data source object in collection', () => {
-        let testDataSource1 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource1 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
-        let testDataSource2 = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '>'
-            } as FilterClauseDataSource, {
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '<'
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource2 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '>'
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '<'
+        } as FilterDataSource];
 
         expect(dualListCollection.getFiltersToSearch(testDataSource1)).toEqual([requiredFilter1, optionalFilter1]);
         expect(dualListCollection.getFiltersToSearch(testDataSource2)).toEqual([filter2A]);
@@ -1470,15 +1401,13 @@ describe('DualListFilterCollection', () => {
     it('setFiltersInDualLists should save filters with input data source if it is not in collection', () => {
         let actual;
 
-        let testDataSource = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
 
         let testFilter1 = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
@@ -1595,15 +1524,13 @@ describe('DualListFilterCollection', () => {
     it('setFiltersInDualLists should save filters with similar data source object in collection', () => {
         let actual;
 
-        let testDataSource = {
-            list: [{
-                datastoreName: 'testDatastore1',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testDataSource = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
         expect(dualListCollection.setFiltersInDualLists(testDataSource, [filter1A, filter1D], [filter1B, filter1C],
             searchService)).toEqual(source1);
@@ -3901,8 +3828,8 @@ describe('FilterService with filters', () => {
     let datasetService: DatasetService;
     let filterService: FilterService;
     let searchService: AbstractSearchService;
-    let source1: FilterDataSource;
-    let source2: FilterDataSource;
+    let source1: FilterDataSource[];
+    let source2: FilterDataSource[];
     let design1A: SimpleFilterDesign;
     let design1B: SimpleFilterDesign;
     let design1C: SimpleFilterDesign;
@@ -3913,8 +3840,8 @@ describe('FilterService with filters', () => {
     let filter1C: any;
     let filter1D: any;
     let filter2A: any;
-    let relationSource1: FilterDataSource;
-    let relationSource2: FilterDataSource;
+    let relationSource1: FilterDataSource[];
+    let relationSource2: FilterDataSource[];
     let relationDesign1: SimpleFilterDesign;
     let relationDesign2: SimpleFilterDesign;
     let relationFilter1: any;
@@ -3934,30 +3861,26 @@ describe('FilterService with filters', () => {
         filterService = _filterService;
         searchService = _searchService;
 
-        source1 = {
-            list: [{
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
-        source2 = {
-            list: [{
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '>'
-            } as FilterClauseDataSource, {
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '<'
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        source1 = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+        source2 = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '>'
+        } as FilterDataSource, {
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '<'
+        } as FilterDataSource];
 
         design1A = {
             optional: false,
@@ -4061,24 +3984,20 @@ describe('FilterService with filters', () => {
      * Generates test relation filters.
      */
     let generateRelationFilters = () => {
-        relationSource1 = {
-            list: [{
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.RELATION_FIELD_A.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
-        relationSource2 = {
-            list: [{
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.RELATION_FIELD_B.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        relationSource1 = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.RELATION_FIELD_A.columnName,
+            operator: '='
+        } as FilterDataSource];
+        relationSource2 = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.RELATION_FIELD_B.columnName,
+            operator: '='
+        } as FilterDataSource];
 
         relationDesign1 = {
             optional: false,
@@ -4266,15 +4185,13 @@ describe('FilterService with filters', () => {
 
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
-        expect(keys).toEqual([source1, source2, {
-            list: [{
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource]);
+        expect(keys).toEqual([source1, source2, [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource]]);
         expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
         expect(actual.get(keys[1])).toEqual([design2A]);
         expect(actual.get(keys[2])).toEqual([]);
@@ -4295,15 +4212,13 @@ describe('FilterService with filters', () => {
             value: 'testText'
         } as SimpleFilterDesign;
 
-        let testSource = {
-            list: [{
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
         let actual = filterService.exchangeFilters('testCaller', [testDesign], [], searchService);
 
@@ -4400,15 +4315,13 @@ describe('FilterService with filters', () => {
             value: 'testText'
         } as SimpleFilterDesign;
 
-        let testSource = {
-            list: [{
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
         let actual = filterService.exchangeFilters('testCaller', [testDesign], [], searchService);
 
@@ -4653,15 +4566,13 @@ describe('FilterService with filters', () => {
         expect(filterService.getFilters()).toEqual([design1A, design1B, design1C, design1D, design2A]);
         expect(filterService.getFilters(source1)).toEqual([design1A, design1B, design1C, design1D]);
         expect(filterService.getFilters(source2)).toEqual([design2A]);
-        expect(filterService.getFilters({
-            list: [{
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.ID_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource)).toEqual([]);
+        expect(filterService.getFilters([{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource])).toEqual([]);
     });
 
     it('getFiltersToSearch should return expected array', () => {
@@ -4945,15 +4856,13 @@ describe('FilterService with filters', () => {
             value: 'testText'
         } as SimpleFilterDesign;
 
-        let testSource = {
-            list: [{
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
         let actual = filterService.toggleFilters('testCaller', [testDesign], [], searchService);
 
@@ -5028,15 +4937,13 @@ describe('FilterService with filters', () => {
             value: 'testText'
         } as SimpleFilterDesign;
 
-        let testSource = {
-            list: [{
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
         let actual = filterService.toggleFilters('testCaller', [testDesign, design1A], [], searchService);
 
@@ -5088,15 +4995,13 @@ describe('FilterService with filters', () => {
             value: 'testText'
         } as SimpleFilterDesign;
 
-        let testSource = {
-            list: [{
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
         let actual = filterService.toggleFilters('testCaller', [testDesign], [], searchService);
 
@@ -5447,21 +5352,19 @@ describe('FilterService with filters', () => {
 
         let testFilter = FilterUtil.createFilterFromDesign(testDesign, searchService);
 
-        let testSource = {
-            list: [{
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource, {
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
 
         let testCollection = new SingleListFilterCollection();
         testCollection.setFilters(testSource, [testFilter], searchService);
@@ -5626,21 +5529,19 @@ describe('FilterService with filters', () => {
 
         let testFilter = FilterUtil.createFilterFromDesign(testDesign, searchService);
 
-        let testSource = {
-            list: [{
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource, {
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-                operator: '!='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
 
         let testCollection = new SingleListFilterCollection();
         testCollection.setFilters(testSource, [testFilter], searchService);
@@ -5933,15 +5834,13 @@ describe('FilterService with filters', () => {
             operator: '='
         } as SimpleFilterDesign;
 
-        let testSource = {
-            list: [{
-                datastoreName: '',
-                databaseName: DatasetServiceMock.DATABASES[0].name,
-                tableName: DatasetServiceMock.TABLES[0].name,
-                fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
-                operator: '='
-            } as FilterClauseDataSource]
-        } as FilterDataSource;
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
 
         let calls = 0;
         let testRedrawCallback = (filters) => {
