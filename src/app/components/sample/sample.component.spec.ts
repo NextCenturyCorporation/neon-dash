@@ -194,7 +194,7 @@ describe('Component: Sample', () => {
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
-                field: '*',
+                field: 'testRequiredField1',
                 name: '_count',
                 type: 'count'
             }],
@@ -219,7 +219,7 @@ describe('Component: Sample', () => {
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
-                field: '*',
+                field: 'testOptionalField1',
                 name: '_count',
                 type: 'count'
             }],
