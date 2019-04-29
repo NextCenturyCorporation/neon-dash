@@ -14,20 +14,19 @@
  *
  */
 import { TestBed, inject } from '@angular/core/testing';
-import { Dashboard, DashboardOptions, Datastore } from '../dataset';
+import { Dashboard, DashboardOptions, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../dataset';
 import { DatasetService } from './dataset.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
 
 describe('Service: DatasetService', () => {
-    let testConfig = new NeonGTDConfig();
     let datasetService: DatasetService;
 
     initializeTestBed('Dataset Service', {
         providers: [
             DatasetService,
-            { provide: 'config', useValue: testConfig }
+            { provide: 'config', useValue: new NeonGTDConfig() }
         ]
     });
 
@@ -60,14 +59,548 @@ describe('Service: DatasetService', () => {
     });
 });
 
-describe('Service: mock DatasetService with mock data', () => {
-    let testConfig = new NeonGTDConfig();
-    let datasetService: DatasetService;
-
-    initializeTestBed('Dataset Service', {
+describe('Service: DatasetService Static Functions', () => {
+    initializeTestBed('Dataset Service Static Functions', {
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: 'config', useValue: testConfig }
+            { provide: 'config', useValue: new NeonGTDConfig() }
+        ]
+    });
+
+    it('appendDatastoresFromConfig with no config and no datastores should do nothing', () => {
+        let input = [];
+        DatasetService.appendDatastoresFromConfig({}, input);
+        expect(input).toEqual([]);
+    });
+
+    it('appendDatastoresFromConfig with config and no existing datastores should update given datastores', () => {
+        let input = [];
+
+        DatasetService.appendDatastoresFromConfig({
+            datastore1: {
+                host: 'host1',
+                type: 'type1',
+                databases: {
+                    database1: {
+                        prettyName: 'Database 1',
+                        tables: {
+                            table1: {
+                                prettyName: 'Table 1',
+                                mappings: {
+                                    mappingA: 'fieldA',
+                                    mappingB: 'fieldB'
+                                },
+                                labelOptions: {
+                                    valueA: 'labelA',
+                                    valueB: 'labelB'
+                                },
+                                fields: [{
+                                    columnName: 'fieldA',
+                                    prettyName: 'Field A',
+                                    hide: false,
+                                    type: 'text'
+                                }, {
+                                    columnName: 'fieldB',
+                                    prettyName: 'Field B',
+                                    hide: true,
+                                    type: 'date'
+                                }]
+                            }
+                        }
+                    }
+                }
+            }
+        }, input);
+
+        let table1 = new TableMetaData('table1', 'Table 1');
+        table1.fields = [
+            new FieldMetaData('fieldA', 'Field A', false, 'text'),
+            new FieldMetaData('fieldB', 'Field B', true, 'date')
+        ];
+        table1.labelOptions = {
+            valueA: 'labelA',
+            valueB: 'labelB'
+        };
+        table1.mappings = {
+            mappingA: 'fieldA',
+            mappingB: 'fieldB'
+        };
+        let database1 = new DatabaseMetaData('database1', 'Database 1');
+        database1.tables = [table1];
+        let datastore1 = new Datastore('datastore1', 'host1', 'type1');
+        datastore1.databases = [database1];
+        datastore1.hasUpdatedFields = false;
+        expect(input).toEqual([datastore1]);
+    });
+
+    it('appendDatastoresFromConfig with config of multiple datastores and no existing datastores should update given datastores', () => {
+        let input = [];
+
+        DatasetService.appendDatastoresFromConfig({
+            datastore1: {
+                host: 'host1',
+                type: 'type1',
+                databases: {
+                    database1: {
+                        prettyName: 'Database 1',
+                        tables: {
+                            table1: {
+                                prettyName: 'Table 1',
+                                mappings: {
+                                    mappingA: 'fieldA',
+                                    mappingB: 'fieldB'
+                                },
+                                labelOptions: {
+                                    valueA: 'labelA',
+                                    valueB: 'labelB'
+                                },
+                                fields: [{
+                                    columnName: 'fieldA',
+                                    prettyName: 'Field A',
+                                    hide: false,
+                                    type: 'text'
+                                }, {
+                                    columnName: 'fieldB',
+                                    prettyName: 'Field B',
+                                    hide: true,
+                                    type: 'date'
+                                }]
+                            }
+                        }
+                    }
+                }
+            },
+            datastore2: {
+                host: 'host2',
+                type: 'type2',
+                databases: {
+                    database2: {
+                        prettyName: 'Database 2',
+                        tables: {
+                            table2: {
+                                prettyName: 'Table 2',
+                                mappings: {
+                                    mappingC: 'fieldC',
+                                    mappingD: 'fieldD'
+                                },
+                                labelOptions: {
+                                    valueC: 'labelC',
+                                    valueD: 'labelD'
+                                },
+                                fields: [{
+                                    columnName: 'fieldC',
+                                    prettyName: 'Field C',
+                                    hide: false,
+                                    type: 'text'
+                                }, {
+                                    columnName: 'fieldD',
+                                    prettyName: 'Field D',
+                                    hide: true,
+                                    type: 'date'
+                                }]
+                            }
+                        }
+                    }
+                }
+            }
+        }, input);
+
+        let table1 = new TableMetaData('table1', 'Table 1');
+        table1.fields = [
+            new FieldMetaData('fieldA', 'Field A', false, 'text'),
+            new FieldMetaData('fieldB', 'Field B', true, 'date')
+        ];
+        table1.labelOptions = {
+            valueA: 'labelA',
+            valueB: 'labelB'
+        };
+        table1.mappings = {
+            mappingA: 'fieldA',
+            mappingB: 'fieldB'
+        };
+        let database1 = new DatabaseMetaData('database1', 'Database 1');
+        database1.tables = [table1];
+        let datastore1 = new Datastore('datastore1', 'host1', 'type1');
+        datastore1.databases = [database1];
+        datastore1.hasUpdatedFields = false;
+
+        let table2 = new TableMetaData('table2', 'Table 2');
+        table2.fields = [
+            new FieldMetaData('fieldC', 'Field C', false, 'text'),
+            new FieldMetaData('fieldD', 'Field D', true, 'date')
+        ];
+        table2.labelOptions = {
+            valueC: 'labelC',
+            valueD: 'labelD'
+        };
+        table2.mappings = {
+            mappingC: 'fieldC',
+            mappingD: 'fieldD'
+        };
+        let database2 = new DatabaseMetaData('database2', 'Database 2');
+        database2.tables = [table2];
+        let datastore2 = new Datastore('datastore2', 'host2', 'type2');
+        datastore2.databases = [database2];
+        datastore2.hasUpdatedFields = false;
+
+        expect(input).toEqual([datastore1, datastore2]);
+    });
+
+    it('appendDatastoresFromConfig does keep updated fields if config hasUpdatedFields', () => {
+        let input = [];
+
+        DatasetService.appendDatastoresFromConfig({
+            datastore1: {
+                hasUpdatedFields: true,
+                host: 'host1',
+                type: 'type1',
+                databases: {
+                    database1: {
+                        prettyName: 'Database 1',
+                        tables: {
+                            table1: {
+                                prettyName: 'Table 1',
+                                mappings: {
+                                    mappingA: 'fieldA',
+                                    mappingB: 'fieldB'
+                                },
+                                labelOptions: {
+                                    valueA: 'labelA',
+                                    valueB: 'labelB'
+                                },
+                                fields: [{
+                                    columnName: 'fieldA',
+                                    prettyName: 'Field A',
+                                    hide: false,
+                                    type: 'text'
+                                }, {
+                                    columnName: 'fieldB',
+                                    prettyName: 'Field B',
+                                    hide: true,
+                                    type: 'date'
+                                }]
+                            }
+                        }
+                    }
+                }
+            }
+        }, input);
+
+        let table1 = new TableMetaData('table1', 'Table 1');
+        table1.fields = [
+            new FieldMetaData('fieldA', 'Field A', false, 'text'),
+            new FieldMetaData('fieldB', 'Field B', true, 'date')
+        ];
+        table1.labelOptions = {
+            valueA: 'labelA',
+            valueB: 'labelB'
+        };
+        table1.mappings = {
+            mappingA: 'fieldA',
+            mappingB: 'fieldB'
+        };
+        let database1 = new DatabaseMetaData('database1', 'Database 1');
+        database1.tables = [table1];
+        let datastore1 = new Datastore('datastore1', 'host1', 'type1');
+        datastore1.databases = [database1];
+        datastore1.hasUpdatedFields = true;
+        expect(input).toEqual([datastore1]);
+    });
+
+    it('appendDatastoresFromConfig with config and existing datastores should update given datastores', () => {
+        let table1 = new TableMetaData('table1', 'Table 1');
+        table1.fields = [
+            new FieldMetaData('fieldA', 'Field A', false, 'text'),
+            new FieldMetaData('fieldB', 'Field B', true, 'date')
+        ];
+        table1.labelOptions = {
+            valueA: 'labelA',
+            valueB: 'labelB'
+        };
+        table1.mappings = {
+            mappingA: 'fieldA',
+            mappingB: 'fieldB'
+        };
+        let database1 = new DatabaseMetaData('database1', 'Database 1');
+        database1.tables = [table1];
+        let datastore1 = new Datastore('datastore1', 'host1', 'type1');
+        datastore1.databases = [database1];
+        datastore1.hasUpdatedFields = false;
+        let input = [datastore1];
+
+        DatasetService.appendDatastoresFromConfig({
+            datastore2: {
+                host: 'host2',
+                type: 'type2',
+                databases: {
+                    database2: {
+                        prettyName: 'Database 2',
+                        tables: {
+                            table2: {
+                                prettyName: 'Table 2',
+                                mappings: {
+                                    mappingC: 'fieldC',
+                                    mappingD: 'fieldD'
+                                },
+                                labelOptions: {
+                                    valueC: 'labelC',
+                                    valueD: 'labelD'
+                                },
+                                fields: [{
+                                    columnName: 'fieldC',
+                                    prettyName: 'Field C',
+                                    hide: false,
+                                    type: 'text'
+                                }, {
+                                    columnName: 'fieldD',
+                                    prettyName: 'Field D',
+                                    hide: true,
+                                    type: 'date'
+                                }]
+                            }
+                        }
+                    }
+                }
+            }
+        }, input);
+
+        let table2 = new TableMetaData('table2', 'Table 2');
+        table2.fields = [
+            new FieldMetaData('fieldC', 'Field C', false, 'text'),
+            new FieldMetaData('fieldD', 'Field D', true, 'date')
+        ];
+        table2.labelOptions = {
+            valueC: 'labelC',
+            valueD: 'labelD'
+        };
+        table2.mappings = {
+            mappingC: 'fieldC',
+            mappingD: 'fieldD'
+        };
+        let database2 = new DatabaseMetaData('database2', 'Database 2');
+        database2.tables = [table2];
+        let datastore2 = new Datastore('datastore2', 'host2', 'type2');
+        datastore2.databases = [database2];
+        datastore2.hasUpdatedFields = false;
+        expect(input).toEqual([datastore1, datastore2]);
+    });
+
+    it('appendDatastoresFromConfig with same datastore in config and existing datastores should not update given datastores', () => {
+        let table1 = new TableMetaData('table1', 'Table 1');
+        table1.fields = [
+            new FieldMetaData('fieldA', 'Field A', false, 'text'),
+            new FieldMetaData('fieldB', 'Field B', true, 'date')
+        ];
+        table1.labelOptions = {
+            valueA: 'labelA',
+            valueB: 'labelB'
+        };
+        table1.mappings = {
+            mappingA: 'fieldA',
+            mappingB: 'fieldB'
+        };
+        let database1 = new DatabaseMetaData('database1', 'Database 1');
+        database1.tables = [table1];
+        let datastore1 = new Datastore('datastore1', 'host1', 'type1');
+        datastore1.databases = [database1];
+        datastore1.hasUpdatedFields = false;
+        let input = [datastore1];
+
+        DatasetService.appendDatastoresFromConfig({
+            datastore1: {
+                host: 'host1',
+                type: 'type1',
+                databases: {
+                    database1: {
+                        prettyName: 'Database 1',
+                        tables: {
+                            table1: {
+                                prettyName: 'Table 1',
+                                mappings: {
+                                    mappingA: 'fieldA',
+                                    mappingB: 'fieldB'
+                                },
+                                labelOptions: {
+                                    valueA: 'labelA',
+                                    valueB: 'labelB'
+                                },
+                                fields: [{
+                                    columnName: 'fieldA',
+                                    prettyName: 'Field A',
+                                    hide: false,
+                                    type: 'text'
+                                }, {
+                                    columnName: 'fieldB',
+                                    prettyName: 'Field B',
+                                    hide: true,
+                                    type: 'date'
+                                }]
+                            }
+                        }
+                    }
+                }
+            }
+        }, input);
+
+        expect(input).toEqual([datastore1]);
+    });
+
+    it('updateDatastoresInDashboards should set datastores property in given dashboards with tables', () => {
+        let table1 = new TableMetaData('table1', 'Table 1');
+        table1.fields = [
+            new FieldMetaData('fieldA', 'Field A', false, 'text'),
+            new FieldMetaData('fieldB', 'Field B', true, 'date')
+        ];
+        table1.labelOptions = {
+            valueA: 'labelA',
+            valueB: 'labelB'
+        };
+        table1.mappings = {
+            mappingA: 'fieldA',
+            mappingB: 'fieldB'
+        };
+        let database1 = new DatabaseMetaData('database1', 'Database 1');
+        database1.tables = [table1];
+        let datastore1 = new Datastore('datastore1', 'host1', 'type1');
+        datastore1.databases = [database1];
+
+        let dashboard1 = new Dashboard();
+        dashboard1.tables = {
+            key1: 'datastore1.database1.table1'
+        };
+
+        DatasetService.updateDatastoresInDashboards(dashboard1, [datastore1]);
+        expect(dashboard1.datastores).toEqual([datastore1]);
+    });
+
+    it('updateDatastoresInDashboards should set datastores property in given dashboards with choices', () => {
+        let table1 = new TableMetaData('table1', 'Table 1');
+        table1.fields = [
+            new FieldMetaData('fieldA', 'Field A', false, 'text'),
+            new FieldMetaData('fieldB', 'Field B', true, 'date')
+        ];
+        table1.labelOptions = {
+            valueA: 'labelA',
+            valueB: 'labelB'
+        };
+        table1.mappings = {
+            mappingA: 'fieldA',
+            mappingB: 'fieldB'
+        };
+        let database1 = new DatabaseMetaData('database1', 'Database 1');
+        database1.tables = [table1];
+        let datastore1 = new Datastore('datastore1', 'host1', 'type1');
+        datastore1.databases = [database1];
+
+        let table2 = new TableMetaData('table2', 'Table 2');
+        table2.fields = [
+            new FieldMetaData('fieldC', 'Field C', false, 'text'),
+            new FieldMetaData('fieldD', 'Field D', true, 'date')
+        ];
+        table2.labelOptions = {
+            valueC: 'labelC',
+            valueD: 'labelD'
+        };
+        table2.mappings = {
+            mappingC: 'fieldC',
+            mappingD: 'fieldD'
+        };
+        let database2 = new DatabaseMetaData('database2', 'Database 2');
+        database2.tables = [table2];
+        let datastore2 = new Datastore('datastore2', 'host2', 'type2');
+        datastore2.databases = [database2];
+
+        let dashboard1 = new Dashboard();
+        dashboard1.tables = {
+            key1: 'datastore1.database1.table1'
+        };
+        let dashboard2 = new Dashboard();
+        dashboard2.tables = {
+            key1: 'datastore2.database2.table2'
+        };
+        let dashboard3 = new Dashboard();
+        dashboard3.choices = {
+            choice1: dashboard1,
+            choice2: dashboard2
+        };
+
+        DatasetService.updateDatastoresInDashboards(dashboard3, [datastore1, datastore2]);
+        expect(dashboard1.datastores).toEqual([datastore1]);
+        expect(dashboard2.datastores).toEqual([datastore2]);
+    });
+
+    it('updateLayoutInDashboards should set layoutObject property in given dashboards with layout', () => {
+        let layout = {
+            layout1: [1, 2, 3],
+            layout2: [4, 5, 6]
+        };
+
+        let dashboard1 = new Dashboard();
+        dashboard1.layout = 'layout1';
+
+        DatasetService.updateLayoutInDashboards(dashboard1, layout);
+        expect(dashboard1.layoutObject).toEqual([1, 2, 3]);
+    });
+
+    it('updateLayoutInDashboards should set layoutObject property in given dashboards with choices', () => {
+        let layout = {
+            layout1: [1, 2, 3],
+            layout2: [4, 5, 6]
+        };
+
+        let dashboard1 = new Dashboard();
+        dashboard1.layout = 'layout1';
+        let dashboard2 = new Dashboard();
+        dashboard2.layout = 'layout2';
+        let dashboard3 = new Dashboard();
+        dashboard3.choices = {
+            choice1: dashboard1,
+            choice2: dashboard2
+        };
+
+        DatasetService.updateLayoutInDashboards(dashboard3, layout);
+        expect(dashboard1.layoutObject).toEqual([1, 2, 3]);
+        expect(dashboard2.layoutObject).toEqual([4, 5, 6]);
+    });
+
+    it('validateDashboards should set category and fullTitle and pathFromTop properties in given dashboards', () => {
+        // TODO THOR-692
+    });
+
+    it('validateDashboards should update simpleFilter properties in given dashboards', () => {
+        // TODO THOR-692
+    });
+
+    it('validateDashboards should delete choices with no layout or tables from given dashboards', () => {
+        // TODO THOR-692
+    });
+
+    it('validateDashboards should add root dashboard if needed to given dashboards', () => {
+        let argument = new Dashboard();
+        argument.layout = 'layout1';
+        argument.name = 'dashboard1';
+        argument.tables = {
+            key1: 'datastore1.database1.table1'
+        };
+
+        let expected = new Dashboard();
+        expected.category = (DatasetService as any).DASHBOARD_CATEGORY_DEFAULT;
+        expected.choices = {
+            dashboard1: argument
+        };
+
+        let actual = DatasetService.validateDashboards(argument);
+        expect(actual).toEqual(expected);
+    });
+});
+
+describe('Service: DatasetService with Mock Data', () => {
+    let datasetService: DatasetService;
+
+    initializeTestBed('Dataset Service with Mock Data', {
+        providers: [
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: 'config', useValue: new NeonGTDConfig() }
         ]
     });
 

@@ -1172,7 +1172,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
         options.inject(this.createNonFieldOptions());
 
-        options.updateDatabases(this.datasetService, this.injector.get('tableKey', null));
+        options.updateDatabases(this.datasetService);
 
         this.injector.get('layers', []).forEach((layerBindings) => {
             this.addLayer(options, layerBindings);

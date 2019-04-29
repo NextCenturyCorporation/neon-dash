@@ -16,6 +16,7 @@
 import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
+import { ConnectionService } from './connection.service';
 import { Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
     TableMetaData, TableMappings, FieldMetaData, SimpleFilter, SingleField } from '../dataset';
 import { Subscription, Observable, interval } from 'rxjs';
@@ -57,10 +58,86 @@ export class DatasetService {
     // ---
     // STATIC METHODS
     // --
+    static appendDatastoresFromConfig(configDatastores: { [key: string]: any }, existingDatastores: Datastore[]): Datastore[] {
+        // Transform the datastores from config file structures to Datastore objects.
+        Object.keys(configDatastores).forEach((datastoreKey) => {
+            let oldDatastore: any = configDatastores[datastoreKey];
+            let newDatastore: Datastore = new Datastore(datastoreKey, oldDatastore.host, oldDatastore.type);
+
+            // Keep whether the datastore's fields are already updated (important for loading a saved state).
+            newDatastore.hasUpdatedFields = !!oldDatastore.hasUpdatedFields;
+
+            let oldDatabases: any = oldDatastore.databases || {};
+            newDatastore.databases = Object.keys(oldDatabases).map((databaseKey) => {
+                let oldDatabase: any = oldDatabases[databaseKey];
+                let newDatabase: DatabaseMetaData = new DatabaseMetaData(databaseKey, oldDatabase.prettyName);
+
+                let oldTables: any = oldDatabase.tables || {};
+                newDatabase.tables = Object.keys(oldTables).map((tableKey) => {
+                    let oldTable = oldTables[tableKey];
+                    let newTable: TableMetaData = new TableMetaData(tableKey, oldTable.prettyName);
+
+                    newTable.fields = (oldTable.fields || []).map((oldField) =>
+                        new FieldMetaData(oldField.columnName, oldField.prettyName, !!oldField.hide, oldField.type));
+
+                    // Create copies to maintain original config data.
+                    newTable.labelOptions = _.cloneDeep(oldTable.labelOptions);
+                    newTable.mappings = _.cloneDeep(oldTable.mappings);
+
+                    return newTable;
+                });
+
+                return newDatabase;
+            });
+
+            // Ignore the datastore if another datastore with the same name already exists (each name should be unique).
+            if (!existingDatastores.some((existingDatastore) => existingDatastore.name === newDatastore.name)) {
+                existingDatastores.push(newDatastore);
+            }
+        });
+
+        return existingDatastores;
+    }
+
     static removeFromArray(array, indexList): void {
         indexList.forEach((index) => {
             array.splice(index, 1);
         });
+    }
+
+    /**
+     * Updates the datastores of each of the nested dashboards in the given dashboard with the given config file datastores.
+     *
+     * @arg {Dashboard} dashboard
+     * @arg {Datastore[]} datastores
+     */
+    static updateDatastoresInDashboards(dashboard: Dashboard, datastores: Datastore[]): void {
+        if (dashboard.tables) {
+            // Assume table keys have format:  datastore.database.table
+            let datastoreNames: string[] = Object.keys(dashboard.tables).map((key) => dashboard.tables[key].split('.')[0]);
+            dashboard.datastores = datastores.filter((datastore) => datastoreNames.some((name) => name === datastore.name));
+        }
+
+        if (dashboard.choices) {
+            Object.keys(dashboard.choices).forEach((key) =>
+                DatasetService.updateDatastoresInDashboards(dashboard.choices[key], datastores));
+        }
+    }
+
+    /**
+     * Updates the layout of each of the nested dashboards in the given dashboard with the given config file layouts.
+     *
+     * @arg {Dashboard} dashboard
+     * @arg {any} layouts
+     */
+    static updateLayoutInDashboards(dashboard: Dashboard, layouts: any): void {
+        if (dashboard.layout) {
+            dashboard.layoutObject = layouts[dashboard.layout] || [];
+        }
+
+        if (dashboard.choices) {
+            Object.keys(dashboard.choices).forEach((key) => DatasetService.updateLayoutInDashboards(dashboard.choices[key], layouts));
+        }
     }
 
     static validateFields(table): void {
@@ -107,16 +184,27 @@ export class DatasetService {
     /**
      * Validate top level category of dashboards object in the config, then call
      * separate function to check the choices within recursively.
-     * @param {any} dashboards config dashboards object
+     *
+     * @arg {Dashboard} dashboard
+     * @return {Dashboard}
      */
-    static validateDashboards(dashboards: any): void {
-        let dashboardKeys = dashboards.choices ? Object.keys(dashboards.choices) : [];
+    static validateDashboards(dashboard: Dashboard): Dashboard {
+        let rootDashboard: Dashboard = dashboard;
 
-        if (!dashboards.category) {
-            dashboards.category = this.DASHBOARD_CATEGORY_DEFAULT;
+        if ((!dashboard.choices || !Object.keys(dashboard.choices).length) && dashboard.name) {
+            rootDashboard = new Dashboard();
+            rootDashboard.choices[dashboard.name] = dashboard;
         }
 
-        this.validateDashboardChoices(dashboards.choices, dashboardKeys);
+        if (!rootDashboard.category) {
+            rootDashboard.category = this.DASHBOARD_CATEGORY_DEFAULT;
+        }
+
+        let dashboardKeys = rootDashboard.choices ? Object.keys(rootDashboard.choices) : [];
+
+        this.validateDashboardChoices(rootDashboard.choices, dashboardKeys);
+
+        return rootDashboard;
     }
 
     /**
@@ -136,10 +224,10 @@ export class DatasetService {
         }
 
         keys.forEach((choiceKey) => {
-            let fullTitle = title ? title + ' ' + dashboardChoices[choiceKey].name : dashboardChoices[choiceKey].name;
+            let fullTitle = (title ? (title + ' ') : '') + dashboardChoices[choiceKey].name;
             let fullPathFromTop = pathFromTop ? pathFromTop.concat(choiceKey) : [choiceKey];
 
-            dashboardChoices[choiceKey].fullTitle = fullTitle;
+            dashboardChoices[choiceKey].fullTitle = dashboardChoices[choiceKey].fullTitle || fullTitle;
             dashboardChoices[choiceKey].pathFromTop = fullPathFromTop;
 
             let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
@@ -252,48 +340,36 @@ export class DatasetService {
         return this.getFieldNameFromCompleteFieldName(dashboard.fields[key]);
     }
 
-    constructor(@Inject('config') private config: NeonGTDConfig) {
-        this.datasets = [];
-        let datastores = (config.datastores ? config.datastores : {});
-        this.dashboards = (config.dashboards ? config.dashboards : {category: 'No Options', choices: {}});
-
-        DatasetService.validateDashboards(this.dashboards);
-
-        // convert datastore key/value pairs into an array
-        Object.keys(datastores).forEach((datastoreKey) => {
-            let datastore = datastores[datastoreKey];
-            datastore.name = datastoreKey;
-
-            let databases = (datastore.databases ? datastore.databases : {});
-            let newDatabasesArray: DatabaseMetaData[] = [];
-
-            Object.keys(databases).forEach((databaseKey) => {
-                let database = databases[databaseKey];
-                database.name = databaseKey;
-
-                let tables = (database.tables ? database.tables : {});
-                let newTablesArray: TableMetaData[] = [];
-
-                Object.keys(tables).forEach((tableKey) => {
-                    let table = tables[tableKey];
-                    table.name = tableKey;
-                    newTablesArray.push(table);
-                });
-
-                database.tables = newTablesArray;
-                newDatabasesArray.push(database);
-            });
-
-            datastore.databases = newDatabasesArray;
-
-            // then push converted object onto datasets array
-            this.datasets.push(datastore);
-        });
-
+    constructor(@Inject('config') private config: NeonGTDConfig, private connectionService: ConnectionService) {
         this.messenger = new neon.eventing.Messenger();
 
+        this.dashboards = DatasetService.validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
+            { category: 'No Dashboards', choices: {} });
+
+        this.datasets = DatasetService.appendDatastoresFromConfig(config.datastores || {}, []);
+
+        DatasetService.updateDatastoresInDashboards(this.dashboards, this.datasets);
+        DatasetService.updateLayoutInDashboards(this.dashboards, config.layouts || {});
+
+        let loaded = 0;
         this.datasets.forEach((dataset) => {
             DatasetService.validateDatabases(dataset);
+
+            let callback = () => {
+                this.messenger.publish(neonEvents.DASHBOARD_READY, {});
+            };
+
+            let connection: neon.query.Connection = this.connectionService.createActiveConnection(dataset.type, dataset.host);
+            if (connection) {
+                // Update the fields within each table to add any that weren't listed in the config file as well as field types.
+                this.updateDatabases(dataset, connection).then(() => {
+                    if (++loaded === this.datasets.length) {
+                        callback();
+                    }
+                });
+            } else {
+                callback();
+            }
         });
     }
 
@@ -806,11 +882,8 @@ export class DatasetService {
      * @param {Number} index (optional)
      */
     public updateDatabases(dataset: Datastore, connection: neon.query.Connection): any {
-        let promiseArray = [];
-
-        for (let database of dataset.databases) {
-            promiseArray.push(this.getTableNamesAndFieldNames(connection, database));
-        }
+        let promiseArray = dataset.hasUpdatedFields ? [] : dataset.databases.map((database) =>
+            this.getTableNamesAndFieldNames(connection, database));
 
         return new Promise<any>((resolve) => {
             Promise.all(promiseArray).then((response) => {
