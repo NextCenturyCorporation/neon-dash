@@ -188,13 +188,15 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         }
 
         let groups = [this.searchService.buildQueryGroup(options.sampleRequiredField.columnName)];
+        let countField = options.sampleRequiredField.columnName;
 
         if (options.sampleOptionalField.columnName) {
             groups.push(this.searchService.buildQueryGroup(options.sampleOptionalField.columnName));
+            countField = options.sampleOptionalField.columnName;
         }
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
-            .updateGroups(query, groups).updateAggregation(query, AggregationType.COUNT, '_count', '*')
+            .updateGroups(query, groups).updateAggregation(query, AggregationType.COUNT, '_count', countField)
             .updateSort(query, '_count', SortOrder.DESCENDING);
 
         return query;
