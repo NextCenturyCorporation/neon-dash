@@ -115,6 +115,7 @@ export class Dashboard {
     public layout?: string = '';
     public tables?: {[key: string]: string} = {};
     public fields?: {[key: string]: string} = {};
+    public filters?: {[key: string]: any} = {};
     public visualizationTitles?: {[key: string]: string} = {};
     public options?: DashboardOptions = new DashboardOptions();
     public fullTitle?: string; // added to dashboard in validateDashboards()
@@ -122,6 +123,9 @@ export class Dashboard {
     // (sans choices object references) needed to traverse back up Dashboard object
     public relations?: (string | string[])[][];
     public contributors?: {[key: string]: Contributor} = {};
+    // The datastores and layoutObject properties are assigned by the DatasetService.
+    public datastores?: Datastore[] = [];
+    public layoutObject?: any[] = [];
 }
 
 /**

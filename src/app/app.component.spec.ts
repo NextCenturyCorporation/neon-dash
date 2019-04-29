@@ -49,8 +49,10 @@ import { VisualizationContainerComponent } from './components/visualization-cont
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
 import { WikiViewerComponent } from './components/wiki-viewer/wiki-viewer.component';
 
+import { Dashboard, Datastore } from './dataset';
 import { NeonGTDConfig } from './neon-gtd-config';
 import { NeonGridItem } from './neon-grid-item';
+import { neonEvents } from './neon-namespaces';
 
 import { AbstractSearchService } from './services/abstract.search.service';
 import { AbstractWidgetService } from './services/abstract.widget.service';
@@ -225,7 +227,7 @@ describe('App', () => {
         expect(debugElement.nativeElement.querySelectorAll('app-filters')).toBeTruthy();
     }));
 
-    it('check that the messagenger subscribes to the correct channels and that the callbacks update the correct booleans', async(() => {
+    it('check that the messenger subscribes to the correct channels and that the callbacks update the correct booleans', async(() => {
         let spyOnShowFiltersComponentIcon = spyOn(component, 'updateShowFiltersComponentIcon');
         let spyOnShowVisualShortcut = spyOn(component, 'updateShowVisShortcut');
         let message = {
@@ -285,7 +287,7 @@ describe('App', () => {
         expect(debugElement.query(By.css('#showFiltersComponentIcon'))).not.toBeNull();
     }));
 
-    it('addWidget does add the given widget with specified position to the grid', async(() => {
+    it('addWidget does add the given widget with specified position to the grid', () => {
         let widgetGridItem1: NeonGridItem = {
             col: 2,
             config: {},
@@ -313,9 +315,9 @@ describe('App', () => {
             sizex: 3,
             sizey: 3
         }]);
-    }));
+    });
 
-    it('addWidget does prefer position inside config object', async(() => {
+    it('addWidget does prefer position inside config object', () => {
         let widgetGridItem1: NeonGridItem = {
             col: 2,
             config: {
@@ -348,9 +350,9 @@ describe('App', () => {
             sizex: 3,
             sizey: 3
         }]);
-    }));
+    });
 
-    it('addWidget does set the position of the given widget with unspecified position and add it to the end of the grid', async(() => {
+    it('addWidget does set the position of the given widget with unspecified position and add it to the end of the grid', () => {
         let widgetGridItem1: NeonGridItem = {
             config: {}
         };
@@ -490,9 +492,9 @@ describe('App', () => {
             },
             id: widgetGridItem4.id
         }]);
-    }));
+    });
 
-    it('addWidget does set the position of the given widget with unspecified position and add it to the middle of the grid', async(() => {
+    it('addWidget does set the position of the given widget with unspecified position and add it to the middle of the grid', () => {
         component.widgetGridItems = [{
             config: {
                 borderSize: 10,
@@ -594,9 +596,9 @@ describe('App', () => {
             },
             id: widgetGridItem1.id
         }]);
-    }));
+    });
 
-    it('clearDashboard does delete all elements from the grid', async(() => {
+    it('clearDashboard does delete all elements from the grid', () => {
         component.widgetGridItems = [{
             config: {
                 borderSize: 10,
@@ -619,12 +621,16 @@ describe('App', () => {
             id: 'b'
         }];
 
+        let spy = spyOn(component.filterService, 'setFilters');
+
         component.clearDashboard();
 
         expect(component.widgetGridItems).toEqual([]);
-    }));
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)[0]).toEqual([]);
+    });
 
-    it('contractWidget does update the size and position of the given widget to its previous config', async(() => {
+    it('contractWidget does update the size and position of the given widget to its previous config', () => {
         let widgetGridItem1: NeonGridItem = {
             config: {
                 col: 1,
@@ -658,9 +664,9 @@ describe('App', () => {
                 sizey: 4
             }
         });
-    }));
+    });
 
-    it('deleteWidget does delete the widget from the grid', async(() => {
+    it('deleteWidget does delete the widget from the grid', () => {
         component.widgetGridItems = [{
             config: {
                 borderSize: 10,
@@ -698,9 +704,9 @@ describe('App', () => {
             },
             id: 'b'
         }]);
-    }));
+    });
 
-    it('expandWidget does update the size and position of the given widget and save its previous config', async(() => {
+    it('expandWidget does update the size and position of the given widget and save its previous config', () => {
         let widgetGridItem1: NeonGridItem = {
             config: {
                 col: 2,
@@ -730,9 +736,51 @@ describe('App', () => {
                 sizey: 4
             }
         });
-    }));
+    });
 
-    it('getMaxColInUse does return expected number', async(() => {
+    it('findAutoShowDashboard does return expected object', () => {
+        expect((component as any).findAutoShowDashboard({})).toEqual(null);
+
+        let noShowDashboard = new Dashboard();
+
+        expect((component as any).findAutoShowDashboard({
+            noShow: noShowDashboard
+        })).toEqual(null);
+
+        noShowDashboard.options = {
+            connectOnLoad: false
+        };
+
+        expect((component as any).findAutoShowDashboard({
+            noShow: noShowDashboard
+        })).toEqual(null);
+
+        let showDashboard = new Dashboard();
+        showDashboard.options = {
+            connectOnLoad: true
+        };
+
+        expect((component as any).findAutoShowDashboard({
+            show: showDashboard
+        })).toEqual(showDashboard);
+
+        let parentDashboard = new Dashboard();
+        parentDashboard.choices = {
+            show: showDashboard
+        };
+
+        expect((component as any).findAutoShowDashboard({
+            parent: parentDashboard
+        })).toEqual(showDashboard);
+
+        parentDashboard.choices.noShow = noShowDashboard;
+
+        expect((component as any).findAutoShowDashboard({
+            parent: parentDashboard
+        })).toEqual(showDashboard);
+    });
+
+    it('getMaxColInUse does return expected number', () => {
         expect(component.getMaxColInUse()).toEqual(0);
 
         component.widgetGridItems = [{
@@ -772,9 +820,9 @@ describe('App', () => {
         }];
 
         expect(component.getMaxColInUse()).toEqual(2);
-    }));
+    });
 
-    it('getMaxRowInUse does return expected number', async(() => {
+    it('getMaxRowInUse does return expected number', () => {
         expect(component.getMaxRowInUse()).toEqual(0);
 
         component.widgetGridItems = [{
@@ -814,9 +862,9 @@ describe('App', () => {
         }];
 
         expect(component.getMaxRowInUse()).toEqual(2);
-    }));
+    });
 
-    it('moveWidgetToBottom does update the row of the given widget', async(() => {
+    it('moveWidgetToBottom does update the row of the given widget', () => {
         let widgetGridItem1: NeonGridItem = {
             config: {
                 col: 1,
@@ -859,9 +907,9 @@ describe('App', () => {
         });
 
         expect(widgetGridItem1.config.row).toEqual(3);
-    }));
+    });
 
-    it('moveWidgetToTop does update the row of the given widget', async(() => {
+    it('moveWidgetToTop does update the row of the given widget', () => {
         let widgetGridItem1: NeonGridItem = {
             config: {
                 col: 1,
@@ -876,15 +924,15 @@ describe('App', () => {
         });
 
         expect(widgetGridItem1.config.row).toEqual(1);
-    }));
+    });
 
-    it('refreshDashboard does resize the grid', async(() => {
+    it('refreshDashboard does resize the grid', () => {
         let spy = spyOn(component.grid, 'triggerResize');
         component.refreshDashboard();
         expect(spy.calls.count()).toEqual(1);
-    }));
+    });
 
-    it('registerWidget does update the global collection of widgets', async(() => {
+    it('registerWidget does update the global collection of widgets', () => {
         expect(Array.from(component.widgets.keys())).toEqual([]);
 
         component.registerWidget({
@@ -900,9 +948,9 @@ describe('App', () => {
         });
 
         expect(Array.from(component.widgets.keys())).toEqual(['a', 'b']);
-    }));
+    });
 
-    it('registerWidget does not re-register the same widget', async(() => {
+    it('registerWidget does not re-register the same widget', () => {
         expect(Array.from(component.widgets.keys())).toEqual([]);
 
         component.registerWidget({
@@ -918,9 +966,174 @@ describe('App', () => {
         });
 
         expect(Array.from(component.widgets.keys())).toEqual(['a']);
-    }));
+    });
 
-    it('unregisterWidget does update the global collection of widgets', async(() => {
+    it('showDashboardState does work as expected', () => {
+        let spyDashboards = spyOn(component.datasetService, 'setCurrentDashboard');
+        let spyDatastores = spyOn(component.datasetService, 'setActiveDataset');
+        let spySender = spyOn(component.messageSender, 'publish');
+        let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
+
+        let testDatastore1: Datastore = new Datastore('testName1', 'testHost1', 'testType1');
+        let testDatastore2: Datastore = new Datastore('testName2', 'testHost2', 'testType2');
+        let testDashboard: Dashboard = new Dashboard();
+        testDashboard.datastores = [testDatastore1, testDatastore2];
+        testDashboard.layoutObject = ['a', 'b', 'c', 'd'];
+
+        (component as any).showDashboardState({
+            dashboard: testDashboard
+        });
+
+        expect(spyDashboards.calls.count()).toEqual(1);
+        expect(spyDashboards.calls.argsFor(0)).toEqual([testDashboard]);
+
+        expect(spyDatastores.calls.count()).toEqual(1);
+        // TODO THOR-1062 Permit multiple datastores.
+        expect(spyDatastores.calls.argsFor(0)).toEqual([testDatastore1]);
+
+        expect(spySender.calls.count()).toEqual(5);
+        expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_CLEAR, {}]);
+        expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
+            widgetGridItem: 'a'
+        }]);
+        expect(spySender.calls.argsFor(2)).toEqual([neonEvents.WIDGET_ADD, {
+            widgetGridItem: 'b'
+        }]);
+        expect(spySender.calls.argsFor(3)).toEqual([neonEvents.WIDGET_ADD, {
+            widgetGridItem: 'c'
+        }]);
+        expect(spySender.calls.argsFor(4)).toEqual([neonEvents.WIDGET_ADD, {
+            widgetGridItem: 'd'
+        }]);
+
+        expect(spySimpleFilter.calls.count()).toEqual(1);
+
+        expect(component.showDashboardSelector).toEqual(false);
+    });
+
+    it('showDashboardStateOnPageLoad with no parameter state, parameter dataset, or auto-show dashboard does work as expected', () => {
+        let spyLoad = spyOn((component as any).parameterService, 'loadState');
+        let spySender = spyOn(component.messageSender, 'publish');
+
+        spyOn((component as any).parameterService, 'findActiveDatasetInUrl').and.returnValue(null);
+        spyOn((component as any).parameterService, 'findDashboardStateIdInUrl').and.returnValue(null);
+        spyOn((component as any).parameterService, 'findFilterStateIdInUrl').and.returnValue(null);
+
+        (component as any).dashboards = new Dashboard();
+
+        (component as any).showDashboardStateOnPageLoad();
+
+        expect(spyLoad.calls.count()).toEqual(0);
+        expect(spySender.calls.count()).toEqual(0);
+    });
+
+    it('showDashboardStateOnPageLoad with parameter state but no parameter dataset or auto-show dashboard does work as expected', () => {
+        let spyLoad = spyOn((component as any).parameterService, 'loadState');
+        let spySender = spyOn(component.messageSender, 'publish');
+
+        spyOn((component as any).parameterService, 'findActiveDatasetInUrl').and.returnValue(null);
+        spyOn((component as any).parameterService, 'findDashboardStateIdInUrl').and.returnValue('testStateName');
+        spyOn((component as any).parameterService, 'findFilterStateIdInUrl').and.returnValue('testFilterStateId');
+
+        (component as any).dashboards = new Dashboard();
+
+        (component as any).showDashboardStateOnPageLoad();
+
+        expect(spyLoad.calls.count()).toEqual(1);
+        expect(spyLoad.calls.argsFor(0)).toEqual(['testStateName', 'testFilterStateId']);
+        expect(spySender.calls.count()).toEqual(0);
+    });
+
+    it('showDashboardStateOnPageLoad with auto-show dashboard but no parameter state or parameter dataset does work as expected', () => {
+        let spyLoad = spyOn((component as any).parameterService, 'loadState');
+        let spySender = spyOn(component.messageSender, 'publish');
+
+        spyOn((component as any).parameterService, 'findActiveDatasetInUrl').and.returnValue(null);
+        spyOn((component as any).parameterService, 'findDashboardStateIdInUrl').and.returnValue(null);
+        spyOn((component as any).parameterService, 'findFilterStateIdInUrl').and.returnValue(null);
+
+        let showDashboard = new Dashboard();
+        showDashboard.datastores = [new Datastore('testDatastoreName1', 'testDatastoreHost1', 'testDatastoreType1')];
+        showDashboard.options = {
+            connectOnLoad: true
+        };
+        let testDashboard = new Dashboard();
+        testDashboard.choices = {
+            test: showDashboard
+        };
+        (component as any).dashboards = testDashboard;
+
+        (component as any).showDashboardStateOnPageLoad();
+
+        expect(spyLoad.calls.count()).toEqual(0);
+        expect(spySender.calls.count()).toEqual(1);
+        expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
+            dashboard: showDashboard
+        }]);
+    });
+
+    it('showDashboardStateOnPageLoad with parameter state and auto-show dashboard does work as expected', () => {
+        let spyLoad = spyOn((component as any).parameterService, 'loadState');
+        let spySender = spyOn(component.messageSender, 'publish');
+
+        spyOn((component as any).parameterService, 'findActiveDatasetInUrl').and.returnValue(null);
+        spyOn((component as any).parameterService, 'findDashboardStateIdInUrl').and.returnValue('testStateName');
+        spyOn((component as any).parameterService, 'findFilterStateIdInUrl').and.returnValue('testFilterStateId');
+
+        let showDashboard = new Dashboard();
+        showDashboard.datastores = [new Datastore('testDatastoreName1', 'testDatastoreHost1', 'testDatastoreType1')];
+        showDashboard.options = {
+            connectOnLoad: true
+        };
+        let testDashboard = new Dashboard();
+        testDashboard.choices = {
+            test: showDashboard
+        };
+        (component as any).dashboards = testDashboard;
+
+        (component as any).showDashboardStateOnPageLoad();
+
+        expect(spyLoad.calls.count()).toEqual(1);
+        expect(spyLoad.calls.argsFor(0)).toEqual(['testStateName', 'testFilterStateId']);
+        expect(spySender.calls.count()).toEqual(1);
+        expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
+            dashboard: showDashboard
+        }]);
+    });
+
+    it('showDashboardStateOnPageLoad with matching parameter dataset and auto-show dashboard does work as expected', () => {
+        let spyLoad = spyOn((component as any).parameterService, 'loadState');
+        let spySender = spyOn(component.messageSender, 'publish');
+
+        spyOn((component as any).parameterService, 'findActiveDatasetInUrl').and.returnValue('testDatastoreName1');
+        spyOn((component as any).parameterService, 'findDashboardStateIdInUrl').and.returnValue(null);
+        spyOn((component as any).parameterService, 'findFilterStateIdInUrl').and.returnValue(null);
+
+        let showDashboard = new Dashboard();
+        showDashboard.datastores = [new Datastore('testDatastoreName1', 'testDatastoreHost1', 'testDatastoreType1')];
+        showDashboard.options = {
+            connectOnLoad: true
+        };
+        let testDashboard = new Dashboard();
+        testDashboard.choices = {
+            test: showDashboard
+        };
+        (component as any).dashboards = testDashboard;
+
+        (component as any).showDashboardStateOnPageLoad();
+
+        expect(spyLoad.calls.count()).toEqual(0);
+        expect(spySender.calls.count()).toEqual(1);
+        expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
+            dashboard: showDashboard
+        }]);
+    });
+
+    it('showDashboardStateOnPageLoad with parameter dataset but no parameter state or auto-show dashboard does work as expected', () => {
+        // TODO THOR-1131
+    });
+
+    it('unregisterWidget does update the global collection of widgets', () => {
         component.widgets.set('a', null);
         component.widgets.set('b', null);
 
@@ -937,9 +1150,9 @@ describe('App', () => {
         });
 
         expect(Array.from(component.widgets.keys())).toEqual([]);
-    }));
+    });
 
-    it('widgetFits does return expected boolean', async(() => {
+    it('widgetFits does return expected boolean', () => {
         let widgetGridItem1: NeonGridItem = {
             config: {
                 col: 2,
@@ -1040,9 +1253,9 @@ describe('App', () => {
         }];
 
         expect(component.widgetFits(widgetGridItem1)).toEqual(false);
-    }));
+    });
 
-    it('widgetOverlaps does return expected boolean', async(() => {
+    it('widgetOverlaps does return expected boolean', () => {
         expect(component.widgetOverlaps({
             config: {
                 col: 1,
@@ -1202,5 +1415,5 @@ describe('App', () => {
                 sizey: 4
             }
         })).toEqual(true);
-    }));
+    });
 });
