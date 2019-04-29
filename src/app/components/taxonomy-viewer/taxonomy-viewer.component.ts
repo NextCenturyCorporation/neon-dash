@@ -503,7 +503,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Add counts to the nodes in the taxonomy
+     * Adds necessary ids and counts to the nodes in the taxonomy
      *
      * @arg {any} data
      * @arg {any[]} groups
@@ -515,15 +515,21 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             group.sourceIds = [];
 
             data.forEach((d) => {
-                let id = neonUtilities.deepFind(d, this.options.idField.columnName);
-                let sourceIds = neonUtilities.deepFind(d, this.options.sourceIdField.columnName);
-                let description = neonUtilities.deepFind(d, group.description);
-                let nameExists = description instanceof Array ? description.find((s) => s.includes(group.name)) :
-                    description instanceof String ? description.includes(group.name) : '';
+                let description = neonUtilities.deepFind(d, group.description),
+                    lineage = neonUtilities.deepFind(d, this.options.categoryField.columnName),
+                    id = neonUtilities.deepFind(d, this.options.idField.columnName);
 
-                if (!!nameExists && !group.nodeIds.includes(id)) {
+                let nameExists = description instanceof Array ? description.find((s) => s.includes(group.name)) :
+                        description instanceof String ? description.includes(group.name) : '';
+
+                let lineageExists = lineage instanceof Array ?
+                    lineage.find((s) => (s === group.lineage)) : (lineage === group.lineage);
+
+                if (!!nameExists && !!lineageExists && !group.nodeIds.includes(id)) {
+                    let sourceIds = neonUtilities.deepFind(d, this.options.sourceIdField.columnName);
                     group.nodeIds.push(id);
                     group.sourceIds.push(sourceIds);
+
                     count++;
                 }
             });
@@ -534,15 +540,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
             if (group.hasOwnProperty('children')) {
                 this.addCountsToTaxonomy(data, group.children);
-                let childCount = 0;
-                for (let child of group.children) {
-                    childCount += child.nodeCount;
-                }
-
-                if (!group.nodeCount) {
-                    group.nodeCount = childCount;
-                }
-
             }
         }
     }

@@ -48,38 +48,44 @@ describe('Component: TaxonomyViewer', () => {
         testIdField: 'testId1',
         testTypeField: ['testTypeA', 'testTypeB', 'testTypeC', 'testTypeD'],
         testCategoryField: ['testCategoryI', 'testCategoryII'],
-        testValueField: 'value01'
+        testValueField: 'value01',
+        testSourceIdField: ['source1', 'source2']
     },
         {
             testIdField: 'testId2',
             testTypeField: ['testTypeA', 'testTypeB', 'testTypeC', 'testTypeD', 'testTypeE', 'testTypeF', 'testTypeG', 'testTypeH'],
             testCategoryField: ['testCategoryII'],
-            testValueField: ''
+            testValueField: '',
+            testSourceIdField: ['source15', 'source16', 'source17', 'source18']
         },
         {
             testIdField: 'testId3',
             testTypeField: ['testTypeC', 'testTypeD', 'testTypeE', 'testTypeF'],
             testCategoryField: ['testCategoryIII'],
-            testValueField: 'value02'
+            testValueField: 'value02',
+            testSourceIdField: ['source9']
 
         },
         {
             testIdField: 'testId4',
             testTypeField: ['testTypeE', 'testTypeF'],
             testCategoryField: ['testCategoryI', 'testCategoryIII'],
-            testValueField: 'value04'
+            testValueField: 'value04',
+            testSourceIdField: ['source2', 'source5', 'source7', 'source15', 'source18']
         },
         {
             testIdField: 'testId5',
             testTypeField: ['testTypeH'],
             testCategoryField: ['testCategoryII', 'testCategoryIII'],
-            testValueField: 'value05'
+            testValueField: 'value05',
+            testSourceIdField: ['source20', 'source23']
         },
         {
             testIdField: 'testId6',
             testTypeField: ['testTypeE'],
             testCategoryField: ['testCategoryI', 'testCategoryIIII'],
-            testValueField: ''
+            testValueField: '',
+            testSourceIdField: ['source3', 'source16', 'source17', 'source20', 'source23']
         }];
 
     initializeTestBed({
@@ -230,6 +236,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.sourceIdField = new FieldMetaData('testSourceIdField');
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.ascending  = true;
@@ -245,7 +252,47 @@ describe('Component: TaxonomyViewer', () => {
         expect(component.taxonomyGroups[2].children.length).toEqual(5);
         expect(component.taxonomyGroups[3].name).toEqual('testCategoryIIII');
         expect(component.taxonomyGroups[3].children.length).toEqual(1);
+    }));
 
+    it('does add the field ids and counts to the taxonomy', (() => {
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.subTypeField = new FieldMetaData('testSubTypeField');
+        component.options.valueField = new FieldMetaData('testValueField');
+        component.options.sourceIdField = new FieldMetaData('testSourceIdField');
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+
+        component.transformVisualizationQueryResults(component.options, responseData);
+
+        expect(component.taxonomyGroups[0].nodeCount).toEqual(1);
+        expect(component.taxonomyGroups[0].nodeIds.length).toEqual(component.taxonomyGroups[0].nodeCount);
+        expect(component.taxonomyGroups[0].sourceIds.length).toEqual(5);
+        for (let child of component.taxonomyGroups[0].children) {
+            expect(child.nodeCount).toBeGreaterThan(0);
+        }
+
+        expect(component.taxonomyGroups[1].nodeCount).toEqual(3);
+        expect(component.taxonomyGroups[1].nodeIds.length).toEqual(component.taxonomyGroups[1].nodeCount);
+        expect(component.taxonomyGroups[1].sourceIds.length).toEqual(8);
+        for (let child of component.taxonomyGroups[1].children) {
+            expect(child.nodeCount).toBeGreaterThan(0);
+        }
+
+        expect(component.taxonomyGroups[2].nodeCount).toEqual(3);
+        expect(component.taxonomyGroups[2].nodeIds.length).toEqual(component.taxonomyGroups[2].nodeCount);
+        expect(component.taxonomyGroups[2].sourceIds.length).toEqual(8);
+        for (let child of component.taxonomyGroups[2].children) {
+            expect(child.nodeCount).toBeGreaterThan(0);
+        }
+
+        expect(component.taxonomyGroups[3].nodeCount).toEqual(3);
+        expect(component.taxonomyGroups[3].nodeIds.length).toEqual(component.taxonomyGroups[3].nodeCount);
+        expect(component.taxonomyGroups[3].sourceIds.length).toEqual(11);
+        for (let child of component.taxonomyGroups[3].children) {
+            expect(child.nodeCount).toBeGreaterThan(0);
+        }
     }));
 
     it('does create filter when a parent node in the taxonomy is unselected', (() => {
@@ -469,4 +516,5 @@ describe('Component: TaxonomyViewer', () => {
     it('setupFilters function does exist', (() => {
         expect(component.setupFilters).toBeDefined();
     }));
+
 });
