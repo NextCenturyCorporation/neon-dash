@@ -72,7 +72,9 @@ export class DatasetServiceMock extends DatasetService {
         super(new NeonGTDConfig(), new ConnectionServiceMock());
         let datastore: Datastore = new Datastore('datastore1', 'testHostname', 'testDatastore');
         datastore.databases = DatasetServiceMock.DATABASES;
-        this.setActiveDataset(datastore);
+        datastore.hasUpdatedFields = true;
+        this.dataset = datastore;
+        this.datasets = [datastore];
 
         let dashboard: Dashboard = new Dashboard();
 

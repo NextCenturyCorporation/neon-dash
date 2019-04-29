@@ -67,6 +67,106 @@ describe('Service: DatasetService Static Functions', () => {
         ]
     });
 
+    it('appendDashboardChoicesFromConfig with no config choices and no existing choices should do nothing', () => {
+        let input = {};
+        DatasetService.appendDashboardChoicesFromConfig(input, {});
+        expect(input).toEqual({});
+    });
+
+    it('appendDashboardChoicesFromConfig with config choices and no existing choices should update given choices', () => {
+        let input = {};
+        let dashboard = new Dashboard();
+        dashboard.name = 'name';
+        DatasetService.appendDashboardChoicesFromConfig(input, {
+            test: dashboard
+        });
+        expect(input).toEqual({
+            test: dashboard
+        });
+    });
+
+    it('appendDashboardChoicesFromConfig with nested config choices and no existing choices should update given choices', () => {
+        let input = {};
+        let dashboard = new Dashboard();
+        dashboard.name = 'name';
+        DatasetService.appendDashboardChoicesFromConfig(input, {
+            test1: {
+                choices: {
+                    test2: dashboard
+                }
+            }
+        });
+        expect(input).toEqual({
+            test1: {
+                choices: {
+                    test2: dashboard
+                }
+            }
+        });
+    });
+
+    it('appendDashboardChoicesFromConfig with config choices and existing choices should update given choices', () => {
+        let previousDashboard = new Dashboard();
+        previousDashboard.name = 'previous';
+        let input = {
+            prev: previousDashboard
+        };
+        let dashboard = new Dashboard();
+        dashboard.name = 'name';
+        DatasetService.appendDashboardChoicesFromConfig(input, {
+            test: dashboard
+        });
+        expect(input).toEqual({
+            prev: previousDashboard,
+            test: dashboard
+        });
+    });
+
+    it('appendDashboardChoicesFromConfig with nested config choices and nested existing choices should update given choices', () => {
+        let previousDashboard = new Dashboard();
+        previousDashboard.name = 'previous';
+        let input = {
+            test1: {
+                choices: {
+                    prev2: previousDashboard
+                }
+            }
+        };
+        let dashboard = new Dashboard();
+        dashboard.name = 'name';
+        DatasetService.appendDashboardChoicesFromConfig(input, {
+            test1: {
+                choices: {
+                    test2: dashboard
+                }
+            }
+        });
+        expect(input).toEqual({
+            test1: {
+                choices: {
+                    prev2: previousDashboard,
+                    test2: dashboard
+                }
+            }
+        });
+    });
+
+    it('appendDashboardChoicesFromConfig with same ID in config choices and existing choices should not update given choices', () => {
+        let previousDashboard = new Dashboard();
+        previousDashboard.name = 'previous';
+        let input = {
+            prev: previousDashboard
+        };
+        let dashboard = new Dashboard();
+        dashboard.name = 'name';
+        DatasetService.appendDashboardChoicesFromConfig(input, {
+            prev: dashboard
+        });
+        expect(input).toEqual({
+            prev: previousDashboard
+        });
+    });
+
     it('appendDatastoresFromConfig with no config and no datastores should do nothing', () => {
         let input = [];
         DatasetService.appendDatastoresFromConfig({}, input);
@@ -611,6 +711,7 @@ describe('Service: DatasetService with Mock Data', () => {
     it('should have active datastore at creation', () => {
         let datastore: Datastore = new Datastore('datastore1', 'testHostname', 'testDatastore');
         datastore.databases = DatasetServiceMock.DATABASES;
+        datastore.hasUpdatedFields = true;
         expect(datasetService.getDataset()).toEqual(datastore);
     });
 
@@ -637,6 +738,10 @@ describe('Service: DatasetService with Mock Data', () => {
             ]
         ];
         expect(datasetService.getCurrentDashboard()).toEqual(dashboard);
+    });
+
+    it('appendDatasets does add given dashboards, datastores, and layouts to existing dataset', () => {
+        // TODO THOR-692
     });
 
     it('findRelationDataList does not error if relations are undefined', () => {
@@ -831,6 +936,72 @@ describe('Service: DatasetService with Mock Data', () => {
 
     it('getCurrentDatabase does return expected object', () => {
         expect(datasetService.getCurrentDatabase()).toEqual(DatasetServiceMock.DATABASES[0]);
+    });
+
+    it('getDatastoresInConfigFormat does return expected object', () => {
+        expect(datasetService.getDatastoresInConfigFormat()).toEqual({
+            datastore1: {
+                hasUpdatedFields: true,
+                host: 'testHostname',
+                type: 'testDatastore',
+                databases: {
+                    testDatabase1: {
+                        prettyName: 'Test Database 1',
+                        tables: {
+                            testTable1: {
+                                prettyName: 'Test Table 1',
+                                fields: DatasetServiceMock.FIELDS.map((field) => ({
+                                    columnName: field.columnName,
+                                    prettyName: field.prettyName,
+                                    hide: field.hide,
+                                    type: field.type
+                                })),
+                                labelOptions: {},
+                                mappings: {}
+                            },
+                            testTable2: {
+                                prettyName: 'Test Table 2',
+                                fields: DatasetServiceMock.FIELDS.map((field) => ({
+                                    columnName: field.columnName,
+                                    prettyName: field.prettyName,
+                                    hide: field.hide,
+                                    type: field.type
+                                })),
+                                labelOptions: {},
+                                mappings: {}
+                            }
+                        }
+                    },
+                    testDatabase2: {
+                        prettyName: 'Test Database 2',
+                        tables: {
+                            testTable1: {
+                                prettyName: 'Test Table 1',
+                                fields: DatasetServiceMock.FIELDS.map((field) => ({
+                                    columnName: field.columnName,
+                                    prettyName: field.prettyName,
+                                    hide: field.hide,
+                                    type: field.type
+                                })),
+                                labelOptions: {},
+                                mappings: {}
+                            },
+                            testTable2: {
+                                prettyName: 'Test Table 2',
+                                fields: DatasetServiceMock.FIELDS.map((field) => ({
+                                    columnName: field.columnName,
+                                    prettyName: field.prettyName,
+                                    hide: field.hide,
+                                    type: field.type
+                                })),
+                                labelOptions: {},
+                                mappings: {}
+                            }
+                        }
+                    }
+                }
+            }
+        });
     });
 
     it('translateFieldKeyToValue does return expected string', () => {

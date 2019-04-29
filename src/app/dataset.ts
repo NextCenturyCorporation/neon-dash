@@ -115,7 +115,7 @@ export class Dashboard {
     public layout?: string = '';
     public tables?: {[key: string]: string} = {};
     public fields?: {[key: string]: string} = {};
-    public filters?: {[key: string]: any} = {};
+    public filters?: any[] = [];
     public visualizationTitles?: {[key: string]: string} = {};
     public options?: DashboardOptions = new DashboardOptions();
     public fullTitle?: string; // added to dashboard in validateDashboards()

@@ -324,7 +324,7 @@ export class ParameterService {
                 // Update dataset fields, then set as active and update the dashboard
                 this.datasetService.updateDatabases(matchingDataset, connection).then((dataset) => {
                     // TODO THOR-1024 Do not expect filters within the dataset.
-                    this.filterService.setFilters((dataset as any).filters || [], this.searchService);
+                    this.filterService.setFiltersFromConfig((dataset as any).filters || [], this.datasetService, this.searchService);
 
                     for (let i = 0; i < dataset.databases.length; i++) {
                         for (let j = 0; j < dataset.databases[i].tables.length; j++) {
