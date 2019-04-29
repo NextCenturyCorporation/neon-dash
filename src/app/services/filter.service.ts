@@ -15,6 +15,7 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstract.search.service';
+import { DatasetService } from './dataset.service';
 import { DatabaseMetaData, FieldMetaData, SingleField, TableMetaData } from '../dataset';
 import { neonEvents } from '../neon-namespaces';
 
@@ -153,6 +154,43 @@ export namespace FilterUtil {
     }
 
     /**
+     * Creates and returns a filter design from the given JSON object.
+     *
+     * @arg {any} filterObject
+     * @return {FilterDesign}
+     */
+    export function createFilterDesignFromJsonObject(filterObject: any, datasetService: DatasetService): FilterDesign {
+        // TODO THOR-1078 Validate that datastore is non-empty.
+        if (filterObject.database && filterObject.table && filterObject.field && filterObject.operator) {
+            let database: DatabaseMetaData = datasetService.getDatabaseWithName(filterObject.database);
+            let table: TableMetaData = datasetService.getTableWithName(filterObject.database, filterObject.table);
+            let field: FieldMetaData = datasetService.getFieldWithName(filterObject.database, filterObject.table, filterObject.field);
+            return {
+                name: filterObject.name,
+                optional: filterObject.optional,
+                datastore: filterObject.datastore,
+                database: database,
+                table: table,
+                field: field,
+                operator: filterObject.operator,
+                value: filterObject.value
+            } as SimpleFilterDesign;
+        }
+
+        if (filterObject.filters && filterObject.type) {
+            return {
+                name: filterObject.name,
+                optional: filterObject.optional,
+                type: filterObject.type,
+                filters: filterObject.filters.map((nestedObject) =>
+                    FilterUtil.createFilterDesignFromJsonObject(nestedObject, datasetService))
+            } as CompoundFilterDesign;
+        }
+
+        return null;
+    }
+
+    /**
      * Creates and returns a filter object from the given filter design.
      *
      * @arg {FilterDesign} filterDesign
@@ -188,6 +226,38 @@ export namespace FilterUtil {
         }
 
         return filter;
+    }
+
+    /**
+     * Creates and returns a JSON object from the given filter design.
+     *
+     * @arg {FilterDesign} filterDesign
+     * @return {any}
+     */
+    export function createFilterJsonObjectFromDesign(filter: FilterDesign): any {
+        if (FilterUtil.isSimpleFilterDesign(filter)) {
+            return {
+                name: filter.name,
+                optional: filter.optional,
+                datastore: filter.datastore,
+                database: filter.database.name,
+                table: filter.table.name,
+                field: filter.field.columnName,
+                operator: filter.operator,
+                value: filter.value
+            };
+        }
+
+        if (FilterUtil.isCompoundFilterDesign(filter)) {
+            return {
+                name: filter.name,
+                optional: filter.optional,
+                type: filter.type,
+                filters: filter.filters.map((nestedFilter) => FilterUtil.createFilterJsonObjectFromDesign(nestedFilter))
+            };
+        }
+
+        return null;
     }
 
     // https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types
@@ -732,6 +802,15 @@ export class FilterService {
     }
 
     /**
+     * Returns the filters as JSON objects to save in a config file.
+     *
+     * @return {any[]}
+     */
+    public getFiltersToSaveInConfig(): any[] {
+        return this.getFilters().map((filter) => FilterUtil.createFilterJsonObjectFromDesign(filter)).filter((filter) => !!filter);
+    }
+
+    /**
      * Returns all the filters to search on the given datastore/database/table (ignoring filters from the given data sources).
      *
      * @arg {string} datastoreName
@@ -804,20 +883,31 @@ export class FilterService {
     }
 
     /**
-     * Sets the filters to the given filters.
+     * Resets the filters in the FilterService.
+     */
+    public resetFilters() {
+        this.filterCollection = new DualListFilterCollection();
+    }
+
+    /**
+     * Sets the filters in the FilterService to the given filter JSON objects from a config file.
      *
-     * @arg {FilterDesign[]} filterDesigns
+     * @arg {any[]} filtersFromConfig
+     * @arg {DatasetService} datasetService
      * @arg {AbstractSearchService} searchService
      */
-    public setFilters(filterDesigns: FilterDesign[], searchService: AbstractSearchService) {
+    public setFiltersFromConfig(filtersFromConfig: any[], datasetService: DatasetService, searchService: AbstractSearchService) {
         let collection: DualListFilterCollection = new DualListFilterCollection();
-        filterDesigns.forEach((filterDesign) => {
-            let filterDataSourceList: FilterDataSource[] = collection.findFilterDataSources(filterDesign);
-            let filter: AbstractFilter = FilterUtil.createFilterFromDesign(filterDesign, searchService);
-            collection.setFiltersInDualLists(filterDataSourceList,
-                collection.getFiltersFromRequiredList(filterDataSourceList).concat(!!filter.optional ? [] : filter),
-                collection.getFiltersFromOptionalList(filterDataSourceList).concat(!filter.optional ? [] : filter),
-                searchService);
+        filtersFromConfig.forEach((filterFromConfig) => {
+            let filterDesign: FilterDesign = FilterUtil.createFilterDesignFromJsonObject(filterFromConfig, datasetService);
+            if (filterDesign) {
+                let filterDataSourceList: FilterDataSource[] = collection.findFilterDataSources(filterDesign);
+                let filter: AbstractFilter = FilterUtil.createFilterFromDesign(filterDesign, searchService);
+                collection.setFiltersInDualLists(filterDataSourceList,
+                    collection.getFiltersFromRequiredList(filterDataSourceList).concat(!!filter.optional ? [] : filter),
+                    collection.getFiltersFromOptionalList(filterDataSourceList).concat(!filter.optional ? [] : filter),
+                    searchService);
+            }
         });
         this.filterCollection = collection;
     }

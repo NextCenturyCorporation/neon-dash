@@ -621,13 +621,9 @@ describe('App', () => {
             id: 'b'
         }];
 
-        let spy = spyOn(component.filterService, 'setFilters');
-
         component.clearDashboard();
 
         expect(component.widgetGridItems).toEqual([]);
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)[0]).toEqual([]);
     });
 
     it('contractWidget does update the size and position of the given widget to its previous config', () => {
@@ -971,6 +967,7 @@ describe('App', () => {
     it('showDashboardState does work as expected', () => {
         let spyDashboards = spyOn(component.datasetService, 'setCurrentDashboard');
         let spyDatastores = spyOn(component.datasetService, 'setActiveDataset');
+        let spyFilter = spyOn(component.filterService, 'setFiltersFromConfig');
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
@@ -979,6 +976,7 @@ describe('App', () => {
         let testDashboard: Dashboard = new Dashboard();
         testDashboard.datastores = [testDatastore1, testDatastore2];
         testDashboard.layoutObject = ['a', 'b', 'c', 'd'];
+        testDashboard.filters = ['x', 'y'];
 
         (component as any).showDashboardState({
             dashboard: testDashboard
@@ -990,6 +988,9 @@ describe('App', () => {
         expect(spyDatastores.calls.count()).toEqual(1);
         // TODO THOR-1062 Permit multiple datastores.
         expect(spyDatastores.calls.argsFor(0)).toEqual([testDatastore1]);
+
+        expect(spyFilter.calls.count()).toEqual(1);
+        expect(spyFilter.calls.argsFor(0)[0]).toEqual(['x', 'y']);
 
         expect(spySender.calls.count()).toEqual(5);
         expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_CLEAR, {}]);

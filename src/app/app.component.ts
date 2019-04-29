@@ -32,6 +32,7 @@ import * as neon from 'neon-framework';
 import * as L from 'leaflet'; // imported for use of DomUtil.enable/disableTextSelection
 import * as uuidv4 from 'uuid/v4';
 
+import { AbstractSearchService } from './services/abstract.search.service';
 import { AbstractWidgetService } from './services/abstract.widget.service';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { BaseNeonComponent } from './components/base-neon-component/base-neon.component';
@@ -135,6 +136,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         public filterService: FilterService,
         private matIconRegistry: MatIconRegistry,
         private parameterService: ParameterService,
+        private searchService: AbstractSearchService,
         public snackBar: MatSnackBar,
         public widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
@@ -281,7 +283,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      * Clears the grid.
      */
     clearDashboard() {
-        this.filterService.setFilters([], null);
         this.widgetGridItems = [];
     }
 
@@ -595,6 +596,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.datasetService.setCurrentDashboard(eventMessage.dashboard);
 
         this.messageSender.publish(neonEvents.DASHBOARD_CLEAR, {});
+
+        this.filterService.setFiltersFromConfig(eventMessage.dashboard.filters || [], this.datasetService, this.searchService);
 
         for (let widgetGridItem of eventMessage.dashboard.layoutObject) {
             this.messageSender.publish(neonEvents.WIDGET_ADD, {

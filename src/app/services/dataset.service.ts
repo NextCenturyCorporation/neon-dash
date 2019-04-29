@@ -32,18 +32,20 @@ export class DatasetService {
 
     private static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
 
-    private datasets: Datastore[] = [];
+    protected datasets: Datastore[] = [];
 
     // The active dataset.
     // TODO: THOR-1062: This will probably need to be an array/map of active datastores
     // since a dashboard can reference multiple datastores.
-    private dataset: Datastore = new Datastore();
+    protected dataset: Datastore = new Datastore();
 
-    private dashboards: Dashboard;
+    protected dashboards: Dashboard;
+
+    protected layouts: { [key: string]: any };
 
     // The currently selected dashboard.
-    private currentDashboard: Dashboard;
-    private layout: string = '';
+    protected currentDashboard: Dashboard;
+    protected layout: string = '';
 
     // Use the Dataset Service to save settings for specific databases/tables and
     // publish messages to all visualizations if those settings change.
@@ -58,6 +60,19 @@ export class DatasetService {
     // ---
     // STATIC METHODS
     // --
+    static appendDashboardChoicesFromConfig(oldChoices: { [key: string]: Dashboard }, newChoices: { [key: string]: Dashboard }): void {
+        Object.keys(newChoices).forEach((newChoiceId) => {
+            let exists = Object.keys(oldChoices).some((oldChoiceId) => oldChoiceId === newChoiceId);
+
+            if (exists) {
+                oldChoices[newChoiceId].choices = oldChoices[newChoiceId].choices || {};
+                DatasetService.appendDashboardChoicesFromConfig(oldChoices[newChoiceId].choices, newChoices[newChoiceId].choices || {});
+            } else {
+                oldChoices[newChoiceId] = newChoices[newChoiceId];
+            }
+        });
+    }
+
     static appendDatastoresFromConfig(configDatastores: { [key: string]: any }, existingDatastores: Datastore[]): Datastore[] {
         // Transform the datastores from config file structures to Datastore objects.
         Object.keys(configDatastores).forEach((datastoreKey) => {
@@ -348,8 +363,10 @@ export class DatasetService {
 
         this.datasets = DatasetService.appendDatastoresFromConfig(config.datastores || {}, []);
 
+        this.layouts = config.layouts || {};
+
         DatasetService.updateDatastoresInDashboards(this.dashboards, this.datasets);
-        DatasetService.updateLayoutInDashboards(this.dashboards, config.layouts || {});
+        DatasetService.updateLayoutInDashboards(this.dashboards, this.layouts);
 
         let loaded = 0;
         this.datasets.forEach((dataset) => {
@@ -371,6 +388,22 @@ export class DatasetService {
                 callback();
             }
         });
+    }
+
+    public appendDatasets(dashboard: Dashboard, datastores: { [key: string]: any }, layouts: { [key: string]: any }): Dashboard {
+        let validatedDashboard: Dashboard = DatasetService.validateDashboards(dashboard);
+
+        DatasetService.appendDashboardChoicesFromConfig(this.dashboards.choices || {}, validatedDashboard.choices || {});
+
+        DatasetService.appendDatastoresFromConfig(datastores, this.datasets);
+
+        Object.keys(layouts).forEach((layout) => this.layouts[layout] = layouts[layout]);
+
+        DatasetService.updateDatastoresInDashboards(this.dashboards, this.datasets);
+
+        DatasetService.updateLayoutInDashboards(this.dashboards, this.layouts);
+
+        return this.dashboards;
     }
 
     // ---
@@ -562,7 +595,7 @@ export class DatasetService {
      * @return {[key: string]: any}
      */
     public getLayouts(): {[key: string]: any} {
-        return this.config.layouts;
+        return this.layouts;
     }
 
     /**
@@ -1190,5 +1223,41 @@ export class DatasetService {
 
         // If the field key is just a field name or does not exist in the dashboard...
         return fieldKey;
+    }
+
+    /**
+     * Returns the datastores in the format of the config file.
+     *
+     * @return {{[key:string]:any}}
+     */
+    public getDatastoresInConfigFormat(): { [key: string]: any } {
+        return this.datasets.reduce((datastores, datastore) => {
+            datastores[datastore.name] = {
+                hasUpdatedFields: datastore.hasUpdatedFields,
+                host: datastore.host,
+                type: datastore.type,
+                databases: datastore.databases.reduce((databases, database) => {
+                    databases[database.name] = {
+                        prettyName: database.prettyName,
+                        tables: database.tables.reduce((tables, table) => {
+                            tables[table.name] = {
+                                prettyName: table.prettyName,
+                                fields: table.fields.map((field) => ({
+                                    columnName: field.columnName,
+                                    prettyName: field.prettyName,
+                                    hide: field.hide,
+                                    type: field.type
+                                })),
+                                labelOptions: table.labelOptions,
+                                mappings: table.mappings
+                            };
+                            return tables;
+                        }, {})
+                    };
+                    return databases;
+                }, {})
+            };
+            return datastores;
+        }, {});
     }
 }
