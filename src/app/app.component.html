@@ -7,7 +7,7 @@
 
             <div class="right-panel-container">
                 <div id="aboutNeon" class="about-neon-container" *ngIf="createAboutNeon">
-                    <app-about-neon></app-about-neon>
+                    <app-about-neon [dashboardVersion]="dashboardVersion"></app-about-neon>
                 </div>
                 <div id="addVis" class="add-visualization-container" *ngIf="createAddVis">
                     <app-add-visualization></app-add-visualization>
