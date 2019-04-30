@@ -14,7 +14,7 @@
  *
  */
 import { Injectable } from '@angular/core';
-import * as neon from 'neon-framework';
+import { eventing, query } from 'neon-framework';
 import * as $ from 'jquery';
 
 import { AbstractSearchService } from './abstract.search.service';
@@ -49,7 +49,7 @@ export class ParameterService {
     private static BOUNDS_MAX_LAT = 2;
     private static BOUNDS_MAX_LON = 3;
 
-    private messenger: neon.eventing.Messenger;
+    private messenger: eventing.Messenger;
     public parameters: any = {};
 
     constructor(
@@ -58,7 +58,7 @@ export class ParameterService {
         private filterService: FilterService,
         private searchService: AbstractSearchService
     ) {
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
         this.parameters = this.findParameters(document.location.search);
     }
 
@@ -280,7 +280,7 @@ export class ParameterService {
      * @param {String} filterStateId
      */
     loadState(dashboardStateId: string | number, filterStateId: string | number) {
-        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastoreType(),
+        let connection: query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastoreType(),
             this.datasetService.getDatastoreHost());
         let params: any = {};
         if (dashboardStateId) {
@@ -317,7 +317,7 @@ export class ParameterService {
                     matchingDataset = dashboardState.dataset;
                 }
 
-                let connection: neon.query.Connection = this.connectionService.createActiveConnection(
+                let connection: query.Connection = this.connectionService.createActiveConnection(
                     matchingDataset.type, matchingDataset.host
                 );
 
@@ -454,7 +454,7 @@ export class ParameterService {
      */
     private createSimpleFilterClauseCallback(operator: string, value: any): Function {
         return (fieldName: string) => {
-            return neon.query.where(fieldName, operator, value);
+            return query.where(fieldName, operator, value);
         };
     }
 
@@ -470,12 +470,12 @@ export class ParameterService {
         let endDate: Date = dateList.length > 1 ? dateList[1] : null;
 
         return (fieldName: string) => {
-            let startFilterClause = neon.query.where(fieldName, '>=', startDate);
+            let startFilterClause = query.where(fieldName, '>=', startDate);
             if (!endDate) {
                 return startFilterClause;
             }
-            let endFilterClause = neon.query.where(fieldName, '<', endDate);
-            return neon.query.and.apply(neon.query, [startFilterClause, endFilterClause]);
+            let endFilterClause = query.where(fieldName, '<', endDate);
+            return query.and.apply(query, [startFilterClause, endFilterClause]);
         };
     }
 
@@ -493,7 +493,7 @@ export class ParameterService {
         let minimumLongitude: number = Number(boundsList[ParameterService.BOUNDS_MIN_LON]);
         let maximumLongitude: number = Number(boundsList[ParameterService.BOUNDS_MAX_LON]);
 
-        return (fieldNames: string[]): neon.query.BooleanClause => {
+        return (fieldNames: string[]): query.BooleanClause => {
             // Copied from map.js
             let latitudeFieldName: string = fieldNames[0];
             let longitudeFieldName: string = fieldNames[1];
@@ -501,32 +501,32 @@ export class ParameterService {
             let leftDateLine: any = {};
             let datelineClause: any = {};
 
-            let leftClause: neon.query.WherePredicate = neon.query.where(longitudeFieldName, '>=', minimumLongitude);
-            let rightClause: neon.query.WherePredicate = neon.query.where(longitudeFieldName, '<=', maximumLongitude);
-            let bottomClause: neon.query.WherePredicate = neon.query.where(latitudeFieldName, '>=', minimumLatitude);
-            let topClause: neon.query.WherePredicate = neon.query.where(latitudeFieldName, '<=', maximumLatitude);
+            let leftClause: query.WherePredicate = query.where(longitudeFieldName, '>=', minimumLongitude);
+            let rightClause: query.WherePredicate = query.where(longitudeFieldName, '<=', maximumLongitude);
+            let bottomClause: query.WherePredicate = query.where(latitudeFieldName, '>=', minimumLatitude);
+            let topClause: query.WherePredicate = query.where(latitudeFieldName, '<=', maximumLatitude);
 
             if (minimumLongitude < -180 && maximumLongitude > 180) {
-                return neon.query.and(topClause, bottomClause);
+                return query.and(topClause, bottomClause);
             }
 
             if (minimumLongitude < -180) {
-                leftClause = neon.query.where(longitudeFieldName, '>=', minimumLongitude + 360);
-                leftDateLine = neon.query.where(longitudeFieldName, '<=', 180);
-                rightDateLine = neon.query.where(longitudeFieldName, '>=', -180);
-                datelineClause = neon.query.or(neon.query.and(leftClause, leftDateLine), neon.query.and(rightClause, rightDateLine));
-                return neon.query.and(topClause, bottomClause, datelineClause);
+                leftClause = query.where(longitudeFieldName, '>=', minimumLongitude + 360);
+                leftDateLine = query.where(longitudeFieldName, '<=', 180);
+                rightDateLine = query.where(longitudeFieldName, '>=', -180);
+                datelineClause = query.or(query.and(leftClause, leftDateLine), query.and(rightClause, rightDateLine));
+                return query.and(topClause, bottomClause, datelineClause);
             }
 
             if (maximumLongitude > 180) {
-                rightClause = neon.query.where(longitudeFieldName, '<=', maximumLongitude - 360);
-                rightDateLine = neon.query.where(longitudeFieldName, '>=', -180);
-                leftDateLine = neon.query.where(longitudeFieldName, '<=', 180);
-                datelineClause = neon.query.or(neon.query.and(leftClause, leftDateLine), neon.query.and(rightClause, rightDateLine));
-                return neon.query.and(topClause, bottomClause, datelineClause);
+                rightClause = query.where(longitudeFieldName, '<=', maximumLongitude - 360);
+                rightDateLine = query.where(longitudeFieldName, '>=', -180);
+                leftDateLine = query.where(longitudeFieldName, '<=', 180);
+                datelineClause = query.or(query.and(leftClause, leftDateLine), query.and(rightClause, rightDateLine));
+                return query.and(topClause, bottomClause, datelineClause);
             }
 
-            return neon.query.and(leftClause, rightClause, bottomClause, topClause);
+            return query.and(leftClause, rightClause, bottomClause, topClause);
         };
     }
 

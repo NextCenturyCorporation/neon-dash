@@ -18,7 +18,7 @@ import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService, SimpleFilterDesign } from '../../services/filter.service';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 
 @Component({
     selector: 'app-simple-filter',
@@ -31,7 +31,7 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
     public inputPlaceholder: string = '';
     public showSimpleSearch: boolean = false;
 
-    private messenger = new neon.eventing.Messenger();
+    private messenger = new eventing.Messenger();
 
     constructor(
         private changeDetection: ChangeDetectorRef,

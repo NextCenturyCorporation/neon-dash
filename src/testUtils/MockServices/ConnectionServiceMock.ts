@@ -13,12 +13,12 @@
  * limitations under the License.
  *
  */
-import * as neon from 'neon-framework';
+import { query } from 'neon-framework';
 
 import { ConnectionService } from '../../app/services/connection.service';
 
 export class ConnectionServiceMock extends ConnectionService {
-    public createActiveConnection(datastoreType: string, datastoreHost: string): neon.query.Connection {
+    public createActiveConnection(datastoreType: string, datastoreHost: string): query.Connection {
         return null;
     }
 }

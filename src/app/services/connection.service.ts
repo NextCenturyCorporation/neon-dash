@@ -14,28 +14,28 @@
  *
  */
 import { Injectable } from '@angular/core';
-import * as neon from 'neon-framework';
+import { query } from 'neon-framework';
 
 @Injectable()
 export class ConnectionService {
 
     // Maps the datastore types to datastore hosts to connections.
-    private connections: Map<string, Map<string, neon.query.Connection>> = new Map<string, Map<string, neon.query.Connection>>();
+    private connections: Map<string, Map<string, query.Connection>> = new Map<string, Map<string, query.Connection>>();
 
     /**
      * Creates and returns a Neon connection to the given host with the given datastore type (like elasticsearch or sql).
      *
      * @arg {String} datastoreType
      * @arg {String} datastoreHost
-     * @return {neon.query.Connection}
+     * @return {query.Connection}
      */
-    public createActiveConnection(datastoreType: string, datastoreHost: string): neon.query.Connection {
+    public createActiveConnection(datastoreType: string, datastoreHost: string): query.Connection {
         if (datastoreType && datastoreHost) {
             if (!this.connections.has(datastoreType)) {
-                this.connections.set(datastoreType, new Map<string, neon.query.Connection>());
+                this.connections.set(datastoreType, new Map<string, query.Connection>());
             }
             if (!this.connections.get(datastoreType).has(datastoreHost)) {
-                let connection = new neon.query.Connection();
+                let connection = new query.Connection();
                 connection.connect(datastoreType, datastoreHost);
                 this.connections.get(datastoreType).set(datastoreHost, connection);
             }

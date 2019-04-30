@@ -32,7 +32,7 @@ import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
 
 import * as _ from 'lodash';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 
 @Component({
   selector: 'app-save-state',
@@ -55,7 +55,7 @@ export class SaveStateComponent implements OnInit {
 
     public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
     private isLoading: boolean = false;
-    private messenger: neon.eventing.Messenger;
+    private messenger: eventing.Messenger;
     public stateNames: string[] = [];
 
     constructor(
@@ -69,7 +69,7 @@ export class SaveStateComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
         this.loadStateNames();
     }
 

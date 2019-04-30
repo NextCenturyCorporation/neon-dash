@@ -85,7 +85,6 @@ import { CardThumbnailSubComponent } from './components/thumbnail-grid/subcompon
 import { TreeModule } from 'angular-tree-component';
 import { DatasetServiceMock } from '../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../testUtils/MockServices/SearchServiceMock';
-import * as neon from 'neon-framework';
 import { initializeTestBed } from '../testUtils/initializeTestBed';
 
 describe('App', () => {

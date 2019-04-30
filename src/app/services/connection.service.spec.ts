@@ -16,7 +16,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { ConnectionService } from './connection.service';
 
-import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 describe('Service: ConnectionService', () => {

@@ -18,7 +18,7 @@ import { map, catchError } from 'rxjs/operators';
 import {throwError as observableThrowError,  Observable } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
-import * as neon from 'neon-framework';
+import { util } from 'neon-framework';
 
 @Component({
     selector: 'app-about-neon',
@@ -46,7 +46,7 @@ export class AboutNeonComponent implements OnInit {
     }
 
     private loadNeonInfo() {
-        neon.util.infoUtils.getNeonVersion((result) => {
+        util.infoUtils.getNeonVersion((result) => {
             this.serverVersionString = result;
             this.serverInfoLoaded = false;
         });

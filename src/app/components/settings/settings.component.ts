@@ -29,7 +29,7 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 
 import * as _ from 'lodash';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 
 @Component({
     selector: 'app-settings',
@@ -55,7 +55,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     public simpleSearch = {};
     public simpleSearchField = {};
     public tableField: TableMetaData;
-    public messenger: neon.eventing.Messenger;
+    public messenger: eventing.Messenger;
 
     constructor(
         private changeDetection: ChangeDetectorRef,
@@ -66,7 +66,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     ) {
         this.datasetService = datasetService;
         this.injector = injector;
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
     }
 
     changeSimpleSearchFilter() {

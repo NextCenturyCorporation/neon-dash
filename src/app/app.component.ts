@@ -28,7 +28,7 @@ import {
 } from '@angular/core';
 
 import * as _ from 'lodash';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 import * as L from 'leaflet'; // imported for use of DomUtil.enable/disableTextSelection
 import * as uuidv4 from 'uuid/v4';
 
@@ -125,8 +125,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public filtersIcon;
 
     // Use two messengers here because a single messager doesn't receive its own messages.
-    public messageReceiver: neon.eventing.Messenger;
-    public messageSender: neon.eventing.Messenger;
+    public messageReceiver: eventing.Messenger;
+    public messageSender: eventing.Messenger;
 
     constructor(
         public changeDetection: ChangeDetectorRef,
@@ -142,8 +142,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         public viewContainerRef: ViewContainerRef,
         @Inject('config') private neonConfig: NeonGTDConfig
     ) {
-        this.messageReceiver = new neon.eventing.Messenger();
-        this.messageSender = new neon.eventing.Messenger();
+        this.messageReceiver = new eventing.Messenger();
+        this.messageSender = new eventing.Messenger();
 
         // The dashboards are read from the config file in the DatasetService's constructor.
         this.dashboards = this.datasetService.getDashboards();

@@ -38,7 +38,7 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { WidgetService } from '../../services/widget.service';
@@ -684,7 +684,7 @@ describe('Component: Gear Component', () => {
 
     it('publishing a message on the options channel does set HTML elements', () => {
         // TODO
-        // let messenger = new neon.eventing.Messenger;
+        // let messenger = new eventing.Messenger;
         // messenger.publish('options', {});
         // expect(component.changeMage).toEqual(false);
         // expect(component.collapseOptionalOptions).toEqual(true);
