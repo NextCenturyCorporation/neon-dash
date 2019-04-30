@@ -9,7 +9,7 @@ The Neon Dashboard is a big data exploration and visualization user interface.
 * Install [Elasticsearch 6.4+](https://www.elastic.co/products/elasticsearch)
 * Install [elasticdump](https://www.npmjs.com/package/elasticdump) with `npm install -g elasticdump`
 * Install [Apache Tomcat](http://tomcat.apache.org/) if not deploying with Docker
-* Install the [Neon Server][https://www.npmjs.com/package/elasticdump]
+* Install the [Neon Server](https://github.com/NextCenturyCorporation/neon-server)
 
 ## Branches
 
