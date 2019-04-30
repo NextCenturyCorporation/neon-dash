@@ -25,6 +25,8 @@
   * [**Layouts Example**](#layouts-example)
   * [**Visualization Object**](#visualization-object)
   * [**Visualization Bindings**](#visualization-bindings)
+    * [**Note on Field Bindings**](#note-on-field-bindings)
+    * [**Bindings For All Visualizations**](#bindings-for-all-visualizations)
     * [**Aggregation Bindings**](#aggregation-bindings)
     * [**Annotation Viewer Bindings**](#aggregation-bindings)
     * [**Data Table Bindings**](#data-table-bindings)
@@ -291,12 +293,44 @@ The **visualization** object can have the following properties:
 
 ### **Visualization Bindings**
 
+#### **Note on Field Bindings**
+
+Any field binding may be a field key (in the **"fields"** from the **"dashboards"** config) or just a field name.  However, the binding will try to resolve the string as a field key first, then a field name.  So if you want to set a field binding on a field name, but that field name string is also used as a field key, then the field binding will be set to the field key and not the field name.  We recommend that you define your field keys with strings that probably won't also be used as field names within your datastores in order to avoid this unlikely issue.
+
+(Example - Don't do this!)
+```yaml
+datastores:
+    datastore_1:
+        host: localhost
+        type: elasticsearchrest
+        databases:
+            database_1:
+                tables:
+                    table_1:
+                        fields:
+                            - columnName: field_1
+                            - columnName: field_2
+dashboards:
+    name: Dashboard 1
+    layout: layout_1
+    tables:
+        table_key_1: datastore_1.database_1.table_1
+    fields:
+        field_1: datastore_1.database_1.table_1.field_2
+layouts:
+    layout_1:
+        - type: dataTable
+          bindings:
+              // This will resolve as the field key "field_1" that maps to the field name "field_2"!
+              sortField: field_1
+```
+
 #### **Bindings For All Visualizations**
 
 Required:
 * **database** - The name of the database.  Only needed if `tableKey` is not defined.
 * **table** - The table name.  Only needed if `tableKey` is not defined.
-* **tableKey** - A table key defined in the **"tables"** from the **"dashboards"**.  Overrides `database` and `table`.
+* **tableKey** - A table key defined in the **"tables"** from the **"dashboards"** config.  Overrides `database` and `table`.
 
 Optional:
 * **contributionKeys**
@@ -562,7 +596,7 @@ Required:
 * **latitudeField** - The name of the latitude field.
 * **longitudeField** - The name of the longitude field.
 * **table** - The name of the table.  Only needed if `tableKey` is not defined.
-* **tableKey** - A table key defined in the **"tables"** from the **"dashboards"**.  Overrides `database` and `table`.
+* **tableKey** - A table key defined in the **"tables"** from the **"dashboards"** config.  Overrides `database` and `table`.
 
 Optional:
 * **cluster** - Whether to cluster the points in the map layer.
