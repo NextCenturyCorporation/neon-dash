@@ -52,7 +52,7 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import { TimelineSelectorChart, TimelineSeries, TimelineData } from './TimelineSelectorChart';
+import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
 
 import * as neon from 'neon-framework';
@@ -138,7 +138,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [
-            new WidgetFieldOption('dateField', 'Date Field', true)
+            new WidgetFieldOption('dateField', 'Date Field', true),
+            new WidgetFieldOption('idField', 'Id Field', false),
+            new WidgetFieldOption('filterField', 'Filter Field', false)
         ];
     }
 
@@ -183,7 +185,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         }
     }
 
-    onTimelineSelection(startDate: Date, endDate: Date): void {
+    onTimelineSelection(startDate: Date, endDate: Date, selectedData: TimelineItem[]): void {
+        let neonFilters = this.filterService.getFiltersByOwner(this.id);
+
         let filter = {
             id: undefined,
             field: this.options.dateField.columnName,
@@ -203,7 +207,26 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         }
 
         // Update the charts
-        this.filterAndRefreshData(this.getActiveData(this.options).data);
+        let activeData = this.getActiveData(this.options);
+        this.filterAndRefreshData(activeData ? activeData.data : []);
+
+        //Add additional filters
+        if (this.options.filterField.columnName && selectedData && selectedData.length) {
+            let selectedFilters: any[] = [];
+            for (let data of selectedData) {
+                selectedFilters = selectedFilters.concat(data.filters);
+            }
+
+            selectedFilters = selectedFilters.filter((value, index, array) => array.indexOf(value) === index);
+            let setFilter = {
+                id: undefined,
+                field: this.options.filterField.columnName,
+                prettyField: this.options.filterField.prettyName,
+                value: selectedFilters
+            };
+
+            this.manageFieldFilters(setFilter, neonFilters, false);
+        }
     }
 
     /**
@@ -221,10 +244,66 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         return neon.query.and.apply(neon.query, filterClauses);
     }
 
+    /**
+     * Creates and returns the neon filter clause object using the given arguments
+     *
+     * @arg {string} idField
+     * @arg {array} idValues
+     * @return {neon.query.WherePredicate}
+     */
+    createNeonFieldFilter(filterField: string, filterValues: string[]): neon.query.WherePredicate {
+        let clauses = [];
+
+        //TODO: NEON-36 The "filterField equals empty string" behavior may not work as expected with every dataset.
+        if (!filterValues.length) {
+            clauses.push(neon.query.where(filterField, '=', ''));
+        } else {
+            for (let value of filterValues) {
+                clauses.push(neon.query.where(filterField, '=', value));
+            }
+        }
+
+        return neon.query.or.apply(neon.query, clauses);
+    }
+
+    /**
+     * Creates or replaces neon filter with the given fields and values.
+     *
+     * @arg {object} filter
+     * @arg {array} neonFilters
+     * @arg {boolean} runQuery
+     */
+    manageFieldFilters(filter, neonFilters, runQuery) {
+        let filterClause = this.createNeonFieldFilter(filter.field, filter.value);
+        if (neonFilters && neonFilters.length) {
+            let fieldFilter = neonFilters.find((f) => {
+                let clauses = f.filter.whereClause.whereClauses ?
+                    f.filter.whereClause.whereClauses[0] :
+                    f.filter.whereClause;
+
+                if (clauses && clauses.lhs === filter.field) {
+                    return f;
+                }
+            });
+
+            filter.id = fieldFilter.id;
+            this.replaceNeonFilter(this.options, runQuery, filter, filterClause);
+        } else {
+            this.addNeonFilter(this.options, runQuery, filter, filterClause);
+        }
+    }
+
     getFilterText(filter) {
-        let begin = (filter.startDate.getUTCMonth() + 1) + '/' + filter.startDate.getUTCDate() + '/' + filter.startDate.getUTCFullYear();
-        let end = (filter.endDate.getUTCMonth() + 1) + '/' + filter.endDate.getUTCDate() + '/' + filter.endDate.getUTCFullYear();
-        return filter.prettyField + ' from ' + begin + ' to ' + end;
+
+        if (filter.startDate) {
+            let begin = (filter.startDate.getUTCMonth() + 1) + '/' + filter.startDate.getUTCDate() + '/' +
+                filter.startDate.getUTCFullYear();
+            let end = (filter.endDate.getUTCMonth() + 1) + '/' + filter.endDate.getUTCDate() + '/' + filter.endDate.getUTCFullYear();
+            return filter.prettyField + ' from ' + begin + ' to ' + end;
+        } else {
+            return filter.prettyField + ' = ' + filter.value;
+        }
+
     }
 
     /**
@@ -262,9 +341,17 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
-        let filter: NeonFilterClause = this.searchService.buildFilterClause(this.options.dateField.columnName, '!=', null);
+        let filter: NeonFilterClause = this.searchService.buildFilterClause(options.dateField.columnName, '!=', null);
 
         let groups = [];
+
+        if (options.filterField.columnName) {
+            groups.push(this.searchService.buildQueryGroup(options.filterField.columnName));
+        }
+        if (options.idField.columnName) {
+            groups.push(this.searchService.buildQueryGroup(options.idField.columnName));
+        }
+
         switch (options.granularity) {
             // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
             case 'minute':
@@ -299,12 +386,12 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         for (let neonFilter of neonFilters) {
             // The data we want is in the whereClause's subclauses
             let whereClause = neonFilter.filter.whereClause;
-            if (whereClause && whereClause.whereClauses.length === 2) {
+            if (whereClause && whereClause.whereClauses && whereClause.whereClauses.length === 2) {
                 ignoredFilterIds.push(neonFilter.id);
             }
         }
 
-        return (ignoredFilterIds.length > 0 ? ignoredFilterIds : null);
+        return (ignoredFilterIds && ignoredFilterIds.length > 0 ? ignoredFilterIds : null);
     }
 
     /**
@@ -316,17 +403,112 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
-        // Convert all the dates into Date objects
-        let data: { value: number, date: Date }[] = results.map((item) => {
-            return {
-                value: item._aggregation,
-                date: new Date(item._date)
-            };
-        });
+        // Convert all the dates into new Date objects
+
+        let data: any[];
+
+        if (options.idField.columnName && options.filterField.columnName) {
+            data = results.reduce((itemBucket, currentItem) => {
+                let previousItem = this.findDateInPreviousItem(itemBucket, currentItem);
+                if (previousItem) {
+                    if (previousItem.ids.indexOf(currentItem[options.idField.columnName]) === -1) {
+                        previousItem.ids.push(currentItem[options.idField.columnName]);
+                        previousItem.value++;
+                    }
+
+                    previousItem.filters = previousItem.filters.concat(currentItem[options.filterField.columnName])
+                        .filter((value, index, array) => array.indexOf(value) === index);
+
+                } else {
+                    itemBucket.push({
+                        value: 1,
+                        ids: [currentItem[options.idField.columnName]],
+                        filters: [currentItem[options.filterField.columnName]],
+                        origDate: currentItem._date,
+                        date: new Date(currentItem._date)
+                    });
+                }
+                return itemBucket;
+
+            }, []);
+        } else {
+            data = results.map((item) => {
+                return {
+                    value: item._aggregation,
+                    date: new Date(item._date)
+                };
+            });
+        }
 
         this.filterAndRefreshData(data);
-
         return new TransformedTimelineAggregationData(data);
+    }
+
+    /**
+     * Finds if the current date exists in the previous date items based on the granularity option
+     *
+     * @arg {any[]} previous
+     * @arg {any} current
+     * @return {previousItem}
+     */
+    findDateInPreviousItem(previousItems: any[], current: any) {
+        let prevItem: any = null;
+
+        if (previousItems.length) {
+            let currentDate = new Date(current._date),
+                currentMonth = currentDate.getUTCMonth(),
+                currentYear = currentDate.getUTCFullYear();
+
+            switch (this.options.granularity) {
+                case 'minute':
+                    prevItem = previousItems.find((o) => {
+                        let minDate = new Date(new Date(o.origDate).setUTCSeconds(0)),
+                            maxDate = new Date(new Date(o.origDate).setUTCSeconds(59));
+                        if (minDate <= currentDate && currentDate <= maxDate) {
+                            return o;
+                        }
+                    });
+                    break;
+                case 'hour':
+                    prevItem = previousItems.find((o) => {
+                        let minDate = new Date(new Date(o.origDate).setUTCMinutes(0)),
+                            maxDate = new Date(new Date(o.origDate).setUTCMinutes(59));
+                        if (minDate <= currentDate && currentDate <= maxDate) {
+                            return o;
+                        }
+                    });
+                    break;
+                case 'day':
+                    prevItem = previousItems.find((o) => {
+                        let minDate = new Date(new Date(o.origDate).setUTCHours(0)),
+                            maxDate = new Date(new Date(o.origDate).setUTCHours(23));
+                        if (minDate <= currentDate && currentDate <= maxDate) {
+                            return o;
+                        }
+                    });
+                    break;
+                case 'month':
+                    prevItem = previousItems.find((o) => {
+
+                        let prevMonth = new Date(o.origDate).getUTCMonth(),
+                            prevYear = new Date(o.origDate).getUTCFullYear();
+                        if (prevMonth === currentMonth && prevYear === currentYear) {
+                            return o;
+                        }
+                    });
+                    break;
+                case 'year':
+                    prevItem = previousItems.find((o) => {
+                        let prevYear = new Date(o.origDate).getUTCFullYear();
+                        if (prevYear === currentYear) {
+                            return o;
+                        }
+                    });
+                    break;
+            }
+        }
+
+        return prevItem;
     }
 
     /**
@@ -340,6 +522,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             options: {},
             data: [],
             focusData: [],
+            selectedData: [],
             startDate: null,
             endDate: null
         };
@@ -367,7 +550,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                     let bucketDate = this.timelineData.bucketizer.getDateForBucket(i);
                     series.data[i] = {
                         date: bucketDate,
-                        value: 0
+                        value: 0,
+                        filters: []
                     };
                 }
 
@@ -378,15 +562,18 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                         if (filter.startDate <= row.date && filter.endDate >= row.date) {
                             series.focusData.push({
                                 date: this.zeroDate(row.date),
-                                value: row.value
+                                value: row.value,
+                                filters: this.options.filterField.columnName && row ? row.filters : []
                             });
+
                         }
                     }
 
                     let bucketIndex = this.timelineData.bucketizer.getBucketIndex(row.date);
 
                     if (series.data[bucketIndex]) {
-                        series.data[bucketIndex].value += row.value;
+                        series.data[bucketIndex].value = row.value;
+                        series.data[bucketIndex].filters = row.filters;
                     }
                 }
             } else {
@@ -397,14 +584,17 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                         if (filter.startDate <= row.date && filter.endDate >= row.date) {
                             series.focusData.push({
                                 date: row.date,
-                                value: row.value
+                                value: row.value,
+                                filters: this.options.filterField.columnName && row ? row.filters : []
                             });
+
                         }
                     }
 
                     series.data.push({
                         date: row.date,
-                        value: row.value
+                        value: row.value,
+                        filters: this.options.filterField.columnName && row ? row.filters : []
                     });
                 }
             }
@@ -450,7 +640,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         switch (this.options.granularity.toLowerCase()) {
             case 'minute':
             case 'hour':
-            let bucketizer = new DateBucketizer();
+                let bucketizer = new DateBucketizer();
                 bucketizer.setGranularity(DateBucketizer.HOUR);
                 return bucketizer;
             case 'day':
@@ -474,7 +664,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             // The data we want is in the whereClause's subclauses
             let whereClause = neonFilter.filter.whereClause;
             if (whereClause && whereClause.length > 0 && whereClause.whereClauses.length === 2) {
-                let field = this.options.findField(whereClause[0].lhs);
+                let field = this.options.findField(this.options.dateField, whereClause[0].lhs);
                 this.addLocalFilter(neonFilter.id, field.columnName, field.prettyName, whereClause.whereClauses[0].rhs,
                     whereClause.whereClauses[1].rhs);
             }
@@ -498,6 +688,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     removeFilter() {
         this.filters = [];
+        let neonFilters = this.filterService.getFiltersByOwner(this.id);
+
+        if (neonFilters.length) {
+            for (let neonFilter of neonFilters) {
+                this.removeLocalFilterFromLocalAndNeon(this.options, neonFilter, true, false);
+            }
+        }
+
         if (this.timelineChart) {
             this.timelineChart.clearBrush();
         }
@@ -534,31 +732,31 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                     columnName: 'minute',
                     prettyName: 'Minute'
                 });
-                /* falls through */
+            /* falls through */
             case 'hour':
                 exportFields.push({
                     columnName: 'hour',
                     prettyName: 'Hour'
                 });
-                /* falls through */
+            /* falls through */
             case 'day':
                 exportFields.push({
                     columnName: 'day',
                     prettyName: 'Day'
                 });
-                /* falls through */
+            /* falls through */
             case 'month':
                 exportFields.push({
                     columnName: 'month',
                     prettyName: 'Month'
                 });
-                /* falls through */
+            /* falls through */
             case 'year':
                 exportFields.push({
                     columnName: 'year',
                     prettyName: 'Year'
                 });
-                /* falls through */
+            /* falls through */
         }
         return exportFields;
     }
@@ -570,7 +768,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     getVisualizationDefaultLimit(): number {
-        return 10;
+        return 3000;
     }
 
     /**

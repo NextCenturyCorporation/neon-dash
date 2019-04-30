@@ -47,33 +47,45 @@ describe('Component: TaxonomyViewer', () => {
     let responseData = [{
         testIdField: 'testId1',
         testTypeField: ['testTypeA', 'testTypeB', 'testTypeC', 'testTypeD'],
-        testCategoryField: ['testCategoryI', 'testCategoryII']
+        testCategoryField: ['testCategoryI', 'testCategoryII'],
+        testValueField: 'value01',
+        testSourceIdField: ['source1', 'source2']
     },
         {
             testIdField: 'testId2',
             testTypeField: ['testTypeA', 'testTypeB', 'testTypeC', 'testTypeD', 'testTypeE', 'testTypeF', 'testTypeG', 'testTypeH'],
-            testCategoryField: ['testCategoryII']
+            testCategoryField: ['testCategoryII'],
+            testValueField: '',
+            testSourceIdField: ['source15', 'source16', 'source17', 'source18']
         },
         {
             testIdField: 'testId3',
             testTypeField: ['testTypeC', 'testTypeD', 'testTypeE', 'testTypeF'],
-            testCategoryField: ['testCategoryIII']
+            testCategoryField: ['testCategoryIII'],
+            testValueField: 'value02',
+            testSourceIdField: ['source9']
 
         },
         {
             testIdField: 'testId4',
             testTypeField: ['testTypeE', 'testTypeF'],
-            testCategoryField: ['testCategoryI', 'testCategoryIII']
+            testCategoryField: ['testCategoryI', 'testCategoryIII'],
+            testValueField: 'value04',
+            testSourceIdField: ['source2', 'source5', 'source7', 'source15', 'source18']
         },
         {
             testIdField: 'testId5',
             testTypeField: ['testTypeH'],
-            testCategoryField: ['testCategoryII', 'testCategoryIII']
+            testCategoryField: ['testCategoryII', 'testCategoryIII'],
+            testValueField: 'value05',
+            testSourceIdField: ['source20', 'source23']
         },
         {
             testIdField: 'testId6',
             testTypeField: ['testTypeE'],
-            testCategoryField: ['testCategoryI', 'testCategoryIIII']
+            testCategoryField: ['testCategoryI', 'testCategoryIIII'],
+            testValueField: '',
+            testSourceIdField: ['source3', 'source16', 'source17', 'source20', 'source23']
         }];
 
     initializeTestBed({
@@ -224,6 +236,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.sourceIdField = new FieldMetaData('testSourceIdField');
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.ascending  = true;
@@ -239,7 +252,47 @@ describe('Component: TaxonomyViewer', () => {
         expect(component.taxonomyGroups[2].children.length).toEqual(5);
         expect(component.taxonomyGroups[3].name).toEqual('testCategoryIIII');
         expect(component.taxonomyGroups[3].children.length).toEqual(1);
+    }));
 
+    it('does add the field ids and counts to the taxonomy', (() => {
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.subTypeField = new FieldMetaData('testSubTypeField');
+        component.options.valueField = new FieldMetaData('testValueField');
+        component.options.sourceIdField = new FieldMetaData('testSourceIdField');
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+
+        component.transformVisualizationQueryResults(component.options, responseData);
+
+        expect(component.taxonomyGroups[0].nodeCount).toEqual(1);
+        expect(component.taxonomyGroups[0].nodeIds.length).toEqual(component.taxonomyGroups[0].nodeCount);
+        expect(component.taxonomyGroups[0].sourceIds.length).toEqual(5);
+        for (let child of component.taxonomyGroups[0].children) {
+            expect(child.nodeCount).toBeGreaterThan(0);
+        }
+
+        expect(component.taxonomyGroups[1].nodeCount).toEqual(3);
+        expect(component.taxonomyGroups[1].nodeIds.length).toEqual(component.taxonomyGroups[1].nodeCount);
+        expect(component.taxonomyGroups[1].sourceIds.length).toEqual(8);
+        for (let child of component.taxonomyGroups[1].children) {
+            expect(child.nodeCount).toBeGreaterThan(0);
+        }
+
+        expect(component.taxonomyGroups[2].nodeCount).toEqual(3);
+        expect(component.taxonomyGroups[2].nodeIds.length).toEqual(component.taxonomyGroups[2].nodeCount);
+        expect(component.taxonomyGroups[2].sourceIds.length).toEqual(8);
+        for (let child of component.taxonomyGroups[2].children) {
+            expect(child.nodeCount).toBeGreaterThan(0);
+        }
+
+        expect(component.taxonomyGroups[3].nodeCount).toEqual(3);
+        expect(component.taxonomyGroups[3].nodeIds.length).toEqual(component.taxonomyGroups[3].nodeCount);
+        expect(component.taxonomyGroups[3].sourceIds.length).toEqual(11);
+        for (let child of component.taxonomyGroups[3].children) {
+            expect(child.nodeCount).toBeGreaterThan(0);
+        }
     }));
 
     it('does create filter when a parent node in the taxonomy is unselected', (() => {
@@ -352,6 +405,110 @@ describe('Component: TaxonomyViewer', () => {
         });
     }));
 
+    it('does add leaf values under a type when value field exists', (() => {
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.subTypeField = new FieldMetaData('testSubTypeField');
+        component.options.valueField = new FieldMetaData('testValueField');
+
+        component.transformVisualizationQueryResults(component.options, responseData);
+
+        fixture.detectChanges();
+
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+
+            expect(component.taxonomyGroups[0].name).toEqual('testCategoryI');
+            expect(component.taxonomyGroups[0].children.length).toEqual(6);
+            expect(component.taxonomyGroups[0].children[0].name).toEqual('testTypeA');
+            for (let child of component.taxonomyGroups[0].children) {
+                expect(child.children[0].name).toEqual('value01');
+            }
+
+            expect(component.taxonomyGroups[1].name).toEqual('testCategoryII');
+            expect(component.taxonomyGroups[1].children.length).toEqual(8);
+            expect(component.taxonomyGroups[1].children[7].name).toEqual('testTypeH');
+            expect(component.taxonomyGroups[1].children[7].children.length).toEqual(1);
+            expect(component.taxonomyGroups[1].children[7].children[0].name).toEqual('value05');
+
+            expect(component.taxonomyGroups[2].name).toEqual('testCategoryIII');
+            expect(component.taxonomyGroups[2].children.length).toEqual(5);
+            expect(component.taxonomyGroups[2].children[0].name).toEqual('testTypeC');
+            expect(component.taxonomyGroups[2].children[0].children.length).toEqual(1);
+            expect(component.taxonomyGroups[2].children[0].children[0].name).toEqual('value02');
+        });
+    }));
+
+    it('does not add leaf values under a type when value field does not exist', (() => {
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.subTypeField = new FieldMetaData('testSubTypeField');
+        component.options.valueField = new FieldMetaData('testValueField');
+
+        component.transformVisualizationQueryResults(component.options, responseData);
+
+        fixture.detectChanges();
+
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+
+            expect(component.taxonomyGroups[1].name).toEqual('testCategoryII');
+            expect(component.taxonomyGroups[1].children.length).toEqual(8);
+            expect(component.taxonomyGroups[1].children[6].name).toEqual('testTypeG');
+            expect(component.taxonomyGroups[1].children[6].children.length).toEqual(0);
+
+            expect(component.taxonomyGroups[3].name).toEqual('testCategoryIIII');
+            expect(component.taxonomyGroups[3].children.length).toEqual(1);
+            expect(component.taxonomyGroups[3].children[0].name).toEqual('testTypeE');
+            expect(component.taxonomyGroups[3].children[0].children.length).toEqual(0);
+        });
+    }));
+
+    it('leaf node class is set based on position in tree', (() => {
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.subTypeField = new FieldMetaData('testSubTypeField');
+        component.options.valueField = new FieldMetaData('testValueField');
+
+        let classString = 'test-class';
+
+        let nodeA = {
+            level: 3,
+            hasChildren: false,
+            children: []
+
+        }, nodeB = {
+            level: 2,
+            hasChildren: false,
+            children: [nodeA]
+
+        }, nodeC = {
+            level: 2,
+            hasChildren: true,
+            children: [nodeB]
+        }, nodeD = {
+            level: 1,
+            hasChildren: true,
+            children: [nodeA]
+        };
+
+        let nodeClass = component.setClassForTreePosition(nodeA, classString);
+        expect(nodeClass).toEqual('test-class3 leaf-node-level');
+
+        nodeClass = component.setClassForTreePosition(nodeB, classString);
+        expect(nodeClass).toEqual('test-class2');
+
+        nodeClass = component.setClassForTreePosition(nodeC, classString);
+        expect(nodeClass).toEqual('test-class2 leaf-node-level');
+
+        nodeClass = component.setClassForTreePosition(nodeD, classString);
+        expect(nodeClass).toEqual('test-class1');
+
+    }));
+
     it('removeFilter function does exist', (() => {
         expect(component.removeFilter).toBeDefined();
     }));
@@ -360,15 +517,4 @@ describe('Component: TaxonomyViewer', () => {
         expect(component.setupFilters).toBeDefined();
     }));
 
-    it('onEvent does trigger when node is double clicked', (() => {
-        let spy = spyOn(component, 'onEvent');
-
-        fixture.detectChanges();
-
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-            component.getElementRefs().treeRoot.treeModel.nodes[0].ondblclick();
-            expect(spy.calls.count()).toBe(1);
-        });
-    }));
 });
