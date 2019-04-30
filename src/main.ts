@@ -152,6 +152,7 @@ function validateConfig(config) {
 
 function bootstrapWithData(configFromFile) {
     let configObject = validateConfig(configFromFile);
+    configObject.version = configObject.version || environment.version;
     if (configObject && configObject.neonServerUrl) {
         setNeonServerUrl(configObject.neonServerUrl);
     }

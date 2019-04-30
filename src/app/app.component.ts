@@ -115,6 +115,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public projectTitle: string = 'Neon';
     public projectIcon: string = 'assets/favicon.blue.ico?v=1';
+    public dashboardVersion: string = '';
 
     /* A reference to the dialog for adding visualizations. */
     private addVisDialogRef: MatDialogRef<AddVisualizationComponent>;
@@ -184,6 +185,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.changeFavicon();
         this.filtersIcon = 'filters';
+
+        this.dashboardVersion = neonConfig.version || '';
 
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_READY, this.showDashboardStateOnPageLoad.bind(this));

@@ -21,5 +21,6 @@
 
 export const environment = {
     config: ['./app/config/config.json', './app/config/config.yaml'],
-    production: false
+    production: false,
+    version: '{BUILD_VERSION}'
 };
