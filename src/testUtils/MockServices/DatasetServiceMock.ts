@@ -13,8 +13,6 @@
  * limitations under the License.
  *
  */
-import * as neon from 'neon-framework';
-
 import { ConnectionServiceMock } from './ConnectionServiceMock';
 import { Dashboard, DashboardOptions, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../../app/dataset';
 import { DatasetService } from '../../app/services/dataset.service';

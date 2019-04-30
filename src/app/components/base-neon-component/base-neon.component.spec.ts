@@ -47,7 +47,7 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import { basename } from 'path';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 import { neonEvents } from '../../neon-namespaces';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
@@ -1723,7 +1723,7 @@ describe('BaseNeonComponent', () => {
         let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        let messenger = new neon.eventing.Messenger();
+        let messenger = new eventing.Messenger();
         messenger.publish(neonEvents.FILTERS_CHANGED, {
             source: 'testSource'
         });
@@ -1739,7 +1739,7 @@ describe('BaseNeonComponent', () => {
         let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        let messenger = new neon.eventing.Messenger();
+        let messenger = new eventing.Messenger();
         messenger.publish(neonEvents.FILTERS_CHANGED, {
             source: 'testSource'
         });
@@ -1755,7 +1755,7 @@ describe('BaseNeonComponent', () => {
         let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        let messenger = new neon.eventing.Messenger();
+        let messenger = new eventing.Messenger();
         messenger.publish(neonEvents.FILTERS_CHANGED, {
             source: 'testSource'
         });
@@ -1771,7 +1771,7 @@ describe('BaseNeonComponent', () => {
         let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        let messenger = new neon.eventing.Messenger();
+        let messenger = new eventing.Messenger();
         messenger.publish(neonEvents.FILTERS_CHANGED, {
             source: 'testSource'
         });

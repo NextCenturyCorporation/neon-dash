@@ -20,7 +20,7 @@ import { AbstractSearchService } from '../../services/abstract.search.service';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FilterDesign, FilterService } from '../../services/filter.service';
 
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 import * as _ from 'lodash';
 
 @Component({
@@ -29,13 +29,13 @@ import * as _ from 'lodash';
     styleUrls: ['./current-filters.component.scss']
 })
 export class CurrentFiltersComponent implements OnInit, OnDestroy {
-    private messenger: neon.eventing.Messenger;
+    private messenger: eventing.Messenger;
 
     public optionalFilters: FilterDesign[] = [];
     public requiredFilters: FilterDesign[] = [];
 
     constructor(public filterService: FilterService, public searchService: AbstractSearchService) {
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
     }
 
     ngOnInit() {

@@ -14,7 +14,7 @@
  *
  */
 import { Inject, Injectable } from '@angular/core';
-import * as neon from 'neon-framework';
+import { eventing, query } from 'neon-framework';
 
 import { ConnectionService } from './connection.service';
 import { Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
@@ -356,7 +356,7 @@ export class DatasetService {
     }
 
     constructor(@Inject('config') private config: NeonGTDConfig, private connectionService: ConnectionService) {
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
 
         this.dashboards = DatasetService.validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
             { category: 'No Dashboards', choices: {} });
@@ -376,7 +376,7 @@ export class DatasetService {
                 this.messenger.publish(neonEvents.DASHBOARD_READY, {});
             };
 
-            let connection: neon.query.Connection = this.connectionService.createActiveConnection(dataset.type, dataset.host);
+            let connection: query.Connection = this.connectionService.createActiveConnection(dataset.type, dataset.host);
             if (connection) {
                 // Update the fields within each table to add any that weren't listed in the config file as well as field types.
                 this.updateDatabases(dataset, connection).then(() => {
@@ -914,7 +914,7 @@ export class DatasetService {
      * @param {Function} callback (optional)
      * @param {Number} index (optional)
      */
-    public updateDatabases(dataset: Datastore, connection: neon.query.Connection): any {
+    public updateDatabases(dataset: Datastore, connection: query.Connection): any {
         let promiseArray = dataset.hasUpdatedFields ? [] : dataset.databases.map((database) =>
             this.getTableNamesAndFieldNames(connection, database));
 
@@ -929,12 +929,12 @@ export class DatasetService {
     /**
      * Wraps connection.getTableNamesAndFieldNames() in a promise object. If a database not found error occurs,
      * associated dashboards are deleted. Any other error will return a rejected promise.
-     * @param {neon.query.Connection} connection
+     * @param {query.Connection} connection
      * @param {DatabaseMetaData} database
      * @return {Promise}
      * @private
      */
-    private getTableNamesAndFieldNames(connection: neon.query.Connection, database: DatabaseMetaData): Promise<any> {
+    private getTableNamesAndFieldNames(connection: query.Connection, database: DatabaseMetaData): Promise<any> {
         let promiseFields = [];
         return new Promise<any>((resolve, reject) => {
             connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
@@ -979,13 +979,13 @@ export class DatasetService {
 
     /**
      * Wraps connection.getFieldTypes() in a promise object.
-     * @param {neon.query.Connection} connection
+     * @param {query.Connection} connection
      * @param {DatabaseMetaData} database
      * @param {TableMetaData} table
      * @return {Promise<FieldMetaData[]>}
      * @private
      */
-    private getFieldTypes(connection: neon.query.Connection, database: DatabaseMetaData,
+    private getFieldTypes(connection: query.Connection, database: DatabaseMetaData,
         table: TableMetaData): Promise<FieldMetaData[]> {
         return new Promise<FieldMetaData[]>((resolve) => connection.getFieldTypes(database.name, table.name, (types) => {
             for (let f of table.fields) {

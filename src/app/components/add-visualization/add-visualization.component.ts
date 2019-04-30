@@ -21,7 +21,7 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents, neonVisualizations } from '../../neon-namespaces';
 
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 import * as _ from 'lodash';
 
 @Component({
@@ -37,13 +37,13 @@ export class AddVisualizationComponent implements OnInit {
     public selectedIndex: number = -1;
     public showVisShortcut: boolean = true;
 
-    public messenger: neon.eventing.Messenger;
+    public messenger: eventing.Messenger;
 
     constructor(
         public snackBar: MatSnackBar,
         protected widgetService: AbstractWidgetService
     ) {
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
     }
 
     ngOnInit() {

@@ -39,7 +39,7 @@ import { OptionType, WidgetFieldOption, WidgetOption, WidgetOptionCollection } f
 import { OptionsListComponent } from '../options-list/options-list.component';
 
 import { neonEvents } from '../../neon-namespaces';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 
 @Component({
     selector: 'app-gear',
@@ -52,7 +52,7 @@ export class GearComponent implements OnInit, OnDestroy {
     @Input() sideNavRight: MatSidenav;
     @ViewChildren('listChildren') listChildren: QueryList<OptionsListComponent>;
 
-    private messenger: neon.eventing.Messenger;
+    private messenger: eventing.Messenger;
     private originalOptions: any;
 
     // Set to a stub object to stop initialization errors.
@@ -88,7 +88,7 @@ export class GearComponent implements OnInit, OnDestroy {
         protected datasetService: DatasetService,
         protected widgetService: AbstractWidgetService
     ) {
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
     }
 
     private closeSidenav() {

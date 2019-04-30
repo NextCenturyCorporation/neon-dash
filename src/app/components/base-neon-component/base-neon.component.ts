@@ -47,7 +47,7 @@ import {
     WidgetTableOption
 } from '../../widget-option';
 
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 import * as _ from 'lodash';
 import { ContributionDialogComponent } from '../contribution-dialog/contribution-dialog.component';
 import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material';
@@ -84,7 +84,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     private nextLayerIndex = 1;
 
     protected id: string;
-    protected messenger: neon.eventing.Messenger;
+    protected messenger: eventing.Messenger;
 
     // Maps a specific filter data source list to its filter list.
     private cachedFilters: SingleListFilterCollection = new SingleListFilterCollection();
@@ -127,7 +127,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         public changeDetection: ChangeDetectorRef,
         public dialog: MatDialog
     ) {
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
     }
 
     /**

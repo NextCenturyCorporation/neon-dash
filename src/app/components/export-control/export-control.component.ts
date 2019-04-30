@@ -26,7 +26,7 @@ import { ConfigEditorComponent } from '../config-editor/config-editor.component'
 
 import { neonEvents } from '../../neon-namespaces';
 
-import * as neon from 'neon-framework';
+import { query } from 'neon-framework';
 
 @Component({
   selector: 'app-export-control',
@@ -86,7 +86,7 @@ export class ExportControlComponent {
     }
 
     handleExportClick() {
-        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastoreType(),
+        let connection: query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastoreType(),
             this.datasetService.getDatastoreHost());
         let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;

@@ -30,7 +30,7 @@ import {
 import { environment } from './environments/environment';
 import { AppModule } from './app/app.module';
 import * as yaml from 'js-yaml';
-import * as neon from 'neon-framework';
+import { ready, setNeonServerUrl } from 'neon-framework';
 import { HttpClient, HttpHandler, HttpXhrBackend, HttpBackend, XhrFactory, HttpRequest, HttpEvent } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
@@ -153,7 +153,7 @@ function validateConfig(config) {
 function bootstrapWithData(configFromFile) {
     let configObject = validateConfig(configFromFile);
     if (configObject && configObject.neonServerUrl) {
-        neon.setNeonServerUrl(configObject.neonServerUrl);
+        setNeonServerUrl(configObject.neonServerUrl);
     }
     let errors = neonConfigErrors;
     neonConfigErrors = null;
@@ -190,7 +190,7 @@ function loadNextConfig(configList) {
     });
 }
 
-neon.ready(function() {
-    neon.setNeonServerUrl('../neon');
+ready(function() {
+    setNeonServerUrl('../neon');
     loadNextConfig(environment.config);
 });

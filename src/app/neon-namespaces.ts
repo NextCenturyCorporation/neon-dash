@@ -16,8 +16,6 @@
 
 /* eslist-disable */
 
-import * as neon from 'neon-framework';
-
 export namespace neonEvents {
     export const DASHBOARD_CLEAR = 'DASHBOARD_CLEAR';
     export const DASHBOARD_ERROR = 'DASHBOARD_ERROR';

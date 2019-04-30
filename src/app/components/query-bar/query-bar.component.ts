@@ -35,9 +35,8 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import WherePredicate = neon.query.WherePredicate;
 
-import * as neon from 'neon-framework';
+import { query } from 'neon-framework';
 import { MatDialog } from '@angular/material';
 
 @Component({
@@ -195,11 +194,11 @@ export class QueryBarComponent  extends BaseNeonComponent {
      * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+    finalizeVisualizationQuery(options: any, queryPayload: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         let filter: FilterClause = this.searchService.buildFilterClause(options.filterField.columnName, '!=', null);
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
-            .updateSort(query, options.filterField.columnName);
-        return query;
+        this.searchService.updateFilter(queryPayload, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
+            .updateSort(queryPayload, options.filterField.columnName);
+        return queryPayload;
     }
 
     /**
@@ -369,18 +368,18 @@ export class QueryBarComponent  extends BaseNeonComponent {
         let filters: FilterDesign[] = [];
 
         if (fields.database !== this.options.database.name && fields.table !== this.options.table.name) {
-            let query = new neon.query.Query().selectFrom(fields.database, fields.table),
+            let extensionQuery = new query.Query().selectFrom(fields.database, fields.table),
                 queryFields = [fields.idField, fields.filterField],
                 execute = this.searchService.runSearch(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost(), {
-                    query: query
+                    query: extensionQuery
                 }),
                 tempArray = [],
                 queryClauses = [];
             for (let value of array) {
-                queryClauses.push(neon.query.where(fields.filterField, '=', value[this.options.idField.columnName]));
+                queryClauses.push(query.where(fields.filterField, '=', value[this.options.idField.columnName]));
             }
 
-            query.withFields(queryFields).where(neon.query.or.apply(query, queryClauses));
+            extensionQuery.withFields(queryFields).where(query.or.apply(extensionQuery, queryClauses));
             execute.done((response) => {
                 if (response && response.data && response.data.length) {
                     response.data.forEach((d) => {
