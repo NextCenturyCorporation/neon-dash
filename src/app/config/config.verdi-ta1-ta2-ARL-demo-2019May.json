@@ -1,0 +1,989 @@
+{
+    "datasets": [
+        {
+            "title": "VERDI",
+            "name": "ARL M9 Graph TA1",
+            "connectOnLoad": false,
+            "icon": "assets/images/verdi-favicon.ico",
+            "layout": "verdi-arl-ta1-layout",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [
+                {
+                    "name": "rpi-m9-ta1",
+                    "prettyName": "RPI-M9",
+                    "tables": [
+                        {
+                            "name": "graph",
+                            "prettyName": "Graph"
+                        }
+                    ]
+                },
+                {
+                    "name": "aida-docs-tmp",
+                    "prettyName": "Documents",
+                    "tables": [
+                        {
+                            "name": "parent_children",
+                            "prettyName": "Child Documents"
+                        },
+                        {
+                            "name": "parents",
+                            "prettyName": "Root Documents"
+                        }
+                    ]
+                }
+            ],
+            "relations": [
+                {
+                    "members": [
+                        {
+                            "database": "aida-docs-tmp",
+                            "table": "parent_children",
+                            "field": "id"
+                        },
+                        {
+                            "database": "aida-docs-tmp",
+                            "table": "parents",
+                            "field": "children"
+                        },
+                        {
+                            "database": "rpi-m9-ta1",
+                            "table": "graph",
+                            "field": "docIds"
+                        }
+                    ]
+                },
+                {
+                    "members": [
+                        {
+                            "database": "aida-docs-tmp",
+                            "table": "parent_children",
+                            "field": "parent_uid"
+                        },
+                        {
+                            "database": "aida-docs-tmp",
+                            "table": "parents",
+                            "field": "id"
+                        },
+                        {
+                            "database": "rpi-m9-ta1",
+                            "table": "graph",
+                            "field": "parentIds"
+                        }
+                    ]
+                }
+            ],
+            "options": {
+                "colorMaps": {
+                    "rpi-m9-ta1": {
+                        "graph": {
+                            "categories": {
+                                "ENTITY": "#ADD8E6",
+                                "EVENT": "#D98C8C",
+                                "RELATION": "#FFE4B5"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "title": "VERDI",
+            "name": "Pilot GAIA TA1",
+            "connectOnLoad": false,
+            "icon": "assets/images/verdi-favicon.ico",
+            "layout": "verdi-gaia-ta1-layout",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [
+                {
+                    "name": "gaia",
+                    "prettyName": "GAIA",
+                    "tables": [
+                        {
+                            "name": "graph",
+                            "prettyName": "Graph"
+                        }
+                    ]
+                },
+                {
+                    "name": "aida-docs-tmp",
+                    "prettyName": "Documents",
+                    "tables": [
+                        {
+                            "name": "parent_children",
+                            "prettyName": "Child Documents"
+                        },
+                        {
+                            "name": "parents",
+                            "prettyName": "Root Documents"
+                        }
+                    ]
+                }
+            ],
+            "relations": [
+                {
+                    "members": [
+                        {
+                            "database": "aida-docs-tmp",
+                            "table": "parent_children",
+                            "field": "id"
+                        },
+                        {
+                            "database": "aida-docs-tmp",
+                            "table": "parents",
+                            "field": "children"
+                        },
+                        {
+                            "database": "gaia",
+                            "table": "graph",
+                            "field": "docIds"
+                        }
+                    ]
+                },
+                {
+                    "members": [
+                        {
+                            "database": "aida-docs-tmp",
+                            "table": "parent_children",
+                            "field": "parent_uid"
+                        },
+                        {
+                            "database": "aida-docs-tmp",
+                            "table": "parents",
+                            "field": "id"
+                        },
+                        {
+                            "database": "gaia",
+                            "table": "graph",
+                            "field": "parentIds"
+                        }
+                    ]
+                }
+            ],
+            "options": {
+                "colorMaps": {
+                    "gaia": {
+                        "graph": {
+                            "categories": {
+                                "ENTITY": "#ADD8E6",
+                                "EVENT": "#D98C8C",
+                                "RELATION": "#FFE4B5"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "title": "VERDI",
+            "name": "ARL M9 Graph TA2 Network",
+            "connectOnLoad": true,
+            "icon": "assets/images/verdi-favicon.ico",
+            "layout": "verdi-arl-ta2-network",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [
+                {
+                    "name": "aida-docs-tmp",
+                    "prettyName": "Documents",
+                    "tables": [
+                        {
+                            "name": "parent_children",
+                            "prettyName": "Child Documents"
+                        },
+                        {
+                            "name": "parents",
+                            "prettyName": "Root Documents"
+                        }
+                    ]
+                },
+                {
+                    "name": "rpi-m9-ta1",
+                    "prettyName": "RPI-M9",
+                    "tables": [
+                        {
+                            "name": "graph",
+                            "prettyName": "Graph"
+                        }
+                    ]
+                }
+            ],
+            "relations": [
+                {
+                    "members": [
+                        {
+                            "database": "aida-docs-tmp",
+                            "table": "parent_children",
+                            "field": "id"
+                        },
+                        {
+                            "database": "aida-docs-tmp",
+                            "table": "parents",
+                            "field": "children"
+                        },
+                        {
+                            "database": "rpi-m9-ta1",
+                            "table": "graph",
+                            "field": "docIds"
+                        }
+                    ]
+                },
+                {
+                    "members": [
+                        {
+                            "database": "aida-docs-tmp",
+                            "table": "parent_children",
+                            "field": "parent_uid"
+                        },
+                        {
+                            "database": "aida-docs-tmp",
+                            "table": "parents",
+                            "field": "id"
+                        },
+                        {
+                            "database": "rpi-m9-ta1",
+                            "table": "graph",
+                            "field": "parentIds"
+                        }
+                    ]
+                }
+            ],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "colorMaps": {
+                    "rpi-m9-ta1": {
+                        "graph": {
+                            "categories": {
+                                "ENTITY": "#ADD8E6",
+                                "EVENT": "#D98C8C",
+                                "RELATION": "#FFE4B5"
+                            },
+                            "types": {
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "title": "VERDI",
+            "name": "ARL M9 Graph TA2 Events",
+            "connectOnLoad": false,
+            "layout": "verdi-arl-ta2-events",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [
+                {
+                    "name": "verdi-rdf",
+                    "prettyName": "Documents",
+                    "tables": [
+                        {
+                            "name": "normal",
+                            "prettyName": "normal"
+                        }
+                    ]
+                },
+                {
+                    "name": "kb-events",
+                    "prettyName": "Events",
+                    "tables": [
+                        {
+                            "name": "seedling",
+                            "prettyName": "seedling"
+                        }
+                    ]
+                }
+            ],
+            "relations": [
+                {
+                    "members": [
+                        {
+                            "database": "verdi-rdf",
+                            "table": "normal",
+                            "field": "@id"
+                        },
+                        {
+                            "database": "kb-events",
+                            "table": "seedling",
+                            "field": "docIds"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "title": "VERDI",
+            "name": "ARL M9 Graph TA2 Map",
+            "connectOnLoad": false,
+            "layout": "verdi-arl-ta2-map",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [
+                {
+                    "name": "verdi-rdf",
+                    "prettyName": "Documents",
+                    "tables": [
+                        {
+                            "name": "normal",
+                            "prettyName": "normal"
+                        }
+                    ]
+                },
+                {
+                    "name": "kb-geo",
+                    "prettyName": "Geolocation",
+                    "tables": [
+                        {
+                            "name": "seedling",
+                            "prettyName": "seedling"
+                        }
+                    ]
+                }
+            ],
+            "relations": [
+                {
+                    "members": [
+                        {
+                            "database": "verdi-rdf",
+                            "table": "normal",
+                            "field": "@id"
+                        },
+                        {
+                            "database": "kb-geo",
+                            "table": "seedling",
+                            "field": "docIds"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "layouts": {
+        "verdi-arl-ta1-layout": [
+            {
+                "type": "dataTable",
+                "sizex": 2,
+                "sizey": 17.5,
+                "bindings": {
+                    "title": "Documents",
+                    "database": "aida-docs-tmp",
+                    "table": "parents",
+                    "idField": "id",
+                    "sortField": "id",
+                    "filterable": true,
+                    "ignoreSelf": true,
+                    "singleFilter": true,
+                    "filterFields": [
+                        "id"
+                    ],
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "id"
+                    ]
+                },
+                "row": 1,
+                "col": 1
+            },
+            {
+                "type": "aggregation",
+                "sizex": 4,
+                "sizey": 6,
+                "bindings": {
+                    "title": "Entities",
+                    "database": "rpi-m9-ta1",
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "groupField": "categories",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "ENTITY"
+                },
+                "row": 1,
+                "col": 3
+            },
+            {
+                "type": "aggregation",
+                "sizex": 4,
+                "sizey": 6,
+                "bindings": {
+                    "title": "Relations",
+                    "database": "rpi-m9-ta1",
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "groupField": "categories",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "RELATION"
+                },
+                "row": 6,
+                "col": 3
+            },
+            {
+                "type": "aggregation",
+                "sizex": 4,
+                "sizey": 5.5,
+                "bindings": {
+                    "title": "Events",
+                    "database": "rpi-m9-ta1",
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "groupField": "categories",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "EVENT"
+                },
+                "row": 11,
+                "col": 3
+            },
+            {
+                "type": "mediaViewer",
+                "sizex": 6,
+                "sizey": 17.5,
+                "bindings": {
+                    "id": "_id",
+                    "title": "Media Viewer",
+                    "database": "aida-docs-tmp",
+                    "table": "parents",
+                    "idField": "id",
+                    "linkField": "reconstructed",
+                    "linkPrefix": "../Reconstructed/html/arl/",
+                    "typeField": "dtype",
+                    "clearMedia": true
+                },
+                "row": 1,
+                "col": 7
+            }
+        ],
+        "verdi-gaia-ta1-layout": [
+            {
+                "type": "dataTable",
+                "sizex": 2,
+                "sizey": 17.5,
+                "bindings": {
+                    "title": "Documents",
+                    "database": "aida-docs-tmp",
+                    "table": "parents",
+                    "idField": "id",
+                    "sortField": "id",
+                    "filterable": true,
+                    "ignoreSelf": true,
+                    "singleFilter": true,
+                    "filterFields": [
+                        "id"
+                    ],
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "id"
+                    ]
+                },
+                "row": 1,
+                "col": 1
+            },
+            {
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
+                "sizex": 4,
+                "sizey": 6,
+                "bindings": {
+                    "title": "Entities",
+                    "database": "gaia",
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "groupField": "categories",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "ENTITY"
+                },
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 1,
+                "col": 3
+            },
+            {
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
+                "sizex": 4,
+                "sizey": 6,
+                "bindings": {
+                    "title": "Relations",
+                    "database": "gaia",
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "groupField": "categories",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "RELATION"
+                },
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 6,
+                "col": 3
+            },
+            {
+                "name": "Bar Chart",
+                "type": "aggregation",
+                "icon": "bar_chart",
+                "sizex": 4,
+                "sizey": 5.5,
+                "bindings": {
+                    "title": "Events",
+                    "database": "gaia",
+                    "table": "graph",
+                    "type": "bar-h",
+                    "xField": "types",
+                    "groupField": "categories",
+                    "aggregation": "count",
+                    "logScaleX": true,
+                    "sortByAggregation": true,
+                    "unsharedFilterField": "categories",
+                    "unsharedFilterValue": "EVENT"
+                },
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+                "row": 11,
+                "col": 3
+            },
+            {
+                "name": "Media Viewer",
+                "type": "mediaViewer",
+                "icon": "mediaViewer",
+                "sizex": 6,
+                "sizey": 17.5,
+                "bindings": {
+                    "id": "_id",
+                    "title": "Media Viewer",
+                    "database": "aida-docs-tmp",
+                    "table": "parents",
+                    "idField": "id",
+                    "linkField": "reconstructed",
+                    "linkPrefix": "../Reconstructed/html/gaia/",
+                    "typeField": "dtype",
+                    "clearMedia": true
+                },
+                "row": 1,
+                "col": 7
+            }
+        ],
+        "verdi-arl-ta2-network": [
+            {
+                "type": "taxonomyViewer",
+                "sizex": 3,
+                "sizey": 16,
+                "bindings": {
+                    "title": "Ontology",
+                    "database": "rpi-m9-ta1",
+                    "table": "graph",
+                    "typeField": "types",
+                    "subTypeField": "types",
+                    "valueField": "name",
+                    "categoryField": "categories",
+                    "sourceIdField": "docIds",
+                    "filterFields": [
+                        "categories",
+                        "types",
+                        "docIds"
+                    ],
+                    "ignoreSelf": true,
+                    "idField": "id",
+                    "linkField": "",
+                    "ascending": true
+                },
+                "row": 0,
+                "col": 0
+            },
+            {
+                "type": "networkGraph",
+                "sizex": 7,
+                "sizey": 12,
+                "bindings": {
+                    "title": "Network Graph",
+                    "database": "rpi-m9-ta1",
+                    "table": "graph",
+                    "unsharedFilterField": "",
+                    "unsharedFilterValue": "",
+                    "nodeField": "id",
+                    "nodeNameField": "name",
+                    "nodeShape": "box",
+                    "linkField": "edgeTarget",
+                    "linkNameField": "edgeLabel",
+                    "targetNameField": "targetName",
+                    "nodeColor": "",
+                    "limit": 10000,
+                    "linkColor": "#D1C2F0",
+                    "edgeColor": "#63B4CF",
+                    "xPositionField": "x",
+                    "yPositionField": "y",
+                    "xTargetPositionField": "edgeX",
+                    "yTargetPositionField": "edgeY",
+                    "typeField": "types",
+                    "isReified": false,
+                    "isDirected": true,
+                    "hideUnfiltered": false,
+                    "physics": true,
+                    "filterFields": [
+                        "categories",
+                        "types",
+                        "docIds"
+                    ],
+                    "layerType": "",
+                    "layers": [
+
+                    ],
+                    "sortField": "types",
+                    "idField": "id",
+                    "filterable": true,
+                    "multiFilter": true,
+                    "multiFilterOperator": "or",
+                    "displayLegend": true,
+                    "nodeColorField": "categories",
+                    "targetColorField": "targetCategories",
+                    "edgeColorField": "",
+                    "cleanLegendLabels": true,
+                    "legendFiltering": false
+                },
+                "row": 2,
+                "col": 4
+            },
+            {
+                "type": "timeline",
+                "col": 4,
+                "row": 16,
+                "sizex": 7,
+                "sizey": 4,
+                "bindings": {
+                    "title": "Document Timeline",
+                    "database": "aida-docs-tmp",
+                    "table": "parent_children",
+                    "idField": "id",
+                    "filterField": "id",
+                    "dateField": "download_date",
+                    "granularity": "month",
+                    "hideUnfiltered": false
+                }
+            },
+            {
+                "type": "thumbnailGrid",
+                "sizex": 2,
+                "sizey": 16,
+                "bindings": {
+                    "id": "_id",
+                    "title": "Documents",
+                    "database": "aida-docs-tmp",
+                    "table": "parent_children",
+                    "idField": "id",
+                    "flagSubLabel1": "id",
+                    "flagSubLabel2": "parent_uid",
+                    "flagSubLabel3": "dtype",
+                    "linkField": "url",
+                    "dateField": "download_date",
+                    "objectNameField": "",
+                    "objectIdField": "id",
+                    "typeField": "dtype",
+                    "predictedNameField": "",
+                    "percentField": "",
+                    "openOnMouseClick": true,
+                    "hideUnfiltered": false,
+                    "sortField": "id",
+                    "filterField": "id",
+                    "ignoreSelf": false,
+                    "ascending": true,
+                    "viewType": "details",
+                    "limit": 8,
+                    "typeMap": {
+                        "jpg": "img",
+                        "png": "img",
+                        "mp4": "vid",
+                        "pdf": "pdf",
+                        "ltf": "pdf",
+                        "gif": "img",
+                        "mp3": "aud",
+                        "svg": "img"
+                    }
+                },
+                "row": 0,
+                "col": 11
+            }
+        ],
+        "verdi-arl-ta2-events": [
+            {
+                "type": "taxonomyViewer",
+                "sizex": 3,
+                "sizey": 16,
+                "bindings": {
+                    "id": "_id",
+                    "title": "Ontology",
+                    "database": "kb-events",
+                    "table": "seedling",
+                    "typeField": "types",
+                    "subTypeField": "types",
+                    "valueField": "name",
+                    "categoryField": "categories",
+                    "sourceIdField": "docIds",
+                    "filterFields": [
+                        "categories",
+                        "types",
+                        "docIds"
+                    ],
+                    "ignoreSelf": true,
+                    "idField": "kbid",
+                    "linkField": "",
+                    "ascending": true
+                },
+                "row": 0,
+                "col": 0
+            },
+            {
+                "type": "thumbnailGrid",
+                "sizex": 7,
+                "sizey": 12,
+                "selected": true,
+                "bindings": {
+                    "id": "_id",
+                    "title": "Events",
+                    "database": "kb-events",
+                    "table": "seedling",
+                    "idField": "kbid",
+                    "flagLabel": "name",
+                    "flagSubLabel1": "docDate",
+                    "flagSubLabel2": "types",
+                    "flagSubLabel3": "name",
+                    "linkField": "url",
+                    "dateField": "docDate",
+                    "objectNameField": "",
+                    "objectIdField": "kbid",
+                    "typeField": "docType",
+                    "predictedNameField": "",
+                    "percentField": "",
+                    "openOnMouseClick": true,
+                    "hideUnfiltered": false,
+                    "sortField": "docDate",
+                    "filterFields": [
+                        "kbid",
+                        "docIds"
+                    ],
+                    "ascending": false,
+                    "canvasSize": 180.00,
+                    "viewType": "card",
+                    "truncateLabel": {
+                        "value": true,
+                        "length": 35
+                    },
+                    "limit": 12,
+                    "typeMap": {
+                        "jpg": "img",
+                        "png": "img",
+                        "mp4": "vid",
+                        "pdf": "pdf",
+                        "ltf": "pdf",
+                        "gif": "img",
+                        "mp3": "aud",
+                        "svg": "img"
+                    }
+                },
+                "row": 2,
+                "col": 4
+            },
+            {
+                "type": "timeline",
+                "col": 4,
+                "row": 16,
+                "sizex": 7,
+                "sizey": 4,
+                "bindings": {
+                    "title": "Event Timeline",
+                    "database": "kb-events",
+                    "table": "seedling",
+                    "idField": "kbid",
+                    "filterField": "docIds",
+                    "dateField": "docDate",
+                    "granularity": "month",
+                    "hideUnfiltered": false
+                }
+            },
+            {
+                "type": "thumbnailGrid",
+                "sizex": 2,
+                "sizey": 16,
+                "bindings": {
+                    "id": "_id",
+                    "title": "Documents",
+                    "database": "verdi-rdf",
+                    "table": "normal",
+                    "idField": "@id",
+                    "flagSubLabel1": "isPartOf",
+                    "flagSubLabel2": "date",
+                    "flagSubLabel3": "docType",
+                    "linkField": "url",
+                    "dateField": "date",
+                    "objectNameField": "",
+                    "objectIdField": "@id",
+                    "typeField": "docType",
+                    "predictedNameField": "",
+                    "percentField": "",
+                    "openOnMouseClick": true,
+                    "hideUnfiltered": false,
+                    "sortField": "@id",
+                    "filterField": "@id",
+                    "ignoreSelf": false,
+                    "ascending": true,
+                    "viewType": "details",
+                    "limit": 8,
+                    "typeMap": {
+                        "jpg": "img",
+                        "png": "img",
+                        "mp4": "vid",
+                        "pdf": "pdf",
+                        "ltf": "pdf",
+                        "gif": "img",
+                        "mp3": "aud",
+                        "svg": "img"
+                    }
+                },
+                "row": 0,
+                "col": 11
+            }
+        ],
+        "verdi-arl-ta2-map": [
+            {
+                "type": "taxonomyViewer",
+                "sizex": 3,
+                "sizey": 16,
+                "bindings": {
+                    "id": "_id",
+                    "title": "Ontology",
+                    "database": "kb-geo",
+                    "table": "seedling",
+                    "typeField": "types",
+                    "subTypeField": "types",
+                    "valueField": "name",
+                    "categoryField": "categories",
+                    "sourceIdField": "docIds",
+                    "filterFields": [
+                        "categories",
+                        "types",
+                        "docIds"
+                    ],
+                    "ignoreSelf": true,
+                    "idField": "kbid",
+                    "linkField": "",
+                    "ascending": true
+                },
+                "row": 0,
+                "col": 0
+            },
+            {
+                "type": "map",
+                "sizex": 7,
+                "sizey": 12,
+                "bindings": {
+                    "title": "Locations",
+                    "database": "kb-geo",
+                    "table": "seedling",
+                    "show": true,
+                    "type": "cluster",
+                    "limit": 5000,
+                    "mapType": "leaflet",
+                    "singleColor": true,
+                    "filterable": true,
+                    "hideUnfiltered": false,
+                    "showPointDataOnHover": true,
+                    "name": "Documents",
+                    "layers": [
+                        {
+                            "title": "Map",
+                            "database": "kb-geo",
+                            "table": "seedling",
+                            "latitudeField": "geoLocation.lat",
+                            "longitudeField": "geoLocation.lon",
+                            "hoverPopupField": "name",
+                            "dateField": "docDate",
+                            "idField": "kbid",
+                            "filterFields": [
+                                "kbid",
+                                "docIds"
+                            ],
+                            "colorField": "types"
+                        }
+                    ]
+                },
+                "row": 2,
+                "col": 4
+            },
+            {
+                "type": "timeline",
+                "col": 4,
+                "row": 16,
+                "sizex": 7,
+                "sizey": 4,
+                "bindings": {
+                    "title": "Map Timeline",
+                    "database": "kb-geo",
+                    "table": "seedling",
+                    "idField": "kbid",
+                    "filterField": "docIds",
+                    "dateField": "docDate",
+                    "granularity": "month",
+                    "hideUnfiltered": false
+                }
+            },
+            {
+                "type": "thumbnailGrid",
+                "sizex": 2,
+                "sizey": 16,
+                "bindings": {
+                    "id": "_id",
+                    "title": "Documents",
+                    "database": "verdi-rdf",
+                    "table": "normal",
+                    "idField": "@id",
+                    "flagSubLabel1": "isPartOf",
+                    "flagSubLabel2": "date",
+                    "flagSubLabel3": "docType",
+                    "linkField": "url",
+                    "dateField": "date",
+                    "objectNameField": "",
+                    "objectIdField": "@id",
+                    "typeField": "docType",
+                    "predictedNameField": "",
+                    "percentField": "",
+                    "openOnMouseClick": true,
+                    "hideUnfiltered": false,
+                    "sortField": "@id",
+                    "filterField": "@id",
+                    "ignoreSelf": false,
+                    "ascending": true,
+                    "viewType": "details",
+                    "limit": 8,
+                    "typeMap": {
+                        "jpg": "img",
+                        "png": "img",
+                        "mp4": "vid",
+                        "pdf": "pdf",
+                        "ltf": "pdf",
+                        "gif": "img",
+                        "mp3": "aud",
+                        "svg": "img"
+                    }
+                },
+                "row": 0,
+                "col": 11
+            }
+        ]
+    }
+}
