@@ -282,7 +282,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
             .updateGroups(query, groups).updateAggregation(query, AggregationType.MIN, '_date', options.dateField.columnName)
-            .updateSort(query, '_date').updateAggregation(query, AggregationType.COUNT, '_aggregation', '_date');
+            .updateSort(query, '_date').updateAggregation(query, AggregationType.COUNT, '_aggregation', '_' + options.granularity);
 
         return query;
     }
@@ -414,11 +414,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         return date;
     }
 
-    handleChangeGranularity() {
+    onChangeData() {
         this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
         this.timelineData.bucketizer = this.getBucketizer();
         this.timelineData.granularity = this.options.granularity;
-        this.handleChangeData();
     }
 
     getBucketizer() {

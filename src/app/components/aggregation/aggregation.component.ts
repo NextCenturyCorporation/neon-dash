@@ -314,7 +314,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     /* falls through */
             }
             this.searchService.updateAggregation(query, AggregationType.MIN, '_date', options.xField.columnName).updateSort(query, '_date');
-            countField = '_date';
+            countField = '_' + options.granularity;
         } else if (!options.sortByAggregation) {
             groups.push(this.searchService.buildQueryGroup(options.xField.columnName));
             this.searchService.updateSort(query, options.xField.columnName);
@@ -326,13 +326,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (this.optionsTypeIsXY(options)) {
             groups.push(this.searchService.buildQueryGroup(options.yField.columnName));
             filters.push(this.searchService.buildFilterClause(options.yField.columnName, '!=', null));
-        } else {
-            this.searchService.updateAggregation(query, options.aggregation, '_aggregation',
-                (options.aggregation === AggregationType.COUNT ? countField : options.aggregationField.columnName));
         }
 
         if (options.groupField.columnName) {
             groups.push(this.searchService.buildQueryGroup(options.groupField.columnName));
+            countField = options.groupField.columnName;
+        }
+
+        if (!this.optionsTypeIsXY(options)) {
+            this.searchService.updateAggregation(query, options.aggregation, '_aggregation',
+                (options.aggregation === AggregationType.COUNT ? countField : options.aggregationField.columnName));
         }
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))

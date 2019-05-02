@@ -380,7 +380,7 @@ describe('Component: Aggregation', () => {
             value: 'testFilterValue'
         }])).toEqual({
             aggregation: [{
-                field: 'testXField',
+                field: 'testCategoryField',
                 name: '_aggregation',
                 type: 'count'
             }],
@@ -511,7 +511,7 @@ describe('Component: Aggregation', () => {
                 name: '_date',
                 type: 'min'
             }, {
-                field: '_date',
+                field: 'testCategoryField',
                 name: '_aggregation',
                 type: 'count'
             }],
