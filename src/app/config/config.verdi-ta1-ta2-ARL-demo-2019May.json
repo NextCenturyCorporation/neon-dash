@@ -2,15 +2,15 @@
     "datasets": [
         {
             "title": "VERDI",
-            "name": "ARL M9 Graph TA1",
-            "connectOnLoad": false,
+            "name": "ARL M9 TA1",
+            "connectOnLoad": true,
             "icon": "assets/images/verdi-favicon.ico",
             "layout": "verdi-arl-ta1-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases": [
                 {
-                    "name": "rpi-m9-ta1",
+                    "name": "rpi-m9-ta1-v2",
                     "prettyName": "RPI-M9",
                     "tables": [
                         {
@@ -52,7 +52,7 @@
                             "field": "children"
                         },
                         {
-                            "database": "rpi-m9-ta1",
+                            "database": "rpi-m9-ta1-v2",
                             "table": "graph",
                             "field": "docIds"
                         }
@@ -71,12 +71,12 @@
                             "field": "id"
                         },
                         {
-                            "database": "rpi-m9-ta1",
+                            "database": "rpi-m9-ta1-v2",
                             "table": "graph",
                             "field": "parentIds"
                         },
                         {
-                            "database": "rpi-m9-ta1",
+                            "database": "rpi-m9-ta1-v2",
                             "table": "docs",
                             "field": "id"
                         }
@@ -85,7 +85,7 @@
             ],
             "options": {
                 "colorMaps": {
-                    "rpi-m9-ta1": {
+                    "rpi-m9-ta1-v2": {
                         "graph": {
                             "categories": {
                                 "ENTITY": "#ADD8E6",
@@ -188,37 +188,29 @@
         {
             "title": "VERDI",
             "name": "ARL M9 TA2 Network",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "icon": "assets/images/verdi-favicon.ico",
             "layout": "verdi-arl-ta2-network",
             "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases": [
                 {
-                    "name": "aida-docs-tmp",
-                    "prettyName": "Documents",
+                    "name": "rpi-m9-ta1-v2",
+                    "prettyName": "RPI-M9-TA1",
                     "tables": [
                         {
-                            "name": "parent_children",
+                            "name": "children",
                             "prettyName": "Child Documents"
-                        },
-                        {
-                            "name": "parents",
-                            "prettyName": "Root Documents"
                         }
                     ]
                 },
                 {
-                    "name": "rpi-m9-ta1",
-                    "prettyName": "RPI-M9",
+                    "name": "rpi-m9-ta1-v2-graph",
+                    "prettyName": "RPI-M9-TA1-GRAPH",
                     "tables": [
                         {
                             "name": "graph",
                             "prettyName": "Graph"
-                        },
-                        {
-                            "name": "children",
-                            "prettyName": "Child Documents"
                         }
                     ]
                 }
@@ -227,48 +219,14 @@
                 {
                     "members": [
                         {
-                            "database": "aida-docs-tmp",
-                            "table": "parent_children",
-                            "field": "id"
-                        },
-                        {
-                            "database": "aida-docs-tmp",
-                            "table": "parents",
-                            "field": "children"
-                        },
-                        {
-                            "database": "rpi-m9-ta1",
+                            "database": "rpi-m9-ta1-v2-graph",
                             "table": "graph",
                             "field": "docIds"
                         },
                         {
-                            "database": "rpi-m9-ta1",
+                            "database": "rpi-m9-ta1-v2",
                             "table": "children",
                             "field": "id"
-                        }
-                    ]
-                },
-                {
-                    "members": [
-                        {
-                            "database": "aida-docs-tmp",
-                            "table": "parent_children",
-                            "field": "parent_uid"
-                        },
-                        {
-                            "database": "aida-docs-tmp",
-                            "table": "parents",
-                            "field": "id"
-                        },
-                        {
-                            "database": "rpi-m9-ta1",
-                            "table": "graph",
-                            "field": "parentIds"
-                        },
-                        {
-                            "database": "rpi-m9-ta1",
-                            "table": "children",
-                            "field": "parent_uid"
                         }
                     ]
                 }
@@ -276,7 +234,7 @@
             "options": {
                 "checkForCoordinateValidation": "null_values",
                 "colorMaps": {
-                    "rpi-m9-ta1": {
+                    "rpi-m9-ta1-v2-graph": {
                         "graph": {
                             "categories": {
                                 "ENTITY": "#ADD8E6",
@@ -292,29 +250,29 @@
         },
         {
             "title": "VERDI",
-            "name": "ARL M9 Graph TA2 Events",
-            "connectOnLoad": false,
+            "name": "ARL M9 TA2 Events",
+            "connectOnLoad": true,
             "layout": "verdi-arl-ta2-events",
             "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases": [
                 {
-                    "name": "verdi-rdf",
-                    "prettyName": "Documents",
+                    "name": "rpi-m9-ta1-v2",
+                    "prettyName": "RPI-M9-TA1",
                     "tables": [
                         {
-                            "name": "normal",
-                            "prettyName": "normal"
+                            "name": "children",
+                            "prettyName": "Child Documents"
                         }
                     ]
                 },
                 {
-                    "name": "kb-events",
-                    "prettyName": "Events",
+                    "name": "rpi-m9-ta1-v2-events",
+                    "prettyName": "RPI-M9-TA1-EVENTS",
                     "tables": [
                         {
-                            "name": "seedling",
-                            "prettyName": "seedling"
+                            "name": "graph",
+                            "prettyName": "Events"
                         }
                     ]
                 }
@@ -323,14 +281,26 @@
                 {
                     "members": [
                         {
-                            "database": "verdi-rdf",
-                            "table": "normal",
-                            "field": "@id"
+                            "database": "rpi-m9-ta1-v2-events",
+                            "table": "graph",
+                            "field": "docIds"
                         },
                         {
-                            "database": "kb-events",
-                            "table": "seedling",
-                            "field": "docIds"
+                            "database": "rpi-m9-ta1-v2",
+                            "table": "children",
+                            "field": "id"
+                        }
+                    ],
+                    "members": [
+                        {
+                            "database": "rpi-m9-ta1-v2-events",
+                            "table": "graph",
+                            "field": "parentIds"
+                        },
+                        {
+                            "database": "rpi-m9-ta1-v2",
+                            "table": "children",
+                            "field": "parent_uid"
                         }
                     ]
                 }
@@ -338,29 +308,29 @@
         },
         {
             "title": "VERDI",
-            "name": "ARL M9 Graph TA2 Map",
+            "name": "ARL M9 TA2 Map",
             "connectOnLoad": false,
             "layout": "verdi-arl-ta2-map",
             "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases": [
                 {
-                    "name": "verdi-rdf",
-                    "prettyName": "Documents",
+                    "name": "rpi-m9-ta1-v2",
+                    "prettyName": "RPI-M9-TA1",
                     "tables": [
                         {
-                            "name": "normal",
-                            "prettyName": "normal"
+                            "name": "children",
+                            "prettyName": "Child Documents"
                         }
                     ]
                 },
                 {
-                    "name": "kb-geo",
-                    "prettyName": "Geolocation",
+                    "name": "rpi-m9-ta1-v2-geo",
+                    "prettyName": "RPI-M9-TA1-GEO",
                     "tables": [
                         {
-                            "name": "seedling",
-                            "prettyName": "seedling"
+                            "name": "graph",
+                            "prettyName": "Locations"
                         }
                     ]
                 }
@@ -369,14 +339,14 @@
                 {
                     "members": [
                         {
-                            "database": "verdi-rdf",
-                            "table": "normal",
-                            "field": "@id"
+                            "database": "rpi-m9-ta1-v2-geo",
+                            "table": "graph",
+                            "field": "docIds"
                         },
                         {
-                            "database": "kb-geo",
-                            "table": "seedling",
-                            "field": "docIds"
+                            "database": "rpi-m9-ta1-v2",
+                            "table": "children",
+                            "field": "id"
                         }
                     ]
                 }
@@ -391,7 +361,7 @@
                 "sizey": 17.5,
                 "bindings": {
                     "title": "Documents",
-                    "database": "rpi-m9-ta1",
+                    "database": "rpi-m9-ta1-v2",
                     "table": "docs",
                     "idField": "id",
                     "sortField": "id",
@@ -415,7 +385,7 @@
                 "sizey": 6,
                 "bindings": {
                     "title": "Entities",
-                    "database": "rpi-m9-ta1",
+                    "database": "rpi-m9-ta1-v2",
                     "table": "graph",
                     "type": "bar-h",
                     "xField": "types",
@@ -435,7 +405,7 @@
                 "sizey": 6,
                 "bindings": {
                     "title": "Relations",
-                    "database": "rpi-m9-ta1",
+                    "database": "rpi-m9-ta1-v2",
                     "table": "graph",
                     "type": "bar-h",
                     "xField": "types",
@@ -455,7 +425,7 @@
                 "sizey": 5.5,
                 "bindings": {
                     "title": "Events",
-                    "database": "rpi-m9-ta1",
+                    "database": "rpi-m9-ta1-v2",
                     "table": "graph",
                     "type": "bar-h",
                     "xField": "types",
@@ -476,11 +446,11 @@
                 "bindings": {
                     "id": "_id",
                     "title": "Media Viewer",
-                    "database": "aida-docs-tmp",
-                    "table": "parents",
+                    "database": "rpi-m9-ta1-v2",
+                    "table": "docs",
                     "idField": "id",
                     "linkField": "reconstructed",
-                    "linkPrefix": "../Reconstructed/html/gaia/",
+                    "linkPrefix": ".../Reconstructed/html/rpi-m9-ta1-v2/",
                     "typeField": "dtype",
                     "clearMedia": true
                 },
@@ -610,7 +580,7 @@
                 "sizey": 16,
                 "bindings": {
                     "title": "Ontology",
-                    "database": "rpi-m9-ta1",
+                    "database": "rpi-m9-ta1-v2-graph",
                     "table": "graph",
                     "typeField": "types",
                     "subTypeField": "types",
@@ -622,7 +592,6 @@
                         "types",
                         "docIds"
                     ],
-                    "limit": 30000,
                     "ignoreSelf": true,
                     "idField": "id",
                     "linkField": "",
@@ -637,7 +606,7 @@
                 "sizey": 12,
                 "bindings": {
                     "title": "Network Graph",
-                    "database": "rpi-m9-ta1",
+                    "database": "rpi-m9-ta1-v2-graph",
                     "table": "graph",
                     "unsharedFilterField": "",
                     "unsharedFilterValue": "",
@@ -648,7 +617,6 @@
                     "linkNameField": "edgeLabel",
                     "targetNameField": "targetName",
                     "nodeColor": "",
-                    "limit": 26000,
                     "linkColor": "#D1C2F0",
                     "edgeColor": "#63B4CF",
                     "xPositionField": "x",
@@ -661,11 +629,10 @@
                     "hideUnfiltered": false,
                     "physics": false,
                     "filterFields": [
-                        "categories",
-                        "types",
                         "docIds"
                     ],
                     "idField": "id",
+                    "id": "_id",
                     "filterable": true,
                     "multiFilter": true,
                     "multiFilterOperator": "or",
@@ -687,12 +654,12 @@
                 "sizey": 4,
                 "bindings": {
                     "title": "Document Timeline",
-                    "database": "rpi-m9-ta1",
+                    "database": "rpi-m9-ta1-v2",
                     "table": "children",
                     "idField": "id",
                     "filterField": "id",
                     "dateField": "download_date",
-                    "granularity": "day",
+                    "granularity": "month",
                     "hideUnfiltered": false
                 }
             },
@@ -703,11 +670,11 @@
                 "bindings": {
                     "id": "_id",
                     "title": "Documents",
-                    "database": "rpi-m9-ta1",
+                    "database": "rpi-m9-ta1-v2",
                     "table": "children",
                     "idField": "id",
                     "flagSubLabel1": "parent_uid",
-                    "flagSubLabel2": "host",
+                    "flagSubLabel2": "download_date",
                     "flagSubLabel3": "dtype",
                     "linkField": "url",
                     "dateField": "download_date",
@@ -745,13 +712,12 @@
                 "sizex": 3,
                 "sizey": 16,
                 "bindings": {
-                    "id": "_id",
                     "title": "Ontology",
-                    "database": "kb-events",
-                    "table": "seedling",
+                    "database": "rpi-m9-ta1-v2-events",
+                    "table": "graph",
                     "typeField": "types",
                     "subTypeField": "types",
-                    "valueField": "name",
+                    "valueField": "",
                     "categoryField": "categories",
                     "sourceIdField": "docIds",
                     "filterFields": [
@@ -760,7 +726,7 @@
                         "docIds"
                     ],
                     "ignoreSelf": true,
-                    "idField": "kbid",
+                    "idField": "id",
                     "linkField": "",
                     "ascending": true
                 },
@@ -775,26 +741,27 @@
                 "bindings": {
                     "id": "_id",
                     "title": "Events",
-                    "database": "kb-events",
-                    "table": "seedling",
-                    "idField": "kbid",
+                    "database": "rpi-m9-ta1-v2-events",
+                    "table": "graph",
+                    "idField": "id",
                     "flagLabel": "name",
-                    "flagSubLabel1": "docDate",
-                    "flagSubLabel2": "types",
-                    "flagSubLabel3": "name",
+                    "flagSubLabel1": "download_date",
+                    "flagSubLabel2": "docIds",
+                    "flagSubLabel3": "parentIds",
                     "linkField": "url",
-                    "dateField": "docDate",
+                    "dateField": "download_date",
                     "objectNameField": "",
-                    "objectIdField": "kbid",
-                    "typeField": "docType",
+                    "objectIdField": "id",
+                    "typeField": "dtype",
                     "predictedNameField": "",
                     "percentField": "",
                     "openOnMouseClick": true,
                     "hideUnfiltered": false,
-                    "sortField": "docDate",
+                    "sortField": "download_date",
                     "filterFields": [
-                        "kbid",
-                        "docIds"
+                        "id",
+                        "docIds",
+                        "parentIds"
                     ],
                     "ascending": false,
                     "canvasSize": 180.00,
@@ -825,12 +792,12 @@
                 "sizex": 7,
                 "sizey": 4,
                 "bindings": {
-                    "title": "Event Timeline",
-                    "database": "kb-events",
-                    "table": "seedling",
-                    "idField": "kbid",
+                    "title": "Events Timeline",
+                    "database": "rpi-m9-ta1-v2-events",
+                    "table": "graph",
+                    "idField": "id",
                     "filterField": "docIds",
-                    "dateField": "docDate",
+                    "dateField": "download_date",
                     "granularity": "month",
                     "hideUnfiltered": false
                 }
@@ -842,23 +809,23 @@
                 "bindings": {
                     "id": "_id",
                     "title": "Documents",
-                    "database": "verdi-rdf",
-                    "table": "normal",
-                    "idField": "@id",
-                    "flagSubLabel1": "isPartOf",
-                    "flagSubLabel2": "date",
-                    "flagSubLabel3": "docType",
+                    "database": "rpi-m9-ta1-v2",
+                    "table": "children",
+                    "idField": "id",
+                    "flagSubLabel1": "parent_uid",
+                    "flagSubLabel2": "download_date",
+                    "flagSubLabel3": "dtype",
                     "linkField": "url",
-                    "dateField": "date",
+                    "dateField": "download_date",
                     "objectNameField": "",
-                    "objectIdField": "@id",
-                    "typeField": "docType",
+                    "objectIdField": "id",
+                    "typeField": "dtype",
                     "predictedNameField": "",
                     "percentField": "",
                     "openOnMouseClick": true,
                     "hideUnfiltered": false,
-                    "sortField": "@id",
-                    "filterField": "@id",
+                    "sortField": "id",
+                    "filterFields": ["id", "parent_uid"],
                     "ignoreSelf": false,
                     "ascending": true,
                     "viewType": "details",
@@ -886,8 +853,8 @@
                 "bindings": {
                     "id": "_id",
                     "title": "Ontology",
-                    "database": "kb-geo",
-                    "table": "seedling",
+                    "database": "rpi-m9-ta1-v2-geo",
+                    "table": "graph",
                     "typeField": "types",
                     "subTypeField": "types",
                     "valueField": "name",
@@ -899,7 +866,7 @@
                         "docIds"
                     ],
                     "ignoreSelf": true,
-                    "idField": "kbid",
+                    "idField": "id",
                     "linkField": "",
                     "ascending": true
                 },
@@ -912,8 +879,8 @@
                 "sizey": 12,
                 "bindings": {
                     "title": "Locations",
-                    "database": "kb-geo",
-                    "table": "seedling",
+                    "database": "rpi-m9-ta1-v2-geo",
+                    "table": "graph",
                     "show": true,
                     "type": "cluster",
                     "limit": 5000,
@@ -926,15 +893,15 @@
                     "layers": [
                         {
                             "title": "Map",
-                            "database": "kb-geo",
-                            "table": "seedling",
+                            "database": "rpi-m9-ta1-v2-geo",
+                            "table": "graph",
                             "latitudeField": "geoLocation.lat",
                             "longitudeField": "geoLocation.lon",
                             "hoverPopupField": "name",
-                            "dateField": "docDate",
-                            "idField": "kbid",
+                            "dateField": "download_date",
+                            "idField": "id",
                             "filterFields": [
-                                "kbid",
+                                "id",
                                 "docIds"
                             ],
                             "colorField": "types"
@@ -952,11 +919,11 @@
                 "sizey": 4,
                 "bindings": {
                     "title": "Map Timeline",
-                    "database": "kb-geo",
-                    "table": "seedling",
-                    "idField": "kbid",
+                    "database": "rpi-m9-ta1-v2-geo",
+                    "table": "graph",
+                    "idField": "id",
                     "filterField": "docIds",
-                    "dateField": "docDate",
+                    "dateField": "download_date",
                     "granularity": "month",
                     "hideUnfiltered": false
                 }
@@ -968,23 +935,23 @@
                 "bindings": {
                     "id": "_id",
                     "title": "Documents",
-                    "database": "verdi-rdf",
-                    "table": "normal",
-                    "idField": "@id",
-                    "flagSubLabel1": "isPartOf",
-                    "flagSubLabel2": "date",
-                    "flagSubLabel3": "docType",
+                    "database": "rpi-m9-ta1-v2",
+                    "table": "children",
+                    "idField": "id",
+                    "flagSubLabel1": "parent_uid",
+                    "flagSubLabel2": "download_date",
+                    "flagSubLabel3": "dtype",
                     "linkField": "url",
-                    "dateField": "date",
+                    "dateField": "download_date",
                     "objectNameField": "",
-                    "objectIdField": "@id",
-                    "typeField": "docType",
+                    "objectIdField": "id",
+                    "typeField": "dtype",
                     "predictedNameField": "",
                     "percentField": "",
                     "openOnMouseClick": true,
                     "hideUnfiltered": false,
-                    "sortField": "@id",
-                    "filterField": "@id",
+                    "sortField": "id",
+                    "filterFields": ["id"],
                     "ignoreSelf": false,
                     "ascending": true,
                     "viewType": "details",

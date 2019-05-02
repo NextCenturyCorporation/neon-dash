@@ -441,15 +441,15 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             },
             physics: {
                 forceAtlas2Based: {
-                    gravitationalConstant: -26,
+                    gravitationalConstant: -86,
                     centralGravity: 0.005,
                     springLength: 230,
                     springConstant: 0.18
                 },
                 maxVelocity: 146,
                 solver: 'forceAtlas2Based',
-                timestep: 0.35,
-                stabilization: { iterations: 150 }
+                timestep: 1,
+                stabilization: { iterations: 50 }
             },
             edges: {
                 smooth: {
@@ -457,12 +457,17 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     type: 'continuous',
                     roundness: 0
                 }
+            },
+            interaction: {
+                hideEdgesOnDrag: true
             }
         };
+
         this.graph = new vis.Network(this.graphElement.nativeElement, this.graphData, options);
         if (this.options.filterable) {
             this.graph.on('doubleClick', this.onSelect);
         }
+
     }
 
     private restartPhysics(): void {
@@ -473,7 +478,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             this.graph.off('stabilized');
         });
 
-        // turn on physics if enabled
+       // turn on physics if enabled
         this.graph.setOptions({ physics: { enabled: this.options.physics } });
     }
 
