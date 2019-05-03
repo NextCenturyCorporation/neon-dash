@@ -251,34 +251,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Returns the export header data using the given options and visualization query.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} query
-     * @return {{name:string,data:any}}
-     */
-    private createExportOptions(options: any, query: QueryPayload): { name: string, data: any } {
-        let exportName = options.title.split(':').join(' ');
-        let exportQuery: any = this.searchService.transformQueryPayloadToExport(query);
-        return {
-            // TODO THOR-861 What is this name?  Should it really be hard-coded?
-            name: 'Query_Results_Table',
-            data: {
-                query: exportQuery,
-                name: exportName + '-' + options._id,
-                fields: this.getExportFields(options).map((exportFieldsObject) => ({
-                    query: exportFieldsObject.columnName,
-                    pretty: exportFieldsObject.prettyName || exportFieldsObject.columnName
-                })),
-                ignoreFilters: exportQuery.ignoreFilters,
-                selectionOnly: exportQuery.selectionOnly,
-                ignoredFilterIds: [],
-                type: 'query'
-            }
-        };
-    }
-
-    /**
      * Returns the export header data.
      *
      * @return {{name:string,data:any}[]}
@@ -286,7 +258,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public createExportData(): { name: string, data: any }[] {
         return (this.options.layers.length ? this.options.layers : [this.options]).map((options) => {
             let query: QueryPayload = this.createCompleteVisualizationQuery(options);
-            return query ? this.createExportOptions(options, query) : [];
+            let title = options.title.split(':').join(' ') + '-' + options._id;
+            return query ? this.searchService.transformQueryPayloadToExport(this.getExportFields(options), query, title) : null;
         }).filter((exportObject) => !!exportObject);
     }
 
@@ -1237,20 +1210,27 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {{ columnName: string, prettyName: string }[]}
      */
     public getExportFields(options?: any): { columnName: string, prettyName: string }[] {
-        return (options || this.options).list().reduce((exportFields, option) => {
+        return (options || this.options).list().reduce((returnFields, option) => {
+            let fields = [];
             if (option.optionType === OptionType.FIELD && option.valueCurrent.columnName) {
-                return exportFields.concat({
-                    columnName: option.valueCurrent.columnName,
-                    prettyName: option.valueCurrent.prettyName
-                });
+                fields = [option.valueCurrent];
             }
             if (option.optionType === OptionType.FIELD_ARRAY) {
-                return exportFields.concat(option.valueCurrent.filter((fieldsObject) => !!fieldsObject.columnName).map((fieldsObject) => ({
-                    columnName: fieldsObject.columnName,
-                    prettyName: fieldsObject.prettyName
-                })));
+                fields = option.valueCurrent;
             }
-            return exportFields;
+            return fields.reduce((exportFields, field) => {
+                if (field.columnName) {
+                    // Ignore repeated fields.
+                    let exists = exportFields.some((exportField) => exportField.columnName === field.columnName);
+                    if (!exists) {
+                        return exportFields.concat({
+                            columnName: field.columnName,
+                            prettyName: field.prettyName
+                        });
+                    }
+                }
+                return exportFields;
+            }, returnFields);
         }, []);
     }
 
