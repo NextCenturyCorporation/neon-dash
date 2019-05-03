@@ -82,7 +82,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     getExportCallbacks(widgets: Map<string, BaseNeonComponent>): (() => { name: string, data: any }[])[] {
-        return Array.from(widgets.values()).map((widget) => widget.createExportData);
+        return Array.from(widgets.values()).map((widget) => widget.createExportData.bind(widget));
     }
 
     ngOnDestroy() {

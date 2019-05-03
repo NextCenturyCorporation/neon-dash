@@ -456,14 +456,7 @@ describe('BaseNeonComponent', () => {
             prettyName: 'Export 2'
         }]);
         expect(component.createExportData()).toEqual([{
-            name: 'Query_Results_Table',
             data: {
-                query: {
-                    database: 'testDatabase1',
-                    table: 'testTable1',
-                    fields: ['*']
-                },
-                name: 'Mock Superclass-' + component.options._id,
                 fields: [{
                     query: 'export_1',
                     pretty: 'Export 1'
@@ -472,8 +465,14 @@ describe('BaseNeonComponent', () => {
                     pretty: 'Export 2'
                 }],
                 ignoreFilters: undefined,
-                selectionOnly: undefined,
                 ignoredFilterIds: [],
+                name: 'Mock Superclass-' + component.options._id,
+                query: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    fields: ['*']
+                },
+                selectionOnly: undefined,
                 type: 'query'
             }
         }]);
@@ -514,14 +513,7 @@ describe('BaseNeonComponent', () => {
             return [];
         });
         expect(component.createExportData()).toEqual([{
-            name: 'Query_Results_Table',
             data: {
-                query: {
-                    database: 'testDatabase1',
-                    table: 'testTable1',
-                    fields: ['*']
-                },
-                name: 'Layer 1-' + component.options.layers[0]._id,
                 fields: [{
                     query: 'export_1',
                     pretty: 'Export 1'
@@ -530,19 +522,18 @@ describe('BaseNeonComponent', () => {
                     pretty: 'Export 2'
                 }],
                 ignoreFilters: undefined,
-                selectionOnly: undefined,
                 ignoredFilterIds: [],
+                name: 'Layer 1-' + component.options.layers[0]._id,
+                query: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    fields: ['*']
+                },
+                selectionOnly: undefined,
                 type: 'query'
             }
         }, {
-            name: 'Query_Results_Table',
             data: {
-                query: {
-                    database: 'testDatabase2',
-                    table: 'testTable2',
-                    fields: ['*']
-                },
-                name: 'Layer 2-' + component.options.layers[1]._id,
                 fields: [{
                     query: 'export_3',
                     pretty: 'Export 3'
@@ -551,8 +542,14 @@ describe('BaseNeonComponent', () => {
                     pretty: 'Export 4'
                 }],
                 ignoreFilters: undefined,
-                selectionOnly: undefined,
                 ignoredFilterIds: [],
+                name: 'Layer 2-' + component.options.layers[1]._id,
+                query: {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    fields: ['*']
+                },
+                selectionOnly: undefined,
                 type: 'query'
             }
         }]);
@@ -1057,12 +1054,18 @@ describe('BaseNeonComponent', () => {
         expect(component.getExportFields()).toEqual([]);
 
         component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), new FieldMetaData());
-        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DatasetServiceMock.CATEGORY_FIELD);
+        component.options.append(new WidgetFieldOption('testField1', 'Test Field 1', false), DatasetServiceMock.NAME_FIELD);
+        component.options.append(new WidgetFieldOption('testField2', 'Test Field 2', false), DatasetServiceMock.TYPE_FIELD);
+        component.options.append(new WidgetFieldOption('testRepeatedField', 'Test Repeated Field', false), DatasetServiceMock.NAME_FIELD);
         component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DatasetServiceMock.X_FIELD,
             DatasetServiceMock.Y_FIELD]);
+
         expect(component.getExportFields()).toEqual([{
-            columnName: 'testCategoryField',
-            prettyName: 'Test Category Field'
+            columnName: 'testNameField',
+            prettyName: 'Test Name Field'
+        }, {
+            columnName: 'testTypeField',
+            prettyName: 'Test Type Field'
         }, {
             columnName: 'testXField',
             prettyName: 'Test X Field'

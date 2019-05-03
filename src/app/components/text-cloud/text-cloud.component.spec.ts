@@ -89,29 +89,6 @@ describe('Component: TextCloud', () => {
         expect(component.textColor).toBe('#367588');
     });
 
-    it('returns the correct value from getExportFields', () => {
-        component.options.dataField = new FieldMetaData('testTextField', 'Test Text Field');
-        component.options.sizeField = new FieldMetaData('testSizeField');
-
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testTextField',
-            prettyName: 'Test Text Field'
-        }, {
-            columnName: 'value',
-            prettyName: 'Count'
-        }]);
-
-        component.options.sizeField.prettyName = 'Test Size Field';
-
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testTextField',
-            prettyName: 'Test Text Field'
-        }, {
-            columnName: 'value',
-            prettyName: 'Test Size Field'
-        }]);
-    });
-
     it('has a refreshVisualization method that calls createTextCloud', () => {
         let spy = spyOn(component.textCloud, 'createTextCloud');
         (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([]));
