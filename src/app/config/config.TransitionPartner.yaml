@@ -203,6 +203,37 @@ datastores:
                               prettyName: Cluster ID
                         mappings:
                           date: createdAt
+            mad042019_frames:
+                prettyName: 'Madagascar 2019'
+                tables:
+                    ui_output:
+                        prettyName: UI out
+                        fields:
+                            - columnName: createdAt
+                              prettyName: Date Created
+                            - columnName: need
+                              prettyName: Need Type
+                            - columnName: location
+                              prettyName: Location
+                            - columnName: translatedText
+                              prettyName: Translated Text
+                            - columnName: originalText
+                              prettyName: Original Text
+                        labelOptions:
+                            topic:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
+                        mappings:
+                            date: createAt
 
 dashboards:
     category: 'Select a task...'
@@ -404,6 +435,42 @@ dashboards:
                                         ui_output: 'id'
                                     ldc_il3_meta:
                                         ui_output: 'id'
+                            options:
+                                connectOnLoad: true
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: translated_text_key
+                                    placeHolder: Search
+                            contributors:
+                                rpi:
+                                    orgName: 'Rensselaer Polytechnic Institute'
+                                    abbreviation: 'RPI'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
+                                    logo: 'RPI-logo.png'
+                                isi:
+                                    orgName: 'University of Southern California, Information Sciences Institute'
+                                    abbreviation: 'USC/ISI'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
+                                    logo: 'ISI-logo.png'
+                        madagascar:
+                            name: Madagascar
+                            layout: darpa60-uyghur-sd
+                            tables:
+                                table_key_1: es1.mad042019_frames.ui_output
+                            fields:
+                                original_text_key: es1.mad042019_frames.ui_output.originalText
+                                translated_text_key: es1.mad042019_frames.ui_output.translatedText
+                                date_field_key: es1.mad042019_frames.ui_output.createdAt
+                                id_field_key: es1.mad042019_frames.ui_output._id
+                                filter_field_key: es1.mad042019_frames.ui_output.id
+                                group_field_key: es1.mad042019_frames.ui_output.need
+                                latitude_key: es1.mad042019_frames.ui_output.geoLocation.lat
+                                longitude_key: es1.mad042019_frames.ui_output.geoLocation.lon
+                                text_cloud_data_key: es1.mad042019_frames.ui_output.location
                             options:
                                 connectOnLoad: true
                                 simpleFilter:
