@@ -478,7 +478,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             this.graph.off('stabilized');
         });
 
-       // turn on physics if enabled
+        // turn on physics if enabled
         this.graph.setOptions({ physics: { enabled: this.options.physics } });
     }
 
