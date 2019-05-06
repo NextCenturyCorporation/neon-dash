@@ -52,23 +52,6 @@ import * as _ from 'lodash';
 import { ContributionDialogComponent } from '../contribution-dialog/contribution-dialog.component';
 import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material';
 
-export class TransformedVisualizationData {
-    constructor(protected _data: any = []) {}
-
-    get data(): any {
-        return this._data;
-    }
-
-    /**
-     * Returns the length of the data if it is an array or 0 otherwise (override as needed).
-     *
-     * @return {number}
-     */
-    public count(): number {
-        return this._data instanceof Array ? this._data.length : 0;
-    }
-}
-
 /**
  * @class BaseNeonComponent
  *
@@ -88,9 +71,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     // Maps a specific filter data source list to its filter list.
     private cachedFilters: SingleListFilterCollection = new SingleListFilterCollection();
-
-    // Maps the options/layer ID to the active transformed visualization data.
-    private layerIdToActiveData: Map<string, TransformedVisualizationData> = new Map<string, TransformedVisualizationData>();
 
     // Maps the options/layer ID to the element count.
     private layerIdToElementCount: Map<string, number> = new Map<string, number>();
@@ -595,11 +575,15 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @arg {(data: TransformedVisualizationData) => void} successCallback
+     * @arg {(elementCount: number) => void} successCallback
      * @arg {(err: Error) => void} successCallback
      */
-    protected handleTransformVisualizationQueryResults(options: any, results: any[],
-        successCallback: (data: TransformedVisualizationData) => void, failureCallback: (err: Error) => void): void {
+    protected handleTransformVisualizationQueryResults(
+        options: any,
+        results: any[],
+        successCallback: (elementCount: number) => void,
+        failureCallback: (err: Error) => void
+    ): void {
 
         try {
             let data = this.transformVisualizationQueryResults(options, results);
@@ -619,19 +603,15 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private handleSuccessfulVisualizationQuery(options: any, response: any, callback: () => void): void {
         if (!response || !response.data || !response.data.length) {
-            // TODO THOR-985 Don't call transformVisualizationQueryResults
             this.transformVisualizationQueryResults(options, []);
             this.errorMessage = 'No Data';
-            this.layerIdToActiveData.set(options._id, new TransformedVisualizationData());
             this.layerIdToElementCount.set(options._id, 0);
-            this.clearVisualizationData(options);
             callback();
             return;
         }
 
-        let successCallback = (data: TransformedVisualizationData) => {
+        let successCallback = (elementCount: number) => {
             this.errorMessage = '';
-            this.layerIdToActiveData.set(options._id, data);
 
             if (this.visualizationQueryPaginates && !this.showingZeroOrMultipleElementsPerResult) {
                 let countQuery: QueryPayload = this.createCompleteVisualizationQuery(options);
@@ -649,19 +629,19 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 // If the visualization query paginates but is showing zero or multiple elements per result, we cannot determine the page,
                 // so just set lastPage to false.
                 this.lastPage = this.visualizationQueryPaginates ? false : true;
-                this.layerIdToElementCount.set(options._id, this.layerIdToActiveData.get(options._id).count());
+                this.layerIdToElementCount.set(options._id, elementCount);
                 callback();
             }
         };
 
         let failureCallback = (err: Error) => {
+            this.transformVisualizationQueryResults(options, []);
             this.errorMessage = 'Error';
+            this.layerIdToElementCount.set(options._id, 0);
             this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
                 error: err,
                 message: 'FAILED ' + options.title + ' transform results'
             });
-            this.layerIdToActiveData.set(options._id, new TransformedVisualizationData());
-            this.layerIdToElementCount.set(options._id, 0);
             callback();
         };
 
@@ -669,24 +649,15 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return TransformedVisualizationData
+     * @return {number}
      * @abstract
      */
-    public abstract transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData;
-
-    /**
-     * Returns the active transformed visualization data (or null) for the given options (or this.options if no options are given).
-     *
-     * @arg {any} [options=this.options] A WidgetOptionCollection object.
-     * @return {TransformedVisualizationData}
-     */
-    public getActiveData(options?: any): TransformedVisualizationData {
-        return this.layerIdToActiveData.get((options || this.options)._id) || null;
-    }
+    public abstract transformVisualizationQueryResults(options: any, results: any[]): number;
 
     /**
      * Updates and redraws the elements and properties for the visualization.
@@ -836,7 +807,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {boolean} databaseOrTableChange
      */
     public handleChangeData(options?: any, databaseOrTableChange?: boolean): void {
-        this.layerIdToActiveData.delete((options || this.options)._id);
         this.layerIdToElementCount.set((options || this.options)._id, 0);
 
         this.errorMessage = '';
@@ -1310,20 +1280,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         return !this.options.ignoreSelf;
     }
 
-    protected clearVisualizationData(options: any): void {
-        // TODO THOR-985 Temporary function.  Override as needed.
-    }
-
     /**
      * Checks wheather there are any filters and returns no data.
      */
     public noDataCheck() {
-        if (this.filterService.getFilters().length > 0) {
-            let activeData = this.getActiveData();
-            this.showNoData = !activeData || !activeData.data || !activeData.data.length;
-        } else {
-            this.showNoData = false;
-        }
+        this.showNoData = !!(this.filterService.getFilters().length && !this.layerIdToElementCount.get(this.options._id));
         this.changeDetection.detectChanges();
         this.toggleBodyContainer();
     }

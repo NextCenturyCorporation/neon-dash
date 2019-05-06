@@ -50,7 +50,7 @@ import {
     MapTypePairs,
     whiteString
 } from './map.type.abstract';
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { CesiumNeonMap } from './map.type.cesium';
 import { FieldMetaData } from '../../dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
@@ -342,19 +342,20 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         // TODO Need to either preprocess data to get color, size scales OR see if neon aggregations can give ranges.
         // TODO break this function into smaller bits so it is more understandable.
 
         if (!this.mapObject) {
-            return;
+            return 0;
         }
 
         // TODO Move singleColor to layer options.
@@ -392,7 +393,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         this.filterMapForLegend();
         this.updateLegend();
 
-        return new TransformedVisualizationData(mapPoints);
+        return mapPoints.length;
     }
 
     /**

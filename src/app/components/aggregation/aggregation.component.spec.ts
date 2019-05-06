@@ -20,7 +20,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Inje
 import { FormsModule } from '@angular/forms';
 import {} from 'jasmine-core';
 
-import { AggregationComponent, TransformedAggregationData } from './aggregation.component';
+import { AggregationComponent } from './aggregation.component';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { ChartJsData } from './subcomponent.chartjs.abstract';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
@@ -1869,6 +1869,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('transformVisualizationQueryResults with XY data does return expected data', () => {
+        component.options.countByAggregation = true;
         component.options.type = 'line-xy';
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
@@ -1883,7 +1884,8 @@ describe('Component: Aggregation', () => {
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(actual.data).toEqual([{
+        expect(actual).toEqual(2);
+        expect(component.aggregationData).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: 1,
@@ -1899,6 +1901,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('transformVisualizationQueryResults with aggregated data does return expected data', () => {
+        component.options.countByAggregation = true;
         component.options.xField = DatasetServiceMock.X_FIELD;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
@@ -1911,7 +1914,8 @@ describe('Component: Aggregation', () => {
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(actual.data).toEqual([{
+        expect(actual).toEqual(2);
+        expect(component.aggregationData).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: 1,
@@ -1927,6 +1931,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('transformVisualizationQueryResults with XY data and groups does create groups', () => {
+        component.options.countByAggregation = true;
         component.options.type = 'line-xy';
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
@@ -1952,7 +1957,8 @@ describe('Component: Aggregation', () => {
 
         expect(component.legendActiveGroups).toEqual(['a', 'b']);
         expect(component.legendGroups).toEqual(['a', 'b']);
-        expect(actual.data).toEqual([{
+        expect(actual).toEqual(4);
+        expect(component.aggregationData).toEqual([{
             color: COLOR_1,
             group: 'a',
             x: 1,
@@ -1978,6 +1984,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('transformVisualizationQueryResults with aggregated data and groups does create groups', () => {
+        component.options.countByAggregation = true;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
 
@@ -2001,7 +2008,8 @@ describe('Component: Aggregation', () => {
 
         expect(component.legendActiveGroups).toEqual(['a', 'b']);
         expect(component.legendGroups).toEqual(['a', 'b']);
-        expect(actual.data).toEqual([{
+        expect(actual).toEqual(4);
+        expect(component.aggregationData).toEqual([{
             color: COLOR_1,
             group: 'a',
             x: 1,
@@ -2027,6 +2035,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('transformVisualizationQueryResults with disabled legend groups does create expected legend groups', () => {
+        component.options.countByAggregation = true;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
 
@@ -2098,6 +2107,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('transformVisualizationQueryResults with XY date data does return expected data', () => {
+        component.options.countByAggregation = true;
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
         component.options.xField = DatasetServiceMock.DATE_FIELD;
@@ -2113,7 +2123,8 @@ describe('Component: Aggregation', () => {
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(actual.data).toEqual([{
+        expect(actual).toEqual(2);
+        expect(component.aggregationData).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
@@ -2129,6 +2140,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('transformVisualizationQueryResults with aggregated date data does return expected data', () => {
+        component.options.countByAggregation = true;
         component.options.granularity = 'day';
         component.options.xField = DatasetServiceMock.DATE_FIELD;
 
@@ -2142,7 +2154,8 @@ describe('Component: Aggregation', () => {
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(actual.data).toEqual([{
+        expect(actual).toEqual(2);
+        expect(component.aggregationData).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
@@ -2158,6 +2171,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('transformVisualizationQueryResults with savePrevious=true does keep previous xList string data', () => {
+        component.options.countByAggregation = true;
         component.options.savePrevious = true;
         component.options.xField = DatasetServiceMock.TEXT_FIELD;
         component.xList = ['z', 'a', 'b', 'c', 'd'];
@@ -2172,7 +2186,8 @@ describe('Component: Aggregation', () => {
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(actual.data).toEqual([{
+        expect(actual).toEqual(2);
+        expect(component.aggregationData).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: 'a',
@@ -2188,6 +2203,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('transformVisualizationQueryResults with savePrevious=true does keep previous xList number data', () => {
+        component.options.countByAggregation = true;
         component.options.savePrevious = true;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.xList = [0, 1, 2, 3, 4];
@@ -2202,7 +2218,8 @@ describe('Component: Aggregation', () => {
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(actual.data).toEqual([{
+        expect(actual).toEqual(2);
+        expect(component.aggregationData).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: 1,
@@ -2218,6 +2235,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('transformVisualizationQueryResults with savePrevious=true does keep previous xList date data', () => {
+        component.options.countByAggregation = true;
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
         component.options.savePrevious = true;
@@ -2236,7 +2254,8 @@ describe('Component: Aggregation', () => {
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(actual.data).toEqual([{
+        expect(actual).toEqual(2);
+        expect(component.aggregationData).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: '2018-01-02T00:00:00.000Z',
@@ -2253,6 +2272,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('transformVisualizationQueryResults with timeFill=true does add empty dates if needed', () => {
+        component.options.countByAggregation = true;
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
         component.options.timeFill = true;
@@ -2269,7 +2289,8 @@ describe('Component: Aggregation', () => {
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(actual.data).toEqual([{
+        expect(actual).toEqual(3);
+        expect(component.aggregationData).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
@@ -2290,6 +2311,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('transformVisualizationQueryResults with timeFill=true does not add empty dates if not needed', () => {
+        component.options.countByAggregation = true;
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
         component.options.timeFill = true;
@@ -2312,7 +2334,8 @@ describe('Component: Aggregation', () => {
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(actual.data).toEqual([{
+        expect(actual).toEqual(4);
+        expect(component.aggregationData).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
@@ -2339,6 +2362,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('transformVisualizationQueryResults with timeFill=true and groups does add empty dates to separate groups if needed', () => {
+        component.options.countByAggregation = true;
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
         component.options.timeFill = true;
@@ -2366,7 +2390,8 @@ describe('Component: Aggregation', () => {
 
         expect(component.legendActiveGroups).toEqual(['a', 'b']);
         expect(component.legendGroups).toEqual(['a', 'b']);
-        expect(actual.data).toEqual([{
+        expect(actual).toEqual(8);
+        expect(component.aggregationData).toEqual([{
             color: COLOR_1,
             group: 'a',
             x: '2018-01-01T00:00:00.000Z',
@@ -2413,6 +2438,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('transformVisualizationQueryResults with savePrevious=true and timeFill=true does work as expected', () => {
+        component.options.countByAggregation = true;
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
         component.options.savePrevious = true;
@@ -2432,7 +2458,8 @@ describe('Component: Aggregation', () => {
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(actual.data).toEqual([{
+        expect(actual).toEqual(5);
+        expect(component.aggregationData).toEqual([{
             color: COLOR_1,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
@@ -2463,6 +2490,68 @@ describe('Component: Aggregation', () => {
         expect(component.yList).toEqual([0, 2, 4]);
     });
 
+    it('transformVisualizationQueryResults with XY data and countByAggregation=false does return expected data', () => {
+        component.options.countByAggregation = false;
+        component.options.type = 'line-xy';
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            testXField: 1,
+            testYField: 2
+        }, {
+            testXField: 3,
+            testYField: 4
+        }]);
+
+        expect(component.legendActiveGroups).toEqual(['All']);
+        expect(component.legendGroups).toEqual(['All']);
+        expect(actual).toEqual(6);
+        expect(component.aggregationData).toEqual([{
+            color: COLOR_1,
+            group: 'All',
+            x: 1,
+            y: 2
+        }, {
+            color: COLOR_1,
+            group: 'All',
+            x: 3,
+            y: 4
+        }]);
+        expect(component.xList).toEqual([1, 3]);
+        expect(component.yList).toEqual([2, 4]);
+    });
+
+    it('transformVisualizationQueryResults with aggregated data and countByAggregation=false does return expected data', () => {
+        component.options.countByAggregation = false;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            _aggregation: 2,
+            testXField: 1
+        }, {
+            _aggregation: 4,
+            testXField: 3
+        }]);
+
+        expect(component.legendActiveGroups).toEqual(['All']);
+        expect(component.legendGroups).toEqual(['All']);
+        expect(actual).toEqual(6);
+        expect(component.aggregationData).toEqual([{
+            color: COLOR_1,
+            group: 'All',
+            x: 1,
+            y: 2
+        }, {
+            color: COLOR_1,
+            group: 'All',
+            x: 3,
+            y: 4
+        }]);
+        expect(component.xList).toEqual([1, 3]);
+        expect(component.yList).toEqual([2, 4]);
+    });
+
     it('transformVisualizationQueryResults with no data does work as expected', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
@@ -2470,7 +2559,8 @@ describe('Component: Aggregation', () => {
         let actual = component.transformVisualizationQueryResults(component.options, []);
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
-        expect(actual.data).toEqual([]);
+        expect(actual).toEqual(0);
+        expect(component.aggregationData).toEqual([]);
         expect(component.xList).toEqual([]);
         expect(component.yList).toEqual([]);
     });
@@ -2656,7 +2746,7 @@ describe('Component: Aggregation', () => {
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([], component.options));
+        (component as any).aggregationData = [];
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2673,13 +2763,13 @@ describe('Component: Aggregation', () => {
         }]);
         expect(spy2.calls.count()).toEqual(0);
 
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
+        (component as any).aggregationData = [{
             x: 1,
             y: 2
         }, {
             x: 3,
             y: 4
-        }], component.options));
+        }];
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -2715,7 +2805,7 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([], component.options));
+        (component as any).aggregationData = [];
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2732,13 +2822,13 @@ describe('Component: Aggregation', () => {
         }]);
         expect(spy2.calls.count()).toEqual(0);
 
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
+        (component as any).aggregationData = [{
             x: 1,
             y: 2
         }, {
             x: 3,
             y: 4
-        }], component.options));
+        }];
         component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
@@ -2772,7 +2862,7 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.xField = DatasetServiceMock.DATE_FIELD;
         component.options.yField = DatasetServiceMock.DATE_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([], component.options));
+        (component as any).aggregationData = [];
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2789,13 +2879,13 @@ describe('Component: Aggregation', () => {
         }]);
         expect(spy2.calls.count()).toEqual(0);
 
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
+        (component as any).aggregationData = [{
             x: 1,
             y: 2
         }, {
             x: 3,
             y: 4
-        }], component.options));
+        }];
         component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
@@ -2829,7 +2919,7 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.xField = DatasetServiceMock.TEXT_FIELD;
         component.options.yField = DatasetServiceMock.TEXT_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([], component.options));
+        (component as any).aggregationData = [];
 
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
@@ -2846,13 +2936,13 @@ describe('Component: Aggregation', () => {
         }]);
         expect(spy2.calls.count()).toEqual(0);
 
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
+        (component as any).aggregationData = [{
             x: 1,
             y: 2
         }, {
             x: 3,
             y: 4
-        }], component.options));
+        }];
         component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
@@ -2889,13 +2979,13 @@ describe('Component: Aggregation', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.dualView = 'on';
 
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
+        (component as any).aggregationData = [{
             x: 1,
             y: 2
         }, {
             x: 3,
             y: 4
-        }], component.options));
+        }];
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -2992,13 +3082,13 @@ describe('Component: Aggregation', () => {
         component.options.dualView = 'on';
         (component as any).isFiltered = () => true;
 
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
+        (component as any).aggregationData = [{
             x: 1,
             y: 2
         }, {
             x: 3,
             y: 4
-        }], component.options));
+        }];
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];
@@ -3060,13 +3150,13 @@ describe('Component: Aggregation', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.dualView = 'on';
 
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedAggregationData([{
+        (component as any).aggregationData = [{
             x: 1,
             y: 2
         }, {
             x: 3,
             y: 4
-        }], component.options));
+        }];
         component.legendGroups = ['a', 'b'];
         component.options.sortByAggregation = true;
         component.xList = [1, 3];

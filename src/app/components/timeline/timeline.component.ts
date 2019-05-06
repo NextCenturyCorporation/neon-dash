@@ -46,7 +46,7 @@ import {
     SimpleFilterDesign
 } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { Bucketizer } from '../bucketizers/Bucketizer';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { FieldMetaData } from '../../dataset';
@@ -67,22 +67,6 @@ import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
 
 declare let d3;
-
-export class TransformedTimelineAggregationData extends TransformedVisualizationData {
-    constructor(data: any[]) {
-        super(data);
-    }
-
-    /**
-     * Returns the sum of the value of each element in the data.
-     *
-     * @return {number}
-     * @override
-     */
-    public count(): number {
-        return this._data.reduce((sum, element) => sum + element.value, 0);
-    }
-}
 
 @Component({
     selector: 'app-timeline',
@@ -107,8 +91,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     public timelineChart: TimelineSelectorChart;
 
-    // TODO THOR-985
     public timelineData: TimelineData = new TimelineData();
+
+    // TODO THOR-1137 Save in timelineData
+    public timelineQueryResults: { value: number, date: Date }[] = null;
 
     constructor(
         datasetService: DatasetService,
@@ -220,7 +206,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
         this.exchangeFilters([filterDesign]);
 
-        this.filterAndRefreshData(this.getActiveData(this.options).data);
+        this.filterAndRefreshData(this.timelineQueryResults);
     }
 
     /**
@@ -288,25 +274,26 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         // Convert all the dates into Date objects
-        let data: { value: number, date: Date }[] = results.map((item) => {
+        this.timelineQueryResults = results.map((item) => {
             return {
                 value: item._aggregation,
                 date: new Date(item._date)
             };
         });
 
-        this.filterAndRefreshData(data);
+        this.filterAndRefreshData(this.timelineQueryResults);
 
-        return new TransformedTimelineAggregationData(data);
+        return this.timelineQueryResults.reduce((sum, element) => sum + element.value, 0);
     }
 
     /**
@@ -569,10 +556,5 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     protected shouldFilterSelf(): boolean {
         // This timeline should never filter itself.
         return false;
-    }
-
-    protected clearVisualizationData(options: any): void {
-        // TODO THOR-985 Temporary function.
-        this.transformVisualizationQueryResults(options, []);
     }
 }
