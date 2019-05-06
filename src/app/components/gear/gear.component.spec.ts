@@ -38,6 +38,7 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
+import { neonEvents } from '../../neon-namespaces';
 import { eventing } from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -618,6 +619,8 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleDeleteLayer does not delete a layer if deleteLayer returned false', () => {
+        let spy = spyOn((component as any).messenger, 'publish');
+
         component.layerHidden.set('testId1', true);
         let called = 0;
         (component as any).deleteLayer = () => {
@@ -631,6 +634,8 @@ describe('Component: Gear Component', () => {
         expect(called).toEqual(1);
         expect(component.layerHidden.get('testId1')).toEqual(true);
         expect(component.changeMade).toEqual(false);
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)[0]).toEqual(neonEvents.DASHBOARD_ERROR);
     });
 
     it('toggleFilter does update layerHidden', () => {

@@ -468,7 +468,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        // Do nothing.
+        this.messageReceiver.unsubscribeAll();
     }
 
     ngOnInit(): void {
