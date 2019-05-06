@@ -234,6 +234,33 @@ datastores:
                                 regimechange: Regime Change
                         mappings:
                             date: createAt
+            somali052019_frames:
+                prettyName: 'Somali'
+                tables:
+                    ui_output:
+                        prettyName: UI out
+                        fields:
+                            - columnName: need
+                              prettyName: Need Type
+                            - columnName: location
+                              prettyName: Location
+                            - columnName: translatedText
+                              prettyName: Translated Text
+                            - columnName: originalText
+                              prettyName: Original Text
+                        labelOptions:
+                            Type:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
 
 dashboards:
     category: 'Select a task...'
@@ -478,20 +505,63 @@ dashboards:
                                     fieldKey: translated_text_key
                                     placeHolder: Search
                             contributors:
-                                rpi:
+                                elisa-rpi:
                                     orgName: 'Rensselaer Polytechnic Institute'
                                     abbreviation: 'RPI'
                                     contactName: 'Heng Ji'
                                     contactEmail: 'jih@rpi.edu'
                                     website: 'http://nlp.cs.rpi.edu/'
                                     logo: 'RPI-logo.png'
-                                isi:
+                                elisa-isi:
                                     orgName: 'University of Southern California, Information Sciences Institute'
                                     abbreviation: 'USC/ISI'
                                     contactName: 'Jonathan May'
                                     contactEmail: 'jonmay@isi.edu'
                                     website: 'https://www.isi.edu/'
                                     logo: 'ISI-logo.png'
+                        somali:
+                            name: Somali
+                            layout: darpa60-uyghur-sd
+                            tables:
+                                table_key_1: es1.somali052019_frames.ui_output
+                            fields:
+                                original_text_key: es1.somali052019_frames.ui_output.originalText
+                                translated_text_key: es1.somali052019_frames.ui_output.translatedText
+                                date_field_key: es1.somali052019_frames.ui_output._id
+                                id_field_key: es1.somali052019_frames.ui_output._id
+                                filter_field_key: es1.somali052019_frames.ui_output._id
+                                group_field_key: es1.somali052019_frames.ui_output.Type
+                                latitude_key: es1.somali052019_frames.ui_output.geoLocation.lat
+                                longitude_key: es1.somali052019_frames.ui_output.geoLocation.lon
+                                text_cloud_data_key: es1.somali052019_frames.ui_output.location
+                            options:
+                                connectOnLoad: true
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: translated_text_key
+                                    placeHolder: Search
+                            contributors:
+                                elisa-rpi:
+                                    orgName: 'Rensselaer Polytechnic Institute'
+                                    abbreviation: 'RPI'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
+                                    logo: 'RPI-logo.png'
+                                elisa-isi:
+                                    orgName: 'University of Southern California, Information Sciences Institute'
+                                    abbreviation: 'USC/ISI'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
+                                    logo: 'ISI-logo.png'
+                                raytheon:
+                                    orgName: 'Raytheon BBN Technologies'
+                                    abbreviation: 'RBBN'
+                                    contactName: 'Rabih ZBIB'
+                                    contactEmail: 'rabih.zbib@raytheon.com'
+                                    website: 'https://www.raytheon.com/ourcompany/bbn'
+                                    logo: 'RaytheonBBN-logo.png'
                 vodno:
                     name: 'SIMPOST'
                     category: 'Select a datastore...'
@@ -690,6 +760,7 @@ layouts:
                 - ldc
                 - elisa-rpi
                 - elisa-isi
+                - raytheon
         - name: Map
           type: map
           icon: Map64
@@ -777,6 +848,7 @@ layouts:
                 - ldc
                 - elisa-rpi
                 - elisa-isi
+                - raytheon
         - name: Annotation Viewer
           type: annotationViewer
           icon: documentViewer64
@@ -795,6 +867,7 @@ layouts:
                 - ldc
                 - elisa-rpi
                 - elisa-isi
+                - raytheon
         - name: Annotation Viewer
           type: annotationViewer
           icon: documentViewer64
@@ -813,6 +886,7 @@ layouts:
                 - ldc
                 - elisa-rpi
                 - elisa-isi
+                - raytheon
         - name: Text Cloud
           type: textCloud
           icon: TagCloud64
