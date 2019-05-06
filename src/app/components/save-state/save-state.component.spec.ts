@@ -65,6 +65,7 @@ describe('Component: SaveStateComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(SaveStateComponent);
         component = fixture.componentInstance;
+        component.ngOnInit = () => { /* Don't call loadStateNames. */ };
         fixture.detectChanges();
     });
 

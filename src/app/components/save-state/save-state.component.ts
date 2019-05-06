@@ -66,10 +66,11 @@ export class SaveStateComponent implements OnInit {
         public widgetService: AbstractWidgetService,
         private viewContainerRef: ViewContainerRef,
         private dialog: MatDialog
-    ) {}
+    ) {
+        this.messenger = new eventing.Messenger();
+    }
 
     ngOnInit() {
-        this.messenger = new eventing.Messenger();
         this.loadStateNames();
     }
 
