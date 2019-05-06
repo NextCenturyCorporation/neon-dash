@@ -30,7 +30,7 @@ import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, 
 import { DatasetService } from '../../services/dataset.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import {
@@ -70,6 +70,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     public selected: any[] = [];
     public styleRules: string[] = [];
     public styleSheet: any;
+    public tableData: any[] = null;
 
     public drag: {
         mousedown: boolean,
@@ -571,15 +572,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData} results
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
-        let data = results.map((d) => {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
+        this.tableData = results.map((d) => {
             let row = {};
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
@@ -588,7 +590,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }
             return row;
         });
-        return new TransformedVisualizationData(data);
+        return this.tableData.length;
     }
 
     isDragging(): boolean {
@@ -700,8 +702,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.selected.push(...selected);
 
         if (this.options.filterable) {
-            let dataObject = this.getActiveData(this.options).data.filter((obj) =>
-                _.isEqual(obj[this.options.idField.columnName], selected[0][this.options.idField.columnName]))[0];
+            let dataObject = (this.tableData || []).filter((obj) => _.isEqual(obj[this.options.idField.columnName],
+                selected[0][this.options.idField.columnName]))[0];
 
             this.options.filterFields.forEach((filterField) => {
                 if (filterField && filterField.columnName) {
@@ -859,11 +861,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     getTableRowHeight() {
         return this.options.skinny ? 20 : 25;
-    }
-
-    public getTableRowData(): any {
-        let activeData: TransformedVisualizationData = this.getActiveData(this.options);
-        return activeData ? activeData.data : [];
     }
 
     getShowColumnSelector(): boolean {

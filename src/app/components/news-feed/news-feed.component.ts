@@ -31,7 +31,7 @@ import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '..
 import { DatasetService } from '../../services/dataset.service';
 import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import {
@@ -62,6 +62,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('newsFeed') newsFeed: ElementRef;
     @ViewChild('filter') filter: ElementRef;
+
+    public newsFeedData: any[] = null;
 
     constructor(
         datasetService: DatasetService,
@@ -231,15 +233,16 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {any[]}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
-        let data = results.map((d) => {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
+        this.newsFeedData = results.map((d) => {
             let item = {};
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
@@ -251,7 +254,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             }
             return item;
         });
-        return new TransformedVisualizationData(data);
+        return this.newsFeedData.length;
     }
 
     /**
