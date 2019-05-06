@@ -690,7 +690,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             thumbnail.fillStyle = '#ffffff';
             thumbnail.fillRect(0, 0, this.options.canvasSize, this.options.canvasSize);
 
-            if (link && link !== 'n/a') {
+            if (link && link !== 'n/a' && grid[this.options.typeField.columnName] !== this.mediaTypes.ltf) {
                 switch (type) {
                     case this.mediaTypes.image : {
                         let image: HTMLImageElement = new Image();
