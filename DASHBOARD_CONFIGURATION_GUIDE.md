@@ -42,7 +42,7 @@
     * [**Document Viewer Metadata Object Options**](#document-viewer-metadata-object-options)
     * [**Map Layer Object Options**](#map-layer-object-options)
 
-To load a preconfigured Neon Dashboard, create a Neon Dashboard configuration file at [**app/config/config.json**](./src/app/config/config.json) or [**app/config/config.yaml**](./src/app/config/config.yaml).  If **config.json** is present, **config.yaml** will be ignored.
+To load a preconfigured Neon Dashboard, create a Neon Dashboard configuration file at [**app/config/config.json**] or [**app/config/config.yaml**].  If **config.json** is present, **config.yaml** will be ignored.
 
 Sample configuration files are available in the git repository at [**app/config/sample.config.json**](./src/app/config/sample.config.json) and [**app/config/sample.config.yaml**](./src/app/config/sample.config.yaml).
 
@@ -197,16 +197,16 @@ dashboards:
 #### **Dashboard Options Object**
 The dashboard's **"options"** property is a JSON object that can have the following properties:
 * **"connectOnLoad"** - (Boolean, Optional) Whether this dataset is automatically displayed when the dashboard is first loaded.  If multiple dashboards have this value set to true, only the first one with this field will be loaded. Default: false.
-* **"simpleFilter"** - (Object, Optional) Whether to show the **simple filter** in the navbar and the field on which to filter.  If **"simpleFilter"** is not defined, the **simple filter** is not shown.
+* **"simpleFilter"** - (Object, Optional) Whether to show the **simple filter** in the navbar and the field on which to filter.  Contains properties **"tableKey"**, **"fieldKey"**, and optionally **"placeholder"**.  The **"tableKey"** must match a key from the dashboard's **"tables"** and the **"fieldKey"** must match a key from the dashboard's **"fields"**.  If **"simpleFilter"** is not defined, the **simple filter** is not shown.
 
 #### **Dashboard Options Object Example**
 ```yaml
 options:
     connectOnLoad: true
     simpleFilter:
-        databaseName: database_1
-        tableName: table_1
-        fieldName: textField
+        tableKey: table_key
+        fieldKey: text_field_key
+        placeholder: "Search..."
 ```
 
 #### **Relations Object**
