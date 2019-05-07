@@ -301,7 +301,7 @@ export class GearComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.messenger.subscribe('options', (message) => this.updateOptions(message));
+        this.messenger.subscribe(neonEvents.SHOW_OPTION_MENU, (message) => this.updateOptions(message));
         this.changeDetection.detectChanges();
     }
 

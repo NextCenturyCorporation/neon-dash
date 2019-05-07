@@ -40,7 +40,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         // TODO Do we really need to subscribe to all of these channels?
-        this.messenger.subscribe(neonEvents.NEW_DATASET, this.updateFilters.bind(this));
+        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.updateFilters.bind(this));
         this.messenger.subscribe(neonEvents.FILTERS_CHANGED, this.updateFilters.bind(this));
         this.messenger.subscribe(neonEvents.DASHBOARD_STATE, this.updateFilters.bind(this));
         this.updateFilters();

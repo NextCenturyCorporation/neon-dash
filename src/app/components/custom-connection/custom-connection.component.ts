@@ -91,7 +91,7 @@ export class CustomConnectionComponent implements AfterViewInit {
         //this.datasetService.setCurrentDashboard(??)
 
         this.filterService.resetFilters();
-        this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});
+        this.messenger.publish(neonEvents.DASHBOARD_RESET, {});
         this.datasetCreated.emit(dataset);
         this.dialogRef.close();
     }
