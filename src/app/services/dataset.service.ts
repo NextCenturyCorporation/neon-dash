@@ -496,8 +496,6 @@ export class DatasetService {
                 this.publishUpdateData();
             });
         }
-
-        this.messenger.publish(neonEvents.NEW_DATASET, {});
     }
 
     /**

@@ -181,8 +181,8 @@ describe('App', () => {
         expect(component.rightPanelTitle).toEqual('Dashboard Layouts');
 
         expect(component.showCustomConnectionButton).toEqual(true);
-        expect(component.showFiltersComponentIcon).toEqual(true);
-        expect(component.showVisShortcut).toEqual(true);
+        expect(component.showFilterTray).toEqual(true);
+        expect(component.showVisualizationsShortcut).toEqual(true);
 
         expect(component.createFiltersComponent).toEqual(false);
     }));
@@ -218,72 +218,69 @@ describe('App', () => {
     }));
 
     it('toggle filters component', async(() => {
-        component.showFiltersComponentIcon = false;
+        component.showFilterTray = false;
         expect(debugElement.nativeElement.querySelectorAll('app-filters').length === 0).toBeTruthy();
-        component.showFiltersComponentIcon = true;
+        component.showFilterTray = true;
         component.createFiltersComponent = true;
         component.toggleFiltersDialog();
         expect(debugElement.nativeElement.querySelectorAll('app-filters')).toBeTruthy();
     }));
 
     it('check that the messenger subscribes to the correct channels and that the callbacks update the correct booleans', async(() => {
-        let spyOnShowFiltersComponentIcon = spyOn(component, 'updateShowFiltersComponentIcon');
-        let spyOnShowVisualShortcut = spyOn(component, 'updateShowVisShortcut');
+        let spyOnFilterTray = spyOn(component, 'updateShowFilterTray');
+        let spyOnVisualizationsShortcut = spyOn(component, 'updateShowVisualizationsShortcut');
         let message = {
-            showFiltersComponentIcon: false,
-            showVisShortcut: false
+            show: false
         };
 
         expect(spyOnInit.calls.count()).toEqual(1);
         component.ngOnInit();
         expect(spyOnInit.calls.count()).toEqual(2);
-        component.updateShowVisShortcut(message);
-        component.updateShowFiltersComponentIcon(message);
+        (component as any).updateShowVisualizationsShortcut(message);
+        (component as any).updateShowFilterTray(message);
 
-        expect(spyOnShowFiltersComponentIcon.calls.argsFor(0)).toEqual([{
-            showFiltersComponentIcon: false,
-            showVisShortcut: false
+        expect(spyOnFilterTray.calls.argsFor(0)).toEqual([{
+            show: false
         }]);
 
-        expect(spyOnShowVisualShortcut.calls.argsFor(0)).toEqual([{
-            showFiltersComponentIcon: false,
-            showVisShortcut: false
+        expect(spyOnVisualizationsShortcut.calls.argsFor(0)).toEqual([{
+            show: false
         }]);
 
-        expect(spyOnShowFiltersComponentIcon.calls.count()).toEqual(1);
-        expect(spyOnShowVisualShortcut.calls.count()).toEqual(1);
+        expect(spyOnFilterTray.calls.count()).toEqual(1);
+        expect(spyOnVisualizationsShortcut.calls.count()).toEqual(1);
     }));
 
-    it('getShowVisShortcut does update showVisShortcut', async(() => {
-        component.updateShowVisShortcut({
-            showVisShortcut: false
+    it('updateShowVisualizationsShortcut does update showVisualizationsShortcut', async(() => {
+        (component as any).updateShowVisualizationsShortcut({
+            show: false
         });
         component.changeDetection.detectChanges();
-        expect(component.showVisShortcut).toEqual(false);
-        expect(debugElement.query(By.css('#showVisShortcutButton'))).toBeNull();
-        component.updateShowVisShortcut({
-            showVisShortcut: true
+        expect(component.showVisualizationsShortcut).toEqual(false);
+        expect(debugElement.query(By.css('#showVisualizationsShortcutButton'))).toBeNull();
+        (component as any).updateShowVisualizationsShortcut({
+            show: true
         });
         component.changeDetection.detectChanges();
-        expect(component.showVisShortcut).toEqual(true);
+        expect(component.showVisualizationsShortcut).toEqual(true);
         component.changeDetection.detectChanges();
-        expect(debugElement.query(By.css('#showVisShortcutButton'))).not.toBeNull();
+        expect(debugElement.query(By.css('#showVisualizationsShortcutButton'))).not.toBeNull();
     }));
 
-    it('updateShowFiltersComponentIcon does update showFiltersComponent', async(() => {
-        component.updateShowFiltersComponentIcon({
-            showFiltersComponentIcon: false
+    it('updateShowFilterTray does update showFiltersComponent', async(() => {
+        (component as any).updateShowFilterTray({
+            show: false
         });
         component.changeDetection.detectChanges();
-        expect(component.showFiltersComponentIcon).toEqual(false);
-        expect(debugElement.query(By.css('#showFiltersComponentIcon'))).toBeNull();
-        component.updateShowFiltersComponentIcon({
-            showFiltersComponentIcon: true
+        expect(component.showFilterTray).toEqual(false);
+        expect(debugElement.query(By.css('#showFilterTrayButton'))).toBeNull();
+        (component as any).updateShowFilterTray({
+            show: true
         });
         component.changeDetection.detectChanges();
-        expect(component.showFiltersComponentIcon).toEqual(true);
+        expect(component.showFilterTray).toEqual(true);
         component.changeDetection.detectChanges();
-        expect(debugElement.query(By.css('#showFiltersComponentIcon'))).not.toBeNull();
+        expect(debugElement.query(By.css('#showFilterTrayButton'))).not.toBeNull();
     }));
 
     it('addWidget does add the given widget with specified position to the grid', () => {
@@ -295,7 +292,7 @@ describe('App', () => {
             sizey: 3
         };
 
-        component.addWidget({
+        (component as any).addWidget({
             widgetGridItem: widgetGridItem1
         });
 
@@ -330,7 +327,7 @@ describe('App', () => {
             sizey: 3
         };
 
-        component.addWidget({
+        (component as any).addWidget({
             widgetGridItem: widgetGridItem1
         });
 
@@ -356,7 +353,7 @@ describe('App', () => {
             config: {}
         };
 
-        component.addWidget({
+        (component as any).addWidget({
             widgetGridItem: widgetGridItem1
         });
 
@@ -376,7 +373,7 @@ describe('App', () => {
             config: {}
         };
 
-        component.addWidget({
+        (component as any).addWidget({
             widgetGridItem: widgetGridItem2
         });
 
@@ -406,7 +403,7 @@ describe('App', () => {
             config: {}
         };
 
-        component.addWidget({
+        (component as any).addWidget({
             widgetGridItem: widgetGridItem3
         });
 
@@ -446,7 +443,7 @@ describe('App', () => {
             config: {}
         };
 
-        component.addWidget({
+        (component as any).addWidget({
             widgetGridItem: widgetGridItem4
         });
 
@@ -540,7 +537,7 @@ describe('App', () => {
             config: {}
         };
 
-        component.addWidget({
+        (component as any).addWidget({
             widgetGridItem: widgetGridItem1
         });
 
@@ -620,7 +617,7 @@ describe('App', () => {
             id: 'b'
         }];
 
-        component.clearDashboard();
+        (component as any).clearDashboard();
 
         expect(component.widgetGridItems).toEqual([]);
     });
@@ -641,7 +638,7 @@ describe('App', () => {
             }
         };
 
-        component.contractWidget({
+        (component as any).contractWidget({
             widgetGridItem: widgetGridItem1
         });
 
@@ -684,7 +681,7 @@ describe('App', () => {
             id: 'b'
         }];
 
-        component.deleteWidget({
+        (component as any).deleteWidget({
             id: 'a'
         });
 
@@ -711,9 +708,9 @@ describe('App', () => {
             }
         };
 
-        let spy = spyOn(component, 'getVisibleRowCount').and.returnValue(50);
+        let spy = spyOn((component as any), 'getVisibleRowCount').and.returnValue(50);
 
-        component.expandWidget({
+        (component as any).expandWidget({
             widgetGridItem: widgetGridItem1
         });
 
@@ -776,7 +773,7 @@ describe('App', () => {
     });
 
     it('getMaxColInUse does return expected number', () => {
-        expect(component.getMaxColInUse()).toEqual(0);
+        expect((component as any).getMaxColInUse()).toEqual(0);
 
         component.widgetGridItems = [{
             config: {
@@ -790,7 +787,7 @@ describe('App', () => {
             id: 'a'
         }];
 
-        expect(component.getMaxColInUse()).toEqual(1);
+        expect((component as any).getMaxColInUse()).toEqual(1);
 
         component.widgetGridItems = [{
             config: {
@@ -814,11 +811,11 @@ describe('App', () => {
             id: 'b'
         }];
 
-        expect(component.getMaxColInUse()).toEqual(2);
+        expect((component as any).getMaxColInUse()).toEqual(2);
     });
 
     it('getMaxRowInUse does return expected number', () => {
-        expect(component.getMaxRowInUse()).toEqual(0);
+        expect((component as any).getMaxRowInUse()).toEqual(0);
 
         component.widgetGridItems = [{
             config: {
@@ -832,7 +829,7 @@ describe('App', () => {
             id: 'a'
         }];
 
-        expect(component.getMaxRowInUse()).toEqual(1);
+        expect((component as any).getMaxRowInUse()).toEqual(1);
 
         component.widgetGridItems = [{
             config: {
@@ -856,7 +853,7 @@ describe('App', () => {
             id: 'b'
         }];
 
-        expect(component.getMaxRowInUse()).toEqual(2);
+        expect((component as any).getMaxRowInUse()).toEqual(2);
     });
 
     it('moveWidgetToBottom does update the row of the given widget', () => {
@@ -869,7 +866,7 @@ describe('App', () => {
             }
         };
 
-        component.moveWidgetToBottom({
+        (component as any).moveWidgetToBottom({
             widgetGridItem: widgetGridItem1
         });
 
@@ -897,7 +894,7 @@ describe('App', () => {
             id: 'b'
         }];
 
-        component.moveWidgetToBottom({
+        (component as any).moveWidgetToBottom({
             widgetGridItem: widgetGridItem1
         });
 
@@ -914,7 +911,7 @@ describe('App', () => {
             }
         };
 
-        component.moveWidgetToTop({
+        (component as any).moveWidgetToTop({
             widgetGridItem: widgetGridItem1
         });
 
@@ -923,21 +920,21 @@ describe('App', () => {
 
     it('refreshDashboard does resize the grid', () => {
         let spy = spyOn(component.grid, 'triggerResize');
-        component.refreshDashboard();
+        (component as any).refreshDashboard();
         expect(spy.calls.count()).toEqual(1);
     });
 
     it('registerWidget does update the global collection of widgets', () => {
         expect(Array.from(component.widgets.keys())).toEqual([]);
 
-        component.registerWidget({
+        (component as any).registerWidget({
             id: 'a',
             widget: null
         });
 
         expect(Array.from(component.widgets.keys())).toEqual(['a']);
 
-        component.registerWidget({
+        (component as any).registerWidget({
             id: 'b',
             widget: null
         });
@@ -948,14 +945,14 @@ describe('App', () => {
     it('registerWidget does not re-register the same widget', () => {
         expect(Array.from(component.widgets.keys())).toEqual([]);
 
-        component.registerWidget({
+        (component as any).registerWidget({
             id: 'a',
             widget: null
         });
 
         expect(Array.from(component.widgets.keys())).toEqual(['a']);
 
-        component.registerWidget({
+        (component as any).registerWidget({
             id: 'a',
             widget: null
         });
@@ -992,7 +989,7 @@ describe('App', () => {
         expect(spyFilter.calls.argsFor(0)[0]).toEqual(['x', 'y']);
 
         expect(spySender.calls.count()).toEqual(5);
-        expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_CLEAR, {}]);
+        expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
         expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
             widgetGridItem: 'a'
         }]);
@@ -1139,13 +1136,13 @@ describe('App', () => {
 
         expect(Array.from(component.widgets.keys())).toEqual(['a', 'b']);
 
-        component.unregisterWidget({
+        (component as any).unregisterWidget({
             id: 'a'
         });
 
         expect(Array.from(component.widgets.keys())).toEqual(['b']);
 
-        component.unregisterWidget({
+        (component as any).unregisterWidget({
             id: 'b'
         });
 
@@ -1162,7 +1159,7 @@ describe('App', () => {
             }
         };
 
-        expect(component.widgetFits(widgetGridItem1)).toEqual(true);
+        expect((component as any).widgetFits(widgetGridItem1)).toEqual(true);
 
         component.widgetGridItems = [{
             config: {
@@ -1176,7 +1173,7 @@ describe('App', () => {
             id: 'a'
         }];
 
-        expect(component.widgetFits(widgetGridItem1)).toEqual(true);
+        expect((component as any).widgetFits(widgetGridItem1)).toEqual(true);
 
         component.widgetGridItems = [{
             config: {
@@ -1190,7 +1187,7 @@ describe('App', () => {
             id: 'a'
         }];
 
-        expect(component.widgetFits(widgetGridItem1)).toEqual(false);
+        expect((component as any).widgetFits(widgetGridItem1)).toEqual(false);
 
         component.widgetGridItems = [{
             config: {
@@ -1204,7 +1201,7 @@ describe('App', () => {
             id: 'a'
         }];
 
-        expect(component.widgetFits(widgetGridItem1)).toEqual(false);
+        expect((component as any).widgetFits(widgetGridItem1)).toEqual(false);
 
         component.widgetGridItems = [{
             config: {
@@ -1228,7 +1225,7 @@ describe('App', () => {
             id: 'b'
         }];
 
-        expect(component.widgetFits(widgetGridItem1)).toEqual(true);
+        expect((component as any).widgetFits(widgetGridItem1)).toEqual(true);
 
         component.widgetGridItems = [{
             config: {
@@ -1252,11 +1249,11 @@ describe('App', () => {
             id: 'b'
         }];
 
-        expect(component.widgetFits(widgetGridItem1)).toEqual(false);
+        expect((component as any).widgetFits(widgetGridItem1)).toEqual(false);
     });
 
     it('widgetOverlaps does return expected boolean', () => {
-        expect(component.widgetOverlaps({
+        expect((component as any).widgetOverlaps({
             config: {
                 col: 1,
                 row: 1,
@@ -1272,7 +1269,7 @@ describe('App', () => {
             }
         })).toEqual(false);
 
-        expect(component.widgetOverlaps({
+        expect((component as any).widgetOverlaps({
             config: {
                 col: 1,
                 row: 1,
@@ -1288,7 +1285,7 @@ describe('App', () => {
             }
         })).toEqual(false);
 
-        expect(component.widgetOverlaps({
+        expect((component as any).widgetOverlaps({
             config: {
                 col: 1,
                 row: 1,
@@ -1304,7 +1301,7 @@ describe('App', () => {
             }
         })).toEqual(true);
 
-        expect(component.widgetOverlaps({
+        expect((component as any).widgetOverlaps({
             config: {
                 col: 1,
                 row: 1,
@@ -1320,7 +1317,7 @@ describe('App', () => {
             }
         })).toEqual(true);
 
-        expect(component.widgetOverlaps({
+        expect((component as any).widgetOverlaps({
             config: {
                 col: 2,
                 row: 1,
@@ -1336,7 +1333,7 @@ describe('App', () => {
             }
         })).toEqual(false);
 
-        expect(component.widgetOverlaps({
+        expect((component as any).widgetOverlaps({
             config: {
                 col: 1,
                 row: 2,
@@ -1352,7 +1349,7 @@ describe('App', () => {
             }
         })).toEqual(false);
 
-        expect(component.widgetOverlaps({
+        expect((component as any).widgetOverlaps({
             config: {
                 col: 2,
                 row: 1,
@@ -1368,7 +1365,7 @@ describe('App', () => {
             }
         })).toEqual(true);
 
-        expect(component.widgetOverlaps({
+        expect((component as any).widgetOverlaps({
             config: {
                 col: 1,
                 row: 2,
@@ -1384,7 +1381,7 @@ describe('App', () => {
             }
         })).toEqual(true);
 
-        expect(component.widgetOverlaps({
+        expect((component as any).widgetOverlaps({
             config: {
                 col: 1,
                 row: 1,
@@ -1400,7 +1397,7 @@ describe('App', () => {
             }
         })).toEqual(true);
 
-        expect(component.widgetOverlaps({
+        expect((component as any).widgetOverlaps({
             config: {
                 col: 1,
                 row: 1,

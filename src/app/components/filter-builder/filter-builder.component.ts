@@ -84,7 +84,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             dialog
         );
 
-        this.messenger.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearEveryFilterClause.bind(this));
+        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.clearEveryFilterClause.bind(this));
 
         this.addBlankFilterClause();
     }

@@ -129,7 +129,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.id = this.options._id;
 
         this.messenger.subscribe(neonEvents.FILTERS_CHANGED, this.handleFiltersChanged.bind(this));
-        this.messenger.subscribe('select_id', (eventMessage) => {
+        this.messenger.subscribe(neonEvents.SELECT_ID, (eventMessage) => {
             if (this.updateOnSelectId) {
                 (this.options.layers.length ? this.options.layers : [this.options]).forEach((layer) => {
                     if (eventMessage.database === layer.database.name && eventMessage.table === layer.table.name) {
@@ -938,7 +938,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Publishes the component's option object to the gear component
      */
     publishOptions() {
-        this.messenger.publish('options', {
+        this.messenger.publish(neonEvents.SHOW_OPTION_MENU, {
             changeData: this.handleChangeData.bind(this),
             changeFilterData: this.handleChangeFilterField.bind(this),
             createLayer: this.createLayer.bind(this),
@@ -959,21 +959,12 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @fires select_id
      */
     public publishSelectId(id: any, metadata?: any) {
-        this.messenger.publish('select_id', {
+        this.messenger.publish(neonEvents.SELECT_ID, {
             source: this.id,
             database: this.options.database.name,
             table: this.options.table.name,
             id: id,
             metadata: metadata
-        });
-    }
-
-    /**
-     * Publishes the toggleGear so the app component can toggle the gear panel
-     */
-    publishToggleGear() {
-        this.messenger.publish('toggleGear', {
-            toggleGear: true
         });
     }
 
@@ -992,7 +983,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     toggleGear() {
         this.publishOptions();
-        this.publishToggleGear();
     }
 
     /**

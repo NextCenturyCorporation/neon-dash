@@ -104,28 +104,28 @@ describe('Component: AddVisualization', () => {
     });
 
     it('tests default values', (() => {
-        expect(component.showVisShortcut).toEqual(true);
+        expect(component.showVisualizationsShortcut).toEqual(true);
         expect(component.selectedIndex).toEqual(-1);
         expect(component.messenger).toBeTruthy();
     }));
 
-    it('Check that updateShowVisShortcut changes the correct booleans', (() => {
-        let spyOnUpdateShowVisShortcut = spyOn(component, 'updateShowVisShortcut');
+    it('Check that updateShowVisualizationsShortcut changes the correct booleans', (() => {
+        let spyOnVisualizationsShortcut = spyOn(component, 'updateShowVisualizationsShortcut');
         let message = {
-            showVisShortcut: false
+            show: false
         };
 
         expect(spyOnInit.calls.count()).toEqual(1);
-        component.showVisShortcut = false;
-        expect(component.showVisShortcut).toEqual(false);
+        component.showVisualizationsShortcut = false;
+        expect(component.showVisualizationsShortcut).toEqual(false);
         component.ngOnInit();
         expect(spyOnInit.calls.count()).toEqual(2);
 
         component.ngOnInit();
-        component.updateShowVisShortcut(message);
+        component.updateShowVisualizationsShortcut(message);
 
         expect(spyOnInit.calls.count()).toEqual(3);
-        expect(spyOnUpdateShowVisShortcut.calls.count()).toEqual(1);
+        expect(spyOnVisualizationsShortcut.calls.count()).toEqual(1);
     }));
 
 });

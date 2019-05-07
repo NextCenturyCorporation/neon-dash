@@ -54,7 +54,7 @@ export class WidgetService extends AbstractWidgetService {
     constructor(protected datasetService: DatasetService) {
         super();
         this.messenger = new eventing.Messenger();
-        this.messenger.subscribe(neonEvents.NEW_DATASET, this.resetColorMap.bind(this));
+        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.resetColorMap.bind(this));
         document.body.className = this.currentThemeId;
     }
 

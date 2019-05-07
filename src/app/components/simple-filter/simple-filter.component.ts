@@ -18,6 +18,7 @@ import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { neonEvents } from '../../neon-namespaces';
 import { eventing } from 'neon-framework';
 
 @Component({
@@ -78,7 +79,7 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.messenger.subscribe('showSimpleSearch', (message) => this.updateShowSimpleSearch(message.showSimpleSearch));
+        this.messenger.subscribe(neonEvents.TOGGLE_SIMPLE_SEARCH, this.updateShowSimpleSearch.bind(this));
         // Show search on init if option is configured.
         this.updateSimpleFilterConfig();
     }
@@ -97,11 +98,13 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
     }
 
     public updateSimpleFilterConfig(): void {
-        this.updateShowSimpleSearch(this.validateSimpleFilter((this.datasetService.getCurrentDashboardOptions() || {}).simpleFilter || {}));
+        this.updateShowSimpleSearch({
+            show: this.validateSimpleFilter((this.datasetService.getCurrentDashboardOptions() || {}).simpleFilter || {})
+        });
     }
 
-    private updateShowSimpleSearch(show: boolean): void {
-        this.showSimpleSearch = show;
+    private updateShowSimpleSearch(eventMessage: { show: boolean }): void {
+        this.showSimpleSearch = eventMessage.show;
         this.changeDetection.detectChanges();
     }
 

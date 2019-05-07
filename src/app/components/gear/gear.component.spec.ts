@@ -690,7 +690,7 @@ describe('Component: Gear Component', () => {
     it('publishing a message on the options channel does set HTML elements', () => {
         // TODO
         // let messenger = new eventing.Messenger;
-        // messenger.publish('options', {});
+        // messenger.publish(neonEvents.SHOW_OPTION_MENU, {});
         // expect(component.changeMage).toEqual(false);
         // expect(component.collapseOptionalOptions).toEqual(true);
         // expect(component.layerHidden).toEqual(new Map<string, boolean>());

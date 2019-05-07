@@ -20,7 +20,7 @@
     <h3 class="header">Display Tools</h3>
     <div class="display-tools-container">
         <div class="checkmark-container">
-            <input type="checkbox" [checked]="showFiltersComponentIcon" (change)="publishShowFiltersComponentIcon()">
+            <input type="checkbox" [checked]="showFilterTray" (change)="publishShowFilterTray()">
             Show Filter Builder Icon
         </div>
         <div class="checkmark-container">
@@ -29,15 +29,15 @@
             <div *ngIf="showSimpleSearch">
                 <mat-form-field class="dropdown-menu">
                     <mat-select name="simple-search-field" placeholder="Simple Search Field" [(ngModel)]="searchField"
-                        (change)="changeSimpleSearchFilter()" required="true" [disabled]="options.length == 0">
+                        (change)="changeSimpleSearchFilter()" required="true" [disabled]="fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
-                        <mat-option *ngFor="let field of options" [value]="field">{{ field.prettyName }}</mat-option>
+                        <mat-option *ngFor="let field of fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
             </div>
         </div>
         <div class="checkmark-container">
-            <input type="checkbox" [checked]="showVisShortcut" (change)="publishShowVisShortcut()">
+            <input type="checkbox" [checked]="showVisualizationsShortcut" (change)="publishShowVisualizationsShortcut()">
             Show Visualization Shortcut
         </div>
     </div>
