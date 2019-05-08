@@ -16,8 +16,7 @@
 import { inject } from '@angular/core/testing';
 
 import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from './abstract.search.service';
-import { ConnectionService } from './connection.service';
-import { SearchService, NeonGroupWrapper, NeonQueryWrapper, NeonWhereWrapper } from './search.service';
+import { SearchService, NeonConnection, NeonGroupWrapper, NeonQueryWrapper, NeonWhereWrapper } from './search.service';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
@@ -26,8 +25,7 @@ import { query } from 'neon-framework';
 describe('Service: Search', () => {
     initializeTestBed('Search Service', {
         providers: [
-            SearchService,
-            ConnectionService
+            SearchService
         ]
     });
 
@@ -103,11 +101,8 @@ describe('Service: Search', () => {
             'table')));
     }));
 
-    it('canRunSearch does return false with no active connection', inject([ConnectionService, SearchService],
-        (connectionService: ConnectionService, service: SearchService
-    ) => {
-
-        let spy = spyOn(connectionService, 'createActiveConnection').and.returnValue(null);
+    it('canRunSearch does return false with no active connection', inject([SearchService], (service: SearchService) => {
+        let spy = spyOn(service, 'createConnection').and.returnValue(null);
 
         expect(service.canRunSearch('type', 'host')).toEqual(false);
 
@@ -115,11 +110,8 @@ describe('Service: Search', () => {
         expect(spy.calls.argsFor(0)).toEqual(['type', 'host']);
     }));
 
-    it('canRunSearch does return true with active connection', inject([ConnectionService, SearchService],
-        (connectionService: ConnectionService, service: SearchService
-    ) => {
-
-        let spy = spyOn(connectionService, 'createActiveConnection').and.returnValue({});
+    it('canRunSearch does return true with active connection', inject([SearchService], (service: SearchService) => {
+        let spy = spyOn(service, 'createConnection').and.returnValue({});
 
         expect(service.canRunSearch('type', 'host')).toEqual(true);
 
@@ -127,15 +119,39 @@ describe('Service: Search', () => {
         expect(spy.calls.argsFor(0)).toEqual(['type', 'host']);
     }));
 
-    it('runSearch does call expected function', inject([ConnectionService, SearchService], (connectionService: ConnectionService,
-        service: SearchService
-    ) => {
+    it('createConnection does return a new connection', inject([SearchService], (service: SearchService) => {
+        let connection = new query.Connection();
+        spyOn((service as any), 'createNeonConnection').and.returnValue(connection);
+        let spy = spyOn(connection, 'connect');
 
+        let output = service.createConnection('elasticsearchrest', 'localhost');
+
+        expect(output.connection).toEqual(connection);
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual(['elasticsearchrest', 'localhost']);
+    }));
+
+    it('createConnection does return an existing connection', inject([SearchService], (service: SearchService) => {
+        let existingNeonConnection = new NeonConnection(new query.Connection());
+        (service as any).connections.set('elasticsearchrest', new Map<string, any>());
+        (service as any).connections.get('elasticsearchrest').set('localhost', existingNeonConnection);
+
+        let connection = new query.Connection();
+        spyOn((service as any), 'createNeonConnection').and.returnValue(connection);
+        let spy = spyOn(connection, 'connect');
+
+        let output = service.createConnection('elasticsearchrest', 'localhost');
+
+        expect(output).toEqual(existingNeonConnection);
+        expect(spy.calls.count()).toEqual(0);
+    }));
+
+    it('runSearch does call expected function', inject([SearchService], (service: SearchService) => {
         let queryPayload = new NeonQueryWrapper(new query.Query());
         let called = 0;
-        let spy = spyOn(connectionService, 'createActiveConnection').and.returnValue({
-            executeQuery: (queryInput, options) => {
-                expect(queryInput).toEqual(queryPayload.query);
+        let spy = spyOn(service, 'createConnection').and.returnValue({
+            runSearchQuery: (queryInput, options) => {
+                expect(queryInput).toEqual(queryPayload);
                 called++;
             }
         });

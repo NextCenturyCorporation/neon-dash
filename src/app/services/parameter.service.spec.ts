@@ -16,7 +16,6 @@
 import { inject } from '@angular/core/testing';
 
 import { AbstractSearchService } from './abstract.search.service';
-import { ConnectionService } from './connection.service';
 import { DatasetService } from './dataset.service';
 import { FilterService } from './filter.service';
 import { ParameterService } from './parameter.service';
@@ -33,7 +32,6 @@ describe('Service: Parameter', () => {
         providers: [
             ParameterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            ConnectionService,
             DatasetService,
             FilterService,
             { provide: 'config', useValue: new NeonGTDConfig() }

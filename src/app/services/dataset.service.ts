@@ -14,9 +14,9 @@
  *
  */
 import { Inject, Injectable } from '@angular/core';
-import { eventing, query } from 'neon-framework';
+import { eventing } from 'neon-framework';
 
-import { ConnectionService } from './connection.service';
+import { AbstractSearchService, Connection } from './abstract.search.service';
 import { Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
     TableMetaData, TableMappings, FieldMetaData, SimpleFilter, SingleField } from '../dataset';
 import { Subscription, Observable, interval } from 'rxjs';
@@ -355,7 +355,7 @@ export class DatasetService {
         return this.getFieldNameFromCompleteFieldName(dashboard.fields[key]);
     }
 
-    constructor(@Inject('config') private config: NeonGTDConfig, private connectionService: ConnectionService) {
+    constructor(@Inject('config') private config: NeonGTDConfig, private searchService: AbstractSearchService) {
         this.messenger = new eventing.Messenger();
 
         this.dashboards = DatasetService.validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
@@ -376,7 +376,7 @@ export class DatasetService {
                 this.messenger.publish(neonEvents.DASHBOARD_READY, {});
             };
 
-            let connection: query.Connection = this.connectionService.createActiveConnection(dataset.type, dataset.host);
+            let connection: Connection = this.searchService.createConnection(dataset.type, dataset.host);
             if (connection) {
                 // Update the fields within each table to add any that weren't listed in the config file as well as field types.
                 this.updateDatabases(dataset, connection).then(() => {
@@ -908,11 +908,11 @@ export class DatasetService {
     /**
      * Updates the database at the given index (default 0) from the given dataset by adding undefined fields for each table.
      * @param {Object} dataset
-     * @param {Object} connection
+     * @param {Connection} connection
      * @param {Function} callback (optional)
      * @param {Number} index (optional)
      */
-    public updateDatabases(dataset: Datastore, connection: query.Connection): any {
+    public updateDatabases(dataset: Datastore, connection: Connection): any {
         let promiseArray = dataset.hasUpdatedFields ? [] : dataset.databases.map((database) =>
             this.getTableNamesAndFieldNames(connection, database));
 
@@ -927,12 +927,12 @@ export class DatasetService {
     /**
      * Wraps connection.getTableNamesAndFieldNames() in a promise object. If a database not found error occurs,
      * associated dashboards are deleted. Any other error will return a rejected promise.
-     * @param {query.Connection} connection
+     * @param {Connection} connection
      * @param {DatabaseMetaData} database
      * @return {Promise}
      * @private
      */
-    private getTableNamesAndFieldNames(connection: query.Connection, database: DatabaseMetaData): Promise<any> {
+    private getTableNamesAndFieldNames(connection: Connection, database: DatabaseMetaData): Promise<any> {
         let promiseFields = [];
         return new Promise<any>((resolve, reject) => {
             connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
@@ -977,14 +977,13 @@ export class DatasetService {
 
     /**
      * Wraps connection.getFieldTypes() in a promise object.
-     * @param {query.Connection} connection
+     * @param {Connection} connection
      * @param {DatabaseMetaData} database
      * @param {TableMetaData} table
      * @return {Promise<FieldMetaData[]>}
      * @private
      */
-    private getFieldTypes(connection: query.Connection, database: DatabaseMetaData,
-        table: TableMetaData): Promise<FieldMetaData[]> {
+    private getFieldTypes(connection: Connection, database: DatabaseMetaData, table: TableMetaData): Promise<FieldMetaData[]> {
         return new Promise<FieldMetaData[]>((resolve) => connection.getFieldTypes(database.name, table.name, (types) => {
             for (let f of table.fields) {
                 if (types && types[f.columnName]) {

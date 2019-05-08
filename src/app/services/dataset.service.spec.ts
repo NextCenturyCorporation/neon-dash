@@ -14,17 +14,22 @@
  *
  */
 import { TestBed, inject } from '@angular/core/testing';
+
+import { AbstractSearchService } from './abstract.search.service';
 import { Dashboard, DashboardOptions, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../dataset';
 import { DatasetService } from './dataset.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
+
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
+import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 
 describe('Service: DatasetService', () => {
     let datasetService: DatasetService;
 
     initializeTestBed('Dataset Service', {
         providers: [
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             DatasetService,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ]
@@ -62,6 +67,7 @@ describe('Service: DatasetService', () => {
 describe('Service: DatasetService Static Functions', () => {
     initializeTestBed('Dataset Service Static Functions', {
         providers: [
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: 'config', useValue: new NeonGTDConfig() }
         ]
@@ -699,6 +705,7 @@ describe('Service: DatasetService with Mock Data', () => {
 
     initializeTestBed('Dataset Service with Mock Data', {
         providers: [
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: 'config', useValue: new NeonGTDConfig() }
         ]

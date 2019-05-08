@@ -17,13 +17,14 @@ import {
     AbstractSearchService,
     AggregationType,
     CompoundFilterType,
+    Connection,
     FilterClause,
     QueryGroup,
     QueryPayload,
+    RequestWrapper,
     SortOrder,
     TimeInterval
 } from '../../app/services/abstract.search.service';
-import { RequestWrapper } from '../../app/connection';
 
 /**
  * Saves filter clauses and query payloads as JSON objects.
@@ -66,6 +67,10 @@ export class SearchServiceMock extends AbstractSearchService {
 
     public canRunSearch(datastoreType: string, datastoreHost: string): boolean {
         return !!(datastoreType && datastoreHost);
+    }
+
+    public createConnection(datastoreType: string, datastoreHost: string): Connection {
+        return null;
     }
 
     public runSearch(datastoreType: string, datastoreHost: string, queryPayload: QueryPayload): RequestWrapper {
