@@ -56,7 +56,6 @@ import { neonEvents } from './neon-namespaces';
 
 import { AbstractSearchService } from './services/abstract.search.service';
 import { AbstractWidgetService } from './services/abstract.widget.service';
-import { ConnectionService } from './services/connection.service';
 import { DatasetService } from './services/dataset.service';
 import { FilterService } from './services/filter.service';
 import { ParameterService } from './services/parameter.service';
@@ -151,7 +150,6 @@ describe('App', () => {
           providers: [
               { provide: 'config', useValue: new NeonGTDConfig() },
               { provide: APP_BASE_HREF, useValue: '/' },
-              ConnectionService,
               { provide: DatasetService, useClass: DatasetServiceMock },
               FilterService,
               ParameterService,
