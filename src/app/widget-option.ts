@@ -55,7 +55,7 @@ export abstract class WidgetOption {
         public valueDefault: any,
         public valueChoices: OptionChoice[],
         public enableInMenu: boolean | OptionCallback = true
-    ) {}
+    ) { }
 
     /**
      * Returns the current value to save in the bindings.
@@ -119,7 +119,7 @@ export class WidgetFieldOption extends WidgetOption {
      * @arg {boolean} isRequired
      * @arg {boolean|OptionCallback} [enableInMenu=true]
      */
-    constructor(bindingKey: string, prettyName: string, isRequired: boolean, enableInMenu: boolean | OptionCallback = true) {
+    constructor(bindingKey: string, prettyName: string, isRequired: boolean = false, enableInMenu: boolean | OptionCallback = true) {
         // Value default and choices are set elsewhere.
         super(OptionType.FIELD, isRequired, bindingKey, prettyName, undefined, undefined, enableInMenu);
     }
