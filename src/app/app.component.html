@@ -32,17 +32,12 @@
             matTooltip="Add a New Visualization" (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()" *ngIf="showVisShortcut">
             <mat-icon class="neon-icon-large">add_circle</mat-icon>
         </button>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="Connect to a Custom Data Source"
-            matTooltipPosition="below" matTooltip="Connect to a Custom Data Source" (click)="openCustomConnectionDialog()"
-            *ngIf="showCustomConnectionButton">
-            <mat-icon class="neon-icon-large">storage</mat-icon>
-        </button>
         <div class="simple-search-container">
             <app-simple-filter #simpleFilter></app-simple-filter>
         </div>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Show Dashboard Selector" matTooltipPosition="below"
             matTooltip="Show Dashboard Selector" (click)="toggleDashboardSelectorDialog(!showDashboardSelector)">
-            <mat-icon class="neon-icon-large" svgIcon="dashboard_selector"></mat-icon>
+            <mat-icon class="neon-icon-large">dashboard</mat-icon>
         </button>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below" id="showFiltersComponentIcon"
             matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFiltersComponentIcon">
@@ -50,8 +45,8 @@
         </button>
 
         <mat-menu #appMenu="matMenu" [backdropClass]="widgetService.getTheme()" yPosition="below" [overlapTrigger]="false">
-            <button mat-menu-item (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()">
-                <mat-icon color="secondary">add_circle</mat-icon>Visualizations</button>
+            <button mat-menu-item (click)="openCustomConnectionDialog()" *ngIf="showCustomConnectionButton">
+                <mat-icon color="secondary">storage</mat-icon>Custom Data Source</button>
             <button mat-menu-item (click)="setPanel('savedState', 'Save States'); sideNavRight.toggle()">
                 <mat-icon color="secondary">save</mat-icon>Saved States</button>
             <button mat-menu-item (click)="setPanel('settings', 'Settings'); sideNavRight.toggle()">
