@@ -743,11 +743,11 @@
                         "png": "img",
                         "mp4": "vid",
                         "pdf": "pdf",
-                        "ltf": "pdf",
                         "gif": "img",
                         "mp3": "aud",
                         "svg": "img"
-                    }
+                    },
+                    "ignoreMediaTypes": ["ltf", "html"]
                 },
                 "row": 0,
                 "col": 11
@@ -823,11 +823,11 @@
                         "png": "img",
                         "mp4": "vid",
                         "pdf": "pdf",
-                        "ltf": "pdf",
                         "gif": "img",
                         "mp3": "aud",
                         "svg": "img"
-                    }
+                    },
+                    "ignoreMediaTypes": ["ltf", "html"]
                 },
                 "row": 2,
                 "col": 4
@@ -882,11 +882,11 @@
                         "png": "img",
                         "mp4": "vid",
                         "pdf": "pdf",
-                        "ltf": "pdf",
                         "gif": "img",
                         "mp3": "aud",
                         "svg": "img"
-                    }
+                    },
+                    "ignoreMediaTypes": ["ltf", "html"]
                 },
                 "row": 0,
                 "col": 11
@@ -1008,11 +1008,11 @@
                         "png": "img",
                         "mp4": "vid",
                         "pdf": "pdf",
-                        "ltf": "pdf",
                         "gif": "img",
                         "mp3": "aud",
                         "svg": "img"
-                    }
+                    },
+                    "ignoreMediaTypes": ["ltf", "html"]
                 },
                 "row": 0,
                 "col": 11
@@ -1153,11 +1153,11 @@
                         "png": "img",
                         "mp4": "vid",
                         "pdf": "pdf",
-                        "ltf": "pdf",
                         "gif": "img",
                         "mp3": "aud",
                         "svg": "img"
-                    }
+                    },
+                    "ignoreMediaTypes": ["ltf", "html"]
                 },
                 "row": 2,
                 "col": 11
@@ -1281,11 +1281,11 @@
                         "png": "img",
                         "mp4": "vid",
                         "pdf": "pdf",
-                        "ltf": "pdf",
                         "gif": "img",
                         "mp3": "aud",
                         "svg": "img"
-                    }
+                    },
+                    "ignoreMediaTypes": ["ltf", "html"]
                 },
                 "row": 2,
                 "col": 4
@@ -1322,11 +1322,11 @@
                         "png": "img",
                         "mp4": "vid",
                         "pdf": "pdf",
-                        "ltf": "pdf",
                         "gif": "img",
                         "mp3": "aud",
                         "svg": "img"
-                    }
+                    },
+                    "ignoreMediaTypes": ["ltf", "html"]
                 },
                 "row": 2,
                 "col": 11
@@ -1472,11 +1472,11 @@
                         "png": "img",
                         "mp4": "vid",
                         "pdf": "pdf",
-                        "ltf": "pdf",
                         "gif": "img",
                         "mp3": "aud",
                         "svg": "img"
-                    }
+                    },
+                    "ignoreMediaTypes": ["ltf", "html"]
                 },
                 "row": 2,
                 "col": 11
@@ -1626,11 +1626,11 @@
                             "png": "img",
                             "mp4": "vid",
                             "pdf": "pdf",
-                            "ltf": "pdf",
                             "gif": "img",
                             "mp3": "aud",
                             "svg": "img"
-                        }
+                        },
+                        "ignoreMediaTypes": ["ltf", "html"]
                     },
                     "row": 2,
                     "col": 11
@@ -1752,11 +1752,11 @@
                             "png": "img",
                             "mp4": "vid",
                             "pdf": "pdf",
-                            "ltf": "pdf",
                             "gif": "img",
                             "mp3": "aud",
                             "svg": "img"
-                        }
+                        },
+                        "ignoreMediaTypes": ["ltf", "html"]
                     },
                     "row": 2,
                     "col": 11
@@ -1832,11 +1832,11 @@
                             "png": "img",
                             "mp4": "vid",
                             "pdf": "pdf",
-                            "ltf": "pdf",
                             "gif": "img",
                             "mp3": "aud",
                             "svg": "img"
-                        }
+                        },
+                        "ignoreMediaTypes": ["ltf", "html"]
                     },
                     "row": 2,
                     "col": 4
@@ -1891,11 +1891,11 @@
                             "png": "img",
                             "mp4": "vid",
                             "pdf": "pdf",
-                            "ltf": "pdf",
                             "gif": "img",
                             "mp3": "aud",
                             "svg": "img"
-                        }
+                        },
+                        "ignoreMediaTypes": ["ltf", "html"]
                     },
                     "row": 2,
                     "col": 11
@@ -2038,11 +2038,11 @@
                             "png": "img",
                             "mp4": "vid",
                             "pdf": "pdf",
-                            "ltf": "pdf",
                             "gif": "img",
                             "mp3": "aud",
                             "svg": "img"
-                        }
+                        },
+                        "ignoreMediaTypes": ["ltf", "html"]
                     },
                     "row": 2,
                     "col": 11
@@ -2188,11 +2188,11 @@
                             "png": "img",
                             "mp4": "vid",
                             "pdf": "pdf",
-                            "ltf": "pdf",
                             "gif": "img",
                             "mp3": "aud",
                             "svg": "img"
-                        }
+                        },
+                        "ignoreMediaTypes": ["ltf", "html"]
                     },
                     "row": 2,
                     "col": 11
@@ -2316,11 +2316,11 @@
                             "png": "img",
                             "mp4": "vid",
                             "pdf": "pdf",
-                            "ltf": "pdf",
                             "gif": "img",
                             "mp3": "aud",
                             "svg": "img"
-                        }
+                        },
+                        "ignoreMediaTypes": ["ltf", "html"]
                     },
                     "row": 2,
                     "col": 4
@@ -2357,11 +2357,11 @@
                             "png": "img",
                             "mp4": "vid",
                             "pdf": "pdf",
-                            "ltf": "pdf",
                             "gif": "img",
                             "mp3": "aud",
                             "svg": "img"
-                        }
+                        },
+                        "ignoreMediaTypes": ["ltf", "html"]
                     },
                     "row": 2,
                     "col": 11

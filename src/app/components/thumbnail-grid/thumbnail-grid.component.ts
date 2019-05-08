@@ -257,7 +257,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 variable: ViewType.CARD
             }]),
             new WidgetFreeTextOption('canvasSize', 'Canvas Size', this.CANVAS_SIZE),
-            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', {value: false, length: 0})
+            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', {value: false, length: 0}),
+            new WidgetNonPrimitiveOption('ignoreMediaTypes', 'Ignore Media Types', [])
 
         ];
     }
@@ -690,7 +691,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             thumbnail.fillStyle = '#ffffff';
             thumbnail.fillRect(0, 0, this.options.canvasSize, this.options.canvasSize);
 
-            if (link && link !== 'n/a' && grid[this.options.typeField.columnName] !== this.mediaTypes.ltf) {
+            if (link && link !== 'n/a' && !this.options.ignoreMediaTypes.includes(grid[this.options.typeField.columnName])) {
                 switch (type) {
                     case this.mediaTypes.image : {
                         let image: HTMLImageElement = new Image();

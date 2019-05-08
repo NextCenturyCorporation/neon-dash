@@ -101,6 +101,5 @@ export const MediaTypes = {
     html: 'htm',
     pdf: 'pdf',
     audio: 'aud',
-    maskImage: 'mask',
-    ltf: 'ltf'
+    maskImage: 'mask'
 };
