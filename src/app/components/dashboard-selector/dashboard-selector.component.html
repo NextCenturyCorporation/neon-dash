@@ -1,4 +1,7 @@
 <mat-sidenav-container #visualization class="visualization-sidenav">
+    <button mat-icon-button class="dashboard-selector-close" aria-label="Close" matTooltip="Close" tooltip-position="below" (click)="closeDashboardSelectorDialog()">
+        <mat-icon class="column-selector-close-icon">close</mat-icon>
+    </button>
     <div class="dashboard-selector-container">
         <div class="neon-form-field">
             <app-dashboard-dropdown #dashboardDropdown [dashboards]="dashboards"
