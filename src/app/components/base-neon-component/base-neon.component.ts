@@ -776,7 +776,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.updateCollectionWithGlobalCompatibleFilters();
 
         // Don't run the visualization query if the event was sent from this visualization and this visualization ignores its own filters.
-        if (eventMessage.source !== this.id || this.shouldFilterSelf()) {
+        if (eventMessage.caller !== this.id || this.shouldFilterSelf()) {
             // TODO THOR-1108 Ignore filters on non-matching datastores/databases/tables.
             this.executeAllQueryChain();
         }
