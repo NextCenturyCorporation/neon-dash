@@ -240,8 +240,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         if (this.options.sortField.columnName) {
             filters = [
                 ...filters,
-                this.searchService.buildFilterClause(options.idField.columnName, '!=', null),
-                this.searchService.buildFilterClause(options.idField.columnName, '!=', '')
+                this.searchService.buildFilterClause(options.linkField.columnName, '!=', null),
+                this.searchService.buildFilterClause(options.linkField.columnName, '!=', '')
             ];
         }
 
@@ -551,10 +551,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     initializeProperties() {
-        if (!this.options.sortField.columnName) {
-            this.options.sortField = this.options.percentField;
-        }
-
         if (!this.options.flagLabel.columnName) {
             this.options.flagLabel = this.options.idField;
         }

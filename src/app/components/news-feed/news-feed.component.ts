@@ -365,10 +365,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     initializeProperties() {
-        if (!this.options.sortField.columnName) {
-            this.options.sortField = this.options.idField;
-        }
-
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
         this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
         // Backwards compatibility (ascending deprecated and replaced by sortDescending).
