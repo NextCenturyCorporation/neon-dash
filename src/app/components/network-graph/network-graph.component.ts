@@ -46,7 +46,8 @@ import {
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption,
-    WidgetSelectOption
+    WidgetSelectOption,
+    WidgetColorOption
 } from '../../widget-option';
 
 import * as d3shape from 'd3-shape';
@@ -326,11 +327,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             new WidgetSelectOption('displayLegend', 'Legend', false, OptionChoices.HideFalseShowTrue, this.optionsDoesHaveColorField),
             new WidgetSelectOption('legendFiltering', 'Legend Filtering', true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('physics', 'Physics', true, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('edgeColor', 'Edge Color', '#2b7ce9', this.optionsNotReified),
+            new WidgetColorOption('edgeColor', 'Edge Color', '#2b7ce9', this.optionsNotReified),
             new WidgetFreeTextOption('edgeWidth', 'Edge Width', '1'),
-            new WidgetFreeTextOption('fontColor', 'Font Color', '#343434', this.optionsNotReified),
-            new WidgetFreeTextOption('linkColor', 'Link Color', '#96c1fc', this.optionsNotReified),
-            new WidgetFreeTextOption('nodeColor', 'Node Color', '#96c1fc', this.optionsNotReified),
+            new WidgetColorOption('fontColor', 'Font Color', '#343434', this.optionsNotReified),
+            new WidgetColorOption('linkColor', 'Link Color', '#96c1fc', this.optionsNotReified),
+            new WidgetColorOption('nodeColor', 'Node Color', '#96c1fc', this.optionsNotReified),
             new WidgetFreeTextOption('nodeShape', 'Node Shape', 'box')
         ];
     }
@@ -908,44 +909,44 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         }
     }
 
-private getAllNodes(data: any[], idField: string, nameField: string, colorField: string, originalColor: string,
-                    xPositionField: string, yPositionField: string, filterFields: string[]) {
-    let ret: Node[] = [];
-    let color = originalColor;
-    for (let entry of data) {
-        let colorMapVal = entry[colorField],
-        id = entry[idField],
-        name = nameField && entry[nameField],
-        xPosition = entry[xPositionField],
-        yPosition = entry[yPositionField],
-        filterFieldData: any[] = [];
+    private getAllNodes(data: any[], idField: string, nameField: string, colorField: string, originalColor: string,
+        xPositionField: string, yPositionField: string, filterFields: string[]) {
+        let ret: Node[] = [];
+        let color = originalColor;
+        for (let entry of data) {
+            let colorMapVal = entry[colorField],
+                id = entry[idField],
+                name = nameField && entry[nameField],
+                xPosition = entry[xPositionField],
+                yPosition = entry[yPositionField],
+                filterFieldData: any[] = [];
 
-        for (let i of filterFields) {
-            filterFieldData.push({
-                field: i,
-                data: entry[i]
-            });
-        }
+            for (let i of filterFields) {
+                filterFieldData.push({
+                    field: i,
+                    data: entry[i]
+                });
+            }
 
-        // if there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
-        if (colorField && this.prettifiedNodeLabels.length === 0) {
-            color = this.widgetService.getColor(this.options.database.name, this.options.table.name, colorField,
-                colorMapVal).getComputedCss(this.visualization);
-        }
+            // if there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
+            if (colorField && this.prettifiedNodeLabels.length === 0) {
+                color = this.widgetService.getColor(this.options.database.name, this.options.table.name, colorField,
+                    colorMapVal).getComputedCss(this.visualization);
+            }
 
-        // create a new node for each unique nodeId
-        let nodes = this.getArray(id),
-        nodeNames = !name ? nodes : this.getArray(name);
-        for (let j = 0; j < nodes.length && ret.length < this.options.limit; j++) {
-            let nodeEntry = nodes[j];
-            if (this.isUniqueNode(nodeEntry)) {
-                //If legend labels have been modified, override the node color
-                if (this.prettifiedNodeLabels.length > 0 && this.options.displayLegend && colorMapVal && colorMapVal !== '') {
-                    let shortName = this.labelCleanUp(colorMapVal);
-                    for (const nodeLabel of this.prettifiedNodeLabels) {
-                        if (nodeLabel === shortName) {
-                            color = this.widgetService.getColor(this.options.database.name, this.options.table.name, colorField,
-                                nodeLabel).getComputedCss(this.visualization);
+            // create a new node for each unique nodeId
+            let nodes = this.getArray(id),
+                nodeNames = !name ? nodes : this.getArray(name);
+            for (let j = 0; j < nodes.length && ret.length < this.options.limit; j++) {
+                let nodeEntry = nodes[j];
+                if (this.isUniqueNode(nodeEntry)) {
+                    //If legend labels have been modified, override the node color
+                    if (this.prettifiedNodeLabels.length > 0 && this.options.displayLegend && colorMapVal && colorMapVal !== '') {
+                        let shortName = this.labelCleanUp(colorMapVal);
+                        for (const nodeLabel of this.prettifiedNodeLabels) {
+                            if (nodeLabel === shortName) {
+                                color = this.widgetService.getColor(this.options.database.name, this.options.table.name, colorField,
+                                    nodeLabel).getComputedCss(this.visualization);
                                 break;
                             }
                         }
@@ -1100,7 +1101,7 @@ private getAllNodes(data: any[], idField: string, nameField: string, colorField:
                 for (let j = 0; j < links.length && graph.nodes.length < limit; j++) {
                     let linkEntry = links[j];
                     linkNodeName = targetNames[j];
-                    filterFields.push({field: nodeName, data: linkEntry});
+                    filterFields.push({ field: nodeName, data: linkEntry });
 
                     if (linkEntry && this.isUniqueNode(linkEntry)) {
                         //If legend labels have been modified, override the link
@@ -1289,7 +1290,7 @@ private getAllNodes(data: any[], idField: string, nameField: string, colorField:
         if (properties.nodes.length === 1) {
             //find the selected node
             let nodeName = properties.nodes[0];
-            let selectedNode = <Node> this.graphData.nodes.get(nodeName);
+            let selectedNode = this.graphData.nodes.get(nodeName) as Node;
             let clause: neon.query.WherePredicate;
             let singleFilter;
 
