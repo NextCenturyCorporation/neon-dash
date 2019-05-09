@@ -47,12 +47,11 @@ export class LeafletNeonMap extends AbstractMap {
                 minZoom: this.leafletOptions.minZoom,
                 attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
             }),
-            monochrome = new L.TileLayer('https://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
-                minZoom: this.leafletOptions.minZoom,
-                attribution: 'Imagery from <a href="https://giscience.uni-hd.de/">' +
-                'GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; ' +
-                '<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            }),
+            monochrome = new L.TileLayer(
+                'https://stamen-tiles.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
+                    minZoom: this.leafletOptions.minZoom,
+                    attribution: 'Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.'
+                }),
             baseLayers = {
                 Normal: baseTileLayer,
                 MonoChrome: monochrome
@@ -73,7 +72,7 @@ export class LeafletNeonMap extends AbstractMap {
     }
 
     makeSelectionInexact() {
-        return this.box && this.box.setStyle({color: this.getBoxColor()});
+        return this.box && this.box.setStyle({ color: this.getBoxColor() });
     }
 
     removeFilterBox() {
@@ -94,7 +93,7 @@ export class LeafletNeonMap extends AbstractMap {
         }
 
         if (!layerGroup) {
-            layerGroup = !cluster ? new L.LayerGroup() : (<any> L).markerClusterGroup({
+            layerGroup = !cluster ? new L.LayerGroup() : (<any>L).markerClusterGroup({
                 // Override default function to add neon-cluster class to cluster icons.
                 iconCreateFunction: (clusterPoint) => {
                     return new L.DivIcon({
@@ -236,9 +235,9 @@ export class LeafletNeonMap extends AbstractMap {
         let bounds: L.LatLngBounds = event.boxZoomBounds;
         this.isDrawnFilterExact = true;
         if (!this.box) {
-            this.box = new L.Rectangle(bounds, {color: this.getBoxColor(), weight: 1, fill: false}).addTo(this.map);
+            this.box = new L.Rectangle(bounds, { color: this.getBoxColor(), weight: 1, fill: false }).addTo(this.map);
         } else {
-            this.box.setBounds(bounds).setStyle({color: this.getBoxColor()});
+            this.box.setBounds(bounds).setStyle({ color: this.getBoxColor() });
         }
         this.filterListener.filterByLocation(new BoundingBoxByDegrees(
             bounds.getSouth(),
