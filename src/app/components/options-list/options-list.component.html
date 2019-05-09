@@ -35,6 +35,22 @@
                 (ngModelChange)="updateOnChange(bindingKey)" required="true">
         </mat-form-field>
     </div>
+    <!-- Non Primitive Option Type-->
+    <div mat-fill class="editor" *ngSwitchCase="'NON_PRIMITIVE'">
+        <label>{{getOption(bindingKey).prettyName}}</label>
+        <ngx-monaco-editor #editor [options]="{
+                theme: 'vs', 
+                language: 'yaml', 
+                automaticLayout: true, 
+                lineNumbers: true,
+                minimap: {
+                    enabled: false
+                }
+            }" [(ngModel)]="getOption(bindingKey).intermediateValue"
+            (ngModelChange)="updateOnChange(bindingKey); ">
+        </ngx-monaco-editor>
+    </div>
+
     <!-- Field Array Option Type-->
     <div mat-fill class="flex center" *ngSwitchCase="'FIELD_ARRAY'">
         <mat-form-field class='option-container'>

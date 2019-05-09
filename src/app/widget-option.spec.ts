@@ -15,6 +15,7 @@
  */
 import { ReflectiveInjector } from '@angular/core';
 import { inject } from '@angular/core/testing';
+import * as yaml from 'js-yaml';
 
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from './dataset';
 import { DatasetService } from './services/dataset.service';
@@ -24,7 +25,8 @@ import {
     WidgetFieldArrayOption,
     WidgetSelectOption,
     WidgetOptionCollection,
-    WidgetTableOption
+    WidgetTableOption,
+    WidgetNonPrimitiveOption
 } from './widget-option';
 
 import { initializeTestBed } from '../testUtils/initializeTestBed';
@@ -476,3 +478,47 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
         expect(options.testCustomFieldArray).toEqual([DatasetServiceMock.NAME_FIELD, DatasetServiceMock.TYPE_FIELD]);
     }));
 });
+
+describe('NonPrimitive Fields', () => {
+    it('Objects initialize properly', () => {
+        const optEmpty = new WidgetNonPrimitiveOption('test', 'Test', {}, true);
+        expect(optEmpty.valueDefault).toEqual({});
+        expect(optEmpty.intermediateValue).toEqual('');
+        expect(optEmpty.getValueToSaveInBindings()).toEqual({});
+
+        const optNull = new WidgetNonPrimitiveOption('test', 'Test', undefined, true);
+        expect(optNull.valueDefault).toEqual(undefined);
+        expect(optNull.intermediateValue).toEqual('');
+        expect(optNull.getValueToSaveInBindings()).toEqual(undefined);
+
+        const optComplex = new WidgetNonPrimitiveOption('test', 'Test', { a: 5, b: [1, 2, { c: 3 }] }, true);
+        expect(optComplex.valueDefault).toEqual({ a: 5, b: [1, 2, { c: 3 }] });
+        expect(optComplex.intermediateValue).toEqual(yaml.safeDump({ a: 5, b: [1, 2, { c: 3 }] }));
+
+        expect(optComplex.getValueToSaveInBindings()).toEqual({
+            a: 5, b: [1, 2, { c: 3 }]
+        });
+    });
+
+    it('Objects update properly', () => {
+        const option = new WidgetNonPrimitiveOption('test', 'Test', {}, true);
+        expect(option.valueDefault).toEqual({});
+        option.intermediateValue = 'a: [1,2,3]';
+        expect(option.getValueToSaveInBindings()).toEqual({ a: [1, 2, 3] });
+        option.intermediateValue = `
+a: 5
+b: 10
+c: [1,2,3]
+`;
+        expect(option.getValueToSaveInBindings()).toEqual({ a: 5, b: 10, c: [1, 2, 3] });
+
+        option.intermediateValue = '';
+
+        expect(option.getValueToSaveInBindings()).toEqual({});
+
+        option.intermediateValue = 'null';
+
+        expect(option.getValueToSaveInBindings()).toEqual({});
+    });
+});
+
