@@ -53,7 +53,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
 
     autoComplete: boolean = true;
     queryValues: string[] = [];
-    queryArray: any[];
+    queryArray: any[] = [];
 
     public queryOptions: Observable<void | string[]>;
 
