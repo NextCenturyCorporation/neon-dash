@@ -13,16 +13,15 @@
  * limitations under the License.
  *
  */
-import { Color } from '../../color';
 import { ElementRef } from '@angular/core';
 
 export const whiteString = 'rgb(255,255,255)';
 
-export enum MapType {Leaflet, Cesium}
+export enum MapType { Leaflet }
 
 // create array of name/value pairs for map types
-export const MapTypePairs: {name: string, value: number}[] =
-    Object.keys(MapType).filter((key) => Number.isNaN(Number.parseInt(key))).map((name) => ({name: name, value: MapType[name]}));
+export const MapTypePairs: { name: string, value: number }[] =
+    Object.keys(MapType).filter((key) => Number.isNaN(Number.parseInt(key))).map((name) => ({ name: name, value: MapType[name] }));
 
 export class BoundingBoxByDegrees {
     constructor(
@@ -30,7 +29,7 @@ export class BoundingBoxByDegrees {
         public north: number,
         public west: number,
         public east: number
-    ) {}
+    ) { }
 }
 
 export class MapPoint {
@@ -46,7 +45,7 @@ export class MapPoint {
         public colorByField: string,
         public colorByValue: string,
         public hoverPopupMap: Map<string, number>
-    ) {}
+    ) { }
 }
 
 export interface FilterListener {

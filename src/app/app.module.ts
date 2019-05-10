@@ -71,9 +71,7 @@ import { WikiViewerComponent } from './components/wiki-viewer/wiki-viewer.compon
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { AppMaterialModule } from './app.material.module';
 import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
-import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { TreeModule } from 'angular-tree-component';
 import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-grid.component';
 import { DetailsThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.details-view';
@@ -152,8 +150,6 @@ export function getAppConfig() {
         BrowserAnimationsModule,
         AppMaterialModule,
         MatAutocompleteModule,
-        NgxGraphModule,
-        NgxChartsModule,
         ReactiveFormsModule,
         TreeModule.forRoot()
     ],

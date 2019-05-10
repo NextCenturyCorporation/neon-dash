@@ -44,7 +44,6 @@ import {
     whiteString
 } from './map.type.abstract';
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
-import { CesiumNeonMap } from './map.type.cesium';
 import { FieldMetaData } from '../../dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
 import { neonMappings, neonUtilities } from '../../neon-namespaces';
@@ -126,8 +125,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             dialog
         );
 
-        (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
-
         this.updateOnSelectId = true;
     }
 
@@ -169,9 +166,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             this.options.type = MapType[this.options.type] || MapType.Leaflet;
         }
         switch (this.options.type) {
-            case MapType.Cesium:
-                this.mapObject = new CesiumNeonMap();
-                break;
             case MapType.Leaflet:
                 this.mapObject = new LeafletNeonMap();
                 break;
@@ -593,7 +587,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, idValue: string, lat: number, lng: number, colorField: string,
-         colorValue: string, hoverPopupValue: string) {
+        colorValue: string, hoverPopupValue: string) {
 
         if (!super.isNumber(lat) || !super.isNumber(lng)) {
             return;
@@ -622,7 +616,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             obj.count++;
 
             //check if popup value already exists increase count in map
-            if (hoverPopupValue && (obj.hoverPopupMap.has(hoverPopupValue)))  {
+            if (hoverPopupValue && (obj.hoverPopupMap.has(hoverPopupValue))) {
                 obj.hoverPopupMap.set(hoverPopupValue, obj.hoverPopupMap.get(hoverPopupValue));
             } else {
                 obj.hoverPopupMap.set(hoverPopupValue, 1);
@@ -928,9 +922,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             new WidgetSelectOption('type', 'Map Type', MapType.Leaflet, [{
                 prettyName: 'Leaflet',
                 variable: MapType.Leaflet
-            }, {
-                prettyName: 'Cesium',
-                variable: MapType.Cesium
             }]),
             new WidgetFreeTextOption('west', 'West', null)
         ];

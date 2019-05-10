@@ -44,7 +44,6 @@ import { CardThumbnailSubComponent } from '../thumbnail-grid/subcomponent.card-v
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -91,7 +90,6 @@ describe('Component: VisualizationContainer', () => {
             FormsModule,
             MatAutocompleteModule,
             NgxDatatableModule,
-            NgxGraphModule,
             BrowserAnimationsModule,
             ReactiveFormsModule,
             TreeModule.forRoot()
