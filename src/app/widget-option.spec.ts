@@ -521,4 +521,3 @@ c: [1,2,3]
         expect(option.getValueToSaveInBindings()).toEqual({});
     });
 });
-

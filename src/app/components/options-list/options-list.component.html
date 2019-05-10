@@ -37,7 +37,7 @@
     </div>
     <!-- Non Primitive Option Type-->
     <div mat-fill class="editor" *ngSwitchCase="'NON_PRIMITIVE'">
-        <label>{{getOption(bindingKey).prettyName}}</label>
+        <label>{{ getOption(bindingKey).prettyName }}</label>
         <ngx-monaco-editor #editor [options]="{
                 theme: 'vs', 
                 language: 'yaml', 
