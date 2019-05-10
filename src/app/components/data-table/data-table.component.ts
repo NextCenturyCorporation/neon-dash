@@ -45,7 +45,6 @@ import {
 } from '../../widget-option';
 import * as neon from 'neon-framework';
 import { MatDialog } from '@angular/material';
-import { WhereWrapper } from '../../services/search.service';
 
 @Component({
     selector: 'app-data-table',
@@ -512,11 +511,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         // Override the default query fields because we want to find all fields.
         this.searchService.updateFieldsToMatchAll(query);
 
-        if (filters.length) {
-            this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(filters));
-        } else {
-            this.searchService.updateFilter(query, new WhereWrapper(neon.query.or()));
-        }
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(filters));
 
         if (options.sortField.columnName) {
             this.searchService.updateSort(query, options.sortField.columnName,

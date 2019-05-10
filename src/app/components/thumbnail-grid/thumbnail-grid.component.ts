@@ -45,7 +45,6 @@ import {
 } from '../../widget-option';
 import * as neon from 'neon-framework';
 import { MatDialog } from '@angular/material';
-import { WhereWrapper } from '../../services/search.service';
 
 export const ViewType = {
     CARD: 'card',
@@ -247,11 +246,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         this.searchService.updateFieldsToMatchAll(query);
 
-        if (filters.length) {
-            this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(filters));
-        } else {
-            this.searchService.updateFilter(query, new WhereWrapper(neon.query.or()));
-        }
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(filters));
 
         if (options.sortField.columnName) {
             this.searchService.updateSort(query, options.sortField.columnName,
