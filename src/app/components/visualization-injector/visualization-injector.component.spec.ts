@@ -44,7 +44,6 @@ import { CardThumbnailSubComponent } from '../thumbnail-grid/subcomponent.card-v
 
 import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatAutocompleteModule } from '@angular/material';
 import { TreeModule } from 'angular-tree-component';
@@ -82,7 +81,6 @@ describe('Component: VisualizationInjector', () => {
             FormsModule,
             MatAutocompleteModule,
             NgxDatatableModule,
-            NgxGraphModule,
             BrowserAnimationsModule,
             ReactiveFormsModule,
             TreeModule.forRoot()

@@ -15,7 +15,6 @@
  */
 import { Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
-import * as $ from 'jquery';
 
 import { DatabaseMetaData, TableMetaData, Datastore } from '../dataset';
 import { ConnectionService } from './connection.service';
@@ -255,7 +254,7 @@ export class ParameterService {
 
         if (args.isParameterValid(parameterValue) && this.isDatasetValid(dataWithMappings, args.mappings)) {
             let filterName = (args.mappings.length > 1 ? args.filterName : dataWithMappings.fields[args.mappings[0]]) +
-                    ' ' + (args.operator || '=') + ' ' + parameterValue;
+                ' ' + (args.operator || '=') + ' ' + parameterValue;
             this.filterService.addFilter(
                 this.messenger,
                 '',
@@ -361,7 +360,7 @@ export class ParameterService {
     private cleanValue(value: string, operator: string): number | string {
         let retVal: number | string = value;
 
-        if ($.isNumeric(value) && operator !== 'contains') {
+        if (/^-?\d+(.\d+)?$/.test(`${value}`) && operator !== 'contains') {
             retVal = parseFloat(value);
         } else if (value && ((value.charAt(0) === '"' && value.charAt(value.length - 1) === '"') ||
             (value.charAt(0) === "'" && value.charAt(value.length - 1) === "'"))) {

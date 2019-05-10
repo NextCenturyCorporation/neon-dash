@@ -15,7 +15,6 @@
  */
 /// <reference path="../../../../node_modules/@types/d3/index.d.ts" />
 import * as _ from 'lodash';
-import * as $ from 'jquery';
 import { ElementRef } from '@angular/core';
 import { TimelineComponent } from './timeline.component';
 import { Bucketizer } from '../bucketizers/Bucketizer';
@@ -130,13 +129,13 @@ export class TimelineSelectorChart {
         this.svg = d3.select(this.element.nativeElement);
 
         this.marginFocus = {
-                top: 0,
-                bottom: (this.data.collapsed ? this.determineHeight() : DEFAULT_HEIGHT)
-            };
+            top: 0,
+            bottom: (this.data.collapsed ? this.determineHeight() : DEFAULT_HEIGHT)
+        };
         this.marginContext = {
-                top: DEFAULT_MARGIN,
-                bottom: 0
-            };
+            top: DEFAULT_MARGIN,
+            bottom: 0
+        };
 
         this.redrawChart();
     }
@@ -273,12 +272,12 @@ export class TimelineSelectorChart {
 
         if (this.data.collapsed) {
             svgHeight = this.determineHeight();
-            $(this.element.nativeElement[0]).css('height', svgHeight);
+            this.element.nativeElement[0].style.height = svgHeight;
             this.heightFocus = Math.max(0, svgHeight - this.marginFocus.top - this.marginFocus.bottom);
             heightContext = Math.max(0, svgHeight - this.marginContext.top - this.marginContext.bottom);
         } else {
             svgHeight = DEFAULT_HEIGHT * this.data.data.length;
-            $(this.element.nativeElement[0]).css('height', svgHeight);
+            this.element.nativeElement[0].style.height = svgHeight;
             this.heightFocus = Math.max(0, DEFAULT_HEIGHT - this.marginFocus.top - this.marginFocus.bottom);
             heightContext = Math.max(0, DEFAULT_HEIGHT - this.marginContext.top - this.marginContext.bottom);
         }
@@ -881,10 +880,10 @@ export class TimelineSelectorChart {
         }
 
         // Update mask
-        let brushElement = $(this.element.nativeElement);
-        let xPos = brushElement.find('.extent').attr('x');
-        let extentWidth = brushElement.find('.extent').attr('width');
-        let width = parseInt(brushElement.find('.mask-west').attr('width').replace('px', ''), 10);
+        let brushElement = this.element.nativeElement;
+        let xPos = brushElement.querySelector('.extent').x;
+        let extentWidth = brushElement.querySelector('.extent').width;
+        let width = parseInt(brushElement.querySelector('.mask-west').width.replace('px', ''), 10);
 
         if (parseFloat(xPos) + parseFloat(extentWidth) < 0 || parseFloat(xPos) > width) {
             xPos = '0';
@@ -894,7 +893,7 @@ export class TimelineSelectorChart {
 
         if ((extentWidth === '0') &&
             (this.brush.extent() && this.brush.extent().length >= 2 &&
-            ((this.brush.extent()[1] as number) - (this.brush.extent()[0] as number) > 0))) {
+                ((this.brush.extent()[1] as number) - (this.brush.extent()[0] as number) > 0))) {
             // If brush extent exists, but the width is too small, draw masks with a bigger width
             brushElement.find('.mask-west').attr('x', parseFloat(xPos) - width);
             brushElement.find('.mask-east').attr('x', parseFloat(xPos) + 1);
@@ -937,7 +936,7 @@ export class TimelineSelectorChart {
         // Check if there is focus data, and if the selection is within range
         let focusData = this.data.primarySeries.focusData;
         if (focusData.length > 0 && focusData[0].date <= datum.date &&
-                datum.date <= focusData[focusData.length - 1].date) {
+            datum.date <= focusData[focusData.length - 1].date) {
             if (this.data.focusGranularityDifferent) {
                 let startDate = this.data.bucketizer.roundDownBucket(datum.date);
                 let endDate = d3.time[this.data.bucketizer.getGranularity()]
@@ -969,8 +968,8 @@ export class TimelineSelectorChart {
         this.showHighlight(bucketData,
             this.contextHighlight, this.xContext, this.yContext);
 
-         this.showHighlight(datum,
-             this.focusHighlight, this.xFocus, this.yFocus);
+        this.showHighlight(datum,
+            this.focusHighlight, this.xFocus, this.yFocus);
     }
 
     /**
@@ -1031,8 +1030,8 @@ export class TimelineSelectorChart {
         // visualizations)
         let html = '<div><strong>Date:</strong> ' + _.escape(date) + '</div>' +
             '<div><strong>Count:</strong> ' + count + '</div>';
-        $(TOOLTIP_ID).html(html);
-        $(TOOLTIP_ID).show();
+        document.getElementById(TOOLTIP_ID).innerHTML = html;
+        document.getElementById(TOOLTIP_ID).style.display = 'block';
 
         // Calculate the tooltip position
         let MIN_VALUE = this.data.logarithmic ? 1 : 0;
@@ -1041,26 +1040,48 @@ export class TimelineSelectorChart {
     }
 
     positionTooltip(tooltip, mouseEvent): void {
-        let tooltipElement = $(TOOLTIP_ID);
-        let tooltipWidth = tooltipElement.outerWidth(true);
-        let tooltipHeight = tooltipElement.outerHeight(true);
+        const getProp = (style: HTMLElement['style'], prop: keyof HTMLElement['style']) => {
+            return parseInt(`${style[prop]}`.replace('px', '') || '0', 10);
+        };
+        const computeOuterDims = (el: HTMLElement) => {
+            const style = window.getComputedStyle(el, null);
+            return {
+                w: el.clientWidth +
+                    getProp(style, 'paddingTop') +
+                    getProp(style, 'paddingBottom') +
+                    getProp(style, 'borderTopWidth') +
+                    getProp(style, 'borderBottomWidth') +
+                    getProp(style, 'marginTop') +
+                    getProp(style, 'marginBottom'),
+                h: el.clientHeight +
+                    getProp(style, 'paddingLeft') +
+                    getProp(style, 'paddingRight') +
+                    getProp(style, 'borderLeftWidth') +
+                    getProp(style, 'borderRightWidth') +
+                    getProp(style, 'marginLeft') +
+                    getProp(style, 'marginRight')
+            };
+        };
+
+        let tooltipElement = document.getElementById(TOOLTIP_ID);
+        let { w: tooltipWidth, h: tooltipHeight } = computeOuterDims(tooltipElement);
         let attributeLeft = mouseEvent.pageX - this.determineLeft() + 10;
         let attributeTop = mouseEvent.pageY - this.determineTop() + (tooltipHeight / 2) - 15 - 45;
 
         if ((attributeLeft + tooltipWidth) > this.determineWidth()) {
-            tooltipElement.removeClass('east');
-            tooltipElement.addClass('west');
+            tooltipElement.classList.remove('east');
+            tooltipElement.classList.add('west');
             tooltip.style('top', (attributeTop + 'px'))
                 .style('left', (attributeLeft - tooltipWidth - 30) + 'px');
         } else {
-            tooltipElement.removeClass('west');
-            tooltipElement.addClass('east');
+            tooltipElement.classList.remove('west');
+            tooltipElement.classList.add('east');
             tooltip.style('top', (attributeTop + 'px'))
                 .style('left', attributeLeft + 'px');
         }
     }
 
     hideTooltip(): void {
-        $(TOOLTIP_ID).hide();
+        document.getElementById(TOOLTIP_ID).style.display = 'none';
     }
 }

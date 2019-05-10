@@ -69,8 +69,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
 import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
-import { NgxGraphModule } from '@swimlane/ngx-graph';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
 import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-grid.component';
 import { NewsFeedComponent } from './components/news-feed/news-feed.component';
@@ -95,70 +93,68 @@ describe('App', () => {
     let spyOnInit;
 
     initializeTestBed('App', {
-          declarations: [
-              AddVisualizationComponent,
-              AppComponent,
-              AboutNeonComponent,
-              AggregationComponent,
-              AnnotationViewerComponent,
-              CardThumbnailSubComponent,
-              DashboardDropdownComponent,
-              DashboardSelectorComponent,
-              DataMessageComponent,
-              DataTableComponent,
-              DetailsThumbnailSubComponent,
-              DocumentViewerComponent,
-              ExportControlComponent,
-              FilterBuilderComponent,
-              FiltersComponent,
-              GearComponent,
-              CurrentFiltersComponent,
-              LegendComponent,
-              MapComponent,
-              MediaViewerComponent,
-              NetworkGraphComponent,
-              NewsFeedComponent,
-              OptionsListComponent,
-              QueryBarComponent,
-              SampleComponent,
-              SaveStateComponent,
-              SettingsComponent,
-              SimpleFilterComponent,
-              TaxonomyViewerComponent,
-              TextCloudComponent,
-              ThumbnailGridComponent,
-              TimelineComponent,
-              TitleThumbnailSubComponent,
-              UnsharedFilterComponent,
-              VisualizationContainerComponent,
-              VisualizationInjectorComponent,
-              WikiViewerComponent
-          ],
-          imports: [
-              FormsModule,
-              AppMaterialModule,
-              MatAutocompleteModule,
-              NgxChartsModule,
-              NgGridModule,
-              NgxGraphModule,
-              NgxDatatableModule,
-              HttpModule,
-              HttpClientModule,
-              BrowserAnimationsModule,
-              ReactiveFormsModule,
-              TreeModule.forRoot()
-          ],
-          providers: [
-              { provide: 'config', useValue: new NeonGTDConfig() },
-              { provide: APP_BASE_HREF, useValue: '/' },
-              ConnectionService,
-              { provide: DatasetService, useClass: DatasetServiceMock },
-              { provide: FilterService, useClass: FilterServiceMock },
-              ParameterService,
-              { provide: AbstractSearchService, useClass: SearchServiceMock },
-              { provide: AbstractWidgetService, useClass: WidgetService }
-          ]
-      });
+        declarations: [
+            AddVisualizationComponent,
+            AppComponent,
+            AboutNeonComponent,
+            AggregationComponent,
+            AnnotationViewerComponent,
+            CardThumbnailSubComponent,
+            DashboardDropdownComponent,
+            DashboardSelectorComponent,
+            DataMessageComponent,
+            DataTableComponent,
+            DetailsThumbnailSubComponent,
+            DocumentViewerComponent,
+            ExportControlComponent,
+            FilterBuilderComponent,
+            FiltersComponent,
+            GearComponent,
+            CurrentFiltersComponent,
+            LegendComponent,
+            MapComponent,
+            MediaViewerComponent,
+            NetworkGraphComponent,
+            NewsFeedComponent,
+            OptionsListComponent,
+            QueryBarComponent,
+            SampleComponent,
+            SaveStateComponent,
+            SettingsComponent,
+            SimpleFilterComponent,
+            TaxonomyViewerComponent,
+            TextCloudComponent,
+            ThumbnailGridComponent,
+            TimelineComponent,
+            TitleThumbnailSubComponent,
+            UnsharedFilterComponent,
+            VisualizationContainerComponent,
+            VisualizationInjectorComponent,
+            WikiViewerComponent
+        ],
+        imports: [
+            FormsModule,
+            AppMaterialModule,
+            MatAutocompleteModule,
+            NgGridModule,
+            NgxDatatableModule,
+            HttpModule,
+            HttpClientModule,
+            BrowserAnimationsModule,
+            ReactiveFormsModule,
+            TreeModule.forRoot()
+        ],
+        providers: [
+            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: APP_BASE_HREF, useValue: '/' },
+            ConnectionService,
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: FilterService, useClass: FilterServiceMock },
+            ParameterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
+            { provide: AbstractWidgetService, useClass: WidgetService }
+        ]
+    });
 
     beforeEach(() => {
         fixture = TestBed.createComponent(AppComponent);
@@ -1053,13 +1049,13 @@ describe('App', () => {
                 sizey: 1
             }
         }, {
-            config: {
-                col: 2,
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            }
-        })).toEqual(false);
+                config: {
+                    col: 2,
+                    row: 1,
+                    sizex: 1,
+                    sizey: 1
+                }
+            })).toEqual(false);
 
         expect(component.widgetOverlaps({
             config: {
@@ -1069,13 +1065,13 @@ describe('App', () => {
                 sizey: 1
             }
         }, {
-            config: {
-                col: 1,
-                row: 2,
-                sizex: 1,
-                sizey: 1
-            }
-        })).toEqual(false);
+                config: {
+                    col: 1,
+                    row: 2,
+                    sizex: 1,
+                    sizey: 1
+                }
+            })).toEqual(false);
 
         expect(component.widgetOverlaps({
             config: {
@@ -1085,13 +1081,13 @@ describe('App', () => {
                 sizey: 1
             }
         }, {
-            config: {
-                col: 2,
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            }
-        })).toEqual(true);
+                config: {
+                    col: 2,
+                    row: 1,
+                    sizex: 1,
+                    sizey: 1
+                }
+            })).toEqual(true);
 
         expect(component.widgetOverlaps({
             config: {
@@ -1101,13 +1097,13 @@ describe('App', () => {
                 sizey: 2
             }
         }, {
-            config: {
-                col: 1,
-                row: 2,
-                sizex: 1,
-                sizey: 1
-            }
-        })).toEqual(true);
+                config: {
+                    col: 1,
+                    row: 2,
+                    sizex: 1,
+                    sizey: 1
+                }
+            })).toEqual(true);
 
         expect(component.widgetOverlaps({
             config: {
@@ -1117,13 +1113,13 @@ describe('App', () => {
                 sizey: 1
             }
         }, {
-            config: {
-                col: 1,
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            }
-        })).toEqual(false);
+                config: {
+                    col: 1,
+                    row: 1,
+                    sizex: 1,
+                    sizey: 1
+                }
+            })).toEqual(false);
 
         expect(component.widgetOverlaps({
             config: {
@@ -1133,13 +1129,13 @@ describe('App', () => {
                 sizey: 1
             }
         }, {
-            config: {
-                col: 1,
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            }
-        })).toEqual(false);
+                config: {
+                    col: 1,
+                    row: 1,
+                    sizex: 1,
+                    sizey: 1
+                }
+            })).toEqual(false);
 
         expect(component.widgetOverlaps({
             config: {
@@ -1149,13 +1145,13 @@ describe('App', () => {
                 sizey: 1
             }
         }, {
-            config: {
-                col: 1,
-                row: 1,
-                sizex: 2,
-                sizey: 1
-            }
-        })).toEqual(true);
+                config: {
+                    col: 1,
+                    row: 1,
+                    sizex: 2,
+                    sizey: 1
+                }
+            })).toEqual(true);
 
         expect(component.widgetOverlaps({
             config: {
@@ -1165,13 +1161,13 @@ describe('App', () => {
                 sizey: 1
             }
         }, {
-            config: {
-                col: 1,
-                row: 1,
-                sizex: 1,
-                sizey: 2
-            }
-        })).toEqual(true);
+                config: {
+                    col: 1,
+                    row: 1,
+                    sizex: 1,
+                    sizey: 2
+                }
+            })).toEqual(true);
 
         expect(component.widgetOverlaps({
             config: {
@@ -1181,13 +1177,13 @@ describe('App', () => {
                 sizey: 4
             }
         }, {
-            config: {
-                col: 2,
-                row: 2,
-                sizex: 1,
-                sizey: 1
-            }
-        })).toEqual(true);
+                config: {
+                    col: 2,
+                    row: 2,
+                    sizex: 1,
+                    sizey: 1
+                }
+            })).toEqual(true);
 
         expect(component.widgetOverlaps({
             config: {
@@ -1197,12 +1193,12 @@ describe('App', () => {
                 sizey: 4
             }
         }, {
-            config: {
-                col: 3,
-                row: 3,
-                sizex: 4,
-                sizey: 4
-            }
-        })).toEqual(true);
+                config: {
+                    col: 3,
+                    row: 3,
+                    sizex: 4,
+                    sizey: 4
+                }
+            })).toEqual(true);
     }));
 });

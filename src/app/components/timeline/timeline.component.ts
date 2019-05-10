@@ -39,18 +39,15 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
-import { Bucketizer } from '../bucketizers/Bucketizer';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
-import { FieldMetaData } from '../../dataset';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
-import { neonMappings } from '../../neon-namespaces';
 import {
     OptionChoices,
-    WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption,
-    WidgetSelectOption
+    WidgetSelectOption,
+    WidgetFieldArrayOption
 } from '../../widget-option';
 import { TimelineSelectorChart, TimelineSeries, TimelineData } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
@@ -59,7 +56,7 @@ import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
 
-declare let d3;
+import * as d3 from 'd3';
 
 export class TransformedTimelineAggregationData extends TransformedVisualizationData {
     constructor(data: any[]) {
@@ -85,7 +82,7 @@ export class TransformedTimelineAggregationData extends TransformedVisualization
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -453,7 +450,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         switch (this.options.granularity.toLowerCase()) {
             case 'minute':
             case 'hour':
-            let bucketizer = new DateBucketizer();
+                let bucketizer = new DateBucketizer();
                 bucketizer.setGranularity(DateBucketizer.HOUR);
                 return bucketizer;
             case 'day':
@@ -537,31 +534,31 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                     columnName: 'minute',
                     prettyName: 'Minute'
                 });
-                /* falls through */
+            /* falls through */
             case 'hour':
                 exportFields.push({
                     columnName: 'hour',
                     prettyName: 'Hour'
                 });
-                /* falls through */
+            /* falls through */
             case 'day':
                 exportFields.push({
                     columnName: 'day',
                     prettyName: 'Day'
                 });
-                /* falls through */
+            /* falls through */
             case 'month':
                 exportFields.push({
                     columnName: 'month',
                     prettyName: 'Month'
                 });
-                /* falls through */
+            /* falls through */
             case 'year':
                 exportFields.push({
                     columnName: 'year',
                     prettyName: 'Year'
                 });
-                /* falls through */
+            /* falls through */
         }
         return exportFields;
     }
