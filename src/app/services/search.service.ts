@@ -186,7 +186,9 @@ export class SearchService extends AbstractSearchService {
         let wherePredicate: neon.query.WherePredicate = (queryPayload as QueryWrapper).query['filter'].whereClause;
         /* tslint:enable:no-string-literal */
 
-        this.transformWherePredicateValues(wherePredicate, keysToValuesToLabels);
+        if (wherePredicate) {
+            this.transformWherePredicateValues(wherePredicate, keysToValuesToLabels);
+        }
 
         return queryPayload;
     }
@@ -282,7 +284,9 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public updateFilter(queryPayload: QueryWrapper, filterClause: WhereWrapper): AbstractSearchService {
-        (queryPayload as QueryWrapper).query.where((filterClause as WhereWrapper).where);
+        if (filterClause) {
+            (queryPayload as QueryWrapper).query.where((filterClause as WhereWrapper).where);
+        }
         return this;
     }
 
