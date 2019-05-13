@@ -388,12 +388,12 @@ Required:
 * **sortField** - The field name for the query sorting.
 
 Optional:
-* **allColumnStatus** - Whether to show or hide the data columns on load.  Options:  `'show'`, `'hide'`.  Default:  `'show'`
+* **allColumnStatus** - (Deprecated; please use **showFields**) Whether to show or hide the data columns on load.  Options:  `'show'`, `'hide'`.  Default:  `'show'`
 * **arrayFilterOperator** - The operator to use on multiple filters.  Default:  `'and'`.  Options:  `'and'`, `'or'`
 * **colorField** - The field name for RGB or HEX colors.
 * **customColumnWidths** - An array of arrays.  Each nested array contains exactly two elements:  a field name (or field key) and a width number.
 * **customEventsToPublish** - An array of objects with a string `id` (event name) and an array `fields` of objects with a string `field` (field name).  Default:  `[]`
-* **exceptionToStatus** - The array of fields names to exempt from **allColumStatus**.
+* **exceptionToStatus** - (Deprecated; please use **showFields**) The array of fields names to exempt from **allColumStatus**.
 * **fieldsConfig** - An array of objects with `name` and `hide` properties to configure the columns that are shown on initialization and their order.  Overrides **exceptionToStatus**.  Default:  `[]`
 * **filterable** - Whether the visualization is filterable.  Default:  `false`
 * **filterFields** - The array of field names to use for the filters.
@@ -402,6 +402,7 @@ Optional:
 * **idField** - The field name for the unique IDs.  Sends **select_id** events.
 * **ignoreSelf** - Whether the visualization will ignore its own filters.  Default:  `true`
 * **reorderable** - Whether columns are reorderable.  Default:  `true`
+* **showFields** - An array of field names of fields to show in the table.  If not defined, shows all fields in the table.
 * **singleFilter** - Whether to only allow a single filter at a time.  Default:  `false`
 * **skinny** - Whether to show the table with skinny styling.  Default:  `false`
 * **sortDescending** - Whether to sort the rows descending.  Default:  `true`
