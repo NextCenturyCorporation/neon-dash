@@ -12,20 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- */import { NgModule } from '@angular/core';
+ */
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SampleComponent } from './sample.component';
-import { MatSidenavModule, MatToolbarModule, MatIconModule, MatTooltipModule, MatProgressSpinnerModule } from '@angular/material';
+import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
   declarations: [SampleComponent],
   exports: [SampleComponent],
   imports: [
-    MatSidenavModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-    MatIconModule,
+    CommonWidgetModule,
     CommonModule
   ]
 })

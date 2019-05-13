@@ -247,9 +247,6 @@ describe('Component: SimpleFilter unconfigured', () => {
     let spyOnInit;
 
     initializeTestBed('Simple Filter', {
-        declarations: [
-            SimpleFilterComponent
-        ],
         providers: [
             { provide: FilterService, useClass: MockFilterService },
             { provide: DatasetService, useClass: DatasetService },

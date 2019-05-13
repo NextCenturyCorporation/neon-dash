@@ -15,7 +15,7 @@
  */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material';
+import { MatIconModule, MatButtonModule } from '@angular/material';
 import { VisualizationInjectorModule } from '../visualization-injector/visualization-injector.module';
 import { VisualizationContainerComponent } from './visualization-container.component';
 
@@ -29,6 +29,7 @@ import { VisualizationContainerComponent } from './visualization-container.compo
   imports: [
     VisualizationInjectorModule,
     MatIconModule,
+    MatButtonModule,
     CommonModule
   ]
 })

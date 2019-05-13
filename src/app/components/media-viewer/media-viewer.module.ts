@@ -16,24 +16,18 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MediaViewerComponent } from './media-viewer.component';
-import {
-  MatSidenavModule, MatToolbarModule, MatTooltipModule,
-  MatIconModule, MatProgressSpinnerModule, MatTabsModule, MatSliderModule
-} from '@angular/material';
+import { MatTabsModule, MatSliderModule } from '@angular/material';
 import { DataMessageModule } from '../data-message/data-message.module';
+import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
   declarations: [MediaViewerComponent],
   exports: [MediaViewerComponent],
   entryComponents: [MediaViewerComponent],
   imports: [
-    MatSidenavModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatIconModule,
+    CommonWidgetModule,
     MatTabsModule,
     MatSliderModule,
-    MatProgressSpinnerModule,
     DataMessageModule,
     CommonModule
   ]

@@ -16,18 +16,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TimelineComponent } from './timeline.component';
-import { MatSidenavModule, MatToolbarModule, MatTooltipModule, MatProgressSpinnerModule, MatIconModule } from '@angular/material';
+import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
   declarations: [TimelineComponent],
   exports: [TimelineComponent],
   entryComponents: [TimelineComponent],
   imports: [
-    MatSidenavModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-    MatIconModule,
+    CommonWidgetModule,
     CommonModule
   ]
 })

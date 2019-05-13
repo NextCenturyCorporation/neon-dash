@@ -15,27 +15,21 @@
  */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SaveStateComponent } from './save-state.component';
 import {
-  MatMenuModule, MatFormFieldModule, MatIconModule,
-  MatInputModule, MatDialogModule, MatSnackBarModule, MatButtonModule
+  MatDialogModule, MatIconModule, MatProgressSpinnerModule,
+  MatToolbarModule, MatTooltipModule, MatSidenavModule, MatButtonModule
 } from '@angular/material';
-import { FormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [SaveStateComponent],
-  exports: [SaveStateComponent],
-  entryComponents: [SaveStateComponent],
-  imports: [
+  declarations: [],
+  exports: [
     MatDialogModule,
-    MatMenuModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSnackBarModule,
     MatIconModule,
-    FormsModule,
-    CommonModule
+    MatProgressSpinnerModule,
+    MatToolbarModule,
+    MatTooltipModule,
+    MatSidenavModule,
+    MatButtonModule
   ]
 })
-export class SaveStateModule { }
+export class CommonWidgetModule { }

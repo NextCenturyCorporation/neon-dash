@@ -16,10 +16,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
-import { MatSidenavModule, MatToolbarModule, MatTooltipModule, MatProgressSpinnerModule, MatIconModule } from '@angular/material';
 import { CardThumbnailSubComponent } from './subcomponent.card-view';
 import { TitleThumbnailSubComponent } from './subcomponent.title-view';
 import { DetailsThumbnailSubComponent } from './subcomponent.details-view';
+import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
   declarations: [
@@ -31,11 +31,7 @@ import { DetailsThumbnailSubComponent } from './subcomponent.details-view';
   exports: [ThumbnailGridComponent],
   entryComponents: [ThumbnailGridComponent],
   imports: [
-    MatSidenavModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-    MatIconModule,
+    CommonWidgetModule,
     CommonModule
   ]
 })

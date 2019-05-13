@@ -16,7 +16,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UnsharedFilterComponent } from './unshared-filter.component';
-import { MatFormFieldModule, MatSelectModule, MatInputModule, MatToolbarModule, MatTooltipModule, MatIconModule } from '@angular/material';
+import {
+  MatFormFieldModule, MatSelectModule, MatInputModule,
+  MatToolbarModule, MatTooltipModule, MatIconModule, MatButtonModule
+} from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
@@ -24,6 +27,7 @@ import { FormsModule } from '@angular/forms';
   exports: [UnsharedFilterComponent],
   imports: [
     MatFormFieldModule,
+    MatButtonModule,
     MatInputModule,
     MatIconModule,
     MatSelectModule,

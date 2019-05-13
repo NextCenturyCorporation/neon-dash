@@ -16,7 +16,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DocumentViewerSingleItemComponent } from './document-viewer-single-item.component';
-import { MatButtonModule } from '@angular/material';
+import { MatButtonModule, MatDialogModule } from '@angular/material';
 
 @NgModule({
   declarations: [DocumentViewerSingleItemComponent],
@@ -26,6 +26,7 @@ import { MatButtonModule } from '@angular/material';
   ],
   imports: [
     MatButtonModule,
+    MatDialogModule,
     CommonModule
   ]
 })

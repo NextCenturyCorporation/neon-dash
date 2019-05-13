@@ -16,20 +16,18 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FiltersComponent } from './filters.component';
-import { MatSidenavModule, MatToolbarModule, MatIconModule, MatButtonToggleModule, MatTooltipModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 import { FilterBuilderModule } from '../filter-builder/filter-builder.module';
 import { CurrentFiltersModule } from '../current-filters/current-filters.module';
+import { CommonWidgetModule } from '../../common-widget.module';
+import { MatButtonToggleModule } from '@angular/material';
 
 @NgModule({
   declarations: [FiltersComponent],
   exports: [FiltersComponent],
   imports: [
-    MatSidenavModule,
-    MatToolbarModule,
-    MatIconModule,
+    CommonWidgetModule,
     MatButtonToggleModule,
-    MatTooltipModule,
     FormsModule,
     FilterBuilderModule,
     CurrentFiltersModule,

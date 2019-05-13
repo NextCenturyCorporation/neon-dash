@@ -16,20 +16,16 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TaxonomyViewerComponent } from './taxonomy-viewer.component';
-import { MatSidenavModule, MatToolbarModule, MatTooltipModule, MatIconModule, MatProgressSpinnerModule } from '@angular/material';
 import { TreeModule } from 'angular-tree-component';
+import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
   declarations: [TaxonomyViewerComponent],
   exports: [TaxonomyViewerComponent],
   entryComponents: [TaxonomyViewerComponent],
   imports: [
-    MatSidenavModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-    MatIconModule,
-    TreeModule,
+    CommonWidgetModule,
+    TreeModule.forRoot(),
     CommonModule
   ]
 })

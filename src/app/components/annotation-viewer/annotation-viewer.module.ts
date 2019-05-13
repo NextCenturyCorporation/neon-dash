@@ -15,12 +15,11 @@
  */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  MatDialogModule, MatSidenavModule, MatToolbarModule, MatButtonModule,
-  MatIconModule, MatTooltipModule, MatListModule, MatProgressSpinnerModule
-} from '@angular/material';
+import { MatListModule } from '@angular/material';
 import { AnnotationViewerComponent } from './annotation-viewer.component';
 import { LegendModule } from '../legend/legend.module';
+
+import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
   declarations: [
@@ -34,14 +33,8 @@ import { LegendModule } from '../legend/legend.module';
   ],
   imports: [
     LegendModule,
-    MatProgressSpinnerModule,
+    CommonWidgetModule,
     MatListModule,
-    MatSidenavModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatToolbarModule,
-    MatDialogModule,
     CommonModule
   ]
 })

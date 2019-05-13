@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
 import { QueryBarComponent } from './query-bar.component';
 import {
   MatFormFieldModule, MatIconModule, MatAutocompleteModule,
-  MatInputModule, MatToolbarModule, MatTooltipModule
+  MatInputModule, MatToolbarModule, MatTooltipModule, MatDialogModule, MatButtonModule
 } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -32,9 +32,11 @@ import { ReactiveFormsModule } from '@angular/forms';
   ],
   imports: [
     MatAutocompleteModule,
+    MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
+    MatDialogModule,
     MatTooltipModule,
     MatToolbarModule,
     ReactiveFormsModule,

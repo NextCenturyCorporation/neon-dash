@@ -14,17 +14,14 @@
  *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { } from 'jasmine-core';
 
 import { SampleComponent } from './sample.component';
 import { AbstractSubcomponent } from './subcomponent.abstract';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -41,7 +38,8 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatDialog } from '@angular/material';
-import { SampleModule } from './sample.module';
+
+import { CommonWidgetModule } from '../../common-widget.module';
 
 // Helper functions.
 
@@ -129,7 +127,7 @@ describe('Component: Sample', () => {
 
     initializeTestBed('Sample', {
         declarations: [
-            TestSampleComponent,
+            TestSampleComponent
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
@@ -139,7 +137,7 @@ describe('Component: Sample', () => {
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
-            SampleModule
+            CommonWidgetModule
         ]
     });
 
@@ -1089,7 +1087,7 @@ describe('Component: Sample with config', () => {
 
     initializeTestBed('Sample', {
         declarations: [
-            TestSampleComponent,
+            TestSampleComponent
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
@@ -1112,7 +1110,7 @@ describe('Component: Sample with config', () => {
             { provide: 'unsharedFilterValue', useValue: 'testFilterValue' }
         ],
         imports: [
-            SampleModule
+            CommonWidgetModule
         ]
     });
 

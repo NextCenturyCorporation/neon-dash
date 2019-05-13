@@ -16,12 +16,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SnackBarComponent } from './snack-bar.component';
+import { MatButtonModule } from '@angular/material';
 
 @NgModule({
   declarations: [SnackBarComponent],
   exports: [SnackBarComponent],
   entryComponents: [SnackBarComponent],
   imports: [
+    MatButtonModule,
     CommonModule
   ]
 })
