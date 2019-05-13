@@ -44,7 +44,6 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import * as neon from 'neon-framework';
-import { ANNOTATIONS } from '@angular/core/src/util/decorators';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
 
@@ -447,7 +446,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                 document.parts.push(part);
             } else {
                 //Breaks annotations into parts
-                for (let index = 0; index < document.annotationStartIndex.length; index ++) {
+                for (let index = 0; index < document.annotationStartIndex.length; index++) {
                     let currentPart = new Part();
                     let currentText = document.annotationTextList[index];
                     let currentType = document.annotationTypeList[index];

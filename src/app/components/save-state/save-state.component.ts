@@ -14,7 +14,6 @@
  *
  */
 import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 
@@ -34,9 +33,9 @@ import * as _ from 'lodash';
 import * as neon from 'neon-framework';
 
 @Component({
-  selector: 'app-save-state',
-  templateUrl: 'save-state.component.html',
-  styleUrls: ['save-state.component.scss']
+    selector: 'app-save-state',
+    templateUrl: 'save-state.component.html',
+    styleUrls: ['save-state.component.scss']
 })
 export class SaveStateComponent implements OnInit {
 
@@ -67,7 +66,7 @@ export class SaveStateComponent implements OnInit {
         public widgetService: AbstractWidgetService,
         private viewContainerRef: ViewContainerRef,
         private dialog: MatDialog
-    ) {}
+    ) { }
 
     ngOnInit() {
         this.messenger = new neon.eventing.Messenger();
@@ -75,7 +74,7 @@ export class SaveStateComponent implements OnInit {
     }
 
     openEditConfigDialog() {
-        let dConfig  = {
+        let dConfig = {
             height: '80%',
             width: '80%',
             hasBackdrop: true,
@@ -286,6 +285,6 @@ export class SaveStateComponent implements OnInit {
         this.snackBar.open(message, 'x', {
             duration: 5000,
             verticalPosition: 'top'
-         });
+        });
     }
 }

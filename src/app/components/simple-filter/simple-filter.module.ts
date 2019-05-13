@@ -13,4 +13,17 @@
  * limitations under the License.
  *
  */
-export * from './about-neon.component';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { SimpleFilterComponent } from './simple-filter.component';
+import { MatIconModule } from '@angular/material';
+
+@NgModule({
+  declarations: [SimpleFilterComponent],
+  exports: [SimpleFilterComponent],
+  imports: [
+    MatIconModule,
+    CommonModule
+  ]
+})
+export class SimpleFilterModule { }

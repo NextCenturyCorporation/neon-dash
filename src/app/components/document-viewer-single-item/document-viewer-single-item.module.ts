@@ -13,4 +13,20 @@
  * limitations under the License.
  *
  */
-export * from './visualization-container.component';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { DocumentViewerSingleItemComponent } from './document-viewer-single-item.component';
+import { MatButtonModule } from '@angular/material';
+
+@NgModule({
+  declarations: [DocumentViewerSingleItemComponent],
+  exports: [DocumentViewerSingleItemComponent],
+  entryComponents: [
+    DocumentViewerSingleItemComponent
+  ],
+  imports: [
+    MatButtonModule,
+    CommonModule
+  ]
+})
+export class DocumentViewerSingleItemModule { }

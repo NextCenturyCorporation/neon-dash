@@ -46,7 +46,6 @@ import { NeonGridItem } from './neon-grid-item';
 import { NeonGTDConfig } from './neon-gtd-config';
 import { neonEvents } from './neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
-import { SaveStateComponent } from './components/save-state/save-state.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 
