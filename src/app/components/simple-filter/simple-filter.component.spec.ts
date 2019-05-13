@@ -13,29 +13,25 @@
  * limitations under the License.
  *
  */
-import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FilterService } from '../../services/filter.service';
 import { DatasetService } from '../../services/dataset.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
 import { SimpleFilterComponent } from './simple-filter.component';
-import { DashboardOptions, Dashboard, SimpleFilter } from '../../dataset';
+import { DashboardOptions, SimpleFilter } from '../../dataset';
 import {
     ChangeDetectorRef,
     ChangeDetectionStrategy,
     Component,
-    DebugElement,
-    NO_ERRORS_SCHEMA,
-    OnDestroy, OnInit
+    DebugElement
 } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+
+import { SimpleFilterModule } from './simple-filter.module';
 
 const databaseName = 'database';
 const tableName = 'table';
@@ -56,10 +52,10 @@ class MockDatasetService extends DatasetService {
     constructor() {
         super(new NeonGTDConfig());
 
-        let dashboardTableKeys: {[key: string]: string} = {};
+        let dashboardTableKeys: { [key: string]: string } = {};
         dashboardTableKeys.tableKey = 'datastore1.' + databaseName + '.' + tableName;
 
-        let dashboardFieldKeys: {[key: string]: string} = {};
+        let dashboardFieldKeys: { [key: string]: string } = {};
         dashboardFieldKeys.fieldKey = 'datastore1.' + databaseName + '.' + tableName + '.' + fieldName;
 
         let dashboard = {
@@ -108,18 +104,13 @@ describe('Component: SimpleFilter', () => {
     };
 
     initializeTestBed('Simple Filter', {
-        declarations: [
-            SimpleFilterComponent
-        ],
         providers: [
             { provide: FilterService, useClass: MockFilterService },
             { provide: DatasetService, useClass: MockDatasetService },
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            SimpleFilterModule
         ]
     });
 
@@ -265,9 +256,7 @@ describe('Component: SimpleFilter unconfigured', () => {
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            SimpleFilterModule
         ]
     });
 

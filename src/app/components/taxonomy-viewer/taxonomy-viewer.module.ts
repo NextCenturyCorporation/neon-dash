@@ -22,6 +22,7 @@ import { TreeModule } from 'angular-tree-component';
 @NgModule({
   declarations: [TaxonomyViewerComponent],
   exports: [TaxonomyViewerComponent],
+  entryComponents: [TaxonomyViewerComponent],
   imports: [
     MatSidenavModule,
     MatToolbarModule,

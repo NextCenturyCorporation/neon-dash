@@ -21,6 +21,7 @@ import { MatSidenavModule, MatToolbarModule, MatTooltipModule, MatProgressSpinne
 @NgModule({
   declarations: [TimelineComponent],
   exports: [TimelineComponent],
+  entryComponents: [TimelineComponent],
   imports: [
     MatSidenavModule,
     MatToolbarModule,

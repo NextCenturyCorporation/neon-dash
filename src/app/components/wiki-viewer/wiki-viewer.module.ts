@@ -24,6 +24,7 @@ import {
 @NgModule({
   declarations: [WikiViewerComponent],
   exports: [WikiViewerComponent],
+  entryComponents: [WikiViewerComponent],
   imports: [
     MatSidenavModule,
     MatToolbarModule,

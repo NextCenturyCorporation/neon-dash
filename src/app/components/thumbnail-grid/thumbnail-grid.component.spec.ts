@@ -13,19 +13,15 @@
  * limitations under the License.
  *
  */
-import { AppMaterialModule } from '../../app.material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
-import { async, ComponentFixture, fakeAsync, inject, TestBed, tick } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { By } from '@angular/platform-browser';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FieldMetaData } from '../../dataset';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 import * as neon from 'neon-framework';
 
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
@@ -35,11 +31,9 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { MatAutocompleteModule } from '@angular/material';
-import { DetailsThumbnailSubComponent } from './subcomponent.details-view';
-import { TitleThumbnailSubComponent } from './subcomponent.title-view';
-import { CardThumbnailSubComponent } from './subcomponent.card-view';
 import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+
+import { ThumbnailGridModule } from './thumbnail-grid.module';
 
 let validateSelect = (element: any, name: string, required: boolean = false, disabled: boolean = false) => {
     expect(element.componentInstance.disabled).toEqual(disabled);
@@ -72,13 +66,6 @@ describe('Component: ThumbnailGrid', () => {
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Thumbnail Grid', {
-        declarations: [
-            CardThumbnailSubComponent,
-            TitleThumbnailSubComponent,
-            DetailsThumbnailSubComponent,
-            ThumbnailGridComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
@@ -87,11 +74,7 @@ describe('Component: ThumbnailGrid', () => {
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule,
-            MatAutocompleteModule,
-            ReactiveFormsModule
+            ThumbnailGridModule
         ]
     });
 
@@ -1478,14 +1461,6 @@ describe('Component: ThumbnailGrid with config', () => {
     let fixture: ComponentFixture<ThumbnailGridComponent>;
 
     initializeTestBed('Thumbnail Grid', {
-        declarations: [
-            CardThumbnailSubComponent,
-            TitleThumbnailSubComponent,
-            DetailsThumbnailSubComponent,
-            ThumbnailGridComponent,
-            UnsharedFilterComponent
-        ],
-
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
@@ -1524,9 +1499,7 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'typeMap', useValue: { jpg: 'img', mov: 'vid' } }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            ThumbnailGridModule
         ]
     });
 

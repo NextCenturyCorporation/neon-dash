@@ -13,18 +13,13 @@
  * limitations under the License.
  *
  */
-import { AppMaterialModule } from '../../app.material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed, tick } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
-import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 import { } from 'jasmine-core';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { DataTableComponent } from './data-table.component';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -38,6 +33,8 @@ import { By } from '@angular/platform-browser';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
+import { DataTableModule } from './data-table.module';
+
 describe('Component: DataTable', () => {
     let component: DataTableComponent,
         fixture: ComponentFixture<DataTableComponent>,
@@ -45,10 +42,6 @@ describe('Component: DataTable', () => {
         getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Data Table', {
-        declarations: [
-            DataTableComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
@@ -57,10 +50,7 @@ describe('Component: DataTable', () => {
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            NgxDatatableModule,
-            BrowserAnimationsModule
+            DataTableModule
         ]
     });
 
@@ -133,8 +123,8 @@ describe('Component: DataTable', () => {
         ];
         component.options.allColumnStatus = 'show';
         component.options.fieldsConfig = [
-            {name: 'date'},
-            {name: 'field2', hide: true}
+            { name: 'date' },
+            { name: 'field2', hide: true }
         ];
 
         component.initializeHeadersFromFieldsConfig();
@@ -698,17 +688,17 @@ describe('Component: DataTable', () => {
 
     it('arrayToString does return the expected string value', () => {
         expect(component.arrayToString(['someElement'])).toEqual('[someElement]');
-        expect(component.arrayToString([{key: 'hi'}])).toEqual('[]');
+        expect(component.arrayToString([{ key: 'hi' }])).toEqual('[]');
     });
 
     it('objectToString does return empty string', () => {
-        expect(component.objectToString({key: 'value'})).toEqual('');
+        expect(component.objectToString({ key: 'value' })).toEqual('');
     });
 
     it('toCellString does return expected value', () => {
         expect(component.toCellString(null, 'object')).toEqual('');
         expect(component.toCellString(['someElement'], 'array')).toEqual('[someElement]');
-        expect(component.toCellString({key: 'value'}, 'object')).toEqual('');
+        expect(component.toCellString({ key: 'value' }, 'object')).toEqual('');
         expect(component.toCellString(4, 'number')).toEqual(4);
     });
 
@@ -720,11 +710,11 @@ describe('Component: DataTable', () => {
         ];
 
         let actual = component.transformVisualizationQueryResults(component.options, [
-            {_id: 1, category: 'books', testField: 'test', ignore: 'ignore', _docCount: 1}
+            { _id: 1, category: 'books', testField: 'test', ignore: 'ignore', _docCount: 1 }
         ]);
 
         expect(actual.data).toEqual([
-            {_id: 1, category: 'books', testField: 'test'}
+            { _id: 1, category: 'books', testField: 'test' }
         ]);
     });
 
@@ -736,13 +726,13 @@ describe('Component: DataTable', () => {
         ];
 
         let actual = component.transformVisualizationQueryResults(component.options, [
-            {_id: 1, category: 'books', testField: 'test', ignore: 'ignore', _docCount: 1},
-            {_id: 2, category: 'books', testField: 'some other value', ignore: 'ignoring'}
+            { _id: 1, category: 'books', testField: 'test', ignore: 'ignore', _docCount: 1 },
+            { _id: 2, category: 'books', testField: 'some other value', ignore: 'ignoring' }
         ]);
 
         expect(actual.data).toEqual([
-            {_id: 1, category: 'books', testField: 'test'},
-            {_id: 2, category: 'books', testField: 'some other value'}
+            { _id: 1, category: 'books', testField: 'test' },
+            { _id: 2, category: 'books', testField: 'some other value' }
         ]);
     });
 
@@ -881,7 +871,7 @@ describe('Component: DataTable', () => {
             prop: 'testField1',
             name: 'Test Field 1',
             active: true,
-            style: {color: 'black'},
+            style: { color: 'black' },
             cellClass: '',
             width: 100
         }];
@@ -904,14 +894,14 @@ describe('Component: DataTable', () => {
             prop: 'testField1',
             name: 'Test Field 1',
             active: true,
-            style: {color: 'black'},
+            style: { color: 'black' },
             cellClass: '',
             width: 100
         }, {
             prop: 'testField2',
             name: 'Test Field 2',
             active: true,
-            style: {color: 'black'},
+            style: { color: 'black' },
             cellClass: '',
             width: 100
         }];
@@ -934,7 +924,7 @@ describe('Component: DataTable', () => {
             prop: 'testField1',
             name: 'Test Field 1',
             active: true,
-            style: {color: 'black'},
+            style: { color: 'black' },
             cellClass: '',
             width: 100
         }];
@@ -971,7 +961,7 @@ describe('Component: DataTable', () => {
             prop: 'testField1',
             name: 'Test Field 1',
             active: true,
-            style: {color: 'black'},
+            style: { color: 'black' },
             cellClass: '',
             width: 100
         }];
@@ -985,7 +975,7 @@ describe('Component: DataTable', () => {
             x: 0,
             y: 0
         });
-        expect(component.headers[0].style).toEqual({color: 'black'});
+        expect(component.headers[0].style).toEqual({ color: 'black' });
     });
 
     it('onMouseEnter does set drag object and styles if isDragging is true', () => {
@@ -993,7 +983,7 @@ describe('Component: DataTable', () => {
             prop: 'testField1',
             name: 'Test Field 1',
             active: true,
-            style: {color: 'black'},
+            style: { color: 'black' },
             cellClass: '',
             width: 100
         }, {
@@ -1109,7 +1099,7 @@ describe('Component: DataTable', () => {
             prop: 'testField1',
             name: 'Test Field 1',
             active: true,
-            style: {borderTop: 'thick solid grey'},
+            style: { borderTop: 'thick solid grey' },
             cellClass: '',
             width: 100
         }];
@@ -1122,7 +1112,7 @@ describe('Component: DataTable', () => {
     });
 
     it('onMouseMove does not set drag object if isDragging is false', () => {
-        component.onMouseMove({screenX: 40, screenY: 55});
+        component.onMouseMove({ screenX: 40, screenY: 55 });
 
         expect(component.drag).toEqual({
             mousedown: false,
@@ -1137,7 +1127,7 @@ describe('Component: DataTable', () => {
     it('onMouseMove does set drag object if isDragging is true', () => {
         component.drag.mousedown = true;
         component.drag.downIndex = 1;
-        component.onMouseMove({screenX: 40, screenY: 55});
+        component.onMouseMove({ screenX: 40, screenY: 55 });
 
         expect(component.drag).toEqual({
             mousedown: true,
@@ -1154,14 +1144,14 @@ describe('Component: DataTable', () => {
             prop: 'testField1',
             name: 'Test Field 1',
             active: true,
-            style: {color: 'black'},
+            style: { color: 'black' },
             cellClass: '',
             width: 100
         }, {
             prop: 'testField2',
             name: 'Test Field 2',
             active: true,
-            style: {padding: '10px'},
+            style: { padding: '10px' },
             cellClass: '',
             width: 100
         }];
@@ -1197,7 +1187,7 @@ describe('Component: DataTable', () => {
             title: 'Test'
         }];
 
-        component.onSelect({selected: selected});
+        component.onSelect({ selected: selected });
 
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalledTimes(0);
@@ -1215,7 +1205,7 @@ describe('Component: DataTable', () => {
         }];
         component.options.idField = new FieldMetaData('category');
 
-        component.onSelect({selected: selected});
+        component.onSelect({ selected: selected });
 
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalled();
@@ -1243,7 +1233,7 @@ describe('Component: DataTable', () => {
             title: 'Test 2'
         }]));
 
-        component.onSelect({selected: selected});
+        component.onSelect({ selected: selected });
 
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalled();
@@ -1310,7 +1300,7 @@ describe('Component: DataTable', () => {
         component.activeHeaders[1]['width'] = 150;
         /* tslint:enable:no-string-literal */
 
-        component.onTableResize({column: {prop: 'someField', width: 100}, newValue: 50});
+        component.onTableResize({ column: { prop: 'someField', width: 100 }, newValue: 50 });
 
         expect(component.headerWidths.get('createdDate')).toEqual(75);
         expect(component.headerWidths.get('someField')).toEqual(50);

@@ -25,6 +25,7 @@ import { DataMessageModule } from '../data-message/data-message.module';
 @NgModule({
   declarations: [MediaViewerComponent],
   exports: [MediaViewerComponent],
+  entryComponents: [MediaViewerComponent],
   imports: [
     MatSidenavModule,
     MatToolbarModule,

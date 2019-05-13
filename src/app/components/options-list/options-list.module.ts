@@ -16,7 +16,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OptionsListComponent } from './options-list.component';
-import { MatFormFieldModule, MatSelectModule } from '@angular/material';
+import { MatFormFieldModule, MatInputModule, MatSelectModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
@@ -24,6 +24,7 @@ import { FormsModule } from '@angular/forms';
   exports: [OptionsListComponent],
   imports: [
     MatFormFieldModule,
+    MatInputModule,
     MatSelectModule,
     FormsModule,
     CommonModule

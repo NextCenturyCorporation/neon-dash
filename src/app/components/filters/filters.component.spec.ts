@@ -13,14 +13,11 @@
  * limitations under the License.
  *
  */
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import { Injector, DebugElement } from '@angular/core';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
-import { AppMaterialModule } from '../../app.material.module';
 import { FiltersComponent } from './filters.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
@@ -32,9 +29,9 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { CurrentFiltersComponent } from '../current-filters/current-filters.component';
-import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { By } from '@angular/platform-browser';
+
+import { FiltersModule } from './filters.module';
 
 describe('Component: Filters', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -43,11 +40,6 @@ describe('Component: Filters', () => {
     let debugElement: DebugElement;
 
     initializeTestBed('Filters', {
-        declarations: [
-            FiltersComponent,
-            FilterBuilderComponent,
-            CurrentFiltersComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
@@ -56,9 +48,7 @@ describe('Component: Filters', () => {
             { provide: 'config', useValue: testConfig }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            FiltersModule
         ]
     });
 

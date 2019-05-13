@@ -12,12 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- */import { NgModule } from '@angular/core';
+ */
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material';
+import { VisualizationInjectorModule } from '../visualization-injector/visualization-injector.module';
+import { VisualizationContainerComponent } from './visualization-container.component';
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    VisualizationContainerComponent
+  ],
+  exports: [
+    VisualizationContainerComponent
+  ],
   imports: [
+    VisualizationInjectorModule,
+    MatIconModule,
     CommonModule
   ]
 })

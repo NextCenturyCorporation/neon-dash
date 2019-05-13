@@ -27,6 +27,9 @@ import { ReactiveFormsModule } from '@angular/forms';
   exports: [
     QueryBarComponent
   ],
+  entryComponents: [
+    QueryBarComponent
+  ],
   imports: [
     MatAutocompleteModule,
     MatFormFieldModule,

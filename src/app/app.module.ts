@@ -33,42 +33,19 @@ import { SearchService } from './services/search.service';
 import { WidgetService } from './services/widget.service';
 
 import { AppComponent } from './app.component';
-import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
-import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
+import { VisualizationContainerModule } from './components/visualization-container/visualization-container.module';
 
 import { AboutNeonModule } from './components/about-neon/about-neon.module';
 import { AddVisualizationModule } from './components/add-visualization/add-visualization.module';
-import { AnnotationViewerModule } from './components/annotation-viewer/annotation-viewer.module';
-import { AggregationModule } from './components/aggregation/aggregation.module';
 import { ConfigEditorModule } from './components/config-editor/config-editor.module';
 import { ConfirmationDialogModule } from './components/confirmation-dialog/confirmation-dialog.module';
 import { ContributionDialogModule } from './components/contribution-dialog/contribution-dialog.module';
-import { CustomConnectionModule } from './components/custom-connection/custom-connection.module';
-import { LegendModule } from './components/legend/legend.module';
-import { DataMessageModule } from './components/data-message/data-message.module';
-import { DashboardDropdownModule } from './components/dashboard-dropdown/dashboard-dropdown.module';
 import { DashboardSelectorModule } from './components/dashboard-selector/dashboard-selector.module';
-import { DataTableModule } from './components/data-table/data-table.module';
-import { DocumentViewerModule } from './components/document-viewer/document-viewer.module';
-import { ExportControlModule } from './components/export-control/export-control.module';
-import { FilterBuilderModule } from './components/filter-builder/filter-builder.module';
 import { FiltersModule } from './components/filters/filters.module';
-import { CurrentFiltersModule } from './components/current-filters/current-filters.module';
-import { MapModule } from './components/map/map.module';
-import { MediaViewerModule } from './components/media-viewer/media-viewer.module';
-import { NetworkGraphModule } from './components/network-graph/network-graph.module';
-import { NewsFeedModule } from './components/news-feed/news-feed.module';
-import { QueryBarModule } from './components/query-bar/query-bar.module';
 import { SettingsModule } from './components/settings/settings.module';
 import { SaveStateModule } from './components/save-state/save-state.module';
 import { SimpleFilterModule } from './components/simple-filter/simple-filter.module';
 import { SnackBarModule } from './components/snack-bar/snack-bar.module';
-import { TaxonomyViewerModule } from './components/taxonomy-viewer/taxonomy-viewer.module';
-import { TextCloudModule } from './components/text-cloud/text-cloud.module';
-import { ThumbnailGridModule } from './components/thumbnail-grid/thumbnail-grid.module';
-import { TimelineModule } from './components/timeline/timeline.module';
-import { UnsharedFilterModule } from './components/unshared-filter/unshared-filter.module';
-import { WikiViewerModule } from './components/wiki-viewer/wiki-viewer.module';
 import { MatIconModule, MatMenuModule, MatToolbarModule, MatSidenavModule } from '@angular/material';
 import { GearModule } from './components/gear/gear.module';
 import { OptionsListModule } from './components/options-list/options-list.module';
@@ -80,11 +57,7 @@ export function getAppConfig() {
 }
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        VisualizationContainerComponent,
-        VisualizationInjectorComponent
-    ],
+    declarations: [AppComponent],
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
@@ -98,44 +71,19 @@ export function getAppConfig() {
 
         AboutNeonModule,
         AddVisualizationModule,
-        AggregationModule,
-        AnnotationViewerModule,
+        VisualizationContainerModule,
+        DashboardSelectorModule,
+        FiltersModule,
+        GearModule,
+        OptionsListModule,
+        SaveStateModule,
+        SettingsModule,
+        SimpleFilterModule,
+
         ConfigEditorModule,
         ConfirmationDialogModule,
         ContributionDialogModule,
-        CurrentFiltersModule,
-        CustomConnectionModule,
-
-        DashboardDropdownModule,
-        DashboardSelectorModule,
-        DataTableModule,
-        DocumentViewerModule,
-        ExportControlModule,
-        FilterBuilderModule,
-        FiltersModule,
-
-        DataMessageModule,
-        LegendModule,
-
-        GearModule,
-        OptionsListModule,
-
-        MapModule,
-        MediaViewerModule,
-        NetworkGraphModule,
-        NewsFeedModule,
-        QueryBarModule,
-        SaveStateModule,
-        SettingsModule,
-
-        SimpleFilterModule,
-        SnackBarModule,
-        TaxonomyViewerModule,
-        TextCloudModule,
-        ThumbnailGridModule,
-        TimelineModule,
-        UnsharedFilterModule,
-        WikiViewerModule
+        SnackBarModule
     ],
     providers: [
         ConnectionService,

@@ -25,6 +25,9 @@ import { DataMessageModule } from '../data-message/data-message.module';
   exports: [
     AggregationComponent
   ],
+  entryComponents: [
+    AggregationComponent
+  ],
   imports: [
     DataMessageModule,
     LegendModule,

@@ -13,8 +13,7 @@
  * limitations under the License.
  *
  */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
 import * as neon from 'neon-framework';
 import { NetworkGraphComponent } from './network-graph.component';
@@ -22,18 +21,16 @@ import { DatasetService } from '../../services/dataset.service';
 import { FieldMetaData } from '../../dataset';
 import { FilterService } from '../../services/filter.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { WidgetService } from '../../services/widget.service';
-import { LegendComponent } from '../legend/legend.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+
+import { NetworkGraphModule } from './network-graph.module';
 
 describe('Component: NetworkGraph', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -42,11 +39,6 @@ describe('Component: NetworkGraph', () => {
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Network Graph', {
-        declarations: [
-            LegendComponent,
-            NetworkGraphComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
@@ -57,9 +49,7 @@ describe('Component: NetworkGraph', () => {
             { provide: 'limit', useValue: 'testLimit' }
         ],
         imports: [
-            BrowserAnimationsModule,
-            AppMaterialModule,
-            FormsModule
+            NetworkGraphModule
         ],
         schemas: [CUSTOM_ELEMENTS_SCHEMA]
     });
@@ -255,7 +245,7 @@ describe('Component: NetworkGraph', () => {
                 colorField: new FieldMetaData('testNodeColorField'),
                 param1Field: new FieldMetaData('testNodeXPositionField'),
                 param2Field: new FieldMetaData('testNodeYPositionField'),
-                filterFields: [ new FieldMetaData('testFilterField')]
+                filterFields: [new FieldMetaData('testFilterField')]
             },
             {
                 database: 'testEdgeDatabase',
@@ -265,7 +255,7 @@ describe('Component: NetworkGraph', () => {
                 colorField: new FieldMetaData('testEdgeColorField'),
                 param1Field: new FieldMetaData('testEdgeSourceIdField'),
                 param2Field: new FieldMetaData('testEdgeDestinationIdField'),
-                filterFields: [ new FieldMetaData('testFilterField')]
+                filterFields: [new FieldMetaData('testFilterField')]
             }
         ];
         options.nodeColor = '#96f4f2';

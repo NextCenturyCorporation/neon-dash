@@ -21,6 +21,7 @@ import { FormsModule } from '@angular/forms';
 @NgModule({
   declarations: [FilterBuilderComponent],
   exports: [FilterBuilderComponent],
+  entryComponents: [FilterBuilderComponent],
   imports: [
     MatButtonToggleModule,
     MatFormFieldModule,

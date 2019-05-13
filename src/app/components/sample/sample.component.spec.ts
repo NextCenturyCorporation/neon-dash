@@ -13,15 +13,15 @@
  * limitations under the License.
  *
  */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
+import { By } from '@angular/platform-browser';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
 import { SampleComponent } from './sample.component';
-import { AbstractSubcomponent, SubcomponentListener } from './subcomponent.abstract';
+import { AbstractSubcomponent } from './subcomponent.abstract';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
@@ -31,8 +31,7 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { SearchService } from '../../services/search.service';
 
-import { AppMaterialModule } from '../../app.material.module';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
@@ -42,6 +41,7 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatDialog } from '@angular/material';
+import { SampleModule } from './sample.module';
 
 // Helper functions.
 
@@ -74,11 +74,11 @@ let validateToggle = (element: any, value: any, content: string, checked: boolea
 
 // Must define the test component.
 @Component({
-        selector: 'app-test-sample',
-        templateUrl: './sample.component.html',
-        styleUrls: ['./sample.component.scss'],
-        encapsulation: ViewEncapsulation.Emulated,
-        changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-test-sample',
+    templateUrl: './sample.component.html',
+    styleUrls: ['./sample.component.scss'],
+    encapsulation: ViewEncapsulation.Emulated,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 class TestSampleComponent extends SampleComponent {
@@ -130,7 +130,6 @@ describe('Component: Sample', () => {
     initializeTestBed('Sample', {
         declarations: [
             TestSampleComponent,
-            UnsharedFilterComponent
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
@@ -140,9 +139,7 @@ describe('Component: Sample', () => {
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            SampleModule
         ]
     });
 
@@ -832,7 +829,7 @@ describe('Component: Sample', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1'),
-            new FieldMetaData('testRequiredField2', 'Test Required Field 2')];
+        new FieldMetaData('testRequiredField2', 'Test Required Field 2')];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField2', 'Test Required Field 2');
 
         // Test matching database/table but not field.
@@ -921,7 +918,7 @@ describe('Component: Sample', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1'),
-            new FieldMetaData('testRequiredField2', 'Test Required Field 2')];
+        new FieldMetaData('testRequiredField2', 'Test Required Field 2')];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField2', 'Test Required Field 2');
 
         component.setupFilters();
@@ -1093,7 +1090,6 @@ describe('Component: Sample with config', () => {
     initializeTestBed('Sample', {
         declarations: [
             TestSampleComponent,
-            UnsharedFilterComponent
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
@@ -1116,9 +1112,7 @@ describe('Component: Sample with config', () => {
             { provide: 'unsharedFilterValue', useValue: 'testFilterValue' }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            SampleModule
         ]
     });
 

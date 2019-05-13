@@ -13,19 +13,14 @@
  * limitations under the License.
  *
  */
-import { AppMaterialModule } from '../../app.material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By, DomSanitizer } from '@angular/platform-browser';
-import { async, ComponentFixture, fakeAsync, inject, TestBed } from '@angular/core/testing';
+import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import {} from 'jasmine-core';
-import * as neon from 'neon-framework';
+import { } from 'jasmine-core';
 
 import { WikiViewerComponent } from './wiki-viewer.component';
 
@@ -33,19 +28,17 @@ import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
-import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+
+import { WikiViewerModule } from './wiki-viewer.module';
 
 describe('Component: WikiViewer', () => {
     let component: WikiViewerComponent;
     let fixture: ComponentFixture<WikiViewerComponent>;
 
     initializeTestBed('Wiki Viewer', {
-        declarations: [
-            WikiViewerComponent
-        ],
         providers: [
             DatasetService,
             FilterService,
@@ -54,10 +47,7 @@ describe('Component: WikiViewer', () => {
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule,
-            HttpClientModule,
+            WikiViewerModule,
             HttpClientTestingModule
         ]
     });
@@ -202,9 +192,6 @@ describe('Component: WikiViewer with mock HTTP', () => {
     let backend;
 
     initializeTestBed('Wiki Viewer', {
-        declarations: [
-            WikiViewerComponent
-        ],
         providers: [
             DatasetService,
             FilterService,
@@ -213,10 +200,7 @@ describe('Component: WikiViewer with mock HTTP', () => {
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule,
-            HttpClientModule,
+            WikiViewerModule,
             HttpClientTestingModule
         ]
     });
@@ -374,9 +358,6 @@ describe('Component: WikiViewer with config', () => {
     let fixture: ComponentFixture<WikiViewerComponent>;
 
     initializeTestBed('Wiki Viewer', {
-        declarations: [
-            WikiViewerComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
@@ -390,10 +371,7 @@ describe('Component: WikiViewer with config', () => {
             { provide: 'title', useValue: 'Test Title' }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule,
-            HttpClientModule,
+            WikiViewerModule,
             HttpClientTestingModule
         ]
     });

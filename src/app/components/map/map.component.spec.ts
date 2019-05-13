@@ -14,7 +14,6 @@
  *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
@@ -25,7 +24,6 @@ import {
 } from '@angular/core';
 
 import { MapComponent } from './map.component';
-import { LegendComponent } from '../legend/legend.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -34,8 +32,6 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -49,6 +45,8 @@ import { FilterServiceMock } from '../../../testUtils/MockServices/FilterService
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { MatDialog } from '@angular/material';
+
+import { MapModule } from './map.module';
 
 function webgl_support(): any {
     try {
@@ -67,7 +65,6 @@ function webgl_support(): any {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-
 class TestMapComponent extends MapComponent {
     constructor(
         datasetService: DatasetService,
@@ -239,8 +236,7 @@ describe('Component: Map', () => {
 
     initializeTestBed('Map', {
         declarations: [
-            TestMapComponent,
-            LegendComponent
+            TestMapComponent
         ],
         providers: [
             DatasetService,
@@ -251,9 +247,7 @@ describe('Component: Map', () => {
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            MapModule
         ]
     });
 
@@ -336,11 +330,11 @@ describe('Component: Map', () => {
 
         let dataset1 = {
             data: [
-                { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'Hover Popup Field:  A'},
+                { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'Hover Popup Field:  A' },
                 { id: 'testId2', lat: 0, lng: 0, category: 'b', hoverPopupField: 'Hover Popup Field:  B' },
-                { id: 'testId3', lat: 0, lng: 0, category: 'c', hoverPopupField: 'Hover Popup Field:  C'},
-                { id: 'testId4', lat: 0, lng: 0, category: 'd', hoverPopupField: 'Hover Popup Field:  D'},
-                { id: 'testId5', lat: 0, lng: 0, category: 'd', hoverPopupField: 'Hover Popup Field:  D'}
+                { id: 'testId3', lat: 0, lng: 0, category: 'c', hoverPopupField: 'Hover Popup Field:  C' },
+                { id: 'testId4', lat: 0, lng: 0, category: 'd', hoverPopupField: 'Hover Popup Field:  D' },
+                { id: 'testId5', lat: 0, lng: 0, category: 'd', hoverPopupField: 'Hover Popup Field:  D' }
             ],
             expected: [
                 new MapPoint('testId4', ['testId4', 'testId5'], '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
@@ -356,9 +350,9 @@ describe('Component: Map', () => {
         let dataset2 = {
             data: [
                 { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'Hover Popup Field:  A' },
-                { id: 'testId2', lat: 0, lng: 1, category: 'b', hoverPopupField: 'Hover Popup Field:  B'},
+                { id: 'testId2', lat: 0, lng: 1, category: 'b', hoverPopupField: 'Hover Popup Field:  B' },
                 { id: 'testId3', lat: 0, lng: 2, category: 'c', hoverPopupField: 'Hover Popup Field:  C' },
-                { id: 'testId4', lat: 0, lng: 3, category: 'd', hoverPopupField: 'Hover Popup Field:  D'}
+                { id: 'testId4', lat: 0, lng: 3, category: 'd', hoverPopupField: 'Hover Popup Field:  D' }
             ],
             expected: [
                 new MapPoint('testId1', ['testId1'], '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
@@ -373,7 +367,7 @@ describe('Component: Map', () => {
         };
         let dataset3 = {
             data: [
-                { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a', hoverPopupField: 'Hover Popup Field:  A'},
+                { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a', hoverPopupField: 'Hover Popup Field:  A' },
                 { id: 'testId2', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b', hoverPopupField: 'Hover Popup Field:  B' }
             ],
             expected: [
@@ -864,12 +858,12 @@ describe('Component: Map', () => {
         })).toBe('keyboard_arrow_down');
         component.filterVisible.set('testId2', true);
         expect(component.getIconForFilter({
-        _id: 'testId2'
+            _id: 'testId2'
         })).toBe('keyboard_arrow_up');
         component.filterVisible.set('testId1', true);
         component.filterVisible.set('testId2', false);
         expect(component.getIconForFilter({
-        _id: 'testId2'
+            _id: 'testId2'
         })).toBe('keyboard_arrow_down');
     });
 
@@ -888,7 +882,6 @@ describe('Component: Map with config', () => {
     initializeTestBed('Map', {
         declarations: [
             TestMapComponent,
-            LegendComponent
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
@@ -923,9 +916,7 @@ describe('Component: Map with config', () => {
             { provide: 'title', useValue: 'Test Title' }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            MapModule
         ]
     });
 
