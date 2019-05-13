@@ -626,6 +626,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             this.messageSender.publish(neonEvents.DASHBOARD_STATE, {
                 dashboard: dashboard
             });
+        } else {
+            this.toggleDashboardSelectorDialog(true);
         }
     }
 
