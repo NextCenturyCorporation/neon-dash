@@ -21,9 +21,9 @@ import { NeonGTDConfig } from './../../neon-gtd-config';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { PropertyService } from '../../services/property.service';
 
-import * as JSONEditor from 'jsoneditor';
 declare var editor: any;
 import * as _ from 'lodash';
+import { ConfigService } from '../../services/config.service';
 
 @Component({
     selector: 'app-config-editor',
@@ -41,15 +41,10 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
     public modes: any[];
     public editor: any;
 
-    constructor(@Inject('config') private neonConfig: NeonGTDConfig, public snackBar: MatSnackBar,
+    constructor(private configService: ConfigService, public snackBar: MatSnackBar,
         protected propertyService: PropertyService, protected widgetService: AbstractWidgetService) {
         this.snackBar = snackBar;
-        this.currentConfig = neonConfig;
-        if (this.currentConfig.errors) {
-            delete this.currentConfig.errors;
-        }
         this.editorOptions = this.getJsonEditorOptions();
-        this.editorData = _.cloneDeep(this.currentConfig);
         this.modes = [
             {
                 value: 'tree',
@@ -72,15 +67,21 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
                 viewValue: 'Text (read only)'
             }
         ];
-        // 'tree' (default), 'view', 'form', 'code', 'text
     }
 
     ngOnInit(): void {
-        // Do nothing.
+        this.configService.get().subscribe((neonConfig) => {
+            this.currentConfig = neonConfig;
+            if (this.currentConfig.errors) {
+                delete this.currentConfig.errors;
+            }
+            this.editorData = _.cloneDeep(this.currentConfig);
+            // 'tree' (default), 'view', 'form', 'code', 'text
+        });
     }
 
     ngAfterViewInit() {
-        this.editor = new JSONEditor(this.editorRef.nativeElement, this.editorOptions, this.editorData);
+        // this.editor = new JSONEditor(this.editorRef.nativeElement, this.editorOptions, this.editorData);
     }
 
     public close() {
