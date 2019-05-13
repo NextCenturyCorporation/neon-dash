@@ -128,20 +128,21 @@ export class SaveStateComponent implements OnInit {
     public saveState(name: string): void {
         let connection = this.openConnection();
         if (connection) {
+            let validStateName = this.validateName(name);
             // Same format as the config file.
             let stateData: any = {
-                dashboards: this.createDashboard(name, this.datasetService.getCurrentDashboard(),
+                dashboards: this.createDashboard(validStateName, this.datasetService.getCurrentDashboard(),
                     this.filterService.getFiltersToSaveInConfig()),
                 datastores: this.datasetService.getDatastoresInConfigFormat(),
-                layouts: this.createLayouts(name, this.widgetGridItems),
+                layouts: this.createLayouts(validStateName, this.widgetGridItems),
                 // The stateName property is needed in neon.query.Connection.saveState
-                stateName: name
+                stateName: validStateName
             };
 
             connection.saveState(stateData, (response) => {
-                this.handleSaveStateSuccess(response, name);
+                this.handleSaveStateSuccess(response, validStateName);
             }, (response) => {
-                this.handleStateFailure(response, name);
+                this.handleStateFailure(response, validStateName);
             });
         }
         this.closeSidenav();
@@ -155,14 +156,15 @@ export class SaveStateComponent implements OnInit {
     public loadState(name: string): void {
         let connection = this.openConnection();
         if (connection) {
+            let validStateName = this.validateName(name);
             let stateData: any = {
                 // The stateName property is needed in neon.query.Connection.loadState
-                stateName: name
+                stateName: validStateName
             };
             connection.loadState(stateData, (response) => {
-                this.handleLoadStateSuccess(response, name);
+                this.handleLoadStateSuccess(response, validStateName);
             }, (response) => {
-                this.handleStateFailure(response, name);
+                this.handleStateFailure(response, validStateName);
             });
         }
         this.closeSidenav();
@@ -175,10 +177,11 @@ export class SaveStateComponent implements OnInit {
     public deleteState(name: string) {
         let connection = this.openConnection();
         if (connection) {
-            connection.deleteState(name, (response) => {
-                this.handleDeleteStateSuccess(response, name);
+            let validStateName = this.validateName(name);
+            connection.deleteState(validStateName, (response) => {
+                this.handleDeleteStateSuccess(response, validStateName);
             }, (response) => {
-                this.handleStateFailure(response, name);
+                this.handleStateFailure(response, validStateName);
             });
         }
         this.closeSidenav();
@@ -305,6 +308,11 @@ export class SaveStateComponent implements OnInit {
             duration: 5000,
             verticalPosition: 'top'
          });
+    }
+
+    private validateName(stateName: string): string {
+        // Replace / with . and remove ../ and non-alphanumeric characters except ._-+=,
+        return stateName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9\.\_\-\+\=\,]/g, '');
     }
 
     private wrapInSavedStateDashboard(stateName: string, dashboard: Dashboard): Dashboard {

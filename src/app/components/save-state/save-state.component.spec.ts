@@ -72,6 +72,10 @@ describe('Component: SaveStateComponent', () => {
         // TODO THOR-1133
     });
 
+    it('does load state names on initialization', () => {
+        // TODO THOR-1133
+    });
+
     it('does have expected HTML elements with no state names', () => {
         // TODO THOR-1133
     });
@@ -112,6 +116,23 @@ describe('Component: SaveStateComponent', () => {
         component.deleteState('testState');
         expect(calls).toEqual(1);
         expect(spy.calls.count()).toEqual(1);
+    });
+
+    it('deleteState does validate the state name', () => {
+        spyOn(component, 'closeSidenav');
+
+        let calls = 0;
+        spyOn((component as any), 'openConnection').and.callFake(() => {
+            return {
+                deleteState: (data, successCallback) => {
+                    calls++;
+                    expect(data).toEqual('folder.my-test.state_name1234');
+                }
+            };
+        });
+
+        component.deleteState('../folder/my-test.!@#$%^&*state_name`~?\\1234');
+        expect(calls).toEqual(1);
     });
 
     it('getDefaultOptionTitle does return expected string', () => {
@@ -207,6 +228,23 @@ describe('Component: SaveStateComponent', () => {
         component.loadState('testState');
         expect(calls).toEqual(1);
         expect(spy.calls.count()).toEqual(1);
+    });
+
+    it('loadState does validate the state name', () => {
+        spyOn(component, 'closeSidenav');
+
+        let calls = 0;
+        spyOn((component as any), 'openConnection').and.callFake(() => {
+            return {
+                loadState: (data, successCallback) => {
+                    calls++;
+                    expect(data.stateName).toEqual('folder.my-test.state_name1234');
+                }
+            };
+        });
+
+        component.loadState('../folder/my-test.!@#$%^&*state_name`~?\\1234');
+        expect(calls).toEqual(1);
     });
 
     it('loadStateNames does call connection.getAllStateNames with expected behavior', () => {
@@ -461,5 +499,27 @@ describe('Component: SaveStateComponent', () => {
         component.saveState('testState');
         expect(calls).toEqual(1);
         expect(spy.calls.count()).toEqual(1);
+    });
+
+    it('saveState does validate the state name', () => {
+        spyOn(component, 'closeSidenav');
+        spyOn((component as any).datasetService, 'getCurrentDashboard').and.returnValue(new Dashboard());
+        spyOn((component as any).datasetService, 'getDatastoresInConfigFormat').and.returnValue([]);
+        spyOn((component as any).filterService, 'getFiltersToSaveInConfig').and.returnValue([]);
+        spyOn((component as any), 'getWidgetById').and.returnValue(null);
+        component.widgetGridItems = [];
+
+        let calls = 0;
+        spyOn((component as any), 'openConnection').and.callFake(() => {
+            return {
+                saveState: (data, successCallback) => {
+                    calls++;
+                    expect(data.stateName).toEqual('folder.my-test.state_name1234');
+                }
+            };
+        });
+
+        component.saveState('../folder/my-test.!@#$%^&*state_name`~?\\1234');
+        expect(calls).toEqual(1);
     });
 });
