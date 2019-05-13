@@ -1773,7 +1773,7 @@ describe('BaseNeonComponent', () => {
 
         let messenger = new neon.eventing.Messenger();
         messenger.publish(neonEvents.FILTERS_CHANGED, {
-            source: 'testSource'
+            caller: 'testSource'
         });
 
         expect(spyUpdateFilters.calls.count()).toEqual(1);
