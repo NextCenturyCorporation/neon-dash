@@ -103,6 +103,14 @@ describe('Component: Filter Builder', () => {
         expect(component.filterClauses[1].changeField).toEqual(new FieldMetaData());
     });
 
+    it('addBlankFilterClause does use the database, table, and/or field from the existing filter clause', () => {
+        // TODO THOR-701
+    });
+
+    it('addBlankFilterClause does add a new set of HTML elements', () => {
+        // TODO THOR-701
+    });
+
     it('clearEveryFilterClause does remove all the filter clauses from the internal list', () => {
         // TODO THOR-701
     });

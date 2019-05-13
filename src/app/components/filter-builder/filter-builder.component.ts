@@ -98,9 +98,16 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         filterClause.field = this.createEmptyField();
         filterClause.operator = this.operators[0];
         filterClause.value = '';
-        filterClause.changeDatabase = filterClause.database;
-        filterClause.changeTable = filterClause.table;
-        filterClause.changeField = filterClause.field;
+
+        // Set the default database, table, and field based on an existing filter clause in the component, if any.
+        let existingFilterClause: FilterClauseMetaData = this.filterClauses.length ? this.filterClauses[0] : null;
+        filterClause.databases = existingFilterClause ? existingFilterClause.databases : filterClause.databases;
+        filterClause.tables = existingFilterClause ? existingFilterClause.tables : filterClause.tables;
+        filterClause.fields = existingFilterClause ? existingFilterClause.fields : filterClause.fields;
+        filterClause.changeDatabase = existingFilterClause ? existingFilterClause.changeDatabase : filterClause.database;
+        filterClause.changeTable = existingFilterClause ? existingFilterClause.changeTable : filterClause.table;
+        filterClause.changeField = existingFilterClause ? existingFilterClause.changeField : filterClause.field;
+
         if (filterClause.database && filterClause.table) {
             this.filterClauses.push(filterClause);
         }
