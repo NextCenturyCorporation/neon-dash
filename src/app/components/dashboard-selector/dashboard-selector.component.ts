@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, ViewChild } from '@angular/core';
 
 import { ConnectionService } from '../../services/connection.service';
 import { Datastore, DatabaseMetaData, TableMetaData, FieldMetaData, Dashboard } from '../../dataset';
@@ -21,8 +21,7 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ParameterService } from '../../services/parameter.service';
 
-import { NeonGridItem } from '../../neon-grid-item';
-import { neonEvents, neonVisualizationMinPixel } from '../../neon-namespaces';
+import { neonEvents } from '../../neon-namespaces';
 
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
@@ -47,8 +46,8 @@ export interface CustomTable {
  *         {Object} tags The field object for the hashtags
  */
 export interface CustomDatabase {
-   database: DatabaseMetaData;
-   customTables: CustomTable[];
+    database: DatabaseMetaData;
+    customTables: CustomTable[];
 }
 
 /**
@@ -70,7 +69,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
     public datasets: Datastore[] = [];
     private datastoreType: string = 'mongo';
     private datastoreHost: string = 'localhost';
-    private layouts: {[key: string]: any} = {};
+    private layouts: { [key: string]: any } = {};
     public dashboards: Dashboard;
     public dashboardChoice: Dashboard;
 
@@ -86,7 +85,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
      *         {Object} date The field object for the date
      *         {Object} tags The field object for the hashtags
      */
-   private customDatabases: CustomDatabase[] = [];
+    private customDatabases: CustomDatabase[] = [];
 
     /**
      * This is the array of custom relation objects configured by the user through the popup.  Each custom relation contains:
@@ -150,7 +149,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
 
     // TODO: THOR-1062: later will need to account for multiple datastores
     findMatchingDatastoreIndex(choice: Dashboard) {
-        for (let index = 0; index < this.datasets.length; index ++) {
+        for (let index = 0; index < this.datasets.length; index++) {
             let datastoreName = this.getDatastoreNameFromTableKey(choice);
 
             if (datastoreName && this.datasets[index].name === datastoreName) {
@@ -165,7 +164,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
      * @param {string[]} keys
      * @return {Dashboard}
      */
-    hasConnectOnLoadDashboard(dashboardChoices: {[key: string]: Dashboard}, keys: string[]): Dashboard {
+    hasConnectOnLoadDashboard(dashboardChoices: { [key: string]: Dashboard }, keys: string[]): Dashboard {
         for (let choiceKey of keys) {
             let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
             if (!nestedChoiceKeys.length) {
@@ -344,8 +343,8 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                 this.connectToPreset(index, false, this.dashboardChoice);
             } else {
                 console.error('Datastore ' +
-                this.getDatastoreNameFromTableKey(this.dashboardChoice) +
-                ' not found for dashboard ' + this.dashboardChoice.name + '.');
+                    this.getDatastoreNameFromTableKey(this.dashboardChoice) +
+                    ' not found for dashboard ' + this.dashboardChoice.name + '.');
             }
         }
     }

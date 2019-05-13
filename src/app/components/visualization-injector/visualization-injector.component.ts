@@ -25,7 +25,6 @@ import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
 import { NewsFeedComponent } from '../news-feed/news-feed.component';
 import { QueryBarComponent } from '../query-bar/query-bar.component';
-import { SampleComponent } from '../sample/sample.component';
 import { TaxonomyViewerComponent } from '../taxonomy-viewer/taxonomy-viewer.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
@@ -47,7 +46,6 @@ import { NeonGridItem } from '../../neon-grid-item';
         NetworkGraphComponent,
         NewsFeedComponent,
         QueryBarComponent,
-        SampleComponent,
         TaxonomyViewerComponent,
         TextCloudComponent,
         ThumbnailGridComponent,
@@ -60,7 +58,7 @@ import { NeonGridItem } from '../../neon-grid-item';
 export class VisualizationInjectorComponent {
     currentComponent = null;
 
-    @ViewChild('dynamicComponentContainer', {read: ViewContainerRef}) dynamicComponentContainer: ViewContainerRef;
+    @ViewChild('dynamicComponentContainer', { read: ViewContainerRef }) dynamicComponentContainer: ViewContainerRef;
 
     // component: Class for the component you want to create
     // inputs: An object with key/value pairs mapped to input name/input value
@@ -103,7 +101,7 @@ export class VisualizationInjectorComponent {
         }
     }
 
-    constructor(private resolver: ComponentFactoryResolver) {}
+    constructor(private resolver: ComponentFactoryResolver) { }
 
     findVisualizationComponent(type: string): any {
         switch (type) {
@@ -119,14 +117,12 @@ export class VisualizationInjectorComponent {
                 return MapComponent;
             case 'mediaViewer':
                 return MediaViewerComponent;
-            case 'networkGraph' :
+            case 'networkGraph':
                 return NetworkGraphComponent;
-            case 'newsFeed' :
+            case 'newsFeed':
                 return NewsFeedComponent;
-            case 'queryBar' :
+            case 'queryBar':
                 return QueryBarComponent;
-            case 'sample':
-                return SampleComponent;
             case 'taxonomyViewer':
                 return TaxonomyViewerComponent;
             case 'textCloud':

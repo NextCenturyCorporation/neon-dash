@@ -17,9 +17,6 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
-import { HttpClientModule } from '@angular/common/http';
 
 import 'hammerjs';
 
@@ -35,56 +32,46 @@ import { PropertyService } from './services/property.service';
 import { SearchService } from './services/search.service';
 import { WidgetService } from './services/widget.service';
 
-import { AboutNeonComponent } from './components/about-neon/about-neon.component';
-import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
-import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AppComponent } from './app.component';
-import { AggregationComponent } from './components/aggregation/aggregation.component';
-import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
-import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
-import { DashboardDropdownComponent } from './components/dashboard-dropdown/dashboard-dropdown.component';
-import { DashboardSelectorComponent } from './components/dashboard-selector/dashboard-selector.component';
-import { DataMessageComponent } from './components/data-message/data-message.component';
-import { DataTableComponent } from './components/data-table/data-table.component';
-import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
-import { DocumentViewerSingleItemComponent } from './components/document-viewer-single-item/document-viewer-single-item.component';
-import { ExportControlComponent } from './components/export-control/export-control.component';
-import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
-import { FiltersComponent } from './components/filters/filters.component';
-import { CurrentFiltersComponent } from './components/current-filters/current-filters.component';
-import { LegendComponent } from './components/legend/legend.component';
-import { MapComponent } from './components/map/map.component';
-import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
-import { OptionsListComponent } from './components/options-list/options-list.component';
-import { SampleComponent } from './components/sample/sample.component';
-import { SaveStateComponent } from './components/save-state/save-state.component';
-import { SettingsComponent } from './components/settings/settings.component';
-import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
-import { TaxonomyViewerComponent } from './components/taxonomy-viewer/taxonomy-viewer.component';
-import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
-import { TimelineComponent } from './components/timeline/timeline.component';
-import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
-import { WikiViewerComponent } from './components/wiki-viewer/wiki-viewer.component';
 
-import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-import { AppMaterialModule } from './app.material.module';
-import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
-import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
-import { TreeModule } from 'angular-tree-component';
-import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-grid.component';
-import { DetailsThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.details-view';
-import { TitleThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.title-view';
-import { CardThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.card-view';
-import { NewsFeedComponent } from './components/news-feed/news-feed.component';
-
-import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
-import { CustomConnectionSimpleSetupStepComponent } from './components/custom-connection/simple-setup.component';
-import { MatAutocompleteModule, MatFormFieldModule, MatInputModule } from '@angular/material';
-import { QueryBarComponent } from './components/query-bar/query-bar.component';
-import { GearComponent } from './components/gear/gear.component';
-import { ContributionDialogComponent } from './components/contribution-dialog/contribution-dialog.component';
+import { AboutNeonModule } from './components/about-neon/about-neon.module';
+import { AddVisualizationModule } from './components/add-visualization/add-visualization.module';
+import { AnnotationViewerModule } from './components/annotation-viewer/annotation-viewer.module';
+import { AggregationModule } from './components/aggregation/aggregation.module';
+import { ConfigEditorModule } from './components/config-editor/config-editor.module';
+import { ConfirmationDialogModule } from './components/confirmation-dialog/confirmation-dialog.module';
+import { ContributionDialogModule } from './components/contribution-dialog/contribution-dialog.module';
+import { CustomConnectionModule } from './components/custom-connection/custom-connection.module';
+import { LegendModule } from './components/legend/legend.module';
+import { DataMessageModule } from './components/data-message/data-message.module';
+import { DashboardDropdownModule } from './components/dashboard-dropdown/dashboard-dropdown.module';
+import { DashboardSelectorModule } from './components/dashboard-selector/dashboard-selector.module';
+import { DataTableModule } from './components/data-table/data-table.module';
+import { DocumentViewerModule } from './components/document-viewer/document-viewer.module';
+import { ExportControlModule } from './components/export-control/export-control.module';
+import { FilterBuilderModule } from './components/filter-builder/filter-builder.module';
+import { FiltersModule } from './components/filters/filters.module';
+import { CurrentFiltersModule } from './components/current-filters/current-filters.module';
+import { MapModule } from './components/map/map.module';
+import { MediaViewerModule } from './components/media-viewer/media-viewer.module';
+import { NetworkGraphModule } from './components/network-graph/network-graph.module';
+import { NewsFeedModule } from './components/news-feed/news-feed.module';
+import { QueryBarModule } from './components/query-bar/query-bar.module';
+import { SettingsModule } from './components/settings/settings.module';
+import { SaveStateModule } from './components/save-state/save-state.module';
+import { SimpleFilterModule } from './components/simple-filter/simple-filter.module';
+import { SnackBarModule } from './components/snack-bar/snack-bar.module';
+import { TaxonomyViewerModule } from './components/taxonomy-viewer/taxonomy-viewer.module';
+import { TextCloudModule } from './components/text-cloud/text-cloud.module';
+import { ThumbnailGridModule } from './components/thumbnail-grid/thumbnail-grid.module';
+import { TimelineModule } from './components/timeline/timeline.module';
+import { UnsharedFilterModule } from './components/unshared-filter/unshared-filter.module';
+import { WikiViewerModule } from './components/wiki-viewer/wiki-viewer.module';
+import { MatIconModule, MatMenuModule, MatToolbarModule, MatSidenavModule } from '@angular/material';
+import { GearModule } from './components/gear/gear.module';
+import { OptionsListModule } from './components/options-list/options-list.module';
 
 export function getAppConfig() {
     /* tslint:disable:no-string-literal */
@@ -94,64 +81,61 @@ export function getAppConfig() {
 
 @NgModule({
     declarations: [
-        AboutNeonComponent,
-        AddVisualizationComponent,
-        AnnotationViewerComponent,
         AppComponent,
-        AggregationComponent,
-        CardThumbnailSubComponent,
-        ConfigEditorComponent,
-        ConfirmationDialogComponent,
-        ContributionDialogComponent,
-        CustomConnectionComponent,
-        CustomConnectionSimpleSetupStepComponent,
-        DashboardDropdownComponent,
-        DashboardSelectorComponent,
-        DataMessageComponent,
-        DataTableComponent,
-        DetailsThumbnailSubComponent,
-        DocumentViewerComponent,
-        DocumentViewerSingleItemComponent,
-        ExportControlComponent,
-        FilterBuilderComponent,
-        FiltersComponent,
-        CurrentFiltersComponent,
-        GearComponent,
-        LegendComponent,
-        MapComponent,
-        MediaViewerComponent,
-        NetworkGraphComponent,
-        NewsFeedComponent,
-        OptionsListComponent,
-        QueryBarComponent,
-        SampleComponent,
-        SaveStateComponent,
-        SettingsComponent,
-        SimpleFilterComponent,
-        SnackBarComponent,
-        TaxonomyViewerComponent,
-        TextCloudComponent,
-        ThumbnailGridComponent,
-        TitleThumbnailSubComponent,
-        TimelineComponent,
-        UnsharedFilterComponent,
         VisualizationContainerComponent,
-        VisualizationInjectorComponent,
-        WikiViewerComponent
+        VisualizationInjectorComponent
     ],
     imports: [
         BrowserModule,
-        CommonModule,
-        FormsModule,
-        HttpModule,
-        HttpClientModule,
-        NgGridModule,
-        NgxDatatableModule,
         BrowserAnimationsModule,
-        AppMaterialModule,
-        MatAutocompleteModule,
-        ReactiveFormsModule,
-        TreeModule.forRoot()
+        MatIconModule,
+        MatMenuModule,
+        MatToolbarModule,
+        MatSidenavModule,
+
+        CommonModule,
+        NgGridModule,
+
+        AboutNeonModule,
+        AddVisualizationModule,
+        AggregationModule,
+        AnnotationViewerModule,
+        ConfigEditorModule,
+        ConfirmationDialogModule,
+        ContributionDialogModule,
+        CurrentFiltersModule,
+        CustomConnectionModule,
+
+        DashboardDropdownModule,
+        DashboardSelectorModule,
+        DataTableModule,
+        DocumentViewerModule,
+        ExportControlModule,
+        FilterBuilderModule,
+        FiltersModule,
+
+        DataMessageModule,
+        LegendModule,
+
+        GearModule,
+        OptionsListModule,
+
+        MapModule,
+        MediaViewerModule,
+        NetworkGraphModule,
+        NewsFeedModule,
+        QueryBarModule,
+        SaveStateModule,
+        SettingsModule,
+
+        SimpleFilterModule,
+        SnackBarModule,
+        TaxonomyViewerModule,
+        TextCloudModule,
+        ThumbnailGridModule,
+        TimelineModule,
+        UnsharedFilterModule,
+        WikiViewerModule
     ],
     providers: [
         ConnectionService,
@@ -172,23 +156,7 @@ export function getAppConfig() {
             useFactory: getAppConfig
         }
     ],
-    entryComponents: [
-        AppComponent,
-        AddVisualizationComponent,
-        ConfigEditorComponent,
-        ConfirmationDialogComponent,
-        ContributionDialogComponent,
-        CustomConnectionComponent,
-        DataMessageComponent,
-        DocumentViewerSingleItemComponent,
-        CurrentFiltersComponent,
-        GearComponent,
-        SaveStateComponent,
-        SettingsComponent,
-        SnackBarComponent
-    ],
+    entryComponents: [AppComponent],
     bootstrap: [AppComponent]
 })
-
-/* tslint:disable:no-unnecessary-class */
 export class AppModule { }

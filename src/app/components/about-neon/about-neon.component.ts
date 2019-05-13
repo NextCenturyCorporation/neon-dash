@@ -14,9 +14,9 @@
  *
  */
 import { Component, OnInit } from '@angular/core';
-import { map, catchError } from 'rxjs/operators';
-import {throwError as observableThrowError,  Observable } from 'rxjs';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { catchError } from 'rxjs/operators';
+import { throwError as observableThrowError, Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 import * as neon from 'neon-framework';
 
@@ -41,7 +41,7 @@ export class AboutNeonComponent implements OnInit {
     }
 
     private loadNeonGTDVersionFile(): Observable<any> {
-       return this.http.get(AboutNeonComponent.NEON_GTD_VERSION_FILE)
+        return this.http.get(AboutNeonComponent.NEON_GTD_VERSION_FILE)
             .pipe(catchError(this.handleError));
     }
 

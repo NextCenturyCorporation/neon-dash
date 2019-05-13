@@ -13,4 +13,23 @@
  * limitations under the License.
  *
  */
-export * from './text-cloud.component';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { LegendComponent } from './legend.component';
+import { MatIconModule, MatButtonModule, MatMenuModule } from '@angular/material';
+
+@NgModule({
+  declarations: [
+    LegendComponent
+  ],
+  exports: [
+    LegendComponent
+  ],
+  imports: [
+    MatMenuModule,
+    MatIconModule,
+    MatButtonModule,
+    CommonModule
+  ]
+})
+export class LegendModule { }
