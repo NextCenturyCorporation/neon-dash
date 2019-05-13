@@ -16,20 +16,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DocumentViewerComponent } from './document-viewer.component';
-import {
-  MatSidenavModule, MatListModule, MatToolbarModule,
-  MatProgressSpinnerModule, MatTooltipModule, MatIconModule
-} from '@angular/material';
+import { MatListModule } from '@angular/material';
+import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
   declarations: [DocumentViewerComponent],
   exports: [DocumentViewerComponent],
   imports: [
-    MatSidenavModule,
-    MatIconModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
+    CommonWidgetModule,
     MatListModule,
     CommonModule
   ]

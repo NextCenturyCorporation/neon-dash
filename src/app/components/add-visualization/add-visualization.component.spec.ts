@@ -20,7 +20,7 @@ import {
     DebugElement,
     ViewEncapsulation
 } from '@angular/core';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar, MatGridListModule, MatDividerModule } from '@angular/material';
 import { } from 'jasmine-core';
 
 import { AddVisualizationComponent } from './add-visualization.component';
@@ -80,6 +80,8 @@ describe('Component: AddVisualization', () => {
             }
         ],
         imports: [
+            MatDividerModule,
+            MatGridListModule,
             AddVisualizationModule
         ]
     });

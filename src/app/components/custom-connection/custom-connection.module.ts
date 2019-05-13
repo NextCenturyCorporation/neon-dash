@@ -17,6 +17,7 @@ import { CommonModule } from '@angular/common';
 import { CustomConnectionComponent } from './custom-connection.component';
 import { CustomConnectionSimpleSetupStepComponent } from './simple-setup.component';
 import { FormsModule } from '@angular/forms';
+import { MatDialogModule, MatButtonModule } from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,8 @@ import { FormsModule } from '@angular/forms';
     CustomConnectionComponent
   ],
   imports: [
+    MatDialogModule,
+    MatButtonModule,
     FormsModule,
     CommonModule
   ]

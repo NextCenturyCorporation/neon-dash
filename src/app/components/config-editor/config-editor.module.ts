@@ -16,7 +16,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConfigEditorComponent } from './config-editor.component';
-import { MatToolbarModule, MatTooltipModule, MatSelectModule } from '@angular/material';
+import { MatToolbarModule, MatTooltipModule, MatSelectModule, MatDialogModule, MatSnackBarModule, MatButtonModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
@@ -29,6 +29,9 @@ import { FormsModule } from '@angular/forms';
   ],
   imports: [
     FormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatSnackBarModule,
     MatToolbarModule,
     MatTooltipModule,
     MatSelectModule,

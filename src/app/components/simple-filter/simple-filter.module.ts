@@ -16,12 +16,13 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SimpleFilterComponent } from './simple-filter.component';
-import { MatIconModule } from '@angular/material';
+import { MatIconModule, MatButtonModule } from '@angular/material';
 
 @NgModule({
   declarations: [SimpleFilterComponent],
   exports: [SimpleFilterComponent],
   imports: [
+    MatButtonModule,
     MatIconModule,
     CommonModule
   ]

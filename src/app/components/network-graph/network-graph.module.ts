@@ -16,22 +16,15 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NetworkGraphComponent } from './network-graph.component';
-import {
-  MatSidenavModule, MatToolbarModule, MatTooltipModule,
-  MatIconModule, MatProgressSpinnerModule
-} from '@angular/material';
 import { LegendModule } from '../legend/legend.module';
+import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
   declarations: [NetworkGraphComponent],
   exports: [NetworkGraphComponent],
   entryComponents: [NetworkGraphComponent],
   imports: [
-    MatSidenavModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
+    CommonWidgetModule,
     LegendModule,
     CommonModule
   ]

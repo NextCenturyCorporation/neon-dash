@@ -16,9 +16,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AggregationComponent } from './aggregation.component';
-import { MatIconModule, MatProgressSpinnerModule, MatToolbarModule, MatTooltipModule, MatSidenavModule } from '@angular/material';
 import { LegendModule } from '../legend/legend.module';
 import { DataMessageModule } from '../data-message/data-message.module';
+import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
   declarations: [AggregationComponent],
@@ -31,11 +31,7 @@ import { DataMessageModule } from '../data-message/data-message.module';
   imports: [
     DataMessageModule,
     LegendModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatSidenavModule,
+    CommonWidgetModule,
     CommonModule
   ]
 })

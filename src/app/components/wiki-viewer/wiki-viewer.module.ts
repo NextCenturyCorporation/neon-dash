@@ -16,22 +16,16 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WikiViewerComponent } from './wiki-viewer.component';
-import {
-  MatSidenavModule, MatToolbarModule, MatTooltipModule,
-  MatProgressSpinnerModule, MatIconModule, MatTabsModule
-} from '@angular/material';
+import { MatTabsModule } from '@angular/material';
+import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
   declarations: [WikiViewerComponent],
   exports: [WikiViewerComponent],
   entryComponents: [WikiViewerComponent],
   imports: [
-    MatSidenavModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
+    CommonWidgetModule,
     MatTabsModule,
-    MatIconModule,
     CommonModule
   ]
 })

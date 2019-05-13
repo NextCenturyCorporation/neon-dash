@@ -905,9 +905,6 @@ describe('Component: Document Viewer with Config', () => {
     let fixture: ComponentFixture<DocumentViewerComponent>;
 
     initializeTestBed('Document Viewer', {
-        declarations: [
-            DocumentViewerComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,

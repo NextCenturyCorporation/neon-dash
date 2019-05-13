@@ -16,7 +16,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ContributionDialogComponent } from './contribution-dialog.component';
-import { MatDialogModule, MatIconModule } from '@angular/material';
+import { MatDialogModule, MatIconModule, MatButtonModule } from '@angular/material';
 import { ConfirmationDialogModule } from '../confirmation-dialog/confirmation-dialog.module';
 
 @NgModule({
@@ -31,6 +31,7 @@ import { ConfirmationDialogModule } from '../confirmation-dialog/confirmation-di
   ],
   imports: [
     MatIconModule,
+    MatButtonModule,
     MatDialogModule,
     CommonModule
   ]

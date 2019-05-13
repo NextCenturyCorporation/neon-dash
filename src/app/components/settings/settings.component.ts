@@ -15,9 +15,8 @@
  */
 
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, Injector } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
 
-import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material';
 import { BehaviorSubject } from 'rxjs';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -113,7 +112,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     openEditConfigDialog() {
-        let dConfig  = {
+        let dConfig = {
             height: '80%',
             width: '80%',
             hasBackdrop: true,

@@ -12,10 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- */import { NgModule } from '@angular/core';
+ */
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FilterBuilderComponent } from './filter-builder.component';
-import { MatButtonToggleModule, MatFormFieldModule, MatSelectModule, MatIconModule, MatTooltipModule } from '@angular/material';
+import {
+  MatButtonToggleModule, MatFormFieldModule, MatSelectModule,
+  MatIconModule, MatTooltipModule, MatDialogModule, MatInputModule, MatButtonModule
+} from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
@@ -24,10 +28,13 @@ import { FormsModule } from '@angular/forms';
   entryComponents: [FilterBuilderComponent],
   imports: [
     MatButtonToggleModule,
+    MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
+    MatInputModule,
     MatTooltipModule,
     MatSelectModule,
+    MatDialogModule,
     FormsModule,
     CommonModule
   ]

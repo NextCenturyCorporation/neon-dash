@@ -44,9 +44,10 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { MatDialog } from '@angular/material';
 
-import { MapModule } from './map.module';
+import { LegendModule } from '../legend/legend.module';
+import { CommonWidgetModule } from '../../common-widget.module';
+import { MatDialog } from '@angular/material';
 
 function webgl_support(): any {
     try {
@@ -247,7 +248,8 @@ describe('Component: Map', () => {
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
-            MapModule
+            CommonWidgetModule,
+            LegendModule
         ]
     });
 
@@ -881,7 +883,7 @@ describe('Component: Map with config', () => {
 
     initializeTestBed('Map', {
         declarations: [
-            TestMapComponent,
+            TestMapComponent
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
@@ -916,7 +918,8 @@ describe('Component: Map with config', () => {
             { provide: 'title', useValue: 'Test Title' }
         ],
         imports: [
-            MapModule
+            CommonWidgetModule,
+            LegendModule
         ]
     });
 

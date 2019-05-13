@@ -46,7 +46,7 @@ import { SettingsModule } from './components/settings/settings.module';
 import { SaveStateModule } from './components/save-state/save-state.module';
 import { SimpleFilterModule } from './components/simple-filter/simple-filter.module';
 import { SnackBarModule } from './components/snack-bar/snack-bar.module';
-import { MatIconModule, MatMenuModule, MatToolbarModule, MatSidenavModule } from '@angular/material';
+import { MatIconModule, MatMenuModule, MatToolbarModule, MatSidenavModule, MatButtonModule } from '@angular/material';
 import { GearModule } from './components/gear/gear.module';
 import { OptionsListModule } from './components/options-list/options-list.module';
 
@@ -62,6 +62,7 @@ export function getAppConfig() {
         BrowserModule,
         BrowserAnimationsModule,
         MatIconModule,
+        MatButtonModule,
         MatMenuModule,
         MatToolbarModule,
         MatSidenavModule,

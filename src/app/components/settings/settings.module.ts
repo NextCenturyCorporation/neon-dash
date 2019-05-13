@@ -16,7 +16,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SettingsComponent } from './settings.component';
-import { MatDividerModule, MatRadioModule, MatFormFieldModule, MatSelectModule } from '@angular/material';
+import { MatDividerModule, MatRadioModule, MatFormFieldModule, MatSelectModule, MatButtonModule } from '@angular/material';
 import { ExportControlModule } from '../export-control/export-control.module';
 import { FormsModule } from '@angular/forms';
 
@@ -27,6 +27,7 @@ import { FormsModule } from '@angular/forms';
   imports: [
     MatDividerModule,
     MatRadioModule,
+    MatButtonModule,
     MatSelectModule,
     MatFormFieldModule,
     ExportControlModule,

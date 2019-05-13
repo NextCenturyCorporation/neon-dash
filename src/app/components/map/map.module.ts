@@ -16,23 +16,15 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MapComponent } from './map.component';
-import {
-  MatSidenavModule, MatToolbarModule, MatIconModule,
-  MatProgressSpinnerModule, MatTooltipModule, MatDialogModule
-} from '@angular/material';
 import { LegendModule } from '../legend/legend.module';
+import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
   declarations: [MapComponent],
   exports: [MapComponent],
   entryComponents: [MapComponent],
   imports: [
-    MatDialogModule,
-    MatSidenavModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
+    CommonWidgetModule,
     LegendModule,
     CommonModule
   ]

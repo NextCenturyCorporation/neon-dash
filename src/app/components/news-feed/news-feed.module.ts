@@ -12,21 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- */import { NgModule } from '@angular/core';
+ */
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NewsFeedComponent } from './news-feed.component';
-import { MatSidenavModule, MatToolbarModule, MatIconModule, MatTooltipModule, MatProgressSpinnerModule } from '@angular/material';
+import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
   declarations: [NewsFeedComponent],
   exports: [NewsFeedComponent],
   entryComponents: [NewsFeedComponent],
   imports: [
-    MatSidenavModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
+    CommonWidgetModule,
     CommonModule
   ]
 })

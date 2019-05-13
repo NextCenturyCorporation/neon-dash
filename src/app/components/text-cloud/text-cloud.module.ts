@@ -12,22 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- */import { NgModule } from '@angular/core';
+ */
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TextCloudComponent } from './text-cloud.component';
-import { MatSidenavModule, MatToolbarModule, MatTooltipModule, MatProgressSpinnerModule, MatIconModule } from '@angular/material';
 import { DataMessageModule } from '../data-message/data-message.module';
+import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
   declarations: [TextCloudComponent],
   exports: [TextCloudComponent],
   entryComponents: [TextCloudComponent],
   imports: [
-    MatSidenavModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-    MatIconModule,
+    CommonWidgetModule,
     DataMessageModule,
     CommonModule
   ]

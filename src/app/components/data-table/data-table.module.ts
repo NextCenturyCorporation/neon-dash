@@ -16,27 +16,20 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataTableComponent } from './data-table.component';
-import {
-  MatSidenavModule, MatIconModule, MatButtonModule, MatToolbarModule,
-  MatProgressSpinnerModule, MatListModule, MatTooltipModule, MatCheckboxModule
-} from '@angular/material';
+import { MatListModule, MatCheckboxModule } from '@angular/material';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { FormsModule } from '@angular/forms';
+import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
   declarations: [DataTableComponent],
   exports: [DataTableComponent],
   entryComponents: [DataTableComponent],
   imports: [
-    MatSidenavModule,
-    MatToolbarModule,
-    MatTooltipModule,
+    CommonWidgetModule,
     MatCheckboxModule,
     MatListModule,
     NgxDatatableModule,
-    MatProgressSpinnerModule,
-    MatIconModule,
-    MatButtonModule,
     FormsModule,
     CommonModule
   ]

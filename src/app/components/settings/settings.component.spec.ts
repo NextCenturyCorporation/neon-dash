@@ -22,7 +22,7 @@ import {
     Injector,
     ViewEncapsulation
 } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatDividerModule, MatRadioModule, MatSelectModule, MatFormFieldModule } from '@angular/material';
 import { } from 'jasmine-core';
 
 import { SettingsComponent } from './settings.component';
@@ -38,6 +38,8 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { SettingsModule } from './settings.module';
+import { ExportControlModule } from '../export-control/export-control.module';
+import { FormsModule } from '@angular/forms';
 
 // Must define the test component.
 @Component({
@@ -85,6 +87,12 @@ describe('Component: Settings', () => {
             { provide: AbstractWidgetService, useClass: WidgetService }
         ],
         imports: [
+            MatDividerModule,
+            MatRadioModule,
+            MatSelectModule,
+            MatFormFieldModule,
+            ExportControlModule,
+            FormsModule,
             SettingsModule
         ]
     });

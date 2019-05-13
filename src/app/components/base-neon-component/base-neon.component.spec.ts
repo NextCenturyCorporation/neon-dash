@@ -51,6 +51,7 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import * as _ from 'lodash';
+import { neonEvents } from '../../neon-namespaces';
 import { MatDialog, MatDialogModule } from '@angular/material';
 import { ContributionDialogComponent } from '../contribution-dialog/contribution-dialog.component';
 import { of } from 'rxjs';

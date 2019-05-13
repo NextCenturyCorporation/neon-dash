@@ -13,10 +13,9 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, AfterViewInit, OnDestroy, ViewEncapsulation, ElementRef,
-  ChangeDetectionStrategy, ChangeDetectorRef, Injector, Inject, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ElementRef, Inject, ViewChild } from '@angular/core';
 
-import { MatSnackBar, MatDialog } from '@angular/material';
+import { MatSnackBar } from '@angular/material';
 import { NeonGTDConfig } from './../../neon-gtd-config';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -27,9 +26,9 @@ declare var editor: any;
 import * as _ from 'lodash';
 
 @Component({
-  selector: 'app-config-editor',
-  templateUrl: 'config-editor.component.html',
-  styleUrls: ['config-editor.component.scss']
+    selector: 'app-config-editor',
+    templateUrl: 'config-editor.component.html',
+    styleUrls: ['config-editor.component.scss']
 })
 export class ConfigEditorComponent implements AfterViewInit, OnInit {
     @ViewChild('JsonEditorComponent') editorRef: ElementRef;
@@ -52,26 +51,26 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
         this.editorOptions = this.getJsonEditorOptions();
         this.editorData = _.cloneDeep(this.currentConfig);
         this.modes = [
-          {
-              value: 'tree',
-              viewValue: 'Tree'
-          },
-          {
-              value: 'code',
-              viewValue: 'Code'
-          },
-          {
-              value: 'form',
-              viewValue: 'Form'
-          },
-          {
-              value: 'view',
-              viewValue: 'Tree (read only)'
-          },
-          {
-              value: 'text',
-              viewValue: 'Text (read only)'
-          }
+            {
+                value: 'tree',
+                viewValue: 'Tree'
+            },
+            {
+                value: 'code',
+                viewValue: 'Code'
+            },
+            {
+                value: 'form',
+                viewValue: 'Form'
+            },
+            {
+                value: 'view',
+                viewValue: 'Tree (read only)'
+            },
+            {
+                value: 'text',
+                viewValue: 'Text (read only)'
+            }
         ];
         // 'tree' (default), 'view', 'form', 'code', 'text
     }
@@ -96,19 +95,19 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
     public save() {
         let text = JSON.stringify(this.editor.get());
         this.propertyService.setProperty(this.CONFIG_PROP_NAME, text,
-        (response) => {
-            this.snackBar.open('Configuration updated successfully.  Refresh to reflect changes.', 'OK', {
-                duration: this.DEFAULT_SNACK_BAR_DURATION
-            });
-        },
-        (response) => {
-            this.snackBar.open('Error attempting to save configuration', 'OK', {
-                duration: this.DEFAULT_SNACK_BAR_DURATION
-            });
-            console.warn('Error attempting to save configuration:');
-            console.warn(response);
-        }
-      );
+            (response) => {
+                this.snackBar.open('Configuration updated successfully.  Refresh to reflect changes.', 'OK', {
+                    duration: this.DEFAULT_SNACK_BAR_DURATION
+                });
+            },
+            (response) => {
+                this.snackBar.open('Error attempting to save configuration', 'OK', {
+                    duration: this.DEFAULT_SNACK_BAR_DURATION
+                });
+                console.warn('Error attempting to save configuration:');
+                console.warn(response);
+            }
+        );
     }
 
     public delete() {
@@ -120,13 +119,13 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
                     }
                 );
             },
-            (response) => {
-                this.snackBar.open('Error attempting to delete property configuration', 'OK', {
-                    duration: this.DEFAULT_SNACK_BAR_DURATION
+                (response) => {
+                    this.snackBar.open('Error attempting to delete property configuration', 'OK', {
+                        duration: this.DEFAULT_SNACK_BAR_DURATION
+                    });
+                    console.warn('Error attempting to delete property configuration:');
+                    console.warn(response);
                 });
-                console.warn('Error attempting to delete property configuration:');
-                console.warn(response);
-            });
         }
     }
 
@@ -136,13 +135,13 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
     }
 
     public getJsonEditorOptions() {
-       return {
-          escapeUnicode: false,
-          sortObjectKeys: false,
-          history: true,
-          mode: 'tree',
-          search: true,
-          indentation: 2
-       };
+        return {
+            escapeUnicode: false,
+            sortObjectKeys: false,
+            history: true,
+            mode: 'tree',
+            search: true,
+            indentation: 2
+        };
     }
 }
