@@ -13,15 +13,18 @@
  * limitations under the License.
  *
  */
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
-import { Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
-    TableMetaData, TableMappings, FieldMetaData, SimpleFilter } from '../dataset';
+import {
+    Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
+    TableMetaData, TableMappings, FieldMetaData, SimpleFilter
+} from '../dataset';
 import { Subscription, Observable, interval } from 'rxjs';
-import { NeonGTDConfig } from '../neon-gtd-config';
 import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
+import { ConfigService } from './config.service';
+import { NeonGTDConfig } from '../neon-gtd-config';
 
 @Injectable()
 export class DatasetService {
@@ -32,6 +35,8 @@ export class DatasetService {
     private static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
 
     private datasets: Datastore[] = [];
+
+    private config: NeonGTDConfig;
 
     // The active dataset.
     // TODO: THOR-1062: This will probably need to be an array/map of active datastores
@@ -129,7 +134,7 @@ export class DatasetService {
      * @param {string} pathFromTop path to append to current dashboard object
      * @param {string} title title to append to current dashboard object
      */
-    static validateDashboardChoices(dashboardChoices: {[key: string]: Dashboard}, keys: string[],
+    static validateDashboardChoices(dashboardChoices: { [key: string]: Dashboard }, keys: string[],
         pathFromTop?: string[], title?: string): void {
         if (!keys.length) {
             return;
@@ -225,48 +230,52 @@ export class DatasetService {
         return dashboard.fields[key].split('.').slice(3).join('.');
     }
 
-    constructor(@Inject('config') private config: NeonGTDConfig) {
+    constructor(private configService: ConfigService) {
         this.datasets = [];
-        let datastores = (config.datastores ? config.datastores : {});
-        this.dashboards = (config.dashboards ? config.dashboards : {category: 'No Options', choices: {}});
+        this.configService.$source.subscribe((config) => {
+            this.config = config;
 
-        DatasetService.validateDashboards(this.dashboards);
+            let datastores = (config.datastores ? config.datastores : {});
+            this.dashboards = (config.dashboards ? config.dashboards : { category: 'No Options', choices: {} });
 
-        // convert datastore key/value pairs into an array
-        Object.keys(datastores).forEach((datastoreKey) => {
-            let datastore = datastores[datastoreKey];
-            datastore.name = datastoreKey;
+            DatasetService.validateDashboards(this.dashboards);
 
-            let databases = (datastore.databases ? datastore.databases : {});
-            let newDatabasesArray: DatabaseMetaData[] = [];
+            // convert datastore key/value pairs into an array
+            Object.keys(datastores).forEach((datastoreKey) => {
+                let datastore = datastores[datastoreKey];
+                datastore.name = datastoreKey;
 
-            Object.keys(databases).forEach((databaseKey) => {
-                let database = databases[databaseKey];
-                database.name = databaseKey;
+                let databases = (datastore.databases ? datastore.databases : {});
+                let newDatabasesArray: DatabaseMetaData[] = [];
 
-                let tables = (database.tables ? database.tables : {});
-                let newTablesArray: TableMetaData[] = [];
+                Object.keys(databases).forEach((databaseKey) => {
+                    let database = databases[databaseKey];
+                    database.name = databaseKey;
 
-                Object.keys(tables).forEach((tableKey) => {
-                    let table = tables[tableKey];
-                    table.name = tableKey;
-                    newTablesArray.push(table);
+                    let tables = (database.tables ? database.tables : {});
+                    let newTablesArray: TableMetaData[] = [];
+
+                    Object.keys(tables).forEach((tableKey) => {
+                        let table = tables[tableKey];
+                        table.name = tableKey;
+                        newTablesArray.push(table);
+                    });
+
+                    database.tables = newTablesArray;
+                    newDatabasesArray.push(database);
                 });
 
-                database.tables = newTablesArray;
-                newDatabasesArray.push(database);
+                datastore.databases = newDatabasesArray;
+
+                // then push converted object onto datasets array
+                this.datasets.push(datastore);
             });
 
-            datastore.databases = newDatabasesArray;
+            this.messenger = new neon.eventing.Messenger();
 
-            // then push converted object onto datasets array
-            this.datasets.push(datastore);
-        });
-
-        this.messenger = new neon.eventing.Messenger();
-
-        this.datasets.forEach((dataset) => {
-            DatasetService.validateDatabases(dataset);
+            this.datasets.forEach((dataset) => {
+                DatasetService.validateDatabases(dataset);
+            });
         });
     }
 
@@ -458,7 +467,7 @@ export class DatasetService {
      * Returns all of the layouts.
      * @return {[key: string]: any}
      */
-    public getLayouts(): {[key: string]: any} {
+    public getLayouts(): { [key: string]: any } {
         return this.config.layouts;
     }
 
@@ -843,8 +852,10 @@ export class DatasetService {
         return datastore + '_' + database + '_' + table;
     }
     // Internal helper method to add a related field to the mapping of related fields, and returns true if it was added and false otherwise.
-    private addRelatedFieldToMapping(mapping: Map<string, Map<string, { datastore: string,
-        database: string, table: string, field: string }[]>>,
+    private addRelatedFieldToMapping(mapping: Map<string, Map<string, {
+        datastore: string,
+        database: string, table: string, field: string
+    }[]>>,
         baseField: string,
         datastore: string,
         database: string,
@@ -932,11 +943,9 @@ export class DatasetService {
             promiseArray.push(this.getTableNamesAndFieldNames(connection, database));
         }
 
-        return new Promise<any>((resolve) => {
-            Promise.all(promiseArray).then((response) => {
-                dataset.hasUpdatedFields = true;
-                resolve(dataset);
-            });
+        return Promise.all(promiseArray).then((response) => {
+            dataset.hasUpdatedFields = true;
+            return dataset;
         });
     }
 
@@ -1020,28 +1029,28 @@ export class DatasetService {
      * @return {Promise}
      * @private
      */
-    private deleteInvalidDashboards(dashboardChoices: {[key: string]: Dashboard}, keys: string[],
+    private deleteInvalidDashboards(dashboardChoices: { [key: string]: Dashboard }, keys: string[],
         invalidDatabaseName: string): any {
         if (!keys.length) {
             return Promise.resolve();
         }
 
-        return Promise.resolve(keys.forEach((choiceKey) => {
+        for (const choiceKey of keys) {
             if (dashboardChoices[choiceKey].tables) {
                 let tableKeys = Object.keys(dashboardChoices[choiceKey].tables);
 
-                tableKeys.forEach((tableKey) => {
+                for (const tableKey of tableKeys) {
                     let databaseName = DatasetService.getDatabaseNameByKey(dashboardChoices[choiceKey], tableKey);
 
                     if (databaseName === invalidDatabaseName) {
                         delete dashboardChoices[choiceKey];
                     }
-                });
+                }
             } else {
                 let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
                 this.deleteInvalidDashboards(dashboardChoices[choiceKey].choices, nestedChoiceKeys, invalidDatabaseName);
             }
-        }));
+        }
     }
 
     /**

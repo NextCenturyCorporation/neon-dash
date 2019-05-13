@@ -711,7 +711,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      */
     protected padEndDate(endDate: any) {
         let newEndDate = moment.utc(endDate);
-        newEndDate.add(1, <moment.unitOfTime.DurationConstructor>this.options.granularity);
+        newEndDate.add(1, this.options.granularity as moment.unitOfTime.DurationConstructor);
         newEndDate.subtract(1, 'second');
         return moment(newEndDate).toDate();
     }

@@ -20,8 +20,6 @@ import { CommonModule } from '@angular/common';
 
 import 'hammerjs';
 
-import { NgGridModule } from 'angular2-grid';
-
 import { AbstractSearchService } from './services/abstract.search.service';
 import { AbstractWidgetService } from './services/abstract.widget.service';
 import { ConnectionService } from './services/connection.service';
@@ -33,54 +31,23 @@ import { SearchService } from './services/search.service';
 import { WidgetService } from './services/widget.service';
 
 import { AppComponent } from './app.component';
-import { VisualizationContainerModule } from './components/visualization-container/visualization-container.module';
 
-import { AboutNeonModule } from './components/about-neon/about-neon.module';
-import { AddVisualizationModule } from './components/add-visualization/add-visualization.module';
 import { ConfigEditorModule } from './components/config-editor/config-editor.module';
 import { ConfirmationDialogModule } from './components/confirmation-dialog/confirmation-dialog.module';
 import { ContributionDialogModule } from './components/contribution-dialog/contribution-dialog.module';
-import { DashboardSelectorModule } from './components/dashboard-selector/dashboard-selector.module';
-import { FiltersModule } from './components/filters/filters.module';
-import { SettingsModule } from './components/settings/settings.module';
-import { SaveStateModule } from './components/save-state/save-state.module';
-import { SimpleFilterModule } from './components/simple-filter/simple-filter.module';
 import { SnackBarModule } from './components/snack-bar/snack-bar.module';
-import { MatIconModule, MatMenuModule, MatToolbarModule, MatSidenavModule, MatButtonModule } from '@angular/material';
-import { GearModule } from './components/gear/gear.module';
-import { OptionsListModule } from './components/options-list/options-list.module';
-
-export function getAppConfig() {
-    /* tslint:disable:no-string-literal */
-    return window['appConfig'];
-    /* tslint:enable:no-string-literal */
-}
+import { DashboardModule } from './dashboard/dashboard.module';
+import { ConfigService } from './services/config.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
     declarations: [AppComponent],
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
-        MatIconModule,
-        MatButtonModule,
-        MatMenuModule,
-        MatToolbarModule,
-        MatSidenavModule,
-
+        HttpClientModule,
         CommonModule,
-        NgGridModule,
-
-        AboutNeonModule,
-        AddVisualizationModule,
-        VisualizationContainerModule,
-        DashboardSelectorModule,
-        FiltersModule,
-        GearModule,
-        OptionsListModule,
-        SaveStateModule,
-        SettingsModule,
-        SimpleFilterModule,
-
+        DashboardModule,
         ConfigEditorModule,
         ConfirmationDialogModule,
         ContributionDialogModule,
@@ -92,6 +59,7 @@ export function getAppConfig() {
         FilterService,
         ParameterService,
         PropertyService,
+        ConfigService,
         {
             provide: AbstractSearchService,
             useClass: SearchService
@@ -99,10 +67,6 @@ export function getAppConfig() {
         {
             provide: AbstractWidgetService,
             useClass: WidgetService
-        },
-        {
-            provide: 'config',
-            useFactory: getAppConfig
         }
     ],
     entryComponents: [AppComponent],
