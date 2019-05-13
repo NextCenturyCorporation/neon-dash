@@ -32,8 +32,7 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import {
     OptionChoices,
@@ -46,15 +45,13 @@ import {
     WidgetOptionCollection,
     WidgetSelectOption
 } from '../../widget-option';
-import { basename } from 'path';
-import * as neon from 'neon-framework';
-import { neonEvents } from '../../neon-namespaces';
+
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import * as _ from 'lodash';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatDialogModule } from '@angular/material';
 import { ContributionDialogComponent } from '../contribution-dialog/contribution-dialog.component';
 import { of } from 'rxjs';
 
@@ -110,7 +107,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     getFilterText(filter) {
         if (filter && filter.filterName) {
             return filter.filterName;
-          } else {
+        } else {
             return 'Test Filter';
         }
     }
@@ -225,7 +222,7 @@ describe('BaseNeonComponent', () => {
             TestBaseNeonComponent
         ],
         imports: [
-            AppMaterialModule,
+            MatDialogModule,
             BrowserAnimationsModule,
             FormsModule
         ],
@@ -240,8 +237,8 @@ describe('BaseNeonComponent', () => {
             { provide: 'testList', useValue: ['testDateField', 'testFakeField', 'testNameField', 'testSizeField'] },
             { provide: 'testName', useValue: 'testNameField' },
             { provide: 'testSize', useValue: 'testSizeField' },
-            { provide: 'testFieldKey1', useValue: 'field_key_1'},
-            { provide: 'testListWithFieldKey', useValue: ['field_key_1', 'testNameField']}
+            { provide: 'testFieldKey1', useValue: 'field_key_1' },
+            { provide: 'testListWithFieldKey', useValue: ['field_key_1', 'testNameField'] }
         ]
     });
 
@@ -435,7 +432,7 @@ describe('BaseNeonComponent', () => {
         component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), new FieldMetaData());
         component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DatasetServiceMock.CATEGORY_FIELD);
         component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DatasetServiceMock.X_FIELD,
-            DatasetServiceMock.Y_FIELD]);
+        DatasetServiceMock.Y_FIELD]);
         component.options.customEventsToPublish = [{
             fields: [{
                 columnName: 'testDateField'
@@ -821,7 +818,7 @@ describe('BaseNeonComponent', () => {
         component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), new FieldMetaData());
         component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DatasetServiceMock.CATEGORY_FIELD);
         component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DatasetServiceMock.X_FIELD,
-            DatasetServiceMock.Y_FIELD]);
+        DatasetServiceMock.Y_FIELD]);
         component.options.customEventsToPublish = [{
             fields: [{
                 columnName: 'testDateField'
@@ -1052,7 +1049,7 @@ describe('BaseNeonComponent', () => {
         component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), new FieldMetaData());
         component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DatasetServiceMock.CATEGORY_FIELD);
         component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DatasetServiceMock.X_FIELD,
-            DatasetServiceMock.Y_FIELD]);
+        DatasetServiceMock.Y_FIELD]);
         expect(component.getExportFields()).toEqual([{
             columnName: 'testCategoryField',
             prettyName: 'Test Category Field'
@@ -1617,9 +1614,7 @@ describe('Advanced BaseNeonComponent with config', () => {
             TestAdvancedNeonComponent
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            MatDialogModule
         ],
         providers: [
             { provide: DatasetService, useValue: datasetService },
@@ -1629,13 +1624,25 @@ describe('Advanced BaseNeonComponent with config', () => {
             { provide: 'config', useValue: testConfig },
             { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
             { provide: 'contributionKeys', useValue: ['organization1', 'organization2'] },
-            { provide: 'customEventsToPublish', useValue: [ { id: 'testPublishId', fields: [ { columnName: 'testPublishColumnName',
-                prettyName: 'testPublishPrettyName' } ] } ] },
-            { provide: 'customEventsToReceive', useValue: [ { id: 'testReceiveId', fields: [ { columnName: 'testReceiveColumnName',
-                type: 'testReceiveType' } ] } ] },
+            {
+                provide: 'customEventsToPublish', useValue: [{
+                    id: 'testPublishId', fields: [{
+                        columnName: 'testPublishColumnName',
+                        prettyName: 'testPublishPrettyName'
+                    }]
+                }]
+            },
+            {
+                provide: 'customEventsToReceive', useValue: [{
+                    id: 'testReceiveId', fields: [{
+                        columnName: 'testReceiveColumnName',
+                        type: 'testReceiveType'
+                    }]
+                }]
+            },
             { provide: 'hideUnfiltered', useValue: true },
             { provide: 'limit', useValue: 10 },
-            { provide: 'tableKey', useValue: 'table_key_2'},
+            { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'testArray', useValue: [4, 3, 2, 1] },
             { provide: 'testFreeText', useValue: 'the quick brown fox jumps over the lazy dog' },
             { provide: 'testMultipleFields', useValue: ['testXField', 'testYField'] },
@@ -1832,8 +1839,8 @@ describe('Advanced BaseNeonComponent with config', () => {
         expect((component as any).contributorsRef).toBeUndefined();
 
         let contributors = (component as any).getContributorsForComponent();
-        let config = {width: '400px', minHeight: '200px', data: contributors};
-        spyOn(component.dialog, 'open').and.returnValue({afterClosed: () => of({isSuccess: true})});
+        let config = { width: '400px', minHeight: '200px', data: contributors };
+        spyOn(component.dialog, 'open').and.returnValue({ afterClosed: () => of({ isSuccess: true }) });
 
         (component as any).openContributionDialog();
 
@@ -1852,9 +1859,7 @@ describe('BaseNeonComponent filter behavior', () => {
             TestBaseNeonComponent
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            MatDialogModule
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },

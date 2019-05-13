@@ -21,11 +21,9 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { ParameterService } from '../../services/parameter.service';
 import { FilterService } from '../../services/filter.service';
 
-import { FormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { DashboardDropdownComponent } from '../dashboard-dropdown/dashboard-dropdown.component';
+
+import { DashboardSelectorModule } from './dashboard-selector.module';
 
 describe('Component: DashboardSelector', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -33,10 +31,6 @@ describe('Component: DashboardSelector', () => {
     let component: DashboardSelectorComponent;
 
     initializeTestBed('Dataset Selector', {
-        declarations: [
-            DashboardDropdownComponent,
-            DashboardSelectorComponent
-        ],
         providers: [
             ConnectionService,
             DatasetService,
@@ -45,9 +39,7 @@ describe('Component: DashboardSelector', () => {
             { provide: 'config', useValue: testConfig }
         ],
         imports: [
-            FormsModule,
-            AppMaterialModule,
-            BrowserAnimationsModule
+            DashboardSelectorModule
         ]
     });
 

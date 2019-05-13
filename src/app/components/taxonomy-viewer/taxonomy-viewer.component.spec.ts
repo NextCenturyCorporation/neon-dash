@@ -15,29 +15,23 @@
  */
 
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import {} from 'jasmine-core';
-
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
+import { Injector } from '@angular/core';
+import { } from 'jasmine-core';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
-import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { TaxonomyViewerComponent } from './taxonomy-viewer.component';
-import { TreeModule } from 'angular-tree-component';
+
+import { TaxonomyViewerModule } from './taxonomy-viewer.module';
 
 describe('Component: TaxonomyViewer', () => {
     let component: TaxonomyViewerComponent;
@@ -48,50 +42,43 @@ describe('Component: TaxonomyViewer', () => {
         testTypeField: ['testTypeA', 'testTypeB', 'testTypeC', 'testTypeD'],
         testCategoryField: ['testCategoryI', 'testCategoryII']
     },
-        {
-            testIdField: 'testId2',
-            testTypeField: ['testTypeA', 'testTypeB', 'testTypeC', 'testTypeD', 'testTypeE', 'testTypeF', 'testTypeG', 'testTypeH'],
-            testCategoryField: ['testCategoryII']
-        },
-        {
-            testIdField: 'testId3',
-            testTypeField: ['testTypeC', 'testTypeD', 'testTypeE', 'testTypeF'],
-            testCategoryField: ['testCategoryIII']
+    {
+        testIdField: 'testId2',
+        testTypeField: ['testTypeA', 'testTypeB', 'testTypeC', 'testTypeD', 'testTypeE', 'testTypeF', 'testTypeG', 'testTypeH'],
+        testCategoryField: ['testCategoryII']
+    },
+    {
+        testIdField: 'testId3',
+        testTypeField: ['testTypeC', 'testTypeD', 'testTypeE', 'testTypeF'],
+        testCategoryField: ['testCategoryIII']
 
-        },
-        {
-            testIdField: 'testId4',
-            testTypeField: ['testTypeE', 'testTypeF'],
-            testCategoryField: ['testCategoryI', 'testCategoryIII']
-        },
-        {
-            testIdField: 'testId5',
-            testTypeField: ['testTypeH'],
-            testCategoryField: ['testCategoryII', 'testCategoryIII']
-        },
-        {
-            testIdField: 'testId6',
-            testTypeField: ['testTypeE'],
-            testCategoryField: ['testCategoryI', 'testCategoryIIII']
-        }];
+    },
+    {
+        testIdField: 'testId4',
+        testTypeField: ['testTypeE', 'testTypeF'],
+        testCategoryField: ['testCategoryI', 'testCategoryIII']
+    },
+    {
+        testIdField: 'testId5',
+        testTypeField: ['testTypeH'],
+        testCategoryField: ['testCategoryII', 'testCategoryIII']
+    },
+    {
+        testIdField: 'testId6',
+        testTypeField: ['testTypeE'],
+        testCategoryField: ['testCategoryI', 'testCategoryIIII']
+    }];
 
     initializeTestBed('Taxonomy', {
-        declarations: [
-            TaxonomyViewerComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
-            {provide: DatasetService, useClass: DatasetServiceMock},
-            {provide: FilterService, useClass: FilterServiceMock},
-            {provide: AbstractSearchService, useClass: SearchServiceMock},
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            {provide: 'config', useValue: new NeonGTDConfig()}
+            { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule,
-            TreeModule.forRoot()
+            TaxonomyViewerModule
         ]
     });
 
@@ -224,7 +211,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.ascending  = true;
+        component.options.ascending = true;
 
         component.transformVisualizationQueryResults(component.options, responseData);
 

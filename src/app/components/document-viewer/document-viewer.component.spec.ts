@@ -13,15 +13,11 @@
  * limitations under the License.
  *
  */
-import { AppMaterialModule } from '../../app.material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import * as neon from 'neon-framework';
 
 import { DocumentViewerComponent } from './document-viewer.component';
 
@@ -36,14 +32,13 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
+import { DocumentViewerModule } from './document-viewer.module';
+
 describe('Component: DocumentViewer', () => {
     let component: DocumentViewerComponent;
     let fixture: ComponentFixture<DocumentViewerComponent>;
 
     initializeTestBed('Document Viewer', {
-        declarations: [
-            DocumentViewerComponent
-        ],
         providers: [
             DatasetService,
             {
@@ -57,9 +52,7 @@ describe('Component: DocumentViewer', () => {
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            DocumentViewerModule
         ]
     });
 
@@ -947,9 +940,7 @@ describe('Component: Document Viewer with Config', () => {
             { provide: 'limit', useValue: 25 }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            DocumentViewerModule
         ]
     });
 

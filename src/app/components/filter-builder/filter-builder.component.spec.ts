@@ -13,14 +13,11 @@
  * limitations under the License.
  *
  */
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
-import { AppMaterialModule } from '../../app.material.module';
 import { FieldMetaData } from '../../dataset';
 import { FilterBuilderComponent } from './filter-builder.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
@@ -33,7 +30,8 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import * as neon from 'neon-framework';
+
+import { FilterBuilderModule } from './filter-builder.module';
 
 describe('Component: Filter Builder', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -41,9 +39,6 @@ describe('Component: Filter Builder', () => {
     let fixture: ComponentFixture<FilterBuilderComponent>;
 
     initializeTestBed('Filter Builder', {
-        declarations: [
-            FilterBuilderComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
@@ -52,9 +47,7 @@ describe('Component: Filter Builder', () => {
             { provide: 'config', useValue: testConfig }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            FilterBuilderModule
         ]
     });
 
@@ -322,9 +315,6 @@ describe('Component: Filter Builder with config', () => {
     let fixture: ComponentFixture<FilterBuilderComponent>;
 
     initializeTestBed('Filter Builder', {
-        declarations: [
-            FilterBuilderComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
@@ -345,9 +335,7 @@ describe('Component: Filter Builder with config', () => {
             { provide: 'config', useValue: testConfig }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            FilterBuilderModule
         ]
     });
 

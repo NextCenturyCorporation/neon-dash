@@ -25,6 +25,7 @@ import { LegendModule } from '../legend/legend.module';
 @NgModule({
   declarations: [NetworkGraphComponent],
   exports: [NetworkGraphComponent],
+  entryComponents: [NetworkGraphComponent],
   imports: [
     MatSidenavModule,
     MatToolbarModule,

@@ -29,6 +29,9 @@ import { LegendModule } from '../legend/legend.module';
   exports: [
     AnnotationViewerComponent
   ],
+  entryComponents: [
+    AnnotationViewerComponent
+  ],
   imports: [
     LegendModule,
     MatProgressSpinnerModule,

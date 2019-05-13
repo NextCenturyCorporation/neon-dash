@@ -13,18 +13,14 @@
  * limitations under the License.
  *
  */
-import { ComponentFixture, TestBed, inject } from '@angular/core/testing';
-import { MatDialogRef } from '@angular/material';
-import { FormsModule } from '@angular/forms';
-
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CurrentFiltersComponent } from './current-filters.component';
 import { FilterService } from '../../services/filter.service';
 import { DatasetService } from '../../services/dataset.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+
+import { CurrentFiltersModule } from './current-filters.module';
 
 describe('Component: CurrentFiltersComponent', () => {
     let fixture: ComponentFixture<CurrentFiltersComponent>;
@@ -32,19 +28,12 @@ describe('Component: CurrentFiltersComponent', () => {
     let component: CurrentFiltersComponent;
 
     initializeTestBed('Current Filters', {
-        declarations: [
-            CurrentFiltersComponent
-        ],
         providers: [
             FilterService,
             DatasetService,
             { provide: 'config', useValue: testConfig }
         ],
-        imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
-        ]
+        imports: [CurrentFiltersModule]
     });
 
     it('should create an instance', (() => {

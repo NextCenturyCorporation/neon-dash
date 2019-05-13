@@ -20,6 +20,7 @@ import { MatSidenavModule, MatToolbarModule, MatIconModule, MatTooltipModule, Ma
 @NgModule({
   declarations: [NewsFeedComponent],
   exports: [NewsFeedComponent],
+  entryComponents: [NewsFeedComponent],
   imports: [
     MatSidenavModule,
     MatToolbarModule,

@@ -14,17 +14,13 @@
  *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { } from 'jasmine-core';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import { AppMaterialModule } from '../../app.material.module';
 import { TimelineComponent } from './timeline.component';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -34,7 +30,7 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { WidgetService } from '../../services/widget.service';
 
-import 'd3';
+import { TimelineModule } from './timeline.module';
 
 describe('Component: Timeline', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -42,10 +38,6 @@ describe('Component: Timeline', () => {
     let fixture: ComponentFixture<TimelineComponent>;
 
     initializeTestBed('Timeline', {
-        declarations: [
-            TimelineComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
             DatasetService,
@@ -55,9 +47,7 @@ describe('Component: Timeline', () => {
             { provide: 'config', useValue: testConfig }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            TimelineModule
         ]
     });
 

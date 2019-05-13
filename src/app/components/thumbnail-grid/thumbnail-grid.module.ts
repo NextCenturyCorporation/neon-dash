@@ -29,6 +29,7 @@ import { DetailsThumbnailSubComponent } from './subcomponent.details-view';
     DetailsThumbnailSubComponent
   ],
   exports: [ThumbnailGridComponent],
+  entryComponents: [ThumbnailGridComponent],
   imports: [
     MatSidenavModule,
     MatToolbarModule,

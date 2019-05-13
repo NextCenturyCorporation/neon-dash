@@ -13,38 +13,28 @@
  * limitations under the License.
  *
  */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
-import { ChangeDetectionStrategy,
-    ChangeDetectorRef, Component,
-    CUSTOM_ELEMENTS_SCHEMA,
-    ElementRef,
-    Injector,
-    ViewEncapsulation } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import {} from 'jasmine-core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Injector } from '@angular/core';
+import { } from 'jasmine-core';
 
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { GearComponent } from '../gear/gear.component';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
-import { AppMaterialModule } from '../../app.material.module';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { OptionChoices, WidgetOptionCollection, WidgetFieldOption, WidgetFreeTextOption, WidgetSelectOption } from '../../widget-option';
+
+import { GearModule } from './gear.module';
 
 /* tslint:disable:component-class-suffix */
 
@@ -54,11 +44,6 @@ describe('Component: Gear Component', () => {
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('gear component', {
-        declarations: [
-            GearComponent,
-            ExportControlComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
@@ -68,11 +53,8 @@ describe('Component: Gear Component', () => {
             { provide: AbstractWidgetService, useClass: WidgetService }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            GearModule
         ],
-        schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
     });
 
     beforeEach(() => {

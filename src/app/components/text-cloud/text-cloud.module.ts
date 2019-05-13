@@ -21,6 +21,7 @@ import { DataMessageModule } from '../data-message/data-message.module';
 @NgModule({
   declarations: [TextCloudComponent],
   exports: [TextCloudComponent],
+  entryComponents: [TextCloudComponent],
   imports: [
     MatSidenavModule,
     MatToolbarModule,

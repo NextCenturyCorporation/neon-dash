@@ -26,6 +26,7 @@ import { FormsModule } from '@angular/forms';
 @NgModule({
   declarations: [DataTableComponent],
   exports: [DataTableComponent],
+  entryComponents: [DataTableComponent],
   imports: [
     MatSidenavModule,
     MatToolbarModule,

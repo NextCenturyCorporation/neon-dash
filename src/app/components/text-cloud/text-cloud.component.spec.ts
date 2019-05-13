@@ -16,12 +16,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 
-import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { DataMessageComponent } from '../data-message/data-message.component';
 import { TextCloudComponent } from './text-cloud.component';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService, AggregationType } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -30,8 +27,6 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
 import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -39,17 +34,14 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
+import { TextCloudModule } from './text-cloud.module';
+
 describe('Component: TextCloud', () => {
     let component: TextCloudComponent;
     let fixture: ComponentFixture<TextCloudComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Text Cloud', {
-        declarations: [
-            DataMessageComponent,
-            TextCloudComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
             {
@@ -62,9 +54,7 @@ describe('Component: TextCloud', () => {
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            TextCloudModule
         ]
     });
 

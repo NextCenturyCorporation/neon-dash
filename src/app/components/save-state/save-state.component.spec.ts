@@ -15,7 +15,6 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FormsModule } from '@angular/forms';
 import { ViewContainerRef } from '@angular/core';
 
 import { SaveStateComponent } from './save-state.component';
@@ -29,10 +28,10 @@ import { WidgetService } from '../../services/widget.service';
 
 import { MatSnackBar } from '@angular/material';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+
+import { SaveStateModule } from './save-state.module';
 
 describe('Component: SaveStateComponent', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -40,13 +39,8 @@ describe('Component: SaveStateComponent', () => {
     let component: SaveStateComponent;
 
     initializeTestBed('Save State', {
-        declarations: [
-            SaveStateComponent
-        ],
         imports: [
-            FormsModule,
-            AppMaterialModule,
-            BrowserAnimationsModule
+            SaveStateModule
         ],
         providers: [
             ConnectionService,

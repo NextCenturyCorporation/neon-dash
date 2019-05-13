@@ -13,15 +13,12 @@
  * limitations under the License.
  *
  */
-import { AppMaterialModule } from '../../app.material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 import * as neon from 'neon-framework';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
@@ -32,7 +29,8 @@ import { NewsFeedComponent } from './news-feed.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+
+import { NewsFeedModule } from './news-feed.module';
 
 describe('Component: NewsFeed', () => {
     let component: NewsFeedComponent;
@@ -41,9 +39,6 @@ describe('Component: NewsFeed', () => {
 
     //may need to add or remove some initializations (copied from media-viewer.component)
     initializeTestBed('News Feed', {
-        declarations: [
-            NewsFeedComponent
-        ],
         providers: [
             DatasetService,
             { provide: FilterService, useClass: FilterServiceMock },
@@ -52,9 +47,7 @@ describe('Component: NewsFeed', () => {
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            NewsFeedModule
         ]
     });
 
@@ -80,7 +73,7 @@ describe('Component: NewsFeed', () => {
     });
 
     it('does have expected class properties', () => {
-         expect(component.filters).toEqual([]);
+        expect(component.filters).toEqual([]);
     });
 
     //checks if component exists

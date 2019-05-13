@@ -14,41 +14,13 @@
  *
  */
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
-import { DebugElement, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { APP_BASE_HREF, CommonModule } from '@angular/common';
+import { APP_BASE_HREF } from '@angular/common';
 
 import 'hammerjs';
 
-import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { AppComponent } from './app.component';
-import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
-import { AboutNeonComponent } from './components/about-neon/about-neon.component';
-import { AggregationComponent } from './components/aggregation/aggregation.component';
-import { DashboardSelectorComponent } from './components/dashboard-selector/dashboard-selector.component';
-import { DataMessageComponent } from './components/data-message/data-message.component';
-import { DataTableComponent } from './components/data-table/data-table.component';
-import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
-import { ExportControlComponent } from './components/export-control/export-control.component';
-import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
-import { FiltersComponent } from './components/filters/filters.component';
-import { CurrentFiltersComponent } from './components/current-filters/current-filters.component';
-import { GearComponent } from './components/gear/gear.component';
-import { LegendComponent } from './components/legend/legend.component';
-import { MapComponent } from './components//map/map.component';
-import { OptionsListComponent } from './components/options-list/options-list.component';
-import { SampleComponent } from './components/sample/sample.component';
-import { SaveStateComponent } from './components/save-state/save-state.component';
-import { SettingsComponent } from './components/settings/settings.component';
-import { TaxonomyViewerComponent } from './components/taxonomy-viewer/taxonomy-viewer.component';
-import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
-import { TimelineComponent } from './components/timeline/timeline.component';
-import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
-import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
-import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
-import { WikiViewerComponent } from './components/wiki-viewer/wiki-viewer.component';
-
 import { NeonGTDConfig } from './neon-gtd-config';
 import { NeonGridItem } from './neon-grid-item';
 
@@ -60,30 +32,13 @@ import { FilterService } from './services/filter.service';
 import { ParameterService } from './services/parameter.service';
 import { WidgetService } from './services/widget.service';
 
-import { NgGridModule } from 'angular2-grid';
-
-import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-import { AppMaterialModule } from './app.material.module';
-import { HttpModule } from '@angular/http';
-import { HttpClientModule } from '@angular/common/http';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
-import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
-import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
-import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-grid.component';
-import { NewsFeedComponent } from './components/news-feed/news-feed.component';
-import { MatAutocompleteModule } from '@angular/material';
-import { QueryBarComponent } from './components/query-bar/query-bar.component';
-import { DashboardDropdownComponent } from './components/dashboard-dropdown/dashboard-dropdown.component';
-import { DetailsThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.details-view';
-import { TitleThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.title-view';
-import { CardThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.card-view';
-import { TreeModule } from 'angular-tree-component';
 import { DatasetServiceMock } from '../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../testUtils/MockServices/SearchServiceMock';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../testUtils/initializeTestBed';
+
+import { AppModule } from './app.module';
 
 describe('App', () => {
     let fixture: ComponentFixture<AppComponent>;
@@ -93,56 +48,8 @@ describe('App', () => {
     let spyOnInit;
 
     initializeTestBed('App', {
-        declarations: [
-            AddVisualizationComponent,
-            AppComponent,
-            AboutNeonComponent,
-            AggregationComponent,
-            AnnotationViewerComponent,
-            CardThumbnailSubComponent,
-            DashboardDropdownComponent,
-            DashboardSelectorComponent,
-            DataMessageComponent,
-            DataTableComponent,
-            DetailsThumbnailSubComponent,
-            DocumentViewerComponent,
-            ExportControlComponent,
-            FilterBuilderComponent,
-            FiltersComponent,
-            GearComponent,
-            CurrentFiltersComponent,
-            LegendComponent,
-            MapComponent,
-            MediaViewerComponent,
-            NetworkGraphComponent,
-            NewsFeedComponent,
-            OptionsListComponent,
-            QueryBarComponent,
-            SampleComponent,
-            SaveStateComponent,
-            SettingsComponent,
-            SimpleFilterComponent,
-            TaxonomyViewerComponent,
-            TextCloudComponent,
-            ThumbnailGridComponent,
-            TimelineComponent,
-            TitleThumbnailSubComponent,
-            UnsharedFilterComponent,
-            VisualizationContainerComponent,
-            VisualizationInjectorComponent,
-            WikiViewerComponent
-        ],
         imports: [
-            FormsModule,
-            AppMaterialModule,
-            MatAutocompleteModule,
-            NgGridModule,
-            NgxDatatableModule,
-            HttpModule,
-            HttpClientModule,
-            BrowserAnimationsModule,
-            ReactiveFormsModule,
-            TreeModule.forRoot()
+            AppModule
         ],
         providers: [
             { provide: 'config', useValue: new NeonGTDConfig() },

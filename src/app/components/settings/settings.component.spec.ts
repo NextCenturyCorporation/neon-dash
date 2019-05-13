@@ -13,9 +13,7 @@
  * limitations under the License.
  *
  */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
@@ -24,8 +22,7 @@ import {
     Injector,
     ViewEncapsulation
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatDialog, MatDialogRef, MatSnackBar } from '@angular/material';
+import { MatDialog } from '@angular/material';
 import { } from 'jasmine-core';
 
 import { SettingsComponent } from './settings.component';
@@ -35,13 +32,12 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { AppMaterialModule } from '../../app.material.module';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+
+import { SettingsModule } from './settings.module';
 
 // Must define the test component.
 @Component({
@@ -51,7 +47,6 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-
 class TestSettingsComponent extends SettingsComponent {
     constructor(
         changeDetection: ChangeDetectorRef,
@@ -90,9 +85,7 @@ describe('Component: Settings', () => {
             { provide: AbstractWidgetService, useClass: WidgetService }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            SettingsModule
         ]
     });
 

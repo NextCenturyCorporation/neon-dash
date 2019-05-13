@@ -25,6 +25,7 @@ import { LegendModule } from '../legend/legend.module';
 @NgModule({
   declarations: [MapComponent],
   exports: [MapComponent],
+  entryComponents: [MapComponent],
   imports: [
     MatDialogModule,
     MatSidenavModule,

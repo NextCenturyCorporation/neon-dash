@@ -15,14 +15,13 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { FormsModule } from '@angular/forms';
+
+import { ContributionDialogModule } from './contribution-dialog.module';
 
 import { ContributionDialogComponent } from './contribution-dialog.component';
 import { FilterService } from '../../services/filter.service';
 import { DatasetService } from '../../services/dataset.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: ContributionDialogComponent', () => {
@@ -31,9 +30,6 @@ describe('Component: ContributionDialogComponent', () => {
     let component: ContributionDialogComponent;
 
     initializeTestBed('ContributionDialogComponent', {
-        declarations: [
-            ContributionDialogComponent
-        ],
         providers: [
             FilterService,
             DatasetService,
@@ -42,9 +38,7 @@ describe('Component: ContributionDialogComponent', () => {
             { provide: MAT_DIALOG_DATA, useValue: [] }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            ContributionDialogModule
         ]
     });
 

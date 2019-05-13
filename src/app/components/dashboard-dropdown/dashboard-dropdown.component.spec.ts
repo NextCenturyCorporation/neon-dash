@@ -17,27 +17,28 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardDropdownComponent } from './dashboard-dropdown.component';
 import { DashboardOptions, Dashboard } from '../../dataset';
 
+import { DashboardDropdownModule } from './dashboard-dropdown.module';
+
 let fixture: ComponentFixture<DashboardDropdownComponent>;
 let component: DashboardDropdownComponent;
 
-let dashboardTableKeys1: {[key: string]: string} = {};
+let dashboardTableKeys1: { [key: string]: string } = {};
 dashboardTableKeys1.tableKey = 'datastore1.database1.table1';
 
-let dashboardFieldKeys1: {[key: string]: string} = {};
+let dashboardFieldKeys1: { [key: string]: string } = {};
 dashboardFieldKeys1.fieldKey = 'datastore1.database1.table1.field1';
 
-let dashboardTableKeys2: {[key: string]: string} = {};
+let dashboardTableKeys2: { [key: string]: string } = {};
 dashboardTableKeys2.tableKey = 'datastore2.database2.table1';
 
-let dashboardFieldKeys2: {[key: string]: string} = {};
+let dashboardFieldKeys2: { [key: string]: string } = {};
 dashboardFieldKeys2.fieldKey = 'datastore2.database2.table1.field1';
 
-let choices: {[key: string]: Dashboard} = {};
+let choices: { [key: string]: Dashboard } = {};
 choices.dash1 = {
     pathFromTop: ['dash1'],
     name: 'Test Discovery Config',
@@ -69,13 +70,8 @@ let dashboards = {
 
 describe('Component: DashboardDropdown with input', () => {
     initializeTestBed('Dashboard Dropdown', {
-        declarations: [
-            DashboardDropdownComponent
-        ],
         imports: [
-            FormsModule,
-            AppMaterialModule,
-            BrowserAnimationsModule
+            DashboardDropdownModule
         ]
     });
 
@@ -141,7 +137,7 @@ describe('Component: DashboardDropdown with input', () => {
 
     it('onChildSelectionChange() should emit event argument', (() => {
         let spy = spyOn(component.selectionChange, 'emit');
-        let mockEvent = {event: 'test'};
+        let mockEvent = { event: 'test' };
 
         component.onChildSelectionChange(mockEvent);
         expect(spy.calls.count()).toEqual(1);
@@ -165,13 +161,8 @@ describe('Component: DashboardDropdown with input', () => {
 
 describe('Component: DashboardDropdown with no inputs', () => {
     initializeTestBed('Dashboard Dropdown', {
-        declarations: [
-            DashboardDropdownComponent
-        ],
         imports: [
-            FormsModule,
-            AppMaterialModule,
-            BrowserAnimationsModule
+            DashboardDropdownModule
         ]
     });
 
