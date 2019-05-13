@@ -394,7 +394,7 @@ Optional:
 * **customColumnWidths** - An array of arrays.  Each nested array contains exactly two elements:  a field name (or field key) and a width number.
 * **customEventsToPublish** - An array of objects with a string `id` (event name) and an array `fields` of objects with a string `field` (field name).  Default:  `[]`
 * **exceptionToStatus** - (Deprecated; please use **showFields**) The array of fields names to exempt from **allColumStatus**.
-* **fieldsConfig** - An array of objects with `name` and `hide` properties to configure the columns that are shown on initialization and their order.  Overrides **exceptionToStatus**.  Default:  `[]`
+* **fieldsConfig** - (Deprecated; please use **showFields**) An array of objects with `name` and `hide` properties to configure the columns that are shown on initialization and their order.  Overrides **exceptionToStatus**.  Default:  `[]`
 * **filterable** - Whether the visualization is filterable.  Default:  `false`
 * **filterFields** - The array of field names to use for the filters.
 * **heatmapDivisor** - The divisor used with **heatmapField**.  Default:  `0` (none)
