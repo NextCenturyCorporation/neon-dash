@@ -30,6 +30,7 @@ export enum OptionType {
     FREE_TEXT = 'FREE_TEXT',
     MULTIPLE_SELECT = 'MULTIPLE_SELECT',
     NON_PRIMITIVE = 'NON_PRIMITIVE',
+    COLOR = 'COLOR',
     SELECT = 'SELECT',
     TABLE = 'TABLE'
 }
@@ -55,7 +56,7 @@ export abstract class WidgetOption {
         public valueDefault: any,
         public valueChoices: OptionChoice[],
         public enableInMenu: boolean | OptionCallback = true
-    ) {}
+    ) { }
 
     /**
      * Returns the current value to save in the bindings.
@@ -150,6 +151,24 @@ export class WidgetFreeTextOption extends WidgetOption {
         enableInMenu: boolean | OptionCallback = true
     ) {
         super(OptionType.FREE_TEXT, false, bindingKey, prettyName, valueDefault, undefined, enableInMenu);
+    }
+}
+
+export class WidgetColorOption extends WidgetOption {
+    /**
+     * @constructor
+     * @arg {string} bindingKey
+     * @arg {string} prettyName
+     * @arg {any} valueDefault
+     * @arg {boolean|OptionCallback} [enableInMenu=true]
+     */
+    constructor(
+        bindingKey: string,
+        prettyName: string,
+        valueDefault: any,
+        enableInMenu: boolean | OptionCallback = true
+    ) {
+        super(OptionType.COLOR, false, bindingKey, prettyName, valueDefault, undefined, enableInMenu);
     }
 }
 
