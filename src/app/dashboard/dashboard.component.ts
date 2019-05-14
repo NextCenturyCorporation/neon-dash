@@ -168,7 +168,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     this.messenger.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
     this.messenger.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
 
-    this.configService.$source.subscribe((neonConfig) => {
+    this.configService.get().subscribe((neonConfig) => {
       // TODO: Default to false and set to true only after a dataset has been selected.
       this.showFiltersComponentIcon = true;
       this.showCustomConnectionButton = true;
