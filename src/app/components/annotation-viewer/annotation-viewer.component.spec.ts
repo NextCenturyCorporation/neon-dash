@@ -35,6 +35,7 @@ import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { AnnotationViewerModule } from './annotation-viewer.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: AnnotationViewer', () => {
     let component: AnnotationViewerComponent;
@@ -48,7 +49,7 @@ describe('Component: AnnotationViewer', () => {
             { provide: FilterService, useClass: FilterServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ],
         imports: [
             AnnotationViewerModule

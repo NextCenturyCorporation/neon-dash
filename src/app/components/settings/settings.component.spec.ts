@@ -40,6 +40,7 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SettingsModule } from './settings.module';
 import { ExportControlModule } from '../export-control/export-control.module';
 import { FormsModule } from '@angular/forms';
+import { ConfigService } from '../../services/config.service';
 
 // Must define the test component.
 @Component({
@@ -81,7 +82,8 @@ describe('Component: Settings', () => {
             TestSettingsComponent
         ],
         providers: [
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            ,
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService }

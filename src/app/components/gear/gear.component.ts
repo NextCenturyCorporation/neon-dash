@@ -18,14 +18,10 @@ import {
     ChangeDetectorRef,
     ChangeDetectionStrategy,
     Component,
-    Injector,
     OnDestroy,
     OnInit,
     ViewEncapsulation,
     Input,
-    Output,
-    EventEmitter,
-    ViewChild,
     ViewChildren,
     QueryList
 } from '@angular/core';
@@ -34,8 +30,7 @@ import { MatSidenav } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
-import { OptionType, WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../widget-option';
+import { OptionType, WidgetOption } from '../../widget-option';
 import { OptionsListComponent } from '../options-list/options-list.component';
 
 import { neonEvents } from '../../neon-namespaces';
@@ -84,7 +79,6 @@ export class GearComponent implements OnInit, OnDestroy {
 
     constructor(
         private changeDetection: ChangeDetectorRef,
-        public injector: Injector,
         protected datasetService: DatasetService,
         protected widgetService: AbstractWidgetService
     ) {

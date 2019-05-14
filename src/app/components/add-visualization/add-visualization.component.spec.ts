@@ -35,6 +35,7 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { ConfigService } from '../../services/config.service';
 
 // Must define the test component.
 @Component({
@@ -71,7 +72,7 @@ describe('Component: AddVisualization', () => {
             TestAddVisualizationComponent
         ],
         providers: [
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             {

@@ -34,6 +34,7 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 
 import { ThumbnailGridModule } from './thumbnail-grid.module';
+import { ConfigService } from '../../services/config.service';
 
 let validateSelect = (element: any, name: string, required: boolean = false, disabled: boolean = false) => {
     expect(element.componentInstance.disabled).toEqual(disabled);
@@ -71,7 +72,8 @@ describe('Component: ThumbnailGrid', () => {
             { provide: FilterService, useClass: FilterServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
             ThumbnailGridModule
@@ -1466,7 +1468,8 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: FilterService, useClass: FilterServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+,
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 10 },
             { provide: 'border', useValue: 'percentCompare' },

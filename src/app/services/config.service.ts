@@ -43,6 +43,10 @@ export class ConfigService {
 
     $source: Observable<NeonGTDConfig>;
 
+    static as(config: NeonGTDConfig) {
+        return new ConfigService(null).set(config);
+    }
+
     constructor(private http: HttpClient) {
 
     }
@@ -119,10 +123,22 @@ export class ConfigService {
             ) as Observable<NeonGTDConfig>;
     }
 
-    get() {
+    initSource() {
         if (!this.$source) {
             this.$source = this.source.asObservable().pipe(map((x) => JSON.parse(JSON.stringify(x))));
+            return true;
+        }
+        return false;
+    }
 
+    set(config: NeonGTDConfig) {
+        this.initSource();
+        this.source.next(config);
+        return this;
+    }
+
+    get() {
+        if (this.initSource()) {
             neon.setNeonServerUrl('../neon');
             this.fetchConfig(environment.config)
                 .subscribe((el) => this.source.next(el));

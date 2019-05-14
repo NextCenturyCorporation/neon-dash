@@ -18,8 +18,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
 
-import 'hammerjs';
-
 import { AbstractSearchService } from './services/abstract.search.service';
 import { AbstractWidgetService } from './services/abstract.widget.service';
 import { ConnectionService } from './services/connection.service';
@@ -32,15 +30,15 @@ import { WidgetService } from './services/widget.service';
 
 import { AppComponent } from './app.component';
 
-import { ConfigEditorModule } from './components/config-editor/config-editor.module';
 import { ConfirmationDialogModule } from './components/confirmation-dialog/confirmation-dialog.module';
 import { ContributionDialogModule } from './components/contribution-dialog/contribution-dialog.module';
 import { SnackBarModule } from './components/snack-bar/snack-bar.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ConfigService } from './services/config.service';
 import { HttpClientModule } from '@angular/common/http';
-import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-loader';
 import { CustomConnectionModule } from './components/custom-connection/custom-connection.module';
+import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-loader';
+
 @NgModule({
     declarations: [AppComponent],
     imports: [

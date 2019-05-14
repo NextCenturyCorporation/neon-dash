@@ -32,6 +32,7 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { By } from '@angular/platform-browser';
 
 import { FiltersModule } from './filters.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: Filters', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -45,7 +46,8 @@ describe('Component: Filters', () => {
             { provide: FilterService, useClass: FilterServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: testConfig }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+
         ],
         imports: [
             FiltersModule

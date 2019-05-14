@@ -32,6 +32,7 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { TaxonomyViewerComponent } from './taxonomy-viewer.component';
 
 import { TaxonomyViewerModule } from './taxonomy-viewer.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: TaxonomyViewer', () => {
     let component: TaxonomyViewerComponent;
@@ -75,7 +76,8 @@ describe('Component: TaxonomyViewer', () => {
             { provide: FilterService, useClass: FilterServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
             TaxonomyViewerModule

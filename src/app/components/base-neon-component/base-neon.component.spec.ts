@@ -55,6 +55,7 @@ import { neonEvents } from '../../neon-namespaces';
 import { MatDialog, MatDialogModule } from '@angular/material';
 import { ContributionDialogComponent } from '../contribution-dialog/contribution-dialog.component';
 import { of } from 'rxjs';
+import { ConfigService } from '../../services/config.service';
 
 @Component({
     selector: 'app-test-base-neon',
@@ -232,7 +233,8 @@ describe('BaseNeonComponent', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: testConfig },
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+,
             { provide: 'testDate', useValue: 'testDateField' },
             { provide: 'testFake', useValue: 'testFakeField' },
             { provide: 'testList', useValue: ['testDateField', 'testFakeField', 'testNameField', 'testSizeField'] },
@@ -1622,7 +1624,8 @@ describe('Advanced BaseNeonComponent with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: testConfig },
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+,
             { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
             { provide: 'contributionKeys', useValue: ['organization1', 'organization2'] },
             {
@@ -1867,7 +1870,8 @@ describe('BaseNeonComponent filter behavior', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: testConfig }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+
         ]
     });
 

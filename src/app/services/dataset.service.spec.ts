@@ -19,6 +19,7 @@ import { DatasetService } from './dataset.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
+import { ConfigService } from './config.service';
 
 describe('Service: DatasetService', () => {
     let testConfig = new NeonGTDConfig();
@@ -26,7 +27,7 @@ describe('Service: DatasetService', () => {
     initializeTestBed('Dataset Service', {
         providers: [
             DatasetService,
-            { provide: 'config', useValue: testConfig }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
         ]
     });
 
@@ -41,15 +42,15 @@ describe('Service: DatasetService', () => {
     it('should return datastores by name',
         inject([DatasetService], (service: DatasetService) => {
             service.addDataset({
-            name: 'd1',
-            databases: []
-        });
+                name: 'd1',
+                databases: []
+            });
 
-        expect(service.getDatasetWithName('d1')).toEqual({
-            name: 'd1',
-            databases: []
-        });
-    }));
+            expect(service.getDatasetWithName('d1')).toEqual({
+                name: 'd1',
+                databases: []
+            });
+        }));
 
     it('getCurrentDatabase does return expected object', inject([DatasetService], (service: DatasetService) => {
         expect(service.getCurrentDatabase()).not.toBeDefined();
@@ -62,7 +63,8 @@ describe('Service: mock DatasetService with mock data', () => {
     initializeTestBed('Dataset Service', {
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: 'config', useValue: testConfig }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+
         ]
     });
 

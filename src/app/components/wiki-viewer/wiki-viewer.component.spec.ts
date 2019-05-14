@@ -34,6 +34,8 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 
 import { WikiViewerModule } from './wiki-viewer.module';
 
+import { ConfigService } from '../../services/config.service';
+
 describe('Component: WikiViewer', () => {
     let component: WikiViewerComponent;
     let fixture: ComponentFixture<WikiViewerComponent>;
@@ -44,7 +46,8 @@ describe('Component: WikiViewer', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
             WikiViewerModule,
@@ -197,7 +200,8 @@ describe('Component: WikiViewer with mock HTTP', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
             WikiViewerModule,
@@ -363,7 +367,8 @@ describe('Component: WikiViewer with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            ,
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'id', useValue: 'testId' },
             { provide: 'idField', useValue: 'testIdField' },

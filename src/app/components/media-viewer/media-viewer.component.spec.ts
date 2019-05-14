@@ -36,6 +36,7 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { MediaViewerModule } from './media-viewer.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: MediaViewer', () => {
     let component: MediaViewerComponent;
@@ -48,7 +49,8 @@ describe('Component: MediaViewer', () => {
             { provide: FilterService, useClass: FilterServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
             MediaViewerModule
@@ -1258,7 +1260,8 @@ describe('Component: MediaViewer with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            ,
             { provide: 'title', useValue: 'Test Title' },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'idField', useValue: 'testIdField' },

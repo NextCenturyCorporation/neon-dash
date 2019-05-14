@@ -48,6 +48,7 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { LegendModule } from '../legend/legend.module';
 import { CommonWidgetModule } from '../../common-widget.module';
 import { MatDialog } from '@angular/material';
+import { ConfigService } from '../../services/config.service';
 
 function webgl_support(): any {
     try {
@@ -245,7 +246,8 @@ describe('Component: Map', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
             CommonWidgetModule,
@@ -891,7 +893,8 @@ describe('Component: Map with config', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            ,
             { provide: 'tableKey', useValue: 'table_key_1' },
             {
                 provide: 'layers', useValue: [{

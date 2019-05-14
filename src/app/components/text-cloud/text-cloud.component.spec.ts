@@ -35,6 +35,7 @@ import { FilterServiceMock } from '../../../testUtils/MockServices/FilterService
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { TextCloudModule } from './text-cloud.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: TextCloud', () => {
     let component: TextCloudComponent;
@@ -51,7 +52,8 @@ describe('Component: TextCloud', () => {
             { provide: FilterService, useClass: FilterServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
             TextCloudModule

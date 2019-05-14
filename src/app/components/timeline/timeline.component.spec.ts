@@ -31,6 +31,7 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { WidgetService } from '../../services/widget.service';
 
 import { TimelineModule } from './timeline.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: Timeline', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -44,7 +45,8 @@ describe('Component: Timeline', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: testConfig }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+
         ],
         imports: [
             TimelineModule

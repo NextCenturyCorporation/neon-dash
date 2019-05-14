@@ -23,6 +23,7 @@ import { FilterService, ServiceFilter } from './filter.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
+import { ConfigService } from './config.service';
 
 import * as neon from 'neon-framework';
 
@@ -121,7 +122,8 @@ describe('Service: Filter', () => {
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: TestFilterService },
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
             HttpClientModule,
@@ -590,7 +592,8 @@ describe('Service: Filter with existing filters', () => {
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: TestFilterServiceWithFilters },
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
             HttpClientModule,

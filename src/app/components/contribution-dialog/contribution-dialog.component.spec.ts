@@ -23,6 +23,7 @@ import { FilterService } from '../../services/filter.service';
 import { DatasetService } from '../../services/dataset.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: ContributionDialogComponent', () => {
     let fixture: ComponentFixture<ContributionDialogComponent>;
@@ -33,7 +34,8 @@ describe('Component: ContributionDialogComponent', () => {
         providers: [
             FilterService,
             DatasetService,
-            { provide: 'config', useValue: testConfig },
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+            ,
             { provide: MatDialogRef, useValue: {} },
             { provide: MAT_DIALOG_DATA, useValue: [] }
         ],

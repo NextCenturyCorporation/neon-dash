@@ -17,6 +17,12 @@ import { TestBed, async, ComponentFixture } from '@angular/core/testing';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { VisualizationContainerComponent } from './visualization-container.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+
+import { ConfigService } from '../../services/config.service';
+import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-loader';
+import { RouterTestingModule } from '@angular/router/testing';
+import { NgModuleFactoryLoader } from '@angular/core';
+import { AggregationModule } from '../aggregation/aggregation.module';
 import { VisualizationContainerModule } from './visualization-container.module';
 
 describe('Component: VisualizationContainer', () => {
@@ -26,14 +32,26 @@ describe('Component: VisualizationContainer', () => {
 
     initializeTestBed('Visualization Container', {
         providers: [
-            { provide: 'config', useValue: testConfig }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+
         ],
         imports: [
-            VisualizationContainerModule
+            ReactiveComponentLoaderModule.forRoot(),
+            ReactiveComponentLoaderModule.withModule({
+                moduleId: 'aggregation',
+                loadChildren: './components/aggregation/aggregation.module#AggregationModule'
+            }),
+            VisualizationContainerModule,
+            RouterTestingModule
         ]
     });
 
     beforeEach(() => {
+        const spyNgModuleFactoryLoader = TestBed.get(NgModuleFactoryLoader);
+        spyNgModuleFactoryLoader.stubbedModules = {
+            './components/aggregation/aggregation.module': AggregationModule
+        };
+
         fixture = TestBed.createComponent(VisualizationContainerComponent);
         component = fixture.componentInstance;
     });

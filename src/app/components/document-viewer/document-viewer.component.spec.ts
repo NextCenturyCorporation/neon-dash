@@ -33,6 +33,7 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DocumentViewerModule } from './document-viewer.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: DocumentViewer', () => {
     let component: DocumentViewerComponent;
@@ -49,7 +50,7 @@ describe('Component: DocumentViewer', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ],
         imports: [
             DocumentViewerModule
@@ -911,7 +912,7 @@ describe('Component: Document Viewer with Config', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: 'title', useValue: 'Document Viewer Title' },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'dataField', useValue: 'testTextField' },

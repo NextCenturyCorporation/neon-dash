@@ -34,6 +34,7 @@ import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DataTableModule } from './data-table.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: DataTable', () => {
     let component: DataTableComponent,
@@ -47,7 +48,7 @@ describe('Component: DataTable', () => {
             { provide: FilterService, useClass: FilterServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ],
         imports: [
             DataTableModule

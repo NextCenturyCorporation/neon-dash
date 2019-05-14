@@ -21,6 +21,7 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { CurrentFiltersModule } from './current-filters.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: CurrentFiltersComponent', () => {
     let fixture: ComponentFixture<CurrentFiltersComponent>;
@@ -31,7 +32,8 @@ describe('Component: CurrentFiltersComponent', () => {
         providers: [
             FilterService,
             DatasetService,
-            { provide: 'config', useValue: testConfig }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+
         ],
         imports: [CurrentFiltersModule]
     });

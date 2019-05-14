@@ -32,6 +32,7 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { SaveStateModule } from './save-state.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: SaveStateComponent', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -50,7 +51,8 @@ describe('Component: SaveStateComponent', () => {
             { provide: AbstractWidgetService, useClass: WidgetService },
             ViewContainerRef,
             FilterService,
-            { provide: 'config', useValue: testConfig }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+
         ]
     });
 
