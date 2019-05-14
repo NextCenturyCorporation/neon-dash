@@ -147,7 +147,7 @@ export class DatasetService {
      */
     static updateLayoutInDashboards(dashboard: Dashboard, layouts: any): void {
         if (dashboard.layout) {
-            dashboard.layoutObject = layouts[dashboard.layout] || [];
+            dashboard.layoutObject = _.cloneDeep(layouts[dashboard.layout] || []);
         }
 
         if (dashboard.choices) {
@@ -363,7 +363,7 @@ export class DatasetService {
 
         this.datasets = DatasetService.appendDatastoresFromConfig(config.datastores || {}, []);
 
-        this.layouts = config.layouts || {};
+        this.layouts = _.cloneDeep(config.layouts || {});
 
         DatasetService.updateDatastoresInDashboards(this.dashboards, this.datasets);
         DatasetService.updateLayoutInDashboards(this.dashboards, this.layouts);

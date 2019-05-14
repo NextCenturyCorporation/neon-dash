@@ -290,7 +290,6 @@ describe('App', () => {
     it('addWidget does add the given widget with specified position to the grid', () => {
         let widgetGridItem1: NeonGridItem = {
             col: 2,
-            config: {},
             row: 2,
             sizex: 3,
             sizey: 3
@@ -301,51 +300,10 @@ describe('App', () => {
         });
 
         expect(component.widgetGridItems).toEqual([{
-            col: 2,
-            config: {
-                borderSize: 10,
-                col: 2,
-                dragHandle: '.drag-handle',
-                row: 2,
-                sizex: 3,
-                sizey: 3
-            },
             id: widgetGridItem1.id,
-            row: 2,
-            sizex: 3,
-            sizey: 3
-        }]);
-    });
-
-    it('addWidget does prefer position inside config object', () => {
-        let widgetGridItem1: NeonGridItem = {
+            borderSize: 10,
             col: 2,
-            config: {
-                col: 4,
-                row: 4,
-                sizex: 5,
-                sizey: 5
-            },
-            row: 2,
-            sizex: 3,
-            sizey: 3
-        };
-
-        component.addWidget({
-            widgetGridItem: widgetGridItem1
-        });
-
-        expect(component.widgetGridItems).toEqual([{
-            col: 2,
-            config: {
-                borderSize: 10,
-                col: 4,
-                dragHandle: '.drag-handle',
-                row: 4,
-                sizex: 5,
-                sizey: 5
-            },
-            id: widgetGridItem1.id,
+            dragHandle: '.drag-handle',
             row: 2,
             sizex: 3,
             sizey: 3
@@ -353,272 +311,220 @@ describe('App', () => {
     });
 
     it('addWidget does set the position of the given widget with unspecified position and add it to the end of the grid', () => {
-        let widgetGridItem1: NeonGridItem = {
-            config: {}
-        };
+        let widgetGridItem1: NeonGridItem = {};
 
         component.addWidget({
             widgetGridItem: widgetGridItem1
         });
 
         expect(component.widgetGridItems).toEqual([{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 4,
-                sizey: 4
-            },
-            id: widgetGridItem1.id
+            id: widgetGridItem1.id,
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 4,
+            sizey: 4
         }]);
 
-        let widgetGridItem2: NeonGridItem = {
-            config: {}
-        };
+        let widgetGridItem2: NeonGridItem = {};
 
         component.addWidget({
             widgetGridItem: widgetGridItem2
         });
 
         expect(component.widgetGridItems).toEqual([{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 4,
-                sizey: 4
-            },
-            id: widgetGridItem1.id
+            id: widgetGridItem1.id,
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 4,
+            sizey: 4
         }, {
-            config: {
-                borderSize: 10,
-                col: 5,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 4,
-                sizey: 4
-            },
-            id: widgetGridItem2.id
+            id: widgetGridItem2.id,
+            borderSize: 10,
+            col: 5,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 4,
+            sizey: 4
         }]);
 
-        let widgetGridItem3: NeonGridItem = {
-            config: {}
-        };
+        let widgetGridItem3: NeonGridItem = {};
 
         component.addWidget({
             widgetGridItem: widgetGridItem3
         });
 
         expect(component.widgetGridItems).toEqual([{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 4,
-                sizey: 4
-            },
-            id: widgetGridItem1.id
+            id: widgetGridItem1.id,
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 4,
+            sizey: 4
         }, {
-            config: {
-                borderSize: 10,
-                col: 5,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 4,
-                sizey: 4
-            },
-            id: widgetGridItem2.id
+            id: widgetGridItem2.id,
+            borderSize: 10,
+            col: 5,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 4,
+            sizey: 4
         }, {
-            config: {
-                borderSize: 10,
-                col: 9,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 4,
-                sizey: 4
-            },
-            id: widgetGridItem3.id
+            id: widgetGridItem3.id,
+            borderSize: 10,
+            col: 9,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 4,
+            sizey: 4
         }]);
 
-        let widgetGridItem4: NeonGridItem = {
-            config: {}
-        };
+        let widgetGridItem4: NeonGridItem = {};
 
         component.addWidget({
             widgetGridItem: widgetGridItem4
         });
 
         expect(component.widgetGridItems).toEqual([{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 4,
-                sizey: 4
-            },
-            id: widgetGridItem1.id
+            id: widgetGridItem1.id,
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 4,
+            sizey: 4
         }, {
-            config: {
-                borderSize: 10,
-                col: 5,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 4,
-                sizey: 4
-            },
-            id: widgetGridItem2.id
+            id: widgetGridItem2.id,
+            borderSize: 10,
+            col: 5,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 4,
+            sizey: 4
         }, {
-            config: {
-                borderSize: 10,
-                col: 9,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 4,
-                sizey: 4
-            },
-            id: widgetGridItem3.id
+            id: widgetGridItem3.id,
+            borderSize: 10,
+            col: 9,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 4,
+            sizey: 4
         }, {
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 5,
-                sizex: 4,
-                sizey: 4
-            },
-            id: widgetGridItem4.id
+            id: widgetGridItem4.id,
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 5,
+            sizex: 4,
+            sizey: 4
         }]);
     });
 
     it('addWidget does set the position of the given widget with unspecified position and add it to the middle of the grid', () => {
         component.widgetGridItems = [{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 12,
-                sizey: 4
-            },
-            id: 'a'
+            id: 'a',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 12,
+            sizey: 4
         }, {
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 5,
-                sizex: 4,
-                sizey: 4
-            },
-            id: 'b'
+            id: 'b',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 5,
+            sizex: 4,
+            sizey: 4
         }, {
-            config: {
-                borderSize: 10,
-                col: 9,
-                dragHandle: '.drag-handle',
-                row: 5,
-                sizex: 4,
-                sizey: 4
-            },
-            id: 'c'
+            id: 'c',
+            borderSize: 10,
+            col: 9,
+            dragHandle: '.drag-handle',
+            row: 5,
+            sizex: 4,
+            sizey: 4
         }, {
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 9,
-                sizex: 12,
-                sizey: 4
-            },
-            id: 'd'
+            id: 'd',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 9,
+            sizex: 12,
+            sizey: 4
         }];
 
-        let widgetGridItem1: NeonGridItem = {
-            config: {}
-        };
+        let widgetGridItem1: NeonGridItem = {};
 
         component.addWidget({
             widgetGridItem: widgetGridItem1
         });
 
         expect(component.widgetGridItems).toEqual([{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 12,
-                sizey: 4
-            },
-            id: 'a'
+            id: 'a',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 12,
+            sizey: 4
         }, {
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 5,
-                sizex: 4,
-                sizey: 4
-            },
-            id: 'b'
+            id: 'b',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 5,
+            sizex: 4,
+            sizey: 4
         }, {
-            config: {
-                borderSize: 10,
-                col: 9,
-                dragHandle: '.drag-handle',
-                row: 5,
-                sizex: 4,
-                sizey: 4
-            },
-            id: 'c'
+            id: 'c',
+            borderSize: 10,
+            col: 9,
+            dragHandle: '.drag-handle',
+            row: 5,
+            sizex: 4,
+            sizey: 4
         }, {
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 9,
-                sizex: 12,
-                sizey: 4
-            },
-            id: 'd'
+            id: 'd',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 9,
+            sizex: 12,
+            sizey: 4
         }, {
-            config: {
-                borderSize: 10,
-                col: 5,
-                dragHandle: '.drag-handle',
-                row: 5,
-                sizex: 4,
-                sizey: 4
-            },
-            id: widgetGridItem1.id
+            id: widgetGridItem1.id,
+            borderSize: 10,
+            col: 5,
+            dragHandle: '.drag-handle',
+            row: 5,
+            sizex: 4,
+            sizey: 4
         }]);
     });
 
     it('clearDashboard does delete all elements from the grid', () => {
         component.widgetGridItems = [{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            },
-            id: 'a'
+            id: 'a',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 1,
+            sizey: 1
         }, {
-            config: {
-                borderSize: 10,
-                col: 2,
-                dragHandle: '.drag-handle',
-                row: 2,
-                sizex: 1,
-                sizey: 1
-            },
-            id: 'b'
+            id: 'b',
+            borderSize: 10,
+            col: 2,
+            dragHandle: '.drag-handle',
+            row: 2,
+            sizex: 1,
+            sizey: 1
         }];
 
         component.clearDashboard();
@@ -628,12 +534,10 @@ describe('App', () => {
 
     it('contractWidget does update the size and position of the given widget to its previous config', () => {
         let widgetGridItem1: NeonGridItem = {
-            config: {
-                col: 1,
-                row: 1,
-                sizex: 12,
-                sizey: 12
-            },
+            col: 1,
+            row: 1,
+            sizex: 12,
+            sizey: 12,
             previousConfig: {
                 col: 2,
                 row: 2,
@@ -647,12 +551,10 @@ describe('App', () => {
         });
 
         expect(widgetGridItem1).toEqual({
-            config: {
-                col: 2,
-                row: 2,
-                sizex: 4,
-                sizey: 4
-            },
+            col: 2,
+            row: 2,
+            sizex: 4,
+            sizey: 4,
             previousConfig: {
                 col: 2,
                 row: 2,
@@ -663,26 +565,25 @@ describe('App', () => {
     });
 
     it('deleteWidget does delete the widget from the grid', () => {
-        component.widgetGridItems = [{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            },
-            id: 'a'
-        }, {
-            config: {
-                borderSize: 10,
-                col: 2,
-                dragHandle: '.drag-handle',
-                row: 2,
-                sizex: 1,
-                sizey: 1
-            },
-            id: 'b'
+        let widgetGridItemToDelete = {
+            hide: false,
+            id: 'a',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 1,
+            sizey: 1
+        };
+
+        component.widgetGridItems = [widgetGridItemToDelete, {
+            id: 'b',
+            borderSize: 10,
+            col: 2,
+            dragHandle: '.drag-handle',
+            row: 2,
+            sizex: 1,
+            sizey: 1
         }];
 
         component.deleteWidget({
@@ -690,26 +591,23 @@ describe('App', () => {
         });
 
         expect(component.widgetGridItems).toEqual([{
-            config: {
-                borderSize: 10,
-                col: 2,
-                dragHandle: '.drag-handle',
-                row: 2,
-                sizex: 1,
-                sizey: 1
-            },
-            id: 'b'
+            id: 'b',
+            borderSize: 10,
+            col: 2,
+            dragHandle: '.drag-handle',
+            row: 2,
+            sizex: 1,
+            sizey: 1
         }]);
+        expect(widgetGridItemToDelete.hide).toEqual(true);
     });
 
     it('expandWidget does update the size and position of the given widget and save its previous config', () => {
         let widgetGridItem1: NeonGridItem = {
-            config: {
-                col: 2,
-                row: 2,
-                sizex: 4,
-                sizey: 4
-            }
+            col: 2,
+            row: 2,
+            sizex: 4,
+            sizey: 4
         };
 
         let spy = spyOn(component, 'getVisibleRowCount').and.returnValue(50);
@@ -719,12 +617,10 @@ describe('App', () => {
         });
 
         expect(widgetGridItem1).toEqual({
-            config: {
-                col: 1,
-                row: 2,
-                sizex: 12,
-                sizey: 50
-            },
+            col: 1,
+            row: 2,
+            sizex: 12,
+            sizey: 50,
             previousConfig: {
                 col: 2,
                 row: 2,
@@ -780,39 +676,33 @@ describe('App', () => {
         expect(component.getMaxColInUse()).toEqual(0);
 
         component.widgetGridItems = [{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            },
-            id: 'a'
+            id: 'a',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 1,
+            sizey: 1
         }];
 
         expect(component.getMaxColInUse()).toEqual(1);
 
         component.widgetGridItems = [{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            },
-            id: 'a'
+            id: 'a',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 1,
+            sizey: 1
         }, {
-            config: {
-                borderSize: 10,
-                col: 2,
-                dragHandle: '.drag-handle',
-                row: 2,
-                sizex: 1,
-                sizey: 1
-            },
-            id: 'b'
+            id: 'b',
+            borderSize: 10,
+            col: 2,
+            dragHandle: '.drag-handle',
+            row: 2,
+            sizex: 1,
+            sizey: 1
         }];
 
         expect(component.getMaxColInUse()).toEqual(2);
@@ -822,39 +712,33 @@ describe('App', () => {
         expect(component.getMaxRowInUse()).toEqual(0);
 
         component.widgetGridItems = [{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            },
-            id: 'a'
+            id: 'a',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 1,
+            sizey: 1
         }];
 
         expect(component.getMaxRowInUse()).toEqual(1);
 
         component.widgetGridItems = [{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            },
-            id: 'a'
+            id: 'a',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 1,
+            sizey: 1
         }, {
-            config: {
-                borderSize: 10,
-                col: 2,
-                dragHandle: '.drag-handle',
-                row: 2,
-                sizex: 1,
-                sizey: 1
-            },
-            id: 'b'
+            id: 'b',
+            borderSize: 10,
+            col: 2,
+            dragHandle: '.drag-handle',
+            row: 2,
+            sizex: 1,
+            sizey: 1
         }];
 
         expect(component.getMaxRowInUse()).toEqual(2);
@@ -862,64 +746,56 @@ describe('App', () => {
 
     it('moveWidgetToBottom does update the row of the given widget', () => {
         let widgetGridItem1: NeonGridItem = {
-            config: {
-                col: 1,
-                row: 1,
-                sizex: 4,
-                sizey: 4
-            }
+            col: 1,
+            row: 1,
+            sizex: 4,
+            sizey: 4
         };
 
         component.moveWidgetToBottom({
             widgetGridItem: widgetGridItem1
         });
 
-        expect(widgetGridItem1.config.row).toEqual(1);
+        expect(widgetGridItem1.row).toEqual(1);
 
         component.widgetGridItems = [{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            },
-            id: 'a'
+            id: 'a',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 1,
+            sizey: 1
         }, {
-            config: {
-                borderSize: 10,
-                col: 2,
-                dragHandle: '.drag-handle',
-                row: 2,
-                sizex: 1,
-                sizey: 1
-            },
-            id: 'b'
+            id: 'b',
+            borderSize: 10,
+            col: 2,
+            dragHandle: '.drag-handle',
+            row: 2,
+            sizex: 1,
+            sizey: 1
         }];
 
         component.moveWidgetToBottom({
             widgetGridItem: widgetGridItem1
         });
 
-        expect(widgetGridItem1.config.row).toEqual(3);
+        expect(widgetGridItem1.row).toEqual(3);
     });
 
     it('moveWidgetToTop does update the row of the given widget', () => {
         let widgetGridItem1: NeonGridItem = {
-            config: {
-                col: 1,
-                row: 2,
-                sizex: 4,
-                sizey: 4
-            }
+            col: 1,
+            row: 2,
+            sizex: 4,
+            sizey: 4
         };
 
         component.moveWidgetToTop({
             widgetGridItem: widgetGridItem1
         });
 
-        expect(widgetGridItem1.config.row).toEqual(1);
+        expect(widgetGridItem1.row).toEqual(1);
     });
 
     it('refreshDashboard does resize the grid', () => {
@@ -975,7 +851,16 @@ describe('App', () => {
         let testDatastore2: Datastore = new Datastore('testName2', 'testHost2', 'testType2');
         let testDashboard: Dashboard = new Dashboard();
         testDashboard.datastores = [testDatastore1, testDatastore2];
-        testDashboard.layoutObject = ['a', 'b', 'c', 'd'];
+        testDashboard.layoutObject = [{
+            name: 'a'
+        }, {
+            name: 'b'
+        }, {
+            hide: true,
+            name: 'c'
+        }, {
+            name: 'd'
+        }];
         testDashboard.filters = ['x', 'y'];
 
         (component as any).showDashboardState({
@@ -992,19 +877,22 @@ describe('App', () => {
         expect(spyFilter.calls.count()).toEqual(1);
         expect(spyFilter.calls.argsFor(0)[0]).toEqual(['x', 'y']);
 
-        expect(spySender.calls.count()).toEqual(5);
+        expect(spySender.calls.count()).toEqual(4);
         expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_CLEAR, {}]);
         expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
-            widgetGridItem: 'a'
+            widgetGridItem: {
+                name: 'a'
+            }
         }]);
         expect(spySender.calls.argsFor(2)).toEqual([neonEvents.WIDGET_ADD, {
-            widgetGridItem: 'b'
+            widgetGridItem: {
+                name: 'b'
+            }
         }]);
         expect(spySender.calls.argsFor(3)).toEqual([neonEvents.WIDGET_ADD, {
-            widgetGridItem: 'c'
-        }]);
-        expect(spySender.calls.argsFor(4)).toEqual([neonEvents.WIDGET_ADD, {
-            widgetGridItem: 'd'
+            widgetGridItem: {
+                name: 'd'
+            }
         }]);
 
         expect(spySimpleFilter.calls.count()).toEqual(1);
@@ -1155,102 +1043,86 @@ describe('App', () => {
 
     it('widgetFits does return expected boolean', () => {
         let widgetGridItem1: NeonGridItem = {
-            config: {
-                col: 2,
-                row: 2,
-                sizex: 2,
-                sizey: 2
-            }
+            col: 2,
+            row: 2,
+            sizex: 2,
+            sizey: 2
         };
 
         expect(component.widgetFits(widgetGridItem1)).toEqual(true);
 
         component.widgetGridItems = [{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            },
-            id: 'a'
+            id: 'a',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 1,
+            sizey: 1
         }];
 
         expect(component.widgetFits(widgetGridItem1)).toEqual(true);
 
         component.widgetGridItems = [{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 2,
-                sizey: 2
-            },
-            id: 'a'
+            id: 'a',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 2,
+            sizey: 2
         }];
 
         expect(component.widgetFits(widgetGridItem1)).toEqual(false);
 
         component.widgetGridItems = [{
-            config: {
-                borderSize: 10,
-                col: 2,
-                dragHandle: '.drag-handle',
-                row: 2,
-                sizex: 1,
-                sizey: 1
-            },
-            id: 'a'
+            id: 'a',
+            borderSize: 10,
+            col: 2,
+            dragHandle: '.drag-handle',
+            row: 2,
+            sizex: 1,
+            sizey: 1
         }];
 
         expect(component.widgetFits(widgetGridItem1)).toEqual(false);
 
         component.widgetGridItems = [{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 4,
-                sizey: 1
-            },
-            id: 'a'
+            id: 'a',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 4,
+            sizey: 1
         }, {
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 2,
-                sizex: 1,
-                sizey: 4
-            },
-            id: 'b'
+            id: 'b',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 2,
+            sizex: 1,
+            sizey: 4
         }];
 
         expect(component.widgetFits(widgetGridItem1)).toEqual(true);
 
         component.widgetGridItems = [{
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 1,
-                sizex: 4,
-                sizey: 1
-            },
-            id: 'a'
+            id: 'a',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 4,
+            sizey: 1
         }, {
-            config: {
-                borderSize: 10,
-                col: 1,
-                dragHandle: '.drag-handle',
-                row: 2,
-                sizex: 4,
-                sizey: 1
-            },
-            id: 'b'
+            id: 'b',
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 2,
+            sizex: 4,
+            sizey: 1
         }];
 
         expect(component.widgetFits(widgetGridItem1)).toEqual(false);
@@ -1258,163 +1130,123 @@ describe('App', () => {
 
     it('widgetOverlaps does return expected boolean', () => {
         expect(component.widgetOverlaps({
-            config: {
-                col: 1,
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            }
+            col: 1,
+            row: 1,
+            sizex: 1,
+            sizey: 1
         }, {
-            config: {
-                col: 2,
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            }
+            col: 2,
+            row: 1,
+            sizex: 1,
+            sizey: 1
         })).toEqual(false);
 
         expect(component.widgetOverlaps({
-            config: {
-                col: 1,
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            }
+            col: 1,
+            row: 1,
+            sizex: 1,
+            sizey: 1
         }, {
-            config: {
-                col: 1,
-                row: 2,
-                sizex: 1,
-                sizey: 1
-            }
+            col: 1,
+            row: 2,
+            sizex: 1,
+            sizey: 1
         })).toEqual(false);
 
         expect(component.widgetOverlaps({
-            config: {
-                col: 1,
-                row: 1,
-                sizex: 2,
-                sizey: 1
-            }
+            col: 1,
+            row: 1,
+            sizex: 2,
+            sizey: 1
         }, {
-            config: {
-                col: 2,
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            }
+            col: 2,
+            row: 1,
+            sizex: 1,
+            sizey: 1
         })).toEqual(true);
 
         expect(component.widgetOverlaps({
-            config: {
-                col: 1,
-                row: 1,
-                sizex: 1,
-                sizey: 2
-            }
+            col: 1,
+            row: 1,
+            sizex: 1,
+            sizey: 2
         }, {
-            config: {
-                col: 1,
-                row: 2,
-                sizex: 1,
-                sizey: 1
-            }
+            col: 1,
+            row: 2,
+            sizex: 1,
+            sizey: 1
         })).toEqual(true);
 
         expect(component.widgetOverlaps({
-            config: {
-                col: 2,
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            }
+            col: 2,
+            row: 1,
+            sizex: 1,
+            sizey: 1
         }, {
-            config: {
-                col: 1,
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            }
+            col: 1,
+            row: 1,
+            sizex: 1,
+            sizey: 1
         })).toEqual(false);
 
         expect(component.widgetOverlaps({
-            config: {
-                col: 1,
-                row: 2,
-                sizex: 1,
-                sizey: 1
-            }
+            col: 1,
+            row: 2,
+            sizex: 1,
+            sizey: 1
         }, {
-            config: {
-                col: 1,
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            }
+            col: 1,
+            row: 1,
+            sizex: 1,
+            sizey: 1
         })).toEqual(false);
 
         expect(component.widgetOverlaps({
-            config: {
-                col: 2,
-                row: 1,
-                sizex: 1,
-                sizey: 1
-            }
+            col: 2,
+            row: 1,
+            sizex: 1,
+            sizey: 1
         }, {
-            config: {
-                col: 1,
-                row: 1,
-                sizex: 2,
-                sizey: 1
-            }
+            col: 1,
+            row: 1,
+            sizex: 2,
+            sizey: 1
         })).toEqual(true);
 
         expect(component.widgetOverlaps({
-            config: {
-                col: 1,
-                row: 2,
-                sizex: 1,
-                sizey: 1
-            }
+            col: 1,
+            row: 2,
+            sizex: 1,
+            sizey: 1
         }, {
-            config: {
-                col: 1,
-                row: 1,
-                sizex: 1,
-                sizey: 2
-            }
+            col: 1,
+            row: 1,
+            sizex: 1,
+            sizey: 2
         })).toEqual(true);
 
         expect(component.widgetOverlaps({
-            config: {
-                col: 1,
-                row: 1,
-                sizex: 4,
-                sizey: 4
-            }
+            col: 1,
+            row: 1,
+            sizex: 4,
+            sizey: 4
         }, {
-            config: {
-                col: 2,
-                row: 2,
-                sizex: 1,
-                sizey: 1
-            }
+            col: 2,
+            row: 2,
+            sizex: 1,
+            sizey: 1
         })).toEqual(true);
 
         expect(component.widgetOverlaps({
-            config: {
-                col: 1,
-                row: 1,
-                sizex: 4,
-                sizey: 4
-            }
+            col: 1,
+            row: 1,
+            sizex: 4,
+            sizey: 4
         }, {
-            config: {
-                col: 3,
-                row: 3,
-                sizex: 4,
-                sizey: 4
-            }
+            col: 3,
+            row: 3,
+            sizex: 4,
+            sizey: 4
         })).toEqual(true);
     });
 });
