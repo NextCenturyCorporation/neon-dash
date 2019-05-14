@@ -22,6 +22,7 @@ import { AboutNeonComponent } from './about-neon.component';
   declarations: [
     AboutNeonComponent
   ],
+  entryComponents: [AboutNeonComponent],
   exports: [AboutNeonComponent],
   imports: [
     HttpClientModule,

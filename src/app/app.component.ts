@@ -14,7 +14,7 @@
  *
  */
 import {
-    Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef
+    Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, HostBinding
 } from '@angular/core';
 import { ConfigService } from './services/config.service';
 import { NeonGTDConfig } from './neon-gtd-config';
@@ -27,11 +27,15 @@ import { NeonGTDConfig } from './neon-gtd-config';
 export class AppComponent implements OnInit {
     public config: NeonGTDConfig;
 
+    @HostBinding('class.loading')
+    loading = true;
+
     constructor(private service: ConfigService, private cdf: ChangeDetectorRef) {
     }
 
     ngOnInit() {
         this.service.get().subscribe((x) => {
+            this.loading = false;
             this.config = x;
         });
     }

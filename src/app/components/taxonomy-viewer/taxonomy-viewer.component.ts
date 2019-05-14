@@ -45,14 +45,16 @@ import { MatDialog } from '@angular/material';
 @Component({
     selector: 'app-taxonomy-viewer',
     templateUrl: './taxonomy-viewer.component.html',
-    styleUrls: ['./taxonomy-viewer.component.scss'],
+    styleUrls: [
+        './taxonomy-viewer.component.scss'
+    ],
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
 
     //HTML element references used by the superclass for the resizing behavior.
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('treeRoot') treeRoot: ElementRef;

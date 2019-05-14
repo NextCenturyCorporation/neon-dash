@@ -16,41 +16,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { VisualizationInjectorComponent } from './visualization-injector.component';
-import { AggregationModule } from '../aggregation/aggregation.module';
-import { AnnotationViewerModule } from '../annotation-viewer/annotation-viewer.module';
-import { DataTableModule } from '../data-table/data-table.module';
-import { DocumentViewerModule } from '../document-viewer/document-viewer.module';
-import { FilterBuilderModule } from '../filter-builder/filter-builder.module';
-import { MapModule } from '../map/map.module';
-import { MediaViewerModule } from '../media-viewer/media-viewer.module';
-import { NetworkGraphModule } from '../network-graph/network-graph.module';
-import { NewsFeedModule } from '../news-feed/news-feed.module';
-import { QueryBarModule } from '../query-bar/query-bar.module';
-import { TaxonomyViewerModule } from '../taxonomy-viewer/taxonomy-viewer.module';
-import { TextCloudModule } from '../text-cloud/text-cloud.module';
-import { ThumbnailGridModule } from '../thumbnail-grid/thumbnail-grid.module';
-import { TimelineModule } from '../timeline/timeline.module';
-import { WikiViewerModule } from '../wiki-viewer/wiki-viewer.module';
 
 @NgModule({
   declarations: [VisualizationInjectorComponent],
   exports: [VisualizationInjectorComponent],
   imports: [
-    AggregationModule,
-    AnnotationViewerModule,
-    DataTableModule,
-    DocumentViewerModule,
-    FilterBuilderModule,
-    MapModule,
-    MediaViewerModule,
-    NetworkGraphModule,
-    NewsFeedModule,
-    QueryBarModule,
-    TaxonomyViewerModule,
-    TextCloudModule,
-    ThumbnailGridModule,
-    TimelineModule,
-    WikiViewerModule,
     CommonModule
   ]
 })
