@@ -684,7 +684,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 // If the visualization query paginates but is showing zero or multiple elements per result, we cannot determine the page,
                 // so just set lastPage to false.
                 this.lastPage = this.visualizationQueryPaginates ? false : true;
-                this.layerIdToElementCount.set(options._id, this.layerIdToActiveData.get(options._id).count());
+                this.layerIdToElementCount.set(options._id, this.layerIdToActiveData.get(options._id) ?
+                    this.layerIdToActiveData.get(options._id).count() : 0);
                 callback();
             }
         };

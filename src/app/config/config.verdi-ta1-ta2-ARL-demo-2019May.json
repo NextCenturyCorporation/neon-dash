@@ -452,7 +452,7 @@
                     "linkField": "reconstructed",
                     "linkPrefix": "../Reconstructed/html/rpi-m9-ta1-v2/",
                     "typeField": "dtype",
-                    "clearMedia": true
+                    "clearMedia": false
                 },
                 "row": 1,
                 "col": 7
@@ -567,7 +567,7 @@
                     "linkField": "reconstructed",
                     "linkPrefix": "../Reconstructed/html/gaia/",
                     "typeField": "dtype",
-                    "clearMedia": true
+                    "clearMedia": false
                 },
                 "row": 1,
                 "col": 7
