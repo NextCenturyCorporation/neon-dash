@@ -20,40 +20,29 @@ import { NgGridModule } from 'angular2-grid';
 
 import { VisualizationContainerModule } from '../components/visualization-container/visualization-container.module';
 
-import { AboutNeonModule } from '../components/about-neon/about-neon.module';
-import { AddVisualizationModule } from '../components/add-visualization/add-visualization.module';
 import { DashboardSelectorModule } from '../components/dashboard-selector/dashboard-selector.module';
 import { FiltersModule } from '../components/filters/filters.module';
-import { SettingsModule } from '../components/settings/settings.module';
-import { SaveStateModule } from '../components/save-state/save-state.module';
 import { SimpleFilterModule } from '../components/simple-filter/simple-filter.module';
-import { MatIconModule, MatMenuModule, MatToolbarModule, MatSidenavModule, MatButtonModule } from '@angular/material';
-import { GearModule } from '../components/gear/gear.module';
-import { OptionsListModule } from '../components/options-list/options-list.module';
 import { DashboardComponent } from './dashboard.component';
+import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-loader';
+import { CommonWidgetModule } from '../common-widget.module';
+import { MatMenuModule, MatSnackBar, MatSnackBarModule } from '@angular/material';
 
 @NgModule({
     declarations: [DashboardComponent],
     exports: [DashboardComponent],
     imports: [
-        MatIconModule,
-        MatButtonModule,
+        CommonWidgetModule,
+        MatSnackBarModule,
         MatMenuModule,
-        MatToolbarModule,
-        MatSidenavModule,
-
         CommonModule,
         NgGridModule,
 
-        AboutNeonModule,
-        AddVisualizationModule,
+        ReactiveComponentLoaderModule.forRoot(),
+
         VisualizationContainerModule,
         DashboardSelectorModule,
         FiltersModule,
-        GearModule,
-        OptionsListModule,
-        SaveStateModule,
-        SettingsModule,
         SimpleFilterModule
     ]
 })

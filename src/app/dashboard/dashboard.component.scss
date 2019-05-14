@@ -15,65 +15,75 @@
  */
  @import '../neon-properties';
 
- .neon-sidenav {
-     height: 100%;
- }
- 
- .neon-sidenav-info {
-     width: 450px;
- }
- 
- .neon-link {
-     color: var(--color-background, white);
-     height: 30px;
-     margin: 0 5px;
- 
-     .mat-icon {
-         vertical-align: unset !important;
-     }
- 
-     &:hover {
-         color: var(--color-accent, lightgrey);
-     }
- }
- 
- .neon-dash {
-     background-color: var(--color-background, white);
-     /* 60 = 50 px toolbar + 10 px padding */
-     height: calc(100% - 60px);
-     padding: 5px;
-     overflow-y: auto;
- }
- 
- .header-toggle-container {
-     z-index: 9999;
-     position: absolute;
-     /* Subtract 15px for the scrollbar.  Not an ideal fix since it also applies without the scrollbar present. */
-     width: calc(100% - 15px);
- 
-     .filters-container, .dashboard-selector-container {
-         padding-left: 10px;
-         padding-right: 10px;
-         width: 100%;
-         height: 200px;
- 
-         .header-toggle-footer {
-             height: 1px;
-             background-color: grey;
-         }
-     }
- }
- 
- .right-panel-container {
-     height: 100%;
- }
- 
- .title {
-     font-size: 20px;
-     font-weight: 500;
-     position: -webkit-sticky; /* Safari */
-     position: sticky;
-     top: 0;
-     z-index: 9999;
- }
- 
+:host {
+ display: block;
+ width: 100vw;
+ height: 100vh;
+ padding: 0;
+ margin: 0;
+ overflow-y: auto;
+}
+
+.neon-sidenav {
+   height: 100%;
+}
+
+.neon-sidenav-info {
+   width: 450px;
+}
+
+.neon-link {
+   color: var(--color-background, white);
+   height: 30px;
+   margin: 0 5px;
+
+   .mat-icon {
+       vertical-align: unset !important;
+   }
+
+   &:hover {
+       color: var(--color-accent, lightgrey);
+   }
+}
+
+.neon-dash {
+    background-color: var(--color-background, white);
+    /* 60 = 50 px toolbar + 10 px padding */
+    height: calc(100% - 60px);
+    overflow-y: auto;
+    .grid {
+        width: calc(100% - 5px) !important;
+    }
+}
+
+.header-toggle-container {
+   z-index: 9999;
+   position: absolute;
+   /* Subtract 15px for the scrollbar.  Not an ideal fix since it also applies without the scrollbar present. */
+   width: calc(100% - 15px);
+
+   .filters-container, .dashboard-selector-container {
+       padding-left: 10px;
+       padding-right: 10px;
+       width: 100%;
+       height: 200px;
+
+       .header-toggle-footer {
+           height: 1px;
+           background-color: grey;
+       }
+   }
+}
+
+.right-panel-container {
+   height: 100%;
+}
+
+.title {
+   font-size: 20px;
+   font-weight: 500;
+   position: -webkit-sticky; /* Safari */
+   position: sticky;
+   top: 0;
+   z-index: 9999;
+}

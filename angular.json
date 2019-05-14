@@ -20,6 +20,26 @@
               "src/assets",
               "src/favicon.ico",
               {
+                "glob": "**/*",
+                "input": "node_modules/jsoneditor/dist",
+                "output": "assets/jsoneditor/dist"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/leaflet/dist",
+                "output": "assets/leaflet/dist"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/leaflet.markercluster/dist",
+                "output": "assets/leaflet.markercluster/dist"
+              },
+              {
+                "glob": "vis-network.min.css",
+                "input": "node_modules/vis/dist",
+                "output": "assets/vis/dist"
+              },
+              {
                 "glob": "*.json",
                 "input": "src/app/config",
                 "output": "app/config/"
@@ -31,10 +51,7 @@
               }
             ],
             "styles": [
-              "src/styles.scss",
-              "node_modules/leaflet/dist/leaflet.css",
-              "node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css",
-              "node_modules/vis/dist/vis-network.min.css"
+              "src/styles.scss"
             ],
             "scripts": []
           },
@@ -82,15 +99,8 @@
             "karmaConfig": "./karma.conf.js",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
-            "scripts": [
-              "node_modules/jsoneditor/dist/jsoneditor.js"
-            ],
             "styles": [
-              "src/styles.scss",
-              "src/themes/neon-green-theme.scss",
-              "node_modules/jsoneditor/dist/jsoneditor.css",
-              "node_modules/leaflet/dist/leaflet.css",
-              "node_modules/vis/dist/vis-network.min.css"
+              "src/styles.scss"
             ],
             "assets": [
               "src/assets",

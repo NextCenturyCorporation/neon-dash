@@ -7,20 +7,30 @@
 
       <div class="right-panel-container">
         <div id="aboutNeon" class="about-neon-container" *ngIf="createAboutNeon">
-          <app-about-neon></app-about-neon>
+          <wt-lazy [location]="{moduleId:'about-neon', selector: 'app-about-neon'}"></wt-lazy>
         </div>
         <div id="addVis" class="add-visualization-container" *ngIf="createAddVis">
-          <app-add-visualization></app-add-visualization>
+          <wt-lazy [location]="{moduleId: 'add-visualization', selector: 'app-add-visualization'}">
+          </wt-lazy>
         </div>
         <div id="gear" class="gear-container" *ngIf="createGear">
-          <app-gear [sideNavRight]="sideNavRight"></app-gear>
+          <wt-lazy [location]="{moduleId:'gear', selector: 'app-gear'}"
+            [inputs]="{sideNavRight: sideNavRight}">
+          </wt-lazy>
+          <!-- <app-gear [sideNavRight]="sideNavRight"></app-gear> -->
         </div>
         <div id="savedState" class="saved-state-container" *ngIf="createSavedState">
-          <app-save-state [sidenav]="sideNavRight" [widgetGridItems]="widgetGridItems"
-            [widgets]="widgets"></app-save-state>
+          <wt-lazy [location]="{moduleId:'save-state', selector: 'app-save-state'}"
+            [inputs]="{sidenav: sidenavRight, widgetGridItems: widgetGridItems, widgets: widgets}">
+          </wt-lazy>
+          <!-- <app-save-state [sidenav]="sideNavRight" [widgetGridItems]="widgetGridItems"
+            [widgets]="widgets"></app-save-state> -->
         </div>
         <div id="settings" class="setting-container" *ngIf="createSettings">
-          <app-settings [widgets]="widgets"></app-settings>
+          <wt-lazy [location]="{moduleId:'settings', selector: 'app-settings'}"
+            [inputs]="{widgets:widgets}"></wt-lazy>
+
+          <!-- <app-settings [widgets]="widgets"></app-settings> -->
         </div>
       </div>
     </div>

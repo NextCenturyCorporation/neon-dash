@@ -20,15 +20,20 @@ import { NeonGTDConfig } from './../../neon-gtd-config';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { PropertyService } from '../../services/property.service';
+import * as JSONEditor from 'jsoneditor';
 
 declare var editor: any;
 import * as _ from 'lodash';
 import { ConfigService } from '../../services/config.service';
 
+let styleImport: any;
+
 @Component({
     selector: 'app-config-editor',
     templateUrl: 'config-editor.component.html',
-    styleUrls: ['config-editor.component.scss']
+    styleUrls: [
+        'config-editor.component.scss'
+    ]
 })
 export class ConfigEditorComponent implements AfterViewInit, OnInit {
     @ViewChild('JsonEditorComponent') editorRef: ElementRef;
@@ -67,6 +72,14 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
                 viewValue: 'Text (read only)'
             }
         ];
+
+        if (!styleImport) {
+            const link = styleImport = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = '/assets/jsoneditor/dist/jsoneditor.min.css';
+
+            document.head.appendChild(link);
+        }
     }
 
     ngOnInit(): void {
@@ -81,7 +94,7 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
     }
 
     ngAfterViewInit() {
-        // this.editor = new JSONEditor(this.editorRef.nativeElement, this.editorOptions, this.editorData);
+        this.editor = new JSONEditor(this.editorRef.nativeElement, this.editorOptions, this.editorData);
     }
 
     public close() {
