@@ -44,7 +44,7 @@
     "build-vmap": "ng build --deployUrl=/medifor-workbench/ --base-href /medifor-workbench/ --aot",
     "postbuild-vmap": "cd dist && zip -r medifor-workbench.war * && sudo cp medifor-workbench.war ../../tomcat/webapps/medifor-workbench.war",
     "lint": "ng lint",
-    "lint-fix": "echo hi",
+    "lint-fix": "ng lint --fix",
     "test": "ng test",
     "e2e": "ng e2e",
     "docs": "npm run typedoc -- --options typedoc.json --exclude '**/*.spec.ts' ./src/",
