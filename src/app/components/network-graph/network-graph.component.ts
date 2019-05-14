@@ -46,7 +46,8 @@ import {
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption,
-    WidgetSelectOption
+    WidgetSelectOption,
+    WidgetColorOption
 } from '../../widget-option';
 
 import * as d3shape from 'd3-shape';
@@ -335,11 +336,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             new WidgetSelectOption('displayLegend', 'Legend', false, OptionChoices.HideFalseShowTrue, this.optionsDoesHaveColorField),
             new WidgetSelectOption('legendFiltering', 'Legend Filtering', true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('physics', 'Physics', true, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('edgeColor', 'Edge Color', '#2b7ce9', this.optionsNotReified),
+            new WidgetColorOption('edgeColor', 'Edge Color', '#2b7ce9', this.optionsNotReified),
             new WidgetFreeTextOption('edgeWidth', 'Edge Width', '1'),
-            new WidgetFreeTextOption('fontColor', 'Font Color', '#343434', this.optionsNotReified),
-            new WidgetFreeTextOption('linkColor', 'Link Color', '#96c1fc', this.optionsNotReified),
-            new WidgetFreeTextOption('nodeColor', 'Node Color', '#96c1fc', this.optionsNotReified),
+            new WidgetColorOption('fontColor', 'Font Color', '#343434', this.optionsNotReified),
+            new WidgetColorOption('linkColor', 'Link Color', '#96c1fc', this.optionsNotReified),
+            new WidgetColorOption('nodeColor', 'Node Color', '#96c1fc', this.optionsNotReified),
             new WidgetFreeTextOption('nodeShape', 'Node Shape', 'box')
         ];
     }
