@@ -31,6 +31,7 @@ import { FilterServiceMock } from '../../../testUtils/MockServices/FilterService
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { NewsFeedModule } from './news-feed.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: NewsFeed', () => {
     let component: NewsFeedComponent;
@@ -44,7 +45,8 @@ describe('Component: NewsFeed', () => {
             { provide: FilterService, useClass: FilterServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
             NewsFeedModule

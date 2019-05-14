@@ -19,6 +19,7 @@ import { AboutNeonComponent } from './about-neon.component';
 import { AboutNeonModule } from './about-neon.module';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: AboutNeonComponent', () => {
 
@@ -42,7 +43,7 @@ describe('Component: AboutNeonComponent', () => {
     initializeTestBed('About Neon', {
         imports: [AboutNeonModule],
         providers: [
-            { provide: 'config', useValue: testConfig },
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) },
             { provide: 'neon', useValue: neonStub }
         ]
     });

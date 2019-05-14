@@ -32,6 +32,7 @@ import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { SimpleFilterModule } from './simple-filter.module';
+import { ConfigService } from '../../services/config.service';
 
 const databaseName = 'database';
 const tableName = 'table';
@@ -50,7 +51,7 @@ class MockFilterService extends FilterServiceMock {
 class MockDatasetService extends DatasetService {
     options = new DashboardOptions();
     constructor() {
-        super(new NeonGTDConfig());
+        super(new ConfigService(null).set(new NeonGTDConfig()));
 
         let dashboardTableKeys: { [key: string]: string } = {};
         dashboardTableKeys.tableKey = 'datastore1.' + databaseName + '.' + tableName;
@@ -107,7 +108,8 @@ describe('Component: SimpleFilter', () => {
         providers: [
             { provide: FilterService, useClass: MockFilterService },
             { provide: DatasetService, useClass: MockDatasetService },
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
             SimpleFilterModule
@@ -250,7 +252,8 @@ describe('Component: SimpleFilter unconfigured', () => {
         providers: [
             { provide: FilterService, useClass: MockFilterService },
             { provide: DatasetService, useClass: DatasetService },
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
             SimpleFilterModule

@@ -24,9 +24,9 @@ import { DashboardSelectorModule } from '../components/dashboard-selector/dashbo
 import { FiltersModule } from '../components/filters/filters.module';
 import { SimpleFilterModule } from '../components/simple-filter/simple-filter.module';
 import { DashboardComponent } from './dashboard.component';
-import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-loader';
 import { CommonWidgetModule } from '../common-widget.module';
-import { MatMenuModule, MatSnackBar, MatSnackBarModule } from '@angular/material';
+import { MatMenuModule, MatSnackBarModule } from '@angular/material';
+import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-loader';
 
 @NgModule({
     declarations: [DashboardComponent],
@@ -38,8 +38,7 @@ import { MatMenuModule, MatSnackBar, MatSnackBarModule } from '@angular/material
         CommonModule,
         NgGridModule,
 
-        ReactiveComponentLoaderModule.forRoot(),
-
+        ReactiveComponentLoaderModule,
         VisualizationContainerModule,
         DashboardSelectorModule,
         FiltersModule,

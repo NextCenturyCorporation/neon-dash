@@ -31,6 +31,7 @@ import { FilterServiceMock } from '../../../testUtils/MockServices/FilterService
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { NetworkGraphModule } from './network-graph.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: NetworkGraph', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -45,7 +46,8 @@ describe('Component: NetworkGraph', () => {
             Injector,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: 'config', useValue: testConfig },
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+            ,
             { provide: 'limit', useValue: 'testLimit' }
         ],
         imports: [

@@ -35,6 +35,7 @@ import { WidgetService } from '../../services/widget.service';
 import { OptionChoices, WidgetOptionCollection, WidgetFieldOption, WidgetFreeTextOption, WidgetSelectOption } from '../../widget-option';
 
 import { GearModule } from './gear.module';
+import { ConfigService } from '../../services/config.service';
 
 /* tslint:disable:component-class-suffix */
 
@@ -49,12 +50,12 @@ describe('Component: Gear Component', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: AbstractWidgetService, useClass: WidgetService }
         ],
         imports: [
             GearModule
-        ],
+        ]
     });
 
     beforeEach(() => {

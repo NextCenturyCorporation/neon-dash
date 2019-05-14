@@ -27,7 +27,7 @@ export const initializeTestBed = (name, config) => {
     // From https://github.com/angular/angular/issues/12409#issuecomment-314814671
     let resetTestingModule = TestBed.resetTestingModule;
 
-    beforeAll((done) => (async () => {
+    beforeAll((done) => (async() => {
         /* tslint:disable:no-console */
         console.log('STARTING ' + name.toUpperCase() + ' TESTS...');
         /* tslint:enable:no-console */

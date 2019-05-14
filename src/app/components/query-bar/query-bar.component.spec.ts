@@ -75,7 +75,8 @@ class queryBarTester {
                 { provide: FilterService, useClass: MockFilterService },
                 { provide: AbstractWidgetService, useClass: WidgetService },
                 { provide: DatasetService, useClass: mockDataset ? MockDatasetService : DatasetService },
-                { provide: 'config', useValue: new NeonGTDConfig() }
+                { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
             ],
             imports: [
                 AppMaterialModule,

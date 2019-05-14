@@ -32,6 +32,7 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { FilterBuilderModule } from './filter-builder.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: Filter Builder', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -44,7 +45,8 @@ describe('Component: Filter Builder', () => {
             { provide: FilterService, useClass: FilterServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: testConfig }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+
         ],
         imports: [
             FilterBuilderModule
@@ -332,7 +334,8 @@ describe('Component: Filter Builder with config', () => {
                 }]
             },
             { provide: 'requireAll', useValue: true },
-            { provide: 'config', useValue: testConfig }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+
         ],
         imports: [
             FilterBuilderModule

@@ -24,6 +24,7 @@ import { FilterService } from '../../services/filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DashboardSelectorModule } from './dashboard-selector.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: DashboardSelector', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -36,7 +37,8 @@ describe('Component: DashboardSelector', () => {
             DatasetService,
             ParameterService,
             FilterService,
-            { provide: 'config', useValue: testConfig }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+
         ],
         imports: [
             DashboardSelectorModule

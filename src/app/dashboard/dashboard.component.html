@@ -17,20 +17,15 @@
           <wt-lazy [location]="{moduleId:'gear', selector: 'app-gear'}"
             [inputs]="{sideNavRight: sideNavRight}">
           </wt-lazy>
-          <!-- <app-gear [sideNavRight]="sideNavRight"></app-gear> -->
         </div>
         <div id="savedState" class="saved-state-container" *ngIf="createSavedState">
           <wt-lazy [location]="{moduleId:'save-state', selector: 'app-save-state'}"
             [inputs]="{sidenav: sidenavRight, widgetGridItems: widgetGridItems, widgets: widgets}">
           </wt-lazy>
-          <!-- <app-save-state [sidenav]="sideNavRight" [widgetGridItems]="widgetGridItems"
-            [widgets]="widgets"></app-save-state> -->
         </div>
         <div id="settings" class="setting-container" *ngIf="createSettings">
           <wt-lazy [location]="{moduleId:'settings', selector: 'app-settings'}"
             [inputs]="{widgets:widgets}"></wt-lazy>
-
-          <!-- <app-settings [widgets]="widgets"></app-settings> -->
         </div>
       </div>
     </div>

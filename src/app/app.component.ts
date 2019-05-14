@@ -13,9 +13,7 @@
  * limitations under the License.
  *
  */
-import {
-    Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, HostBinding
-} from '@angular/core';
+import { Component, OnInit, HostBinding } from '@angular/core';
 import { ConfigService } from './services/config.service';
 import { NeonGTDConfig } from './neon-gtd-config';
 
@@ -30,7 +28,7 @@ export class AppComponent implements OnInit {
     @HostBinding('class.loading')
     loading = true;
 
-    constructor(private service: ConfigService, private cdf: ChangeDetectorRef) {
+    constructor(private service: ConfigService) {
     }
 
     ngOnInit() {

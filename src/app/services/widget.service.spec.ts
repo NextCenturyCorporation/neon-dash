@@ -21,13 +21,15 @@ import { WidgetService } from './widget.service';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
+import { ConfigService } from './config.service';
 
 describe('Service: Widget', () => {
     initializeTestBed('Widget Service', {
         providers: [
             WidgetService,
             DatasetService,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ]
     });
 
@@ -77,7 +79,8 @@ describe('Service: Widget', () => {
         providers: [
             WidgetService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ]
     });
 

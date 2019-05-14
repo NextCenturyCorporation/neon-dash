@@ -413,9 +413,12 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    let gearContainer: HTMLElement = document.getElementById('gear');
+    if (this.createGear) {
+      let gearContainer: HTMLElement = document.getElementById('gear');
 
-    gearContainer.setAttribute('style', 'display: none');
+      gearContainer.setAttribute('style', 'display: none');
+    }
+
     /* NOTE:
      * The gear component is created when the app component is created because if it is created when
      * a component sends its option object in the messenger channel, it is too late.

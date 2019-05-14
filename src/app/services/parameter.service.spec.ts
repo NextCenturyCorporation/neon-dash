@@ -20,6 +20,8 @@ import { FilterService } from './filter.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { ParameterService } from './parameter.service';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
+import { ConfigService } from './config.service';
+
 
 describe('Service: Parameter', () => {
     let service;
@@ -30,7 +32,8 @@ describe('Service: Parameter', () => {
             ConnectionService,
             DatasetService,
             FilterService,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ]
     });
 
