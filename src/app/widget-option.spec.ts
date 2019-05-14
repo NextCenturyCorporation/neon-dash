@@ -498,6 +498,17 @@ describe('NonPrimitive Fields', () => {
         expect(optComplex.getValueToSaveInBindings()).toEqual({
             a: 5, b: [1, 2, { c: 3 }]
         });
+
+        // Invalid yaml with duplicate keys
+        optComplex.intermediateValue = `
+          person:
+            a: 5
+            a: 10
+        `;
+
+        expect(optComplex.intermediateValue).toBeTruthy();
+        expect(optComplex.valueCurrent).toBeFalsy();
+        expect(optComplex.getValueToSaveInBindings()).toEqual({ a: 5, b: [1, 2, { c: 3 }] });
     });
 
     it('Objects update properly', () => {
@@ -506,10 +517,10 @@ describe('NonPrimitive Fields', () => {
         option.intermediateValue = 'a: [1,2,3]';
         expect(option.getValueToSaveInBindings()).toEqual({ a: [1, 2, 3] });
         option.intermediateValue = `
-a: 5
-b: 10
-c: [1,2,3]
-`;
+            a: 5
+            b: 10
+            c: [1,2,3]
+        `;
         expect(option.getValueToSaveInBindings()).toEqual({ a: 5, b: 10, c: [1, 2, 3] });
 
         option.intermediateValue = '';
