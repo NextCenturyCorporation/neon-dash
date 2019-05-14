@@ -541,7 +541,6 @@ describe('Component: Map', () => {
         expect(spy.calls.count()).toBe(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -581,7 +580,6 @@ describe('Component: Map', () => {
         expect(spy.calls.count()).toBe(2);
         expect(spy.calls.argsFor(1)).toEqual([[{
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -613,7 +611,6 @@ describe('Component: Map', () => {
             }]
         }, {
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[1],
@@ -656,7 +653,6 @@ describe('Component: Map', () => {
         expect(spy.calls.count()).toBe(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -681,7 +677,6 @@ describe('Component: Map', () => {
         expect(spy.calls.count()).toBe(2);
         expect(spy.calls.argsFor(1)).toEqual([[{
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -699,7 +694,6 @@ describe('Component: Map', () => {
             }]
         }, {
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[1],

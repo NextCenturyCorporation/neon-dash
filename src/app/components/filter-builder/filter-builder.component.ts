@@ -301,7 +301,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         let filterDesign: FilterDesign = !filterDesigns.length ? null : (filterDesigns.length === 1 ? filterDesigns[0] : {
             type: this.compoundTypeIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
             optional: this.filterIsOptional,
-            inflexible: true,
             filters: filterDesigns
         } as CompoundFilterDesign);
 

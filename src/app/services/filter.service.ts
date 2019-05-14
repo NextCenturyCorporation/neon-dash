@@ -56,13 +56,6 @@ export interface SimpleFilterDesign extends FilterDesign {
 
 export interface CompoundFilterDesign extends FilterDesign {
     type: CompoundFilterType;
-    // The "inflexible" property is used in comparing two compound filters.  A compound filter is "flexible" by default.  A flexible filter
-    // is equivalent to another compound filter as long as that filter contains one or more nested filters with the same FilterDataSource
-    // as flexible filter.  This is useful with visualizations that can set a variable number of EQUALS or NOT EQUALS filters on one field.
-    // Comparitively, an inflexible filter is equivalent to another compound filter only if that filter contains the specific set of nested
-    // filters (except they can be rearranged).  This is useful with visualizations that filter on a specific range, point, or box.
-    // Regardless, both compound filters must have the same "type".
-    inflexible?: boolean;
     filters: FilterDesign[];
 }
 
@@ -989,7 +982,7 @@ abstract class AbstractFilter {
     public abstract doesAffectSearch(datastore: string, database: string, table: string): boolean;
 
     /**
-     * Returns if this filter is compatible with the given filter design.
+     * Returns if this filter is compatible with the given filter design.  Compatible filters must have the same FilterDataSource list.
      *
      * @arg {FilterDesign} filterDesign
      * @return {boolean}
@@ -1098,7 +1091,7 @@ class SimpleFilter extends AbstractFilter {
     }
 
     /**
-     * Returns if this filter is compatible with the given filter design.
+     * Returns if this filter is compatible with the given filter design.  Compatible filters must have the same FilterDataSource list.
      *
      * @arg {FilterDesign} filterDesign
      * @return {boolean}
@@ -1212,25 +1205,31 @@ class CompoundFilter extends AbstractFilter {
     }
 
     /**
-     * Returns if this filter is compatible with the given filter design.
+     * Returns if this filter is compatible with the given filter design.  Compatible filters must have the same FilterDataSource list.
      *
      * @arg {FilterDesign} filterDesign
      * @return {boolean}
      */
     public isCompatibleWithDesign(filterDesign: FilterDesign): boolean {
         let compoundFilterDesign = (filterDesign as CompoundFilterDesign);
-        if (compoundFilterDesign.inflexible) {
-            // If the filter design is inflexible, ensure that 1) each nested design is compatible with at least one nested filter object,
-            // 2) each nested filter object is compatible with at least one nested filter design, and 3) the lists are the same length.
-            // This forces designs to have specific nested filters but allows them to have nested filters in an unexpected order.
+
+        let filterDataSourceList: FilterDataSource[] = FilterUtil.createFilterDataSourceListFromDesign(compoundFilterDesign);
+
+        if (filterDataSourceList.length > 1) {
+            // If the filter design contains more than one FilterDataSource, ensure that 1) each nested design is compatible with at least
+            // one nested filter object, 2) each nested filter object is compatible with at least one nested filter design, and 3) both
+            // lists are the same length.  This forces designs to have specific nested filters but allows them to have nested filters in an
+            // unexpected order.  This is useful with visualizations that filter on a specific range, point, or box.
             return !!compoundFilterDesign.optional === !!this.optional && compoundFilterDesign.type === this.type &&
                 compoundFilterDesign.filters && compoundFilterDesign.filters.length === this.filters.length &&
                 compoundFilterDesign.filters.every((nestedDesign) => this.filters.some((nestedFilter) =>
                     nestedFilter.isCompatibleWithDesign(nestedDesign))) && this.filters.every((nestedFilter) =>
                         compoundFilterDesign.filters.some((nestedDesign) => nestedFilter.isCompatibleWithDesign(nestedDesign)));
         }
-        // If the filter design is flexible, ensure that each nested filter design is compatible with at least one nested filter object.
-        // This allows filters that expect one or more nested filters with the same design.
+
+        // If the filter design contains only one FilterDataSource, ensure that each nested filter design is compatible with at least one
+        // nested filter object.  This allows filters that expect one or more nested filters with the same design.  This is useful with
+        // visualizations that can set a variable number of EQUALS or NOT EQUALS filters on one field.
         return !!compoundFilterDesign.optional === !!this.optional && compoundFilterDesign.type === this.type &&
             compoundFilterDesign.filters && compoundFilterDesign.filters.every((nestedDesign) => this.filters.some((nestedFilter) =>
                 nestedFilter.isCompatibleWithDesign(nestedDesign)));
