@@ -669,10 +669,7 @@ describe('Component: DataTable', () => {
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             fields: ['*'],
-            filter: {
-                filters: [],
-                type: 'and'
-            }
+            filter: null
         });
     });
 
