@@ -3106,7 +3106,6 @@ describe('Component: Aggregation', () => {
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[{
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -3159,7 +3158,6 @@ describe('Component: Aggregation', () => {
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[{
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -3213,7 +3211,6 @@ describe('Component: Aggregation', () => {
         expect(spy2.calls.count()).toEqual(1);
         expect(spy2.calls.argsFor(0)).toEqual([[{
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -3309,7 +3306,6 @@ describe('Component: Aggregation', () => {
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[{
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -3348,7 +3344,6 @@ describe('Component: Aggregation', () => {
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[{
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -3388,7 +3383,6 @@ describe('Component: Aggregation', () => {
         expect(spy2.calls.count()).toEqual(1);
         expect(spy2.calls.argsFor(0)).toEqual([[{
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],

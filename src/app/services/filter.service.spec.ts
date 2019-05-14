@@ -5311,7 +5311,7 @@ describe('FilterService with filters', () => {
         } as SimpleFilterDesign)).toEqual(false);
     });
 
-    it('isFiltered with flexible compound filter designs should return expected boolean', () => {
+    it('isFiltered with compound filter designs that have a single data source should return expected boolean', () => {
         let testDesign = {
             type: 'or',
             optional: false,
@@ -5331,22 +5331,6 @@ describe('FilterService with filters', () => {
                 field: DatasetServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 20
-            } as SimpleFilterDesign, {
-                optional: false,
-                datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
-                operator: '!=',
-                value: 30
-            } as SimpleFilterDesign, {
-                optional: false,
-                datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
-                operator: '!=',
-                value: 40
             } as SimpleFilterDesign]
         } as CompoundFilterDesign;
 
@@ -5358,12 +5342,6 @@ describe('FilterService with filters', () => {
             tableName: DatasetServiceMock.TABLES[0].name,
             fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
             operator: '='
-        } as FilterDataSource, {
-            datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '!='
         } as FilterDataSource];
 
         let testCollection = new SingleListFilterCollection();
@@ -5372,7 +5350,6 @@ describe('FilterService with filters', () => {
         // Same design (should return true)
         expect(filterService.isFiltered(testCollection, {
             type: 'or',
-            inflexible: false,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -5385,37 +5362,30 @@ describe('FilterService with filters', () => {
                 table: DatasetServiceMock.TABLES[0],
                 field: DatasetServiceMock.SIZE_FIELD,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
-                operator: '!='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
-                operator: '!='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
 
-        // Same design with different order (should return true)
+        // Same data source but too few nested filters (should return true)
         expect(filterService.isFiltered(testCollection, {
             type: 'or',
-            inflexible: false,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
                 field: DatasetServiceMock.SIZE_FIELD,
-                operator: '!='
-            } as SimpleFilterDesign, {
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // Same data source but too many nested filters (should return true)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
                 field: DatasetServiceMock.SIZE_FIELD,
-                operator: '!='
+                operator: '='
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -5431,64 +5401,68 @@ describe('FilterService with filters', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
 
-        // Same data source but too few nested filters (should return true because inflexible=false)
+        // With correct values (should return true)
         expect(filterService.isFiltered(testCollection, {
             type: 'or',
-            inflexible: false,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
                 field: DatasetServiceMock.SIZE_FIELD,
-                operator: '='
+                operator: '=',
+                value: 10
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
                 field: DatasetServiceMock.SIZE_FIELD,
-                operator: '!='
+                operator: '=',
+                value: 20
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
 
-        // Same data source but too many nested filters (should return true because inflexible=false)
+        // With correct values in different order (should return true)
         expect(filterService.isFiltered(testCollection, {
             type: 'or',
-            inflexible: false,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
                 field: DatasetServiceMock.SIZE_FIELD,
-                operator: '='
+                operator: '=',
+                value: 20
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
                 field: DatasetServiceMock.SIZE_FIELD,
-                operator: '='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
-                operator: '!='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
-                operator: '!='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
-                operator: '!='
+                operator: '=',
+                value: 10
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
+
+        // With incorrect values (should return false)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 1
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 20
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
     });
 
-    it('isFiltered with inflexible compound filter designs should return expected boolean', () => {
+    it('isFiltered with compound filter designs that have multiple data sources should return expected boolean', () => {
         let testDesign = {
             type: 'or',
             optional: false,
@@ -5549,7 +5523,6 @@ describe('FilterService with filters', () => {
         // Same design (should return true)
         expect(filterService.isFiltered(testCollection, {
             type: 'or',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -5577,10 +5550,9 @@ describe('FilterService with filters', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
 
-        // Same design with different order (should return true)
+        // Same design in different order (should return true)
         expect(filterService.isFiltered(testCollection, {
             type: 'or',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -5608,10 +5580,9 @@ describe('FilterService with filters', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
 
-        // Same data source but too few nested filters (should return false because inflexible=true)
+        // Same data source but too few nested filters (should return false)
         expect(filterService.isFiltered(testCollection, {
             type: 'or',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -5627,10 +5598,9 @@ describe('FilterService with filters', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
 
-        // Same data source but too many nested filters (should return false because inflexible=true)
+        // Same data source but too many nested filters (should return false)
         expect(filterService.isFiltered(testCollection, {
             type: 'or',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -5661,6 +5631,142 @@ describe('FilterService with filters', () => {
                 table: DatasetServiceMock.TABLES[0],
                 field: DatasetServiceMock.SIZE_FIELD,
                 operator: '!='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // With correct values (should return true)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 20
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 30
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 40
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // With correct values in different order (should return true)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 20
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 40
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 30
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // Same design in different order With correct values (should return true)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 30
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 20
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 40
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // With incorrect values (should return false)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 20
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 30
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 50
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
     });
