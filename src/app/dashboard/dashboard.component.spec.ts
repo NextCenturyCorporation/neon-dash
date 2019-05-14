@@ -37,54 +37,14 @@ import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMoc
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
-import { DashboardModule } from './dashboard.module';
-
 import { ConfigService } from '../services/config.service';
-import { HttpClientModule } from '@angular/common/http';
-import { AggregationModule } from '../components/aggregation/aggregation.module';
-import { DataTableModule } from '../components/data-table/data-table.module';
-import { DocumentViewerModule } from '../components/document-viewer/document-viewer.module';
-import { FilterBuilderModule } from '../components/filter-builder/filter-builder.module';
-import { MediaViewerModule } from '../components/media-viewer/media-viewer.module';
-import { NetworkGraphModule } from '../components/network-graph/network-graph.module';
-import { NewsFeedModule } from '../components/news-feed/news-feed.module';
-import { TaxonomyViewerModule } from '../components/taxonomy-viewer/taxonomy-viewer.module';
-import { TextCloudModule } from '../components/text-cloud/text-cloud.module';
-import { ThumbnailGridModule } from '../components/thumbnail-grid/thumbnail-grid.module';
-import { TimelineModule } from '../components/timeline/timeline.module';
-import { WikiViewerModule } from '../components/wiki-viewer/wiki-viewer.module';
 import { GearModule } from '../components/gear/gear.module';
-import { SaveStateModule } from '../components/save-state/save-state.module';
-import { SettingsModule } from '../components/settings/settings.module';
-import { AnnotationViewerModule } from '../components/annotation-viewer/annotation-viewer.module';
-import { MapModule } from '../components/map/map.module';
-import { QueryBarModule } from '../components/query-bar/query-bar.module';
-import { AboutNeonModule } from '../components/about-neon/about-neon.module';
-import { AddVisualizationModule } from '../components/add-visualization/add-visualization.module';
-import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-loader';
 
 const Modules = {
-  './components/aggregation/aggregation.module': AggregationModule,
-  './components/annotation-viewer/annotation-viewer.module': AnnotationViewerModule,
-  './components/data-table/data-table.module': DataTableModule,
-  './components/document-viewer/document-viewer.module': DocumentViewerModule,
-  './components/filter-builder/filter-builder.module': FilterBuilderModule,
-  './components/map/map.module': MapModule,
-  './components/media-viewer/media-viewer.module': MediaViewerModule,
-  './components/network-graph/network-graph.module': NetworkGraphModule,
-  './components/news-feed/news-feed.module': NewsFeedModule,
-  './components/query-bar/query-bar.module': QueryBarModule,
-  './components/taxonomy-viewer/taxonomy-viewer.module': TaxonomyViewerModule,
-  './components/text-cloud/text-cloud.module': TextCloudModule,
-  './components/thumbnail-grid/thumbnail-grid.module': ThumbnailGridModule,
-  './components/timeline/timeline.module': TimelineModule,
-  './components/wiki-viewer/wiki-viewer.module': WikiViewerModule,
-  './components/about-neon/about-neon.module': AboutNeonModule,
-  './components/gear/gear.module': GearModule,
-  './components/save-state/save-state.module': SaveStateModule,
-  './components/settings/settings.module': SettingsModule,
-  './components/add-visualization/add-visualization.module': AddVisualizationModule
+  './components/gear/gear.module#GearModule': GearModule
 };
+
+import { AppModule } from '../app.module';
 
 describe('Dashboard', () => {
   let fixture: ComponentFixture<DashboardComponent>;
@@ -95,10 +55,8 @@ describe('Dashboard', () => {
 
   initializeTestBed('Dashboard', {
     imports: [
-      DashboardModule,
-      ReactiveComponentLoaderModule.forRoot(),
-      RouterTestingModule,
-      HttpClientModule
+      AppModule,
+      RouterTestingModule
     ],
     providers: [
       { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
@@ -118,7 +76,6 @@ describe('Dashboard', () => {
 
     fixture = TestBed.createComponent(DashboardComponent);
     component = fixture.componentInstance;
-    component.createGear = false; // TODO: This needs to be figured out why gear is breaking the tests
     spyOnInit = spyOn(component, 'ngOnInit');
     fixture.detectChanges();
     debugElement = fixture.debugElement;

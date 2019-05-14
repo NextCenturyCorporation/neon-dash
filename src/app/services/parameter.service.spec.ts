@@ -22,7 +22,6 @@ import { ParameterService } from './parameter.service';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { ConfigService } from './config.service';
 
-
 describe('Service: Parameter', () => {
     let service;
 
