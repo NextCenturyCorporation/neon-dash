@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 
@@ -23,14 +23,13 @@ import { DatasetService } from '../../services/dataset.service';
 import { ParameterService } from '../../services/parameter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ConfigEditorComponent } from '../config-editor/config-editor.component';
-import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
 
 import * as _ from 'lodash';
 import * as neon from 'neon-framework';
+import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 
 @Component({
     selector: 'app-save-state',
@@ -50,7 +49,7 @@ export class SaveStateComponent implements OnInit {
         stateToDelete: ''
     };
 
-    public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
+    public confirmDialogRef: MatDialogRef<any>;
     private dashboardStateId: string = '';
     private filterStateId: string = '';
     private isLoading: boolean = false;
@@ -64,7 +63,6 @@ export class SaveStateComponent implements OnInit {
         private snackBar: MatSnackBar,
         protected parameterService: ParameterService,
         public widgetService: AbstractWidgetService,
-        private viewContainerRef: ViewContainerRef,
         private dialog: MatDialog
     ) { }
 
@@ -74,13 +72,16 @@ export class SaveStateComponent implements OnInit {
     }
 
     openEditConfigDialog() {
-        let dConfig = {
+        this.dialog.open(DynamicDialogComponent, {
+            data: {
+                moduleId: 'config-editor',
+                selector: 'app-config-editor'
+            },
             height: '80%',
             width: '80%',
             hasBackdrop: true,
             disableClose: true
-        };
-        let dialogRef = this.dialog.open(ConfigEditorComponent, dConfig);
+        });
     }
 
     /*
@@ -261,7 +262,11 @@ export class SaveStateComponent implements OnInit {
     }
 
     openConfirmationDialog() {
-        this.confirmDialogRef = this.dialog.open(ConfirmationDialogComponent, {
+        this.confirmDialogRef = this.dialog.open(DynamicDialogComponent, {
+            data: {
+                moduleId: 'confirmation-dialog',
+                selector: 'app-confirmation-dialog'
+            },
             height: '130px',
             width: '500px',
             disableClose: false

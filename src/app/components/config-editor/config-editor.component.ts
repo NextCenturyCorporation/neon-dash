@@ -13,20 +13,17 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, AfterViewInit, ElementRef, Inject, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { MatSnackBar } from '@angular/material';
 import { NeonGTDConfig } from './../../neon-gtd-config';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { PropertyService } from '../../services/property.service';
-import * as JSONEditor from 'jsoneditor';
 
-declare var editor: any;
 import * as _ from 'lodash';
+import * as yaml from 'js-yaml';
 import { ConfigService } from '../../services/config.service';
-
-let styleImport: any;
 
 @Component({
     selector: 'app-config-editor',
@@ -35,51 +32,16 @@ let styleImport: any;
         'config-editor.component.scss'
     ]
 })
-export class ConfigEditorComponent implements AfterViewInit, OnInit {
-    @ViewChild('JsonEditorComponent') editorRef: ElementRef;
+export class ConfigEditorComponent implements OnInit {
+
     public CONFIG_PROP_NAME: string = 'config';
-    public configEditorRef: any;
     public currentConfig: NeonGTDConfig;
-    public editorData: NeonGTDConfig;
-    public editorOptions: any;
     public DEFAULT_SNACK_BAR_DURATION: number = 3000;
-    public modes: any[];
-    public editor: any;
+    public configText: string;
 
     constructor(private configService: ConfigService, public snackBar: MatSnackBar,
         protected propertyService: PropertyService, protected widgetService: AbstractWidgetService) {
         this.snackBar = snackBar;
-        this.editorOptions = this.getJsonEditorOptions();
-        this.modes = [
-            {
-                value: 'tree',
-                viewValue: 'Tree'
-            },
-            {
-                value: 'code',
-                viewValue: 'Code'
-            },
-            {
-                value: 'form',
-                viewValue: 'Form'
-            },
-            {
-                value: 'view',
-                viewValue: 'Tree (read only)'
-            },
-            {
-                value: 'text',
-                viewValue: 'Text (read only)'
-            }
-        ];
-
-        if (!styleImport) {
-            const link = styleImport = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = '/assets/jsoneditor/dist/jsoneditor.min.css';
-
-            document.head.appendChild(link);
-        }
     }
 
     ngOnInit(): void {
@@ -88,27 +50,14 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
             if (this.currentConfig.errors) {
                 delete this.currentConfig.errors;
             }
-            this.editorData = _.cloneDeep(this.currentConfig);
-            // 'tree' (default), 'view', 'form', 'code', 'text
+            this.reset();
         });
     }
 
-    ngAfterViewInit() {
-        this.editor = new JSONEditor(this.editorRef.nativeElement, this.editorOptions, this.editorData);
-    }
-
-    public close() {
-        this.configEditorRef.closeAll();
-    }
-
-    public changeMode(evt) {
-        this.editorOptions.mode = evt.value;
-        this.editor.setMode(evt.value);
-    }
-
     public save() {
-        let text = JSON.stringify(this.editor.get());
-        this.propertyService.setProperty(this.CONFIG_PROP_NAME, text,
+        const json = JSON.stringify(yaml.safeLoad(this.configText));
+
+        this.propertyService.setProperty(this.CONFIG_PROP_NAME, json,
             (response) => {
                 this.snackBar.open('Configuration updated successfully.  Refresh to reflect changes.', 'OK', {
                     duration: this.DEFAULT_SNACK_BAR_DURATION
@@ -144,18 +93,6 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
     }
 
     public reset() {
-        this.editorData = _.cloneDeep(this.currentConfig);
-        this.editor.set(this.editorData);
-    }
-
-    public getJsonEditorOptions() {
-        return {
-            escapeUnicode: false,
-            sortObjectKeys: false,
-            history: true,
-            mode: 'tree',
-            search: true,
-            indentation: 2
-        };
+        this.configText = yaml.safeDump(this.currentConfig);
     }
 }

@@ -21,11 +21,6 @@
               "src/favicon.ico",
               {
                 "glob": "**/*",
-                "input": "node_modules/jsoneditor/dist",
-                "output": "assets/jsoneditor/dist"
-              },
-              {
-                "glob": "**/*",
                 "input": "node_modules/leaflet/dist",
                 "output": "assets/leaflet/dist"
               },

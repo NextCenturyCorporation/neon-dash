@@ -16,12 +16,10 @@
 
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, Injector } from '@angular/core';
 
-import { MatDialog, MatDialogRef } from '@angular/material';
+import { MatDialog } from '@angular/material';
 import { BehaviorSubject } from 'rxjs';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ConfigEditorComponent } from '../config-editor/config-editor.component';
-import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -29,6 +27,8 @@ import { DatasetService } from '../../services/dataset.service';
 
 import * as _ from 'lodash';
 import * as neon from 'neon-framework';
+import { ReactiveComponentLoader } from '@wishtack/reactive-component-loader';
+import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 
 @Component({
     selector: 'app-settings',
@@ -44,7 +44,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         currentTheme: 'neon-green-theme'
     };
 
-    public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
     public options;
     public searchField: FieldMetaData;
     public showFiltersComponentIcon: boolean = true;
@@ -61,7 +60,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
         protected datasetService: DatasetService,
         private dialog: MatDialog,
         public injector: Injector,
-        public widgetService: AbstractWidgetService
+        public widgetService: AbstractWidgetService,
+        private reactiveLoader: ReactiveComponentLoader
     ) {
         this.datasetService = datasetService;
         this.injector = injector;
@@ -112,13 +112,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     openEditConfigDialog() {
-        let dConfig = {
+        this.dialog.open(DynamicDialogComponent, {
+            data: {
+                moduleId: 'config-editor',
+                selector: 'app-config-editor'
+            },
             height: '80%',
             width: '80%',
             hasBackdrop: true,
             disableClose: true
-        };
-        let dialogRef = this.dialog.open(ConfigEditorComponent, dConfig);
+        });
     }
 
     publishShowFiltersComponentIcon() {

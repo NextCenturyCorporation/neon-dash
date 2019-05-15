@@ -101,6 +101,22 @@ import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-load
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'add-visualization',
             loadChildren: './components/add-visualization/add-visualization.module#AddVisualizationModule'
+        }),
+        ReactiveComponentLoaderModule.withModule({
+            moduleId: 'config-editor',
+            loadChildren: './components/config-editor/config-editor.module#ConfigEditorModule'
+        }),
+        ReactiveComponentLoaderModule.withModule({
+            moduleId: 'confirmation-dialog',
+            loadChildren: './components/confirmation-dialog/confirmation-dialog.module#ConfirmationDialogModule'
+        }),
+        ReactiveComponentLoaderModule.withModule({
+            moduleId: 'contribution-dialog',
+            loadChildren: './components/contribution-dialog/contribution-dialog.module#ContributionDialogModule'
+        }),
+        ReactiveComponentLoaderModule.withModule({
+            moduleId: 'custom-connection',
+            loadChildren: './components/custom-connection/custom-connection.module#CustomConnectionModule'
         })
     ]
 })
