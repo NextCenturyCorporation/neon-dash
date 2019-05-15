@@ -13,13 +13,11 @@
  * limitations under the License.
  *
  */
-/// <reference path="../../../../node_modules/@types/d3/index.d.ts" />
 import * as _ from 'lodash';
 import { ElementRef } from '@angular/core';
 import { TimelineComponent } from './timeline.component';
 import { Bucketizer } from '../bucketizers/Bucketizer';
-
-declare let d3;
+import * as d3 from 'd3';
 
 const DEFAULT_MARGIN = 15;
 const DEFAULT_HEIGHT = 150;
@@ -110,7 +108,7 @@ export class TimelineSelectorChart {
     // The data index over which the user is currently hovering changed on mousemove and mouseout.
     private hoverIndex = -1;
 
-    private brush: d3.svg.Brush<TimelineItem>;
+    private brush: d3.svg.Brush<TimelineItem, number, number>;
 
     private width = DEFAULT_WIDTH - 2 * DEFAULT_MARGIN;
     private approximateBarWidth: number;
@@ -272,19 +270,19 @@ export class TimelineSelectorChart {
 
         if (this.data.collapsed) {
             svgHeight = this.determineHeight();
-            this.element.nativeElement[0].style.height = svgHeight;
+            this.element.nativeElement.style.height = svgHeight;
             this.heightFocus = Math.max(0, svgHeight - this.marginFocus.top - this.marginFocus.bottom);
             heightContext = Math.max(0, svgHeight - this.marginContext.top - this.marginContext.bottom);
         } else {
             svgHeight = DEFAULT_HEIGHT * this.data.data.length;
-            this.element.nativeElement[0].style.height = svgHeight;
+            this.element.nativeElement.style.height = svgHeight;
             this.heightFocus = Math.max(0, DEFAULT_HEIGHT - this.marginFocus.top - this.marginFocus.bottom);
             heightContext = Math.max(0, DEFAULT_HEIGHT - this.marginContext.top - this.marginContext.bottom);
         }
 
         // Setup the axes and their scales.
-        this.xFocus = d3.time.scale.utc().range([0, this.width]);
-        this.xContext = d3.time.scale.utc().range([0, this.width]);
+        this.xFocus = d3.time.scale.utc().range([0, this.width]) as any; // Something funky
+        this.xContext = d3.time.scale.utc().range([0, this.width]) as any; // Something funky
 
         // Save the brush as an instance variable to allow interaction on it by client code.
         this.brush = d3.svg.brush().x(this.xContext).on('brush', () => {
@@ -700,7 +698,7 @@ export class TimelineSelectorChart {
             d3.scale.linear().range([this.heightFocus, 0]);
 
         if (this.data.primarySeries.name === series.name) {
-            this.yFocus = yFocus;
+            this.yFocus = yFocus as any; // Something funky is happening here
         }
 
         // Use lowest value or 0 for Y-axis domain, whichever is less (e.g. if negative)
@@ -870,7 +868,7 @@ export class TimelineSelectorChart {
             }
             this.data.extent = extent1;
 
-            if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'mouseup') {
+            if ('sourceEvent' in d3.event && d3.event.sourceEvent.type === 'mouseup') {
                 _.debounce(() => {
                     // Update the chart
                     this.redrawChart();
@@ -916,7 +914,7 @@ export class TimelineSelectorChart {
         let mouseLocation = d3.mouse(this.svg[0][0]);
         // Subtract the margin, or else the cursor location may not match the highlighted bar
         let graph_x = domain.invert(mouseLocation[0] - DEFAULT_MARGIN);
-        let bisect = d3.bisector((d) => {
+        let bisect = d3.bisector<{ date: Date }, Date>((d) => {
             return d.date;
         }).right;
         return data ? bisect(data, graph_x) - 1 : -1;
