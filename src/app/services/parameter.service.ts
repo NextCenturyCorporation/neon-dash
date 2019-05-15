@@ -14,7 +14,7 @@
  *
  */
 import { Injectable } from '@angular/core';
-import { eventing, query } from 'neon-framework';
+import { eventing } from 'neon-framework';
 import * as $ from 'jquery';
 
 import { AbstractSearchService, Connection } from './abstract.search.service';
@@ -134,6 +134,7 @@ export class ParameterService {
             return;
         }
 
+        /* TODO THOR-1076
         let customMappings: any = {};
         this.datasetService.getDatabases().forEach((database: DatabaseMetaData) => {
             database.tables.forEach((table: TableMetaData) => {
@@ -205,6 +206,7 @@ export class ParameterService {
             };
             this.addFiltersForDashboardParameters(this.parameters, argsList, callback);
         }
+        */
     }
 
     /**
@@ -450,11 +452,13 @@ export class ParameterService {
      * @private
      * @return {Function}
      */
+    /* TODO THOR-1076
     private createSimpleFilterClauseCallback(operator: string, value: any): Function {
         return (fieldName: string) => {
             return query.where(fieldName, operator, value);
         };
     }
+    */
 
     /**
      * Returns a function to create a date filter clause using the given list of dates.
@@ -463,6 +467,7 @@ export class ParameterService {
      * @private
      * @return {Function}
      */
+    /* TODO THOR-1076
     private createDateFilterClauseCallback(dateList: Date[]): Function {
         let startDate: Date = dateList[0];
         let endDate: Date = dateList.length > 1 ? dateList[1] : null;
@@ -476,6 +481,7 @@ export class ParameterService {
             return query.and.apply(query, [startFilterClause, endFilterClause]);
         };
     }
+    */
 
     /**
      * Returns a function to create a geographic bounds filter clause using the given list of geographic bounds.
@@ -485,6 +491,7 @@ export class ParameterService {
      * @private
      * @return {Function}
      */
+    /* TODO THOR-1076
     private createBoundsFilterClauseCallback(boundsList: number[]) {
         let minimumLatitude: number = Number(boundsList[ParameterService.BOUNDS_MIN_LAT]);
         let maximumLatitude: number = Number(boundsList[ParameterService.BOUNDS_MAX_LAT]);
@@ -527,5 +534,5 @@ export class ParameterService {
             return query.and(leftClause, rightClause, bottomClause, topClause);
         };
     }
-
+    */
 }
