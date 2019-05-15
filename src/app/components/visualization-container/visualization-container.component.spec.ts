@@ -13,17 +13,18 @@
  * limitations under the License.
  *
  */
-import { TestBed, async, ComponentFixture } from '@angular/core/testing';
+import { TestBed, ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { VisualizationContainerComponent } from './visualization-container.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { ConfigService } from '../../services/config.service';
-import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-loader';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NgModuleFactoryLoader } from '@angular/core';
-import { AggregationModule } from '../aggregation/aggregation.module';
+import { AboutNeonModule } from '../about-neon/about-neon.module';
 import { VisualizationContainerModule } from './visualization-container.module';
+import { AppLazyModule } from '../../app-lazy.module';
+import { AboutNeonComponent } from '../about-neon/about-neon.component';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -36,11 +37,7 @@ describe('Component: VisualizationContainer', () => {
 
         ],
         imports: [
-            ReactiveComponentLoaderModule.forRoot(),
-            ReactiveComponentLoaderModule.withModule({
-                moduleId: 'aggregation',
-                loadChildren: './components/aggregation/aggregation.module#AggregationModule'
-            }),
+            AppLazyModule,
             VisualizationContainerModule,
             RouterTestingModule
         ]
@@ -49,14 +46,21 @@ describe('Component: VisualizationContainer', () => {
     beforeEach(() => {
         const spyNgModuleFactoryLoader = TestBed.get(NgModuleFactoryLoader);
         spyNgModuleFactoryLoader.stubbedModules = {
-            './components/aggregation/aggregation.module': AggregationModule
+            './components/about-neon/about-neon.module#AboutNeonModule': AboutNeonModule
         };
 
         fixture = TestBed.createComponent(VisualizationContainerComponent);
         component = fixture.componentInstance;
+        component.visualization = { type: 'about-neon', config: {} };
     });
 
-    it('should create an instance', async(() => {
+    it('should create an instance', fakeAsync(() => {
         expect(component).toBeTruthy();
+        fixture.detectChanges();
+        tick(100);
+        expect(component.injector).toBeTruthy();
+        expect(component.injector.currentComponent).toBeTruthy();
+        expect(component.injector.currentComponent.instance.constructor).toEqual(AboutNeonComponent);
+
     }));
 });

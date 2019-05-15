@@ -37,7 +37,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { ConfigService } from './services/config.service';
 import { HttpClientModule } from '@angular/common/http';
 import { CustomConnectionModule } from './components/custom-connection/custom-connection.module';
-import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-loader';
+import { AppLazyModule } from './app-lazy.module';
 
 @NgModule({
     declarations: [AppComponent],
@@ -51,88 +51,7 @@ import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-load
         ContributionDialogModule,
         CustomConnectionModule,
         SnackBarModule,
-
-        ReactiveComponentLoaderModule.forRoot(),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'aggregation',
-            loadChildren: './components/aggregation/aggregation.module#AggregationModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'annotation-viewer',
-            loadChildren: './components/annotation-viewer/annotation-viewer.module#AnnotationViewerModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'data-table',
-            loadChildren: './components/data-table/data-table.module#DataTableModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'document-viewer',
-            loadChildren: './components/document-viewer/document-viewer.module#DocumentViewerModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'filter-builder',
-            loadChildren: './components/filter-builder/filter-builder.module#FilterBuilderModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'map',
-            loadChildren: './components/map/map.module#MapModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'media-viewer',
-            loadChildren: './components/media-viewer/media-viewer.module#MediaViewerModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'network-graph',
-            loadChildren: './components/network-graph/network-graph.module#NetworkGraphModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'news-feed',
-            loadChildren: './components/news-feed/news-feed.module#NewsFeedModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'query-bar',
-            loadChildren: './components/query-bar/query-bar.module#QueryBarModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'taxonomy-viewer',
-            loadChildren: './components/taxonomy-viewer/taxonomy-viewer.module#TaxonomyViewerModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'text-cloud',
-            loadChildren: './components/text-cloud/text-cloud.module#TextCloudModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'thumbnail-grid',
-            loadChildren: './components/thumbnail-grid/thumbnail-grid.module#ThumbnailGridModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'timeline',
-            loadChildren: './components/timeline/timeline.module#TimelineModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'wiki-viewer',
-            loadChildren: './components/wiki-viewer/wiki-viewer.module#WikiViewerModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'about-neon',
-            loadChildren: './components/about-neon/about-neon.module#AboutNeonModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'gear',
-            loadChildren: './components/gear/gear.module#GearModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'save-state',
-            loadChildren: './components/save-state/save-state.module#SaveStateModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'settings',
-            loadChildren: './components/settings/settings.module#SettingsModule'
-        }),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: 'add-visualization',
-            loadChildren: './components/add-visualization/add-visualization.module#AddVisualizationModule'
-        })
+        AppLazyModule
     ],
     providers: [
         ConnectionService,
