@@ -40,7 +40,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | intl@1.2.5 | [MIT](https://github.com/andyearnshaw/Intl.js/raw/master/LICENSE.txt) |
 | javascript-natural-sort@0.7.1 | [MIT](https://github.com/Bill4Time/javascript-natural-sort) |
 | jquery@2.2.4 | [MIT](https://github.com/jquery/jquery/raw/master/LICENSE.txt) |
-| js-yaml@3.9.1 | [MIT](https://github.com/nodeca/js-yaml/raw/master/LICENSE) |
+| js-yaml@3.13.1 | [MIT](https://github.com/nodeca/js-yaml/raw/master/LICENSE) |
 | jsoneditor@5.9.6 | [Apache-2.0](https://github.com/josdejong/jsoneditor/raw/master/LICENSE) |
 | leaflet.markercluster@1.4.1 | [MIT](https://github.com/Leaflet/Leaflet.markercluster/raw/master/MIT-LICENCE.txt) |
 | leaflet@1.3.4 | [BSD-2-Clause](https://github.com/Leaflet/Leaflet/raw/master/LICENSE) |
@@ -50,10 +50,11 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | moment-timezone@0.5.13 | [MIT](https://github.com/moment/moment-timezone/raw/master/LICENSE) |
 | moment@2.18.1 | [MIT](https://github.com/moment/moment/raw/master/LICENSE) |
 | neon-framework@1.3.5 | [Apache-2.0](https://github.com/NextCenturyCorporation/neon) |
+| ngx-monaco-editor@7.0.0 | [MIT](https://github.com/atularen/ngx-monaco-editor) |
 | npm-license-crawler@0.1.9 | [BSD-3-Clause](https://github.com/mwittig/npm-license-crawler/raw/master/LICENSE) |
 | reflect-metadata@0.1.10 | [Apache-2.0](https://github.com/rbuckton/reflect-metadata/raw/master/LICENSE) |
 | requirejs@2.3.5 | [MIT](https://github.com/jrburke/r.js) |
-| rxjs@6.5.1 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
+| rxjs@6.5.2 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
 | tslib@1.9.3 | [Apache-2.0](https://github.com/Microsoft/tslib/raw/master/LICENSE.txt) |
 | uuid@3.3.2 | [MIT](https://github.com/kelektiv/node-uuid/raw/master/LICENSE.md) |
 | vis@4.21.0 | [(Apache-2.0 OR MIT)](https://github.com/almende/vis/raw/master/LICENSE-APACHE-2.0) |
