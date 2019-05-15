@@ -17,9 +17,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
-  Inject,
   OnInit,
-  Input,
   OnDestroy,
   QueryList,
   ViewChild,
@@ -29,18 +27,15 @@ import {
 
 import * as _ from 'lodash';
 import * as neon from 'neon-framework';
-import * as L from 'leaflet'; // imported for use of DomUtil.enable/disableTextSelection
 import * as uuidv4 from 'uuid/v4';
 
 import { AbstractWidgetService } from '../services/abstract.widget.service';
-import { AddVisualizationComponent } from '../components/add-visualization/add-visualization.component';
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
-import { CustomConnectionComponent } from '../components/custom-connection/custom-connection.component';
 import { Datastore } from '../dataset';
 import { DatasetService } from '../services/dataset.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../services/filter.service';
-import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatSidenav, MatMenuTrigger } from '@angular/material';
+import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from '../neon-grid-item';
 import { NeonGTDConfig } from '../neon-gtd-config';
@@ -49,6 +44,7 @@ import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { SnackBarComponent } from '../components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from '../components/visualization-container/visualization-container.component';
 import { ConfigService } from '../services/config.service';
+import { DynamicDialogComponent } from '../components/dynamic-dialog/dynamic-dialog.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -112,11 +108,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
   public projectTitle: string = 'Neon';
   public projectIcon: string = 'assets/favicon.blue.ico?v=1';
 
-  /* A reference to the dialog for adding visualizations. */
-  private addVisDialogRef: MatDialogRef<AddVisualizationComponent>;
-
   /* A reference to the dialog for the custom connection dialog. */
-  private customConnectionDialogRef: MatDialogRef<CustomConnectionComponent>;
+  private customConnectionDialogRef: MatDialogRef<DynamicDialogComponent>;
 
   public filtersIcon;
 
@@ -462,10 +455,14 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   openCustomConnectionDialog() {
-    let config = new MatDialogConfig();
-    config.viewContainerRef = this.viewContainerRef;
+    this.customConnectionDialogRef = this.dialog.open(DynamicDialogComponent, {
+      data: {
+        moduleId: 'custom-connection',
+        selector: 'app-custom-connection'
+      },
+      viewContainerRef: this.viewContainerRef
+    });
 
-    this.customConnectionDialogRef = this.dialog.open(CustomConnectionComponent, config);
     this.customConnectionDialogRef.afterClosed().subscribe(() => {
       this.customConnectionDialogRef = null;
     });

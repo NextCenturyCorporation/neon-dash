@@ -30,14 +30,13 @@ import { WidgetService } from './services/widget.service';
 
 import { AppComponent } from './app.component';
 
-import { ConfirmationDialogModule } from './components/confirmation-dialog/confirmation-dialog.module';
-import { ContributionDialogModule } from './components/contribution-dialog/contribution-dialog.module';
 import { SnackBarModule } from './components/snack-bar/snack-bar.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ConfigService } from './services/config.service';
 import { HttpClientModule } from '@angular/common/http';
-import { CustomConnectionModule } from './components/custom-connection/custom-connection.module';
 import { AppLazyModule } from './app-lazy.module';
+import { DynamicDialogModule } from './components/dynamic-dialog/dynamic-dialog.module';
+import { DynamicDialogComponent } from './components/dynamic-dialog/dynamic-dialog.component';
 
 @NgModule({
     declarations: [AppComponent],
@@ -47,9 +46,7 @@ import { AppLazyModule } from './app-lazy.module';
         HttpClientModule,
         CommonModule,
         DashboardModule,
-        ConfirmationDialogModule,
-        ContributionDialogModule,
-        CustomConnectionModule,
+        DynamicDialogModule,
         SnackBarModule,
         AppLazyModule
     ],
@@ -70,6 +67,6 @@ import { AppLazyModule } from './app-lazy.module';
         }
     ],
     entryComponents: [AppComponent],
-    bootstrap: [AppComponent]
+    bootstrap: [AppComponent, DynamicDialogComponent]
 })
 export class AppModule { }
