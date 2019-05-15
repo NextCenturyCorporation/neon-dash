@@ -290,18 +290,6 @@
                             "table": "children",
                             "field": "id"
                         }
-                    ],
-                    "members": [
-                        {
-                            "database": "rpi-m9-ta1-v2-events",
-                            "table": "graph",
-                            "field": "parentIds"
-                        },
-                        {
-                            "database": "rpi-m9-ta1-v2",
-                            "table": "children",
-                            "field": "parent_uid"
-                        }
                     ]
                 }
             ]
@@ -452,7 +440,7 @@
                     "linkField": "reconstructed",
                     "linkPrefix": "../Reconstructed/html/rpi-m9-ta1-v2/",
                     "typeField": "dtype",
-                    "clearMedia": true
+                    "clearMedia": false
                 },
                 "row": 1,
                 "col": 7
@@ -567,7 +555,7 @@
                     "linkField": "reconstructed",
                     "linkPrefix": "../Reconstructed/html/gaia/",
                     "typeField": "dtype",
-                    "clearMedia": true
+                    "clearMedia": false
                 },
                 "row": 1,
                 "col": 7
@@ -593,7 +581,7 @@
                         "docIds"
                     ],
                     "ignoreSelf": true,
-                    "idField": "id",
+                    "idField": "kbid",
                     "linkField": "",
                     "ascending": true
                 },
@@ -610,7 +598,7 @@
                     "table": "graph",
                     "unsharedFilterField": "",
                     "unsharedFilterValue": "",
-                    "nodeField": "id",
+                    "nodeField": "kbid",
                     "nodeNameField": "name",
                     "nodeShape": "box",
                     "linkField": "edgeTarget",
@@ -621,8 +609,8 @@
                     "edgeColor": "#63B4CF",
                     "xPositionField": "x",
                     "yPositionField": "y",
-                    "xTargetPositionField": "edgeX",
-                    "yTargetPositionField": "edgeY",
+                    "xTargetPositionField": "targetX",
+                    "yTargetPositionField": "targetY",
                     "typeField": "types",
                     "isReified": false,
                     "isDirected": true,
@@ -631,8 +619,7 @@
                     "filterFields": [
                         "docIds"
                     ],
-                    "idField": "id",
-                    "id": "_id",
+                    "idField": "kbid",
                     "filterable": true,
                     "multiFilter": true,
                     "multiFilterOperator": "or",
@@ -726,7 +713,7 @@
                         "docIds"
                     ],
                     "ignoreSelf": true,
-                    "idField": "id",
+                    "idField": "kbid",
                     "linkField": "",
                     "ascending": true
                 },
@@ -739,19 +726,18 @@
                 "sizey": 12,
                 "selected": true,
                 "bindings": {
-                    "id": "_id",
                     "title": "Events",
                     "database": "rpi-m9-ta1-v2-events",
                     "table": "graph",
-                    "idField": "id",
+                    "idField": "kbid",
                     "flagLabel": "name",
                     "flagSubLabel1": "download_date",
                     "flagSubLabel2": "docIds",
-                    "flagSubLabel3": "parentIds",
+                    "flagSubLabel3": "kbid",
                     "linkField": "url",
                     "dateField": "download_date",
                     "objectNameField": "",
-                    "objectIdField": "id",
+                    "objectIdField": "kbid",
                     "typeField": "dtype",
                     "predictedNameField": "",
                     "percentField": "",
@@ -759,7 +745,7 @@
                     "hideUnfiltered": false,
                     "sortField": "download_date",
                     "filterFields": [
-                        "id",
+                        "kbid",
                         "docIds",
                         "parentIds"
                     ],
@@ -795,7 +781,7 @@
                     "title": "Events Timeline",
                     "database": "rpi-m9-ta1-v2-events",
                     "table": "graph",
-                    "idField": "id",
+                    "idField": "kbid",
                     "filterField": "docIds",
                     "dateField": "download_date",
                     "granularity": "month",
@@ -825,7 +811,7 @@
                     "openOnMouseClick": true,
                     "hideUnfiltered": false,
                     "sortField": "id",
-                    "filterFields": ["id", "parent_uid"],
+                    "filterFields": ["id"],
                     "ignoreSelf": false,
                     "ascending": true,
                     "viewType": "details",
@@ -866,7 +852,7 @@
                         "docIds"
                     ],
                     "ignoreSelf": true,
-                    "idField": "id",
+                    "idField": "kbid",
                     "linkField": "",
                     "ascending": true
                 },
@@ -899,9 +885,9 @@
                             "longitudeField": "geoLocation.lon",
                             "hoverPopupField": "name",
                             "dateField": "download_date",
-                            "idField": "id",
+                            "idField": "kbid",
                             "filterFields": [
-                                "id",
+                                "kbid",
                                 "docIds"
                             ],
                             "colorField": "types"
@@ -921,7 +907,7 @@
                     "title": "Map Timeline",
                     "database": "rpi-m9-ta1-v2-geo",
                     "table": "graph",
-                    "idField": "id",
+                    "idField": "kbid",
                     "filterField": "docIds",
                     "dateField": "download_date",
                     "granularity": "month",
