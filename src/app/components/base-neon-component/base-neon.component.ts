@@ -25,11 +25,11 @@ import {
 import { DatasetService } from '../../services/dataset.service';
 import {
     FilterBehavior,
+    FilterCollection,
     FilterDesign,
     FilterService,
     FilterUtil,
-    SimpleFilterDesign,
-    SingleListFilterCollection
+    SimpleFilterDesign
 } from '../../services/filter.service';
 import { FieldMetaData } from '../../dataset';
 import { neonEvents } from '../../neon-namespaces';
@@ -87,7 +87,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected messenger: neon.eventing.Messenger;
 
     // Maps a specific filter data source list to its filter list.
-    private cachedFilters: SingleListFilterCollection = new SingleListFilterCollection();
+    private cachedFilters: FilterCollection = new FilterCollection();
 
     // Maps the options/layer ID to the active transformed visualization data.
     private layerIdToActiveData: Map<string, TransformedVisualizationData> = new Map<string, TransformedVisualizationData>();
@@ -567,7 +567,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     private getGlobalFilterClauses(options: any): FilterClause[] {
         let ignoreFilters: FilterDesign[] = this.shouldFilterSelf() ? [] : this.cachedFilters.getDataSources().reduce((list, dataSource) =>
             list.concat(this.cachedFilters.getFilters(dataSource).map((filter) => filter.toDesign())), [] as FilterDesign[]);
-        return this.filterService.getFiltersToSearch('', options.database.name, options.table.name, ignoreFilters);
+        return this.filterService.getFiltersToSearch('', options.database.name, options.table.name, this.searchService, ignoreFilters);
     }
 
     /**

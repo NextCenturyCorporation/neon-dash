@@ -1121,7 +1121,7 @@ describe('BaseNeonComponent', () => {
             }
             return [];
         });
-        spyOn((component as any).filterService, 'getFiltersToSearch').and.callFake((datastore, database, table, ignoreList) => {
+        spyOn((component as any).filterService, 'getFiltersToSearch').and.callFake((datastore, database, table, search, ignoreList) => {
             ++called;
             expect(ignoreList).toEqual([{
                 field: 'testField1',
@@ -1164,7 +1164,7 @@ describe('BaseNeonComponent', () => {
             }
             return [];
         });
-        spyOn((component as any).filterService, 'getFiltersToSearch').and.callFake((datastore, database, table, ignoreList) => {
+        spyOn((component as any).filterService, 'getFiltersToSearch').and.callFake((datastore, database, table, search, ignoreList) => {
             ++called;
             expect(ignoreList).toEqual([]);
             return [];

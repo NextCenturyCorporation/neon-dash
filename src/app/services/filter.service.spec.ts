@@ -22,13 +22,12 @@ import { AbstractSearchService, CompoundFilterType } from './abstract.search.ser
 import { DatasetService } from './dataset.service';
 import {
     CompoundFilterDesign,
-    DualListFilterCollection,
     FilterBehavior,
+    FilterCollection,
     FilterDataSource,
     FilterService,
     FilterUtil,
-    SimpleFilterDesign,
-    SingleListFilterCollection
+    SimpleFilterDesign
 } from './filter.service';
 
 import { FieldMetaData } from '../dataset';
@@ -615,8 +614,8 @@ describe('FilterUtil', () => {
     });
 });
 
-describe('SingleListFilterCollection', () => {
-    let singleListCollection: SingleListFilterCollection;
+describe('FilterCollection', () => {
+    let filterCollection: FilterCollection;
     let searchService: AbstractSearchService;
     let source1: FilterDataSource[];
     let source2: FilterDataSource[];
@@ -653,6 +652,7 @@ describe('SingleListFilterCollection', () => {
             operator: '<'
         } as FilterDataSource];
         filter1A = FilterUtil.createFilterFromDesign({
+            optional: false,
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -661,6 +661,7 @@ describe('SingleListFilterCollection', () => {
             value: 'testId1'
         } as SimpleFilterDesign, searchService);
         filter1B = FilterUtil.createFilterFromDesign({
+            optional: true,
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -669,8 +670,10 @@ describe('SingleListFilterCollection', () => {
             value: 'testId2'
         } as SimpleFilterDesign, searchService);
         filter2A = FilterUtil.createFilterFromDesign({
+            optional: false,
             type: 'and',
             filters: [{
+                optional: false,
                 datastore: 'testDatastore1',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -678,6 +681,7 @@ describe('SingleListFilterCollection', () => {
                 operator: '>',
                 value: 10
             } as SimpleFilterDesign, {
+                optional: false,
                 datastore: 'testDatastore1',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -686,18 +690,18 @@ describe('SingleListFilterCollection', () => {
                 value: 20
             } as SimpleFilterDesign]
         } as CompoundFilterDesign, searchService);
-        singleListCollection = new SingleListFilterCollection();
-        (singleListCollection as any).data.set(source1, [filter1A, filter1B]);
-        (singleListCollection as any).data.set(source2, [filter2A]);
+        filterCollection = new FilterCollection();
+        (filterCollection as any).data.set(source1, [filter1A, filter1B]);
+        (filterCollection as any).data.set(source2, [filter2A]);
     }));
 
     it('data of new collection should be empty', () => {
-        let testCollection = new SingleListFilterCollection();
+        let testCollection = new FilterCollection();
         expect((testCollection as any).data.size).toEqual(0);
     });
 
     it('findFilterDataSources should return data source from collection', () => {
-        expect(singleListCollection.findFilterDataSources({
+        expect(filterCollection.findFilterDataSources({
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -706,7 +710,7 @@ describe('SingleListFilterCollection', () => {
             value: 'testId1'
         } as SimpleFilterDesign)).toEqual(source1);
 
-        expect(singleListCollection.findFilterDataSources({
+        expect(filterCollection.findFilterDataSources({
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
@@ -727,7 +731,7 @@ describe('SingleListFilterCollection', () => {
     });
 
     it('findFilterDataSources should return new data source and add to collection', () => {
-        let actual = singleListCollection.findFilterDataSources({
+        let actual = filterCollection.findFilterDataSources({
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -744,11 +748,11 @@ describe('SingleListFilterCollection', () => {
             operator: '!='
         } as FilterDataSource]);
 
-        expect((singleListCollection as any).data.get(actual)).toEqual([]);
+        expect((filterCollection as any).data.get(actual)).toEqual([]);
     });
 
     it('getDataSources should return expected array', () => {
-        expect(singleListCollection.getDataSources()).toEqual([source1, source2]);
+        expect(filterCollection.getDataSources()).toEqual([source1, source2]);
 
         let testDataSource = [{
             datastoreName: 'testDatastore1',
@@ -758,9 +762,9 @@ describe('SingleListFilterCollection', () => {
             operator: '!='
         } as FilterDataSource];
 
-        (singleListCollection as any).data.set(testDataSource, []);
+        (filterCollection as any).data.set(testDataSource, []);
 
-        expect(singleListCollection.getDataSources()).toEqual([source1, source2, testDataSource]);
+        expect(filterCollection.getDataSources()).toEqual([source1, source2, testDataSource]);
     });
 
     it('getFilters should create and return empty array if data source is not in collection', () => {
@@ -824,24 +828,24 @@ describe('SingleListFilterCollection', () => {
             operator: '!='
         } as FilterDataSource];
 
-        expect(singleListCollection.getFilters(testDataSource1)).toEqual([]);
-        expect(singleListCollection.getFilters(testDataSource2)).toEqual([]);
-        expect(singleListCollection.getFilters(testDataSource3)).toEqual([]);
-        expect(singleListCollection.getFilters(testDataSource4)).toEqual([]);
-        expect(singleListCollection.getFilters(testDataSource5)).toEqual([]);
-        expect(singleListCollection.getFilters(testDataSource6)).toEqual([]);
+        expect(filterCollection.getFilters(testDataSource1)).toEqual([]);
+        expect(filterCollection.getFilters(testDataSource2)).toEqual([]);
+        expect(filterCollection.getFilters(testDataSource3)).toEqual([]);
+        expect(filterCollection.getFilters(testDataSource4)).toEqual([]);
+        expect(filterCollection.getFilters(testDataSource5)).toEqual([]);
+        expect(filterCollection.getFilters(testDataSource6)).toEqual([]);
 
-        expect((singleListCollection as any).data.get(testDataSource1)).toEqual([]);
-        expect((singleListCollection as any).data.get(testDataSource2)).toEqual([]);
-        expect((singleListCollection as any).data.get(testDataSource3)).toEqual([]);
-        expect((singleListCollection as any).data.get(testDataSource4)).toEqual([]);
-        expect((singleListCollection as any).data.get(testDataSource5)).toEqual([]);
-        expect((singleListCollection as any).data.get(testDataSource6)).toEqual([]);
+        expect((filterCollection as any).data.get(testDataSource1)).toEqual([]);
+        expect((filterCollection as any).data.get(testDataSource2)).toEqual([]);
+        expect((filterCollection as any).data.get(testDataSource3)).toEqual([]);
+        expect((filterCollection as any).data.get(testDataSource4)).toEqual([]);
+        expect((filterCollection as any).data.get(testDataSource5)).toEqual([]);
+        expect((filterCollection as any).data.get(testDataSource6)).toEqual([]);
     });
 
     it('getFilters should return array from identical data source object in collection', () => {
-        expect(singleListCollection.getFilters(source1)).toEqual([filter1A, filter1B]);
-        expect(singleListCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterCollection.getFilters(source1)).toEqual([filter1A, filter1B]);
+        expect(filterCollection.getFilters(source2)).toEqual([filter2A]);
     });
 
     it('getFilters should return array from similar data source object in collection', () => {
@@ -867,11 +871,11 @@ describe('SingleListFilterCollection', () => {
             operator: '<'
         } as FilterDataSource];
 
-        expect(singleListCollection.getFilters(testDataSource1)).toEqual([filter1A, filter1B]);
-        expect(singleListCollection.getFilters(testDataSource2)).toEqual([filter2A]);
+        expect(filterCollection.getFilters(testDataSource1)).toEqual([filter1A, filter1B]);
+        expect(filterCollection.getFilters(testDataSource2)).toEqual([filter2A]);
 
-        expect((singleListCollection as any).data.has(testDataSource1)).toEqual(false);
-        expect((singleListCollection as any).data.has(testDataSource2)).toEqual(false);
+        expect((filterCollection as any).data.has(testDataSource1)).toEqual(false);
+        expect((filterCollection as any).data.has(testDataSource2)).toEqual(false);
     });
 
     it('setFilters should save filters with input data source if it is not in collection', () => {
@@ -892,19 +896,19 @@ describe('SingleListFilterCollection', () => {
             value: 'testId'
         } as SimpleFilterDesign, searchService);
 
-        expect(singleListCollection.setFilters(testDataSource, [testFilter], searchService)).toEqual(testDataSource);
-        expect((singleListCollection as any).data.get(testDataSource)).toEqual([testFilter]);
+        expect(filterCollection.setFilters(testDataSource, [testFilter])).toEqual(testDataSource);
+        expect((filterCollection as any).data.get(testDataSource)).toEqual([testFilter]);
 
-        expect(singleListCollection.setFilters(testDataSource, [], searchService)).toEqual(testDataSource);
-        expect((singleListCollection as any).data.get(testDataSource)).toEqual([]);
+        expect(filterCollection.setFilters(testDataSource, [])).toEqual(testDataSource);
+        expect((filterCollection as any).data.get(testDataSource)).toEqual([]);
     });
 
     it('setFilters should save filters with identical data source object in collection', () => {
-        expect(singleListCollection.setFilters(source1, [filter1A], searchService)).toEqual(source1);
-        expect((singleListCollection as any).data.get(source1)).toEqual([filter1A]);
+        expect(filterCollection.setFilters(source1, [filter1A])).toEqual(source1);
+        expect((filterCollection as any).data.get(source1)).toEqual([filter1A]);
 
-        expect(singleListCollection.setFilters(source1, [], searchService)).toEqual(source1);
-        expect((singleListCollection as any).data.get(source1)).toEqual([]);
+        expect(filterCollection.setFilters(source1, [])).toEqual(source1);
+        expect((filterCollection as any).data.get(source1)).toEqual([]);
 
         let testFilter = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
@@ -915,11 +919,11 @@ describe('SingleListFilterCollection', () => {
             value: 'testId'
         } as SimpleFilterDesign, searchService);
 
-        expect(singleListCollection.setFilters(source1, [testFilter], searchService)).toEqual(source1);
-        expect((singleListCollection as any).data.get(source1)).toEqual([testFilter]);
+        expect(filterCollection.setFilters(source1, [testFilter])).toEqual(source1);
+        expect((filterCollection as any).data.get(source1)).toEqual([testFilter]);
 
-        expect(singleListCollection.setFilters(source1, [filter1A, testFilter], searchService)).toEqual(source1);
-        expect((singleListCollection as any).data.get(source1)).toEqual([filter1A, testFilter]);
+        expect(filterCollection.setFilters(source1, [filter1A, testFilter])).toEqual(source1);
+        expect((filterCollection as any).data.get(source1)).toEqual([filter1A, testFilter]);
     });
 
     it('setFilters should save filters with similar data source object in collection', () => {
@@ -931,13 +935,13 @@ describe('SingleListFilterCollection', () => {
             operator: '='
         } as FilterDataSource];
 
-        expect(singleListCollection.setFilters(testDataSource, [filter1A], searchService)).toEqual(source1);
-        expect((singleListCollection as any).data.get(source1)).toEqual([filter1A]);
-        expect((singleListCollection as any).data.has(testDataSource)).toEqual(false);
+        expect(filterCollection.setFilters(testDataSource, [filter1A])).toEqual(source1);
+        expect((filterCollection as any).data.get(source1)).toEqual([filter1A]);
+        expect((filterCollection as any).data.has(testDataSource)).toEqual(false);
 
-        expect(singleListCollection.setFilters(testDataSource, [], searchService)).toEqual(source1);
-        expect((singleListCollection as any).data.get(source1)).toEqual([]);
-        expect((singleListCollection as any).data.has(testDataSource)).toEqual(false);
+        expect(filterCollection.setFilters(testDataSource, [])).toEqual(source1);
+        expect((filterCollection as any).data.get(source1)).toEqual([]);
+        expect((filterCollection as any).data.has(testDataSource)).toEqual(false);
 
         let testFilter = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
@@ -948,632 +952,13 @@ describe('SingleListFilterCollection', () => {
             value: 'testId'
         } as SimpleFilterDesign, searchService);
 
-        expect(singleListCollection.setFilters(testDataSource, [testFilter], searchService)).toEqual(source1);
-        expect((singleListCollection as any).data.get(source1)).toEqual([testFilter]);
-        expect((singleListCollection as any).data.has(testDataSource)).toEqual(false);
-
-        expect(singleListCollection.setFilters(testDataSource, [filter1A, testFilter], searchService)).toEqual(source1);
-        expect((singleListCollection as any).data.get(source1)).toEqual([filter1A, testFilter]);
-        expect((singleListCollection as any).data.has(testDataSource)).toEqual(false);
-    });
-});
-
-describe('DualListFilterCollection', () => {
-    let dualListCollection: DualListFilterCollection;
-    let searchService: AbstractSearchService;
-    let source1: FilterDataSource[];
-    let source2: FilterDataSource[];
-    let filter1A: any;
-    let filter1B: any;
-    let filter1C: any;
-    let filter1D: any;
-    let filter2A: any;
-    let requiredFilter1: any;
-    let optionalFilter1: any;
-
-    initializeTestBed('Dual List Filter Collection', {
-        providers: [
-            { provide: AbstractSearchService, useClass: SearchServiceMock }
-        ]
-    });
-
-    beforeEach(inject([AbstractSearchService], (_searchService) => {
-        searchService = _searchService;
-        source1 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
-            operator: '='
-        } as FilterDataSource];
-        source2 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '>'
-        } as FilterDataSource, {
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '<'
-        } as FilterDataSource];
-        filter1A = FilterUtil.createFilterFromDesign({
-            datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
-            operator: '=',
-            value: 'testId1'
-        } as SimpleFilterDesign, searchService);
-        filter1B = FilterUtil.createFilterFromDesign({
-            datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
-            operator: '=',
-            value: 'testId2'
-        } as SimpleFilterDesign, searchService);
-        filter1C = FilterUtil.createFilterFromDesign({
-            datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
-            operator: '=',
-            value: 'testId3'
-        } as SimpleFilterDesign, searchService);
-        filter1D = FilterUtil.createFilterFromDesign({
-            datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
-            operator: '=',
-            value: 'testId4'
-        } as SimpleFilterDesign, searchService);
-        filter2A = FilterUtil.createFilterFromDesign({
-            type: 'and',
-            filters: [{
-                datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
-                operator: '>',
-                value: 10
-            } as SimpleFilterDesign, {
-                datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
-                operator: '<',
-                value: 20
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign, searchService);
-        requiredFilter1 = FilterUtil.createFilterFromDesign({
-            type: 'and',
-            filters: [filter1A, filter1B]
-        } as CompoundFilterDesign, searchService);
-        optionalFilter1 = FilterUtil.createFilterFromDesign({
-            type: 'or',
-            filters: [filter1C, filter1D]
-        } as CompoundFilterDesign, searchService);
-        let requiredFilter2 = FilterUtil.createFilterFromDesign({
-            type: 'and',
-            filters: [filter2A]
-        } as CompoundFilterDesign, searchService);
-        dualListCollection = new DualListFilterCollection();
-        (dualListCollection as any).data.set(source1, [requiredFilter1, optionalFilter1]);
-        (dualListCollection as any).data.set(source2, [requiredFilter2, null]);
-    }));
-
-    it('data of new collection should be empty', () => {
-        let testCollection = new DualListFilterCollection();
-        expect((testCollection as any).data.size).toEqual(0);
-    });
-
-    it('findFilterDataSources should return data source from collection', () => {
-        expect(dualListCollection.findFilterDataSources({
-            datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
-            operator: '=',
-            value: 'testId1'
-        } as SimpleFilterDesign)).toEqual(source1);
-
-        expect(dualListCollection.findFilterDataSources({
-            type: 'and',
-            filters: [{
-                datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
-                operator: '>',
-                value: 10
-            } as SimpleFilterDesign, {
-                datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
-                operator: '<',
-                value: 20
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(source2);
-    });
-
-    it('findFilterDataSources should return new data source and add to collection', () => {
-        let actual = dualListCollection.findFilterDataSources({
-            datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
-            operator: '!=',
-            value: 'testId1'
-        } as SimpleFilterDesign);
-
-        expect(actual).toEqual([{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
-            operator: '!='
-        } as FilterDataSource]);
-
-        expect((dualListCollection as any).data.get(actual)).toEqual([null, null]);
-    });
-
-    it('getDataSources should return expected array', () => {
-        expect(dualListCollection.getDataSources()).toEqual([source1, source2]);
-
-        let testDataSource = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
-            operator: '!='
-        } as FilterDataSource];
-
-        (dualListCollection as any).data.set(testDataSource, [null, null]);
-
-        expect(dualListCollection.getDataSources()).toEqual([source1, source2, testDataSource]);
-    });
-
-    it('getFiltersInSingleList should create and return empty array if data source is not in collection', () => {
-        let testDataSource1 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
-            operator: '!='
-        } as FilterDataSource];
-
-        let testDataSource2 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '='
-        } as FilterDataSource, {
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '!='
-        } as FilterDataSource];
-
-        expect(dualListCollection.getFiltersInSingleList(testDataSource1)).toEqual([]);
-        expect(dualListCollection.getFiltersInSingleList(testDataSource2)).toEqual([]);
-
-        expect((dualListCollection as any).data.get(testDataSource1)).toEqual([null, null]);
-        expect((dualListCollection as any).data.get(testDataSource2)).toEqual([null, null]);
-    });
-
-    it('getFiltersInSingleList should return array from identical data source object in collection', () => {
-        expect(dualListCollection.getFiltersInSingleList(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect(dualListCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
-    });
-
-    it('getFiltersInSingleList should return array from similar data source object in collection', () => {
-        let testDataSource1 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
-            operator: '='
-        } as FilterDataSource];
-
-        let testDataSource2 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '>'
-        } as FilterDataSource, {
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '<'
-        } as FilterDataSource];
-
-        expect(dualListCollection.getFiltersInSingleList(testDataSource1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect(dualListCollection.getFiltersInSingleList(testDataSource2)).toEqual([filter2A]);
-
-        expect((dualListCollection as any).data.has(testDataSource1)).toEqual(false);
-        expect((dualListCollection as any).data.has(testDataSource2)).toEqual(false);
-    });
-
-    it('getFiltersFromOptionalList should create and return empty array if data source is not in collection', () => {
-        let testDataSource1 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
-            operator: '!='
-        } as FilterDataSource];
-
-        let testDataSource2 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '='
-        } as FilterDataSource, {
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '!='
-        } as FilterDataSource];
-
-        expect(dualListCollection.getFiltersFromOptionalList(testDataSource1)).toEqual([]);
-        expect(dualListCollection.getFiltersFromOptionalList(testDataSource2)).toEqual([]);
-
-        expect((dualListCollection as any).data.get(testDataSource1)).toEqual([null, null]);
-        expect((dualListCollection as any).data.get(testDataSource2)).toEqual([null, null]);
-    });
-
-    it('getFiltersFromOptionalList should return array from identical data source object in collection', () => {
-        expect(dualListCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect(dualListCollection.getFiltersFromOptionalList(source2)).toEqual([]);
-    });
-
-    it('getFiltersFromOptionalList should return array from similar data source object in collection', () => {
-        let testDataSource1 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
-            operator: '='
-        } as FilterDataSource];
-
-        let testDataSource2 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '>'
-        } as FilterDataSource, {
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '<'
-        } as FilterDataSource];
-
-        expect(dualListCollection.getFiltersFromOptionalList(testDataSource1)).toEqual([filter1C, filter1D]);
-        expect(dualListCollection.getFiltersFromOptionalList(testDataSource2)).toEqual([]);
-
-        expect((dualListCollection as any).data.has(testDataSource1)).toEqual(false);
-        expect((dualListCollection as any).data.has(testDataSource2)).toEqual(false);
-    });
-
-    it('getFiltersFromRequiredList should create and return empty array if data source is not in collection', () => {
-        let testDataSource1 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
-            operator: '!='
-        } as FilterDataSource];
-
-        let testDataSource2 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '='
-        } as FilterDataSource, {
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '!='
-        } as FilterDataSource];
-
-        expect(dualListCollection.getFiltersFromRequiredList(testDataSource1)).toEqual([]);
-        expect(dualListCollection.getFiltersFromRequiredList(testDataSource2)).toEqual([]);
-
-        expect((dualListCollection as any).data.get(testDataSource1)).toEqual([null, null]);
-        expect((dualListCollection as any).data.get(testDataSource2)).toEqual([null, null]);
-    });
-
-    it('getFiltersFromRequiredList should return array from identical data source object in collection', () => {
-        expect(dualListCollection.getFiltersFromRequiredList(source1)).toEqual([filter1A, filter1B]);
-        expect(dualListCollection.getFiltersFromRequiredList(source2)).toEqual([filter2A]);
-    });
-
-    it('getFiltersFromRequiredList should return array from similar data source object in collection', () => {
-        let testDataSource1 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
-            operator: '='
-        } as FilterDataSource];
-
-        let testDataSource2 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '>'
-        } as FilterDataSource, {
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '<'
-        } as FilterDataSource];
-
-        expect(dualListCollection.getFiltersFromRequiredList(testDataSource1)).toEqual([filter1A, filter1B]);
-        expect(dualListCollection.getFiltersFromRequiredList(testDataSource2)).toEqual([filter2A]);
-
-        expect((dualListCollection as any).data.has(testDataSource1)).toEqual(false);
-        expect((dualListCollection as any).data.has(testDataSource2)).toEqual(false);
-    });
-
-    it('getFiltersToSearch should create and return empty array if data source is not in collection', () => {
-        let testDataSource1 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
-            operator: '!='
-        } as FilterDataSource];
-
-        let testDataSource2 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '='
-        } as FilterDataSource, {
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '!='
-        } as FilterDataSource];
-
-        expect(dualListCollection.getFiltersToSearch(testDataSource1)).toEqual([]);
-        expect(dualListCollection.getFiltersToSearch(testDataSource2)).toEqual([]);
-
-        expect((dualListCollection as any).data.get(testDataSource1)).toEqual([null, null]);
-        expect((dualListCollection as any).data.get(testDataSource2)).toEqual([null, null]);
-    });
-
-    it('getFiltersToSearch should return array from identical data source object in collection', () => {
-        expect(dualListCollection.getFiltersToSearch(source1)).toEqual([requiredFilter1, optionalFilter1]);
-        expect(dualListCollection.getFiltersToSearch(source2)).toEqual([filter2A]);
-    });
-
-    it('getFiltersToSearch should return array from similar data source object in collection', () => {
-        let testDataSource1 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
-            operator: '='
-        } as FilterDataSource];
-
-        let testDataSource2 = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '>'
-        } as FilterDataSource, {
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
-            operator: '<'
-        } as FilterDataSource];
-
-        expect(dualListCollection.getFiltersToSearch(testDataSource1)).toEqual([requiredFilter1, optionalFilter1]);
-        expect(dualListCollection.getFiltersToSearch(testDataSource2)).toEqual([filter2A]);
-
-        expect((dualListCollection as any).data.has(testDataSource1)).toEqual(false);
-        expect((dualListCollection as any).data.has(testDataSource2)).toEqual(false);
-    });
-
-    it('setFiltersInDualLists should save filters with input data source if it is not in collection', () => {
-        let actual;
-
-        let testDataSource = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
-            operator: '!='
-        } as FilterDataSource];
-
-        let testFilter1 = FilterUtil.createFilterFromDesign({
-            datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
-            operator: '!=',
-            value: 'testId1'
-        } as SimpleFilterDesign, searchService);
-
-        let testFilter2 = FilterUtil.createFilterFromDesign({
-            datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
-            operator: '!=',
-            value: 'testId2'
-        } as SimpleFilterDesign, searchService);
-
-        expect(dualListCollection.setFiltersInDualLists(testDataSource, [testFilter1], [testFilter2], searchService)).toEqual(
-            testDataSource);
-        actual = (dualListCollection as any).data.get(testDataSource);
-        expect(actual.length).toEqual(2);
-        expect(actual[0].type).toEqual('and');
-        expect(actual[0].filters).toEqual([testFilter1]);
-        expect(actual[1].type).toEqual('or');
-        expect(actual[1].filters).toEqual([testFilter2]);
-
-        let testFilter3 = FilterUtil.createFilterFromDesign({
-            datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
-            operator: '!=',
-            value: 'testId3'
-        } as SimpleFilterDesign, searchService);
-
-        let testFilter4 = FilterUtil.createFilterFromDesign({
-            datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
-            operator: '!=',
-            value: 'testId4'
-        } as SimpleFilterDesign, searchService);
-
-        expect(dualListCollection.setFiltersInDualLists(testDataSource, [testFilter1, testFilter2], [testFilter3, testFilter4],
-            searchService)).toEqual(testDataSource);
-        actual = (dualListCollection as any).data.get(testDataSource);
-        expect(actual.length).toEqual(2);
-        expect(actual[0].type).toEqual('and');
-        expect(actual[0].filters).toEqual([testFilter1, testFilter2]);
-        expect(actual[1].type).toEqual('or');
-        expect(actual[1].filters).toEqual([testFilter3, testFilter4]);
-
-        expect(dualListCollection.setFiltersInDualLists(testDataSource, [testFilter1], [], searchService)).toEqual(testDataSource);
-        actual = (dualListCollection as any).data.get(testDataSource);
-        expect(actual.length).toEqual(2);
-        expect(actual[0].type).toEqual('and');
-        expect(actual[0].filters).toEqual([testFilter1]);
-        expect(actual[1]).toEqual(null);
-
-        expect(dualListCollection.setFiltersInDualLists(testDataSource, [], [testFilter1], searchService)).toEqual(testDataSource);
-        actual = (dualListCollection as any).data.get(testDataSource);
-        expect(actual.length).toEqual(2);
-        expect(actual[0]).toEqual(null);
-        expect(actual[1].type).toEqual('or');
-        expect(actual[1].filters).toEqual([testFilter1]);
-    });
-
-    it('setFiltersInDualLists should save filters with identical data source object in collection', () => {
-        let actual;
-
-        expect(dualListCollection.setFiltersInDualLists(source1, [filter1A, filter1D], [filter1B, filter1C],
-            searchService)).toEqual(source1);
-        actual = (dualListCollection as any).data.get(source1);
-        expect(actual.length).toEqual(2);
-        expect(actual[0].type).toEqual('and');
-        expect(actual[0].filters).toEqual([filter1A, filter1D]);
-        expect(actual[1].type).toEqual('or');
-        expect(actual[1].filters).toEqual([filter1B, filter1C]);
-
-        expect(dualListCollection.setFiltersInDualLists(source1, [], [], searchService)).toEqual(source1);
-        actual = (dualListCollection as any).data.get(source1);
-        expect(actual.length).toEqual(2);
-        expect(actual[0]).toEqual(null);
-        expect(actual[1]).toEqual(null);
-
-        let testFilter = FilterUtil.createFilterFromDesign({
-            datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
-            operator: '=',
-            value: 'testId'
-        } as SimpleFilterDesign, searchService);
-
-        expect(dualListCollection.setFiltersInDualLists(source1, [testFilter], [], searchService)).toEqual(source1);
-        actual = (dualListCollection as any).data.get(source1);
-        expect(actual.length).toEqual(2);
-        expect(actual[0].type).toEqual('and');
-        expect(actual[0].filters).toEqual([testFilter]);
-        expect(actual[1]).toEqual(null);
-
-        expect(dualListCollection.setFiltersInDualLists(source1, [filter1A], [testFilter], searchService)).toEqual(source1);
-        actual = (dualListCollection as any).data.get(source1);
-        expect(actual.length).toEqual(2);
-        expect(actual[0].type).toEqual('and');
-        expect(actual[0].filters).toEqual([filter1A]);
-        expect(actual[1].type).toEqual('or');
-        expect(actual[1].filters).toEqual([testFilter]);
-    });
-
-    it('setFiltersInDualLists should save filters with similar data source object in collection', () => {
-        let actual;
-
-        let testDataSource = [{
-            datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
-            operator: '='
-        } as FilterDataSource];
-
-        expect(dualListCollection.setFiltersInDualLists(testDataSource, [filter1A, filter1D], [filter1B, filter1C],
-            searchService)).toEqual(source1);
-        actual = (dualListCollection as any).data.get(source1);
-        expect(actual.length).toEqual(2);
-        expect(actual[0].type).toEqual('and');
-        expect(actual[0].filters).toEqual([filter1A, filter1D]);
-        expect(actual[1].type).toEqual('or');
-        expect(actual[1].filters).toEqual([filter1B, filter1C]);
-        expect((dualListCollection as any).data.has(testDataSource)).toEqual(false);
-
-        expect(dualListCollection.setFiltersInDualLists(testDataSource, [], [], searchService)).toEqual(source1);
-        actual = (dualListCollection as any).data.get(source1);
-        expect(actual.length).toEqual(2);
-        expect(actual[0]).toEqual(null);
-        expect(actual[1]).toEqual(null);
-        expect((dualListCollection as any).data.has(testDataSource)).toEqual(false);
-
-        let testFilter = FilterUtil.createFilterFromDesign({
-            datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
-            operator: '=',
-            value: 'testId'
-        } as SimpleFilterDesign, searchService);
-
-        expect(dualListCollection.setFiltersInDualLists(testDataSource, [testFilter], [], searchService)).toEqual(source1);
-        actual = (dualListCollection as any).data.get(source1);
-        expect(actual.length).toEqual(2);
-        expect(actual[0].type).toEqual('and');
-        expect(actual[0].filters).toEqual([testFilter]);
-        expect(actual[1]).toEqual(null);
-        expect((dualListCollection as any).data.has(testDataSource)).toEqual(false);
-
-        expect(dualListCollection.setFiltersInDualLists(testDataSource, [filter1A], [testFilter], searchService)).toEqual(source1);
-        actual = (dualListCollection as any).data.get(source1);
-        expect(actual.length).toEqual(2);
-        expect(actual[0].type).toEqual('and');
-        expect(actual[0].filters).toEqual([filter1A]);
-        expect(actual[1].type).toEqual('or');
-        expect(actual[1].filters).toEqual([testFilter]);
-        expect((dualListCollection as any).data.has(testDataSource)).toEqual(false);
+        expect(filterCollection.setFilters(testDataSource, [testFilter])).toEqual(source1);
+        expect((filterCollection as any).data.get(source1)).toEqual([testFilter]);
+        expect((filterCollection as any).data.has(testDataSource)).toEqual(false);
+
+        expect(filterCollection.setFilters(testDataSource, [filter1A, testFilter])).toEqual(source1);
+        expect((filterCollection as any).data.get(source1)).toEqual([filter1A, testFilter]);
+        expect((filterCollection as any).data.has(testDataSource)).toEqual(false);
     });
 });
 
@@ -3961,9 +3346,8 @@ describe('FilterService with filters', () => {
         design2A.filters[1].id = filter2A.filters[1].id;
         design2A.filters[1].name = filter2A.filters[1].name;
 
-        (filterService as any).filterCollection.setFiltersInDualLists(source1, [filter1A, filter1B], [filter1C, filter1D],
-            searchService);
-        (filterService as any).filterCollection.setFiltersInDualLists(source2, [filter2A], [], searchService);
+        (filterService as any).filterCollection.setFilters(source1, [filter1A, filter1B, filter1C, filter1D]);
+        (filterService as any).filterCollection.setFilters(source2, [filter2A]);
     }));
 
     afterEach(() => {
@@ -3976,8 +3360,8 @@ describe('FilterService with filters', () => {
      */
     let activateRelationFilters = () => {
         generateRelationFilters();
-        (filterService as any).filterCollection.setFiltersInDualLists(relationSource1, [relationFilter1], [], searchService);
-        (filterService as any).filterCollection.setFiltersInDualLists(relationSource2, [relationFilter2], [], searchService);
+        (filterService as any).filterCollection.setFilters(relationSource1, [relationFilter1]);
+        (filterService as any).filterCollection.setFilters(relationSource2, [relationFilter2]);
     };
 
     /**
@@ -4046,12 +3430,8 @@ describe('FilterService with filters', () => {
 
     it('should have expected properties', () => {
         expect((filterService as any).filterCollection.getDataSources()).toEqual([source1, source2]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([filter1A, filter1B]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source2)).toEqual([filter2A]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source2)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
         expect((filterService as any).messenger).toBeDefined();
     });
 
@@ -4060,10 +3440,8 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.deleteFilter('testCaller', design1A, searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([filter1B]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -4085,8 +3463,8 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.deleteFilter('testCaller', relationDesign1, searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(relationSource1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(relationSource2)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(relationSource1)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(relationSource2)).toEqual([]);
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -4108,8 +3486,8 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.deleteFilters('testCaller', searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -4129,10 +3507,8 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.deleteFilters('testCaller', searchService, [design1A]);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -4154,8 +3530,8 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.deleteFilters('testCaller', searchService, [relationDesign1]);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(relationSource1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(relationSource2)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(relationSource1)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(relationSource2)).toEqual([]);
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -4222,12 +3598,10 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.exchangeFilters('testCaller', [testDesign], [], searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([filter1A, filter1B]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFiltersInSingleList(testSource);
+        let listComplete = (filterService as any).filterCollection.getFilters(testSource);
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -4235,13 +3609,8 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testText');
 
-        let listRequired = (filterService as any).filterCollection.getFiltersFromRequiredList(testSource);
-        expect(listRequired).toEqual(listComplete);
-
         testDesign.id = listComplete[0].id;
         testDesign.name = listComplete[0].name;
-
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(testSource)).toEqual([]);
 
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
@@ -4272,7 +3641,7 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.exchangeFilters('testCaller', [testDesign], [], searchService);
 
-        let listComplete = (filterService as any).filterCollection.getFiltersInSingleList(source1);
+        let listComplete = (filterService as any).filterCollection.getFilters(source1);
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -4280,14 +3649,10 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testId5');
 
-        let listRequired = (filterService as any).filterCollection.getFiltersFromRequiredList(source1);
-        expect(listRequired).toEqual(listComplete);
-
         testDesign.id = listComplete[0].id;
         testDesign.name = listComplete[0].name;
 
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -4325,12 +3690,10 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.exchangeFilters('testCaller', [testDesign], [], searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([filter1A, filter1B]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFiltersInSingleList(testSource);
+        let listComplete = (filterService as any).filterCollection.getFilters(testSource);
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -4338,13 +3701,8 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testText');
 
-        let listOptional = (filterService as any).filterCollection.getFiltersFromOptionalList(testSource);
-        expect(listOptional).toEqual(listComplete);
-
         testDesign.id = listComplete[0].id;
         testDesign.name = listComplete[0].name;
-
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(testSource)).toEqual([]);
 
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
@@ -4367,12 +3725,10 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.exchangeFilters('testCaller', [relationDesign1], datasetService.findRelationDataList(), searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([filter1A, filter1B]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFiltersInSingleList(relationSource1);
+        let listComplete = (filterService as any).filterCollection.getFilters(relationSource1);
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -4380,13 +3736,10 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testRelation');
 
-        let listRequired = (filterService as any).filterCollection.getFiltersFromRequiredList(relationSource1);
-        expect(listRequired).toEqual(listComplete);
-
         relationDesign1.id = listComplete[0].id;
         relationDesign1.name = listComplete[0].name;
 
-        listComplete = (filterService as any).filterCollection.getFiltersInSingleList(relationSource2);
+        listComplete = (filterService as any).filterCollection.getFilters(relationSource2);
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -4394,14 +3747,8 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testRelation');
 
-        listRequired = (filterService as any).filterCollection.getFiltersFromRequiredList(relationSource2);
-        expect(listRequired).toEqual(listComplete);
-
         relationDesign2.id = listComplete[0].id;
         relationDesign2.name = listComplete[0].name;
-
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(relationSource1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(relationSource2)).toEqual([]);
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -4435,21 +3782,16 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.exchangeFilters('testCaller', [testDesign2], datasetService.findRelationDataList(), searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([filter1A, filter1B]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFiltersInSingleList(relationSource1);
+        let listComplete = (filterService as any).filterCollection.getFilters(relationSource1);
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
         expect(listComplete[0].field).toEqual(DatasetServiceMock.RELATION_FIELD_A);
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testExchangeRelation');
-
-        let listRequired = (filterService as any).filterCollection.getFiltersFromRequiredList(relationSource1);
-        expect(listRequired).toEqual(listComplete);
 
         let testDesign1 = {
             id: listComplete[0].id,
@@ -4463,7 +3805,7 @@ describe('FilterService with filters', () => {
             value: 'testExchangeRelation'
         } as SimpleFilterDesign;
 
-        listComplete = (filterService as any).filterCollection.getFiltersInSingleList(relationSource2);
+        listComplete = (filterService as any).filterCollection.getFilters(relationSource2);
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -4471,14 +3813,8 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testExchangeRelation');
 
-        listRequired = (filterService as any).filterCollection.getFiltersFromRequiredList(relationSource2);
-        expect(listRequired).toEqual(listComplete);
-
         testDesign2.id = listComplete[0].id;
         testDesign2.name = listComplete[0].name;
-
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(relationSource1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(relationSource2)).toEqual([]);
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -4500,10 +3836,8 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.exchangeFilters('testCaller', [], [], searchService, [design1A]);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -4525,8 +3859,8 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.exchangeFilters('testCaller', [], [], searchService, [relationDesign1]);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(relationSource1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(relationSource2)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(relationSource1)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(relationSource2)).toEqual([]);
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -4548,10 +3882,8 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.exchangeFilters('testCaller', [], [], searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([filter1A, filter1B]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -4576,10 +3908,10 @@ describe('FilterService with filters', () => {
     });
 
     it('getFiltersToSearch should return expected array', () => {
-        expect(filterService.getFiltersToSearch('fakeDatastore1', 'testDatabase1', 'testTable1')).toEqual([]);
-        expect(filterService.getFiltersToSearch('', 'fakeDatabase1', 'testTable1')).toEqual([]);
-        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'fakeTable1')).toEqual([]);
-        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1')).toEqual([{
+        expect(filterService.getFiltersToSearch('fakeDatastore1', 'testDatabase1', 'testTable1', searchService)).toEqual([]);
+        expect(filterService.getFiltersToSearch('', 'fakeDatabase1', 'testTable1', searchService)).toEqual([]);
+        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'fakeTable1', searchService)).toEqual([]);
+        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', searchService)).toEqual([{
             type: 'and',
             filters: [{
                 field: 'testIdField',
@@ -4616,7 +3948,7 @@ describe('FilterService with filters', () => {
     });
 
     it('getFiltersToSearch with filter-list-to-ignore should return expected array', () => {
-        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', [])).toEqual([{
+        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', searchService, [])).toEqual([{
             type: 'and',
             filters: [{
                 field: 'testIdField',
@@ -4651,7 +3983,7 @@ describe('FilterService with filters', () => {
             }]
         }]);
 
-        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', [design1A])).toEqual([{
+        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', searchService, [design1A])).toEqual([{
             type: 'and',
             filters: [{
                 field: 'testSizeField',
@@ -4664,7 +3996,7 @@ describe('FilterService with filters', () => {
             }]
         }]);
 
-        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', [design2A])).toEqual([{
+        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', searchService, [design2A])).toEqual([{
             type: 'and',
             filters: [{
                 field: 'testIdField',
@@ -4688,7 +4020,7 @@ describe('FilterService with filters', () => {
             }]
         }]);
 
-        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', [design1A, design2A])).toEqual([]);
+        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', searchService, [design1A, design2A])).toEqual([]);
     });
 
     it('setFilters should change filterCollection', () => {
@@ -4699,7 +4031,7 @@ describe('FilterService with filters', () => {
 
         filterService.setFilters([design1A], searchService);
         expect((filterService as any).filterCollection.getDataSources()).toEqual([source1]);
-        actual = (filterService as any).filterCollection.getFiltersInSingleList(source1);
+        actual = (filterService as any).filterCollection.getFilters(source1);
         expect(actual.length).toEqual(1);
         expect(actual[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(actual[0].table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -4707,12 +4039,10 @@ describe('FilterService with filters', () => {
         expect(actual[0].operator).toEqual('=');
         expect(actual[0].value).toEqual('testId1');
         expect(actual[0].optional).toEqual(false);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1).length).toEqual(1);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1).length).toEqual(0);
 
         filterService.setFilters([design1A, design1B, design1C, design1D], searchService);
         expect((filterService as any).filterCollection.getDataSources()).toEqual([source1]);
-        actual = (filterService as any).filterCollection.getFiltersInSingleList(source1);
+        actual = (filterService as any).filterCollection.getFilters(source1);
         expect(actual.length).toEqual(4);
         expect(actual[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(actual[0].table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -4738,12 +4068,10 @@ describe('FilterService with filters', () => {
         expect(actual[3].operator).toEqual('=');
         expect(actual[3].value).toEqual('testId4');
         expect(actual[3].optional).toEqual(true);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1).length).toEqual(2);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1).length).toEqual(2);
 
         filterService.setFilters([design2A], searchService);
         expect((filterService as any).filterCollection.getDataSources()).toEqual([source2]);
-        actual = (filterService as any).filterCollection.getFiltersInSingleList(source2);
+        actual = (filterService as any).filterCollection.getFilters(source2);
         expect(actual.length).toEqual(1);
         expect(actual[0].type).toEqual(CompoundFilterType.AND);
         expect(actual[0].optional).toEqual(false);
@@ -4758,12 +4086,10 @@ describe('FilterService with filters', () => {
         expect(actual[0].filters[1].field).toEqual(DatasetServiceMock.SIZE_FIELD);
         expect(actual[0].filters[1].operator).toEqual('<');
         expect(actual[0].filters[1].value).toEqual(20);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source2).length).toEqual(1);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source2).length).toEqual(0);
 
         filterService.setFilters([design1A, design1B, design2A], searchService);
         expect((filterService as any).filterCollection.getDataSources()).toEqual([source1, source2]);
-        actual = (filterService as any).filterCollection.getFiltersInSingleList(source1);
+        actual = (filterService as any).filterCollection.getFilters(source1);
         expect(actual.length).toEqual(2);
         expect(actual[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(actual[0].table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -4777,7 +4103,7 @@ describe('FilterService with filters', () => {
         expect(actual[1].operator).toEqual('=');
         expect(actual[1].value).toEqual('testId2');
         expect(actual[1].optional).toEqual(false);
-        actual = (filterService as any).filterCollection.getFiltersInSingleList(source2);
+        actual = (filterService as any).filterCollection.getFilters(source2);
         expect(actual.length).toEqual(1);
         expect(actual[0].type).toEqual(CompoundFilterType.AND);
         expect(actual[0].optional).toEqual(false);
@@ -4809,31 +4135,27 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [testDesign], [], searchService);
 
-        let listComplete = (filterService as any).filterCollection.getFiltersInSingleList(source1);
+        let listComplete = (filterService as any).filterCollection.getFilters(source1);
         expect(listComplete.length).toEqual(5);
         expect(listComplete[0]).toEqual(filter1A);
         expect(listComplete[1]).toEqual(filter1B);
-        expect(listComplete[2].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(listComplete[2].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(listComplete[2].field).toEqual(DatasetServiceMock.ID_FIELD);
-        expect(listComplete[2].operator).toEqual('=');
-        expect(listComplete[2].value).toEqual('testId5');
-        expect(listComplete[3]).toEqual(filter1C);
-        expect(listComplete[4]).toEqual(filter1D);
+        expect(listComplete[2]).toEqual(filter1C);
+        expect(listComplete[3]).toEqual(filter1D);
+        expect(listComplete[4].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(listComplete[4].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(listComplete[4].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(listComplete[4].operator).toEqual('=');
+        expect(listComplete[4].value).toEqual('testId5');
 
-        let listRequired = (filterService as any).filterCollection.getFiltersFromRequiredList(source1);
-        expect(listRequired).toEqual(listComplete.slice(0, 3));
+        testDesign.id = listComplete[4].id;
+        testDesign.name = listComplete[4].name;
 
-        testDesign.id = listComplete[2].id;
-        testDesign.name = listComplete[2].name;
-
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, testDesign, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D, testDesign]);
         expect(actual.get(keys[1])).toEqual([design2A]);
 
         expect(spy.calls.count()).toEqual(1);
@@ -4866,12 +4188,10 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [testDesign], [], searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([filter1A, filter1B]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFiltersInSingleList(testSource);
+        let listComplete = (filterService as any).filterCollection.getFilters(testSource);
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -4879,13 +4199,8 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testText');
 
-        let listRequired = (filterService as any).filterCollection.getFiltersFromRequiredList(testSource);
-        expect(listRequired).toEqual(listComplete);
-
         testDesign.id = listComplete[0].id;
         testDesign.name = listComplete[0].name;
-
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(testSource)).toEqual([]);
 
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
@@ -4906,10 +4221,8 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [design1A, design1C], [], searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([filter1B, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([filter1B]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1B, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -4947,12 +4260,10 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [testDesign, design1A], [], searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([filter1B]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFiltersInSingleList(testSource);
+        let listComplete = (filterService as any).filterCollection.getFilters(testSource);
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -4960,13 +4271,8 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testText');
 
-        let listRequired = (filterService as any).filterCollection.getFiltersFromRequiredList(testSource);
-        expect(listRequired).toEqual(listComplete);
-
         testDesign.id = listComplete[0].id;
         testDesign.name = listComplete[0].name;
-
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(testSource)).toEqual([]);
 
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
@@ -5005,12 +4311,10 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [testDesign], [], searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([filter1A, filter1B]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFiltersInSingleList(testSource);
+        let listComplete = (filterService as any).filterCollection.getFilters(testSource);
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -5018,13 +4322,8 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testText');
 
-        let listOptional = (filterService as any).filterCollection.getFiltersFromOptionalList(testSource);
-        expect(listOptional).toEqual(listComplete);
-
         testDesign.id = listComplete[0].id;
         testDesign.name = listComplete[0].name;
-
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(testSource)).toEqual([]);
 
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
@@ -5047,12 +4346,10 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [relationDesign1], datasetService.findRelationDataList(), searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([filter1A, filter1B]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFiltersInSingleList(relationSource1);
+        let listComplete = (filterService as any).filterCollection.getFilters(relationSource1);
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -5060,13 +4357,10 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testRelation');
 
-        let listRequired = (filterService as any).filterCollection.getFiltersFromRequiredList(relationSource1);
-        expect(listRequired).toEqual(listComplete);
-
         relationDesign1.id = listComplete[0].id;
         relationDesign1.name = listComplete[0].name;
 
-        listComplete = (filterService as any).filterCollection.getFiltersInSingleList(relationSource2);
+        listComplete = (filterService as any).filterCollection.getFilters(relationSource2);
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -5074,14 +4368,8 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testRelation');
 
-        listRequired = (filterService as any).filterCollection.getFiltersFromRequiredList(relationSource2);
-        expect(listRequired).toEqual(listComplete);
-
         relationDesign2.id = listComplete[0].id;
         relationDesign2.name = listComplete[0].name;
-
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(relationSource1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(relationSource2)).toEqual([]);
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -5115,12 +4403,10 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [testDesign2], datasetService.findRelationDataList(), searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([filter1A, filter1B]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFiltersInSingleList(relationSource1);
+        let listComplete = (filterService as any).filterCollection.getFilters(relationSource1);
         expect(listComplete.length).toEqual(2);
         expect(listComplete[0]).toEqual(relationFilter1);
         expect(listComplete[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
@@ -5128,9 +4414,6 @@ describe('FilterService with filters', () => {
         expect(listComplete[1].field).toEqual(DatasetServiceMock.RELATION_FIELD_A);
         expect(listComplete[1].operator).toEqual('=');
         expect(listComplete[1].value).toEqual('testToggleRelation');
-
-        let listRequired = (filterService as any).filterCollection.getFiltersFromRequiredList(relationSource1);
-        expect(listRequired).toEqual(listComplete);
 
         let testDesign1 = {
             id: listComplete[1].id,
@@ -5144,7 +4427,7 @@ describe('FilterService with filters', () => {
             value: 'testToggleRelation'
         } as SimpleFilterDesign;
 
-        listComplete = (filterService as any).filterCollection.getFiltersInSingleList(relationSource2);
+        listComplete = (filterService as any).filterCollection.getFilters(relationSource2);
         expect(listComplete.length).toEqual(2);
         expect(listComplete[0]).toEqual(relationFilter2);
         expect(listComplete[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
@@ -5153,14 +4436,8 @@ describe('FilterService with filters', () => {
         expect(listComplete[1].operator).toEqual('=');
         expect(listComplete[1].value).toEqual('testToggleRelation');
 
-        listRequired = (filterService as any).filterCollection.getFiltersFromRequiredList(relationSource2);
-        expect(listRequired).toEqual(listComplete);
-
         testDesign2.id = listComplete[1].id;
         testDesign2.name = listComplete[1].name;
-
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(relationSource1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(relationSource2)).toEqual([]);
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -5184,12 +4461,10 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [relationDesign1], datasetService.findRelationDataList(), searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([filter1A, filter1B]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(relationSource1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(relationSource2)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(relationSource1)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(relationSource2)).toEqual([]);
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -5238,19 +4513,17 @@ describe('FilterService with filters', () => {
         testDesign2.id = testFilter2.id;
         testDesign2.name = testFilter2.name;
 
-        (filterService as any).filterCollection.setFiltersInDualLists(relationSource1, [relationFilter1, testFilter1], [], searchService);
-        (filterService as any).filterCollection.setFiltersInDualLists(relationSource2, [relationFilter2, testFilter2], [], searchService);
+        (filterService as any).filterCollection.setFilters(relationSource1, [relationFilter1, testFilter1]);
+        (filterService as any).filterCollection.setFilters(relationSource2, [relationFilter2, testFilter2]);
 
         let spy = spyOn((filterService as any).messenger, 'publish');
 
         let actual = filterService.toggleFilters('testCaller', [relationDesign1], datasetService.findRelationDataList(), searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([filter1A, filter1B]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(relationSource1)).toEqual([testFilter1]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(relationSource2)).toEqual([testFilter2]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(relationSource1)).toEqual([testFilter1]);
+        expect((filterService as any).filterCollection.getFilters(relationSource2)).toEqual([testFilter2]);
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -5272,10 +4545,8 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [], [], searchService);
 
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersFromRequiredList(source1)).toEqual([filter1A, filter1B]);
-        expect((filterService as any).filterCollection.getFiltersFromOptionalList(source1)).toEqual([filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFiltersInSingleList(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -5287,18 +4558,18 @@ describe('FilterService with filters', () => {
     });
 
     it('isFiltererd should return expected boolean', () => {
-        let testCollection = new SingleListFilterCollection();
+        let testCollection = new FilterCollection();
         expect(filterService.isFiltered(testCollection)).toEqual(false);
 
-        testCollection.setFilters(source1, [], searchService);
+        testCollection.setFilters(source1, []);
         expect(filterService.isFiltered(testCollection)).toEqual(false);
 
-        testCollection.setFilters(source1, [filter1A], searchService);
+        testCollection.setFilters(source1, [filter1A]);
         expect(filterService.isFiltered(testCollection)).toEqual(true);
         expect(filterService.isFiltered(testCollection, design1A)).toEqual(true);
         expect(filterService.isFiltered(testCollection, design2A)).toEqual(false);
 
-        testCollection.setFilters(source2, [filter2A], searchService);
+        testCollection.setFilters(source2, [filter2A]);
         expect(filterService.isFiltered(testCollection)).toEqual(true);
         expect(filterService.isFiltered(testCollection, design1A)).toEqual(true);
         expect(filterService.isFiltered(testCollection, design2A)).toEqual(true);
@@ -5344,8 +4615,8 @@ describe('FilterService with filters', () => {
             operator: '='
         } as FilterDataSource];
 
-        let testCollection = new SingleListFilterCollection();
-        testCollection.setFilters(testSource, [testFilter], searchService);
+        let testCollection = new FilterCollection();
+        testCollection.setFilters(testSource, [testFilter]);
 
         // Same design (should return true)
         expect(filterService.isFiltered(testCollection, {
@@ -5517,8 +4788,8 @@ describe('FilterService with filters', () => {
             operator: '!='
         } as FilterDataSource];
 
-        let testCollection = new SingleListFilterCollection();
-        testCollection.setFilters(testSource, [testFilter], searchService);
+        let testCollection = new FilterCollection();
+        testCollection.setFilters(testSource, [testFilter]);
 
         // Same design (should return true)
         expect(filterService.isFiltered(testCollection, {
@@ -5786,7 +5057,7 @@ describe('FilterService with filters', () => {
             redrawCallback: testRedrawCallback
         } as FilterBehavior];
 
-        let testCollection = new SingleListFilterCollection();
+        let testCollection = new FilterCollection();
 
         filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
 
@@ -5819,7 +5090,7 @@ describe('FilterService with filters', () => {
             redrawCallback: testRedrawCallback2
         } as FilterBehavior];
 
-        let testCollection = new SingleListFilterCollection();
+        let testCollection = new FilterCollection();
 
         filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
 
@@ -5845,8 +5116,8 @@ describe('FilterService with filters', () => {
             redrawCallback: testRedrawCallback
         } as FilterBehavior];
 
-        let testCollection = new SingleListFilterCollection();
-        testCollection.setFilters(source1, [filter1A, filter1C], searchService);
+        let testCollection = new FilterCollection();
+        testCollection.setFilters(source1, [filter1A, filter1C]);
 
         filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
 
@@ -5857,7 +5128,7 @@ describe('FilterService with filters', () => {
 
     it('updateCollectionWithGlobalCompatibleFilters should remove existing filters', () => {
         // Remove filters.
-        (filterService as any).filterCollection.setFiltersInDualLists(source1, [], [], searchService);
+        (filterService as any).filterCollection.setFilters(source1, []);
 
         // Remove the filter value to make the design compatible with each filter of its data source
         design1A.value = undefined;
@@ -5873,8 +5144,8 @@ describe('FilterService with filters', () => {
             redrawCallback: testRedrawCallback
         } as FilterBehavior];
 
-        let testCollection = new SingleListFilterCollection();
-        testCollection.setFilters(source1, [filter1A, filter1C], searchService);
+        let testCollection = new FilterCollection();
+        testCollection.setFilters(source1, [filter1A, filter1C]);
 
         filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
 
@@ -5920,7 +5191,7 @@ describe('FilterService with filters', () => {
             redrawCallback: testRedrawCallback2
         } as FilterBehavior];
 
-        let testCollection = new SingleListFilterCollection();
+        let testCollection = new FilterCollection();
 
         filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
 
@@ -5958,7 +5229,7 @@ describe('FilterService with filters', () => {
             redrawCallback: testRedrawCallback
         } as FilterBehavior];
 
-        let testCollection = new SingleListFilterCollection();
+        let testCollection = new FilterCollection();
 
         filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
 
