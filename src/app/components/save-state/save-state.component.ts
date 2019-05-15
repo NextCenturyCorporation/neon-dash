@@ -265,7 +265,7 @@ export class SaveStateComponent implements OnInit {
         this.confirmDialogRef = this.dialog.open(DynamicDialogComponent, {
             data: {
                 moduleId: 'confirmation-dialog',
-                selector: 'app-confirmation-dialog'
+                selector: 'app-confirm-dialog'
             },
             height: '130px',
             width: '500px',

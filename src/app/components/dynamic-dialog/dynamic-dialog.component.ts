@@ -13,7 +13,10 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, Inject, ViewChild, ComponentRef, ViewContainerRef, Injector, OnDestroy } from '@angular/core';
+import {
+  Component, OnInit, Inject, ViewChild, ComponentRef,
+  ViewContainerRef, Injector, OnDestroy, ReflectiveInjector
+} from '@angular/core';
 import { ReactiveComponentLoader } from '@wishtack/reactive-component-loader';
 import { MAT_DIALOG_DATA } from '@angular/material';
 
@@ -39,8 +42,22 @@ export class DynamicDialogComponent implements OnInit, OnDestroy {
       moduleId: this.data.moduleId,
       selector: this.data.selector
     }).subscribe((cmp) => {
+
+      // Inputs need to be in the following format to be resolved properly
+      let inputProviders = Object.keys(this.data).map((bindingKey) => {
+        return {
+          provide: bindingKey,
+          useValue: this.data[bindingKey]
+        };
+      });
+
+      let resolvedInputs = ReflectiveInjector.resolve(inputProviders);
+
+      // We create an injector out of the data we want to pass down and this components injector
+      let injector = ReflectiveInjector.fromResolvedProviders(resolvedInputs, this.injector);
+
       const factory = cmp.ngModuleFactory
-        .create(this.injector)
+        .create(injector)
         .componentFactoryResolver
         .resolveComponentFactory(cmp.componentType);
 
