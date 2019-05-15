@@ -18,6 +18,7 @@ import { CommonModule } from '@angular/common';
 import { OptionsListComponent } from './options-list.component';
 import { MatFormFieldModule, MatInputModule, MatSelectModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
+import { MonacoEditorModule } from 'ngx-monaco-editor';
 
 @NgModule({
   declarations: [OptionsListComponent],
@@ -25,6 +26,7 @@ import { FormsModule } from '@angular/forms';
   imports: [
     MatFormFieldModule,
     MatInputModule,
+    MonacoEditorModule.forRoot(),
     MatSelectModule,
     FormsModule,
     CommonModule
