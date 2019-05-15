@@ -42,6 +42,8 @@ import {
 import * as neon from 'neon-framework';
 import { MatDialog } from '@angular/material';
 
+let styleImport: any;
+
 @Component({
     selector: 'app-taxonomy-viewer',
     templateUrl: './taxonomy-viewer.component.html',
@@ -106,6 +108,14 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             ref,
             dialog
         );
+
+        if (!styleImport) {
+            const link = styleImport = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = '/assets/angular-tree-component/dist/angular-tree-component.css';
+
+            document.head.appendChild(link);
+        }
     }
 
     /**
