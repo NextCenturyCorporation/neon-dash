@@ -95,7 +95,6 @@ const computeOuterDims = (el: HTMLElement) => {
     };
 };
 
-
 export class TimelineSelectorChart {
     private element: ElementRef;
 

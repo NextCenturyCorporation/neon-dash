@@ -35,6 +35,11 @@
                 "output": "assets/vis/dist"
               },
               {
+                "glob": "angular-tree-component.css",
+                "input": "node_modules/angular-tree-component/dist",
+                "output": "assets/angular-tree-component/dist"
+              },
+              {
                 "glob": "**/*",
                 "input": "node_modules/ngx-monaco-editor/assets/monaco",
                 "output": "assets/monaco"
