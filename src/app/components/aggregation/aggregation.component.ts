@@ -412,7 +412,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     private createFilterDesignOnItem(value?: any): FilterDesign {
         return {
-            optional: !this.options.requireAll,
+            root: this.options.requireAll ? CompoundFilterType.AND : CompoundFilterType.OR,
             datastore: '',
             database: this.options.database,
             table: this.options.table,

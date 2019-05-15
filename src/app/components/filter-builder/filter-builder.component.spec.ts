@@ -78,7 +78,7 @@ describe('Component: Filter Builder', () => {
         expect(component.filterClauses[0].changeField).toEqual(new FieldMetaData());
 
         expect(component.compoundTypeIsOr).toEqual(false);
-        expect(component.filterIsOptional).toEqual(false);
+        expect(component.parentFilterIsOr).toEqual(false);
     });
 
     it('does show expected HTML elements', () => {

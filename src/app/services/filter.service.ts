@@ -38,11 +38,12 @@ export interface FilterDataSource {
 export interface FilterDesign {
     id?: string;
     name?: string;
-    // By default, each filter is required:  each search result must adhere to each filter.  In searches, each required filter with the
-    // same FilterDataSource is combined into a single compound AND filter on that FilterDataSource.  However, each filter that is
-    // "optional" is instead combined into a single compound OR filter.  This means that each search result must adhere to at least one
-    // optional filter.  A FilterDataSource with both required and optional filters generates two compound filters:  one AND, one OR.
-    optional?: boolean;
+    // By default, each filter with the same FilterDataSource will be combined into a single compound AND filter (its "root" filter) so all
+    // of the search results will match all of the filters.  Each filter with a different "root" (and with the same FilterDataSource) will
+    // be combined into a single compound filter with that CompoundFilterType.  Thus if some filters have "root=CompoundFilterType.OR" then
+    // they will be combined into a single compound OR filter (but not the filters with other "root" types) so all of the search results
+    // will match at least one of the filters.  A single FilterDataSource may generate multiple compound filters (like one AND and one OR).
+    root?: CompoundFilterType;
 }
 
 export interface SimpleFilterDesign extends FilterDesign {
@@ -177,7 +178,7 @@ export namespace FilterUtil {
         if (filter) {
             filter.id = filterDesign.id || filter.id;
             filter.name = filterDesign.name || filter.name;
-            filter.optional = !!filterDesign.optional;
+            filter.root = filterDesign.root || CompoundFilterType.AND;
         }
 
         return filter;
@@ -354,7 +355,7 @@ export class FilterService {
                         if (relation !== equivalentRelationList[0]) {
                             let relationFilter: AbstractFilter = filter.createRelationFilter(equivalentRelationList[0], relation,
                                 searchService);
-                            relationFilter.optional = !!filter.optional;
+                            relationFilter.root = filter.root || CompoundFilterType.AND;
                             relationFilterList.push(relationFilter);
                         }
                     });
@@ -584,15 +585,15 @@ export class FilterService {
                 return returnList;
             }
             let filterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList);
-            let requiredFilterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList).filter((filter) =>
-                !filter.optional && filter.doesAffectSearch(datastoreName, databaseName, tableName));
-            let optionalFilterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList).filter((filter) =>
-                !!filter.optional && filter.doesAffectSearch(datastoreName, databaseName, tableName));
-            let requiredFilter: AbstractFilter = requiredFilterList.length ? new CompoundFilter(CompoundFilterType.AND, requiredFilterList,
+            let filterListToAND: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList).filter((filter) =>
+                filter.root === CompoundFilterType.AND && filter.doesAffectSearch(datastoreName, databaseName, tableName));
+            let filterListToOR: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList).filter((filter) =>
+                filter.root === CompoundFilterType.OR && filter.doesAffectSearch(datastoreName, databaseName, tableName));
+            let filterAND: AbstractFilter = filterListToAND.length ? new CompoundFilter(CompoundFilterType.AND, filterListToAND,
                 searchService) : null;
-            let optionalFilter: AbstractFilter = optionalFilterList.length ? new CompoundFilter(CompoundFilterType.OR, optionalFilterList,
+            let filterOR: AbstractFilter = filterListToOR.length ? new CompoundFilter(CompoundFilterType.OR, filterListToOR,
                 searchService) : null;
-            return returnList.concat(requiredFilter || []).concat(optionalFilter || []);
+            return returnList.concat(filterAND || []).concat(filterOR || []);
         }, [] as AbstractFilter[]).map((filter) => filter.filterClause);
     }
 
@@ -787,7 +788,7 @@ export class FilterService {
 abstract class AbstractFilter {
     public id: string;
     public name: string;
-    public optional: boolean = false;
+    public root: CompoundFilterType = CompoundFilterType.AND;
     public relations: string[] = [];
 
     constructor(public filterClause: FilterClause) {
@@ -908,7 +909,7 @@ class SimpleFilter extends AbstractFilter {
 
                     relationFilter = new SimpleFilter(substitute.datastore, substitute.database, substitute.table,
                         substitute.field, this.operator, this.value, searchService);
-                    relationFilter.optional = this.optional;
+                    relationFilter.root = this.root;
                 }
             }
         });
@@ -936,7 +937,7 @@ class SimpleFilter extends AbstractFilter {
      */
     public isCompatibleWithDesign(filterDesign: FilterDesign): boolean {
         let simpleFilterDesign = (filterDesign as SimpleFilterDesign);
-        return !!simpleFilterDesign.optional === !!this.optional &&
+        return (simpleFilterDesign.root || CompoundFilterType.AND) === this.root &&
             simpleFilterDesign.datastore === this.datastore &&
             simpleFilterDesign.database.name === this.database.name &&
             simpleFilterDesign.table.name === this.table.name &&
@@ -952,7 +953,7 @@ class SimpleFilter extends AbstractFilter {
      * @return {boolean}
      */
     public isEquivalentToFilter(filter: AbstractFilter): boolean {
-        return filter instanceof SimpleFilter && !!filter.optional === !!this.optional && filter.datastore === this.datastore &&
+        return filter instanceof SimpleFilter && filter.root === this.root && filter.datastore === this.datastore &&
             filter.database.name === this.database.name && filter.table.name === this.table.name &&
             filter.field.columnName === this.field.columnName && filter.operator === this.operator && filter.value === this.value;
     }
@@ -966,7 +967,7 @@ class SimpleFilter extends AbstractFilter {
         return {
             id: this.id,
             name: this.name,
-            optional: this.optional,
+            root: this.root,
             datastore: this.datastore,
             database: this.database,
             table: this.table,
@@ -1024,7 +1025,7 @@ class CompoundFilter extends AbstractFilter {
             return nestedRelationFilter || filter;
         }), searchService);
 
-        relationFilter.optional = this.optional;
+        relationFilter.root = this.root;
 
         // Return null unless at least one nested relation filter exists.
         return nestedRelationExists ? relationFilter : null;
@@ -1058,7 +1059,7 @@ class CompoundFilter extends AbstractFilter {
             // one nested filter object, 2) each nested filter object is compatible with at least one nested filter design, and 3) both
             // lists are the same length.  This forces designs to have specific nested filters but allows them to have nested filters in an
             // unexpected order.  This is useful with visualizations that filter on a specific range, point, or box.
-            return !!compoundFilterDesign.optional === !!this.optional && compoundFilterDesign.type === this.type &&
+            return (compoundFilterDesign.root || CompoundFilterType.AND) === this.root && compoundFilterDesign.type === this.type &&
                 compoundFilterDesign.filters && compoundFilterDesign.filters.length === this.filters.length &&
                 compoundFilterDesign.filters.every((nestedDesign) => this.filters.some((nestedFilter) =>
                     nestedFilter.isCompatibleWithDesign(nestedDesign))) && this.filters.every((nestedFilter) =>
@@ -1068,7 +1069,7 @@ class CompoundFilter extends AbstractFilter {
         // If the filter design contains only one FilterDataSource, ensure that each nested filter design is compatible with at least one
         // nested filter object.  This allows filters that expect one or more nested filters with the same design.  This is useful with
         // visualizations that can set a variable number of EQUALS or NOT EQUALS filters on one field.
-        return !!compoundFilterDesign.optional === !!this.optional && compoundFilterDesign.type === this.type &&
+        return (compoundFilterDesign.root || CompoundFilterType.AND) === this.root && compoundFilterDesign.type === this.type &&
             compoundFilterDesign.filters && compoundFilterDesign.filters.every((nestedDesign) => this.filters.some((nestedFilter) =>
                 nestedFilter.isCompatibleWithDesign(nestedDesign)));
     }
@@ -1080,7 +1081,7 @@ class CompoundFilter extends AbstractFilter {
      * @return {boolean}
      */
     public isEquivalentToFilter(filter: AbstractFilter): boolean {
-        return filter instanceof CompoundFilter && !!filter.optional === !!this.optional && filter.type === this.type &&
+        return filter instanceof CompoundFilter && filter.root === this.root && filter.type === this.type &&
             filter.filters.length === this.filters.length &&
             filter.filters.every((nestedFilter, index) => nestedFilter.isEquivalentToFilter(this.filters[index]));
     }
@@ -1094,7 +1095,7 @@ class CompoundFilter extends AbstractFilter {
         return {
             id: this.id,
             name: this.name,
-            optional: this.optional,
+            root: this.root,
             type: this.type,
             filters: this.filters.map((filter) => filter.toDesign())
         } as CompoundFilterDesign;

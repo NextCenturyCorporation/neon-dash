@@ -28,6 +28,7 @@ import {
 import {
     AbstractSearchService,
     AggregationType,
+    CompoundFilterType,
     FilterClause,
     QueryPayload,
     SortOrder
@@ -139,7 +140,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     private createFilterDesignOnText(value?: any): FilterDesign {
         return {
-            optional: !this.options.andFilters,
+            root: this.options.andFilters ? CompoundFilterType.AND : CompoundFilterType.OR,
             datastore: '',
             database: this.options.database,
             table: this.options.table,

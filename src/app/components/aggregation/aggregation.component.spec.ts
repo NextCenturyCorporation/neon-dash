@@ -29,7 +29,7 @@ import { DataMessageComponent } from '../data-message/data-message.component';
 import { LegendComponent } from '../legend/legend.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { AbstractSearchService, AggregationType } from '../../services/abstract.search.service';
+import { AbstractSearchService, AggregationType, CompoundFilterType } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 import { CompoundFilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
@@ -3455,7 +3455,7 @@ describe('Component: Aggregation', () => {
 
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[{
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -3477,7 +3477,7 @@ describe('Component: Aggregation', () => {
 
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[{
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -3488,7 +3488,7 @@ describe('Component: Aggregation', () => {
         expect(spy2.calls.count()).toEqual(0);
     });
 
-    it('subcomponentRequestsFilter does call exchangeFilters with optional filter if requireAll=false', () => {
+    it('subcomponentRequestsFilter does call exchangeFilters with OR root filter type if requireAll=false', () => {
         component.options.ignoreSelf = false;
         component.options.requireAll = false;
         component.options.xField = DatasetServiceMock.X_FIELD;
@@ -3499,7 +3499,7 @@ describe('Component: Aggregation', () => {
 
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[{
-            optional: true,
+            root: CompoundFilterType.OR,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -3522,7 +3522,7 @@ describe('Component: Aggregation', () => {
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
         expect(spy2.calls.argsFor(0)).toEqual([[{
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -3532,7 +3532,7 @@ describe('Component: Aggregation', () => {
         } as SimpleFilterDesign]]);
     });
 
-    it('subcomponentRequestsFilter does call toggleFilters with optional filter if doNotReplace=true and requireAll=false', () => {
+    it('subcomponentRequestsFilter does call toggleFilters with OR root filter type if doNotReplace=true and requireAll=false', () => {
         component.options.ignoreSelf = true;
         component.options.requireAll = false;
         component.options.xField = DatasetServiceMock.X_FIELD;
@@ -3544,7 +3544,7 @@ describe('Component: Aggregation', () => {
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
         expect(spy2.calls.argsFor(0)).toEqual([[{
-            optional: true,
+            root: CompoundFilterType.OR,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],

@@ -64,7 +64,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     ];
 
     public compoundTypeIsOr: boolean = false;
-    public filterIsOptional: boolean = false;
+    public parentFilterIsOr: boolean = false;
 
     constructor(
         datasetService: DatasetService,
@@ -287,7 +287,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                 }
             }
             return {
-                optional: this.filterIsOptional,
+                root: this.parentFilterIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
                 datastore: '',
                 database: filterClause.database,
                 table: filterClause.table,
@@ -300,7 +300,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         // Create a compound filter from multiple filters if needed.
         let filterDesign: FilterDesign = !filterDesigns.length ? null : (filterDesigns.length === 1 ? filterDesigns[0] : {
             type: this.compoundTypeIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
-            optional: this.filterIsOptional,
+            root: this.parentFilterIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
             filters: filterDesigns
         } as CompoundFilterDesign);
 

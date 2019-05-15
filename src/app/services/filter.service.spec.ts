@@ -652,7 +652,7 @@ describe('FilterCollection', () => {
             operator: '<'
         } as FilterDataSource];
         filter1A = FilterUtil.createFilterFromDesign({
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -661,7 +661,7 @@ describe('FilterCollection', () => {
             value: 'testId1'
         } as SimpleFilterDesign, searchService);
         filter1B = FilterUtil.createFilterFromDesign({
-            optional: true,
+            root: CompoundFilterType.OR,
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -670,10 +670,10 @@ describe('FilterCollection', () => {
             value: 'testId2'
         } as SimpleFilterDesign, searchService);
         filter2A = FilterUtil.createFilterFromDesign({
-            optional: false,
+            root: CompoundFilterType.AND,
             type: 'and',
             filters: [{
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: 'testDatastore1',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -681,7 +681,7 @@ describe('FilterCollection', () => {
                 operator: '>',
                 value: 10
             } as SimpleFilterDesign, {
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: 'testDatastore1',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -997,7 +997,7 @@ describe('SimpleFilter', () => {
         expect(simpleFilter.filterClause).toBeDefined();
         expect(simpleFilter.id).toBeDefined();
         expect(simpleFilter.name).toEqual('Test Database 1 / Test Table 1 / Test Name Field = testName1');
-        expect(simpleFilter.optional).toEqual(false);
+        expect(simpleFilter.root).toEqual(CompoundFilterType.AND);
         expect(simpleFilter.relations).toEqual([]);
     });
 
@@ -1038,11 +1038,11 @@ describe('SimpleFilter', () => {
         expect(actual.field).toEqual(DatasetServiceMock.TEXT_FIELD);
         expect(actual.operator).toEqual('=');
         expect(actual.value).toEqual('testName1');
-        expect(actual.optional).toEqual(false);
+        expect(actual.root).toEqual(CompoundFilterType.AND);
     });
 
-    it('createRelationFilter should work with optional filter', () => {
-        simpleFilter.optional = true;
+    it('createRelationFilter should work with custom root filter', () => {
+        simpleFilter.root = CompoundFilterType.OR;
 
         let testSubstituteList = [{
             datastore: 'testDatastore2',
@@ -1063,7 +1063,7 @@ describe('SimpleFilter', () => {
         expect(actual.field).toEqual(DatasetServiceMock.TEXT_FIELD);
         expect(actual.operator).toEqual('=');
         expect(actual.value).toEqual('testName1');
-        expect(actual.optional).toEqual(true);
+        expect(actual.root).toEqual(CompoundFilterType.OR);
     });
 
     it('doesAffectSearch should return expected boolean', () => {
@@ -1093,14 +1093,14 @@ describe('SimpleFilter', () => {
             operator: '='
         })).toEqual(true);
 
-        // Correct, with optional status
+        // Correct, with custom root filter type
         expect(simpleFilter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
             field: DatasetServiceMock.NAME_FIELD,
             operator: '=',
-            optional: false
+            root: CompoundFilterType.AND
         })).toEqual(true);
 
         // Different datastore
@@ -1148,14 +1148,14 @@ describe('SimpleFilter', () => {
             operator: '!='
         })).toEqual(false);
 
-        // Different optional status
+        // Different custom root filter type
         expect(simpleFilter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
             field: DatasetServiceMock.NAME_FIELD,
             operator: '=',
-            optional: true
+            root: CompoundFilterType.OR
         })).toEqual(false);
 
         // Different value
@@ -1242,9 +1242,9 @@ describe('SimpleFilter', () => {
             value: 'testName2'
         } as SimpleFilterDesign, searchService);
 
-        // Different optional status
+        // Different custom root filter type
         let testFilter7 = FilterUtil.createFilterFromDesign({
-            optional: true,
+            root: CompoundFilterType.OR,
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -1293,7 +1293,7 @@ describe('SimpleFilter', () => {
         expect(simpleFilter.toDesign()).toEqual({
             id: simpleFilter.id,
             name: 'Test Database 1 / Test Table 1 / Test Name Field = testName1',
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -1644,7 +1644,7 @@ describe('CompoundFilter (One Field)', () => {
         expect(compoundFilter.id).toBeDefined();
         expect(compoundFilter.name).toEqual('(Test Database 1 / Test Table 1 / Test X Field > -100) and ' +
             '(Test Database 1 / Test Table 1 / Test X Field < 100)');
-        expect(compoundFilter.optional).toEqual(false);
+        expect(compoundFilter.root).toEqual(CompoundFilterType.AND);
         expect(compoundFilter.relations).toEqual([]);
         expect(compoundFilter.type).toEqual(CompoundFilterType.AND);
 
@@ -1695,7 +1695,7 @@ describe('CompoundFilter (One Field)', () => {
             field: DatasetServiceMock.X_FIELD
         }], testSubstituteList, searchService);
         expect(actual.type).toEqual(CompoundFilterType.AND);
-        expect(actual.optional).toEqual(false);
+        expect(actual.root).toEqual(CompoundFilterType.AND);
         expect(actual.filters.length).toEqual(2);
         expect(actual.filters[0].datastore).toEqual('testDatastore2');
         expect(actual.filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
@@ -1711,8 +1711,8 @@ describe('CompoundFilter (One Field)', () => {
         expect(actual.filters[1].value).toEqual(100);
     });
 
-    it('createRelationFilter should work with optional filter', () => {
-        compoundFilter.optional = true;
+    it('createRelationFilter should work with custom root filter', () => {
+        compoundFilter.root = CompoundFilterType.OR;
 
         let testSubstituteList = [{
             datastore: 'testDatastore2',
@@ -1728,7 +1728,7 @@ describe('CompoundFilter (One Field)', () => {
             field: DatasetServiceMock.X_FIELD
         }], testSubstituteList, searchService);
         expect(actual.type).toEqual(CompoundFilterType.AND);
-        expect(actual.optional).toEqual(true);
+        expect(actual.root).toEqual(CompoundFilterType.OR);
         expect(actual.filters.length).toEqual(2);
         expect(actual.filters[0].datastore).toEqual('testDatastore2');
         expect(actual.filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
@@ -1790,10 +1790,10 @@ describe('CompoundFilter (One Field)', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
 
-        // Correct, with optional status
+        // Correct, with custom root filter type
         expect(compoundFilter.isCompatibleWithDesign({
             type: 'and',
-            optional: false,
+            root: CompoundFilterType.AND,
             filters: [{
                 datastore: 'testDatastore1',
                 database: DatasetServiceMock.DATABASES[0],
@@ -1917,10 +1917,10 @@ describe('CompoundFilter (One Field)', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
 
-        // Different optional status
+        // Different custom root filter type
         expect(compoundFilter.isCompatibleWithDesign({
             type: 'and',
-            optional: true,
+            root: CompoundFilterType.OR,
             filters: [{
                 datastore: 'testDatastore1',
                 database: DatasetServiceMock.DATABASES[0],
@@ -2149,10 +2149,10 @@ describe('CompoundFilter (One Field)', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign, searchService);
 
-        // Different optional status
+        // Different custom root filter type
         let testFilter7 = FilterUtil.createFilterFromDesign({
             type: 'and',
-            optional: true,
+            root: CompoundFilterType.OR,
             filters: [{
                 datastore: 'testDatastore1',
                 database: DatasetServiceMock.DATABASES[0],
@@ -2228,11 +2228,11 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             id: compoundFilter.id,
             name: '(Test Database 1 / Test Table 1 / Test X Field > -100) and (Test Database 1 / Test Table 1 / Test X Field < 100)',
-            optional: false,
+            root: CompoundFilterType.AND,
             filters: [{
                 id: compoundFilter.filters[0].id,
                 name: 'Test Database 1 / Test Table 1 / Test X Field > -100',
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: 'testDatastore1',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -2242,7 +2242,7 @@ describe('CompoundFilter (One Field)', () => {
             } as SimpleFilterDesign, {
                 id: compoundFilter.filters[1].id,
                 name: 'Test Database 1 / Test Table 1 / Test X Field < 100',
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: 'testDatastore1',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -2303,7 +2303,7 @@ describe('CompoundFilter (Multi-Field)', () => {
         expect(compoundFilter.id).toBeDefined();
         expect(compoundFilter.name).toEqual('(Test Database 1 / Test Table 1 / Test Name Field = testName1) or ' +
             '(Test Database 1 / Test Table 1 / Test X Field = 10)');
-        expect(compoundFilter.optional).toEqual(false);
+        expect(compoundFilter.root).toEqual(CompoundFilterType.AND);
         expect(compoundFilter.relations).toEqual([]);
         expect(compoundFilter.type).toEqual(CompoundFilterType.OR);
 
@@ -2394,7 +2394,7 @@ describe('CompoundFilter (Multi-Field)', () => {
             field: DatasetServiceMock.NAME_FIELD
         }], testSubstituteList, searchService);
         expect(actual.type).toEqual(CompoundFilterType.OR);
-        expect(actual.optional).toEqual(false);
+        expect(actual.root).toEqual(CompoundFilterType.AND);
         expect(actual.filters.length).toEqual(2);
         expect(actual.filters[0].datastore).toEqual('testDatastore2');
         expect(actual.filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
@@ -2437,7 +2437,7 @@ describe('CompoundFilter (Multi-Field)', () => {
             field: DatasetServiceMock.X_FIELD
         }], testSubstituteList, searchService);
         expect(actual.type).toEqual(CompoundFilterType.OR);
-        expect(actual.optional).toEqual(false);
+        expect(actual.root).toEqual(CompoundFilterType.AND);
         expect(actual.filters.length).toEqual(2);
         expect(actual.filters[0].datastore).toEqual('testDatastore2');
         expect(actual.filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
@@ -2453,8 +2453,8 @@ describe('CompoundFilter (Multi-Field)', () => {
         expect(actual.filters[1].value).toEqual(10);
     });
 
-    it('createRelationFilter should work with optional filter', () => {
-        compoundFilter.optional = true;
+    it('createRelationFilter should work with custom root filter', () => {
+        compoundFilter.root = CompoundFilterType.OR;
 
         let testSubstituteList = [{
             datastore: 'testDatastore2',
@@ -2480,7 +2480,7 @@ describe('CompoundFilter (Multi-Field)', () => {
             field: DatasetServiceMock.X_FIELD
         }], testSubstituteList, searchService);
         expect(actual.type).toEqual(CompoundFilterType.OR);
-        expect(actual.optional).toEqual(true);
+        expect(actual.root).toEqual(CompoundFilterType.OR);
         expect(actual.filters.length).toEqual(2);
         expect(actual.filters[0].datastore).toEqual('testDatastore2');
         expect(actual.filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
@@ -2542,10 +2542,10 @@ describe('CompoundFilter (Multi-Field)', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
 
-        // Correct, with optional status
+        // Correct, with custom root filter type
         expect(compoundFilter.isCompatibleWithDesign({
             type: 'or',
-            optional: false,
+            root: CompoundFilterType.AND,
             filters: [{
                 datastore: 'testDatastore1',
                 database: DatasetServiceMock.DATABASES[0],
@@ -2669,10 +2669,10 @@ describe('CompoundFilter (Multi-Field)', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
 
-        // Different optional status
+        // Different custom root filter type
         expect(compoundFilter.isCompatibleWithDesign({
             type: 'or',
-            optional: true,
+            root: CompoundFilterType.OR,
             filters: [{
                 datastore: 'testDatastore1',
                 database: DatasetServiceMock.DATABASES[0],
@@ -2901,10 +2901,10 @@ describe('CompoundFilter (Multi-Field)', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign, searchService);
 
-        // Different optional status
+        // Different custom root filter type
         let testFilter7 = FilterUtil.createFilterFromDesign({
             type: 'and',
-            optional: true,
+            root: CompoundFilterType.OR,
             filters: [{
                 datastore: 'testDatastore1',
                 database: DatasetServiceMock.DATABASES[0],
@@ -2980,11 +2980,11 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'or',
             id: compoundFilter.id,
             name: '(Test Database 1 / Test Table 1 / Test Name Field = testName1) or (Test Database 1 / Test Table 1 / Test X Field = 10)',
-            optional: false,
+            root: CompoundFilterType.AND,
             filters: [{
                 id: compoundFilter.filters[0].id,
                 name: 'Test Database 1 / Test Table 1 / Test Name Field = testName1',
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: 'testDatastore1',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -2994,7 +2994,7 @@ describe('CompoundFilter (Multi-Field)', () => {
             } as SimpleFilterDesign, {
                 id: compoundFilter.filters[1].id,
                 name: 'Test Database 1 / Test Table 1 / Test X Field = 10',
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: 'testDatastore1',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -3077,7 +3077,7 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
             '(Test Database 1 / Test Table 1 / Test X Field = 20)) and ' +
             '((Test Database 1 / Test Table 1 / Test Name Field = testName1) or ' +
             '(Test Database 1 / Test Table 1 / Test Name Field = testName2))');
-        expect(compoundFilter.optional).toEqual(false);
+        expect(compoundFilter.root).toEqual(CompoundFilterType.AND);
         expect(compoundFilter.relations).toEqual([]);
         expect(compoundFilter.type).toEqual(CompoundFilterType.AND);
 
@@ -3119,16 +3119,16 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
             name: '((Test Database 1 / Test Table 1 / Test X Field = 10) or (Test Database 1 / Test Table 1 / Test X Field = 20)) and ' +
                 '((Test Database 1 / Test Table 1 / Test Name Field = testName1) or ' +
                 '(Test Database 1 / Test Table 1 / Test Name Field = testName2))',
-            optional: false,
+            root: CompoundFilterType.AND,
             filters: [{
                 type: 'or',
                 id: compoundFilter.filters[0].id,
                 name: '(Test Database 1 / Test Table 1 / Test X Field = 10) or (Test Database 1 / Test Table 1 / Test X Field = 20)',
-                optional: false,
+                root: CompoundFilterType.AND,
                 filters: [{
                     id: compoundFilter.filters[0].filters[0].id,
                     name: 'Test Database 1 / Test Table 1 / Test X Field = 10',
-                    optional: false,
+                    root: CompoundFilterType.AND,
                     datastore: 'testDatastore1',
                     database: DatasetServiceMock.DATABASES[0],
                     table: DatasetServiceMock.TABLES[0],
@@ -3138,7 +3138,7 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
                 } as SimpleFilterDesign, {
                     id: compoundFilter.filters[0].filters[1].id,
                     name: 'Test Database 1 / Test Table 1 / Test X Field = 20',
-                    optional: false,
+                    root: CompoundFilterType.AND,
                     datastore: 'testDatastore1',
                     database: DatasetServiceMock.DATABASES[0],
                     table: DatasetServiceMock.TABLES[0],
@@ -3151,11 +3151,11 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
                 id: compoundFilter.filters[1].id,
                 name: '(Test Database 1 / Test Table 1 / Test Name Field = testName1) or ' +
                     '(Test Database 1 / Test Table 1 / Test Name Field = testName2)',
-                optional: false,
+                root: CompoundFilterType.AND,
                 filters: [{
                     id: compoundFilter.filters[1].filters[0].id,
                     name: 'Test Database 1 / Test Table 1 / Test Name Field = testName1',
-                    optional: false,
+                    root: CompoundFilterType.AND,
                     datastore: 'testDatastore1',
                     database: DatasetServiceMock.DATABASES[0],
                     table: DatasetServiceMock.TABLES[0],
@@ -3165,7 +3165,7 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
                 } as SimpleFilterDesign, {
                     id: compoundFilter.filters[1].filters[1].id,
                     name: 'Test Database 1 / Test Table 1 / Test Name Field = testName2',
-                    optional: false,
+                    root: CompoundFilterType.AND,
                     datastore: 'testDatastore1',
                     database: DatasetServiceMock.DATABASES[0],
                     table: DatasetServiceMock.TABLES[0],
@@ -3268,7 +3268,7 @@ describe('FilterService with filters', () => {
         } as FilterDataSource];
 
         design1A = {
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -3277,7 +3277,7 @@ describe('FilterService with filters', () => {
             value: 'testId1'
         } as SimpleFilterDesign;
         design1B = {
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -3286,7 +3286,7 @@ describe('FilterService with filters', () => {
             value: 'testId2'
         } as SimpleFilterDesign;
         design1C = {
-            optional: true,
+            root: CompoundFilterType.OR,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -3295,7 +3295,7 @@ describe('FilterService with filters', () => {
             value: 'testId3'
         } as SimpleFilterDesign;
         design1D = {
-            optional: true,
+            root: CompoundFilterType.OR,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -3305,9 +3305,9 @@ describe('FilterService with filters', () => {
         } as SimpleFilterDesign;
         design2A = {
             type: 'and',
-            optional: false,
+            root: CompoundFilterType.AND,
             filters: [{
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -3315,7 +3315,7 @@ describe('FilterService with filters', () => {
                 operator: '>',
                 value: 10
             } as SimpleFilterDesign, {
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -3384,7 +3384,7 @@ describe('FilterService with filters', () => {
         } as FilterDataSource];
 
         relationDesign1 = {
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -3393,7 +3393,7 @@ describe('FilterService with filters', () => {
             value: 'testRelation'
         } as SimpleFilterDesign;
         relationDesign2 = {
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -3579,7 +3579,7 @@ describe('FilterService with filters', () => {
         let spy = spyOn((filterService as any).messenger, 'publish');
 
         let testDesign = {
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -3630,7 +3630,7 @@ describe('FilterService with filters', () => {
         let spy = spyOn((filterService as any).messenger, 'publish');
 
         let testDesign = {
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -3667,11 +3667,11 @@ describe('FilterService with filters', () => {
         }]);
     });
 
-    it('exchangeFilters should work with optional filters', () => {
+    it('exchangeFilters should work with custom root filters', () => {
         let spy = spyOn((filterService as any).messenger, 'publish');
 
         let testDesign = {
-            optional: true,
+            root: CompoundFilterType.OR,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -3771,7 +3771,7 @@ describe('FilterService with filters', () => {
         let spy = spyOn((filterService as any).messenger, 'publish');
 
         let testDesign2 = {
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -3796,7 +3796,7 @@ describe('FilterService with filters', () => {
         let testDesign1 = {
             id: listComplete[0].id,
             name: listComplete[0].name,
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -4038,7 +4038,7 @@ describe('FilterService with filters', () => {
         expect(actual[0].field).toEqual(DatasetServiceMock.ID_FIELD);
         expect(actual[0].operator).toEqual('=');
         expect(actual[0].value).toEqual('testId1');
-        expect(actual[0].optional).toEqual(false);
+        expect(actual[0].root).toEqual(CompoundFilterType.AND);
 
         filterService.setFilters([design1A, design1B, design1C, design1D], searchService);
         expect((filterService as any).filterCollection.getDataSources()).toEqual([source1]);
@@ -4049,32 +4049,32 @@ describe('FilterService with filters', () => {
         expect(actual[0].field).toEqual(DatasetServiceMock.ID_FIELD);
         expect(actual[0].operator).toEqual('=');
         expect(actual[0].value).toEqual('testId1');
-        expect(actual[0].optional).toEqual(false);
+        expect(actual[0].root).toEqual(CompoundFilterType.AND);
         expect(actual[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(actual[1].table).toEqual(DatasetServiceMock.TABLES[0]);
         expect(actual[1].field).toEqual(DatasetServiceMock.ID_FIELD);
         expect(actual[1].operator).toEqual('=');
         expect(actual[1].value).toEqual('testId2');
-        expect(actual[1].optional).toEqual(false);
+        expect(actual[1].root).toEqual(CompoundFilterType.AND);
         expect(actual[2].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(actual[2].table).toEqual(DatasetServiceMock.TABLES[0]);
         expect(actual[2].field).toEqual(DatasetServiceMock.ID_FIELD);
         expect(actual[2].operator).toEqual('=');
         expect(actual[2].value).toEqual('testId3');
-        expect(actual[2].optional).toEqual(true);
+        expect(actual[2].root).toEqual(CompoundFilterType.OR);
         expect(actual[3].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(actual[3].table).toEqual(DatasetServiceMock.TABLES[0]);
         expect(actual[3].field).toEqual(DatasetServiceMock.ID_FIELD);
         expect(actual[3].operator).toEqual('=');
         expect(actual[3].value).toEqual('testId4');
-        expect(actual[3].optional).toEqual(true);
+        expect(actual[3].root).toEqual(CompoundFilterType.OR);
 
         filterService.setFilters([design2A], searchService);
         expect((filterService as any).filterCollection.getDataSources()).toEqual([source2]);
         actual = (filterService as any).filterCollection.getFilters(source2);
         expect(actual.length).toEqual(1);
         expect(actual[0].type).toEqual(CompoundFilterType.AND);
-        expect(actual[0].optional).toEqual(false);
+        expect(actual[0].root).toEqual(CompoundFilterType.AND);
         expect(actual[0].filters.length).toEqual(2);
         expect(actual[0].filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(actual[0].filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -4096,17 +4096,17 @@ describe('FilterService with filters', () => {
         expect(actual[0].field).toEqual(DatasetServiceMock.ID_FIELD);
         expect(actual[0].operator).toEqual('=');
         expect(actual[0].value).toEqual('testId1');
-        expect(actual[0].optional).toEqual(false);
+        expect(actual[0].root).toEqual(CompoundFilterType.AND);
         expect(actual[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(actual[1].table).toEqual(DatasetServiceMock.TABLES[0]);
         expect(actual[1].field).toEqual(DatasetServiceMock.ID_FIELD);
         expect(actual[1].operator).toEqual('=');
         expect(actual[1].value).toEqual('testId2');
-        expect(actual[1].optional).toEqual(false);
+        expect(actual[1].root).toEqual(CompoundFilterType.AND);
         actual = (filterService as any).filterCollection.getFilters(source2);
         expect(actual.length).toEqual(1);
         expect(actual[0].type).toEqual(CompoundFilterType.AND);
-        expect(actual[0].optional).toEqual(false);
+        expect(actual[0].root).toEqual(CompoundFilterType.AND);
         expect(actual[0].filters.length).toEqual(2);
         expect(actual[0].filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(actual[0].filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -4124,7 +4124,7 @@ describe('FilterService with filters', () => {
         let spy = spyOn((filterService as any).messenger, 'publish');
 
         let testDesign = {
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -4169,7 +4169,7 @@ describe('FilterService with filters', () => {
         let spy = spyOn((filterService as any).messenger, 'publish');
 
         let testDesign = {
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -4241,7 +4241,7 @@ describe('FilterService with filters', () => {
         let spy = spyOn((filterService as any).messenger, 'publish');
 
         let testDesign = {
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -4288,11 +4288,11 @@ describe('FilterService with filters', () => {
         }]);
     });
 
-    it('toggleFilters should work with optional filters', () => {
+    it('toggleFilters should work with custom root filters', () => {
         let spy = spyOn((filterService as any).messenger, 'publish');
 
         let testDesign = {
-            optional: true,
+            root: CompoundFilterType.OR,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -4392,7 +4392,7 @@ describe('FilterService with filters', () => {
         let spy = spyOn((filterService as any).messenger, 'publish');
 
         let testDesign2 = {
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -4418,7 +4418,7 @@ describe('FilterService with filters', () => {
         let testDesign1 = {
             id: listComplete[1].id,
             name: listComplete[1].name,
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -4485,7 +4485,7 @@ describe('FilterService with filters', () => {
         activateRelationFilters();
 
         let testDesign1 = {
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -4494,7 +4494,7 @@ describe('FilterService with filters', () => {
             value: 'testToggleRelation'
         } as SimpleFilterDesign;
         let testDesign2 = {
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -4585,9 +4585,9 @@ describe('FilterService with filters', () => {
     it('isFiltered with compound filter designs that have a single data source should return expected boolean', () => {
         let testDesign = {
             type: 'or',
-            optional: false,
+            root: CompoundFilterType.AND,
             filters: [{
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -4595,7 +4595,7 @@ describe('FilterService with filters', () => {
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign, {
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -4736,9 +4736,9 @@ describe('FilterService with filters', () => {
     it('isFiltered with compound filter designs that have multiple data sources should return expected boolean', () => {
         let testDesign = {
             type: 'or',
-            optional: false,
+            root: CompoundFilterType.AND,
             filters: [{
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -4746,7 +4746,7 @@ describe('FilterService with filters', () => {
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign, {
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -4754,7 +4754,7 @@ describe('FilterService with filters', () => {
                 operator: '=',
                 value: 20
             } as SimpleFilterDesign, {
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -4762,7 +4762,7 @@ describe('FilterService with filters', () => {
                 operator: '!=',
                 value: 30
             } as SimpleFilterDesign, {
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -5160,9 +5160,9 @@ describe('FilterService with filters', () => {
 
         let testDesign = {
             type: 'and',
-            optional: false,
+            root: CompoundFilterType.AND,
             filters: [{
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -5203,7 +5203,7 @@ describe('FilterService with filters', () => {
 
     it('updateCollectionWithGlobalCompatibleFilters should do nothing with no compatible filters', () => {
         let testDesign = {
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
