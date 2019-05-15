@@ -71,6 +71,31 @@ export class TimelineData {
     public focusGranularityDifferent: boolean = false;
 }
 
+const getProp = (style: HTMLElement['style'], prop: keyof HTMLElement['style']) => {
+    return parseInt(`${style[prop]}`.replace('px', '') || '0', 10);
+};
+
+const computeOuterDims = (el: HTMLElement) => {
+    const style = window.getComputedStyle(el, null);
+    return {
+        w: el.clientWidth +
+            getProp(style, 'paddingTop') +
+            getProp(style, 'paddingBottom') +
+            getProp(style, 'borderTopWidth') +
+            getProp(style, 'borderBottomWidth') +
+            getProp(style, 'marginTop') +
+            getProp(style, 'marginBottom'),
+        h: el.clientHeight +
+            getProp(style, 'paddingLeft') +
+            getProp(style, 'paddingRight') +
+            getProp(style, 'borderLeftWidth') +
+            getProp(style, 'borderRightWidth') +
+            getProp(style, 'marginLeft') +
+            getProp(style, 'marginRight')
+    };
+};
+
+
 export class TimelineSelectorChart {
     private element: ElementRef;
 
@@ -119,6 +144,9 @@ export class TimelineSelectorChart {
     private heightFocus: number;
 
     private tlComponent: TimelineComponent;
+
+    private tooltip: HTMLElement;
+    private tooltipDimensions = { w: 0, h: 0 };
 
     constructor(tlComponent: TimelineComponent, element: ElementRef, data: TimelineData) {
         this.tlComponent = tlComponent;
@@ -685,6 +713,8 @@ export class TimelineSelectorChart {
                 .attr('transform', 'translate(0, 5)')
                 .text(this.data.primarySeries.name);
         }
+
+        this.tooltip = document.querySelector(TOOLTIP_ID);
     }
 
     drawFocusChart(series: TimelineSeries): any {
@@ -1028,58 +1058,36 @@ export class TimelineSelectorChart {
         // visualizations)
         let html = '<div><strong>Date:</strong> ' + _.escape(date) + '</div>' +
             '<div><strong>Count:</strong> ' + count + '</div>';
-        document.getElementById(TOOLTIP_ID).innerHTML = html;
-        document.getElementById(TOOLTIP_ID).style.display = 'block';
+        this.tooltip.innerHTML = html;
+        this.tooltip.style.display = 'block';
 
         // Calculate the tooltip position
         let MIN_VALUE = this.data.logarithmic ? 1 : 0;
+        this.tooltipDimensions = computeOuterDims(this.tooltip);
 
         this.positionTooltip(d3.select(TOOLTIP_ID), mouseEvent);
     }
 
     positionTooltip(tooltip, mouseEvent): void {
-        const getProp = (style: HTMLElement['style'], prop: keyof HTMLElement['style']) => {
-            return parseInt(`${style[prop]}`.replace('px', '') || '0', 10);
-        };
-        const computeOuterDims = (el: HTMLElement) => {
-            const style = window.getComputedStyle(el, null);
-            return {
-                w: el.clientWidth +
-                    getProp(style, 'paddingTop') +
-                    getProp(style, 'paddingBottom') +
-                    getProp(style, 'borderTopWidth') +
-                    getProp(style, 'borderBottomWidth') +
-                    getProp(style, 'marginTop') +
-                    getProp(style, 'marginBottom'),
-                h: el.clientHeight +
-                    getProp(style, 'paddingLeft') +
-                    getProp(style, 'paddingRight') +
-                    getProp(style, 'borderLeftWidth') +
-                    getProp(style, 'borderRightWidth') +
-                    getProp(style, 'marginLeft') +
-                    getProp(style, 'marginRight')
-            };
-        };
 
-        let tooltipElement = document.getElementById(TOOLTIP_ID);
-        let { w: tooltipWidth, h: tooltipHeight } = computeOuterDims(tooltipElement);
+        let { w: tooltipWidth, h: tooltipHeight } = this.tooltipDimensions;
         let attributeLeft = mouseEvent.pageX - this.determineLeft() + 10;
         let attributeTop = mouseEvent.pageY - this.determineTop() + (tooltipHeight / 2) - 15 - 45;
 
         if ((attributeLeft + tooltipWidth) > this.determineWidth()) {
-            tooltipElement.classList.remove('east');
-            tooltipElement.classList.add('west');
+            this.tooltip.classList.remove('east');
+            this.tooltip.classList.add('west');
             tooltip.style('top', (attributeTop + 'px'))
                 .style('left', (attributeLeft - tooltipWidth - 30) + 'px');
         } else {
-            tooltipElement.classList.remove('west');
-            tooltipElement.classList.add('east');
+            this.tooltip.classList.remove('west');
+            this.tooltip.classList.add('east');
             tooltip.style('top', (attributeTop + 'px'))
                 .style('left', attributeLeft + 'px');
         }
     }
 
     hideTooltip(): void {
-        document.getElementById(TOOLTIP_ID).style.display = 'none';
+        this.tooltip.style.display = 'none';
     }
 }
