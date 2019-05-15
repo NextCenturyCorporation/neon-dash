@@ -16,7 +16,7 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { neonEvents } from '../../neon-namespaces';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FilterDesign, FilterService } from '../../services/filter.service';
 
@@ -31,8 +31,9 @@ import * as _ from 'lodash';
 export class CurrentFiltersComponent implements OnInit, OnDestroy {
     private messenger: neon.eventing.Messenger;
 
-    public optionalFilters: FilterDesign[] = [];
-    public requiredFilters: FilterDesign[] = [];
+    public COMPOUND_FILTER_TYPE = CompoundFilterType;
+
+    public filters: FilterDesign[] = [];
 
     constructor(public filterService: FilterService, public searchService: AbstractSearchService) {
         this.messenger = new neon.eventing.Messenger();
@@ -47,9 +48,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
     }
 
     updateFilters() {
-        let filters: FilterDesign[] = this.filterService.getFilters();
-        this.requiredFilters = filters.filter((filter) => !filter.optional);
-        this.optionalFilters = filters.filter((filter) => !!filter.optional);
+        this.filters = this.filterService.getFilters();
     }
 
     ngOnDestroy() {
