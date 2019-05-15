@@ -23,13 +23,19 @@ import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { query } from 'neon-framework';
 
 describe('Service: Search', () => {
+    let service: SearchService;
+
     initializeTestBed('Search Service', {
         providers: [
             SearchService
         ]
     });
 
-    it('buildCompoundFilterClause does return expected filter clause', inject([SearchService], (service: SearchService) => {
+    beforeEach(inject([SearchService], (searchService) => {
+        service = searchService;
+    }));
+
+    it('buildCompoundFilterClause does return expected filter clause', () => {
         expect(service.buildCompoundFilterClause([
             new NeonWhereWrapper(query.where('field1', '=', 'value1')),
             new NeonWhereWrapper(query.where('field2', '=', 'value2'))
@@ -59,14 +65,14 @@ describe('Service: Search', () => {
                 query.where('field3', '=', 'value3')
             ])
         ])));
-    }));
+    });
 
-    it('buildCompoundFilterClause does not wrap single filter clause', inject([SearchService], (service: SearchService) => {
+    it('buildCompoundFilterClause does not wrap single filter clause', () => {
         expect(service.buildCompoundFilterClause([new NeonWhereWrapper(query.where('field', '=', 'value'))])).toEqual(
             new NeonWhereWrapper(query.where('field', '=', 'value')));
-    }));
+    });
 
-    it('buildDateQueryGroup does return expected query group', inject([SearchService], (service: SearchService) => {
+    it('buildDateQueryGroup does return expected query group', () => {
         expect(service.buildDateQueryGroup('groupField', TimeInterval.MINUTE)).toEqual(new NeonGroupWrapper(
             new query.GroupByFunctionClause('minute', 'groupField', '_minute')));
         expect(service.buildDateQueryGroup('groupField', TimeInterval.HOUR)).toEqual(new NeonGroupWrapper(
@@ -77,17 +83,17 @@ describe('Service: Search', () => {
             new query.GroupByFunctionClause('month', 'groupField', '_month')));
         expect(service.buildDateQueryGroup('groupField', TimeInterval.YEAR)).toEqual(new NeonGroupWrapper(
             new query.GroupByFunctionClause('year', 'groupField', '_year')));
-    }));
+    });
 
-    it('buildFilterClause does return expected filter clause', inject([SearchService], (service: SearchService) => {
+    it('buildFilterClause does return expected filter clause', () => {
         expect(service.buildFilterClause('field', '=', 'value')).toEqual(new NeonWhereWrapper(query.where('field', '=', 'value')));
-    }));
+    });
 
-    it('buildQueryGroup does return expected query group', inject([SearchService], (service: SearchService) => {
+    it('buildQueryGroup does return expected query group', () => {
         expect(service.buildQueryGroup('groupField')).toEqual(new NeonGroupWrapper('groupField'));
-    }));
+    });
 
-    it('buildQueryPayload does return expected query payload', inject([SearchService], (service: SearchService) => {
+    it('buildQueryPayload does return expected query payload', () => {
         expect(service.buildQueryPayload('database', 'table')).toEqual(new NeonQueryWrapper(new query.Query().selectFrom('database',
             'table')));
 
@@ -99,27 +105,27 @@ describe('Service: Search', () => {
 
         expect(service.buildQueryPayload('database', 'table', [])).toEqual(new NeonQueryWrapper(new query.Query().selectFrom('database',
             'table')));
-    }));
+    });
 
-    it('canRunSearch does return false with no active connection', inject([SearchService], (service: SearchService) => {
+    it('canRunSearch does return false with no active connection', () => {
         let spy = spyOn(service, 'createConnection').and.returnValue(null);
 
         expect(service.canRunSearch('type', 'host')).toEqual(false);
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['type', 'host']);
-    }));
+    });
 
-    it('canRunSearch does return true with active connection', inject([SearchService], (service: SearchService) => {
+    it('canRunSearch does return true with active connection', () => {
         let spy = spyOn(service, 'createConnection').and.returnValue({});
 
         expect(service.canRunSearch('type', 'host')).toEqual(true);
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['type', 'host']);
-    }));
+    });
 
-    it('createConnection does return a new connection', inject([SearchService], (service: SearchService) => {
+    it('createConnection does return a new connection', () => {
         let connection = new query.Connection();
         spyOn((service as any), 'createNeonConnection').and.returnValue(connection);
         let spy = spyOn(connection, 'connect');
@@ -129,9 +135,9 @@ describe('Service: Search', () => {
         expect(output.connection).toEqual(connection);
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['elasticsearchrest', 'localhost']);
-    }));
+    });
 
-    it('createConnection does return an existing connection', inject([SearchService], (service: SearchService) => {
+    it('createConnection does return an existing connection', () => {
         let existingNeonConnection = new NeonConnection(new query.Connection());
         (service as any).connections.set('elasticsearchrest', new Map<string, any>());
         (service as any).connections.get('elasticsearchrest').set('localhost', existingNeonConnection);
@@ -144,9 +150,9 @@ describe('Service: Search', () => {
 
         expect(output).toEqual(existingNeonConnection);
         expect(spy.calls.count()).toEqual(0);
-    }));
+    });
 
-    it('runSearch does call expected function', inject([SearchService], (service: SearchService) => {
+    it('runSearch does call expected function', () => {
         let queryPayload = new NeonQueryWrapper(new query.Query());
         let called = 0;
         let spy = spyOn(service, 'createConnection').and.returnValue({
@@ -161,9 +167,9 @@ describe('Service: Search', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['type', 'host']);
         expect(called).toEqual(1);
-    }));
+    });
 
-    it('transformFilterClauseValues does work as expected', inject([SearchService], (service: SearchService) => {
+    it('transformFilterClauseValues does work as expected', () => {
         let map = {
             field: {
                 newValue: 'oldValue'
@@ -185,9 +191,9 @@ describe('Service: Search', () => {
         let input4 = new query.Query().where(query.where('otherField', '=', 'oldValue'));
         service.transformFilterClauseValues(new NeonQueryWrapper(input4), map);
         expect(input4).toEqual(new query.Query().where(query.where('otherField', '=', 'oldValue')));
-    }));
+    });
 
-    it('transformFilterClauseValues does work as expected with bool filter', inject([SearchService], (service: SearchService) => {
+    it('transformFilterClauseValues does work as expected with bool filter', () => {
         let map = {
             field1: {
                 newValue1: 'oldValue1'
@@ -223,11 +229,9 @@ describe('Service: Search', () => {
                 query.where('field2', '=', 'newValue3')
             ])
         ])));
-    }));
+    });
 
-    it('updateAggregation does update given query payload and does not remove previous aggregations', inject([SearchService],
-        (service: SearchService
-    ) => {
+    it('updateAggregation does update given query payload and does not remove previous aggregations', () => {
         let input: query.Query = new query.Query();
 
         service.updateAggregation(new NeonQueryWrapper(input), AggregationType.AVG, '_avg', 'field');
@@ -235,17 +239,17 @@ describe('Service: Search', () => {
 
         service.updateAggregation(new NeonQueryWrapper(input), AggregationType.COUNT, '_count', '*');
         expect(input).toEqual(new query.Query().aggregate('avg', 'field', '_avg').aggregate('count', '*', '_count'));
-    }));
+    });
 
-    it('updateFieldsToMatchAll does update given query payload', inject([SearchService], (service: SearchService) => {
+    it('updateFieldsToMatchAll does update given query payload', () => {
         let input: query.Query = new query.Query();
         input.withFields(['field']);
 
         service.updateFieldsToMatchAll(new NeonQueryWrapper(input));
         expect(input).toEqual(new query.Query());
-    }));
+    });
 
-    it('updateFilter does update given query payload', inject([SearchService], (service: SearchService) => {
+    it('updateFilter does update given query payload', () => {
         let input: query.Query = new query.Query();
 
         service.updateFilter(new NeonQueryWrapper(input), new NeonWhereWrapper(query.where('field1', '=', 'value1')));
@@ -257,9 +261,9 @@ describe('Service: Search', () => {
         expect(input).toEqual(new query.Query().where(query.or.apply(query, [
             query.where('field2', '=', 'value2'), query.where('field3', '=', 'value3')
         ])));
-    }));
+    });
 
-    it('updateGroups does update given query payload', inject([SearchService], (service: SearchService) => {
+    it('updateGroups does update given query payload', () => {
         let input: query.Query = new query.Query();
 
         service.updateGroups(new NeonQueryWrapper(input), [new NeonGroupWrapper('group1')]);
@@ -267,9 +271,9 @@ describe('Service: Search', () => {
 
         service.updateGroups(new NeonQueryWrapper(input), [new NeonGroupWrapper('group2'), new NeonGroupWrapper('group3')]);
         expect(input).toEqual(new query.Query().groupBy(['group2', 'group3']));
-    }));
+    });
 
-    it('updateLimit does update given query payload', inject([SearchService], (service: SearchService) => {
+    it('updateLimit does update given query payload', () => {
         let input: query.Query = new query.Query();
 
         service.updateLimit(new NeonQueryWrapper(input), 0);
@@ -277,9 +281,9 @@ describe('Service: Search', () => {
 
         service.updateLimit(new NeonQueryWrapper(input), 100);
         expect(input).toEqual(new query.Query().limit(100));
-    }));
+    });
 
-    it('updateOffset does update given query payload', inject([SearchService], (service: SearchService) => {
+    it('updateOffset does update given query payload', () => {
         let input: query.Query = new query.Query();
 
         service.updateOffset(new NeonQueryWrapper(input), 0);
@@ -287,9 +291,9 @@ describe('Service: Search', () => {
 
         service.updateOffset(new NeonQueryWrapper(input), 100);
         expect(input).toEqual(new query.Query().offset(100));
-    }));
+    });
 
-    it('updateSort does update given query payload', inject([SearchService], (service: SearchService) => {
+    it('updateSort does update given query payload', () => {
         let input: query.Query = new query.Query();
 
         service.updateSort(new NeonQueryWrapper(input), 'sortField');
@@ -297,5 +301,5 @@ describe('Service: Search', () => {
 
         service.updateSort(new NeonQueryWrapper(input), 'sortField', SortOrder.DESCENDING);
         expect(input).toEqual(new query.Query().sortBy('sortField', -1));
-    }));
+    });
 });
