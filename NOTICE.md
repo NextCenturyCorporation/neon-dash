@@ -38,6 +38,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | moment@2.24.0 | [MIT](https://github.com/moment/moment/raw/master/LICENSE) |
 | neon-framework@1.3.5 | [Apache-2.0](https://github.com/NextCenturyCorporation/neon) |
 | ng-dynamic-component@4.0.3 | [MIT](https://github.com/gund/ng-dynamic-component/raw/master/LICENSE) |
+| ngx-monaco-editor@7.0.0 | [MIT](https://github.com/atularen/ngx-monaco-editor) |
 | reflect-metadata@0.1.13 | [Apache-2.0](https://github.com/rbuckton/reflect-metadata/raw/master/LICENSE) |
 | rxjs@6.5.2 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
 | tslib@1.9.3 | [Apache-2.0](https://github.com/Microsoft/tslib/raw/master/LICENSE.txt) |
