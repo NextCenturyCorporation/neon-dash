@@ -60,15 +60,19 @@ export class DatasetService {
     // ---
     // STATIC METHODS
     // --
-    static appendDashboardChoicesFromConfig(oldChoices: { [key: string]: Dashboard }, newChoices: { [key: string]: Dashboard }): void {
-        Object.keys(newChoices).forEach((newChoiceId) => {
-            let exists = Object.keys(oldChoices).some((oldChoiceId) => oldChoiceId === newChoiceId);
+    static appendDashboardChoicesFromConfig(
+        configChoices: { [key: string]: Dashboard },
+        outputChoices: { [key: string]: Dashboard }
+    ): void {
+        Object.keys(outputChoices).forEach((outputChoiceId) => {
+            let exists = Object.keys(configChoices).some((configChoiceId) => configChoiceId === outputChoiceId);
 
             if (exists) {
-                oldChoices[newChoiceId].choices = oldChoices[newChoiceId].choices || {};
-                DatasetService.appendDashboardChoicesFromConfig(oldChoices[newChoiceId].choices, newChoices[newChoiceId].choices || {});
+                configChoices[outputChoiceId].choices = configChoices[outputChoiceId].choices || {};
+                DatasetService.appendDashboardChoicesFromConfig(configChoices[outputChoiceId].choices,
+                    outputChoices[outputChoiceId].choices || {});
             } else {
-                oldChoices[newChoiceId] = newChoices[newChoiceId];
+                configChoices[outputChoiceId] = outputChoices[outputChoiceId];
             }
         });
     }
@@ -76,38 +80,38 @@ export class DatasetService {
     static appendDatastoresFromConfig(configDatastores: { [key: string]: any }, existingDatastores: Datastore[]): Datastore[] {
         // Transform the datastores from config file structures to Datastore objects.
         Object.keys(configDatastores).forEach((datastoreKey) => {
-            let oldDatastore: any = configDatastores[datastoreKey];
-            let newDatastore: Datastore = new Datastore(datastoreKey, oldDatastore.host, oldDatastore.type);
+            let configDatastore: any = configDatastores[datastoreKey] || {};
+            let outputDatastore: Datastore = new Datastore(datastoreKey, configDatastore.host, configDatastore.type);
 
             // Keep whether the datastore's fields are already updated (important for loading a saved state).
-            newDatastore.hasUpdatedFields = !!oldDatastore.hasUpdatedFields;
+            outputDatastore.hasUpdatedFields = !!configDatastore.hasUpdatedFields;
 
-            let oldDatabases: any = oldDatastore.databases || {};
-            newDatastore.databases = Object.keys(oldDatabases).map((databaseKey) => {
-                let oldDatabase: any = oldDatabases[databaseKey];
-                let newDatabase: DatabaseMetaData = new DatabaseMetaData(databaseKey, oldDatabase.prettyName);
+            let configDatabases: any = configDatastore.databases || {};
+            outputDatastore.databases = Object.keys(configDatabases).map((databaseKey) => {
+                let configDatabase: any = configDatabases[databaseKey] || {};
+                let outputDatabase: DatabaseMetaData = new DatabaseMetaData(databaseKey, configDatabase.prettyName);
 
-                let oldTables: any = oldDatabase.tables || {};
-                newDatabase.tables = Object.keys(oldTables).map((tableKey) => {
-                    let oldTable = oldTables[tableKey];
-                    let newTable: TableMetaData = new TableMetaData(tableKey, oldTable.prettyName);
+                let configTables: any = configDatabase.tables || {};
+                outputDatabase.tables = Object.keys(configTables).map((tableKey) => {
+                    let configTable = configTables[tableKey] || {};
+                    let outputTable: TableMetaData = new TableMetaData(tableKey, configTable.prettyName);
 
-                    newTable.fields = (oldTable.fields || []).map((oldField) =>
-                        new FieldMetaData(oldField.columnName, oldField.prettyName, !!oldField.hide, oldField.type));
+                    outputTable.fields = (configTable.fields || []).map((configField) =>
+                        new FieldMetaData(configField.columnName, configField.prettyName, !!configField.hide, configField.type));
 
                     // Create copies to maintain original config data.
-                    newTable.labelOptions = _.cloneDeep(oldTable.labelOptions);
-                    newTable.mappings = _.cloneDeep(oldTable.mappings);
+                    outputTable.labelOptions = _.cloneDeep(configTable.labelOptions);
+                    outputTable.mappings = _.cloneDeep(configTable.mappings);
 
-                    return newTable;
+                    return outputTable;
                 });
 
-                return newDatabase;
+                return outputDatabase;
             });
 
             // Ignore the datastore if another datastore with the same name already exists (each name should be unique).
-            if (!existingDatastores.some((existingDatastore) => existingDatastore.name === newDatastore.name)) {
-                existingDatastores.push(newDatastore);
+            if (!existingDatastores.some((existingDatastore) => existingDatastore.name === outputDatastore.name)) {
+                existingDatastores.push(outputDatastore);
             }
         });
 
@@ -960,7 +964,7 @@ export class DatasetService {
                 Promise.all(promiseFields).then((response) => {
                     resolve(response);
                 });
-            }).fail((error) => {
+            }, (error) => {
                 if (error.status === 404) {
                     console.warn('Database ' + database.name + ' does not exist; deleting associated dashboards.');
                     let keys = this.dashboards && this.dashboards.choices ? Object.keys(this.dashboards.choices) : [];
@@ -969,7 +973,7 @@ export class DatasetService {
                         resolve(response);
                     });
                 } else {
-                    reject(error);
+                    resolve();
                 }
             });
         });
@@ -991,6 +995,8 @@ export class DatasetService {
                 }
             }
             resolve(table.fields);
+        }, (error) => {
+            resolve([]);
         }));
     }
 
