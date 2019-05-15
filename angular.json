@@ -40,6 +40,11 @@
                 "output": "assets/vis/dist"
               },
               {
+                "glob": "**/*",
+                "input": "node_modules/ngx-monaco-editor/assets/monaco",
+                "output": "assets/monaco"
+              },
+              {
                 "glob": "*.json",
                 "input": "src/app/config",
                 "output": "app/config/"
