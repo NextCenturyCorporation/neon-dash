@@ -44,7 +44,9 @@ const Modules = {
   './components/gear/gear.module#GearModule': GearModule
 };
 
-import { AppModule } from '../app.module';
+import { AppLazyModule } from '../app-lazy.module';
+import { DashboardModule } from './dashboard.module';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('Dashboard', () => {
   let fixture: ComponentFixture<DashboardComponent>;
@@ -55,7 +57,9 @@ describe('Dashboard', () => {
 
   initializeTestBed('Dashboard', {
     imports: [
-      AppModule,
+      AppLazyModule,
+      DashboardModule,
+      HttpClientModule,
       RouterTestingModule
     ],
     providers: [
