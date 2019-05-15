@@ -66,7 +66,7 @@ import { DynamicDialogComponent } from './components/dynamic-dialog/dynamic-dial
             useClass: WidgetService
         }
     ],
-    entryComponents: [AppComponent],
-    bootstrap: [AppComponent, DynamicDialogComponent]
+    entryComponents: [AppComponent, DynamicDialogComponent],
+    bootstrap: [AppComponent]
 })
 export class AppModule { }

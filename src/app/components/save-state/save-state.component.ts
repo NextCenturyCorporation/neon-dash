@@ -74,8 +74,7 @@ export class SaveStateComponent implements OnInit {
     openEditConfigDialog() {
         this.dialog.open(DynamicDialogComponent, {
             data: {
-                moduleId: 'config-editor',
-                selector: 'app-config-editor'
+                component: 'config-editor'
             },
             height: '80%',
             width: '80%',
@@ -264,18 +263,15 @@ export class SaveStateComponent implements OnInit {
     openConfirmationDialog() {
         this.confirmDialogRef = this.dialog.open(DynamicDialogComponent, {
             data: {
-                moduleId: 'confirmation-dialog',
-                selector: 'app-confirm-dialog'
+                component: 'confirmation-dialog',
+                confirmMessage: 'Are you sure you want to delete ',
+                confirmText: 'Delete',
+                target: this.formData.stateToDelete
             },
             height: '130px',
             width: '500px',
             disableClose: false
         });
-
-        this.confirmDialogRef.componentInstance.confirmMessage = 'Are you sure you want to delete ';
-        this.confirmDialogRef.componentInstance.cancelText = 'Cancel';
-        this.confirmDialogRef.componentInstance.confirmText = 'Delete';
-        this.confirmDialogRef.componentInstance.target = this.formData.stateToDelete;
 
         this.confirmDialogRef.afterClosed().subscribe((result) => {
             if (result) {

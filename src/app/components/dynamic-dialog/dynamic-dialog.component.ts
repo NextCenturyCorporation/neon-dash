@@ -39,25 +39,11 @@ export class DynamicDialogComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loader.getComponentRecipe({
-      moduleId: this.data.moduleId,
-      selector: this.data.selector
+      moduleId: this.data.moduleId || this.data.component,
+      selector: this.data.selector || `app-${this.data.component}`
     }).subscribe((cmp) => {
-
-      // Inputs need to be in the following format to be resolved properly
-      let inputProviders = Object.keys(this.data).map((bindingKey) => {
-        return {
-          provide: bindingKey,
-          useValue: this.data[bindingKey]
-        };
-      });
-
-      let resolvedInputs = ReflectiveInjector.resolve(inputProviders);
-
-      // We create an injector out of the data we want to pass down and this components injector
-      let injector = ReflectiveInjector.fromResolvedProviders(resolvedInputs, this.injector);
-
       const factory = cmp.ngModuleFactory
-        .create(injector)
+        .create(this.injector)
         .componentFactoryResolver
         .resolveComponentFactory(cmp.componentType);
 

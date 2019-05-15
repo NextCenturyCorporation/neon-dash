@@ -1467,8 +1467,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected openContributionDialog() {
         this.contributorsRef = this.dialog.open(DynamicDialogComponent, {
             data: {
-                moduleId: 'contribution-dialog',
-                selector: 'app-contribution-dialog',
+                component: 'contribution-dialog',
                 ...this.getContributorsForComponent()
             },
             width: '400px',

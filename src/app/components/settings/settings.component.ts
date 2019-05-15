@@ -114,8 +114,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     openEditConfigDialog() {
         this.dialog.open(DynamicDialogComponent, {
             data: {
-                moduleId: 'config-editor',
-                selector: 'app-config-editor'
+                component: 'config-editor'
             },
             height: '80%',
             width: '80%',

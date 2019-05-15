@@ -457,8 +457,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
   openCustomConnectionDialog() {
     this.customConnectionDialogRef = this.dialog.open(DynamicDialogComponent, {
       data: {
-        moduleId: 'custom-connection',
-        selector: 'app-custom-connection'
+        component: 'custom-connection'
       },
       viewContainerRef: this.viewContainerRef
     });
