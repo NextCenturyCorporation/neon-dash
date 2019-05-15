@@ -55,7 +55,6 @@
     "ensure-attribution": "./scripts/ensure_attributions_file.sh"
   },
   "pre-commit": [
-    "lint-fix",
     "ensure-attribution"
   ],
   "private": true,
