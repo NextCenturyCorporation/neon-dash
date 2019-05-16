@@ -52,6 +52,7 @@ import { SaveStateComponent } from './components/save-state/save-state.component
 import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
+import { fromEvent } from 'rxjs';
 
 @Component({
     selector: 'app-root',
@@ -69,6 +70,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
     @ViewChild('simpleFilter') simpleFilter: SimpleFilterComponent;
     @ViewChild('sideNavRight') sideNavRight: MatSidenav;
+
+    public updatedData = false;
 
     public currentPanel: string = 'dashboardLayouts';
     public showCustomConnectionButton: boolean = false;
@@ -472,6 +475,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe('showVisShortcut', (message) => this.updateShowVisShortcut(message));
         this.messageReceiver.subscribe('showFiltersComponentIcon', (message) => this.updateShowFiltersComponentIcon(message));
         this.messageReceiver.subscribe('toggleGear', (message) => this.updateToggleGear(message));
+
+        fromEvent(new EventSource('/neon/services/dataset/listen'), 'message')
+            .subscribe((latest) => {
+                this.updatedData = true;
+            });
     }
 
     onDragStop(i, event) {
@@ -525,6 +533,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      * Refreshes the grid.
      */
     refreshDashboard() {
+        this.updatedData = false;
         this.grid.triggerResize();
     }
 
