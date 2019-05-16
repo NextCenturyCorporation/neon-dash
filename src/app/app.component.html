@@ -28,13 +28,16 @@
     <mat-toolbar class="neon-toolbar-large neon-toolbar-wide titlebar-header-text" color="primary" layout-align="space-between center" flex>
         <span>{{ datasetService.getCurrentDashboardTitle() || "Choose Dashboard..." }}</span>
         <span class="fill-remaining"></span>
+        <button mat-icon-button class="neon-icon-button-large notify" aria-label="Notifications" [class.updated-data]="updatedData"
+            (click)="refreshDashboard()" matTooltip="Refresh Data" tooltip-position="below">
+            <mat-icon class="neon-icon-large">notifications</mat-icon>
+        </button>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below" id="showVisShortcutButton"
             matTooltip="Add a New Visualization" (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()" *ngIf="showVisShortcut">
             <mat-icon class="neon-icon-large">add_circle</mat-icon>
         </button>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="Connect to a Custom Data Source"
-            matTooltipPosition="below" matTooltip="Connect to a Custom Data Source" (click)="openCustomConnectionDialog()"
-            *ngIf="showCustomConnectionButton">
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Connect to a Custom Data Source" matTooltipPosition="below"
+            matTooltip="Connect to a Custom Data Source" (click)="openCustomConnectionDialog()" *ngIf="showCustomConnectionButton">
             <mat-icon class="neon-icon-large">storage</mat-icon>
         </button>
         <div class="simple-search-container">
@@ -51,9 +54,11 @@
 
         <mat-menu #appMenu="matMenu" [backdropClass]="widgetService.getTheme()" yPosition="below" [overlapTrigger]="false">
             <button mat-menu-item (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()">
-                <mat-icon color="secondary">add_circle</mat-icon>Visualizations</button>
+                <mat-icon color="secondary">add_circle</mat-icon>Visualizations
+            </button>
             <button mat-menu-item (click)="setPanel('savedState', 'Save States'); sideNavRight.toggle()">
-                <mat-icon color="secondary">save</mat-icon>Saved States</button>
+                <mat-icon color="secondary">save</mat-icon>Saved States
+            </button>
             <button mat-menu-item (click)="setPanel('settings', 'Settings'); sideNavRight.toggle()">
                 <mat-icon color="secondary">settings</mat-icon>Settings
             </button>
@@ -84,10 +89,11 @@
 
     <div class="neon-dash" mat-fill layout="col">
         <div [ngGrid]="gridConfig" #grid>
-            <div *ngFor="let widgetGridItem of widgetGridItems; let i = index;" [(ngGridItem)]="widgetGridItem.config"
-                    name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
-                    (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
-                <app-visualization-container [visualization]="widgetGridItem"></app-visualization-container>
+            <div *ngFor="let widgetGridItem of widgetGridItems; let i = index;" [(ngGridItem)]="widgetGridItem.config" name="widgetGridItem.id"
+                id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)" (onResizeStop)="onResizeStop(i, $event)"
+                (onDragStop)="onDragStop(i, $event)">
+                <app-visualization-container [visualization]="widgetGridItem">
+                </app-visualization-container>
                 <ng-content></ng-content>
             </div>
         </div>
