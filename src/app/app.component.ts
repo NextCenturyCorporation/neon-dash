@@ -191,6 +191,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_READY, this.showDashboardStateOnPageLoad.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_REFRESH, this.refreshDashboard.bind(this));
+        this.messageReceiver.subscribe(neonEvents.DASHBOARD_DATA_AVAILABLE, this.dataAvailableDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_STATE, this.showDashboardState.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_DELETE, this.deleteWidget.bind(this));
@@ -475,11 +476,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe('showVisShortcut', (message) => this.updateShowVisShortcut(message));
         this.messageReceiver.subscribe('showFiltersComponentIcon', (message) => this.updateShowFiltersComponentIcon(message));
         this.messageReceiver.subscribe('toggleGear', (message) => this.updateToggleGear(message));
-
-        fromEvent(new EventSource('/neon/services/dataset/listen'), 'message')
-            .subscribe((latest) => {
-                this.updatedData = true;
-            });
+        fromEvent(new EventSource('/neon/services/dataset/listen'), 'message').subscribe((time) => this.dataAvailableDashboard());
     }
 
     onDragStop(i, event) {
@@ -535,6 +532,13 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     refreshDashboard() {
         this.updatedData = false;
         this.grid.triggerResize();
+    }
+
+    /**
+     * Indicates to the dashboard that there is new data available
+     */
+    dataAvailableDashboard() {
+        this.updatedData = true;
     }
 
     /**
