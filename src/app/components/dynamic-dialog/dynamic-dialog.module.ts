@@ -17,12 +17,14 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DynamicDialogComponent } from './dynamic-dialog.component';
 import { MatDialogModule } from '@angular/material';
+import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-loader';
 
 @NgModule({
   declarations: [DynamicDialogComponent],
   exports: [DynamicDialogComponent],
   imports: [
     MatDialogModule,
+    ReactiveComponentLoaderModule,
     CommonModule
   ]
 })
