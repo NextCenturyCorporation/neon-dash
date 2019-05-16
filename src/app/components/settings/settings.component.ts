@@ -60,8 +60,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         protected datasetService: DatasetService,
         private dialog: MatDialog,
         public injector: Injector,
-        public widgetService: AbstractWidgetService,
-        private reactiveLoader: ReactiveComponentLoader
+        public widgetService: AbstractWidgetService
     ) {
         this.datasetService = datasetService;
         this.injector = injector;
