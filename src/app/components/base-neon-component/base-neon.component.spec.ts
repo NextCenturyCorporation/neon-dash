@@ -433,8 +433,10 @@ describe('BaseNeonComponent', () => {
         };
         component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), new FieldMetaData());
         component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DatasetServiceMock.CATEGORY_FIELD);
-        component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DatasetServiceMock.X_FIELD,
-        DatasetServiceMock.Y_FIELD]);
+        component.options.append(
+            new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false),
+            [DatasetServiceMock.X_FIELD, DatasetServiceMock.Y_FIELD]
+        );
         component.options.customEventsToPublish = [{
             fields: [{
                 columnName: 'testDateField'
