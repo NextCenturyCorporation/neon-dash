@@ -39,8 +39,12 @@ export class ConfigEditorComponent implements OnInit {
     public DEFAULT_SNACK_BAR_DURATION: number = 3000;
     public configText: string;
 
-    constructor(private configService: ConfigService, public snackBar: MatSnackBar,
-        protected propertyService: PropertyService, protected widgetService: AbstractWidgetService) {
+    constructor(
+        private configService: ConfigService,
+        public snackBar: MatSnackBar,
+        protected propertyService: PropertyService,
+        protected widgetService: AbstractWidgetService
+    ) {
         this.snackBar = snackBar;
     }
 
@@ -55,10 +59,12 @@ export class ConfigEditorComponent implements OnInit {
     }
 
     public save() {
-        const json = JSON.stringify(yaml.safeLoad(this.configText));
+        const settings = yaml.safeLoad(this.configText);
+        const json = JSON.stringify(settings);
 
         this.propertyService.setProperty(this.CONFIG_PROP_NAME, json,
             (response) => {
+                this.configService.set(settings);
                 this.snackBar.open('Configuration updated successfully.  Refresh to reflect changes.', 'OK', {
                     duration: this.DEFAULT_SNACK_BAR_DURATION
                 });

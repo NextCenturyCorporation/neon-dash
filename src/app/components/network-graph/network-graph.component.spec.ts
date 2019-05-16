@@ -46,8 +46,7 @@ describe('Component: NetworkGraph', () => {
             Injector,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
-            ,
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) },
             { provide: 'limit', useValue: 'testLimit' }
         ],
         imports: [

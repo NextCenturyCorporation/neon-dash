@@ -367,8 +367,7 @@ describe('Component: WikiViewer with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
-            ,
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'id', useValue: 'testId' },
             { provide: 'idField', useValue: 'testIdField' },

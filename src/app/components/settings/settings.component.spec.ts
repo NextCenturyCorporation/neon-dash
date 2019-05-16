@@ -82,8 +82,7 @@ describe('Component: Settings', () => {
             TestSettingsComponent
         ],
         providers: [
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
-            ,
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService }

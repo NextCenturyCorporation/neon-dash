@@ -893,8 +893,7 @@ describe('Component: Map with config', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
-            ,
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: 'tableKey', useValue: 'table_key_1' },
             {
                 provide: 'layers', useValue: [{
