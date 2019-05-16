@@ -17,18 +17,17 @@ import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
 import { ConnectionService } from './connection.service';
-import { Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
-    TableMetaData, TableMappings, FieldMetaData, SimpleFilter, SingleField } from '../dataset';
-import { Subscription, Observable, interval } from 'rxjs';
+import {
+    Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
+    TableMetaData, TableMappings, FieldMetaData, SimpleFilter, SingleField
+} from '../dataset';
+import { Subscription, Observable } from 'rxjs';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
 
 @Injectable()
 export class DatasetService {
-
-    // The Dataset Service may ask the visualizations to update their data.
-    static UPDATE_DATA_CHANNEL: string = 'update_data';
 
     private static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
 
@@ -232,7 +231,7 @@ export class DatasetService {
      * @param {string} pathFromTop path to append to current dashboard object
      * @param {string} title title to append to current dashboard object
      */
-    static validateDashboardChoices(dashboardChoices: {[key: string]: Dashboard}, keys: string[],
+    static validateDashboardChoices(dashboardChoices: { [key: string]: Dashboard }, keys: string[],
         pathFromTop?: string[], title?: string): void {
         if (!keys.length) {
             return;
@@ -411,14 +410,6 @@ export class DatasetService {
     // ---
 
     /**
-     * Publishes an update data message.
-     * @private
-     */
-    private publishUpdateData(): void {
-        this.messenger.publish(DatasetService.UPDATE_DATA_CHANNEL, {});
-    }
-
-    /**
      * Updates the dataset that matches the active dataset.
      */
     // TODO: THOR-1062: may need to change to account for multiple datastores later
@@ -487,14 +478,6 @@ export class DatasetService {
             this.updateSubscription.unsubscribe();
             delete this.updateSubscription;
             delete this.updateInterval;
-        }
-
-        if (this.currentDashboard.options.requeryInterval) {
-            let delay = Math.max(0.5, this.currentDashboard.options.requeryInterval) * 60000;
-            this.updateInterval = interval(delay);
-            this.updateSubscription = this.updateInterval.subscribe(() => {
-                this.publishUpdateData();
-            });
         }
 
         this.messenger.publish(neonEvents.NEW_DATASET, {});
@@ -594,7 +577,7 @@ export class DatasetService {
      * Returns all of the layouts.
      * @return {[key: string]: any}
      */
-    public getLayouts(): {[key: string]: any} {
+    public getLayouts(): { [key: string]: any } {
         return this.layouts;
     }
 
@@ -1006,7 +989,7 @@ export class DatasetService {
      * @return {Promise}
      * @private
      */
-    private deleteInvalidDashboards(dashboardChoices: {[key: string]: Dashboard}, keys: string[],
+    private deleteInvalidDashboards(dashboardChoices: { [key: string]: Dashboard }, keys: string[],
         invalidDatabaseName: string): any {
         if (!keys.length) {
             return Promise.resolve();
