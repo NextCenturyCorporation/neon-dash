@@ -84,7 +84,7 @@
 
     <div class="neon-dash" mat-fill layout="col">
         <div [ngGrid]="gridConfig" #grid>
-            <div *ngFor="let widgetGridItem of widgetGridItems; let i = index;" [(ngGridItem)]="widgetGridItem.config"
+            <div *ngFor="let widgetGridItem of widgetGridItems; let i = index;" [(ngGridItem)]="widgetGridItem"
                     name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
                     (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
                 <app-visualization-container [visualization]="widgetGridItem"></app-visualization-container>
