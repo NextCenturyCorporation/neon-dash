@@ -168,6 +168,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
       this.datasets = this.datasetService.getDatasets();
       this.neonConfig = neonConfig;
       this.snackBar = snackBar;
+      this.messenger.publish(neonEvents.DASHBOARD_REFRESH, {});
 
       if (neonConfig.errors && neonConfig.errors.length > 0) {
         let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {

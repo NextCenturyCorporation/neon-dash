@@ -57,7 +57,7 @@ import { MatDialog } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 

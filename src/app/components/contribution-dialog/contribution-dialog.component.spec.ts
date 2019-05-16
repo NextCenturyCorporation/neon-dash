@@ -34,8 +34,7 @@ describe('Component: ContributionDialogComponent', () => {
         providers: [
             FilterService,
             DatasetService,
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
-            ,
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) },
             { provide: MatDialogRef, useValue: {} },
             { provide: MAT_DIALOG_DATA, useValue: [] }
         ],

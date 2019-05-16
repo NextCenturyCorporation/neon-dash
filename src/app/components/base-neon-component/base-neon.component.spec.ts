@@ -233,8 +233,7 @@ describe('BaseNeonComponent', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
-            ,
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) },
             { provide: 'testDate', useValue: 'testDateField' },
             { provide: 'testFake', useValue: 'testFakeField' },
             { provide: 'testList', useValue: ['testDateField', 'testFakeField', 'testNameField', 'testSizeField'] },
@@ -1624,8 +1623,7 @@ describe('Advanced BaseNeonComponent with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
-            ,
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) },
             { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
             { provide: 'contributionKeys', useValue: ['organization1', 'organization2'] },
             {
