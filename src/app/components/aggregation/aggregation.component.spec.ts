@@ -3694,7 +3694,6 @@ describe('Component: Aggregation', () => {
             aggregation: AggregationType.COUNT,
             axisLabelX: '',
             axisLabelY: 'count',
-            contributionKeys: null,
             countByAggregation: false,
             dualView: '',
             granularity: 'year',
