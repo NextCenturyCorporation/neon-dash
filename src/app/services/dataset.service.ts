@@ -60,19 +60,6 @@ export class DatasetService {
     // ---
     // STATIC METHODS
     // --
-    static appendDashboardChoicesFromConfig(oldChoices: { [key: string]: Dashboard }, newChoices: { [key: string]: Dashboard }): void {
-        Object.keys(newChoices).forEach((newChoiceId) => {
-            let exists = Object.keys(oldChoices).some((oldChoiceId) => oldChoiceId === newChoiceId);
-
-            if (exists) {
-                oldChoices[newChoiceId].choices = oldChoices[newChoiceId].choices || {};
-                DatasetService.appendDashboardChoicesFromConfig(oldChoices[newChoiceId].choices, newChoices[newChoiceId].choices || {});
-            } else {
-                oldChoices[newChoiceId] = newChoices[newChoiceId];
-            }
-        });
-    }
-
     static appendDatastoresFromConfig(configDatastores: { [key: string]: any }, existingDatastores: Datastore[]): Datastore[] {
         // Transform the datastores from config file structures to Datastore objects.
         Object.keys(configDatastores).forEach((datastoreKey) => {
@@ -112,6 +99,19 @@ export class DatasetService {
         });
 
         return existingDatastores;
+    }
+
+    static assignDashboardChoicesFromConfig(oldChoices: { [key: string]: Dashboard }, newChoices: { [key: string]: Dashboard }): void {
+        Object.keys(newChoices).forEach((newChoiceId) => {
+            let exists = Object.keys(oldChoices).some((oldChoiceId) => oldChoiceId === newChoiceId);
+
+            if (exists) {
+                oldChoices[newChoiceId].choices = oldChoices[newChoiceId].choices || {};
+                DatasetService.assignDashboardChoicesFromConfig(oldChoices[newChoiceId].choices, newChoices[newChoiceId].choices || {});
+            } else {
+                oldChoices[newChoiceId] = newChoices[newChoiceId];
+            }
+        });
     }
 
     static removeFromArray(array, indexList): void {
@@ -393,7 +393,7 @@ export class DatasetService {
     public appendDatasets(dashboard: Dashboard, datastores: { [key: string]: any }, layouts: { [key: string]: any }): Dashboard {
         let validatedDashboard: Dashboard = DatasetService.validateDashboards(dashboard);
 
-        DatasetService.appendDashboardChoicesFromConfig(this.dashboards.choices || {}, validatedDashboard.choices || {});
+        DatasetService.assignDashboardChoicesFromConfig(this.dashboards.choices || {}, validatedDashboard.choices || {});
 
         DatasetService.appendDatastoresFromConfig(datastores, this.datasets);
 
