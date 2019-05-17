@@ -645,12 +645,14 @@ layouts:
               placeholder: 'Query Hypotheses'
               extendedFilter: true
               extensionFields:
-                  - tableKey: hypotheses_table
-                    idField: hypotheses_field_id
-                    filterField: hypotheses_field_query
-                  - tableKey: kb_table
-                    idField: kb_field_documentid
-                    filterField: kb_field_hypotheses
+                  - database: verdi_support
+                    table: hypothesis_info
+                    idField: hypothesis_id
+                    filterField: query
+                  - database: kb-simple
+                    table: seedling
+                    idField: docIds
+                    filterField: hypotheses
 
         - type: newsFeed
           row: 2
@@ -780,15 +782,18 @@ layouts:
               placeholder: 'Query Hypotheses'
               extendedFilter: true
               extensionFields:
-                  - tableKey: hypotheses_table
-                    idField: hypotheses_field_id
-                    filterField: hypotheses_field_query
-                  - tableKey: event_table
-                    idField: event_field_objectid
-                    filterField: event_field_hypotheses
-                  - tableKey: event_table
-                    idField: event_field_documentid
-                    filterField: event_field_hypotheses
+                  - database: verdi_support
+                    table: hypothesis_info
+                    idField: hypothesis_id
+                    filterField: query
+                  - database: kb-events
+                    table: seedling
+                    idField: kbid
+                    filterField: hypotheses
+                  - database: kb-events
+                    table: seedling
+                    idField: docIds
+                    filterField: hypotheses
 
         - type: newsFeed
           row: 2
@@ -917,12 +922,18 @@ layouts:
               placeholder: 'Query Hypotheses'
               extendedFilter: true
               extensionFields:
-                  - tableKey: hypotheses_table
-                    idField: hypotheses_field_id
-                    filterField: hypotheses_field_query
-                  - tableKey: geo_table
-                    idField: geo_field_documentid
-                    filterField: geo_field_hypotheses
+                  - database: verdi_support
+                    table: hypothesis_info
+                    idField: hypothesis_id
+                    filterField: query
+                  - database: kb-geo
+                    table: seedling
+                    idField: kbid
+                    filterField: hypotheses
+                  - database: kb-geo
+                    table: seedling
+                    idField: docIds
+                    filterField: hypotheses
         - type: newsFeed
           row: 2
           col: 1
