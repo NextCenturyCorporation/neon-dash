@@ -234,8 +234,8 @@ datastores:
                                 regimechange: Regime Change
                         mappings:
                             date: createAt
-            mozambique042019_text:
-                prettyName: 'Mozambique Text'
+            mozambique052019_tweet:
+                prettyName: 'Mozambique Tweet'
                 tables:
                     ui_output:
                         prettyName: UI output
@@ -261,7 +261,7 @@ datastores:
                                 regimechange: Regime Change
                         mappings:
                             date: createAt
-            mozambique042019_sf:
+            mozambique052019_sf:
                 prettyName: 'Mozambique Situation Frames'
                 tables:
                     ui_output:
@@ -286,27 +286,7 @@ datastores:
                                 crimeviolence: Crime / Violence
                                 terrorism: Terrorism
                                 regimechange: Regime Change
-            mozambique042019_cluster:
-                prettyName: 'Mozambique Cluster'
-                tables:
-                    ui_output:
-                        prettyName: UI output
-                        fields:
-                            - columnName: cluster_name
-                              prettyName: Cluster Name
-                        labelOptions:
-                            need:
-                                food: Food
-                                water: Water
-                                shelter: Shelter
-                                med: Medicine
-                                search: Search and Rescue
-                                evac: Evacuation
-                                infra: Infrastructure
-                                utils: Utilities
-                                crimeviolence: Crime / Violence
-                                terrorism: Terrorism
-                                regimechange: Regime Change
+            
             somali052019_frames:
                 prettyName: 'Somali'
                 tables:
@@ -677,32 +657,31 @@ dashboards:
                             name: Mozambique
                             layout: africom-moz
                             tables:
-                                table_key_1: es1.mozambique042019_text.ui_output
-                                table_key_2: es1.mozambique042019_sf.ui_output
-                                table_key_3: es1.mozambique042019_cluster.ui_output
+                                table_key_1: es1.mozambique052019_tweet.ui_output
+                                table_key_2: es1.mozambique052019_sf.ui_output
                             fields:
-                                original_text_key: es1.mozambique042019_text.ui_output.originalText
-                                translated_text_key: es1.mozambique042019_text.ui_output.translatedText
-                                date_field_key: es1.mozambique042019_text.ui_output.createdAt
-                                id_field_key_1: es1.mozambique042019_text.ui_output.id
-                                id_field_key_2: es1.mozambique042019_sf.ui_output.id
+                                original_text_key: es1.mozambique052019_tweet.ui_output.originalText
+                                translated_text_key: es1.mozambique052019_tweet.ui_output.translatedText
+                                date_field_key: es1.mozambique052019_tweet.ui_output.createdAt
+                                id_field_key_1: es1.mozambique052019_tweet.ui_output.id
+                                id_field_key_2: es1.mozambique052019_sf.ui_output.id
                                 id_field_key_3: es1.mozambique042019_cluster.ui_output.doc
-                                filter_field_key: es1.mozambique042019_sf.ui_output.id
-                                group_field_key: es1.mozambique042019_sf.ui_output.need
-                                latitude_key: es1.mozambique042019_sf.ui_output.geoLocation.lat
-                                longitude_key: es1.mozambique042019_sf.ui_output.geoLocation.lon
-                                text_cloud_data_key: es1.mozambique042019_sf.ui_output.location
-                                location_key: es1.mozambique042019_sf.ui_output.location
-                                color_field_topic_key: es1.mozambique042019_sf.ui_output.type
-                                cluster_name_key: es3.mozambique042019_cluster.ui_output.cluster_name
-                                cluster_topics_key: es3.mozambique042019_cluster.ui_output.topicsPresent
+                                filter_field_key: es1.mozambique052019_sf.ui_output.id
+                                group_field_key: es1.mozambique052019_sf.ui_output.need
+                                latitude_key: es1.mozambique052019_sf.ui_output.geoLocation.lat
+                                longitude_key: es1.mozambique052019_sf.ui_output.geoLocation.lon
+                                text_cloud_data_key: es1.mozambique052019_sf.ui_output.location
+                                location_key: es1.mozambique052019_sf.ui_output.location
+                                color_field_topic_key: es1.mozambique052019_sf.ui_output.type
+                                cluster_name_key: es1.mozambique052019_tweet.ui_output.cluster_name
+                                cluster_topics_key: es1.mozambique052019_tweet.ui_output.topics
                             relations:
                                 - es1:
-                                    mozambique042019_text:
+                                    mozambique052019_tweet:
                                         ui_output: 'id'
-                                    mozambique042019_sf:
+                                    mozambique052019_sf:
                                         ui_output: 'id'
-                                    mozambique042019_cluster:
+                                    mozambique042019_tweet:
                                         ui_output: 'doc'
                             options:
                                 connectOnLoad: true
@@ -1248,10 +1227,10 @@ layouts:
                     longitudeField: longitude_key
                     colorField: color_field_topic_key
               mapType: leaflet
-              west: 30.5
-              north: 49
-              east: 127
-              south: 10.6
+              west: 10.5
+              north: -10
+              east: 78
+              south: -20
               contributionKeys:
                 - ldc
                 - rpi
