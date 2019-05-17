@@ -67,17 +67,17 @@ describe('Service: DatasetService Static Functions', () => {
         ]
     });
 
-    it('appendDashboardChoicesFromConfig with no config choices and no existing choices should do nothing', () => {
+    it('assignDashboardChoicesFromConfig with no config choices and no existing choices should do nothing', () => {
         let input = {};
-        DatasetService.appendDashboardChoicesFromConfig(input, {});
+        DatasetService.assignDashboardChoicesFromConfig(input, {});
         expect(input).toEqual({});
     });
 
-    it('appendDashboardChoicesFromConfig with config choices and no existing choices should update given choices', () => {
+    it('assignDashboardChoicesFromConfig with config choices and no existing choices should update given choices', () => {
         let input = {};
         let dashboard = new Dashboard();
         dashboard.name = 'name';
-        DatasetService.appendDashboardChoicesFromConfig(input, {
+        DatasetService.assignDashboardChoicesFromConfig(input, {
             test: dashboard
         });
         expect(input).toEqual({
@@ -85,11 +85,11 @@ describe('Service: DatasetService Static Functions', () => {
         });
     });
 
-    it('appendDashboardChoicesFromConfig with nested config choices and no existing choices should update given choices', () => {
+    it('assignDashboardChoicesFromConfig with nested config choices and no existing choices should update given choices', () => {
         let input = {};
         let dashboard = new Dashboard();
         dashboard.name = 'name';
-        DatasetService.appendDashboardChoicesFromConfig(input, {
+        DatasetService.assignDashboardChoicesFromConfig(input, {
             test1: {
                 choices: {
                     test2: dashboard
@@ -105,7 +105,7 @@ describe('Service: DatasetService Static Functions', () => {
         });
     });
 
-    it('appendDashboardChoicesFromConfig with config choices and existing choices should update given choices', () => {
+    it('assignDashboardChoicesFromConfig with config choices and existing choices should update given choices', () => {
         let previousDashboard = new Dashboard();
         previousDashboard.name = 'previous';
         let input = {
@@ -113,7 +113,7 @@ describe('Service: DatasetService Static Functions', () => {
         };
         let dashboard = new Dashboard();
         dashboard.name = 'name';
-        DatasetService.appendDashboardChoicesFromConfig(input, {
+        DatasetService.assignDashboardChoicesFromConfig(input, {
             test: dashboard
         });
         expect(input).toEqual({
@@ -122,7 +122,7 @@ describe('Service: DatasetService Static Functions', () => {
         });
     });
 
-    it('appendDashboardChoicesFromConfig with nested config choices and nested existing choices should update given choices', () => {
+    it('assignDashboardChoicesFromConfig with nested config choices and nested existing choices should update given choices', () => {
         let previousDashboard = new Dashboard();
         previousDashboard.name = 'previous';
         let input = {
@@ -134,7 +134,7 @@ describe('Service: DatasetService Static Functions', () => {
         };
         let dashboard = new Dashboard();
         dashboard.name = 'name';
-        DatasetService.appendDashboardChoicesFromConfig(input, {
+        DatasetService.assignDashboardChoicesFromConfig(input, {
             test1: {
                 choices: {
                     test2: dashboard
@@ -151,7 +151,7 @@ describe('Service: DatasetService Static Functions', () => {
         });
     });
 
-    it('appendDashboardChoicesFromConfig with same ID in config choices and existing choices should not update given choices', () => {
+    it('assignDashboardChoicesFromConfig with same ID in config choices and existing choices should not update given choices', () => {
         let previousDashboard = new Dashboard();
         previousDashboard.name = 'previous';
         let input = {
@@ -159,7 +159,7 @@ describe('Service: DatasetService Static Functions', () => {
         };
         let dashboard = new Dashboard();
         dashboard.name = 'name';
-        DatasetService.appendDashboardChoicesFromConfig(input, {
+        DatasetService.assignDashboardChoicesFromConfig(input, {
             prev: dashboard
         });
         expect(input).toEqual({
