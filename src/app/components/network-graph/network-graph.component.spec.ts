@@ -32,7 +32,6 @@ import { LegendComponent } from '../legend/legend.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 describe('Component: NetworkGraph', () => {
@@ -49,7 +48,7 @@ describe('Component: NetworkGraph', () => {
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             Injector,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },

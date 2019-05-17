@@ -594,7 +594,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     private createFilterDesignOnBox(layer: any, north?: number, south?: number, east?: number, west?: number): FilterDesign {
         return {
             type: CompoundFilterType.AND,
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: layer.database,
@@ -630,7 +629,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     private createFilterDesignOnPoint(layer: any, latitude?: number, longitude?: number): FilterDesign {
         return {
             type: CompoundFilterType.AND,
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: layer.database,

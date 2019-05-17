@@ -26,13 +26,12 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { DataTableComponent } from './data-table.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { By } from '@angular/platform-browser';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -50,7 +49,7 @@ describe('Component: DataTable', () => {
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
@@ -1090,7 +1089,7 @@ describe('Component: DataTable', () => {
         expect(exchangeFiltersSpy.calls.count()).toEqual(0);
         expect(toggleFiltersSpy.calls.count()).toEqual(1);
         expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[{
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -1129,7 +1128,7 @@ describe('Component: DataTable', () => {
         expect(publishAnySpy).toHaveBeenCalled();
         expect(exchangeFiltersSpy.calls.count()).toEqual(1);
         expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[{
-            optional: false,
+            root: CompoundFilterType.AND,
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
@@ -1172,9 +1171,9 @@ describe('Component: DataTable', () => {
         expect(toggleFiltersSpy.calls.count()).toEqual(1);
         expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[{
             type: 'and',
-            optional: false,
+            root: CompoundFilterType.AND,
             filters: [{
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -1182,7 +1181,7 @@ describe('Component: DataTable', () => {
                 operator: '=',
                 value: 'books'
             }, {
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -1190,7 +1189,7 @@ describe('Component: DataTable', () => {
                 operator: '=',
                 value: 'games'
             }, {
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -1233,9 +1232,9 @@ describe('Component: DataTable', () => {
         expect(toggleFiltersSpy.calls.count()).toEqual(1);
         expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[{
             type: 'or',
-            optional: true,
+            root: CompoundFilterType.OR,
             filters: [{
-                optional: true,
+                root: CompoundFilterType.OR,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -1243,7 +1242,7 @@ describe('Component: DataTable', () => {
                 operator: '=',
                 value: 'books'
             }, {
-                optional: true,
+                root: CompoundFilterType.OR,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -1251,7 +1250,7 @@ describe('Component: DataTable', () => {
                 operator: '=',
                 value: 'games'
             }, {
-                optional: true,
+                root: CompoundFilterType.OR,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -1293,9 +1292,9 @@ describe('Component: DataTable', () => {
         expect(exchangeFiltersSpy.calls.count()).toEqual(1);
         expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[{
             type: 'and',
-            optional: false,
+            root: CompoundFilterType.AND,
             filters: [{
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -1303,7 +1302,7 @@ describe('Component: DataTable', () => {
                 operator: '=',
                 value: 'books'
             }, {
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -1311,7 +1310,7 @@ describe('Component: DataTable', () => {
                 operator: '=',
                 value: 'games'
             }, {
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -1354,9 +1353,9 @@ describe('Component: DataTable', () => {
         expect(exchangeFiltersSpy.calls.count()).toEqual(1);
         expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[{
             type: 'or',
-            optional: false,
+            root: CompoundFilterType.AND,
             filters: [{
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -1364,7 +1363,7 @@ describe('Component: DataTable', () => {
                 operator: '=',
                 value: 'books'
             }, {
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],
@@ -1372,7 +1371,7 @@ describe('Component: DataTable', () => {
                 operator: '=',
                 value: 'games'
             }, {
-                optional: false,
+                root: CompoundFilterType.AND,
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
                 table: DatasetServiceMock.TABLES[0],

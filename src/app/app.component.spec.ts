@@ -82,7 +82,6 @@ import { TitleThumbnailSubComponent } from './components/thumbnail-grid/subcompo
 import { CardThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.card-view';
 import { TreeModule } from 'angular-tree-component';
 import { DatasetServiceMock } from '../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../testUtils/MockServices/SearchServiceMock';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../testUtils/initializeTestBed';
@@ -153,7 +152,7 @@ describe('App', () => {
               { provide: APP_BASE_HREF, useValue: '/' },
               ConnectionService,
               { provide: DatasetService, useClass: DatasetServiceMock },
-              { provide: FilterService, useClass: FilterServiceMock },
+              FilterService,
               ParameterService,
               { provide: AbstractSearchService, useClass: SearchServiceMock },
               { provide: AbstractWidgetService, useClass: WidgetService }

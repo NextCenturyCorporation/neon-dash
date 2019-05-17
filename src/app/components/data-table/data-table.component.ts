@@ -138,18 +138,21 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     private createFilterDesignOnArrayValue(filters: FilterDesign[]): FilterDesign {
+        let compoundFilterType = this.options.arrayFilterOperator === 'and' ? CompoundFilterType.AND : CompoundFilterType.OR;
         return {
-            type: this.options.arrayFilterOperator === 'and' ? CompoundFilterType.AND : CompoundFilterType.OR,
-            // TODO THOR-1101 Add a new config property to set optional if singleFilter is false (don't reuse arrayFilterOperator!)
-            optional: !this.options.singleFilter && this.options.arrayFilterOperator !== 'and',
+            type: compoundFilterType,
+            // TODO THOR-1101 Add a new config property to set root if singleFilter is false (don't reuse arrayFilterOperator!)
+            root: (this.options.singleFilter || this.options.arrayFilterOperator === 'and') ? CompoundFilterType.AND :
+                CompoundFilterType.OR,
             filters: filters
         } as CompoundFilterDesign;
     }
 
     private createFilterDesignOnOneValue(field: FieldMetaData, value?: any): FilterDesign {
         return {
-            // TODO THOR-1101 Add a new config property to set optional if singleFilter is false (don't reuse arrayFilterOperator!)
-            optional: !this.options.singleFilter && this.options.arrayFilterOperator !== 'and',
+            // TODO THOR-1101 Add a new config property to set root if singleFilter is false (don't reuse arrayFilterOperator!)
+            root: (this.options.singleFilter || this.options.arrayFilterOperator === 'and') ? CompoundFilterType.AND :
+                CompoundFilterType.OR,
             datastore: '',
             database: this.options.database,
             table: this.options.table,
