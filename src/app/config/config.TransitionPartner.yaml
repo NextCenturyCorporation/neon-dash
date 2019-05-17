@@ -274,7 +274,7 @@ datastores:
                             - columnName: frameid
                               prettyName: Frame ID
                         labelOptions:
-                            need:
+                            type:
                                 food: Food
                                 water: Water
                                 shelter: Shelter
@@ -665,7 +665,6 @@ dashboards:
                                 date_field_key: es1.mozambique052019_tweet.ui_output.createdAt
                                 id_field_key_1: es1.mozambique052019_tweet.ui_output.id
                                 id_field_key_2: es1.mozambique052019_sf.ui_output.id
-                                id_field_key_3: es1.mozambique042019_cluster.ui_output.doc
                                 filter_field_key: es1.mozambique052019_sf.ui_output.id
                                 group_field_key: es1.mozambique052019_sf.ui_output.need
                                 latitude_key: es1.mozambique052019_sf.ui_output.geoLocation.lat
@@ -681,8 +680,6 @@ dashboards:
                                         ui_output: 'id'
                                     mozambique052019_sf:
                                         ui_output: 'id'
-                                    mozambique042019_tweet:
-                                        ui_output: 'doc'
                             options:
                                 connectOnLoad: true
                                 simpleFilter:
@@ -1328,7 +1325,7 @@ layouts:
                     - 170
               filterable: true
               filterFields:
-                  - id_field_key4
+                  - id_field_key_2
               singleFilter: true
               ignoreSelf: false
               contributionKeys:
@@ -1345,7 +1342,7 @@ layouts:
           bindings:
               title: Situation Clusters
               type: bar-h
-              tableKey: table_key_3
+              tableKey: table_key_1
               xField: cluster_name_key
               limit: 100
               groupField: cluster_topics_key
