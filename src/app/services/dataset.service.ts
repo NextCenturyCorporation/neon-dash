@@ -17,7 +17,7 @@ import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
 import { Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
-    TableMetaData, TableMappings, FieldMetaData, SimpleFilter } from '../dataset';
+    TableMetaData, TableMappings, FieldMetaData, SimpleFilter, SingleField } from '../dataset';
 import { Subscription, Observable, interval } from 'rxjs';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { neonEvents } from '../neon-namespaces';
@@ -196,13 +196,40 @@ export class DatasetService {
     }
 
     /**
+     * Returns database name from complete field name (datastore.database.table.field).
+     * @param {String} name
+     * @return {String}
+     */
+    static getDatabaseNameFromCompleteFieldName(name: string) {
+        return name.split('.')[1];
+    }
+
+    /**
+     * Returns table name from complete field name (datastore.database.table.field).
+     * @param {String} name
+     * @return {String}
+     */
+    static getTableNameFromCompleteFieldName(name: string) {
+        return name.split('.')[2];
+    }
+
+    /**
+     * Returns field name from complete field name (datastore.database.table.field).
+     * @param {String} name
+     * @return {String}
+     */
+    static getFieldNameFromCompleteFieldName(name: string) {
+        return name.split('.').slice(3).join('.');
+    }
+
+    /**
      * Returns database name from matching table key within the dashboard passed in.
      * @param {Dashboard} dashboard
      * @param {String} key
      * @return {String}
      */
     static getDatabaseNameByKey(dashboard: Dashboard, key: string) {
-        return dashboard.tables[key].split('.')[1];
+        return this.getDatabaseNameFromCompleteFieldName(dashboard.tables[key]);
     }
 
     /**
@@ -212,7 +239,7 @@ export class DatasetService {
      * @return {String}
      */
     static getTableNameByKey(dashboard: Dashboard, key: string) {
-        return dashboard.tables[key].split('.')[2];
+        return this.getTableNameFromCompleteFieldName(dashboard.tables[key]);
     }
 
     /**
@@ -222,7 +249,7 @@ export class DatasetService {
      * @return {String}
      */
     static getFieldNameByKey(dashboard: Dashboard, key: string) {
-        return dashboard.fields[key].split('.').slice(3).join('.');
+        return this.getFieldNameFromCompleteFieldName(dashboard.fields[key]);
     }
 
     constructor(@Inject('config') private config: NeonGTDConfig) {
@@ -577,6 +604,26 @@ export class DatasetService {
     }
 
     /**
+     * Returns the field with the given name or an Object with an empty name if no such field exists in the database and table with the
+     * given names.
+     *
+     * @arg {string} databaseName The database name
+     * @arg {string} tableName The table name
+     * @arg {string} fieldName The field name
+     * @return {FieldMetaData} The field containing {String} columnName and {String} prettyName if a match exists or undefined otherwise.
+     */
+    public getFieldWithName(databaseName: string, tableName: string, fieldName: string): FieldMetaData {
+        let fields: FieldMetaData[] = this.getFields(databaseName, tableName);
+        for (let field of fields) {
+            if (field.columnName === fieldName) {
+                return field;
+            }
+        }
+
+        return undefined;
+    }
+
+    /**
      * Returns a map of database names to an array of table names within that database.
      * @return {Object}
      */
@@ -749,173 +796,6 @@ export class DatasetService {
         }
 
         table.mappings[key] = fieldName;
-    }
-
-    // TODO: THOR-1063: need to add datastore to Filter object later
-    public findMentionedFields(filter: neon.query.Filter): { database: string, table: string, field: string }[] {
-        let findMentionedFieldsHelper = (clause: neon.query.WherePredicate) => {
-            switch (clause.type) {
-                case 'where': {
-                    return [(clause as neon.query.WhereClause).lhs];
-                }
-                case 'and':
-                case 'or': {
-                    let foundFields = [];
-                    (clause as neon.query.BooleanClause).whereClauses.forEach((innerClause) => {
-                        foundFields = foundFields.concat(findMentionedFieldsHelper(innerClause));
-                    });
-                    return foundFields;
-                }
-            }
-        };
-        let fields = findMentionedFieldsHelper(filter.whereClause);
-        let uniques = [];
-        for (let i = fields.length - 1; i >= 0; i--) {
-            if (uniques.indexOf(fields[i]) < 0) {
-                uniques.push(fields[i]);
-            }
-        }
-        return uniques.map((item) => {
-            return {
-                database: filter.databaseName,
-                table: filter.tableName,
-                field: item
-            };
-        });
-    }
-
-    public getEquivalentFields(datastore: string,
-        database: string,
-        table: string,
-        field: string,
-        mapping: Map<string, Map<string, { datastore: string, database: string, table: string, field: string }[]>>):
-        Map<string, Map<string, { datastore: string, database: string, table: string, field: string }[]>> {
-        let relatedFields: any = mapping;
-
-        // TODO: THOR-1063: filters will need datastore info eventually - more of a backend task,
-        // but leaving a TODO to help track this later.
-
-        let found = this.findValueInRelations(datastore, database, table, field);
-
-        found.forEach((value) => {
-            this.addRelatedFieldToMapping(relatedFields, field, datastore, value.database, value.table, value.field);
-        });
-
-        // Recursively check for equivalents to the fields we already have until we don't find anything new.
-        let valueAdded: boolean;
-        do {
-            valueAdded = false;
-            for (let kvPair of relatedFields) {
-                for (let relatedField of kvPair[1].fields[field]) {
-                    if (!relatedField.hasBeenChecked) {
-                        // TODO: THOR-1062: need to account for possibility of multiple datastores within a dashboard later on
-                        let values = this.findValueInRelations(datastore, kvPair[1].database, kvPair[1].table, relatedField);
-                        for (let newValue of values) {
-                            valueAdded = valueAdded ||
-                                this.addRelatedFieldToMapping(relatedFields, field, datastore, newValue.database,
-                                    newValue.table, newValue.field);
-                        }
-                        relatedField.hasBeenChecked = true;
-                    }
-                }
-            }
-        } while (valueAdded);
-        let initialFieldDbAndTableKey = this.makeDatastoreDbAndTableKey(datastore, database, table);
-        if (relatedFields.get(initialFieldDbAndTableKey) && relatedFields.get(initialFieldDbAndTableKey).get(field) !== undefined) {
-            let fields = relatedFields.get(initialFieldDbAndTableKey).get(field);
-            for (let index = fields.length - 1; index >= 0; index--) {
-                if (fields[index].database === database && fields[index].table === table && fields[index].field === field) {
-                    fields.splice(index, 1);
-                }
-            }
-            if (fields.length === 0) {
-                relatedFields.get(initialFieldDbAndTableKey).delete(field);
-            }
-            if (Array.from(relatedFields.get(initialFieldDbAndTableKey).entries()).length === 0) {
-                relatedFields.delete(initialFieldDbAndTableKey);
-            }
-        }
-        return relatedFields;
-    }
-
-    // Internal helper method to create a mapping key for a datastore, database, and table.
-    private makeDatastoreDbAndTableKey(datastore: string, database: string, table: string): string {
-        return datastore + '_' + database + '_' + table;
-    }
-    // Internal helper method to add a related field to the mapping of related fields, and returns true if it was added and false otherwise.
-    private addRelatedFieldToMapping(mapping: Map<string, Map<string, { datastore: string,
-        database: string, table: string, field: string }[]>>,
-        baseField: string,
-        datastore: string,
-        database: string,
-        table: string,
-        field: string): boolean {
-        let key = this.makeDatastoreDbAndTableKey(datastore, database, table);
-        if (mapping.get(key) === undefined) {
-            let newMap = new Map<string, { datastore: string, database: string, table: string, field: string }[]>();
-            newMap.set(baseField, [{
-                datastore: datastore,
-                database: database,
-                table: table,
-                field: field
-            }]);
-            mapping.set(key, newMap);
-            return true;
-        } else if (mapping.get(key).get(baseField) === undefined) {
-            mapping.get(key).set(baseField, [{
-                datastore: datastore,
-                database: database,
-                table: table,
-                field: field
-            }]);
-            return true;
-        } else if (mapping.get(key).get(baseField).find((elem) => elem.field === field) === undefined) {
-            mapping.get(key).get(baseField).push({
-                datastore: datastore,
-                database: database,
-                table: table,
-                field: field
-            });
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    // Internal helper method to find a field in relations.
-    // Returns every member of every relation that contains the given database/table/field combination.
-    private findValueInRelations(datastore: string, db: string, t: string,
-        f: string): { datastore: string, database: string, table: string, field: string }[] {
-        let values = [];
-        let relations = this.getCurrentDashboard().relations;
-
-        let relationMatch = _.find(relations, (relation: any) => {
-            return relation[datastore] && relation[datastore][db]
-                && relation[datastore][db][t] && relation[datastore][db][t] === f;
-        });
-
-        if (relationMatch) {
-            let datastoreKeys = Object.keys(relationMatch);
-
-            datastoreKeys.forEach((datastoreKey) => {
-                let databaseKeys = Object.keys(relationMatch[datastoreKey]);
-
-                databaseKeys.forEach((databaseKey) => {
-                    let tableKeys = Object.keys(relationMatch[datastoreKey][databaseKey]);
-
-                    tableKeys.forEach((tableKey) => {
-                        values.push({
-                            datastore: datastoreKey,
-                            database: databaseKey,
-                            table: tableKey,
-                            field: relationMatch[datastoreKey][databaseKey][tableKey]
-                        });
-                    });
-                });
-            });
-        }
-
-        return values;
     }
 
     /**
@@ -1094,6 +974,67 @@ export class DatasetService {
             }
         });
         return name;
+    }
+
+    /**
+     * Returns the list of relation data for the current dataset:  elements of the outer array are individual relations and elements of
+     * the inner array are specific fields within the relations.
+     *
+     * @return {SingleField[][][]}
+     */
+    public findRelationDataList(): SingleField[][][] {
+        // Either expect string list structure:  [[a1, a2, a3], [b1, b2]]
+        // ....Or expect nested list structure:  [[[x1, y1], [x2, y2], [x3, y3]], [[z1], [z2]]]
+        let configRelationDataList: (string | string[])[][] = this.getCurrentDashboard().relations || [];
+
+        // Each element in the 1st (outermost) list is a separate relation.
+        // Each element in the 2nd list is a relation field.
+        // Each element in the 3rd (innermost) list is an ordered set of relation fields.  A filter must have each relation field within
+        // the ordered set for the relation to be applied.
+        //
+        // EX: [ // relation list
+        //       [ // single relation
+        //         [ // relation fields
+        //           'datastore1.database1.table1.fieldA',
+        //           'datastore1.database1.table1.fieldB'
+        //         ],
+        //         [ // relation fields
+        //           'datastore2.database2.table2.fieldX',
+        //           'datastore2.database2.table2.fieldY'
+        //         ]
+        //       ]
+        //     ]
+        // Whenever a filter contains both fieldA and fieldB, create a relation filter by replacing fieldA with fieldX and fieldB with
+        // fieldY.  Do the reverse whenever a filter contains both fieldX and fieldY.  Do not create a relation filter if a filter contains
+        // just fieldA, or just fieldB, or just fieldX, or just fieldY, or more than fieldA and fieldB, or more than fieldX and fieldY.
+        return configRelationDataList.map((configRelationData) => {
+            return configRelationData.map((configRelationFilterFields) => {
+                // A relation is an array of arrays.  The elements in the outer array are the fields-to-substitute and the elements in the
+                // inner arrays are the filtered fields.  The inner arrays must be the same length (the same number of filtered fields).
+                let relationFilterFields: string[] = Array.isArray(configRelationFilterFields) ? configRelationFilterFields :
+                    [configRelationFilterFields];
+
+                return relationFilterFields.map((item) => {
+                    let databaseName = DatasetService.getDatabaseNameFromCompleteFieldName(item);
+                    let tableName = DatasetService.getTableNameFromCompleteFieldName(item);
+                    let fieldName = DatasetService.getFieldNameFromCompleteFieldName(item);
+                    return {
+                        // TODO THOR-1062 THOR-1078 Set the datastore name too!
+                        datastore: '',
+                        database: this.getDatabaseWithName(databaseName),
+                        table: this.getTableWithName(databaseName, tableName),
+                        field: this.getFieldWithName(databaseName, tableName, fieldName)
+                    } as SingleField;
+                }).filter((item) => item.database && item.table && item.field);
+            });
+        }).filter((relationData) => {
+            if (relationData.length > 1) {
+                // Ensure each inner array element has the same non-zero length because they must have the same number of filtered fields.
+                let size = relationData[0].length;
+                return size && relationData.every((relationFilterFields) => relationFilterFields.length === size);
+            }
+            return false;
+        });
     }
 
     // used to link layouts with dashboards

@@ -43,7 +43,6 @@ import { TransformedVisualizationData } from '../base-neon-component/base-neon.c
 import { WidgetOptionCollection } from '../../widget-option';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { MatDialog } from '@angular/material';
@@ -230,7 +229,7 @@ describe('Component: Map', () => {
         ],
         providers: [
             DatasetService,
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
@@ -542,7 +541,6 @@ describe('Component: Map', () => {
         expect(spy.calls.count()).toBe(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -582,7 +580,6 @@ describe('Component: Map', () => {
         expect(spy.calls.count()).toBe(2);
         expect(spy.calls.argsFor(1)).toEqual([[{
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -614,7 +611,6 @@ describe('Component: Map', () => {
             }]
         }, {
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[1],
@@ -657,7 +653,6 @@ describe('Component: Map', () => {
         expect(spy.calls.count()).toBe(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -682,7 +677,6 @@ describe('Component: Map', () => {
         expect(spy.calls.count()).toBe(2);
         expect(spy.calls.argsFor(1)).toEqual([[{
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -700,7 +694,6 @@ describe('Component: Map', () => {
             }]
         }, {
             type: 'and',
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[1],
@@ -911,7 +904,7 @@ describe('Component: Map with config', () => {
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },

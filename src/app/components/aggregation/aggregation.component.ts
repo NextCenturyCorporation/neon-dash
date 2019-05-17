@@ -357,7 +357,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     private createFilterDesignOnBounds(beginX?: any, endX?: any, beginY?: any, endY?: any): FilterDesign {
         return {
             type: CompoundFilterType.AND,
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: this.options.database,
@@ -393,7 +392,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     private createFilterDesignOnDomain(beginX?: any, endX?: any): FilterDesign {
         return {
             type: CompoundFilterType.AND,
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: this.options.database,
@@ -414,7 +412,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     private createFilterDesignOnItem(value?: any): FilterDesign {
         return {
-            optional: !this.options.requireAll,
+            root: this.options.requireAll ? CompoundFilterType.AND : CompoundFilterType.OR,
             datastore: '',
             database: this.options.database,
             table: this.options.table,

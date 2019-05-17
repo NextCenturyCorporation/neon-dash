@@ -148,7 +148,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     private createFilterDesignOnTimeline(begin?: Date, end?: Date): FilterDesign {
         return {
             type: CompoundFilterType.AND,
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: this.options.database,

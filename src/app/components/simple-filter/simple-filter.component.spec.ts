@@ -33,7 +33,6 @@ import {
     OnDestroy, OnInit
 } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
@@ -61,7 +60,7 @@ describe('Component: SimpleFilter', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
@@ -206,7 +205,7 @@ describe('Component: SimpleFilter unconfigured', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DatasetService, useClass: DatasetService },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [

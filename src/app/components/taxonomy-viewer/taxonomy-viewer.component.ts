@@ -629,4 +629,14 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         // TODO THOR-985 Temporary function.
         this.transformVisualizationQueryResults(options, []);
     }
+
+    /**
+     * Returns whether this visualization should filter itself.
+     *
+     * @return {boolean}
+     * @override
+     */
+    protected shouldFilterSelf(): boolean {
+        return false;
+    }
 }

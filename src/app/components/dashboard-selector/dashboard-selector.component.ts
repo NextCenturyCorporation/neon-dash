@@ -378,4 +378,11 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         this.activeDatasetChanged.emit(this.activeDataset);
         this.parameterService.addFiltersFromUrl(!loadDashboardState);
     }
+
+    /**
+     * Emits an event to close the dashboard selector component.
+     */
+    closeDashboardSelectorDialog() {
+        this.activeDatasetChanged.emit();
+    }
 }
