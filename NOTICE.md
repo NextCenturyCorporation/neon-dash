@@ -49,12 +49,10 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | lodash@4.15.0 | [MIT](https://github.com/lodash/lodash/raw/master/LICENSE) |
 | moment-timezone@0.5.13 | [MIT](https://github.com/moment/moment-timezone/raw/master/LICENSE) |
 | moment@2.18.1 | [MIT](https://github.com/moment/moment/raw/master/LICENSE) |
-| neon-framework@1.3.5 | [Apache-2.0](https://github.com/NextCenturyCorporation/neon) |
 | npm-license-crawler@0.1.9 | [BSD-3-Clause](https://github.com/mwittig/npm-license-crawler/raw/master/LICENSE) |
 | reflect-metadata@0.1.10 | [Apache-2.0](https://github.com/rbuckton/reflect-metadata/raw/master/LICENSE) |
 | requirejs@2.3.5 | [MIT](https://github.com/jrburke/r.js) |
 | rxjs@6.5.2 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
 | tslib@1.9.3 | [Apache-2.0](https://github.com/Microsoft/tslib/raw/master/LICENSE.txt) |
-| uuid@3.3.2 | [MIT](https://github.com/kelektiv/node-uuid/raw/master/LICENSE.md) |
 | vis@4.21.0 | [(Apache-2.0 OR MIT)](https://github.com/almende/vis/raw/master/LICENSE-APACHE-2.0) |
 | zone.js@0.8.29 | [MIT](https://github.com/angular/zone.js/raw/master/LICENSE) |
