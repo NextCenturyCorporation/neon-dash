@@ -261,12 +261,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     changeFiltersComponentIcon() {
-        let filters = this.filterService.getFilters();
-        if (filters.length > 0) {
-            this.filtersIcon = 'filters_active';
-        } else {
-            this.filtersIcon = 'filters';
-        }
+        this.filtersIcon = this.isFiltered() ? 'filters_active' : 'filters';
+        // TODO Does this function really have to return a boolean value?
         return true;
     }
 
@@ -388,6 +384,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     handleDashboardError(eventMessage: { error: Error | ExceptionInformation, message: string }) {
         // TODO THOR-916
         console.error('An error occured: ' + eventMessage.message + '\n' + eventMessage.error);
+    }
+
+    private isFiltered(): boolean {
+        return !!this.filterService.getFilters().length;
     }
 
     /**

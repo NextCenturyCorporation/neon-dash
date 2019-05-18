@@ -30,7 +30,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
@@ -42,7 +42,6 @@ import {
     WidgetFreeTextOption,
     WidgetOption
 } from '../../widget-option';
-import * as neon from 'neon-framework';
 import { MatDialog } from '@angular/material';
 
 export class WikiData {
@@ -87,6 +86,18 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         );
 
         this.updateOnSelectId = true;
+    }
+
+    /**
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     *
+     * @return {FilterBehavior[]}
+     * @override
+     */
+    protected designEachFilterWithNoValues(): FilterBehavior[] {
+        // This visualization does not filter.
+        return [];
     }
 
     /**
@@ -147,16 +158,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Returns the list of filter objects.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters(): any[] {
-        return [];
-    }
-
-    /**
      * Returns an object containing the ElementRef objects for the visualization.
      *
      * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
@@ -168,27 +169,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             headerText: this.headerText,
             infoText: this.infoText
         };
-    }
-
-    /**
-     * Returns the list filters for the wiki viewer to ignore (null for no filters).
-     *
-     * @return {null}
-     * @override
-     */
-    getFiltersToIgnore(): any[] {
-        return null;
-    }
-
-    /**
-     * Returns the text for the given filter.
-     *
-     * @arg {object} filter
-     * @return {string}
-     * @override
-     */
-    getFilterText(filter: any): string {
-        return '';
     }
 
     /**
@@ -280,16 +260,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Removes the given filter from the wiki viewer (does nothing because the wiki viewer does not filter).
-     *
-     * @arg {object} filter
-     * @override
-     */
-    removeFilter() {
-        // Do nothing.
-    }
-
-    /**
      * Retrieves the wiki pages recursively using the given array of links.  Refreshes the visualization once finished.
      *
      * @arg {string[]} links
@@ -323,15 +293,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         }, (error: HttpErrorResponse) => {
             return handleErrorOrFailure(error.error);
         });
-    }
-
-    /**
-     * Sets filters for the wiki viewer (does nothing because the wiki viewer does not filter).
-     *
-     * @override
-     */
-    setupFilters() {
-        // Do nothing.
     }
 
     sanitize(text) {

@@ -21,7 +21,6 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import * as neon from 'neon-framework';
 
 import { DocumentViewerComponent } from './document-viewer.component';
 
@@ -81,17 +80,6 @@ describe('Component: DocumentViewer', () => {
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
         expect(component.options.showText).toBe(false);
-    });
-
-    it('returns an empty string from getFilterText', () => {
-        expect(component.getFilterText({})).toBe('');
-        expect(component.getFilterText({
-            value: 'test value'
-        })).toBe('');
-    });
-
-    it('returns null from getFiltersToIgnore', () => {
-        expect(component.getFiltersToIgnore()).toBeNull();
     });
 
     it('returns the expectedvalue from validateVisualizationQuery', () => {
@@ -267,10 +255,6 @@ describe('Component: DocumentViewer', () => {
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
         expect(component.options.showText).toBe(false);
-    });
-
-    it('has setupFilters method that does nothing of substance', () => {
-        expect(component.setupFilters).toBeDefined();
     });
 
     it('createTableRowText given boolean field does return expected string', () => {
