@@ -17,13 +17,14 @@ import {
     AbstractSearchService,
     AggregationType,
     CompoundFilterType,
+    Connection,
     FilterClause,
     QueryGroup,
     QueryPayload,
+    RequestWrapper,
     SortOrder,
     TimeInterval
 } from '../../app/services/abstract.search.service';
-import { RequestWrapper } from '../../app/connection';
 
 /**
  * Saves filter clauses and query payloads as JSON objects.
@@ -68,6 +69,10 @@ export class SearchServiceMock extends AbstractSearchService {
         return !!(datastoreType && datastoreHost);
     }
 
+    public createConnection(datastoreType: string, datastoreHost: string): Connection {
+        return null;
+    }
+
     public runSearch(datastoreType: string, datastoreHost: string, queryPayload: QueryPayload): RequestWrapper {
         return {
             always: () => {
@@ -85,8 +90,22 @@ export class SearchServiceMock extends AbstractSearchService {
         };
     }
 
-    public transformQueryPayloadToExport(queryPayload: QueryPayload): any {
-        return queryPayload;
+    public transformQueryPayloadToExport(
+        fields: { columnName: string, prettyName: string }[],
+        queryPayload: QueryPayload,
+        uniqueName: string
+    ): any {
+        return {
+            data: {
+                fields: fields.map((field) => ({ query: field.columnName, pretty: field.prettyName })),
+                ignoreFilters: undefined,
+                ignoredFilterIds: [],
+                name: uniqueName,
+                query: queryPayload,
+                selectionOnly: undefined,
+                type: 'query'
+            }
+        };
     }
 
     public transformFilterClauseValues(queryPayload: QueryPayload, keysToValuesToLabels:

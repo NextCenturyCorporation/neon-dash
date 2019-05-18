@@ -29,7 +29,7 @@ import { QueryBarComponent } from './query-bar.component';
 import { DatasetOptions, SimpleFilter } from '../../dataset';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import * as neon from 'neon-framework';
+import { query } from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 const databaseName = 'database';
@@ -141,7 +141,7 @@ describe('Component: queryBar', () => {
         expect(tester.filterService.getFilters().length).toBe(1);
         let filter = tester.filterService.getFilterById(tester.component.filterId.getValue());
         expect(filter).toBeTruthy();
-        let expected = neon.query.where(fieldName, 'contains', value);
+        let expected = query.where(fieldName, 'contains', value);
         expect(filter.filter.whereClause).toEqual(expected);
     });
 
@@ -167,7 +167,7 @@ describe('Component: queryBar', () => {
         let filter = tester.filterService.getFilterById(tester.component.filterId.getValue());
         expect(filter).toBeTruthy();
 
-        let expected = neon.query.where(fieldName, 'contains', value);
+        let expected = query.where(fieldName, 'contains', value);
         expect(filter.filter.whereClause).toEqual(expected, 'filter clause should be updated');
     });
 
@@ -183,7 +183,7 @@ describe('Component: queryBar', () => {
         expect(tester.filterService.getFilters().length).toBe(1);
         let filter = tester.filterService.getFilterById(tester.component.filterId.getValue());
         expect(filter).toBeTruthy();
-        let expected = neon.query.where(fieldName, 'contains', value);
+        let expected = query.where(fieldName, 'contains', value);
         expect(filter.filter.whereClause).toEqual(expected);
     });
 

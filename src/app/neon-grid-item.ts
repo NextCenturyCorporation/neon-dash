@@ -20,22 +20,18 @@ import { NgGridItemConfig } from 'angular2-grid';
  */
 export interface NeonGridItem {
     bindings?: any;
-    description?: string;
+    hide?: boolean;
     id?: string;
-    title?: string;
+    icon?: string;
+    name?: string;
     type?: string;
 
-    // Backwards-compatible col property for the angular2-grid item config.
+    borderSize?: number;
     col?: number;
-    // Backwards-compatible row property for the angular2-grid item config.
+    dragHandle?: string;
     row?: number;
-    // Backwards-compatible sizex property for the angular2-grid item config.
     sizex?: number;
-    // Backwards-compatible sizey property for the angular2-grid item config.
     sizey?: number;
-
-    // The angular2-grid item config.
-    config: NgGridItemConfig;
 
     // The previous grid item config that is stored when the widget is expanded and restored the widget is contracted. */
     previousConfig?: { col: number, row: number, sizex: number, sizey: number };

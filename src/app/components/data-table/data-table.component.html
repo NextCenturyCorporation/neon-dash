@@ -21,7 +21,7 @@
         <div class="table-container">
             <ngx-datatable #table class="material table"[class.skinny]="this.options.skinny"
                 [class.selectable]="options.filterable || options.idField.columnName"
-                [rows]="getTableRowData()"
+                [rows]="tableData"
                 [columnMode]="'force'"
                 [columns]="activeHeaders"
                 [headerHeight]="getTableHeaderHeight()"

@@ -37,7 +37,7 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import {
@@ -141,22 +141,6 @@ const LayerType = {
     ClusterMemberships: 'clustermemberships'
 };
 
-export class TransformedGraphData extends TransformedVisualizationData {
-    constructor(data: GraphData) {
-        super(data);
-    }
-
-    /**
-     * Returns the length of the data.
-     *
-     * @return {number}
-     * @override
-     */
-    public count(): number {
-        return this._data.nodes.getIds().length;
-    }
-}
-
 @Component({
     selector: 'app-network-graph',
     templateUrl: './network-graph.component.html',
@@ -174,7 +158,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
-    // TODO THOR-985
     public graphData: GraphData = new GraphData();
     public responseData: any[] = [];
 
@@ -696,23 +679,21 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         this.disabledSet = [];
 
         if (this.options.layers.length) {
             //TODO: clean up node labels for layers
             this.responseData.push({ options: options, results: results });
-
         } else {
-
-            // TODO THOR-985
             this.responseData = results;
 
             this.responseData.forEach((d) => {
@@ -753,7 +734,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.resetGraphData();
         this.updateLegend();
 
-        return new TransformedGraphData(this.graphData);
+        return this.graphData.nodes.getIds().length;
     }
 
     private resetGraphData() {
@@ -1268,10 +1249,5 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.options.edgeColor = this.injector.get('edgeColor', '#2b7ce9');
         this.options.fontColor = this.injector.get('fontColor', '#343434');
         this.reloadGraph();
-    }
-
-    protected clearVisualizationData(options: any): void {
-        // TODO THOR-985 Temporary function.
-        this.transformVisualizationQueryResults(options, []);
     }
 }

@@ -13,14 +13,15 @@
  * limitations under the License.
  *
  */
-import { Datastore, Dashboard } from './dataset';
+import { Dashboard } from './dataset';
 
 export class NeonGTDConfig {
     projectTitle: string;
     projectIcon: string;
-    datastores: {[key: string]: Datastore} = {};
+    datastores: {[key: string]: any} = {};
     dashboards: Dashboard;
     layouts: {[key: string]: any} = {};
     errors: String[];
     neonServerUrl: string;
+    version: string;
 }

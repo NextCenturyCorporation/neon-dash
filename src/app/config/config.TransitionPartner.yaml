@@ -586,8 +586,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - original_text_key
               customColumnWidths:
@@ -670,8 +669,7 @@ layouts:
               sortField: date_field_key
               idField: id_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - group_field_key
                   - text_cloud_data_key
@@ -760,8 +758,7 @@ layouts:
               idField: id_field_key1
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - original_text_key
               customColumnWidths:
@@ -890,8 +887,7 @@ layouts:
               idField: id_field_key2
               sortField: id_field_key2
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - group_field_key2
                   - text_cloud_data_key
               customColumnWidths:
@@ -922,8 +918,7 @@ layouts:
             idField: id_field_key
             sortField: date_field_key
             limit: 100
-            allColumnStatus: hide
-            exceptionsToStatus:
+            showFields:
                 - date_field_key
                 - original_text_key
                 - group_field_key
@@ -1047,8 +1042,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - original_text_key
               customColumnWidths:
@@ -1121,8 +1115,7 @@ layouts:
               sortField: date_field_key
               idField: id_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - display_url_key
                   - date_field_key
                   - group_field_key
@@ -1214,8 +1207,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - original_text_key
               customColumnWidths:
@@ -1300,8 +1292,7 @@ layouts:
               sortField: date_field_key
               idField: id_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - display_url_key
                   - date_field_key
                   - group_field_key
@@ -1473,8 +1464,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - text_field_key
               customColumnWidths:
@@ -1559,8 +1549,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - display_url_key
                   - date_field_key
                   - group_field_key
@@ -1662,8 +1651,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - original_text_key
               customColumnWidths:
@@ -1748,8 +1736,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - display_url_key
                   - date_field_key
                   - group_field_key
