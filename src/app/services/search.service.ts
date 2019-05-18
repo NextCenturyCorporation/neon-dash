@@ -19,15 +19,162 @@ import {
     AbstractSearchService,
     AggregationType,
     CompoundFilterType,
+    Connection,
     FilterClause,
     QueryGroup,
     QueryPayload,
+    RequestWrapper,
     SortOrder,
     TimeInterval
 } from '../../app/services/abstract.search.service';
-import { ConnectionService } from './connection.service';
-import { RequestWrapper } from '../connection';
+import { Dashboard, Datastore } from '../dataset';
 import { query } from 'neon-framework';
+
+// Internal class that wraps AbstractSearchService.Connection.  Exported to use in the unit tests.
+export class NeonConnection implements Connection {
+    constructor(public connection: query.Connection) {}
+
+    /**
+     * Deletes the saved dashboard state with the given name.
+     *
+     * @arg {string} stateName
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public deleteState(stateName: string, onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper {
+        return this.connection.deleteState(stateName, onSuccess, onError);
+    }
+
+    /**
+     * Returns the accessible database names.
+     *
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public getDatabaseNames(onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper {
+        return this.connection.getDatabaseNames(onSuccess, onError);
+    }
+
+    /**
+     * Returns the types of the fields in the given database/table.
+     *
+     * @arg {string} databaseName
+     * @arg {string} tableName
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public getFieldTypes(
+        databaseName: string,
+        tableName: string,
+        onSuccess: (response: any) => void,
+        onError?: (response: any) => void
+    ): RequestWrapper {
+        return this.connection.getFieldTypes(databaseName, tableName, onSuccess, onError);
+    }
+
+    /**
+     * Returns the saved dashboard state names.
+     *
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public getStateNames(onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper {
+        return this.connection.getAllStateNames(onSuccess, onError);
+    }
+
+    /**
+     * Returns the table and field names in the given database.
+     *
+     * @arg {string} databaseName
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public getTableNamesAndFieldNames(
+        databaseName: string,
+        onSuccess: (response: any) => void,
+        onError?: (response: any) => void
+    ): RequestWrapper {
+        return this.connection.getTableNamesAndFieldNames(databaseName, onSuccess, onError);
+    }
+
+    /**
+     * Loads the saved state with the given name.
+     *
+     * @arg {string} stateName
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public loadState(stateName: string, onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper {
+        return this.connection.loadState({
+            stateName: stateName
+        }, onSuccess, onError);
+    }
+
+    /**
+     * Runs an export query with the given data and format.
+     *
+     * @arg {any} exportData
+     * @arg {any} exportFormat
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public runExportQuery(
+        exportData: { data: any },
+        exportFormat: any,
+        onSuccess: (response: any) => void,
+        onError?: (response: any) => void
+    ): RequestWrapper {
+        return this.connection.executeExport(exportData, onSuccess, onError, exportFormat);
+    }
+
+    /**
+     * Runs a search query with the given payload.
+     *
+     * @arg {NeonQueryWrapper} queryPayload
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public runSearchQuery(
+        queryPayload: NeonQueryWrapper,
+        onSuccess: (response: any) => void,
+        onError?: (response: any) => void
+    ): RequestWrapper {
+        return this.connection.executeQuery((queryPayload as NeonQueryWrapper).query, null);
+    }
+
+    /**
+     * Saves (or overwrites) a state with the given data.
+     *
+     * @arg {{dashboards:Dashboard,datastores:Datastore[],layouts:any,stateName:string}} stateData
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public saveState(
+        stateData: { dashboards: Dashboard, datastores: Datastore[], layouts: any, stateName: string },
+        onSuccess: (response: any) => void,
+        onError?: (response: any) => void
+    ): RequestWrapper {
+        return this.connection.saveState(stateData, onSuccess, onError);
+    }
+}
 
 export class NeonGroupWrapper implements QueryGroup {
     constructor(public group: string | query.GroupByFunctionClause) {}
@@ -55,8 +202,10 @@ interface ExportField {
  */
 @Injectable()
 export class SearchService extends AbstractSearchService {
+    // Maps the datastore types to datastore hosts to connections.
+    private connections: Map<string, Map<string, NeonConnection>> = new Map<string, Map<string, NeonConnection>>();
 
-    constructor(protected connectionService: ConnectionService) {
+    constructor() {
         super();
     }
 
@@ -146,7 +295,35 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public canRunSearch(datastoreType: string, datastoreHost: string): boolean {
-        return !!(this.connectionService.createActiveConnection(datastoreType, datastoreHost));
+        return !!(this.createConnection(datastoreType, datastoreHost));
+    }
+
+    /**
+     * Returns an existing connection to the REST server using the given host and the given datastore type (like elasticsearch or sql), or
+     * creates and returns a Neon connection if none exists.
+     *
+     * @arg {String} datastoreType
+     * @arg {String} datastoreHost
+     * @return {NeonConnection}
+     * @override
+     */
+    public createConnection(datastoreType: string, datastoreHost: string): NeonConnection {
+        if (datastoreType && datastoreHost) {
+            if (!this.connections.has(datastoreType)) {
+                this.connections.set(datastoreType, new Map<string, NeonConnection>());
+            }
+            if (!this.connections.get(datastoreType).has(datastoreHost)) {
+                let connection = this.createNeonConnection();
+                connection.connect(datastoreType, datastoreHost);
+                this.connections.get(datastoreType).set(datastoreHost, new NeonConnection(connection));
+            }
+            return this.connections.get(datastoreType).get(datastoreHost);
+        }
+        return null;
+    }
+
+    private createNeonConnection(): query.Connection {
+        return new query.Connection();
     }
 
     /**
@@ -206,8 +383,8 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public runSearch(datastoreType: string, datastoreHost: string, queryPayload: NeonQueryWrapper): RequestWrapper {
-        let connection = this.connectionService.createActiveConnection(datastoreType, datastoreHost);
-        return connection ? connection.executeQuery(queryPayload.query, null) : null;
+        let connection: NeonConnection = this.createConnection(datastoreType, datastoreHost);
+        return connection ? connection.runSearchQuery(queryPayload, null) : null;
     }
 
     private transformAggregationOperatorToPrettyName(

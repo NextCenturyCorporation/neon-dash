@@ -17,7 +17,7 @@ import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSnackBarConfig } from '@angular/material';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService, Connection } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ParameterService } from '../../services/parameter.service';
 
@@ -25,8 +25,6 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 
 import { neonEvents } from '../../neon-namespaces';
-
-import { query } from 'neon-framework';
 
 @Component({
   selector: 'app-export-control',
@@ -47,8 +45,8 @@ export class ExportControlComponent {
     public exportFormat: number = this.exportFormatList[0].value;
 
     constructor(
-        protected connectionService: ConnectionService,
         protected datasetService: DatasetService,
+        protected searchService: AbstractSearchService,
         private matSnackBar: MatSnackBar,
         private viewContainerRef: ViewContainerRef
     ) {
@@ -86,7 +84,7 @@ export class ExportControlComponent {
     }
 
     handleExportClick() {
-        let connection: query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastoreType(),
+        let connection: Connection = this.searchService.createConnection(this.datasetService.getDatastoreType(),
             this.datasetService.getDatastoreHost());
         let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;
@@ -116,6 +114,6 @@ export class ExportControlComponent {
         if (data && data.data && data.data.length === 1) {
             data.name = data.data[0].name;
         }
-        connection.executeExport(data, this.exportSuccess.bind(this), this.exportFail.bind(this), this.exportFormat);
+        connection.runExportQuery(data, this.exportFormat, this.exportSuccess.bind(this), this.exportFail.bind(this));
     }
 }

@@ -18,8 +18,8 @@ import { URLSearchParams } from '@angular/http';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
@@ -59,11 +59,11 @@ export class SaveStateComponent implements OnInit {
     public stateNames: string[] = [];
 
     constructor(
-        protected connectionService: ConnectionService,
         protected datasetService: DatasetService,
         protected filterService: FilterService,
-        private snackBar: MatSnackBar,
+        protected searchService: AbstractSearchService,
         public widgetService: AbstractWidgetService,
+        private snackBar: MatSnackBar,
         private viewContainerRef: ViewContainerRef,
         private dialog: MatDialog
     ) {
@@ -135,7 +135,6 @@ export class SaveStateComponent implements OnInit {
                     this.filterService.getFiltersToSaveInConfig()),
                 datastores: this.datasetService.getDatastoresInConfigFormat(),
                 layouts: this.createLayouts(name, this.widgetGridItems),
-                // The stateName property is needed in neon.query.Connection.saveState
                 stateName: name
             };
 
@@ -156,11 +155,7 @@ export class SaveStateComponent implements OnInit {
     public loadState(name: string): void {
         let connection = this.openConnection();
         if (connection) {
-            let stateData: any = {
-                // The stateName property is needed in neon.query.Connection.loadState
-                stateName: name
-            };
-            connection.loadState(stateData, (response) => {
+            connection.loadState(name, (response) => {
                 this.handleLoadStateSuccess(response, name);
             }, (response) => {
                 this.handleStateFailure(response, name);
@@ -257,7 +252,7 @@ export class SaveStateComponent implements OnInit {
         this.stateNames = [];
         let connection = this.openConnection();
         if (connection) {
-            connection.getAllStateNames((stateNames) => {
+            connection.getStateNames((stateNames) => {
                 this.isLoading = false;
                 this.stateNames = stateNames;
             }, (response) => {
@@ -296,8 +291,7 @@ export class SaveStateComponent implements OnInit {
     }
 
     private openConnection(): any {
-        return this.connectionService.createActiveConnection(this.datasetService.getDatastoreType(),
-            this.datasetService.getDatastoreHost());
+        return this.searchService.createConnection(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost());
     }
 
     public openNotification(stateName: string, actionName: string) {

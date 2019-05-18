@@ -13,10 +13,10 @@
  * limitations under the License.
  *
  */
-import { ConnectionServiceMock } from './ConnectionServiceMock';
 import { Dashboard, DashboardOptions, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../../app/dataset';
 import { DatasetService } from '../../app/services/dataset.service';
 import { NeonGTDConfig } from '../../app/neon-gtd-config';
+import { SearchServiceMock } from './SearchServiceMock';
 
 export class DatasetServiceMock extends DatasetService {
     public static CATEGORY_FIELD = new FieldMetaData('testCategoryField', 'Test Category Field', false, 'string');
@@ -67,7 +67,7 @@ export class DatasetServiceMock extends DatasetService {
     ];
 
     constructor() {
-        super(new NeonGTDConfig(), new ConnectionServiceMock());
+        super(new NeonGTDConfig(), new SearchServiceMock());
         let datastore: Datastore = new Datastore('datastore1', 'testHostname', 'testDatastore');
         datastore.databases = DatasetServiceMock.DATABASES;
         datastore.hasUpdatedFields = true;
