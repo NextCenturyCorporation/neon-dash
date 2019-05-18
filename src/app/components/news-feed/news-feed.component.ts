@@ -45,6 +45,7 @@ import {
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
+import { WhereWrapper } from '../../services/search.service';
 
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
@@ -107,7 +108,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetFieldOption('linkField', 'Link Field', false),
             new WidgetFieldOption('primaryTitleField', 'Primary Title Field', false),
             new WidgetFieldOption('secondaryTitleField', 'Secondary Title Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', true)
+            new WidgetFieldOption('sortField', 'Sort Field', false)
         ];
     }
 
@@ -172,13 +173,29 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let filters: FilterClause[] = [
-            this.searchService.buildFilterClause(options.idField.columnName, '!=', null),
-            this.searchService.buildFilterClause(options.idField.columnName, '!=', '')
-        ];
 
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
-            .updateSort(query, options.sortField.columnName, !options.ascending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+        let filters = sharedFilters;
+
+        if (this.options.sortField.columnName) {
+            filters = [
+                ...filters,
+                this.searchService.buildFilterClause(options.idField.columnName, '!=', null),
+                this.searchService.buildFilterClause(options.idField.columnName, '!=', '')
+            ];
+        }
+
+        this.searchService.updateFieldsToMatchAll(query);
+
+        if (filters.length) {
+            this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(filters));
+        } else {
+            this.searchService.updateFilter(query, new WhereWrapper(neon.query.or()));
+        }
+
+        if (this.options.sortField.columnName) {
+            this.searchService.updateSort(query, options.sortField.columnName,
+                !options.ascending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+        }
 
         return query;
     }
@@ -285,7 +302,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     validateVisualizationQuery(options: any): boolean {
-        return !!(options.database.name && options.table.name && options.idField.columnName && options.sortField.columnName);
+        return !!(options.database.name && options.table.name && options.idField.columnName);
     }
 
     /**
@@ -348,10 +365,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     initializeProperties() {
-        if (!this.options.sortField.columnName) {
-            this.options.sortField = this.options.idField;
-        }
-
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
         this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
         // Backwards compatibility (ascending deprecated and replaced by sortDescending).
