@@ -203,6 +203,117 @@ datastores:
                               prettyName: Cluster ID
                         mappings:
                           date: createdAt
+            mad042019_frames:
+                prettyName: 'Madagascar 2019'
+                tables:
+                    ui_output:
+                        prettyName: UI out
+                        fields:
+                            - columnName: createdAt
+                              prettyName: Date Created
+                            - columnName: need
+                              prettyName: Need Type
+                            - columnName: location
+                              prettyName: Location
+                            - columnName: translatedText
+                              prettyName: Translated Text
+                            - columnName: originalText
+                              prettyName: Original Text
+                        labelOptions:
+                            topic:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
+                        mappings:
+                            date: createAt
+            mozambique052019_tweet:
+                prettyName: 'Mozambique Tweet'
+                tables:
+                    ui_output:
+                        prettyName: UI output
+                        fields:
+                            - columnName: createdAt
+                              prettyName: Date Created
+                            - columnName: translatedText
+                              prettyName: Translated Text
+                            - columnName: originalText
+                              prettyName: Original Text
+                        labelOptions:
+                            need:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
+                        mappings:
+                            date: createAt
+            mozambique052019_sf:
+                prettyName: 'Mozambique Situation Frames'
+                tables:
+                    ui_output:
+                        prettyName: UI output
+                        fields:
+                            - columnName: type
+                              prettyName: Type
+                            - columnName: location
+                              prettyName: Location
+                            - columnName: frameid
+                              prettyName: Frame ID
+                        labelOptions:
+                            type:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
+            
+            somali052019_frames:
+                prettyName: 'Somali'
+                tables:
+                    ui_output:
+                        prettyName: UI out
+                        fields:
+                            - columnName: need
+                              prettyName: Need Type
+                            - columnName: location
+                              prettyName: Location
+                            - columnName: translatedText
+                              prettyName: Translated Text
+                            - columnName: originalText
+                              prettyName: Original Text
+                        labelOptions:
+                            Type:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
 
 dashboards:
     category: 'Select a task...'
@@ -407,6 +518,85 @@ dashboards:
                                     contactEmail: 'jonmay@isi.edu'
                                     website: 'https://www.isi.edu/'
                                     logo: 'ISI-logo.png'
+                        madagascar:
+                            name: Madagascar
+                            layout: darpa60-uyghur-sd
+                            tables:
+                                table_key_1: es1.mad042019_frames.ui_output
+                            fields:
+                                original_text_key: es1.mad042019_frames.ui_output.originalText
+                                translated_text_key: es1.mad042019_frames.ui_output.translatedText
+                                date_field_key: es1.mad042019_frames.ui_output.createdAt
+                                id_field_key: es1.mad042019_frames.ui_output._id
+                                filter_field_key: es1.mad042019_frames.ui_output.id
+                                group_field_key: es1.mad042019_frames.ui_output.need
+                                latitude_key: es1.mad042019_frames.ui_output.geoLocation.lat
+                                longitude_key: es1.mad042019_frames.ui_output.geoLocation.lon
+                                text_cloud_data_key: es1.mad042019_frames.ui_output.location
+                            options:
+                                connectOnLoad: true
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: translated_text_key
+                                    placeHolder: Search
+                            contributors:
+                                elisa-rpi:
+                                    orgName: 'Rensselaer Polytechnic Institute'
+                                    abbreviation: 'RPI'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
+                                    logo: 'RPI-logo.png'
+                                elisa-isi:
+                                    orgName: 'University of Southern California, Information Sciences Institute'
+                                    abbreviation: 'USC/ISI'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
+                                    logo: 'ISI-logo.png'
+                        somali:
+                            name: Somali
+                            layout: darpa60-uyghur-sd
+                            tables:
+                                table_key_1: es1.somali052019_frames.ui_output
+                            fields:
+                                original_text_key: es1.somali052019_frames.ui_output.originalText
+                                translated_text_key: es1.somali052019_frames.ui_output.translatedText
+                                date_field_key: es1.somali052019_frames.ui_output._id
+                                id_field_key: es1.somali052019_frames.ui_output._id
+                                filter_field_key: es1.somali052019_frames.ui_output._id
+                                group_field_key: es1.somali052019_frames.ui_output.Type
+                                latitude_key: es1.somali052019_frames.ui_output.geoLocation.lat
+                                longitude_key: es1.somali052019_frames.ui_output.geoLocation.lon
+                                text_cloud_data_key: es1.somali052019_frames.ui_output.location
+                            options:
+                                connectOnLoad: true
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: translated_text_key
+                                    placeHolder: Search
+                            contributors:
+                                elisa-rpi:
+                                    orgName: 'Rensselaer Polytechnic Institute'
+                                    abbreviation: 'RPI'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
+                                    logo: 'RPI-logo.png'
+                                elisa-isi:
+                                    orgName: 'University of Southern California, Information Sciences Institute'
+                                    abbreviation: 'USC/ISI'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
+                                    logo: 'ISI-logo.png'
+                                raytheon:
+                                    orgName: 'Raytheon BBN Technologies'
+                                    abbreviation: 'RBBN'
+                                    contactName: 'Rabih ZBIB'
+                                    contactEmail: 'rabih.zbib@raytheon.com'
+                                    website: 'https://www.raytheon.com/ourcompany/bbn'
+                                    logo: 'RaytheonBBN-logo.png'
                 vodno:
                     name: 'SIMPOST'
                     category: 'Select a datastore...'
@@ -441,6 +631,58 @@ dashboards:
                                     contactEmail: 'daj@ll.mit.edu'
                                     website: 'https://www.ll.mit.edu/'
                                     logo: 'mit-lincoln-laboratory.jpg'
+                Africom:
+                    name: 'AFRICOM'
+                    category: 'Select a datastore...'
+                    choices:
+                      Mozambique:
+                            name: Mozambique
+                            layout: africom-moz
+                            tables:
+                                table_key_1: es1.mozambique052019_tweet.ui_output
+                                table_key_2: es1.mozambique052019_sf.ui_output
+                            fields:
+                                original_text_key: es1.mozambique052019_tweet.ui_output.originalText
+                                translated_text_key: es1.mozambique052019_tweet.ui_output.translatedText
+                                date_field_key: es1.mozambique052019_tweet.ui_output.createdAt
+                                id_field_key_1: es1.mozambique052019_tweet.ui_output.id
+                                id_field_key_2: es1.mozambique052019_sf.ui_output.id
+                                filter_field_key: es1.mozambique052019_sf.ui_output.id
+                                group_field_key: es1.mozambique052019_sf.ui_output.need
+                                latitude_key: es1.mozambique052019_sf.ui_output.geoLocation.lat
+                                longitude_key: es1.mozambique052019_sf.ui_output.geoLocation.lon
+                                text_cloud_data_key: es1.mozambique052019_sf.ui_output.location
+                                location_key: es1.mozambique052019_sf.ui_output.location
+                                color_field_topic_key: es1.mozambique052019_sf.ui_output.type
+                                cluster_name_key: es1.mozambique052019_tweet.ui_output.cluster_name
+                                cluster_topics_key: es1.mozambique052019_tweet.ui_output.topics
+                            relations:
+                                - es1:
+                                    mozambique052019_tweet:
+                                        ui_output: 'id'
+                                    mozambique052019_sf:
+                                        ui_output: 'id'
+                            options:
+                                connectOnLoad: true
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: translated_text_key
+                                    placeHolder: Search
+                            contributors:
+                                elisa-rpi:
+                                    orgName: 'Rensselaer Polytechnic Institute'
+                                    abbreviation: 'RPI'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
+                                    logo: 'RPI-logo.png'
+                                elisa-isi:
+                                    orgName: 'University of Southern California, Information Sciences Institute'
+                                    abbreviation: 'USC/ISI'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
+                                    logo: 'ISI-logo.png'
                 w5:
                     name: 'W5'
                     category: 'Select a datastore...'
@@ -604,6 +846,7 @@ layouts:
                 - ldc
                 - elisa-rpi
                 - elisa-isi
+                - raytheon
         - name: Map
           type: map
           icon: Map64
@@ -690,6 +933,7 @@ layouts:
                 - ldc
                 - elisa-rpi
                 - elisa-isi
+                - raytheon
         - name: Annotation Viewer
           type: annotationViewer
           icon: documentViewer64
@@ -708,6 +952,7 @@ layouts:
                 - ldc
                 - elisa-rpi
                 - elisa-isi
+                - raytheon
         - name: Annotation Viewer
           type: annotationViewer
           icon: documentViewer64
@@ -726,6 +971,7 @@ layouts:
                 - ldc
                 - elisa-rpi
                 - elisa-isi
+                - raytheon
         - name: Text Cloud
           type: textCloud
           icon: TagCloud64
@@ -904,6 +1150,181 @@ layouts:
                 - ldc
                 - rpi
                 - isi
+    africom-moz:
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 1
+          row: 1
+          sizex: 4
+          sizey: 11
+          bindings:
+              title: Tweet
+              tableKey: table_key_1
+              idField: id_field_key_1
+              sortField: date_field_key
+              limit: 100
+              allColumnStatus: hide
+              exceptionsToStatus:
+                  - date_field_key
+                  - original_text_key
+              customColumnWidths:
+                  - - date_field_key
+                    - 30
+                  - - original_text_key
+                    - 370
+              filterable: false
+              singleFilter: true
+              ignoreSelf: false
+              contributionKeys:
+                - ldc
+                - rpi
+                - isi
+        - name: Map
+          type: map
+          icon: Map64
+          col: 5
+          row: 1
+          sizex: 5
+          sizey: 11
+          bindings:
+              title: Situation Locations
+              tableKey: table_key_1
+              filterable: true
+              name: EVENTS
+              show: true
+              type: cluster
+              limit: 5000
+              layers:
+                  - title: Map
+                    tableKey: table_key_2
+                    latitudeField: latitude_key
+                    longitudeField: longitude_key
+                    colorField: color_field_topic_key
+              mapType: leaflet
+              west: 10.5
+              north: -10
+              east: 78
+              south: -20
+              contributionKeys:
+                - ldc
+                - rpi
+                - isi
+        - name: Text Cloud
+          type: textCloud
+          icon: TagCloud64
+          col: 5
+          row: 12
+          sizex: 5
+          sizey: 4
+          selected: true
+          bindings:
+              title: Locations
+              tableKey: table_key_2
+              dataField: location_key
+              preFilter: false
+              contributionKeys:
+                - ldc
+                - rpi
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 10
+          row: 10
+          sizex: 3
+          sizey: 6
+          bindings:
+              title: Situation Needs
+              type: bar-h
+              tableKey: table_key_2
+              xField: color_field_topic_key
+              limit: 11
+              groupField: color_field_topic_key
+              sortByAggregation: true
+              ignoreSelf: true
+              contributionKeys:
+                - ldc
+                - isi
+        - name: Annotation Viewer
+          type: annotationViewer
+          icon: documentViewer64
+          col: 1
+          row: 12
+          sizex: 2
+          sizey: 4
+          bindings:
+              title: Original Text
+              tableKey: table_key_1
+              linkField: original_text_key
+              idField: id_field_key_1
+              respondMode: true
+              contributionKeys:
+                - ldc
+                - rpi
+                - isi
+        - name: Annotation Viewer
+          type: annotationViewer
+          icon: documentViewer64
+          col: 3
+          row: 12
+          sizex: 2
+          sizey: 4
+          bindings:
+              title: Translated Text
+              tableKey: table_key_1
+              linkField: translated_text_key
+              idField: id_field_key_1
+              respondMode: true
+              contributionKeys:
+                - ldc
+                - rpi
+                - isi
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 10
+          row: 1
+          sizex: 3
+          sizey: 9
+          bindings:
+              title: Situation Frames
+              tableKey: table_key_2
+              idField: id_field_key_2
+              sortField: id_field_key_2
+              limit: 100
+              allColumnStatus: hide
+              exceptionsToStatus:
+                  - color_field_topic_key
+                  - location_key
+              customColumnWidths:
+                  - - color_field_topic_key
+                    - 70
+                  - - location_key
+                    - 170
+              filterable: true
+              filterFields:
+                  - id_field_key_2
+              singleFilter: true
+              ignoreSelf: false
+              contributionKeys:
+                - ldc
+                - rpi
+                - isi
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 10
+          row: 16
+          sizex: 3
+          sizey: 5
+          bindings:
+              title: Situation Clusters
+              type: bar-h
+              tableKey: table_key_1
+              xField: cluster_name_key
+              limit: 100
+              groupField: cluster_topics_key
+              sortByAggregation: true
     elisa_macedonia:
         - name: Data Table
           type: dataTable

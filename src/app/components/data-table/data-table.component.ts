@@ -133,7 +133,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new WidgetFieldOption('colorField', 'Color Field', false),
             new WidgetFieldOption('heatmapField', 'Heatmap Field', false),
             new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', true),
+            new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetFieldArrayOption('filterFields', 'Filter Field(s)', false),
             new WidgetFieldArrayOption('showFields', 'Show Field(s)', false)
         ];
@@ -533,7 +533,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     validateVisualizationQuery(options: any): boolean {
-        return !!(options.database.name && options.table.name && options.sortField.columnName);
+        return !!(options.database.name && options.table.name);
     }
 
     /**
@@ -546,12 +546,23 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let filter: FilterClause = this.searchService.buildFilterClause(options.sortField.columnName, '!=', null);
+        let filters = sharedFilters;
+        if (this.options.sortField.columnName) {
+            filters = [
+                ...filters,
+                this.searchService.buildFilterClause(options.sortField.columnName, '!=', null)
+            ];
+        }
 
         // Override the default query fields because we want to find all fields.
-        this.searchService.updateFieldsToMatchAll(query)
-            .updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
-            .updateSort(query, options.sortField.columnName, options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+        this.searchService.updateFieldsToMatchAll(query);
+
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(filters));
+
+        if (options.sortField.columnName) {
+            this.searchService.updateSort(query, options.sortField.columnName,
+                options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+        }
 
         return query;
     }

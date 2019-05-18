@@ -360,6 +360,7 @@ describe('Component: ThumbnailGrid', () => {
         let fields = ['testLinkField', 'testSortField'];
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            fields: ['*'],
             filter: {
                 filters: [{
                     field: 'testLinkField',
@@ -381,6 +382,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.sortDescending = true;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            fields: ['*'],
             filter: {
                 filters: [{
                     field: 'testLinkField',
@@ -397,6 +399,13 @@ describe('Component: ThumbnailGrid', () => {
                 field: 'testSortField',
                 order: -1
             }
+        });
+
+        delete component.options.sortField.columnName;
+
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            fields: ['*'],
+            filter: null
         });
     });
 
@@ -591,9 +600,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
-
-        component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 

@@ -63,14 +63,14 @@ export class GearComponent implements OnInit, OnDestroy {
         tables: []
     };
 
-    private requiredList: string[] = [];
-    private requiredListNonField: string[] = [];
-    private optionalList: string[] = [];
-    private optionalListNonField: string[] = [];
+    public exportCallbacks: (() => { name: string, data: any }[])[] = [];
+    public requiredList: string[] = [];
+    public requiredListNonField: string[] = [];
+    public optionalList: string[] = [];
+    public optionalListNonField: string[] = [];
 
     private createLayer: (options: any, layerBinding?: any) => any;
     private deleteLayer: (options: any, layerOptions: any) => boolean;
-    private exportCallbacks: (() => { name: string, data: any }[])[] = [];
     private finalizeCreateLayer: (layerOptions: any) => void;
     private finalizeDeleteLayer: (layerOptions: any) => void;
     private handleChangeData: (options?: any, databaseOrTableChange?: boolean) => void;
