@@ -29,10 +29,10 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
-import { MediaTypes } from '../../dataset';
+import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -43,7 +43,6 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import * as neon from 'neon-framework';
 import { MatDialog } from '@angular/material';
 
 export const ViewType = {
@@ -52,9 +51,6 @@ export const ViewType = {
     TITLE: 'title'
 };
 
-/**
- * A visualization that displays binary and text files triggered through a select_id event.
- */
 @Component({
     selector: 'app-thumbnail-grid',
     templateUrl: './thumbnail-grid.component.html',
@@ -70,13 +66,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('thumbnailGrid') thumbnailGrid: ElementRef;
-
-    public filters: {
-        id: string,
-        field: string,
-        prettyField: string,
-        value: string
-    }[] = [];
 
     // TODO THOR-985
     public gridArray: any[] = [];
@@ -143,31 +132,18 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             return;
         }
 
-        let filter = {
-            id: undefined,
-            field: this.options.filterField.columnName,
-            prettyField: this.options.filterField.prettyName,
-            value: text
-        };
+        this.exchangeFilters([this.createFilterDesignOnItem(this.options.filterField, text)]);
+    }
 
-        let clause = neon.query.where(filter.field, '=', filter.value);
-        let runQuery = !this.options.ignoreSelf;
-
-        if (!this.filters.length) {
-            this.filters = [filter];
-            this.addNeonFilter(this.options, runQuery, filter, clause);
-        } else if (this.filters.length === 1) {
-            if (!this.filterExists(filter.field, filter.value)) {
-                filter.id = this.filters[0].id;
-                this.filters = [filter];
-                this.replaceNeonFilter(this.options, runQuery, filter, clause);
-            }
-        } else {
-            this.removeAllFilters(this.options, [].concat(this.filters), false, false, () => {
-                this.filters = [filter];
-                this.addNeonFilter(this.options, runQuery, filter, clause);
-            });
-        }
+    private createFilterDesignOnItem(field: FieldMetaData, value?: any): FilterDesign {
+        return {
+            datastore: '',
+            database: this.options.database,
+            table: this.options.table,
+            field: field,
+            operator: '=',
+            value: value
+        } as SimpleFilterDesign;
     }
 
     /**
@@ -225,6 +201,28 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     *
+     * @return {FilterBehavior[]}
+     * @override
+     */
+    protected designEachFilterWithNoValues(): FilterBehavior[] {
+        let behaviors: FilterBehavior[] = [];
+
+        if (this.options.filterField.columnName) {
+            // TODO AIDA-??? Loop over multiple filterFields to create multiple filterDesigns and add them to the behaviors.
+            behaviors.push({
+                filterDesign: this.createFilterDesignOnItem(this.options.filterField),
+                // No redraw callback:  The filtered text will automatically be styled with isSelected as called by the HTML.
+                redrawCallback: () => { /* Do nothing */ }
+            });
+        }
+
+        return behaviors;
+    }
+
+    /**
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
@@ -243,20 +241,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             .updateSort(query, options.sortField.columnName, options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
 
         return query;
-    }
-
-    /**
-     * Returns whether a visualization filter object with the given field and value strings exists in the list of visualization filters.
-     *
-     * @arg {string} field
-     * @arg {string} value
-     * @return {boolean}
-     * @private
-     */
-    filterExists(field: string, value: string) {
-        return this.filters.some((existingFilter) => {
-            return field === existingFilter.field && value === existingFilter.value;
-        });
     }
 
     /**
@@ -292,16 +276,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Returns the list of filter objects for the visualization.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters(): any[] {
-        return this.filters;
-    }
-
-    /**
      * Returns an object containing the ElementRef objects for the visualization.
      *
      * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
@@ -314,40 +288,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             infoText: this.infoText,
             thumbnailGrid: this.thumbnailGrid
         };
-    }
-
-    /**
-     * Returns the list filters for the visualization to ignore.
-     *
-     * @return {array|null}
-     * @override
-     */
-    getFiltersToIgnore(): any[] {
-        if (!this.options.ignoreSelf) {
-            return null;
-        }
-
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            this.options.filterField.columnName ? [this.options.filterField.columnName] : undefined);
-
-        let ignoredFilterIds = neonFilters.filter((neonFilter) => {
-            return !neonFilter.filter.whereClause.whereClauses;
-        }).map((neonFilter) => {
-            return neonFilter.id;
-        });
-
-        return ignoredFilterIds.length ? ignoredFilterIds : null;
-    }
-
-    /**
-     * Returns the text for the given filter object.
-     *
-     * @arg {object} filter
-     * @return {string}
-     * @override
-     */
-    getFilterText(filter: any): string {
-        return filter.prettyField + ' = ' + filter.value;
     }
 
     getThumbnailLabel(item): string {
@@ -525,8 +465,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @return {boolean}
      */
     isSelected(item) {
-        return (!!this.options.filterField.columnName &&
-            this.filterExists(this.options.filterField.columnName, item[this.options.filterField.columnName]));
+        return (!!this.options.filterField.columnName && this.isFiltered(this.createFilterDesignOnItem(this.options.filterField,
+            item[this.options.filterField.columnName])));
     }
 
     /**
@@ -561,18 +501,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         this.createMediaThumbnail();
         this.thumbnailGrid.nativeElement.scrollTop = 0;
-    }
-
-    /**
-     * Removes the given filter from this visualization.
-     *
-     * @arg {object} filter
-     * @override
-     */
-    removeFilter(filter: any) {
-        this.filters = this.filters.filter((existingFilter: any) => {
-            return existingFilter.id !== filter.id;
-        });
     }
 
     /**
@@ -812,33 +740,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             window.open(item[this.options.linkField.columnName]);
         }
         this.publishAnyCustomEvents(item, this.options.idField.columnName);
-    }
-
-    /**
-     * Sets filters for the visualization.
-     *
-     * @override
-     */
-    setupFilters() {
-        let neonFilters = this.options.filterField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
-            this.options.table.name, [this.options.filterField.columnName]) : [];
-        this.filters = [];
-
-        for (let neonFilter of neonFilters) {
-            if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
-                let value = neonFilter.filter.whereClause.rhs;
-                let filter = {
-                    id: neonFilter.id,
-                    field: field.columnName,
-                    prettyField: field.prettyName,
-                    value: value
-                };
-                if (!this.filterExists(filter.field, filter.value)) {
-                    this.filters.push(filter);
-                }
-            }
-        }
     }
 
     sanitize(url) {

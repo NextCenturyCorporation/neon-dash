@@ -16,8 +16,9 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { neonEvents } from '../../neon-namespaces';
 
+import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FilterService } from '../../services/filter.service';
+import { FilterDesign, FilterService } from '../../services/filter.service';
 
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
@@ -28,101 +29,26 @@ import * as _ from 'lodash';
     styleUrls: ['./current-filters.component.scss']
 })
 export class CurrentFiltersComponent implements OnInit, OnDestroy {
-
-    @Input() widgets: Map<string, BaseNeonComponent>;
-
     private messenger: neon.eventing.Messenger;
-    public filters: {
-        raw: any[],
-        formatted: any[]
-    };
 
-    constructor(protected filterService: FilterService) {
+    public COMPOUND_FILTER_TYPE = CompoundFilterType;
+
+    public filters: FilterDesign[] = [];
+
+    constructor(public filterService: FilterService, public searchService: AbstractSearchService) {
         this.messenger = new neon.eventing.Messenger();
-        this.filters = {
-            raw: [],
-            formatted: []
-        };
-
     }
 
     ngOnInit() {
-        this.onEventChanged = this.onEventChanged.bind(this);
-        this.filters = {
-            raw: [],
-            formatted: []
-        };
-
-        this.messenger.events({
-            activeDatasetChanged: this.onEventChanged,
-            filtersChanged: this.onEventChanged
-        });
-
-        this.messenger.subscribe(neonEvents.DASHBOARD_STATE, this.onEventChanged);
-        this.onEventChanged();
+        // TODO Do we really need to subscribe to all of these channels?
+        this.messenger.subscribe(neonEvents.NEW_DATASET, this.updateFilters.bind(this));
+        this.messenger.subscribe(neonEvents.FILTERS_CHANGED, this.updateFilters.bind(this));
+        this.messenger.subscribe(neonEvents.DASHBOARD_STATE, this.updateFilters.bind(this));
+        this.updateFilters();
     }
 
-    removeFilter(filterIds: string[]) {
-        let onSuccess = (removedFilter) => {
-            let visualization = this.widgets.get(removedFilter.ownerId);
-            if (visualization) {
-                visualization.removeFilter(removedFilter);
-            }
-            this.onEventChanged();
-        };
-        this.filterService.removeFilters(this.messenger, filterIds, onSuccess.bind(this));
-    }
-
-    removeAllFilters() {
-        let filterIds = [];
-        for (let filter of this.filters.raw) {
-            filterIds.push(filter.id);
-        }
-
-        this.removeFilter(filterIds);
-        this.filterService.clearFilters();
-    }
-
-    onEventChanged() {
-        this.updateCurrentFilters(this.filterService.getFilters());
-    }
-
-    updateCurrentFilters(rawState: any[]) {
-        this.filters.raw = rawState;
-        let filters = this.formatFilters(rawState);
-        this.filters.formatted = filters;
-    }
-
-    formatFilters(filters: any[]): any[] {
-        if (filters.length > 0) {
-            // We only want unique filter names to eliminate display of multiple filters created by filter service
-
-            // remove filters with empty string names and those without an owner ID (which are created by relations).
-            let filterList = _.filter(filters, (filter) => {
-                return (filter.filter.filterName && filter.filter.filterName !== '' && filter.ownerId !== undefined);
-            });
-
-            let result = {};
-            _.each(filterList, (filter) => {
-                if (result[filter.filter.filterName]) {
-                    // add id to array
-                    result[filter.filter.filterName].ids.push(filter.id);
-                } else {
-                    result[filter.filter.filterName] = {
-                        ids: [filter.id],
-                        name: filter.filter.filterName
-                    };
-                }
-            });
-
-            let resultList = [];
-            _.each(result, (filter) => {
-                resultList.push(filter);
-            });
-
-            return resultList;
-        }
-        return [];
+    updateFilters() {
+        this.filters = this.filterService.getFilters();
     }
 
     ngOnDestroy() {
