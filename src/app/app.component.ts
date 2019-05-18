@@ -36,7 +36,7 @@ import { AbstractWidgetService } from './services/abstract.widget.service';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { BaseNeonComponent } from './components/base-neon-component/base-neon.component';
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
-import { Datastore } from './dataset';
+import { Dashboard, Datastore } from './dataset';
 import { DatasetService } from './services/dataset.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../app/services/filter.service';
@@ -46,7 +46,9 @@ import { NeonGridItem } from './neon-grid-item';
 import { NeonGTDConfig } from './neon-gtd-config';
 import { neonEvents } from './neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
+import { ParameterService } from './services/parameter.service';
 import { SaveStateComponent } from './components/save-state/save-state.component';
+import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 
@@ -64,6 +66,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     @ViewChild(NgGrid) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
+    @ViewChild('simpleFilter') simpleFilter: SimpleFilterComponent;
     @ViewChild('sideNavRight') sideNavRight: MatSidenav;
 
     public currentPanel: string = 'dashboardLayouts';
@@ -85,10 +88,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public createSettings: boolean = false;
     public createFiltersComponent: boolean = false; //This is used to create the Filters Component later
 
+    public dashboards: Dashboard;
+
     public widgetGridItems: NeonGridItem[] = [];
     public widgets: Map<string, BaseNeonComponent> = new Map();
-
-    public datasets: Datastore[] = [];
 
     public gridConfig: NgGridConfig = {
         resizable: true,
@@ -120,7 +123,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public filtersIcon;
 
-    public messenger: neon.eventing.Messenger;
+    // Use two messengers here because a single messager doesn't receive its own messages.
+    public messageReceiver: neon.eventing.Messenger;
+    public messageSender: neon.eventing.Messenger;
 
     constructor(
         public changeDetection: ChangeDetectorRef,
@@ -129,17 +134,21 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         private domSanitizer: DomSanitizer,
         public filterService: FilterService,
         private matIconRegistry: MatIconRegistry,
+        private parameterService: ParameterService,
         public snackBar: MatSnackBar,
         public widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
         @Inject('config') private neonConfig: NeonGTDConfig
     ) {
-        this.messenger = new neon.eventing.Messenger();
+        this.messageReceiver = new neon.eventing.Messenger();
+        this.messageSender = new neon.eventing.Messenger();
+
+        // The dashboards are read from the config file in the DatasetService's constructor.
+        this.dashboards = this.datasetService.getDashboards();
 
         // TODO: Default to false and set to true only after a dataset has been selected.
         this.showFiltersComponentIcon = true;
         this.showCustomConnectionButton = true;
-        this.datasets = this.datasetService.getDatasets();
         this.neonConfig = neonConfig;
         this.snackBar = snackBar;
 
@@ -174,17 +183,19 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.changeFavicon();
         this.filtersIcon = 'filters';
 
-        this.messenger.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearDashboard.bind(this));
-        this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, this.refreshDashboard.bind(this));
-        this.messenger.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));
-        this.messenger.subscribe(neonEvents.WIDGET_DELETE, this.deleteWidget.bind(this));
-        this.messenger.subscribe(neonEvents.WIDGET_CONTRACT, this.contractWidget.bind(this));
-        this.messenger.subscribe(neonEvents.WIDGET_EXPAND, this.expandWidget.bind(this));
-        this.messenger.subscribe(neonEvents.WIDGET_MOVE_TO_BOTTOM, this.moveWidgetToBottom.bind(this));
-        this.messenger.subscribe(neonEvents.WIDGET_MOVE_TO_TOP, this.moveWidgetToTop.bind(this));
-        this.messenger.subscribe(neonEvents.WIDGET_REGISTER, this.registerWidget.bind(this));
-        this.messenger.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
-        this.messenger.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
+        this.messageReceiver.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearDashboard.bind(this));
+        this.messageReceiver.subscribe(neonEvents.DASHBOARD_READY, this.showDashboardStateOnPageLoad.bind(this));
+        this.messageReceiver.subscribe(neonEvents.DASHBOARD_REFRESH, this.refreshDashboard.bind(this));
+        this.messageReceiver.subscribe(neonEvents.DASHBOARD_STATE, this.showDashboardState.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_DELETE, this.deleteWidget.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_CONTRACT, this.contractWidget.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_EXPAND, this.expandWidget.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_MOVE_TO_BOTTOM, this.moveWidgetToBottom.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_MOVE_TO_TOP, this.moveWidgetToTop.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_REGISTER, this.registerWidget.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
+        this.messageReceiver.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
     }
 
     /**
@@ -270,6 +281,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      * Clears the grid.
      */
     clearDashboard() {
+        this.filterService.setFilters([], null);
         this.widgetGridItems = [];
     }
 
@@ -321,8 +333,28 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         eventMessage.widgetGridItem.config.sizey = (visibleRowCount > 0) ? visibleRowCount : eventMessage.widgetGridItem.config.sizex;
     }
 
-    getDatasets(): Datastore[] {
-        return this.datasets;
+    /**
+     * Finds and returns the Dashboard to automatically show on page load, or null if no such dashboard exists.
+     *
+     * @arg {{ [key: string]: Dashboard }} dashboardChoices
+     * @return {Dashboard}
+     * @private
+     */
+    private findAutoShowDashboard(dashboardChoices: { [key: string]: Dashboard }): Dashboard {
+        for (let choiceKey of Object.keys(dashboardChoices || {})) {
+            let nestedChoiceKeys = Object.keys(dashboardChoices[choiceKey].choices || {});
+            if (!nestedChoiceKeys.length) {
+                if (dashboardChoices[choiceKey].options && dashboardChoices[choiceKey].options.connectOnLoad) {
+                    return dashboardChoices[choiceKey];
+                }
+            } else {
+                let nestedDashboard = this.findAutoShowDashboard(dashboardChoices[choiceKey].choices);
+                if (nestedDashboard) {
+                    return nestedDashboard;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -436,9 +468,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.messenger.subscribe('showVisShortcut', (message) => this.updateShowVisShortcut(message));
-        this.messenger.subscribe('showFiltersComponentIcon', (message) => this.updateShowFiltersComponentIcon(message));
-        this.messenger.subscribe('toggleGear', (message) => this.updateToggleGear(message));
+        this.messageReceiver.subscribe('showVisShortcut', (message) => this.updateShowVisShortcut(message));
+        this.messageReceiver.subscribe('showFiltersComponentIcon', (message) => this.updateShowFiltersComponentIcon(message));
+        this.messageReceiver.subscribe('toggleGear', (message) => this.updateToggleGear(message));
     }
 
     onDragStop(i, event) {
@@ -549,6 +581,54 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         }
         this.currentPanel = newPanel;
         this.rightPanelTitle = newTitle;
+    }
+
+    /**
+     * Shows the given dashboard using the given datastores and the given layout.
+     *
+     * @arg {{dashboard:Dashboard,datastores:Datastore[],layout:any[]}} eventMessage
+     * @private
+     */
+    private showDashboardState(eventMessage: { dashboard: Dashboard }) {
+        // TODO THOR-1062 Permit multiple datastores.
+        this.datasetService.setActiveDataset(eventMessage.dashboard.datastores[0]);
+        this.datasetService.setCurrentDashboard(eventMessage.dashboard);
+
+        this.messageSender.publish(neonEvents.DASHBOARD_CLEAR, {});
+
+        for (let widgetGridItem of eventMessage.dashboard.layoutObject) {
+            this.messageSender.publish(neonEvents.WIDGET_ADD, {
+                widgetGridItem: _.cloneDeep(widgetGridItem)
+            });
+        }
+
+        this.simpleFilter.updateSimpleFilterConfig();
+        this.toggleDashboardSelectorDialog(false);
+    }
+
+    /**
+     * Shows the dashboard state on page load, if any.
+     *
+     * @private
+     */
+    private showDashboardStateOnPageLoad() {
+        let parameterState: string = this.parameterService.findDashboardStateIdInUrl();
+
+        if (parameterState) {
+            this.parameterService.loadState(parameterState, this.parameterService.findFilterStateIdInUrl());
+        }
+
+        let parameterDataset: string = this.parameterService.findActiveDatasetInUrl();
+
+        let dashboard: Dashboard = this.findAutoShowDashboard(this.dashboards.choices);
+
+        if (dashboard && (!parameterDataset || parameterDataset === dashboard.datastores[0].name)) {
+            this.messageSender.publish(neonEvents.DASHBOARD_STATE, {
+                dashboard: dashboard
+            });
+        } else {
+            this.toggleDashboardSelectorDialog(true);
+        }
     }
 
     showItemLocation(event) {

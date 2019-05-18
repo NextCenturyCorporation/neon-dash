@@ -15,6 +15,7 @@
  */
 import * as neon from 'neon-framework';
 
+import { ConnectionServiceMock } from './ConnectionServiceMock';
 import { Dashboard, DashboardOptions, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../../app/dataset';
 import { DatasetService } from '../../app/services/dataset.service';
 import { NeonGTDConfig } from '../../app/neon-gtd-config';
@@ -68,7 +69,7 @@ export class DatasetServiceMock extends DatasetService {
     ];
 
     constructor() {
-        super(new NeonGTDConfig());
+        super(new NeonGTDConfig(), new ConnectionServiceMock());
         let datastore: Datastore = new Datastore('datastore1', 'testHostname', 'testDatastore');
         datastore.databases = DatasetServiceMock.DATABASES;
         this.setActiveDataset(datastore);
