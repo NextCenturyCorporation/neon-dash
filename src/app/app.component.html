@@ -71,9 +71,8 @@
     </div>
 
     <div class="header-toggle-container">
-        <div class="dashboard-selector-container" id="dashboard.selector">
-            <app-dashboard-selector (activeDatasetChanged)="simpleFilter.updateSimpleFilterConfig(); toggleDashboardSelectorDialog(false)">
-            </app-dashboard-selector>
+        <div class="dashboard-selector-container" id="dashboard.selector" style="display: none">
+            <app-dashboard-selector [dashboards]="dashboards"></app-dashboard-selector>
             <div class="header-toggle-footer"></div>
         </div>
     </div>

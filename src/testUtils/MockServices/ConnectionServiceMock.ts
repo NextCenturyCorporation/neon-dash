@@ -13,14 +13,12 @@
  * limitations under the License.
  *
  */
-import { Dashboard } from './dataset';
+import * as neon from 'neon-framework';
 
-export class NeonGTDConfig {
-    projectTitle: string;
-    projectIcon: string;
-    datastores: {[key: string]: any} = {};
-    dashboards: Dashboard;
-    layouts: {[key: string]: any} = {};
-    errors: String[];
-    neonServerUrl: string;
+import { ConnectionService } from '../../app/services/connection.service';
+
+export class ConnectionServiceMock extends ConnectionService {
+    public createActiveConnection(datastoreType: string, datastoreHost: string): neon.query.Connection {
+        return null;
+    }
 }
