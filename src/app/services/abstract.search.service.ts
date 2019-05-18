@@ -146,11 +146,17 @@ export abstract class AbstractSearchService {
     /**
      * Transforms the given search query payload into an object to export.
      *
+     * @arg {{columnName:string,prettyName:string}[]} fields
      * @arg {QueryPayload} queryPayload
+     * @arg {string} uniqueName
      * @return {any}
      * @abstract
      */
-    public abstract transformQueryPayloadToExport(queryPayload: QueryPayload): any;
+    public abstract transformQueryPayloadToExport(
+        fields: { columnName: string, prettyName: string }[],
+        queryPayload: QueryPayload,
+        uniqueName: string
+    ): any;
 
     /**
      * Sets the aggregation data on the given search query payload.

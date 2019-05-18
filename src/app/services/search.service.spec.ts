@@ -209,6 +209,311 @@ describe('Service: Search', () => {
         ])));
     }));
 
+    it('transformQueryPayloadToExport does return expected data', inject([SearchService], (service: SearchService) => {
+        let fields = [{
+            columnName: 'field1',
+            prettyName: 'Pretty Field 1'
+        }, {
+            columnName: 'field2',
+            prettyName: 'Pretty Field 2'
+        }, {
+            columnName: 'field3',
+            prettyName: 'Pretty Field 3'
+        }];
+
+        let queryInput = new query.Query().withFields('field1', 'field2');
+
+        expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
+            data: {
+                fields: [{
+                    query: 'field1',
+                    pretty: 'Pretty Field 1'
+                }, {
+                    query: 'field2',
+                    pretty: 'Pretty Field 2'
+                }],
+                ignoreFilters: undefined,
+                ignoredFilterIds: [],
+                name: 'Test Name',
+                query: queryInput,
+                selectionOnly: undefined,
+                type: 'query'
+            }
+        });
+    }));
+
+    it('transformQueryPayloadToExport does need fields argument to work as expected', inject([SearchService], (service: SearchService) => {
+        let queryInput = new query.Query().withFields('field1', 'field2');
+
+        expect(service.transformQueryPayloadToExport([], new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
+            data: {
+                fields: [],
+                ignoreFilters: undefined,
+                ignoredFilterIds: [],
+                name: 'Test Name',
+                query: queryInput,
+                selectionOnly: undefined,
+                type: 'query'
+            }
+        });
+    }));
+
+    it('transformQueryPayloadToExport does ignore fields duplicated in the query', inject([SearchService], (service: SearchService) => {
+        let fields = [{
+            columnName: 'field1',
+            prettyName: 'Pretty Field 1'
+        }, {
+            columnName: 'field2',
+            prettyName: 'Pretty Field 2'
+        }, {
+            columnName: 'field3',
+            prettyName: 'Pretty Field 3'
+        }];
+
+        let queryInput = new query.Query().withFields('field1', 'field1', 'field2');
+
+        expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
+            data: {
+                fields: [{
+                    query: 'field1',
+                    pretty: 'Pretty Field 1'
+                }, {
+                    query: 'field2',
+                    pretty: 'Pretty Field 2'
+                }],
+                ignoreFilters: undefined,
+                ignoredFilterIds: [],
+                name: 'Test Name',
+                query: queryInput,
+                selectionOnly: undefined,
+                type: 'query'
+            }
+        });
+    }));
+
+    it('transformQueryPayloadToExport does add function groups', inject([SearchService], (service: SearchService) => {
+        let fields = [{
+            columnName: 'field1',
+            prettyName: 'Pretty Field 1'
+        }, {
+            columnName: 'field2',
+            prettyName: 'Pretty Field 2'
+        }, {
+            columnName: 'field3',
+            prettyName: 'Pretty Field 3'
+        }];
+
+        let queryInput = new query.Query().withFields('field1', 'field2').groupBy([
+            new query.GroupByFunctionClause('minute', 'field2', '_minute'),
+            new query.GroupByFunctionClause('hour', 'field2', '_hour'),
+            new query.GroupByFunctionClause('dayOfMonth', 'field2', '_dayOfMonth'),
+            new query.GroupByFunctionClause('month', 'field2', '_month'),
+            new query.GroupByFunctionClause('year', 'field2', '_year')
+        ]);
+
+        expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
+            data: {
+                fields: [{
+                    query: 'field1',
+                    pretty: 'Pretty Field 1'
+                }, {
+                    query: '_minute',
+                    pretty: 'Minute Pretty Field 2'
+                }, {
+                    query: '_hour',
+                    pretty: 'Hour Pretty Field 2'
+                }, {
+                    query: '_dayOfMonth',
+                    pretty: 'Day Pretty Field 2'
+                }, {
+                    query: '_month',
+                    pretty: 'Month Pretty Field 2'
+                }, {
+                    query: '_year',
+                    pretty: 'Year Pretty Field 2'
+                }],
+                ignoreFilters: undefined,
+                ignoredFilterIds: [],
+                name: 'Test Name',
+                query: queryInput,
+                selectionOnly: undefined,
+                type: 'query'
+            }
+        });
+    }));
+
+    it('transformQueryPayloadToExport does add aggregations', inject([SearchService], (service: SearchService) => {
+        let fields = [{
+            columnName: 'field1',
+            prettyName: 'Pretty Field 1'
+        }, {
+            columnName: 'field2',
+            prettyName: 'Pretty Field 2'
+        }, {
+            columnName: 'field3',
+            prettyName: 'Pretty Field 3'
+        }];
+
+        /* tslint:disable:no-string-literal */
+        let queryInput = new query.Query().withFields('field1', 'field2').aggregate(query['COUNT'], 'field1', '_count');
+        /* tslint:enable:no-string-literal */
+
+        expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
+            data: {
+                fields: [{
+                    query: 'field1',
+                    pretty: 'Pretty Field 1'
+                }, {
+                    query: 'field2',
+                    pretty: 'Pretty Field 2'
+                }, {
+                    query: '_count',
+                    pretty: 'Count Pretty Field 1'
+                }],
+                ignoreFilters: undefined,
+                ignoredFilterIds: [],
+                name: 'Test Name',
+                query: queryInput,
+                selectionOnly: undefined,
+                type: 'query'
+            }
+        });
+    }));
+
+    it('transformQueryPayloadToExport does remove fields of non-count aggregations', inject([SearchService], (service: SearchService) => {
+        let fields = [{
+            columnName: 'field1',
+            prettyName: 'Pretty Field 1'
+        }, {
+            columnName: 'field2',
+            prettyName: 'Pretty Field 2'
+        }, {
+            columnName: 'field3',
+            prettyName: 'Pretty Field 3'
+        }, {
+            columnName: 'field4',
+            prettyName: 'Pretty Field 4'
+        }, {
+            columnName: 'field5',
+            prettyName: 'Pretty Field 5'
+        }];
+
+        /* tslint:disable:no-string-literal */
+        let queryInput = new query.Query().withFields('field1', 'field2', 'field3', 'field4', 'field5')
+            .aggregate(query['AVG'], 'field1', '_avg')
+            .aggregate(query['MAX'], 'field2', '_max')
+            .aggregate(query['MIN'], 'field3', '_min')
+            .aggregate(query['SUM'], 'field4', '_sum');
+        /* tslint:enable:no-string-literal */
+
+        expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
+            data: {
+                fields: [{
+                    query: 'field5',
+                    pretty: 'Pretty Field 5'
+                }, {
+                    query: '_avg',
+                    pretty: 'Average Pretty Field 1'
+                }, {
+                    query: '_max',
+                    pretty: 'Maximum Pretty Field 2'
+                }, {
+                    query: '_min',
+                    pretty: 'Minimum Pretty Field 3'
+                }, {
+                    query: '_sum',
+                    pretty: 'Sum Pretty Field 4'
+                }],
+                ignoreFilters: undefined,
+                ignoredFilterIds: [],
+                name: 'Test Name',
+                query: queryInput,
+                selectionOnly: undefined,
+                type: 'query'
+            }
+        });
+    }));
+
+    it('transformQueryPayloadToExport does work with both groups and aggregations', inject([SearchService], (service: SearchService) => {
+        let fields = [{
+            columnName: 'field1',
+            prettyName: 'Pretty Field 1'
+        }, {
+            columnName: 'field2',
+            prettyName: 'Pretty Field 2'
+        }, {
+            columnName: 'field3',
+            prettyName: 'Pretty Field 3'
+        }];
+
+        /* tslint:disable:no-string-literal */
+        let queryInput = new query.Query().withFields('field1', 'field2').groupBy([
+            new query.GroupByFunctionClause('month', 'field2', '_month'),
+            new query.GroupByFunctionClause('year', 'field2', '_year')
+        ]).aggregate(query['COUNT'], 'field1', '_count');
+        /* tslint:enable:no-string-literal */
+
+        expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
+            data: {
+                fields: [{
+                    query: 'field1',
+                    pretty: 'Pretty Field 1'
+                }, {
+                    query: '_month',
+                    pretty: 'Month Pretty Field 2'
+                }, {
+                    query: '_year',
+                    pretty: 'Year Pretty Field 2'
+                }, {
+                    query: '_count',
+                    pretty: 'Count Pretty Field 1'
+                }],
+                ignoreFilters: undefined,
+                ignoredFilterIds: [],
+                name: 'Test Name',
+                query: queryInput,
+                selectionOnly: undefined,
+                type: 'query'
+            }
+        });
+    }));
+
+    it('transformQueryPayloadToExport does work with wildcard fields', inject([SearchService], (service: SearchService) => {
+        let fields = [{
+            columnName: 'field1',
+            prettyName: 'Pretty Field 1'
+        }, {
+            columnName: 'field2',
+            prettyName: 'Pretty Field 2'
+        }, {
+            columnName: 'field3',
+            prettyName: 'Pretty Field 3'
+        }];
+
+        let queryInput = new query.Query().withFields('*');
+
+        expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
+            data: {
+                fields: [{
+                    query: 'field1',
+                    pretty: 'Pretty Field 1'
+                }, {
+                    query: 'field2',
+                    pretty: 'Pretty Field 2'
+                }, {
+                    query: 'field3',
+                    pretty: 'Pretty Field 3'
+                }],
+                ignoreFilters: undefined,
+                ignoredFilterIds: [],
+                name: 'Test Name',
+                query: queryInput,
+                selectionOnly: undefined,
+                type: 'query'
+            }
+        });
+    }));
+
     it('updateAggregation does update given query payload and does not remove previous aggregations', inject([SearchService],
         (service: SearchService
     ) => {

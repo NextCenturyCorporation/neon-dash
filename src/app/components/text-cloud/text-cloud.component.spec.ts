@@ -88,29 +88,6 @@ describe('Component: TextCloud', () => {
         expect(component.textColor).toBe('#367588');
     });
 
-    it('returns the correct value from getExportFields', () => {
-        component.options.dataField = new FieldMetaData('testTextField', 'Test Text Field');
-        component.options.sizeField = new FieldMetaData('testSizeField');
-
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testTextField',
-            prettyName: 'Test Text Field'
-        }, {
-            columnName: 'value',
-            prettyName: 'Count'
-        }]);
-
-        component.options.sizeField.prettyName = 'Test Size Field';
-
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testTextField',
-            prettyName: 'Test Text Field'
-        }, {
-            columnName: 'value',
-            prettyName: 'Test Size Field'
-        }]);
-    });
-
     it('has an validateVisualizationQuery method that properly checks whether or not a valid query can be made', () => {
         expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
         component.options.database = new DatabaseMetaData('testDatabase1');

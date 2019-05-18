@@ -134,7 +134,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new WidgetFieldOption('heatmapField', 'Heatmap Field', false),
             new WidgetFieldOption('idField', 'ID Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', true),
-            new WidgetFieldArrayOption('filterFields', 'Filter Field(s)', false)
+            new WidgetFieldArrayOption('filterFields', 'Filter Field(s)', false),
+            new WidgetFieldArrayOption('showFields', 'Show Field(s)', false)
         ];
     }
 
@@ -188,6 +189,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 prettyName: 'No',
                 variable: 'hide'
             }]),
+            // TODO THOR-1135 (Delete this) The allColumnStatus option is deprecated.  Please use showFields now.
             new WidgetSelectOption('allColumnStatus', 'Show Columns on Reload', 'show', [{
                 prettyName: 'Show All',
                 variable: 'show'
@@ -204,7 +206,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 variable: true
             }]),
             new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', [], false),
+            // TODO THOR-1135 (Delete this) The exceptionsToStatus option is deprecated.  Please use showFields now.
             new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', [], false),
+            // TODO THOR-1135 (Delete this) The fieldsConfig option is deprecated.  Please use showFields now.
             new WidgetNonPrimitiveOption('fieldsConfig', 'Fields Config', {})
         ];
     }
@@ -239,21 +243,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Returns the list of fields to export.
-     *
-     * @return {{ columnName: string, prettyName: string }[]}
-     * @override
-     */
-    getExportFields(): { columnName: string, prettyName: string }[] {
-        return this.headers.filter((header) => header.active).map((header) => {
-            return {
-                columnName: header.prop,
-                prettyName: header.name
-            };
-        });
-    }
-
-    /**
      * Returns the default limit for the visualization.
      *
      * @return {string}
@@ -273,12 +262,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return 'Data Table';
     }
 
+    // TODO THOR-1135 (Delete this)
     initializeHeadersFromExceptionsToStatus() {
         let initialHeaderLimit = 25;
         let numHeaders = 0;
         let orderedHeaders = [];
         let unorderedHeaders = [];
-        let show = (this.options.allColumnStatus === 'show');
+
+        // TODO THOR-1135 The allColumnStatus option is deprecated.  Please use showFields now.
+        // If showFields is populated, hide each field that is not in showFields (override allColumnStatus).
+        let show = this.options.showFields.length ? false : (this.options.allColumnStatus === 'show');
 
         for (let fieldObject of this.options.fields) {
             // If field is an exception, set active to oppositve of show status.
@@ -308,11 +301,23 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     initializeHeadersFromFieldsConfig() {
-        let existingFields = [];
+        let existingFieldNames: string[] = this.options.showFields.filter((fieldObject) => !!fieldObject.columnName).map((fieldObject) => {
+            this.headers.push({
+                cellClass: this.getCellClassFunction(),
+                prop: fieldObject.columnName,
+                name: fieldObject.prettyName,
+                active: true,
+                style: {},
+                width: this.getColumnWidth(fieldObject.columnName)
+            });
+            return fieldObject.columnName;
+        });
+
+        // TODO THOR-1135 (Delete this) The fieldsConfig option is deprecated.  Please use showFields now.
         for (let fieldConfig of this.options.fieldsConfig) {
             let fieldObject = this.options.findField(fieldConfig.name);
             if (fieldObject && fieldObject.columnName) {
-                existingFields.push(fieldObject.columnName);
+                existingFieldNames.push(fieldObject.columnName);
                 this.headers.push({
                     cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
@@ -323,13 +328,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 });
             }
         }
+
+        // Create a header object for each field that was not in showFields.
         for (let fieldObject of this.options.fields) {
-            if (existingFields.indexOf(fieldObject.columnName) < 0) {
+            if (existingFieldNames.indexOf(fieldObject.columnName) < 0) {
                 this.headers.push({
                     cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
-                    active: (this.options.allColumnStatus === 'show'),
+                    // TODO THOR-1135 The allColumnStatus option is deprecated.  Please use showFields now.
+                    // If showFields is populated, hide each field that is not in showFields (override allColumnStatus).
+                    active: this.options.showFields.length ? false : (this.options.allColumnStatus === 'show'),
                     style: {},
                     width: this.getColumnWidth(fieldObject.name)
                 });
@@ -377,17 +386,21 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     initializeProperties() {
-        if (this.options.fieldsConfig.length) {
+        // TODO THOR-1135 The fieldsConfig option is deprecated.  Please use showFields now.
+        if (this.options.fieldsConfig.length || this.options.showFields.length) {
             this.initializeHeadersFromFieldsConfig();
         } else {
+            // TODO THOR-1135 (Delete this)
             this.initializeHeadersFromExceptionsToStatus();
         }
         this.recalculateActiveHeaders();
     }
 
+    // TODO THOR-1135 (Delete this)
     headerIsInExceptions(header) {
         let colName = header.columnName;
         let pName = header.prettyName;
+        // TODO THOR-1135 The exceptionsToStatus option is deprecated.  Please use showFields now.
         for (let exception of this.options.exceptionsToStatus) {
             let name = this.datasetService.translateFieldKeyToValue(exception);
             if (colName === name || pName === name) {
@@ -397,8 +410,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return false;
     }
 
+    // TODO THOR-1135 (Delete this)
     sortOrderedHeaders(unordered) {
         let sorted = [];
+        // TODO THOR-1135 The exceptionsToStatus option is deprecated.  Please use showFields now.
         for (let exception of this.options.exceptionsToStatus) {
             let header = this.datasetService.translateFieldKeyToValue(exception);
             let headerToPush = this.getHeaderByName(header, unordered);
@@ -891,5 +906,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }
             this.headers = unorderedHeaders;
         }
+
+        // TODO THOR-1135 Must update this.headers if this.options.showFields changed.
     }
 }

@@ -43,6 +43,11 @@ export class NeonWhereWrapper implements FilterClause {
     constructor(public where: query.WherePredicate) {}
 }
 
+interface ExportField {
+    query: string;
+    pretty: string;
+}
+
 /**
  * A service to run searches.
  *
@@ -145,6 +150,53 @@ export class SearchService extends AbstractSearchService {
     }
 
     /**
+     * Finds and returns the export fields from the fields, groupByClauses, and aggregates in the given export query object.
+     * Assumes activeFields does not have duplicates.
+     *
+     * @arg {query.Query} exportQuery
+     * @arg {{columnName:string,prettyName:string}[]} activeFields
+     * @return {ExportField[]}
+     * @private
+     */
+    private findExportFields(exportQuery: any, activeFields: { columnName: string, prettyName: string }[]): ExportField[] {
+        // Use all activeFields if the exportQuery fields are a wildcard.
+        let isWildcard: boolean = (exportQuery.fields.length === 1 && exportQuery.fields[0] === '*');
+
+        // Save each activeField that is a field from the exportQuery in the export fields.
+        let queryFields: ExportField[] = (isWildcard ? activeFields : activeFields.filter((activeField) =>
+            exportQuery.fields.some((exportFieldName) => exportFieldName === activeField.columnName))).map((activeField) => ({
+                query: activeField.columnName,
+                pretty: activeField.prettyName
+            } as ExportField));
+
+        // Save each group function from the exportQuery in the export fields.
+        let groupFields: ExportField[] = exportQuery.groupByClauses.filter((group) => group.type === 'function').map((group) => {
+            // Remove the field of each group function from the queryFields.
+            queryFields = queryFields.filter((field) => field.query !== group.field);
+            return {
+                query: group.name,
+                pretty: this.transformDateGroupOperatorToPrettyName(group.operation, group.field, activeFields)
+            } as ExportField;
+        });
+
+        // Save each aggregation field from the exportQuery in the export fields.
+        let aggregationFields: ExportField[] = exportQuery.aggregates.map((aggregate) => {
+            // Remove the field of each non-COUNT aggregation from the queryFields.
+            /* tslint:disable:no-string-literal */
+            if (aggregate.operation !== query['COUNT']) {
+                queryFields = queryFields.filter((field) => field.query !== aggregate.field);
+            }
+            /* tslint:enable:no-string-literal */
+            return {
+                query: aggregate.name,
+                pretty: this.transformAggregationOperatorToPrettyName(aggregate.operation, aggregate.field, activeFields)
+            } as ExportField;
+        });
+
+        return queryFields.concat(groupFields).concat(aggregationFields);
+    }
+
+    /**
      * Runs the given search using the given datastore type and host.
      *
      * @arg {string} datastoreType
@@ -155,7 +207,30 @@ export class SearchService extends AbstractSearchService {
      */
     public runSearch(datastoreType: string, datastoreHost: string, queryPayload: NeonQueryWrapper): RequestWrapper {
         let connection = this.connectionService.createActiveConnection(datastoreType, datastoreHost);
-        return connection ? connection.executeQuery((queryPayload as NeonQueryWrapper).query, null) : null;
+        return connection ? connection.executeQuery(queryPayload.query, null) : null;
+    }
+
+    private transformAggregationOperatorToPrettyName(
+        aggregationOperator: string,
+        aggregationField: string,
+        fields: { columnName: string, prettyName: string }[]
+    ): string {
+        let prettyName = (fields.filter((field) => field.columnName === aggregationField)[0] || {} as any).prettyName;
+        /* tslint:disable:no-string-literal */
+        switch (aggregationOperator) {
+            case query['AVG']:
+                return 'Average' + (prettyName ? (' ' + prettyName) : '');
+            case query['COUNT']:
+                return 'Count' + (prettyName ? (' ' + prettyName) : '');
+            case query['MAX']:
+                return 'Maximum' + (prettyName ? (' ' + prettyName) : '');
+            case query['MIN']:
+                return 'Minimum' + (prettyName ? (' ' + prettyName) : '');
+            case query['SUM']:
+                return 'Sum' + (prettyName ? (' ' + prettyName) : '');
+        }
+        /* tslint:enable:no-string-literal */
+        return '';
     }
 
     private transformAggregationType(type: AggregationType): string {
@@ -176,6 +251,27 @@ export class SearchService extends AbstractSearchService {
         return '';
     }
 
+    private transformDateGroupOperatorToPrettyName(
+        groupOperator: string,
+        groupField: string,
+        fields: { columnName: string, prettyName: string }[]
+    ): string {
+        let prettyName = (fields.filter((field) => field.columnName === groupField)[0] || {} as any).prettyName;
+        switch (groupOperator) {
+            case 'minute':
+                return 'Minute' + (prettyName ? (' ' + prettyName) : '');
+            case 'hour':
+                return 'Hour' + (prettyName ? (' ' + prettyName) : '');
+            case 'dayOfMonth':
+                return 'Day' + (prettyName ? (' ' + prettyName) : '');
+            case 'month':
+                return 'Month' + (prettyName ? (' ' + prettyName) : '');
+            case 'year':
+                return 'Year' + (prettyName ? (' ' + prettyName) : '');
+        }
+        return '';
+    }
+
     /**
      * Transforms the values in the filter clauses in the given search query payload using the given map of keys-to-values-to-labels.
      *
@@ -188,7 +284,7 @@ export class SearchService extends AbstractSearchService {
     ): NeonQueryWrapper {
 
         /* tslint:disable:no-string-literal */
-        let wherePredicate: query.WherePredicate = (queryPayload as NeonQueryWrapper).query['filter'].whereClause;
+        let wherePredicate: query.WherePredicate = queryPayload.query['filter'].whereClause;
         /* tslint:enable:no-string-literal */
 
         this.transformWherePredicateValues(wherePredicate, keysToValuesToLabels);
@@ -199,12 +295,28 @@ export class SearchService extends AbstractSearchService {
     /**
      * Transforms the given search query payload into an object to export.
      *
+     * @arg {{columnName:string,prettyName:string}[]} fields
      * @arg {NeonQueryWrapper} queryPayload
+     * @arg {string} uniqueName
      * @return {any}
      * @override
      */
-    public transformQueryPayloadToExport(queryPayload: NeonQueryWrapper): any {
-        return (queryPayload as NeonQueryWrapper).query;
+    public transformQueryPayloadToExport(
+        fields: { columnName: string, prettyName: string }[],
+        queryPayload: NeonQueryWrapper,
+        uniqueName: string
+    ): any {
+        return {
+            data: {
+                fields: this.findExportFields(queryPayload.query, fields),
+                ignoreFilters: undefined,
+                ignoredFilterIds: [],
+                name: uniqueName,
+                query: queryPayload.query,
+                selectionOnly: undefined,
+                type: 'query'
+            }
+        };
     }
 
     /**
@@ -252,7 +364,7 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public updateAggregation(queryPayload: NeonQueryWrapper, type: AggregationType, name: string, field: string): AbstractSearchService {
-        (queryPayload as NeonQueryWrapper).query.aggregate(this.transformAggregationType(type), field, name);
+        queryPayload.query.aggregate(this.transformAggregationType(type), field, name);
         return this;
     }
 
@@ -266,9 +378,8 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public updateFields(queryPayload: NeonQueryWrapper, fields: string[]): AbstractSearchService {
-        let existingFields: string[] = ((queryPayload as NeonQueryWrapper).query as any).fields;
-        (queryPayload as NeonQueryWrapper).query.withFields((existingFields.length === 1 && existingFields[0] === '*') ? fields :
-            existingFields.concat(fields));
+        let existingFields: string[] = (queryPayload.query as any).fields;
+        queryPayload.query.withFields((existingFields.length === 1 && existingFields[0] === '*') ? fields : existingFields.concat(fields));
         return this;
     }
 
@@ -280,7 +391,7 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public updateFieldsToMatchAll(queryPayload: NeonQueryWrapper): AbstractSearchService {
-        (queryPayload as NeonQueryWrapper).query.withFields('*');
+        queryPayload.query.withFields('*');
         return this;
     }
 
@@ -293,7 +404,7 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public updateFilter(queryPayload: NeonQueryWrapper, filterClause: NeonWhereWrapper): AbstractSearchService {
-        (queryPayload as NeonQueryWrapper).query.where((filterClause as NeonWhereWrapper).where);
+        queryPayload.query.where(filterClause.where);
         return this;
     }
 
@@ -301,12 +412,12 @@ export class SearchService extends AbstractSearchService {
      * Sets the group data on the given search query payload.
      *
      * @arg {NeonQueryWrapper} queryPayload
-     * @arg {NeonGroupWrapper[]} groups
+     * @arg {NeonGroupWrapper[]} groupClauses
      * @return {AbstractSearchService}
      * @override
      */
-    public updateGroups(queryPayload: NeonQueryWrapper, groups: NeonGroupWrapper[]): AbstractSearchService {
-        (queryPayload as NeonQueryWrapper).query.groupBy(groups.map((group) => (group as NeonGroupWrapper).group));
+    public updateGroups(queryPayload: NeonQueryWrapper, groupClauses: NeonGroupWrapper[]): AbstractSearchService {
+        queryPayload.query.groupBy(groupClauses.map((groupClause) => groupClause.group));
         return this;
     }
 
@@ -319,7 +430,7 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public updateLimit(queryPayload: NeonQueryWrapper, limit: number): AbstractSearchService {
-        (queryPayload as NeonQueryWrapper).query.limit(limit);
+        queryPayload.query.limit(limit);
         return this;
     }
 
@@ -332,7 +443,7 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public updateOffset(queryPayload: NeonQueryWrapper, offset: number): AbstractSearchService {
-        (queryPayload as NeonQueryWrapper).query.offset(offset);
+        queryPayload.query.offset(offset);
         return this;
     }
 
@@ -347,8 +458,7 @@ export class SearchService extends AbstractSearchService {
      */
     public updateSort(queryPayload: NeonQueryWrapper, field: string, order: SortOrder = SortOrder.ASCENDING): AbstractSearchService {
         /* tslint:disable:no-string-literal */
-        (queryPayload as NeonQueryWrapper).query.sortBy(field, order === SortOrder.ASCENDING ? query['ASCENDING'] :
-            query['DESCENDING']);
+        queryPayload.query.sortBy(field, order === SortOrder.ASCENDING ? query['ASCENDING'] : query['DESCENDING']);
         /* tslint:enable:no-string-literal */
         return this;
     }
