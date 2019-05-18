@@ -37,7 +37,6 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { By } from '@angular/platform-browser';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { WhereWrapper } from '../../services/search.service';
 
 describe('Component: DataTable', () => {
     let component: DataTableComponent,
@@ -670,7 +669,7 @@ describe('Component: DataTable', () => {
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             fields: ['*'],
-            filter: new WhereWrapper(neon.query.or())
+            filter: null
         });
     });
 

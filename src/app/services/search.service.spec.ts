@@ -232,6 +232,9 @@ describe('Service: Search', () => {
     it('updateFilter does update given query payload', inject([SearchService], (service: SearchService) => {
         let input: neon.query.Query = new neon.query.Query();
 
+        service.updateFilter(new QueryWrapper(input), null);
+        expect(input).toEqual(new neon.query.Query());
+
         service.updateFilter(new QueryWrapper(input), new WhereWrapper(neon.query.where('field1', '=', 'value1')));
         expect(input).toEqual(new neon.query.Query().where(neon.query.where('field1', '=', 'value1')));
 
