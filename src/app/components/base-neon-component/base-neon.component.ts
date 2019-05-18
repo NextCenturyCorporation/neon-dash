@@ -15,16 +15,28 @@
  */
 import { AfterViewInit, ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@angular/core';
 
-import { AbstractSearchService, AggregationType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
+import {
+    AbstractSearchService,
+    AggregationType,
+    CompoundFilterType,
+    FilterClause,
+    QueryPayload
+} from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import {
+    FilterBehavior,
+    FilterCollection,
+    FilterDesign,
+    FilterService,
+    FilterUtil,
+    SimpleFilterDesign
+} from '../../services/filter.service';
 import { FieldMetaData } from '../../dataset';
-// TODO THOR-941 Don't import WhereWrapper!
-import { WhereWrapper } from '../../services/search.service';
 import { neonEvents } from '../../neon-namespaces';
 import {
     OptionChoices,
     OptionType,
+    WidgetDatabaseOption,
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
@@ -73,6 +85,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     protected id: string;
     protected messenger: neon.eventing.Messenger;
+
+    // Maps a specific filter data source list to its filter list.
+    private cachedFilters: FilterCollection = new FilterCollection();
 
     // Maps the options/layer ID to the active transformed visualization data.
     private layerIdToActiveData: Map<string, TransformedVisualizationData> = new Map<string, TransformedVisualizationData>();
@@ -133,7 +148,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.options.title = this.getVisualizationTitle(this.options.title);
         this.id = this.options._id;
 
-        this.messenger.subscribe(neonEvents.FILTERS_CHANGED, this.handleFiltersChangedEvent.bind(this));
+        this.messenger.subscribe(neonEvents.FILTERS_CHANGED, this.handleFiltersChanged.bind(this));
         this.messenger.subscribe('select_id', (eventMessage) => {
             if (this.updateOnSelectId) {
                 (this.options.layers.length ? this.options.layers : [this.options]).forEach((layer) => {
@@ -148,18 +163,16 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 });
             }
         });
+
         this.messenger.publish(neonEvents.WIDGET_REGISTER, {
             id: this.id,
             widget: this
         });
 
-        try {
-            this.setupFilters();
-        } catch (e) {
-            // Fails in unit tests - ignore.
-        }
-
         this.initializeProperties();
+
+        this.updateCollectionWithGlobalCompatibleFilters();
+
         this.initializing = false;
     }
 
@@ -350,137 +363,74 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Get a text decription of a filter
-     * @param filter
-     */
-    abstract getFilterText(filter: any): string;
-
-    /**
-     * Must return null for no filters.  Returning an empty array causes the
-     * query to ignore ALL fitlers.
-     */
-    abstract getFiltersToIgnore(): string[];
-
-    /**
-     * Adds a new filter to neon and runs a visualization query.
+     * Deletes the given filters from the widget and the dash (or all the filters if no args are given) and runs a visualization query.
      *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {boolean} executeQueryChainOnSuccess
-     * @arg {object} subclassFilter
-     * @arg {neon.query.WherePredicate} wherePredicate
-     * @arg {function} [callback]
+     * @arg {FilterDesign[]} [filterDesignListToDelete]
      */
-    public addNeonFilter(options: any, executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate,
-        callback?: Function): void {
+    public deleteFilters(filterDesignListToDelete?: FilterDesign[]) {
+        let results: Map<any, FilterDesign[]> = this.filterService.deleteFilters(this.id, this.searchService, filterDesignListToDelete);
 
-        let filterName = {
-            visName: options.title,
-            text: this.getFilterText(subclassFilter)
-        };
-        let onSuccess = (response: any) => {
-            if (typeof response === 'string') {
-                subclassFilter.id = response;
-            }
-            if (callback) {
-                callback();
-            }
-            if (executeQueryChainOnSuccess) {
-                this.savedPages.set(subclassFilter.id, this.page);
-                this.page = 1;
-                this.executeQueryChain(options);
-            }
-        };
-        this.filterService.addFilter(this.messenger,
-            this.id,
-            options.database.name,
-            options.table.name,
-            wherePredicate,
-            filterName,
-            onSuccess.bind(this),
-            (response: any) => {
-                this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                    error: response.responseJSON.stackTrace,
-                    message: 'Add filter failed on visualization ' + options.title + ' database ' + options.database.name + ' table ' +
-                        options.table.name
-                });
-                if (callback) {
-                    callback();
-                }
+        // Return to the previously saved page that was being viewed when the deleted filter was first added.
+        let page = this.page;
+        Array.from(results ? results.keys() : []).forEach((key) => {
+            let outputFilterDesignList: FilterDesign[] = results.get(key);
+            outputFilterDesignList.forEach((outputFilterDesign) => {
+                // TODO THOR-1107 How to choose the page if multiple filters are deleted.
+                page = this.savedPages.get(outputFilterDesign.id) || page;
+                this.savedPages.delete(outputFilterDesign.id);
             });
-        this.changeDetection.detectChanges();
-    }
-
-    /**
-     * Adds all the given filters to neon and runs a visualization query.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {{singleFilter:any,clause:neon.query.WherePredicate}[]} filters
-     * @arg {function} [callback]
-     */
-    public addMultipleFilters(options: any, filters: { singleFilter: any, clause: neon.query.WherePredicate }[],
-        callback?: Function): void {
-
-        if (!filters.length) {
-            if (callback) {
-                callback();
-            }
-            this.page = 1;
-            this.executeQueryChain(options);
-            return;
-        }
-
-        this.addNeonFilter(options, false, filters[0].singleFilter, filters[0].clause, () => {
-            this.savedPages.set(filters[0].singleFilter.id, this.page);
-            this.addMultipleFilters(options, filters.slice(1), callback);
         });
+
+        if (this.shouldFilterSelf()) {
+            this.page = page;
+        }
     }
 
     /**
-     * Replaces a filter in neon and runs a visualization query.
+     * Exchanges all the filters in the widget with the given filters and runs a visualization query.  If filterDesignListToDelete is
+     * given, also deletes the filters of each data source in the list (useful if you want to do both with a single FILTERS_CHANGED event).
      *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {boolean} executeQueryChainOnSuccess
-     * @arg {object} subclassFilter
-     * @arg {neon.query.WherePredicate} wherePredicate
-     * @arg {function} [callback]
+     * @arg {FilterDesign[]} filterDesignList
+     * @arg {FilterDesign[]} [filterDesignListToDelete]
      */
-    public replaceNeonFilter(options: any, executeQueryChainOnSuccess: boolean, subclassFilter: any,
-        wherePredicate: neon.query.WherePredicate, callback?: Function): void {
+    public exchangeFilters(filterDesignList: FilterDesign[], filterDesignListToDelete?: FilterDesign[]): void {
+        let results: Map<any, FilterDesign[]> = this.filterService.exchangeFilters(this.id, filterDesignList,
+            this.datasetService.findRelationDataList(), this.searchService, filterDesignListToDelete);
 
-        let filterName = {
-            visName: options.title,
-            text: this.getFilterText(subclassFilter)
-        };
-        let onSuccess = (response: any) => {
-            if (callback) {
-                callback();
-            }
-            if (executeQueryChainOnSuccess) {
-                this.savedPages.set(subclassFilter.id, this.page);
-                this.page = 1;
-                this.executeQueryChain(options);
-            }
-        };
-        this.filterService.replaceFilter(
-            this.messenger,
-            subclassFilter.id,
-            this.id,
-            options.database.name,
-            options.table.name,
-            wherePredicate,
-            filterName,
-            onSuccess.bind(this),
-            (response: any) => {
-                this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                    error: response.responseJSON.stackTrace,
-                    message: 'Replace filter failed on visualization ' + options.title + ' database ' + options.database.name + ' table ' +
-                        options.table.name
-                });
-                if (callback) {
-                    callback();
-                }
+        // Save the page that is being viewed.
+        Array.from(results ? results.keys() : []).forEach((key) => {
+            let outputFilterDesignList: FilterDesign[] = results.get(key);
+            outputFilterDesignList.forEach((outputFilterDesign) => {
+                this.savedPages.set(outputFilterDesign.id, this.page);
             });
-        this.changeDetection.detectChanges();
+        });
+
+        if (this.shouldFilterSelf()) {
+            this.page = 1;
+        }
+    }
+
+    /**
+     * Toggles the given filters (adds input filters that are not in the global list and deletes input filters that are in the global list)
+     * in the widget and the dash and runs a visualization query.
+     *
+     * @arg {FilterDesign[]} filterDesignList
+     */
+    public toggleFilters(filterDesignList: FilterDesign[]): void {
+        let results: Map<any, FilterDesign[]> = this.filterService.toggleFilters(this.id, filterDesignList,
+            this.datasetService.findRelationDataList(), this.searchService);
+
+        // Save the page that is being viewed.
+        Array.from(results ? results.keys() : []).forEach((key) => {
+            let outputFilterDesignList: FilterDesign[] = results.get(key);
+            outputFilterDesignList.forEach((outputFilterDesign) => {
+                this.savedPages.set(outputFilterDesign.id, this.page);
+            });
+        });
+
+        if (this.shouldFilterSelf()) {
+            this.page = 1;
+        }
     }
 
     /**
@@ -547,8 +497,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {QueryPayload}
      * @abstract
      */
-    public abstract finalizeVisualizationQuery(options: any, queryPayload: QueryPayload,
-        sharedFilters: FilterClause[]): QueryPayload;
+    public abstract finalizeVisualizationQuery(options: any, queryPayload: QueryPayload, sharedFilters: FilterClause[]): QueryPayload;
 
     /**
      * Creates and returns the visualization query with the database, table, and fields, but not the limit or offset.
@@ -600,24 +549,25 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {FilterClause[]}
      */
     public createSharedFilters(options: any): FilterClause[] {
-        let ignoreFilterIds: string[] = this.getFiltersToIgnore() || [];
+        let globalFilters: FilterClause[] = this.getGlobalFilterClauses(options);
 
-        // TODO THOR-941 FilterService.getFilters must return NeonFilterClause[] (don't depend on neon.query.Filter or WhereWrapper class)
-        let filters: FilterClause[] = this.filterService.getFilters({
-            database: options.database.name,
-            table: options.table.name
-        }).filter((neonFilter) => ignoreFilterIds.indexOf(neonFilter.id) < 0).map((neonFilter) => new WhereWrapper(
-            neonFilter.filter.whereClause as neon.query.WherePredicate));
-
-        if (options.filter && options.filter.lhs && options.filter.operator && typeof options.filter.rhs !== 'undefined') {
-            filters.push(this.searchService.buildFilterClause(options.filter.lhs, options.filter.operator, options.filter.rhs));
+        if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
+            globalFilters = globalFilters.concat(this.searchService.buildFilterClause(options.filter.lhs, options.filter.operator,
+                options.filter.rhs));
         }
 
         if (this.hasUnsharedFilter(options)) {
-            filters.push(this.searchService.buildFilterClause(options.unsharedFilterField.columnName, '=', options.unsharedFilterValue));
+            globalFilters = globalFilters.concat(this.searchService.buildFilterClause(options.unsharedFilterField.columnName, '=',
+                options.unsharedFilterValue));
         }
 
-        return filters;
+        return globalFilters;
+    }
+
+    private getGlobalFilterClauses(options: any): FilterClause[] {
+        let ignoreFilters: FilterDesign[] = this.shouldFilterSelf() ? [] : this.cachedFilters.getDataSources().reduce((list, dataSource) =>
+            list.concat(this.cachedFilters.getFilters(dataSource).map((filter) => filter.toDesign())), [] as FilterDesign[]);
+        return this.filterService.getFiltersToSearch('', options.database.name, options.table.name, this.searchService, ignoreFilters);
     }
 
     /**
@@ -816,30 +766,47 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private cannotExecuteQuery(options: any): boolean {
         return (!this.searchService.canRunSearch(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost()) ||
-            (this.options.hideUnfiltered && !this.filterService.getFiltersForFields(options.database.name, options.table.name).length));
+            (this.options.hideUnfiltered && !this.getGlobalFilterClauses(options).length));
     }
 
     /**
-     * Handles any needed behavior on a filtersChanged event and then runs the visualization query.
+     * Handles any needed behavior on a FILTERS_CHANGED event and then runs the visualization query.
      */
-    private handleFiltersChangedEvent(): void {
-        this.setupFilters();
-        this.executeAllQueryChain();
+    private handleFiltersChanged(eventMessage: any): void {
+        this.updateCollectionWithGlobalCompatibleFilters();
+
+        // Don't run the visualization query if the event was sent from this visualization and this visualization ignores its own filters.
+        if (eventMessage.caller !== this.id || this.shouldFilterSelf()) {
+            // TODO THOR-1108 Ignore filters on non-matching datastores/databases/tables.
+            this.executeAllQueryChain();
+        }
     }
 
     /**
-     * Get and configure filters from the filter service.
-     * DO NOT EXECUTE QUERIES IN THIS METHOD.
-     * This method will be called before the visualization has finished initialization!
+     * Replaces the existing global widget filters with all the compatible (matching) dash filters.
      */
-    abstract setupFilters(): void;
+    private updateCollectionWithGlobalCompatibleFilters(): void {
+        let behaviors: FilterBehavior[] = this.designEachFilterWithNoValues();
+        this.filterService.updateCollectionWithGlobalCompatibleFilters(behaviors, this.cachedFilters, this.searchService);
+    }
 
     /**
-     * Returns the list of closeable filters for the visualization.
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
      *
-     * @return {array}
+     * @return {FilterBehavior[]}
      */
-    abstract getCloseableFilters(): any[];
+    protected abstract designEachFilterWithNoValues(): FilterBehavior[];
+
+    /**
+     * Returns if the visualization is filtered (optionally, filtered matching the given filter design).
+     *
+     * @arg {FilterDesign} [filterDesign]
+     * @return {boolean}
+     */
+    protected isFiltered(filterDesign?: FilterDesign): boolean {
+        return this.filterService.isFiltered(this.cachedFilters, filterDesign);
+    }
 
     /**
      * Updates filters whenever a filter field is changed and then runs the visualization query.
@@ -849,10 +816,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public handleChangeFilterField(options?: any, databaseOrTableChange?: boolean): void {
         let optionsToUpdate = options || this.options;
-        this.removeAllFilters(optionsToUpdate, this.getCloseableFilters(), false, false, () => {
-            this.setupFilters();
-            this.handleChangeData(optionsToUpdate, databaseOrTableChange);
-        });
+        this.updateCollectionWithGlobalCompatibleFilters();
+        this.handleChangeData(optionsToUpdate, databaseOrTableChange);
     }
 
     /**
@@ -898,12 +863,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Called when a filter has been removed
-     * @param filter The filter to remove: either a neon filter as stored in the filter service, or a local filter.
-     */
-    abstract removeFilter(filter: any): void;
-
-    /**
      * Returns whether the local unshared filter field and value are set.
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
@@ -912,79 +871,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     private hasUnsharedFilter(options?: any): boolean {
         return !!((options || this.options).unsharedFilterField && (options || this.options).unsharedFilterField.columnName &&
             typeof (options || this.options).unsharedFilterValue !== 'undefined' && (options || this.options).unsharedFilterValue !== '');
-    }
-
-    /**
-     * Remove a filter from neon, and optionally requery and/or refresh
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {object} filter
-     * @arg {boolean} requery
-     * @arg {boolean} refresh
-     * @arg {function} [callback]
-     */
-    public removeLocalFilterFromLocalAndNeon(options: any, filter: any, requery: boolean, refresh: boolean, callback?: Function) {
-        // If we are removing a filter, assume its both local and neon so it should be removed in both
-        let database = options.database.name;
-        let table = options.table.name;
-        this.filterService.removeFilters(
-            this.messenger,
-            [filter.id],
-            (removedFilter) => {
-                if (removedFilter) {
-                    this.removeFilter(removedFilter);
-                } else {
-                    // No filter removed means undefined or old ID. Pass this back to remove itself.
-                    this.removeFilter(filter);
-                }
-                if (requery) {
-                    this.page = this.savedPages.get(filter.id) || 1;
-                    this.savedPages.delete(filter.id);
-                    this.executeQueryChain(options);
-                } else {
-                    if (refresh) {
-                        this.refreshVisualization();
-                    }
-                }
-                this.changeDetection.detectChanges();
-                if (callback) {
-                    callback();
-                }
-            },
-            (response: any) => {
-                this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                    error: response.responseJSON.stackTrace,
-                    message: 'Remove filter failed on visualization ' + options.title + ' database ' + options.database.name + ' table ' +
-                        options.table.name
-                });
-            });
-        this.changeDetection.detectChanges();
-    }
-
-    /**
-     * Removes all the given filters from this component and neon with an optional callback.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {array} filters
-     * @arg {boolean} requery
-     * @arg {boolean} refresh
-     * @arg {function} [callback]
-     */
-    public removeAllFilters(options: any, filters: any[], requery: boolean, refresh: boolean, callback?: Function) {
-        if (!filters.length) {
-            // If removeAllFilters is called with no filters, we don't need to requery or refresh.
-            if (callback) {
-                callback();
-            }
-        } else if (filters.length === 1) {
-            // Remove the last filter.
-            this.removeLocalFilterFromLocalAndNeon(options, filters[0], requery, refresh, callback);
-        } else {
-            // Remove the next filter.  Don't requery or refresh because this is not the last call.
-            this.removeLocalFilterFromLocalAndNeon(options, filters[0], false, false, () => {
-                this.removeAllFilters(options, filters.slice(1), requery, refresh, callback);
-            });
-        }
     }
 
     /**
@@ -1006,8 +892,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
         // If the query was empty, show the relevant text.
         if (!elementCount) {
-            return (this.options.hideUnfiltered && !this.getCloseableFilters().length) ? 'Please Filter' :
-                ('0' + (elementLabel ? (' ' + elementLabel) : ''));
+            let filtered: boolean = this.cachedFilters.getDataSources().some((dataSource) =>
+                !!this.cachedFilters.getFilters(dataSource).length);
+            return (this.options.hideUnfiltered && !filtered) ? 'Please Filter' : ('0' + (elementLabel ? (' ' + elementLabel) : ''));
         }
 
         // If the visualization query does pagination, show the pagination text.
@@ -1206,8 +1093,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     private getLabelOptions(options: any) {
         let dataset = this.datasetService.getDataset();
         let matchingDatabase = _.find(dataset.databases, (database) => database.name === options.database.name);
-        let matchingTable = _.find(matchingDatabase.tables, (table) => table.name === options.table.name);
-        return matchingTable.labelOptions;
+        let matchingTable = matchingDatabase ? _.find(matchingDatabase.tables, (table) => table.name === options.table.name) : null;
+        return matchingTable ? matchingTable.labelOptions : {};
     }
 
     /**
@@ -1411,6 +1298,15 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         // Assumes single-layer widget.
         return this.visualizationQueryPaginates && (this.page > 1 || this.showingZeroOrMultipleElementsPerResult ||
             ((this.page * this.options.limit) < this.layerIdToElementCount.get(this.options._id)));
+    }
+
+    /**
+     * Returns whether this visualization should filter itself.
+     *
+     * @return {boolean}
+     */
+    protected shouldFilterSelf(): boolean {
+        return !this.options.ignoreSelf;
     }
 
     protected clearVisualizationData(options: any): void {

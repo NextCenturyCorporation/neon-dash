@@ -19,25 +19,13 @@
         <mat-spinner></mat-spinner>
     </div>
 
-    <!-- TODO Do you need a header for filters or other components (like a legend)? -->
-
-    <div class=" top-container ">
-        <div class="legend-container" *ngIf="showLegendContainer()">
+    <div class=" top-container " *ngIf="showLegendContainer()">
+        <div class="legend-container">
             <app-legend [colorKeys]="colorKeys" [disabledSets]="disabledSet" (itemSelected)="legendItemSelected($event)"></app-legend>
-        </div>
-        <div class="filter-container" *ngIf="showFilterContainer()">
-            <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
-                <span class="filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.value }}</span>
-                <button mat-icon-button class="neon-icon-button-small" aria-label="Close" [matTooltip]="'Delete Filter ' + getFilterText(filter)"
-                    tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(options, filter, true, true)">
-                    <mat-icon class="neon-icon-small">close</mat-icon>
-                </button>
-            </div>
         </div>
     </div>
 
-    <!-- TODO Remove the with-filter and/or with-footer classes if you don't need them. -->
-    <div class="body-container" [class.with-filter]="showFilterContainer()" [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
+    <div class="body-container" [class.with-filter]="showLegendContainer()" [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
         <mat-list class="annotation-viewer-list-container">
             <div class="mat-list-item-text annotation-viewer-list-item" layout="column">
                 <!-- TODO Do not use <table> elements!  Use flex styling! -->

@@ -23,7 +23,7 @@ import { DataMessageComponent } from '../data-message/data-message.component';
 import { TextCloudComponent } from './text-cloud.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { AbstractSearchService, AggregationType } from '../../services/abstract.search.service';
+import { AbstractSearchService, AggregationType, CompoundFilterType } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -36,7 +36,6 @@ import { TransformedVisualizationData } from '../base-neon-component/base-neon.c
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 describe('Component: TextCloud', () => {
@@ -56,7 +55,7 @@ describe('Component: TextCloud', () => {
                 provide: DatasetService,
                 useClass: DatasetServiceMock
             },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
@@ -86,7 +85,8 @@ describe('Component: TextCloud', () => {
     });
 
     it('has expected class properties', () => {
-        expect(component.textColor).toBe('#54C8CD');
+        // TODO This color should not be hard-coded...
+        expect(component.textColor).toBe('#367588');
     });
 
     it('returns the correct value from getExportFields', () => {
@@ -117,32 +117,6 @@ describe('Component: TextCloud', () => {
         (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([]));
         component.refreshVisualization();
         expect(spy.calls.count()).toEqual(1);
-    });
-
-    it('getFilterText does return expected string', () => {
-        expect(component.getFilterText({
-            id: `1234567890`,
-            field: 'testTextField',
-            value: 'Value',
-            prettyField: 'Test Text Field'
-        })).toEqual('Test Text Field = Value');
-    });
-
-    it('getFilterDetail does return expected string', () => {
-        expect(component.getFilterDetail({
-            id: `1234567890`,
-            field: 'testTextField',
-            value: 'Value',
-            prettyField: 'Test Text Field'
-        })).toEqual('');
-
-        expect(component.getFilterDetail({
-            id: `1234567890`,
-            translated: 'Translated Value',
-            field: 'testTextField',
-            value: 'Value',
-            prettyField: 'Test Text Field'
-        })).toEqual(' (Translated Value)');
     });
 
     it('has an validateVisualizationQuery method that properly checks whether or not a valid query can be made', () => {
@@ -201,8 +175,173 @@ describe('Component: TextCloud', () => {
         });
     });
 
-    it('returns null from getFiltersToIgnore', () => {
-        expect(component.getFiltersToIgnore()).toBeNull();
+    it('designEachFilterWithNoValues does return expected object', () => {
+        expect((component as any).designEachFilterWithNoValues()).toEqual([]);
+
+        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
+        let actual = (component as any).designEachFilterWithNoValues();
+        expect(actual.length).toEqual(1);
+        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[0].filterDesign as any).operator).toEqual('=');
+        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawText.bind(component).toString());
+    });
+
+    it('onClick does call toggleFilters with expected object', () => {
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
+        let spy = spyOn((component as any), 'toggleFilters');
+
+        component.onClick({
+            key: 'testText1'
+        });
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([[{
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TEXT_FIELD,
+            operator: '=',
+            value: 'testText1'
+        }]]);
+
+        component.options.andFilters = false;
+
+        component.onClick({
+            key: 'testText2'
+        });
+
+        expect(spy.calls.count()).toEqual(2);
+        expect(spy.calls.argsFor(1)).toEqual([[{
+            root: CompoundFilterType.OR,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TEXT_FIELD,
+            operator: '=',
+            value: 'testText2'
+        }]]);
+    });
+
+    it('redrawText does update textCloudData if no text is selected', () => {
+        component.textCloudData = [{
+            color: 'color1',
+            fontSize: 'fontSize1',
+            key: 'key1',
+            keyTranslated: 'keyTranslated1',
+            selected: true,
+            value: 'value1'
+        }, {
+            color: 'color2',
+            fontSize: 'fontSize2',
+            key: 'key2',
+            keyTranslated: 'keyTranslated2',
+            selected: true,
+            value: 'value2'
+        }];
+
+        spyOn((component as any), 'isFiltered').and.returnValue(false);
+
+        (component as any).redrawText();
+
+        expect(component.textCloudData).toEqual([{
+            color: 'color1',
+            fontSize: 'fontSize1',
+            key: 'key1',
+            keyTranslated: 'keyTranslated1',
+            selected: false,
+            value: 'value1'
+        }, {
+            color: 'color2',
+            fontSize: 'fontSize2',
+            key: 'key2',
+            keyTranslated: 'keyTranslated2',
+            selected: false,
+            value: 'value2'
+        }]);
+    });
+
+    it('redrawText does update textCloudData if some text is selected', () => {
+        component.textCloudData = [{
+            color: 'color1',
+            fontSize: 'fontSize1',
+            key: 'key1',
+            keyTranslated: 'keyTranslated1',
+            selected: true,
+            value: 'value1'
+        }, {
+            color: 'color2',
+            fontSize: 'fontSize2',
+            key: 'key2',
+            keyTranslated: 'keyTranslated2',
+            selected: false,
+            value: 'value2'
+        }];
+
+        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => {
+            return filterDesign.value === 'key2';
+        });
+
+        (component as any).redrawText();
+
+        expect(component.textCloudData).toEqual([{
+            color: 'color1',
+            fontSize: 'fontSize1',
+            key: 'key1',
+            keyTranslated: 'keyTranslated1',
+            selected: false,
+            value: 'value1'
+        }, {
+            color: 'color2',
+            fontSize: 'fontSize2',
+            key: 'key2',
+            keyTranslated: 'keyTranslated2',
+            selected: true,
+            value: 'value2'
+        }]);
+    });
+
+    it('redrawText does update textCloudData if some text is selected', () => {
+        component.textCloudData = [{
+            color: 'color1',
+            fontSize: 'fontSize1',
+            key: 'key1',
+            keyTranslated: 'keyTranslated1',
+            selected: false,
+            value: 'value1'
+        }, {
+            color: 'color2',
+            fontSize: 'fontSize2',
+            key: 'key2',
+            keyTranslated: 'keyTranslated2',
+            selected: false,
+            value: 'value2'
+        }];
+
+        spyOn((component as any), 'isFiltered').and.returnValue(true);
+
+        (component as any).redrawText();
+
+        expect(component.textCloudData).toEqual([{
+            color: 'color1',
+            fontSize: 'fontSize1',
+            key: 'key1',
+            keyTranslated: 'keyTranslated1',
+            selected: true,
+            value: 'value1'
+        }, {
+            color: 'color2',
+            fontSize: 'fontSize2',
+            key: 'key2',
+            keyTranslated: 'keyTranslated2',
+            selected: true,
+            value: 'value2'
+        }]);
     });
 
     it('transformVisualizationQueryResults with no data does return expected data', () => {
@@ -223,91 +362,35 @@ describe('Component: TextCloud', () => {
         component.options.dataField = new FieldMetaData('testTextField', 'Test Text Field');
         let data = [{
             _aggregation: 8,
-            testTextField: 'First',
-            testSizeField: 100
+            testTextField: 'First'
         }, {
             _aggregation: 5,
-            testTextField: 'Second',
-            testSizeField: 75
+            testTextField: 'Second'
         }, {
             _aggregation: 1,
-            testTextField: 'Third',
-            testSizeField: 50
+            testTextField: 'Third'
         }];
 
         let actual1 = component.transformVisualizationQueryResults(component.options, data);
 
         expect(actual1.data).toEqual([{
-            _aggregation: 8,
+            selected: false,
             value: 8,
-            testTextField: 'First',
-            testSizeField: 100,
             key: 'First',
             keyTranslated: 'First'
         },
         {
-            _aggregation: 5,
+            selected: false,
             value: 5,
-            testTextField: 'Second',
-            testSizeField: 75,
             key: 'Second',
             keyTranslated: 'Second'
         },
         {
-            _aggregation: 1,
+            selected: false,
             value: 1,
-            testTextField: 'Third',
-            testSizeField: 50,
             key: 'Third',
             keyTranslated: 'Third'
         }]);
-    });
-
-    it('has an onClick method that properly sets local and remote filters', () => {
-        component.options.database.name = 'testDatabase1';
-        component.options.table.name = 'testTable1';
-        component.options.dataField = new FieldMetaData('testTextField', 'testTextField');
-        let spy = spyOn(component, 'addNeonFilter');
-
-        expect(component.getCloseableFilters().length).toBe(0);
-
-        component.onClick({
-            key: 'testValue'
-        });
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(component.getCloseableFilters()[0]).toEqual({
-            id: undefined,
-            field: 'testTextField',
-            prettyField: 'testTextField',
-            translated: '',
-            value: 'testValue'
-        });
-    });
-
-    it('has a filterIsUnique method that properly checks the uniqueness of filters to add', () => {
-        let filter1 = {
-            id: '12345',
-            field: 'testTextField',
-            prettyField: 'testTextField',
-            translated: '',
-            value: 'Value 1'
-        };
-        let filter2 = {
-            id: '67890',
-            field: 'testTextField',
-            prettyField: 'testTextField',
-            translated: '',
-            value: 'Value 1'
-        };
-        expect(component.filterIsUnique(filter2)).toBeTruthy();
-        component.filters.push(filter1);
-        expect(component.filterIsUnique(filter2)).toBeFalsy();
-        filter2.field = 'testOtherField';
-        expect(component.filterIsUnique(filter2)).toBeTruthy();
-        filter2.field = 'testTextField';
-        filter2.value = 'Value 2';
-        expect(component.filterIsUnique(filter2)).toBeTruthy();
     });
 
     it('properly modifies the active data in refreshVisualization', () => {
@@ -329,66 +412,6 @@ describe('Component: TextCloud', () => {
         expect(component.textCloudData[0].color).toBeDefined();
         expect(component.textCloudData[1].fontSize).toBeDefined();
         expect(component.textCloudData[2].color).toBeDefined();
-    });
-
-    it('properly returns the list of filters from getCloseableFilters', () => {
-        let filter1 = {
-            id: '12345',
-            field: 'testTextField',
-            prettyField: 'testTextField',
-            translated: '',
-            value: 'Value 1'
-        };
-        let filter2 = {
-            id: '67890',
-            field: 'testTextField',
-            prettyField: 'testTextField',
-            translated: '',
-            value: 'Value 1'
-        };
-
-        expect(component.getCloseableFilters()).toEqual([]);
-        component.filters.push(filter1);
-        expect(component.getCloseableFilters()).toEqual([filter1]);
-        component.filters.push(filter2);
-        expect(component.getCloseableFilters()).toEqual([filter1, filter2]);
-        component.removeFilter(filter1);
-        expect(component.getCloseableFilters()).toEqual([filter2]);
-        component.filters.push(filter1);
-        expect(component.getCloseableFilters()).toEqual([filter2, filter1]);
-        component.removeFilter(filter1);
-        component.removeFilter(filter2);
-        expect(component.getCloseableFilters()).toEqual([]);
-    });
-
-    it('properly removes filters in removeFilter', () => {
-        let filter1 = {
-            id: '12345',
-            field: 'testTextField',
-            prettyField: 'testTextField',
-            translated: '',
-            value: 'Value 1'
-        };
-        let filter2 = {
-            id: '67890',
-            field: 'testTextField',
-            prettyField: 'testTextField',
-            translated: '',
-            value: 'Value 1'
-        };
-
-        expect(component.getCloseableFilters()).toEqual([]);
-        component.filters.push(filter1);
-        expect(component.getCloseableFilters()).toEqual([filter1]);
-        component.filters.push(filter2);
-        expect(component.getCloseableFilters()).toEqual([filter1, filter2]);
-        component.removeFilter(filter1);
-        expect(component.getCloseableFilters()).toEqual([filter2]);
-        component.filters.push(filter1);
-        expect(component.getCloseableFilters()).toEqual([filter2, filter1]);
-        component.removeFilter(filter1);
-        component.removeFilter(filter2);
-        expect(component.getCloseableFilters()).toEqual([]);
     });
 
     it('has a requestExport method that does nothing', () => {

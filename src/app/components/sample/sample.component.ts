@@ -33,7 +33,7 @@ import {
     SortOrder
 } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { AbstractSubcomponent, SubcomponentListener } from './subcomponent.abstract';
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
@@ -47,7 +47,6 @@ import {
 } from '../../widget-option';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
-import * as neon from 'neon-framework';
 import { MatDialog } from '@angular/material';
 
 // TODO Name your visualization!
@@ -68,14 +67,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     @ViewChild('subcomponent') subcomponentElementRef: ElementRef;
 
     // TODO Define properties as needed.  Made public so they can be used by unit tests.
-
-    // The visualization filters.
-    public filters: {
-        id: string,
-        field: string,
-        prettyField: string,
-        value: string
-    }[] = [];
 
     // TODO The subcomponent is here as a sample but it's not doing anything.  Use it or remove it!
     // The properties for the subcomponent.
@@ -101,18 +92,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         );
     }
 
-    // TODO Change arguments as needed.
-    /**
-     * Adds the given filter object to the visualization and removes any existing filter object with ID matching the given filter ID.
-     *
-     * @arg {object} filter
-     */
-    addVisualizationFilter(filter: any) {
-        this.filters = this.filters.filter((existingFilter) => {
-            return existingFilter.id !== filter.id;
-        }).concat(filter);
-    }
-
     /**
      * Creates any visualization elements when the widget is drawn.
      *
@@ -136,6 +115,17 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         ];
     }
 
+    private createFilterDesign(field: FieldMetaData, value?: any): FilterDesign {
+        return {
+            datastore: '',
+            database: this.options.database,
+            table: this.options.table,
+            field: field,
+            operator: '=',
+            value: value
+        } as SimpleFilterDesign;
+    }
+
     /**
      * Creates and returns an array of non-field options for the visualization.
      *
@@ -155,23 +145,26 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         ];
     }
 
-    // TODO Change arguments as needed.
     /**
-     * Creates and returns a filter object for the visualization.
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
      *
-     * @arg {string} id
-     * @arg {string} field
-     * @arg {string} prettyField
-     * @arg {string} value
-     * @return {object}
+     * @return {FilterBehavior[]}
+     * @override
      */
-    createVisualizationFilter(id: string, field: string, prettyField: string, value: string): any {
-        return {
-            id: id,
-            field: field,
-            prettyField: prettyField,
-            value: value
-        };
+    protected designEachFilterWithNoValues(): FilterBehavior[] {
+        let behaviors: FilterBehavior[] = [];
+
+        // Add a filter design callback on each specific filter field.
+        if (this.options.sampleRequiredField.columnName) {
+            behaviors.push({
+                filterDesign: this.createFilterDesign(this.options.sampleRequiredField),
+                // No redraw callback:  The filtered text does not have its own HTML styles.
+                redrawCallback: () => { /* Do nothing */ }
+            });
+        }
+
+        return behaviors;
     }
 
     /**
@@ -229,8 +222,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      */
     filterFromSubcomponent(text: string) {
         this.filterOnItem({
-            field: this.options.sampleRequiredField.columnName,
-            prettyField: this.options.sampleRequiredField.prettyName,
+            field: this.options.sampleRequiredField,
             value: text
         });
     }
@@ -243,44 +235,11 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      * @arg {boolean} [replaceAll=false]
      */
     filterOnItem(item: any, replaceAll = false) {
-        let filter = this.createVisualizationFilter(undefined, item.field, item.prettyField, item.value);
-        let neonFilter = neon.query.where(filter.field, '=', filter.value);
-
         if (replaceAll) {
-            if (this.filters.length === 1) {
-                // If we have a single existing filter, keep the ID and replace the old filter with the new filter.
-                filter.id = this.filters[0].id;
-                this.filters = [filter];
-                this.replaceNeonFilter(this.options, true, filter, neonFilter);
-            } else if (this.filters.length > 1) {
-                // If we have multiple existing filters, remove all the old filters and add the new filter once done.
-                // Use concat to copy the filter list.
-                this.removeAllFilters(this.options, [].concat(this.filters), false, false, () => {
-                    this.filters = [filter];
-                    this.addNeonFilter(this.options, true, filter, neonFilter);
-                });
-            } else {
-                // If we don't have an existing filter, add the new filter.
-                this.filters = [filter];
-                this.addNeonFilter(this.options, true, filter, neonFilter);
-            }
+            this.exchangeFilters([this.createFilterDesign(item.field, item.value)]);
         } else {
-            // If the new filter is unique, add the filter to the existing filters in both neon and the visualization.
-            if (this.isVisualizationFilterUnique(item.field, item.value)) {
-                this.addVisualizationFilter(filter);
-                this.addNeonFilter(this.options, true, filter, neonFilter);
-            }
+            this.toggleFilters([this.createFilterDesign(item.field, item.value)]);
         }
-    }
-
-    /**
-     * Returns the filter list for the visualization.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters(): any[] {
-        return this.filters;
     }
 
     /**
@@ -295,42 +254,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             headerText: this.headerText,
             infoText: this.infoText
         };
-    }
-
-    /**
-     * Returns the list of filter IDs for the visualization to ignore.
-     *
-     * @return {array}
-     * @override
-     */
-    getFiltersToIgnore(): string[] {
-        // TODO Do you want the visualization to ignore its own filters?  If not, just return null.
-
-        // TODO Change the list of filter fields here as needed.
-        // Get all the neon filters relevant to this visualization.
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.options.sampleRequiredField.columnName]);
-
-        let filterIdsToIgnore = [];
-        for (let neonFilter of neonFilters) {
-            if (!neonFilter.filter.whereClause.whereClauses) {
-                filterIdsToIgnore.push(neonFilter.id);
-            }
-        }
-
-        return filterIdsToIgnore.length ? filterIdsToIgnore : null;
-    }
-
-    /**
-     * Returns the filter text for the given visualization filter object.
-     *
-     * @arg {any} filter
-     * @return {string}
-     * @override
-     */
-    getFilterText(filter: any): string {
-        // TODO Update as needed.  Do you want to use an equals sign?
-        return filter.prettyField + ' = ' + filter.value;
     }
 
     /**
@@ -396,21 +319,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         this.subcomponentObject.buildElements(this.subcomponentElementRef);
     }
 
-    // TODO Change arguments as needed.
-    /**
-     * Returns whether a visualization filter object in the filter list matching the given properties exists.
-     *
-     * @arg {string} field
-     * @arg {string} value
-     * @return {boolean}
-     */
-    isVisualizationFilterUnique(field: string, value: string): boolean {
-        // TODO What filters do you need to de-duplicate?  Is it OK to have multiple filters with matching values?
-        return !this.filters.some((existingFilter) => {
-            return existingFilter.field === field && existingFilter.value === value;
-        });
-    }
-
     /**
      * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization
      *
@@ -429,9 +337,8 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
 
             return {
                 count: item._count,
-                field: options.sampleRequiredField.columnName,
+                field: options.sampleRequiredField,
                 label: label,
-                prettyField: options.sampleRequiredField.prettyName,
                 value: item[options.sampleRequiredField.columnName]
             };
         });
@@ -449,57 +356,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         if (this.getActiveData(this.options)) {
             this.subcomponentObject.updateData(this.getActiveData(this.options).data);
         }
-    }
-
-    /**
-     * Removes the given visualization filter object from this visualization.
-     *
-     * @arg {object} filter
-     * @override
-     */
-    removeFilter(filter: any) {
-        this.filters = this.filters.filter((existingFilter) => {
-            return existingFilter.id !== filter.id;
-        });
-    }
-
-    /**
-     * Updates the filters for the visualization on initialization or whenever filters are changed externally.
-     *
-     * @override
-     */
-    setupFilters() {
-        // First reset the existing visualization filters.
-        this.filters = [];
-
-        // TODO Change the list of filter fields here as needed.
-        // Get all the neon filters relevant to this visualization.
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.options.sampleRequiredField.columnName]);
-
-        for (let neonFilter of neonFilters) {
-            // TODO Change as needed.  Do your filters have multiple clauses?  Do your filters have multiple keys (like begin/end dates)?
-
-            // This will ignore a filter with multiple clauses.
-            if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
-                let value = neonFilter.filter.whereClause.rhs;
-                if (this.isVisualizationFilterUnique(field.columnName, value)) {
-                    this.addVisualizationFilter(this.createVisualizationFilter(neonFilter.id, field.columnName, field.prettyName, value));
-                }
-            }
-        }
-    }
-
-    // TODO Remove this function if you don't need a filter-container.
-    /**
-     * Returns whether any components are shown in the filter-container.
-     *
-     * @return {boolean}
-     */
-    showFilterContainer(): boolean {
-        // TODO Check for any other components (like a legend).
-        return !!this.getCloseableFilters().length;
     }
 
     // TODO Remove this function if you don't need to update and/or redraw any sub-components on resize.
