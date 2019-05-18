@@ -21,7 +21,7 @@ import { neonEvents } from '../neon-namespaces';
 
 import * as uuidv4 from 'uuid/v4';
 import * as _ from 'lodash';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 
 export interface FilterBehavior {
     filterDesign: FilterDesign;
@@ -535,7 +535,7 @@ export class DualListFilterCollection extends AbstractFilterCollection {
 @Injectable()
 export class FilterService {
     protected filterCollection: DualListFilterCollection = new DualListFilterCollection();
-    protected messenger: neon.eventing.Messenger = new neon.eventing.Messenger();
+    protected messenger: eventing.Messenger = new eventing.Messenger();
 
     constructor() { /* Do nothing */ }
 

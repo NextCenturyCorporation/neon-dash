@@ -37,7 +37,6 @@ import { MatAutocompleteModule } from '@angular/material';
 import { DetailsThumbnailSubComponent } from './subcomponent.details-view';
 import { TitleThumbnailSubComponent } from './subcomponent.title-view';
 import { CardThumbnailSubComponent } from './subcomponent.card-view';
-import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 
 let validateSelect = (element: any, name: string, required: boolean = false, disabled: boolean = false) => {
     expect(element.componentInstance.disabled).toEqual(disabled);
@@ -275,7 +274,6 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('does show footer-container and pagination-button elements if on first page', async(() => {
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}]));
         (component as any).layerIdToElementCount.set(component.options._id, 3);
         (component as any).lastPage = false;
         (component as any).page = 1;
@@ -302,7 +300,6 @@ describe('Component: ThumbnailGrid', () => {
     }));
 
     it('does show footer-container and pagination-button elements if on middle page', async(() => {
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}]));
         (component as any).layerIdToElementCount.set(component.options._id, 3);
         (component as any).lastPage = false;
         (component as any).page = 2;
@@ -329,7 +326,6 @@ describe('Component: ThumbnailGrid', () => {
     }));
 
     it('does show footer-container and pagination-button elements if on last page', async(() => {
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}]));
         (component as any).layerIdToElementCount.set(component.options._id, 3);
         (component as any).lastPage = true;
         (component as any).page = 3;
@@ -643,7 +639,7 @@ describe('Component: ThumbnailGrid', () => {
             testTypeField: 'type2'
         }]);
 
-        expect(actual.data).toEqual([{
+        expect(component.gridArray).toEqual([{
             _id: 'id1',
             testCategoryField: 'category1',
             testCompareField: 'compare1',
@@ -670,6 +666,7 @@ describe('Component: ThumbnailGrid', () => {
             testSortField: 'sort2',
             testTypeField: 'type2'
         }]);
+        expect(actual).toEqual(2);
     });
 
     it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
@@ -678,7 +675,8 @@ describe('Component: ThumbnailGrid', () => {
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
 
-        expect(actual.data).toEqual([]);
+        expect(component.gridArray).toEqual([]);
+        expect(actual).toEqual(0);
     });
 
     it('transformVisualizationQueryResults with link prefix does return expected data', () => {
@@ -704,7 +702,7 @@ describe('Component: ThumbnailGrid', () => {
             testTypeField: 'type2'
         }]);
 
-        expect(actual.data).toEqual([{
+        expect(component.gridArray).toEqual([{
             _id: 'id1',
             testLinkField: 'prefix/link1',
             testNameField: 'name1',
@@ -717,6 +715,7 @@ describe('Component: ThumbnailGrid', () => {
             testSizeField: 0.2,
             testTypeField: 'type2'
         }]);
+        expect(actual).toEqual(2);
     });
 
     it('refreshVisualization does call changeDetection.detectChanges', () => {

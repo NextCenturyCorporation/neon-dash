@@ -25,7 +25,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 import { AbstractSearchService, AggregationType, FilterClause } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -47,7 +47,7 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import { basename } from 'path';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 import { neonEvents } from '../../neon-namespaces';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
@@ -122,7 +122,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     }
 
     transformVisualizationQueryResults(options, results) {
-        return new TransformedVisualizationData();
+        return 0;
     }
 
     refreshVisualization() {
@@ -221,7 +221,6 @@ describe('BaseNeonComponent', () => {
         expect((component as any).id).toBeDefined();
         expect((component as any).messenger).toBeDefined();
 
-        expect((component as any).layerIdToActiveData).toEqual(new Map<string, TransformedVisualizationData>());
         expect((component as any).layerIdToElementCount).toEqual(new Map<string, number>());
         expect((component as any).layerIdToQueryIdToQueryObject).toEqual(new Map<string, Map<string, any>>());
 
@@ -266,7 +265,7 @@ describe('BaseNeonComponent', () => {
         expect(spyInitialize.calls.count()).toEqual(1);
         expect(spyMessengerSubscribe.calls.count()).toEqual(2);
         expect(spyMessengerSubscribe.calls.argsFor(0)[0]).toEqual('filters_changed');
-        expect(spyMessengerSubscribe.calls.argsFor(1)[0]).toEqual('select_id');
+        expect(spyMessengerSubscribe.calls.argsFor(1)[0]).toEqual('SELECT_ID');
     });
 
     it('ngAfterViewInit does work as expected', () => {
@@ -456,14 +455,7 @@ describe('BaseNeonComponent', () => {
             prettyName: 'Export 2'
         }]);
         expect(component.createExportData()).toEqual([{
-            name: 'Query_Results_Table',
             data: {
-                query: {
-                    database: 'testDatabase1',
-                    table: 'testTable1',
-                    fields: ['*']
-                },
-                name: 'Mock Superclass-' + component.options._id,
                 fields: [{
                     query: 'export_1',
                     pretty: 'Export 1'
@@ -472,8 +464,14 @@ describe('BaseNeonComponent', () => {
                     pretty: 'Export 2'
                 }],
                 ignoreFilters: undefined,
-                selectionOnly: undefined,
                 ignoredFilterIds: [],
+                name: 'Mock Superclass-' + component.options._id,
+                query: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    fields: ['*']
+                },
+                selectionOnly: undefined,
                 type: 'query'
             }
         }]);
@@ -514,14 +512,7 @@ describe('BaseNeonComponent', () => {
             return [];
         });
         expect(component.createExportData()).toEqual([{
-            name: 'Query_Results_Table',
             data: {
-                query: {
-                    database: 'testDatabase1',
-                    table: 'testTable1',
-                    fields: ['*']
-                },
-                name: 'Layer 1-' + component.options.layers[0]._id,
                 fields: [{
                     query: 'export_1',
                     pretty: 'Export 1'
@@ -530,19 +521,18 @@ describe('BaseNeonComponent', () => {
                     pretty: 'Export 2'
                 }],
                 ignoreFilters: undefined,
-                selectionOnly: undefined,
                 ignoredFilterIds: [],
+                name: 'Layer 1-' + component.options.layers[0]._id,
+                query: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    fields: ['*']
+                },
+                selectionOnly: undefined,
                 type: 'query'
             }
         }, {
-            name: 'Query_Results_Table',
             data: {
-                query: {
-                    database: 'testDatabase2',
-                    table: 'testTable2',
-                    fields: ['*']
-                },
-                name: 'Layer 2-' + component.options.layers[1]._id,
                 fields: [{
                     query: 'export_3',
                     pretty: 'Export 3'
@@ -551,8 +541,14 @@ describe('BaseNeonComponent', () => {
                     pretty: 'Export 4'
                 }],
                 ignoreFilters: undefined,
-                selectionOnly: undefined,
                 ignoredFilterIds: [],
+                name: 'Layer 2-' + component.options.layers[1]._id,
+                query: {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    fields: ['*']
+                },
+                selectionOnly: undefined,
                 type: 'query'
             }
         }]);
@@ -1057,12 +1053,18 @@ describe('BaseNeonComponent', () => {
         expect(component.getExportFields()).toEqual([]);
 
         component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), new FieldMetaData());
-        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DatasetServiceMock.CATEGORY_FIELD);
+        component.options.append(new WidgetFieldOption('testField1', 'Test Field 1', false), DatasetServiceMock.NAME_FIELD);
+        component.options.append(new WidgetFieldOption('testField2', 'Test Field 2', false), DatasetServiceMock.TYPE_FIELD);
+        component.options.append(new WidgetFieldOption('testRepeatedField', 'Test Repeated Field', false), DatasetServiceMock.NAME_FIELD);
         component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DatasetServiceMock.X_FIELD,
             DatasetServiceMock.Y_FIELD]);
+
         expect(component.getExportFields()).toEqual([{
-            columnName: 'testCategoryField',
-            prettyName: 'Test Category Field'
+            columnName: 'testNameField',
+            prettyName: 'Test Name Field'
+        }, {
+            columnName: 'testTypeField',
+            prettyName: 'Test Type Field'
         }, {
             columnName: 'testXField',
             prettyName: 'Test X Field'
@@ -1238,14 +1240,12 @@ describe('BaseNeonComponent', () => {
     it('handleChangeData does work as expected', () => {
         let spyChangeData = spyOn(component, 'onChangeData');
         let spyExecuteQuery = spyOn(component, 'executeAllQueryChain');
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData());
         (component as any).layerIdToElementCount.set(component.options._id, 1234);
         (component as any).errorMessage = 'testErrorMessage';
         (component as any).lastPage = false;
         (component as any).page = 2;
         (component as any).showingZeroOrMultipleElementsPerResult = true;
         component.handleChangeData();
-        expect((component as any).layerIdToActiveData.has(component.options._id)).toEqual(false);
         expect((component as any).layerIdToElementCount.get(component.options._id)).toEqual(0);
         expect((component as any).errorMessage).toEqual('');
         expect((component as any).lastPage).toEqual(true);
@@ -1261,14 +1261,12 @@ describe('BaseNeonComponent', () => {
         let options = {
             _id: 'testId'
         };
-        (component as any).layerIdToActiveData.set('testId', new TransformedVisualizationData());
         (component as any).layerIdToElementCount.set('testId', 1234);
         (component as any).errorMessage = 'testErrorMessage';
         (component as any).lastPage = false;
         (component as any).page = 2;
         (component as any).showingZeroOrMultipleElementsPerResult = true;
         component.handleChangeData(options);
-        expect((component as any).layerIdToActiveData.has('testId')).toEqual(false);
         expect((component as any).layerIdToElementCount.get('testId')).toEqual(0);
         expect((component as any).errorMessage).toEqual('');
         expect((component as any).lastPage).toEqual(true);
@@ -1284,7 +1282,6 @@ describe('BaseNeonComponent', () => {
         (component as any).handleSuccessfulVisualizationQuery(component.options, {}, () => {
             expect(spy.calls.count()).toEqual(0);
             expect((component as any).errorMessage).toEqual('No Data');
-            expect((component as any).layerIdToActiveData.get(component.options._id)).toEqual(new TransformedVisualizationData());
             expect((component as any).layerIdToElementCount.get(component.options._id)).toEqual(0);
             done();
         });
@@ -1301,7 +1298,6 @@ describe('BaseNeonComponent', () => {
             data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         }, () => {
             expect((component as any).errorMessage).toEqual('Error');
-            expect((component as any).layerIdToActiveData.get(component.options._id)).toEqual(new TransformedVisualizationData());
             expect((component as any).layerIdToElementCount.get(component.options._id)).toEqual(0);
             done();
         });
@@ -1318,12 +1314,10 @@ describe('BaseNeonComponent', () => {
 
     it('handleSuccessfulVisualizationQuery does call handleTransformVisualizationQueryResults with expected success callback', (done) => {
         let spy = spyOn(component, 'handleTransformVisualizationQueryResults');
-        let expectedData = new TransformedVisualizationData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
         (component as any).handleSuccessfulVisualizationQuery(component.options, {
             data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         }, () => {
             expect((component as any).errorMessage).toEqual('');
-            expect((component as any).layerIdToActiveData.get(component.options._id)).toEqual(expectedData);
             expect((component as any).layerIdToElementCount.get(component.options._id)).toEqual(10);
             done();
         });
@@ -1335,13 +1329,12 @@ describe('BaseNeonComponent', () => {
         expect(typeof args[3]).toEqual('function');
 
         // Call the success callback
-        args[2](expectedData);
+        args[2](10);
     });
 
     it('handleSuccessfulVisualizationQuery with pagination does execute total count query and does not call the success callback', () => {
         let spy = spyOn(component, 'handleTransformVisualizationQueryResults');
         let spyExecuteQuery = spyOn(component, 'executeQuery');
-        let expectedData = new TransformedVisualizationData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
         (component as any).visualizationQueryPaginates = true;
         (component as any).handleSuccessfulVisualizationQuery(component.options, {
             data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -1357,9 +1350,8 @@ describe('BaseNeonComponent', () => {
         expect(typeof args[3]).toEqual('function');
 
         // Call the success callback
-        args[2](expectedData);
+        args[2](10);
         expect((component as any).errorMessage).toEqual('');
-        expect((component as any).layerIdToActiveData.get(component.options._id)).toEqual(expectedData);
         expect((component as any).layerIdToElementCount.has(component.options._id)).toEqual(false);
         expect(spyExecuteQuery.calls.count()).toEqual(1);
         expect(spyExecuteQuery.calls.argsFor(0)[0]).toEqual(component.options);
@@ -1380,7 +1372,6 @@ describe('BaseNeonComponent', () => {
     it('handleSuccessfulVisualizationQuery with pagination and page > 1 and element count does always execute total count query', () => {
         let spy = spyOn(component, 'handleTransformVisualizationQueryResults');
         let spyExecuteQuery = spyOn(component, 'executeQuery');
-        let expectedData = new TransformedVisualizationData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
         component.options.limit = 10;
         (component as any).lastPage = false;
         (component as any).layerIdToElementCount.set(component.options._id, 20);
@@ -1400,9 +1391,8 @@ describe('BaseNeonComponent', () => {
         expect(typeof args[3]).toEqual('function');
 
         // Call the success callback
-        args[2](expectedData);
+        args[2](10);
         expect((component as any).errorMessage).toEqual('');
-        expect((component as any).layerIdToActiveData.get(component.options._id)).toEqual(expectedData);
         expect(spyExecuteQuery.calls.count()).toEqual(1);
         expect(spyExecuteQuery.calls.argsFor(0)[0]).toEqual(component.options);
         expect(spyExecuteQuery.calls.argsFor(0)[1]).toEqual({
@@ -1422,7 +1412,6 @@ describe('BaseNeonComponent', () => {
     it('handleSuccessfulVisualizationQuery with showingZeroOrMultipleElementsPerResult does not execute total count query', (done) => {
         let spy = spyOn(component, 'handleTransformVisualizationQueryResults');
         let spyExecuteQuery = spyOn(component, 'executeQuery');
-        let expectedData = new TransformedVisualizationData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
         (component as any).visualizationQueryPaginates = true;
         (component as any).showingZeroOrMultipleElementsPerResult = true;
         (component as any).lastPage = true;
@@ -1431,7 +1420,6 @@ describe('BaseNeonComponent', () => {
         }, () => {
             expect((component as any).errorMessage).toEqual('');
             expect((component as any).lastPage).toEqual(false);
-            expect((component as any).layerIdToActiveData.get(component.options._id)).toEqual(expectedData);
             expect((component as any).layerIdToElementCount.get(component.options._id)).toEqual(10);
             expect(spyExecuteQuery.calls.count()).toEqual(0);
             done();
@@ -1445,7 +1433,7 @@ describe('BaseNeonComponent', () => {
         expect(typeof args[3]).toEqual('function');
 
         // Call the success callback
-        args[2](expectedData);
+        args[2](10);
     });
 
     it('handleSuccessfulTotalCountQuery with data does update properties and call callback', (done) => {
@@ -1473,17 +1461,16 @@ describe('BaseNeonComponent', () => {
     });
 
     it('handleTransformVisualizationQueryResults does call success callback function', (done) => {
-        let expectedData = new TransformedVisualizationData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
         let expectedOptions = new WidgetOptionCollection(() => [], undefined, {});
         let expectedResults = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         component.transformVisualizationQueryResults = (options, results) => {
             expect(options).toEqual(expectedOptions);
             expect(results).toEqual(expectedResults);
-            return expectedData;
+            return 10;
         };
 
-        let successCallback = (data: TransformedVisualizationData) => {
-            expect(data).toEqual(expectedData);
+        let successCallback = (elementCount: number) => {
+            expect(elementCount).toEqual(10);
             done();
         };
         let failureCallback = (err: Error) => {
@@ -1501,7 +1488,7 @@ describe('BaseNeonComponent', () => {
             throw expectedError;
         };
 
-        let successCallback = (data: TransformedVisualizationData) => {
+        let successCallback = (elementCount: number) => {
             fail();
             done();
         };
@@ -1723,7 +1710,7 @@ describe('BaseNeonComponent', () => {
         let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        let messenger = new neon.eventing.Messenger();
+        let messenger = new eventing.Messenger();
         messenger.publish(neonEvents.FILTERS_CHANGED, {
             source: 'testSource'
         });
@@ -1739,7 +1726,7 @@ describe('BaseNeonComponent', () => {
         let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        let messenger = new neon.eventing.Messenger();
+        let messenger = new eventing.Messenger();
         messenger.publish(neonEvents.FILTERS_CHANGED, {
             source: 'testSource'
         });
@@ -1755,7 +1742,7 @@ describe('BaseNeonComponent', () => {
         let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        let messenger = new neon.eventing.Messenger();
+        let messenger = new eventing.Messenger();
         messenger.publish(neonEvents.FILTERS_CHANGED, {
             source: 'testSource'
         });
@@ -1771,7 +1758,7 @@ describe('BaseNeonComponent', () => {
         let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        let messenger = new neon.eventing.Messenger();
+        let messenger = new eventing.Messenger();
         messenger.publish(neonEvents.FILTERS_CHANGED, {
             source: 'testSource'
         });

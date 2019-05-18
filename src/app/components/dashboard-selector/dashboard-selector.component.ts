@@ -19,7 +19,7 @@ import { Dashboard } from '../../dataset';
 import { neonEvents } from '../../neon-namespaces';
 import { DashboardDropdownComponent } from '../dashboard-dropdown/dashboard-dropdown.component';
 
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 
 @Component({
     selector: 'app-dashboard-selector',
@@ -33,10 +33,10 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
 
     @ViewChild('dashboardDropdown') dashboardDropdown: DashboardDropdownComponent;
 
-    private messenger: neon.eventing.Messenger;
+    private messenger: eventing.Messenger;
 
     constructor() {
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
     }
 
     ngOnInit(): void {

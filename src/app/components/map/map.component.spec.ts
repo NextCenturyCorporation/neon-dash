@@ -39,7 +39,6 @@ import { AppMaterialModule } from '../../app.material.module';
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { WidgetOptionCollection } from '../../widget-option';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
@@ -151,7 +150,6 @@ class TestMap extends AbstractMap {
 
 function updateMapLayer1(component: TestMapComponent) {
     component.filterVisible.set('testLayer1', true);
-    (component as any).layerIdToActiveData.set('testLayer1', new TransformedVisualizationData([{}]));
     (component as any).layerIdToElementCount.set('testLayer1', 1);
 
     component.options.layers[0] = new WidgetOptionCollection(() => [], undefined, {});
@@ -176,7 +174,6 @@ function updateMapLayer1(component: TestMapComponent) {
 
 function updateMapLayer2(component: TestMapComponent) {
     component.filterVisible.set('testLayer2', true);
-    (component as any).layerIdToActiveData.set('testLayer2', new TransformedVisualizationData([{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]));
     (component as any).layerIdToElementCount.set('testLayer2', 10);
 
     component.options.layers[1] = new WidgetOptionCollection(() => [], undefined, {});

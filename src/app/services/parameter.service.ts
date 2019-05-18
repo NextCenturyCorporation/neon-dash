@@ -14,12 +14,11 @@
  *
  */
 import { Injectable } from '@angular/core';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 import * as $ from 'jquery';
 
-import { AbstractSearchService } from './abstract.search.service';
+import { AbstractSearchService, Connection } from './abstract.search.service';
 import { DatabaseMetaData, TableMetaData, Datastore } from '../dataset';
-import { ConnectionService } from './connection.service';
 import { DatasetService } from './dataset.service';
 import { FilterService } from './filter.service';
 import { neonEvents, neonMappings } from '../neon-namespaces';
@@ -49,16 +48,15 @@ export class ParameterService {
     private static BOUNDS_MAX_LAT = 2;
     private static BOUNDS_MAX_LON = 3;
 
-    private messenger: neon.eventing.Messenger;
+    private messenger: eventing.Messenger;
     public parameters: any = {};
 
     constructor(
         private datasetService: DatasetService,
-        private connectionService: ConnectionService,
         private filterService: FilterService,
         private searchService: AbstractSearchService
     ) {
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
         this.parameters = this.findParameters(document.location.search);
     }
 
@@ -111,7 +109,7 @@ export class ParameterService {
     removeStateParameters() {
         delete this.parameters[ParameterService.DASHBOARD_STATE_ID];
         delete this.parameters[ParameterService.FILTER_STATE_ID];
-        // TODO Update the browser URL.
+        // TODO THOR-1023 Update the browser URL.
     }
 
     /**
@@ -123,7 +121,7 @@ export class ParameterService {
     updateStateParameters(dashboardStateId: string, filterStateId: string) {
         this.parameters[ParameterService.DASHBOARD_STATE_ID] = dashboardStateId;
         this.parameters[ParameterService.FILTER_STATE_ID] = filterStateId;
-        // TODO Update the browser URL.
+        // TODO THOR-1023 Update the browser URL.
     }
 
     /**
@@ -136,6 +134,7 @@ export class ParameterService {
             return;
         }
 
+        /* TODO THOR-1076
         let customMappings: any = {};
         this.datasetService.getDatabases().forEach((database: DatabaseMetaData) => {
             database.tables.forEach((table: TableMetaData) => {
@@ -207,6 +206,7 @@ export class ParameterService {
             };
             this.addFiltersForDashboardParameters(this.parameters, argsList, callback);
         }
+        */
     }
 
     /**
@@ -280,7 +280,8 @@ export class ParameterService {
      * @param {String} filterStateId
      */
     loadState(dashboardStateId: string | number, filterStateId: string | number) {
-        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastoreType(),
+        /* TODO THOR-1131
+        let connection: Connection = this.searchService.createConnection(this.datasetService.getDatastoreType(),
             this.datasetService.getDatastoreHost());
         let params: any = {};
         if (dashboardStateId) {
@@ -297,6 +298,7 @@ export class ParameterService {
                 message: response.responseJSON.error
             });
         });
+         */
     }
 
     /**
@@ -317,9 +319,7 @@ export class ParameterService {
                     matchingDataset = dashboardState.dataset;
                 }
 
-                let connection: neon.query.Connection = this.connectionService.createActiveConnection(
-                    matchingDataset.type, matchingDataset.host
-                );
+                let connection: Connection = this.searchService.createConnection(matchingDataset.type, matchingDataset.host);
 
                 // Update dataset fields, then set as active and update the dashboard
                 this.datasetService.updateDatabases(matchingDataset, connection).then((dataset) => {
@@ -452,11 +452,13 @@ export class ParameterService {
      * @private
      * @return {Function}
      */
+    /* TODO THOR-1076
     private createSimpleFilterClauseCallback(operator: string, value: any): Function {
         return (fieldName: string) => {
-            return neon.query.where(fieldName, operator, value);
+            return query.where(fieldName, operator, value);
         };
     }
+    */
 
     /**
      * Returns a function to create a date filter clause using the given list of dates.
@@ -465,19 +467,21 @@ export class ParameterService {
      * @private
      * @return {Function}
      */
+    /* TODO THOR-1076
     private createDateFilterClauseCallback(dateList: Date[]): Function {
         let startDate: Date = dateList[0];
         let endDate: Date = dateList.length > 1 ? dateList[1] : null;
 
         return (fieldName: string) => {
-            let startFilterClause = neon.query.where(fieldName, '>=', startDate);
+            let startFilterClause = query.where(fieldName, '>=', startDate);
             if (!endDate) {
                 return startFilterClause;
             }
-            let endFilterClause = neon.query.where(fieldName, '<', endDate);
-            return neon.query.and.apply(neon.query, [startFilterClause, endFilterClause]);
+            let endFilterClause = query.where(fieldName, '<', endDate);
+            return query.and.apply(query, [startFilterClause, endFilterClause]);
         };
     }
+    */
 
     /**
      * Returns a function to create a geographic bounds filter clause using the given list of geographic bounds.
@@ -487,13 +491,14 @@ export class ParameterService {
      * @private
      * @return {Function}
      */
+    /* TODO THOR-1076
     private createBoundsFilterClauseCallback(boundsList: number[]) {
         let minimumLatitude: number = Number(boundsList[ParameterService.BOUNDS_MIN_LAT]);
         let maximumLatitude: number = Number(boundsList[ParameterService.BOUNDS_MAX_LAT]);
         let minimumLongitude: number = Number(boundsList[ParameterService.BOUNDS_MIN_LON]);
         let maximumLongitude: number = Number(boundsList[ParameterService.BOUNDS_MAX_LON]);
 
-        return (fieldNames: string[]): neon.query.BooleanClause => {
+        return (fieldNames: string[]): query.BooleanClause => {
             // Copied from map.js
             let latitudeFieldName: string = fieldNames[0];
             let longitudeFieldName: string = fieldNames[1];
@@ -501,33 +506,33 @@ export class ParameterService {
             let leftDateLine: any = {};
             let datelineClause: any = {};
 
-            let leftClause: neon.query.WherePredicate = neon.query.where(longitudeFieldName, '>=', minimumLongitude);
-            let rightClause: neon.query.WherePredicate = neon.query.where(longitudeFieldName, '<=', maximumLongitude);
-            let bottomClause: neon.query.WherePredicate = neon.query.where(latitudeFieldName, '>=', minimumLatitude);
-            let topClause: neon.query.WherePredicate = neon.query.where(latitudeFieldName, '<=', maximumLatitude);
+            let leftClause: query.WherePredicate = query.where(longitudeFieldName, '>=', minimumLongitude);
+            let rightClause: query.WherePredicate = query.where(longitudeFieldName, '<=', maximumLongitude);
+            let bottomClause: query.WherePredicate = query.where(latitudeFieldName, '>=', minimumLatitude);
+            let topClause: query.WherePredicate = query.where(latitudeFieldName, '<=', maximumLatitude);
 
             if (minimumLongitude < -180 && maximumLongitude > 180) {
-                return neon.query.and(topClause, bottomClause);
+                return query.and(topClause, bottomClause);
             }
 
             if (minimumLongitude < -180) {
-                leftClause = neon.query.where(longitudeFieldName, '>=', minimumLongitude + 360);
-                leftDateLine = neon.query.where(longitudeFieldName, '<=', 180);
-                rightDateLine = neon.query.where(longitudeFieldName, '>=', -180);
-                datelineClause = neon.query.or(neon.query.and(leftClause, leftDateLine), neon.query.and(rightClause, rightDateLine));
-                return neon.query.and(topClause, bottomClause, datelineClause);
+                leftClause = query.where(longitudeFieldName, '>=', minimumLongitude + 360);
+                leftDateLine = query.where(longitudeFieldName, '<=', 180);
+                rightDateLine = query.where(longitudeFieldName, '>=', -180);
+                datelineClause = query.or(query.and(leftClause, leftDateLine), query.and(rightClause, rightDateLine));
+                return query.and(topClause, bottomClause, datelineClause);
             }
 
             if (maximumLongitude > 180) {
-                rightClause = neon.query.where(longitudeFieldName, '<=', maximumLongitude - 360);
-                rightDateLine = neon.query.where(longitudeFieldName, '>=', -180);
-                leftDateLine = neon.query.where(longitudeFieldName, '<=', 180);
-                datelineClause = neon.query.or(neon.query.and(leftClause, leftDateLine), neon.query.and(rightClause, rightDateLine));
-                return neon.query.and(topClause, bottomClause, datelineClause);
+                rightClause = query.where(longitudeFieldName, '<=', maximumLongitude - 360);
+                rightDateLine = query.where(longitudeFieldName, '>=', -180);
+                leftDateLine = query.where(longitudeFieldName, '<=', 180);
+                datelineClause = query.or(query.and(leftClause, leftDateLine), query.and(rightClause, rightDateLine));
+                return query.and(topClause, bottomClause, datelineClause);
             }
 
-            return neon.query.and(leftClause, rightClause, bottomClause, topClause);
+            return query.and(leftClause, rightClause, bottomClause, topClause);
         };
     }
-
+    */
 }

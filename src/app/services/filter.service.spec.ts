@@ -39,8 +39,6 @@ import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceM
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
-import * as neon from 'neon-framework';
-
 describe('FilterUtil', () => {
     beforeAll(() => {
         /* tslint:disable:no-console */

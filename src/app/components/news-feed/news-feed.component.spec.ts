@@ -30,7 +30,6 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 
 describe('Component: NewsFeed', () => {
     let component: NewsFeedComponent;
@@ -188,7 +187,7 @@ describe('Component: NewsFeed', () => {
             testTypeField: 'type2'
         }]);
 
-        expect(actual.data).toEqual([{
+        expect(component.newsFeedData).toEqual([{
             _id: 'id1',
             testLinkField: 'link1',
             testNameField: 'name1',
@@ -201,6 +200,7 @@ describe('Component: NewsFeed', () => {
             testSizeField: 0.2,
             testTypeField: 'type2'
         }]);
+        expect(actual).toEqual(2);
     });
 
     it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
@@ -209,7 +209,8 @@ describe('Component: NewsFeed', () => {
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
 
-        expect(actual.data).toEqual([]);
+        expect(component.newsFeedData).toEqual([]);
+        expect(actual).toEqual(0);
     });
 
     it('transformVisualizationQueryResults with limited aggregation query data does return expected data', () => {
@@ -231,7 +232,7 @@ describe('Component: NewsFeed', () => {
             testTypeField: 'type2'
         }]);
 
-        expect(actual.data).toEqual([{
+        expect(component.newsFeedData).toEqual([{
             _id: 'id1',
             testLinkField: 'link1',
             testNameField: 'name1',
@@ -244,6 +245,7 @@ describe('Component: NewsFeed', () => {
             testSizeField: 0.2,
             testTypeField: 'type2'
         }]);
+        expect(actual).toEqual(2);
     });
 
     it('transformVisualizationQueryResults with link prefix does return expected data', () => {
@@ -264,7 +266,7 @@ describe('Component: NewsFeed', () => {
             testTypeField: 'type2'
         }]);
 
-        expect(actual.data).toEqual([{
+        expect(component.newsFeedData).toEqual([{
             _id: 'id1',
             testLinkField: 'link1',
             testNameField: 'name1',

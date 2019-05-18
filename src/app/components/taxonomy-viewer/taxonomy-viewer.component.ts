@@ -29,7 +29,7 @@ import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, 
 import { DatasetService } from '../../services/dataset.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import {
@@ -57,7 +57,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('treeRoot') treeRoot: ElementRef;
 
-    // TODO THOR-985
     public taxonomyGroups: any[] = [];
 
     public deletedFilter: any;
@@ -278,17 +277,17 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         let counter = 0;
 
-        // TODO THOR-985
         this.taxonomyGroups = [];
 
         results.forEach((d) => {
@@ -393,7 +392,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         this.addCountsToTaxonomy(results, this.taxonomyGroups);
         this.sortTaxonomyArrays(this.taxonomyGroups);
 
-        return new TransformedVisualizationData(this.taxonomyGroups);
+        return this.taxonomyGroups.length;
     }
 
     /**
@@ -623,10 +622,5 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     refreshVisualization() {
         this.getElementRefs().treeRoot.treeModel.update();
-    }
-
-    protected clearVisualizationData(options: any): void {
-        // TODO THOR-985 Temporary function.
-        this.transformVisualizationQueryResults(options, []);
     }
 }

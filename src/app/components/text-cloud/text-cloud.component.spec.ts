@@ -32,7 +32,6 @@ import { WidgetService } from '../../services/widget.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
-import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
@@ -87,36 +86,6 @@ describe('Component: TextCloud', () => {
     it('has expected class properties', () => {
         // TODO This color should not be hard-coded...
         expect(component.textColor).toBe('#367588');
-    });
-
-    it('returns the correct value from getExportFields', () => {
-        component.options.dataField = new FieldMetaData('testTextField', 'Test Text Field');
-        component.options.sizeField = new FieldMetaData('testSizeField');
-
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testTextField',
-            prettyName: 'Test Text Field'
-        }, {
-            columnName: 'value',
-            prettyName: 'Count'
-        }]);
-
-        component.options.sizeField.prettyName = 'Test Size Field';
-
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testTextField',
-            prettyName: 'Test Text Field'
-        }, {
-            columnName: 'value',
-            prettyName: 'Test Size Field'
-        }]);
-    });
-
-    it('has a refreshVisualization method that calls createTextCloud', () => {
-        let spy = spyOn(component.textCloud, 'createTextCloud');
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([]));
-        component.refreshVisualization();
-        expect(spy.calls.count()).toEqual(1);
     });
 
     it('has an validateVisualizationQuery method that properly checks whether or not a valid query can be made', () => {
@@ -349,13 +318,15 @@ describe('Component: TextCloud', () => {
 
         let actual1 = component.transformVisualizationQueryResults(component.options, []);
 
-        expect(actual1.data).toEqual([]);
+        expect(component.textCloudData).toEqual([]);
+        expect(actual1).toEqual(0);
 
         component.options.sizeField = new FieldMetaData('testSizeField', 'Test Size Field');
 
         let actual2 = component.transformVisualizationQueryResults(component.options, []);
 
-        expect(actual2.data).toEqual([]);
+        expect(component.textCloudData).toEqual([]);
+        expect(actual2).toEqual(0);
     });
 
     it('transformVisualizationQueryResults with data does return expected data', () => {
@@ -373,45 +344,31 @@ describe('Component: TextCloud', () => {
 
         let actual1 = component.transformVisualizationQueryResults(component.options, data);
 
-        expect(actual1.data).toEqual([{
+        expect(component.textCloudData).toEqual([{
+            fontSize: '140%',
+            color: '#367588',
             selected: false,
             value: 8,
             key: 'First',
             keyTranslated: 'First'
         },
         {
+            fontSize: '114.28571428571428%',
+            color: '#688c97',
             selected: false,
             value: 5,
             key: 'Second',
             keyTranslated: 'Second'
         },
         {
+            fontSize: '80%',
+            color: '#aaaaaa',
             selected: false,
             value: 1,
             key: 'Third',
             keyTranslated: 'Third'
         }]);
-    });
-
-    it('properly modifies the active data in refreshVisualization', () => {
-        let data = [{
-            testTextField: 'Value 1',
-            value: 20
-        },
-        {
-            testTextField: 'Value 2',
-            value: 10
-        },
-        {
-            testTextField: 'Value 3',
-            value: 30
-        }];
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData(data));
-        component.refreshVisualization();
-        expect(component.textCloudData[0].fontSize).toBeDefined();
-        expect(component.textCloudData[0].color).toBeDefined();
-        expect(component.textCloudData[1].fontSize).toBeDefined();
-        expect(component.textCloudData[2].color).toBeDefined();
+        expect(actual1).toEqual(3);
     });
 
     it('has a requestExport method that does nothing', () => {

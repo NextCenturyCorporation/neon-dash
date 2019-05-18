@@ -24,7 +24,7 @@ import { FieldMetaData } from '../../dataset';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { AppMaterialModule } from '../../app.material.module';
-import { TimelineComponent, TransformedTimelineAggregationData } from './timeline.component';
+import { TimelineComponent } from './timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
