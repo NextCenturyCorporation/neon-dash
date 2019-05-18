@@ -85,8 +85,22 @@ export class SearchServiceMock extends AbstractSearchService {
         };
     }
 
-    public transformQueryPayloadToExport(queryPayload: QueryPayload): any {
-        return queryPayload;
+    public transformQueryPayloadToExport(
+        fields: { columnName: string, prettyName: string }[],
+        queryPayload: QueryPayload,
+        uniqueName: string
+    ): any {
+        return {
+            data: {
+                fields: fields.map((field) => ({ query: field.columnName, pretty: field.prettyName })),
+                ignoreFilters: undefined,
+                ignoredFilterIds: [],
+                name: uniqueName,
+                query: queryPayload,
+                selectionOnly: undefined,
+                type: 'query'
+            }
+        };
     }
 
     public transformFilterClauseValues(queryPayload: QueryPayload, keysToValuesToLabels:

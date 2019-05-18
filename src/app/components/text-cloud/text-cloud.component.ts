@@ -221,23 +221,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Returns the list of fields to export.
-     *
-     * @return {{ columnName: string, prettyName: string }[]}
-     * @override
-     */
-    getExportFields(): { columnName: string, prettyName: string }[] {
-        // TODO Do we really need this behavior for the sizeField or can we just simplify it and use the superclass getExportFields?
-        return [{
-            columnName: this.options.dataField.columnName,
-            prettyName: this.options.dataField.prettyName
-        }, {
-            columnName: 'value',
-            prettyName: this.options.sizeField.prettyName || 'Count'
-        }];
-    }
-
-    /**
      * Returns the default limit for the visualization.
      *
      * @return {string}

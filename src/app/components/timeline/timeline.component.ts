@@ -482,52 +482,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns the list of fields to export.
-     *
-     * @return {{ columnName: string, prettyName: string }[]}
-     * @override
-     */
-    getExportFields() {
-        let exportFields = [{
-            columnName: 'value',
-            prettyName: 'Count'
-        }];
-        switch (this.options.granularity) {
-            case 'minute':
-                exportFields.push({
-                    columnName: 'minute',
-                    prettyName: 'Minute'
-                });
-                /* falls through */
-            case 'hour':
-                exportFields.push({
-                    columnName: 'hour',
-                    prettyName: 'Hour'
-                });
-                /* falls through */
-            case 'day':
-                exportFields.push({
-                    columnName: 'day',
-                    prettyName: 'Day'
-                });
-                /* falls through */
-            case 'month':
-                exportFields.push({
-                    columnName: 'month',
-                    prettyName: 'Month'
-                });
-                /* falls through */
-            case 'year':
-                exportFields.push({
-                    columnName: 'year',
-                    prettyName: 'Year'
-                });
-                /* falls through */
-        }
-        return exportFields;
-    }
-
-    /**
      * Returns the default limit for the visualization.
      *
      * @return {string}
