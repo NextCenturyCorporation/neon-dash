@@ -339,21 +339,12 @@ dashboards:
                                 longitude_key: es1.ldc_il3_meta.ui_out.geoLocation.lon
                                 text_cloud_data_key: es1.ldc_il3_meta.ui_out.location
                             relations:
-                                - es1:
-                                    ldc_il3_text:
-                                        ui_output: 'topics'
-                                    ldc_il3_meta:
-                                        ui_output: 'topic'
-                                - es1:
-                                    ldc_il3_text:
-                                        ui_output: '_id'
-                                    ldc_il3_meta:
-                                        ui_output: '_id'
-                                - es1:
-                                    ldc_il3_text:
-                                        ui_output: 'id'
-                                    ldc_il3_meta:
-                                        ui_output: 'id'
+                                - - es1.ldc_il3_text.ui_output.topics
+                                  - es1.ldc_il3_meta.ui_output.topics
+                                - - es1.ldc_il3_text.ui_output._id
+                                  - es1.ldc_il3_meta.ui_output._id
+                                - - es1.ldc_il3_text.ui_output.id
+                                  - es1.ldc_il3_meta.ui_output.id
                             options:
                                 connectOnLoad: true
                                 simpleFilter:
@@ -389,21 +380,12 @@ dashboards:
                                 longitude_key: es1.elisa_il3_meta.ui_out.geoLocation.lon
                                 text_cloud_data_key: es1.elisa_il3_meta.ui_out.location
                             relations:
-                                - es1:
-                                    ldc_il3_text:
-                                        ui_output: 'topics'
-                                    ldc_il3_meta:
-                                        ui_output: 'topic'
-                                - es1:
-                                    ldc_il3_text:
-                                        ui_output: '_id'
-                                    ldc_il3_meta:
-                                        ui_output: '_id'
-                                - es1:
-                                    ldc_il3_text:
-                                        ui_output: 'id'
-                                    ldc_il3_meta:
-                                        ui_output: 'id'
+                                - - es1.ldc_il3_text.ui_output.topics
+                                  - es1.ldc_il3_meta.ui_output.topics
+                                - - es1.ldc_il3_text.ui_output._id
+                                  - es1.ldc_il3_meta.ui_output._id
+                                - - es1.ldc_il3_text.ui_output.id
+                                  - es1.ldc_il3_meta.ui_output.id
                             options:
                                 connectOnLoad: true
                                 simpleFilter:

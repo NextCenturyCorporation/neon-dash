@@ -15,6 +15,7 @@
  */
 import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { ConnectionService } from '../../services/connection.service';
 import { Datastore, DatabaseMetaData, TableMetaData, FieldMetaData, Dashboard } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
@@ -125,7 +126,8 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         private connectionService: ConnectionService,
         private datasetService: DatasetService,
         private filterService: FilterService,
-        private parameterService: ParameterService
+        private parameterService: ParameterService,
+        private searchService: AbstractSearchService
     ) {
         this.messenger = new neon.eventing.Messenger();
     }
@@ -319,7 +321,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
             this.datasetService.setActiveDataset(dataset);
             this.datasetService.setCurrentDashboard(dashboard);
             this.updateLayout(loadDashboardState);
-            this.filterService.clearFilters();
+            this.filterService.deleteFilters('DataSelector', this.searchService);
         }
     }
 
@@ -360,7 +362,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         let layout = this.layouts[layoutName] || [];
 
         // Clear any old filters prior to loading the new layout and dataset.
-        this.messenger.clearFiltersSilently();
+        this.filterService.setFilters([], null);
 
         this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});
 
@@ -375,5 +377,12 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         this.gridItemsChanged.emit(layout.length);
         this.activeDatasetChanged.emit(this.activeDataset);
         this.parameterService.addFiltersFromUrl(!loadDashboardState);
+    }
+
+    /**
+     * Emits an event to close the dashboard selector component.
+     */
+    closeDashboardSelectorDialog() {
+        this.activeDatasetChanged.emit();
     }
 }

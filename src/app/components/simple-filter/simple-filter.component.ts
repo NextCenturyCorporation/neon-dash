@@ -14,12 +14,11 @@
  *
  */
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { FilterService } from '../../services/filter.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
+import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
-import { SimpleFilter } from '../../dataset';
-import { BehaviorSubject } from 'rxjs';
+import { FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import * as neon from 'neon-framework';
-import * as uuidv4 from 'uuid/v4';
 
 @Component({
     selector: 'app-simple-filter',
@@ -28,73 +27,50 @@ import * as uuidv4 from 'uuid/v4';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SimpleFilterComponent implements OnInit, OnDestroy {
+    public cachedFilter: SimpleFilterDesign;
+    public inputPlaceholder: string = '';
+    public showSimpleSearch: boolean = false;
 
-    public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
-    public filterId = new BehaviorSubject<string>(undefined);
-
-    private id = uuidv4();
     private messenger = new neon.eventing.Messenger();
-
-    public showSimpleSearch: boolean;
 
     constructor(
         private changeDetection: ChangeDetectorRef,
         protected datasetService: DatasetService,
-        protected filterService: FilterService
-    ) {
-        this.setSimpleFilter();
-    }
+        protected filterService: FilterService,
+        protected searchService: AbstractSearchService
+    ) {}
 
-    setSimpleFilter() {
-        let options = this.datasetService.getCurrentDashboardOptions();
-        this.simpleFilter.next(options && options.simpleFilter);
-        this.removeFilter();
-    }
-
-    addFilter(term: string) {
-        if (term.length === 0) {
+    public addFilter(term: string): void {
+        if (!term.length) {
             this.removeFilter();
             return;
         }
 
-        let sf = this.simpleFilter.getValue(),
-            fieldName = this.datasetService.getCurrentDashboardSimpleFilterFieldName(),
-            databaseName = this.datasetService.getCurrentDashboardOptions().simpleFilter.databaseName,
-            tableName = this.datasetService.getCurrentDashboardOptions().simpleFilter.tableName,
-            whereContains = neon.query.where(fieldName, 'contains', term),
-            filterName = `simple filter for ${fieldName} containing '${term}'`,
-            filterId = this.filterId.getValue(),
-            noOp = () => { /*no op*/ };
-        if (filterId) {
-            this.filterService.replaceFilter(
-                this.messenger, filterId, this.id,
-                databaseName, tableName, whereContains,
-                filterName,
-                noOp, noOp
-            );
-        } else {
-            this.filterService.addFilter(
-                this.messenger, this.id,
-                databaseName, tableName, whereContains,
-                filterName,
-                (id) => this.filterId.next(typeof id === 'string' ? id : null),
-                noOp
-            );
-        }
-    }
+        let simpleFilter: any = (this.datasetService.getCurrentDashboardOptions() || {}).simpleFilter || {};
 
-    bindShowSimpleSearch(message) {
-        this.showSimpleSearch = message.showSimpleSearch;
-        this.changeDetection.detectChanges();
-    }
-
-    checkSimpleFilter() {
-        if (this.simpleFilter && this.showSimpleSearch !== false) {
-            this.showSimpleSearch = true;
-        } else {
-            this.showSimpleSearch = false;
+        if (!this.validateSimpleFilter(simpleFilter)) {
+            return;
         }
-        this.publishShowSimpleSearch();
+
+        this.inputPlaceholder = simpleFilter.placeholder || '';
+
+        let database: DatabaseMetaData = this.datasetService.getDatabaseWithName(simpleFilter.databaseName);
+        let table: TableMetaData = this.datasetService.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
+        let field: FieldMetaData = this.datasetService.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
+            simpleFilter.fieldName);
+
+        let filter: SimpleFilterDesign = {
+            datastore: '',
+            database: database,
+            table: table,
+            field: field,
+            operator: 'contains',
+            value: term
+        } as SimpleFilterDesign;
+
+        this.filterService.exchangeFilters('SimpleFilter', [filter], this.datasetService.findRelationDataList(), this.searchService);
+
+        this.cachedFilter = filter;
     }
 
     ngOnDestroy() {
@@ -102,21 +78,34 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.checkSimpleFilter();
-
-        this.messenger.subscribe('showSimpleSearch', (message) => this.bindShowSimpleSearch(message));
+        this.messenger.subscribe('showSimpleSearch', (message) => this.updateShowSimpleSearch(message.showSimpleSearch));
+        // Show search on init if option is configured.
+        this.updateSimpleFilterConfig();
     }
 
-    publishShowSimpleSearch() {
-        this.messenger.publish('showSimpleSearch', {
-            showSimpleSearch: this.showSimpleSearch
-        });
-    }
-
-    removeFilter() {
-        let filterId = this.filterId.getValue();
-        if (filterId) {
-            this.filterService.removeFilters(this.messenger, [filterId], () => this.filterId.next(undefined));
+    public removeFilter(): void {
+        if (this.cachedFilter) {
+            this.filterService.deleteFilters('SimpleFilter', this.searchService, [{
+                datastore: '',
+                database: this.cachedFilter.database,
+                table: this.cachedFilter.table,
+                field: this.cachedFilter.field,
+                operator: this.cachedFilter.operator
+            } as SimpleFilterDesign]);
         }
+        this.cachedFilter = null;
+    }
+
+    public updateSimpleFilterConfig(): void {
+        this.updateShowSimpleSearch(this.validateSimpleFilter((this.datasetService.getCurrentDashboardOptions() || {}).simpleFilter || {}));
+    }
+
+    private updateShowSimpleSearch(show: boolean): void {
+        this.showSimpleSearch = show;
+        this.changeDetection.detectChanges();
+    }
+
+    private validateSimpleFilter(simpleFilter: any): boolean {
+        return !!(simpleFilter.databaseName && simpleFilter.tableName && simpleFilter.fieldName);
     }
 }

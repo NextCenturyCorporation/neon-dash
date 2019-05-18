@@ -82,7 +82,6 @@ import { TitleThumbnailSubComponent } from './components/thumbnail-grid/subcompo
 import { CardThumbnailSubComponent } from './components/thumbnail-grid/subcomponent.card-view';
 import { TreeModule } from 'angular-tree-component';
 import { DatasetServiceMock } from '../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../testUtils/MockServices/SearchServiceMock';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../testUtils/initializeTestBed';
@@ -153,7 +152,7 @@ describe('App', () => {
               { provide: APP_BASE_HREF, useValue: '/' },
               ConnectionService,
               { provide: DatasetService, useClass: DatasetServiceMock },
-              { provide: FilterService, useClass: FilterServiceMock },
+              FilterService,
               ParameterService,
               { provide: AbstractSearchService, useClass: SearchServiceMock },
               { provide: AbstractWidgetService, useClass: WidgetService }
@@ -189,8 +188,7 @@ describe('App', () => {
 
     it('should be showing correct filter icons', async(() => {
         expect(component.filtersIcon).toEqual('filters');
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testFilterField', '=', 'value1'), 'testFilterField');
+        (component as any).isFiltered = () => true;
         component.changeDetection.detectChanges();
         expect(component.filtersIcon).toEqual('filters_active');
     }));

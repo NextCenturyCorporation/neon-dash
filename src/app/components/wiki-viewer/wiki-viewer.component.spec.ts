@@ -25,7 +25,6 @@ import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import {} from 'jasmine-core';
-import * as neon from 'neon-framework';
 
 import { WikiViewerComponent } from './wiki-viewer.component';
 
@@ -108,17 +107,6 @@ describe('Component: WikiViewer', () => {
         expect(refs.visualization).toBeDefined();
     });
 
-    it('getFiltersToIgnore does return null', (() => {
-        expect(component.getFiltersToIgnore()).toBeNull();
-    }));
-
-    it('getFilterText does return empty string', (() => {
-        expect(component.getFilterText({})).toBe('');
-        expect(component.getFilterText({
-            value: 'testValue'
-        })).toBe('');
-    }));
-
     it('validateVisualizationQuery does return expected result', (() => {
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
@@ -144,14 +132,6 @@ describe('Component: WikiViewer', () => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
         component.refreshVisualization();
         expect(spy.calls.count()).toBe(1);
-    }));
-
-    it('removeFilter function does exist', (() => {
-        expect(component.removeFilter).toBeDefined();
-    }));
-
-    it('setupFilters function does exist', (() => {
-        expect(component.setupFilters).toBeDefined();
     }));
 
     it('does show toolbar and sidenav', (() => {

@@ -29,10 +29,17 @@ import {
 
 import { Color } from '../../color';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
+import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import {
+    CompoundFilterDesign,
+    FilterBehavior,
+    FilterDesign,
+    FilterService,
+    FilterUtil,
+    SimpleFilterDesign
+} from '../../services/filter.service';
 
 import {
     AbstractMap,
@@ -57,7 +64,6 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import * as geohash from 'geo-hash';
 import { MatDialog } from '@angular/material';
@@ -82,19 +88,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     @ViewChild('mapElement') mapElement: ElementRef;
     @ViewChild('mapOverlay') mapOverlayRef: ElementRef;
 
-    protected filters: {
-        id: string,
-        fieldsByLayer: {
-            latitude: string,
-            longitude: string
-            prettyLatitude: string,
-            prettyLongitude: string
-        },
-        filterName: string
-    }[] = [];
-
-    protected filterHistory = new Array();
-
     public colorKeys: string[] = [];
 
     public filterVisible: Map<string, boolean> = new Map<string, boolean>();
@@ -102,7 +95,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     public mapTypes = MapTypePairs;
 
     protected mapObject: AbstractMap;
-    protected filterBoundingBox: BoundingBoxByDegrees;
 
     public disabledSet: [string[]] = [] as any;
 
@@ -204,16 +196,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     /**
-     * Removes the filter boudning box from this component and the map.
-     *
-     * @private
-     */
-    private removeFilterBox() {
-        delete this.filterBoundingBox;
-        return this.mapObject && this.mapObject.removeFilterBox();
-    }
-
-    /**
      * Sets the filter bounding box to the given box and adds or replaces the neon map filter.
      *
      * Function for the FilterListener interface.
@@ -222,165 +204,14 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @override
      */
     filterByLocation(box: BoundingBoxByDegrees) {
-        this.filterBoundingBox = box;
-
-        let fieldsByLayer = this.options.layers.map((layer) => {
-            return {
-                latitude: layer.latitudeField.columnName,
-                longitude: layer.longitudeField.columnName,
-                prettyLatitude: layer.latitudeField.prettyName,
-                prettyLongitude: layer.longitudeField.prettyName
-            };
-        });
-        let localLayerName = this.getFilterTextByFields(box, fieldsByLayer);
-        let localFilters = this.createFilter(fieldsByLayer, localLayerName);
-        this.addLocalFilter(localFilters);
-        for (let i = 0; i < localFilters.fieldsByLayer.length; i++) {
-            let neonFilters = this.filterService.getFiltersByOwner(this.id);
-            let neonFilter = this.createNeonBoxFilter(this.filterBoundingBox, localFilters.fieldsByLayer[i].latitude,
-                localFilters.fieldsByLayer[i].longitude);
-
-            if (neonFilters && neonFilters.length) {
-                this.filterHistory.push(neonFilters[0]);
-                localFilters.id = neonFilters[0].id;
-                this.replaceNeonFilter(this.options.layers[i], true, localFilters, neonFilter);
-            } else {
-                this.addNeonFilter(this.options.layers[i], true, localFilters, neonFilter);
-            }
-        }
+        let filters: FilterDesign[] = this.options.layers.map((layer) => this.createFilterDesignOnBox(layer, box.north, box.south,
+            box.east, box.west));
+        this.exchangeFilters(filters);
     }
 
     filterByMapPoint(lat: number, lon: number) {
-        let fieldsByLayer = this.options.layers.map((layer) => {
-            return {
-                latitude: layer.latitudeField.columnName,
-                longitude: layer.longitudeField.columnName,
-                prettyLatitude: layer.latitudeField.prettyName,
-                prettyLongitude: layer.longitudeField.prettyName
-            };
-        });
-        let localLayerName = 'latitude equals ' + lat + ' and longitude equals ' + lon;
-        let localFilters = this.createFilter(fieldsByLayer, localLayerName);
-        this.addLocalFilter(localFilters);
-        for (let i = 0; i < localFilters.fieldsByLayer.length; i++) {
-            let neonFilters = this.filterService.getFiltersByOwner(this.id);
-            let neonFilter = this.createNeonPointFilter(lat, lon, localFilters.fieldsByLayer[i].latitude,
-                localFilters.fieldsByLayer[i].longitude);
-
-            if (neonFilters && neonFilters.length) {
-                this.filterHistory.push(neonFilters[0]);
-                localFilters.id = neonFilters[0].id;
-                this.replaceNeonFilter(this.options.layers[i], true, localFilters, neonFilter);
-            } else {
-                this.addNeonFilter(this.options.layers[i], true, localFilters, neonFilter);
-            }
-        }
-    }
-
-    /**
-     * Creates and returns a filter object with the given fields and name.
-     *
-     * @arg {array} fieldsByLayer
-     * @arg {string} name
-     * @return {any}
-     */
-    createFilter(fieldsByLayer, name): any {
-        return {
-            id: undefined,
-            fieldsByLayer: fieldsByLayer,
-            filterName: name
-        };
-    }
-
-    /**
-     * Adds the given filter object to the map's list of filter objects.
-     *
-     * @arg {object} filter
-     */
-    addLocalFilter(filter) {
-        this.filters[0] = filter;
-    }
-
-    /**
-     * Creates and returns the neon filter object using the given bounding box, latitude field, and longitude field.
-     *
-     * @arg {BoundingBoxByDegrees} boundingBox
-     * @arg {string} latitudeField
-     * @arg {string} longitudeField
-     * @return {neon.query.WherePredicate}
-     */
-    createNeonBoxFilter(boundingBox: BoundingBoxByDegrees, latitudeField: string, longitudeField: string): neon.query.WherePredicate {
-        let filterClauses = [
-            neon.query.where(latitudeField, '>=', boundingBox.south),
-            neon.query.where(latitudeField, '<=', boundingBox.north),
-            neon.query.where(longitudeField, '>=', boundingBox.west),
-            neon.query.where(longitudeField, '<=', boundingBox.east)
-        ];
-        return neon.query.and.apply(neon.query, filterClauses);
-    }
-
-    createNeonPointFilter(lat: number, lon: number, latitudeField: string, longitudeField: string): neon.query.WherePredicate {
-        return neon.query.and(
-            neon.query.where(latitudeField, '=', lat),
-            neon.query.where(longitudeField, '=', lon)
-        );
-    }
-
-    /**
-     * Returns the map filter text using the given fields.
-     *
-     * @arg {BoundingBoxByDegrees} box
-     * @arg {array} fieldsByLayer
-     * @return {string}
-     */
-    getFilterTextByFields(box: BoundingBoxByDegrees, fieldsByLayer: any[]): string {
-        if (fieldsByLayer.length === 1) {
-            return this.getFilterTextForLayer(box, fieldsByLayer[0]);
-        }
-        return 'latitude from ' + box.south + ' to ' + box.north + ' and longitude from ' + box.west + ' to ' + box.east;
-    }
-
-    /**
-     * Returns the map filter text for the map layer at the given index.
-     *
-     * @arg {BoundingBoxByDegrees} box
-     * @arg {object} fieldsByLayer
-     * @return {string}
-     */
-    getFilterTextForLayer(box: BoundingBoxByDegrees, fieldsByLayer: any): string {
-        return fieldsByLayer.prettyLatitude + ' from ' + box.south + ' to ' + box.north + ' and ' + fieldsByLayer.prettyLongitude +
-            ' from ' + box.west + ' to ' + box.east;
-    }
-
-    /**
-     * Returns the filter text for the given filter object.
-     *
-     * @arg {any} filter
-     * @return {string}
-     * @override
-     */
-    getFilterText(filter: any): string {
-        return filter.filterName || '';
-    }
-
-    /**
-     * Returns the map filter detail.
-     *
-     * @return {string}
-     */
-    getFilterDetail(): string {
-        return (!this.mapObject || this.mapObject.isExact()) ? '' :
-            ' *Filter was altered outside of Map visualization and selection rectangle may not accurately represent filter.';
-    }
-
-    /**
-     * Returns the list of filters for the map to ignore (null to ignore no filters).
-     *
-     * @return {null}
-     * @override
-     */
-    getFiltersToIgnore() {
-        return null;
+        let filters: FilterDesign[] = this.options.layers.map((layer) => this.createFilterDesignOnPoint(layer, lat, lon));
+        this.exchangeFilters(filters);
     }
 
     /**
@@ -636,92 +467,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @override
      */
     refreshVisualization() {
-        // Cesium doesn't need to be refreshed manually
-    }
-
-    /**
-     * Returns whether the layer with the given options is filtered.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @return {boolean}
-     */
-    doesLayerStillHaveFilter(options: any): boolean {
-        let fields = [options.latitudeField.columnName, options.longitudeField.columnName];
-        let neonFilters = this.filterService.getFiltersForFields(options.database.name, options.table.name, fields);
-        return neonFilters && neonFilters.length > 0;
-    }
-
-    getClausesFromFilterWithIdenticalArguments(filters, args: string[]) {
-        if (filters && filters.length > 0) {
-            for (let filter of filters) {
-                let clauses;
-                if (filter.filter.whereClause.type === 'and') {
-                    clauses = filter.filter.whereClause.whereClauses;
-                } else if (args.length === 1) {
-                    // if it is not an 'and' and only has 1 where class.
-                    // This shouldn't be used in map, but may be used more generically.
-                    clauses = [filter.filter.whereClause];
-                }
-                let done = clauses && clauses.length > 0;
-                for (let where of clauses) {
-                    if (args.indexOf(where.lhs) === -1) {
-                        done = false;
-                        break;
-                    }
-                }
-                if (done) {
-                    return clauses;
-                }
-            }
-        }
-        return null;
-    }
-
-    hasLayerFilterChanged(options: any): boolean {
-        let filterChanged = true;
-        let fields = [options.latitudeField.columnName, options.longitudeField.columnName];
-        let neonFilters = this.filterService.getFiltersForFields(options.database.name, options.table.name, fields);
-        let clauses = this.getClausesFromFilterWithIdenticalArguments(neonFilters, [
-            options.latitudeField.columnName,
-            options.longitudeField.columnName
-        ]);
-        if (clauses && this.filterBoundingBox) {
-            let values = [this.filterBoundingBox.north, this.filterBoundingBox.south, this.filterBoundingBox.east,
-            this.filterBoundingBox.west];
-            // TODO FIX THE NEXT LINE!!!!
-            let emptyIfUnchanged = clauses.filter((cl) => (values.indexOf(cl.rhs) === -1));
-            return emptyIfUnchanged.length > 0;
-        }
-        return true;
-    }
-
-    /**
-     * Creates filters on init if needed.
-     *
-     * @override
-     */
-    setupFilters() {
-        // Get neon filters
-        // See if any neon filters are local filters and set/clear appropriately
-        // TODO needs to be reworked now that we have layers.
-        // I'm not sure what it even should do from a user perspective.
-        let allLayersHaveFilters = true;
-        let oneOrMoreLayersHaveFilters = false;
-        let oneOrMoreFiltersHaveChanged = false;
-        this.options.layers.forEach((layer) => {
-            let layerHasFilter: boolean = this.doesLayerStillHaveFilter(layer);
-            oneOrMoreLayersHaveFilters = oneOrMoreLayersHaveFilters || layerHasFilter;
-            allLayersHaveFilters = allLayersHaveFilters && layerHasFilter;
-            let filterHasChanged = this.hasLayerFilterChanged(layer);
-            oneOrMoreFiltersHaveChanged = oneOrMoreFiltersHaveChanged || filterHasChanged;
-        });
-        if (!oneOrMoreLayersHaveFilters) {
-            // aka no layers have filters
-            this.filters = [];
-            this.removeFilterBox();
-        } else if (oneOrMoreFiltersHaveChanged && this.mapObject && this.filterBoundingBox) {
-            this.mapObject.markInexact();
-        }
+        // Do nothing.
     }
 
     /**
@@ -742,36 +488,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      */
     handleChangeSubcomponentType() {
         this.handleChangeMapType();
-    }
-
-    /**
-     * Returns the list of filter objects.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters(): object[] {
-        return this.filters;
-    }
-
-    /**
-     * Removes the map component filter and bounding box.
-     */
-    removeFilter(): void {
-        this.filters = [];
-        this.removeFilterBox();
-    }
-
-    /**
-     * Removes the map component filter and neon filter.
-     */
-    handleRemoveFilter(filter: any): void {
-        let neonFilters = this.filterService.getFiltersByOwner(this.id);
-        this.filterHistory.push(neonFilters[0]);
-        this.options.layers.forEach((layer) => {
-            this.removeLocalFilterFromLocalAndNeon(layer, filter, true, false);
-        });
-        this.removeFilter();
     }
 
     /**
@@ -875,6 +591,62 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         return [];
     }
 
+    private createFilterDesignOnBox(layer: any, north?: number, south?: number, east?: number, west?: number): FilterDesign {
+        return {
+            type: CompoundFilterType.AND,
+            filters: [{
+                datastore: '',
+                database: layer.database,
+                table: layer.table,
+                field: layer.latitudeField,
+                operator: '>=',
+                value: south
+            }, {
+                datastore: '',
+                database: layer.database,
+                table: layer.table,
+                field: layer.latitudeField,
+                operator: '<=',
+                value: north
+            }, {
+                datastore: '',
+                database: layer.database,
+                table: layer.table,
+                field: layer.longitudeField,
+                operator: '>=',
+                value: west
+            }, {
+                datastore: '',
+                database: layer.database,
+                table: layer.table,
+                field: layer.longitudeField,
+                operator: '<=',
+                value: east
+            }] as SimpleFilterDesign[]
+        } as CompoundFilterDesign;
+    }
+
+    private createFilterDesignOnPoint(layer: any, latitude?: number, longitude?: number): FilterDesign {
+        return {
+            type: CompoundFilterType.AND,
+            filters: [{
+                datastore: '',
+                database: layer.database,
+                table: layer.table,
+                field: layer.latitudeField,
+                operator: '=',
+                value: latitude
+            }, {
+                datastore: '',
+                database: layer.database,
+                table: layer.table,
+                field: layer.longitudeField,
+                operator: '=',
+                value: longitude
+            }] as SimpleFilterDesign[]
+        } as CompoundFilterDesign;
+    }
+
     /**
      * Creates and returns an array of field options for a layer for the visualization.
      *
@@ -935,6 +707,42 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             new WidgetFreeTextOption('west', 'West', null)
         ];
     }
+
+    /**
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     *
+     * @return {FilterBehavior[]}
+     * @override
+     */
+    protected designEachFilterWithNoValues(): FilterBehavior[] {
+        let behaviors: FilterBehavior[] = [];
+
+        this.options.layers.forEach((layer) => {
+            if (layer.latitudeField.columnName && layer.longitudeField.columnName) {
+                // Match a box filter on the layer's specific fields.
+                behaviors.push({
+                    filterDesign: this.createFilterDesignOnBox(layer),
+                    redrawCallback: this.redrawFilterBox.bind(this)
+                });
+                // Match a point filter on the layer's specific fields.
+                behaviors.push({
+                    filterDesign: this.createFilterDesignOnPoint(layer),
+                    redrawCallback: this.redrawFilterPoint.bind(this)
+                });
+            }
+        });
+
+        return behaviors;
+    }
+
+    private findMatchingFilterDesign(filterDesigns: SimpleFilterDesign[], fieldBinding: string, operator: string) {
+        let matching: SimpleFilterDesign[] = filterDesigns.filter((filterDesign) => filterDesign.operator === operator &&
+            this.options.layers.some((layer) => layer.database.name === filterDesign.database.name &&
+                layer.table.name === filterDesign.table.name && layer[fieldBinding].columnName === filterDesign.field.columnName));
+        return matching.length ? matching[0].value : undefined;
+    }
+
     /**
      * Returns the default limit for the visualization.
      *
@@ -953,6 +761,46 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      */
     getVisualizationDefaultTitle(): string {
         return 'Map';
+    }
+
+    private redrawFilterBox(filters: FilterDesign[]): void {
+        let removeFilter = true;
+
+        // Find the bounds inside the compound filter with an expected structure of createFilterDesignOnBox.
+        // TODO THOR-1102 How should we handle multiple filters?  Should we draw multiple bounding boxes?
+        if (filters.length && FilterUtil.isCompoundFilterDesign(filters[0])) {
+            let boundsFilter: CompoundFilterDesign = (filters[0] as CompoundFilterDesign);
+
+            if (boundsFilter && boundsFilter.filters.length === 4 && FilterUtil.isSimpleFilterDesign(boundsFilter.filters[0]) &&
+                FilterUtil.isSimpleFilterDesign(boundsFilter.filters[1]) &&
+                FilterUtil.isSimpleFilterDesign(boundsFilter.filters[2]) &&
+                FilterUtil.isSimpleFilterDesign(boundsFilter.filters[3])) {
+
+                let nestedFilters: SimpleFilterDesign[] = boundsFilter.filters as SimpleFilterDesign[];
+                let north = this.findMatchingFilterDesign(nestedFilters, 'latitudeField', '<=');
+                let south = this.findMatchingFilterDesign(nestedFilters, 'latitudeField', '>=');
+                let east = this.findMatchingFilterDesign(nestedFilters, 'longitudeField', '<=');
+                let west = this.findMatchingFilterDesign(nestedFilters, 'longitudeField', '>=');
+
+                if (this.isNumber(north) && this.isNumber(south) && this.isNumber(east) && this.isNumber(west)) {
+                    removeFilter = false;
+                    // TODO THOR-1103 Update the bounding box element in the mapObject.
+                }
+            }
+        }
+
+        if (removeFilter && this.mapObject) {
+            this.mapObject.removeFilterBox();
+        }
+    }
+
+    private redrawFilterPoint(filters: FilterDesign[]): void {
+        if (filters.length && this.mapObject) {
+            // TODO THOR-1104 Update the selected point(s) in the mapObject.
+        }
+        if (!filters.length && this.mapObject) {
+            // TODO THOR-1104 Remove the selected point(s) in the mapObject.
+        }
     }
 
     /**

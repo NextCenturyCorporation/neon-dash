@@ -29,7 +29,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, MediaTypes } from '../../dataset';
@@ -43,7 +43,6 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import * as neon from 'neon-framework';
 import { MatDialog } from '@angular/material';
 
 export interface MediaTab {
@@ -218,6 +217,18 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     *
+     * @return {FilterBehavior[]}
+     * @override
+     */
+    protected designEachFilterWithNoValues(): FilterBehavior[] {
+        // This visualization does not filter.
+        return [];
+    }
+
+    /**
      * Creates and returns an array of field options for the visualization.
      *
      * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
@@ -381,16 +392,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the list of filter objects.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters(): any[] {
-        return [];
-    }
-
-    /**
      * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
      * Uses the given count to determine plurality.
      *
@@ -414,40 +415,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             headerText: this.headerText,
             infoText: this.infoText
         };
-    }
-
-    /**
-     * Returns the text for the given filter.
-     *
-     * @arg {object} filter
-     * @return {string}
-     * @override
-     */
-    getFilterText(filter: any): string {
-        return '';
-    }
-
-    /**
-     * Returns the list filters for the visualization to ignore.
-     *
-     * @return {array|null}
-     * @override
-     */
-    getFiltersToIgnore(): any[] {
-        // Ignore all the filters for the database and the table so it always shows the selected items.
-        if (!this.options.idField.columnName) {
-            return [];
-        }
-
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name);
-
-        let ignoredFilterIds = neonFilters.filter((neonFilter) => {
-            return !neonFilter.filter.whereClause.whereClauses;
-        }).map((neonFilter) => {
-            return neonFilter.id;
-        });
-
-        return ignoredFilterIds.length ? ignoredFilterIds : null;
     }
 
     /**
@@ -533,15 +500,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         this.selectedTabIndex = 0;
         this.queryItems = [];
 
-        if (options.clearMedia) {
-            let neonFilters = options.idField.columnName ? this.filterService.getFiltersForFields(options.database.name,
-                options.table.name, [options.idField.columnName]) : [];
-
-            if (!neonFilters[0] || (neonFilters[0] && !neonFilters[0].filter.whereClause.rhs)) {
-                this.errorMessage = 'No Data';
-                options.id = '_id';
-                return;
-            }
+        if (options.clearMedia && !this.isFiltered()) {
+            this.errorMessage = 'No Data';
+            options.id = '_id';
+            return;
         }
 
         results.forEach((result) => {
@@ -627,27 +589,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         this.updateOnResize();
     }
 
-    /**
-     * Removes the given filter from the media viewer (does nothing because the media viewer does not filter).
-     *
-     * @arg {object} filter
-     * @override
-     */
-    removeFilter() {
-        // Do nothing.
-    }
-
     sanitize(url) {
         return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    }
-
-    /**
-     * Sets filters for the media viewer (does nothing because the media viewer does not filter).
-     *
-     * @override
-     */
-    setupFilters() {
-        // Do nothing.
     }
 
     /**

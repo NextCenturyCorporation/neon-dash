@@ -29,7 +29,7 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
@@ -44,7 +44,6 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
 
@@ -97,14 +96,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         this.options.sortDescending = sortOrder ? (sortOrder === 'DESCENDING') : this.options.sortDescending;
     }
 
-    getFilterText(filter) {
-        return '';
-    }
-
-    getFiltersToIgnore() {
-        return null;
-    }
-
     /**
      * Returns whether the visualization query created using the given options is valid.
      *
@@ -114,6 +105,18 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     validateVisualizationQuery(options: any): boolean {
         return !!(options.database.name && options.table.name && options.dataField.columnName);
+    }
+
+    /**
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     *
+     * @return {FilterBehavior[]}
+     * @override
+     */
+    protected designEachFilterWithNoValues(): FilterBehavior[] {
+        // This visualization does not filter.
+        return [];
     }
 
     /**
@@ -319,14 +322,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         return 'Document' + (count === 1 ? '' : 's');
     }
 
-    setupFilters() {
-        // Do nothing.
-    }
-
-    removeFilter() {
-        // Do nothing.
-    }
-
     /**
      * Creates and returns the text for the row of the given item in the table.
      *
@@ -416,16 +411,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         if (this.options.idField.columnName && activeItemData[this.options.idField.columnName]) {
             this.publishSelectId(activeItemData[this.options.idField.columnName]);
         }
-    }
-
-    /**
-     * Returns the list of filter objects.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters(): any[] {
-        return [];
     }
 
     /**

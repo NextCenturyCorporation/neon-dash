@@ -88,25 +88,13 @@ export class DatasetServiceMock extends DatasetService {
         visTitles.dataTableTitle = 'Documents';
         dashboard.visualizationTitles = visTitles;
 
-        dashboard.relations = [{
-            datastore1: {
-                testDatabase1: {
-                    testTable1: 'testRelationFieldA'
-                },
-                testDatabase2: {
-                    testTable2: 'testRelationFieldA'
-                }
-            }
-        }, {
-            datastore1: {
-                testDatabase1: {
-                    testTable1: 'testRelationFieldB'
-                },
-                testDatabase2: {
-                    testTable2: 'testRelationFieldB'
-                }
-            }
-        }];
+        dashboard.relations = [
+            ['datastore1.testDatabase1.testTable1.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldA'],
+            [
+                ['datastore1.testDatabase1.testTable1.testRelationFieldB'],
+                ['datastore1.testDatabase2.testTable2.testRelationFieldB']
+            ]
+        ];
 
         dashboard.name = 'Test Discovery Config';
         dashboard.layout = 'DISCOVERY';

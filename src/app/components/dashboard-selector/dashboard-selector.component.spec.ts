@@ -14,18 +14,22 @@
  *
  */
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule } from '@angular/forms';
+
+import { AppMaterialModule } from '../../app.material.module';
+import { DashboardDropdownComponent } from '../dashboard-dropdown/dashboard-dropdown.component';
 import { DashboardSelectorComponent } from './dashboard-selector.component';
+import { NeonGTDConfig } from '../../neon-gtd-config';
+
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { NeonGTDConfig } from '../../neon-gtd-config';
-import { ParameterService } from '../../services/parameter.service';
 import { FilterService } from '../../services/filter.service';
+import { ParameterService } from '../../services/parameter.service';
 
-import { FormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { DashboardDropdownComponent } from '../dashboard-dropdown/dashboard-dropdown.component';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 describe('Component: DashboardSelector', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -38,10 +42,11 @@ describe('Component: DashboardSelector', () => {
             DashboardSelectorComponent
         ],
         providers: [
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             ConnectionService,
             DatasetService,
-            ParameterService,
             FilterService,
+            ParameterService,
             { provide: 'config', useValue: testConfig }
         ],
         imports: [
