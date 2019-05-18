@@ -464,7 +464,9 @@ export class SearchService extends AbstractSearchService {
         let wherePredicate: query.WherePredicate = queryPayload.query['filter'].whereClause;
         /* tslint:enable:no-string-literal */
 
-        this.transformWherePredicateValues(wherePredicate, keysToValuesToLabels);
+        if (wherePredicate) {
+            this.transformWherePredicateValues(wherePredicate, keysToValuesToLabels);
+        }
 
         return queryPayload;
     }
@@ -581,7 +583,9 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public updateFilter(queryPayload: NeonQueryWrapper, filterClause: NeonWhereWrapper): AbstractSearchService {
-        queryPayload.query.where(filterClause.where);
+        if (filterClause) {
+            queryPayload.query.where(filterClause.where);
+        }
         return this;
     }
 

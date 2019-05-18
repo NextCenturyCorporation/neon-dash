@@ -124,6 +124,7 @@ describe('Component: NewsFeed', () => {
         component.options.dateField = new FieldMetaData('testDateField');
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            fields: ['*'],
             filter: {
                 filters: [{
                     field: 'testIdField',
@@ -140,6 +141,13 @@ describe('Component: NewsFeed', () => {
                 field: 'testSortField',
                 order: -1
             }
+        });
+
+        delete component.options.sortField.columnName;
+
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            fields: ['*'],
+            filter: null
         });
     }));
 
@@ -163,9 +171,6 @@ describe('Component: NewsFeed', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.idField = new FieldMetaData('tesIdField', 'Test Id Field');
-        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
-
-        component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 

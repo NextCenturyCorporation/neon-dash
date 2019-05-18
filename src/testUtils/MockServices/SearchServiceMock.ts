@@ -32,10 +32,10 @@ import {
 export class SearchServiceMock extends AbstractSearchService {
 
     public buildCompoundFilterClause(filterClauses: FilterClause[], type: CompoundFilterType = CompoundFilterType.AND): FilterClause {
-        return filterClauses.length === 1 ? filterClauses[0] : {
+        return filterClauses.length ? (filterClauses.length === 1 ? filterClauses[0] : {
             filters: filterClauses,
             type: '' + type
-        };
+        }) : null;
     }
 
     public buildDateQueryGroup(groupField: string, interval: TimeInterval): QueryGroup {
@@ -116,6 +116,10 @@ export class SearchServiceMock extends AbstractSearchService {
     }
 
     private transformFilterClauseValuesHelper(filter: any, keysToValuesToLabels: { [key: string]: { [value: string]: string } }): void {
+        if (!filter) {
+            return;
+        }
+
         if (!filter.type) {
             let keys = Object.keys(keysToValuesToLabels);
             let key = filter.lhs;

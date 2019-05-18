@@ -1268,7 +1268,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         //
     }
 
-    protected showContribution() {
+    public showContribution() {
         return ((this.options.contributionKeys && this.options.contributionKeys.length !== 0)
             || (this.options.contributionKeys === null
             && this.datasetService.getCurrentDashboard()
