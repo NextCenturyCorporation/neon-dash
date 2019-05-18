@@ -27,7 +27,6 @@ import { NgGridModule } from 'angular2-grid';
 
 import { AbstractSearchService } from './services/abstract.search.service';
 import { AbstractWidgetService } from './services/abstract.widget.service';
-import { ConnectionService } from './services/connection.service';
 import { DatasetService } from './services/dataset.service';
 import { FilterService } from './services/filter.service';
 import { ParameterService } from './services/parameter.service';
@@ -158,7 +157,6 @@ export function getAppConfig() {
         TreeModule.forRoot()
     ],
     providers: [
-        ConnectionService,
         DatasetService,
         FilterService,
         ParameterService,

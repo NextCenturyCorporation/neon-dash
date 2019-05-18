@@ -19,8 +19,8 @@
     </div>
 
         <div #newsFeed class="body-container" [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
-            <div class="news-feed-container" *ngIf="getActiveData(options) != null" [hidden]="!getActiveData(options).count()">
-                <div class="news-feed-div" *ngFor="let item of getActiveData(options).data"
+            <div class="news-feed-container" *ngIf="newsFeedData != null" [hidden]="!newsFeedData.length">
+                <div class="news-feed-div" *ngFor="let item of newsFeedData"
                      (click)="selectGridItem(item)" [class.selectable]="isSelectable()" [class.selected]="isSelected(item)">
                     <div class="content-details">
                         <div class="content-header">{{ item[options.primaryTitleField.columnName] }}</div>

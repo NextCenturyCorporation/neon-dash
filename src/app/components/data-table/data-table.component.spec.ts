@@ -30,7 +30,6 @@ import { AbstractSearchService, CompoundFilterType } from '../../services/abstra
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { By } from '@angular/platform-browser';
@@ -682,9 +681,10 @@ describe('Component: DataTable', () => {
             {_id: 1, category: 'books', testField: 'test', ignore: 'ignore', _docCount: 1}
         ]);
 
-        expect(actual.data).toEqual([
+        expect(component.tableData).toEqual([
             {_id: 1, category: 'books', testField: 'test'}
         ]);
+        expect(actual).toEqual(1);
     });
 
     it('transformVisualizationQueryResults does update properties as expected when response.data.length is not equal to 1', () => {
@@ -699,10 +699,11 @@ describe('Component: DataTable', () => {
             {_id: 2, category: 'books', testField: 'some other value', ignore: 'ignoring'}
         ]);
 
-        expect(actual.data).toEqual([
+        expect(component.tableData).toEqual([
             {_id: 1, category: 'books', testField: 'test'},
             {_id: 2, category: 'books', testField: 'some other value'}
         ]);
+        expect(actual).toEqual(2);
     });
 
     it('isDragging does return expected boolean', () => {
@@ -1073,13 +1074,13 @@ describe('Component: DataTable', () => {
         component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
         component.options.filterable = true;
         component.options.singleFilter = false;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+        (component as any).tableData = [{
             testCategoryField: 'books',
             testTextField: 'Test'
         }, {
             testCategoryField: 'test',
             testTextField: 'Test 2'
-        }]));
+        }];
 
         component.onSelect({selected: selected});
 
@@ -1113,13 +1114,13 @@ describe('Component: DataTable', () => {
         component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
         component.options.filterable = true;
         component.options.singleFilter = true;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+        (component as any).tableData = [{
             testCategoryField: 'books',
             testTextField: 'Test'
         }, {
             testCategoryField: 'test',
             testTextField: 'Test 2'
-        }]));
+        }];
 
         component.onSelect({selected: selected});
 
@@ -1154,13 +1155,13 @@ describe('Component: DataTable', () => {
         component.options.filterable = true;
         component.options.singleFilter = false;
         component.options.arrayFilterOperator = 'and';
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+        (component as any).tableData = [{
             testCategoryField: ['books', 'games', 'shows'],
             testTextField: 'Test'
         }, {
             testCategoryField: 'test',
             testTextField: 'Test 2'
-        }]));
+        }];
 
         component.onSelect({selected: selected});
 
@@ -1215,13 +1216,13 @@ describe('Component: DataTable', () => {
         component.options.filterable = true;
         component.options.singleFilter = false;
         component.options.arrayFilterOperator = 'or';
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+        (component as any).tableData = [{
             testCategoryField: ['books', 'games', 'shows'],
             testTextField: 'Test'
         }, {
             testCategoryField: 'test',
             testTextField: 'Test 2'
-        }]));
+        }];
 
         component.onSelect({selected: selected});
 
@@ -1276,13 +1277,13 @@ describe('Component: DataTable', () => {
         component.options.filterable = true;
         component.options.singleFilter = true;
         component.options.arrayFilterOperator = 'and';
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+        (component as any).tableData = [{
             testCategoryField: ['books', 'games', 'shows'],
             testTextField: 'Test'
         }, {
             testCategoryField: 'test',
             testTextField: 'Test 2'
-        }]));
+        }];
 
         component.onSelect({selected: selected});
 
@@ -1337,13 +1338,13 @@ describe('Component: DataTable', () => {
         component.options.filterable = true;
         component.options.singleFilter = true;
         component.options.arrayFilterOperator = 'or';
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+        (component as any).tableData = [{
             testCategoryField: ['books', 'games', 'shows'],
             testTextField: 'Test'
         }, {
             testCategoryField: 'test',
             testTextField: 'Test 2'
-        }]));
+        }];
 
         component.onSelect({selected: selected});
 

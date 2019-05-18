@@ -27,7 +27,7 @@ import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload }
 import { DatasetService } from '../../services/dataset.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import {
     OptionChoices,
@@ -84,7 +84,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             dialog
         );
 
-        this.messenger.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearEveryFilterClause.bind(this));
+        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.clearEveryFilterClause.bind(this));
 
         this.addBlankFilterClause();
     }
@@ -313,16 +313,17 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         // TODO THOR-994 The Filter Builder does not run a visualization query.
-        return null;
+        return 0;
     }
 
     /**

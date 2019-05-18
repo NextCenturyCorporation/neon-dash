@@ -17,8 +17,6 @@ module.exports = function (config) {
         files: [
             // Include support libraries and angular material
             { pattern: './src/test.ts', watched: false },
-            // Pull in the neon-gtd version file.  Do NOT include it in the test rig via a <script> tag.
-            { pattern: './src/app/config/version.json', watched: false, included: false },
             // Required by Angular
             'node_modules/@angular/material/prebuilt-themes/purple-green.css'
         ],

@@ -15,7 +15,7 @@
  */
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
@@ -37,7 +37,7 @@ export class VisualizationContainerComponent implements OnInit {
     private messenger: any;
 
     constructor() {
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
         this.expanded = false;
         this.showToolbar = false;
     }
