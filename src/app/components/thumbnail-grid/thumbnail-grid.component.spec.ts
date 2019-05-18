@@ -40,7 +40,6 @@ import { DetailsThumbnailSubComponent } from './subcomponent.details-view';
 import { TitleThumbnailSubComponent } from './subcomponent.title-view';
 import { CardThumbnailSubComponent } from './subcomponent.card-view';
 import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
-import { WhereWrapper } from '../../services/search.service';
 
 let validateSelect = (element: any, name: string, required: boolean = false, disabled: boolean = false) => {
     expect(element.componentInstance.disabled).toEqual(disabled);
@@ -727,7 +726,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             fields: ['*'],
-            filter: new WhereWrapper(neon.query.or())
+            filter: null
         });
     });
 

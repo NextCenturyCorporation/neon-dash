@@ -33,7 +33,6 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
-import { WhereWrapper } from '../../services/search.service';
 
 describe('Component: NewsFeed', () => {
     let component: NewsFeedComponent;
@@ -383,7 +382,7 @@ describe('Component: NewsFeed', () => {
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             fields: ['*'],
-            filter: new WhereWrapper(neon.query.or())
+            filter: null
         });
     }));
 
