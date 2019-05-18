@@ -22,14 +22,7 @@ import { DashboardDropdownComponent } from '../dashboard-dropdown/dashboard-drop
 import { DashboardSelectorComponent } from './dashboard-selector.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
-import { ConnectionService } from '../../services/connection.service';
-import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
-import { ParameterService } from '../../services/parameter.service';
-
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 describe('Component: DashboardSelector', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -42,11 +35,6 @@ describe('Component: DashboardSelector', () => {
             DashboardSelectorComponent
         ],
         providers: [
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            ConnectionService,
-            DatasetService,
-            FilterService,
-            ParameterService,
             { provide: 'config', useValue: testConfig }
         ],
         imports: [

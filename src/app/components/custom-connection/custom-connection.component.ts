@@ -23,7 +23,7 @@ import { neonEvents } from '../../neon-namespaces';
 import { CustomConnectionStep } from './custom-connection-step';
 import { CustomConnectionData } from './custom-connection-data';
 
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 
 @Component({
     selector: 'app-custom-connection',
@@ -35,7 +35,7 @@ export class CustomConnectionComponent implements AfterViewInit {
     public dialogRef: MatDialogRef<CustomConnectionComponent>;
     @Output() datasetCreated: EventEmitter<any> = new EventEmitter<any>();
 
-    private messenger: neon.eventing.Messenger;
+    private messenger: eventing.Messenger;
 
     @ViewChildren('step') private stepQueryList: QueryList<CustomConnectionStep>;
     private steps: CustomConnectionStep[];
@@ -48,7 +48,7 @@ export class CustomConnectionComponent implements AfterViewInit {
         dialogRef: MatDialogRef<CustomConnectionComponent>
     ) {
         this.dialogRef = dialogRef;
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
 
         this.steps = [];
         this.currentStepIndex = 0;
@@ -91,7 +91,7 @@ export class CustomConnectionComponent implements AfterViewInit {
         //this.datasetService.setCurrentDashboard(??)
 
         this.filterService.resetFilters();
-        this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});
+        this.messenger.publish(neonEvents.DASHBOARD_RESET, {});
         this.datasetCreated.emit(dataset);
         this.dialogRef.close();
     }
