@@ -14,12 +14,11 @@
  *
  */
 import { Injectable } from '@angular/core';
-import { eventing, query } from 'neon-framework';
+import { eventing } from 'neon-framework';
 import * as $ from 'jquery';
 
-import { AbstractSearchService } from './abstract.search.service';
+import { AbstractSearchService, Connection } from './abstract.search.service';
 import { DatabaseMetaData, TableMetaData, Datastore } from '../dataset';
-import { ConnectionService } from './connection.service';
 import { DatasetService } from './dataset.service';
 import { FilterService } from './filter.service';
 import { neonEvents, neonMappings } from '../neon-namespaces';
@@ -54,7 +53,6 @@ export class ParameterService {
 
     constructor(
         private datasetService: DatasetService,
-        private connectionService: ConnectionService,
         private filterService: FilterService,
         private searchService: AbstractSearchService
     ) {
@@ -111,7 +109,7 @@ export class ParameterService {
     removeStateParameters() {
         delete this.parameters[ParameterService.DASHBOARD_STATE_ID];
         delete this.parameters[ParameterService.FILTER_STATE_ID];
-        // TODO Update the browser URL.
+        // TODO THOR-1023 Update the browser URL.
     }
 
     /**
@@ -123,7 +121,7 @@ export class ParameterService {
     updateStateParameters(dashboardStateId: string, filterStateId: string) {
         this.parameters[ParameterService.DASHBOARD_STATE_ID] = dashboardStateId;
         this.parameters[ParameterService.FILTER_STATE_ID] = filterStateId;
-        // TODO Update the browser URL.
+        // TODO THOR-1023 Update the browser URL.
     }
 
     /**
@@ -136,6 +134,7 @@ export class ParameterService {
             return;
         }
 
+        /* TODO THOR-1076
         let customMappings: any = {};
         this.datasetService.getDatabases().forEach((database: DatabaseMetaData) => {
             database.tables.forEach((table: TableMetaData) => {
@@ -207,6 +206,7 @@ export class ParameterService {
             };
             this.addFiltersForDashboardParameters(this.parameters, argsList, callback);
         }
+        */
     }
 
     /**
@@ -280,7 +280,8 @@ export class ParameterService {
      * @param {String} filterStateId
      */
     loadState(dashboardStateId: string | number, filterStateId: string | number) {
-        let connection: query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastoreType(),
+        /* TODO THOR-1131
+        let connection: Connection = this.searchService.createConnection(this.datasetService.getDatastoreType(),
             this.datasetService.getDatastoreHost());
         let params: any = {};
         if (dashboardStateId) {
@@ -297,6 +298,7 @@ export class ParameterService {
                 message: response.responseJSON.error
             });
         });
+         */
     }
 
     /**
@@ -317,9 +319,7 @@ export class ParameterService {
                     matchingDataset = dashboardState.dataset;
                 }
 
-                let connection: query.Connection = this.connectionService.createActiveConnection(
-                    matchingDataset.type, matchingDataset.host
-                );
+                let connection: Connection = this.searchService.createConnection(matchingDataset.type, matchingDataset.host);
 
                 // Update dataset fields, then set as active and update the dashboard
                 this.datasetService.updateDatabases(matchingDataset, connection).then((dataset) => {
@@ -452,11 +452,13 @@ export class ParameterService {
      * @private
      * @return {Function}
      */
+    /* TODO THOR-1076
     private createSimpleFilterClauseCallback(operator: string, value: any): Function {
         return (fieldName: string) => {
             return query.where(fieldName, operator, value);
         };
     }
+    */
 
     /**
      * Returns a function to create a date filter clause using the given list of dates.
@@ -465,6 +467,7 @@ export class ParameterService {
      * @private
      * @return {Function}
      */
+    /* TODO THOR-1076
     private createDateFilterClauseCallback(dateList: Date[]): Function {
         let startDate: Date = dateList[0];
         let endDate: Date = dateList.length > 1 ? dateList[1] : null;
@@ -478,6 +481,7 @@ export class ParameterService {
             return query.and.apply(query, [startFilterClause, endFilterClause]);
         };
     }
+    */
 
     /**
      * Returns a function to create a geographic bounds filter clause using the given list of geographic bounds.
@@ -487,6 +491,7 @@ export class ParameterService {
      * @private
      * @return {Function}
      */
+    /* TODO THOR-1076
     private createBoundsFilterClauseCallback(boundsList: number[]) {
         let minimumLatitude: number = Number(boundsList[ParameterService.BOUNDS_MIN_LAT]);
         let maximumLatitude: number = Number(boundsList[ParameterService.BOUNDS_MAX_LAT]);
@@ -529,5 +534,5 @@ export class ParameterService {
             return query.and(leftClause, rightClause, bottomClause, topClause);
         };
     }
-
+    */
 }

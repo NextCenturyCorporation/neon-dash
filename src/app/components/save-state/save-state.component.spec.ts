@@ -20,8 +20,8 @@ import { ViewContainerRef } from '@angular/core';
 
 import { SaveStateComponent } from './save-state.component';
 
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
@@ -52,12 +52,12 @@ describe('Component: SaveStateComponent', () => {
             BrowserAnimationsModule
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            MatSnackBar,
-            { provide: AbstractWidgetService, useClass: WidgetService },
-            ViewContainerRef,
             FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
+            { provide: AbstractWidgetService, useClass: WidgetService },
+            MatSnackBar,
+            ViewContainerRef,
             { provide: 'config', useValue: testConfig }
         ]
     });
@@ -196,7 +196,7 @@ describe('Component: SaveStateComponent', () => {
             return {
                 loadState: (data, successCallback) => {
                     calls++;
-                    expect(data.stateName).toEqual('testState');
+                    expect(data).toEqual('testState');
 
                     let successSpy = spyOn(component, 'handleLoadStateSuccess');
                     successCallback();
@@ -210,11 +210,11 @@ describe('Component: SaveStateComponent', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
-    it('loadStateNames does call connection.getAllStateNames with expected behavior', () => {
+    it('loadStateNames does call connection.getStateNames with expected behavior', () => {
         let calls = 0;
         spyOn((component as any), 'openConnection').and.callFake(() => {
             return {
-                getAllStateNames: () => {
+                getStateNames: () => {
                     calls++;
                 }
             };

@@ -29,22 +29,22 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { GearComponent } from '../gear/gear.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { WidgetService } from '../../services/widget.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { OptionChoices, WidgetOptionCollection, WidgetFieldOption, WidgetFreeTextOption, WidgetSelectOption } from '../../widget-option';
 
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { neonEvents } from '../../neon-namespaces';
 import { eventing } from 'neon-framework';
-import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { WidgetService } from '../../services/widget.service';
 
-import { OptionChoices, WidgetOptionCollection, WidgetFieldOption, WidgetFreeTextOption, WidgetSelectOption } from '../../widget-option';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 /* tslint:disable:component-class-suffix */
 
@@ -60,12 +60,11 @@ describe('Component: Gear Component', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
+            { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: AbstractWidgetService, useClass: WidgetService }
+            { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
             AppMaterialModule,

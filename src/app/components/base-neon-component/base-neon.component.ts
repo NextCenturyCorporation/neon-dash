@@ -20,7 +20,8 @@ import {
     AggregationType,
     CompoundFilterType,
     FilterClause,
-    QueryPayload
+    QueryPayload,
+    RequestWrapper
 } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import {
@@ -76,7 +77,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     private layerIdToElementCount: Map<string, number> = new Map<string, number>();
 
     // Maps the options/layer ID to the query ID to the query object.
-    private layerIdToQueryIdToQueryObject: Map<string, Map<string, any>> = new Map<string, Map<string, any>>();
+    private layerIdToQueryIdToQueryObject: Map<string, Map<string, RequestWrapper>> = new Map<string, Map<string, RequestWrapper>>();
 
     public errorMessage: string = '';
     public loadingCount: number = 0;
@@ -1088,7 +1089,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
         let options: any = new WidgetOptionCollection(this.createFieldOptionsFull.bind(this), injector);
-        this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, any>());
+        this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, RequestWrapper>());
 
         options.inject(new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', [], false));
         options.inject(new WidgetNonPrimitiveOption('customEventsToReceive', 'Custom Events To Receive', [], false));
