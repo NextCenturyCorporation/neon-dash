@@ -66,9 +66,9 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
      * Updates the current dashboard state to the selected dashboardChoice.
      */
     public updateDashboardState(dashboard: Dashboard) {
-        if (this.dashboardChoice) {
+        if (dashboard) {
             this.messenger.publish(neonEvents.DASHBOARD_STATE, {
-                dashboard: this.dashboardChoice
+                dashboard: dashboard
             });
         }
     }
