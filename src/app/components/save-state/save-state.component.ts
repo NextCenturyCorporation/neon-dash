@@ -31,6 +31,7 @@ import { neonEvents } from '../../neon-namespaces';
 
 import * as _ from 'lodash';
 import * as neon from 'neon-framework';
+import { tap } from 'rxjs/operators';
 
 interface State {
     fileName: string;
@@ -131,7 +132,22 @@ export class SaveStateComponent implements OnInit {
      *
      * @arg {string} name
      */
-    public saveState(name: string): void {
+    public saveState(name: string, isOverwrite = false): void {
+        if (isOverwrite) {
+            this.openConfirmationDialog(
+                'Save Changes',
+                'Looks like you have made changes to this saved state.  Would you like to save these changes?',
+                'Save',
+                'Discard'
+            )
+                .subscribe((result) => {
+                    if (result) {
+                        this.saveState(name, false);
+                    }
+
+                });
+            return;
+        }
         let connection = this.openConnection();
         if (connection) {
             let validStateName = this.validateName(name);
@@ -180,7 +196,21 @@ export class SaveStateComponent implements OnInit {
      * Deletes the state for the name choosen.
      * @method deleteState
      */
-    public deleteState(name: string) {
+    public deleteState(name: string, verify = false) {
+        if (verify) {
+            this.openConfirmationDialog(
+                'Delete Changes',
+                `Are you sure you want to delete '${name}' ?`,
+                'Delete'
+            )
+                .subscribe((result) => {
+                    if (result) {
+                        this.deleteState(name, false);
+                    }
+
+                });
+            return;
+        }
         let connection = this.openConnection();
         if (connection) {
             let validStateName = this.validateName(name);
@@ -237,6 +267,9 @@ export class SaveStateComponent implements OnInit {
      * @private
      */
     private handleSaveStateSuccess(response: any, name: string) {
+        this.current.modified = false;
+        this.current.lastModified = Date.now();
+
         this.formData.stateToSave = '';
         this.fetchStates();
         this.openNotification(name, 'saved');
@@ -277,24 +310,22 @@ export class SaveStateComponent implements OnInit {
         }
     }
 
-    public openConfirmationDialog() {
+    public openConfirmationDialog(title: string, message: string, confirmText = 'Ok', cancelText = 'Cancel') {
         this.confirmDialogRef = this.dialog.open(ConfirmationDialogComponent, {
-            height: '130px',
             width: '500px',
             disableClose: false
         });
 
-        this.confirmDialogRef.componentInstance.confirmMessage = 'Are you sure you want to delete ';
-        this.confirmDialogRef.componentInstance.cancelText = 'Cancel';
-        this.confirmDialogRef.componentInstance.confirmText = 'Delete';
+        this.confirmDialogRef.componentInstance.title = title;
+        this.confirmDialogRef.componentInstance.confirmMessage = message;
+        this.confirmDialogRef.componentInstance.cancelText = cancelText;
+        this.confirmDialogRef.componentInstance.confirmText = confirmText;
         this.confirmDialogRef.componentInstance.target = this.formData.stateToDelete;
 
-        this.confirmDialogRef.afterClosed().subscribe((result) => {
-            if (result) {
-                this.deleteState(this.formData.stateToDelete);
-            }
-            this.confirmDialogRef = null;
-        });
+        return this.confirmDialogRef.afterClosed()
+            .pipe(tap(() => {
+                this.confirmDialogRef = null;
+            }));
     }
 
     private openConnection() {

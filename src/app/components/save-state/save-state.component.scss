@@ -31,7 +31,6 @@ form {
 }
 
 .option-row {
-    margin-top: 1em;
     display: grid;
     align-items: center;
     grid-template-areas: 
@@ -40,6 +39,10 @@ form {
     grid-template-columns: 1fr auto;
     grid-template-rows: auto auto;
 
+    a {
+        cursor: pointer;
+    }
+
 
     .actions {
         grid-area: actions;
@@ -47,7 +50,7 @@ form {
     .date {
         grid-area: time;
         font-size: .8em;
-        color: #333;
+        color: #555;
     }
     .state-name {
         font-size: 1.2em;
