@@ -162,6 +162,8 @@ export class SaveStateComponent implements OnInit {
             };
 
             connection.saveState(stateData, (response) => {
+                this.current.name = name;
+                this.current.fileName = `${validStateName}.yaml`;
                 this.handleSaveStateSuccess(response, validStateName);
             }, (response) => {
                 this.handleStateFailure(response, validStateName);
@@ -220,7 +222,6 @@ export class SaveStateComponent implements OnInit {
                 this.handleStateFailure(response, validStateName);
             });
         }
-        this.closeSidenav();
     }
 
     getDefaultOptionTitle() {
