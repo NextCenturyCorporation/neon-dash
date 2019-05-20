@@ -27,6 +27,7 @@ export namespace neonEvents {
     export const FILTERS_CHANGED = 'filters_changed'; // Lowercase to maintain backwards compatibility
     export const NEW_DATASET = 'NEW_DATASET';
     export const WIDGET_ADD = 'WIDGET_ADD';
+    export const WIDGET_CONFIGURED = 'WIDGET_CONFIGURED';
     export const WIDGET_DELETE = 'WIDGET_DELETE';
     export const WIDGET_CONTRACT = 'WIDGET_CONTRACT';
     export const WIDGET_EXPAND = 'WIDGET_EXPAND';
@@ -121,22 +122,22 @@ export const neonCustomConnectionMappings: { name: string, prettyName: string }[
     name: 'date',
     prettyName: 'Date'
 },
-    {
-        name: 'id',
-        prettyName: 'ID'
-    },
-    {
-        name: 'latitude',
-        prettyName: 'Latitude'
-    },
-    {
-        name: 'longitude',
-        prettyName: 'Longitude'
-    },
-    {
-        name: 'url',
-        prettyName: 'URL'
-    }];
+{
+    name: 'id',
+    prettyName: 'ID'
+},
+{
+    name: 'latitude',
+    prettyName: 'Latitude'
+},
+{
+    name: 'longitude',
+    prettyName: 'Longitude'
+},
+{
+    name: 'url',
+    prettyName: 'URL'
+}];
 
 export namespace neonVisualizationMinPixel { // jshint ignore:line
     export const x = 320;

@@ -53,6 +53,19 @@ import { SimpleFilterComponent } from './components/simple-filter/simple-filter.
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 
+export function DashboardModified() {
+    return (inst: any, prop: string | symbol, descriptor) => {
+        const fn = descriptor.value;
+        descriptor.value = function(this: AppComponent, ...args: any[]) {
+            if (!this.pauseModifyTrack && this.currentDashboard) {
+                this.currentDashboard.modified = true;
+            }
+            return fn.call(this, ...args);
+        };
+        return;
+    };
+}
+
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
@@ -69,6 +82,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
     @ViewChild('simpleFilter') simpleFilter: SimpleFilterComponent;
     @ViewChild('sideNavRight') sideNavRight: MatSidenav;
+
+    public pauseModifyTrack = false;
 
     public currentPanel: string = 'dashboardLayouts';
     public showCustomConnectionButton: boolean = false;
@@ -127,6 +142,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     // Use two messengers here because a single messager doesn't receive its own messages.
     public messageReceiver: neon.eventing.Messenger;
     public messageSender: neon.eventing.Messenger;
+
+    public currentDashboard: Dashboard;
 
     constructor(
         public changeDetection: ChangeDetectorRef,
@@ -198,6 +215,13 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.WIDGET_REGISTER, this.registerWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
+        this.messageReceiver.subscribe(neonEvents.FILTERS_CHANGED, this.generalChange.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_CONFIGURED, this.generalChange.bind(this));
+    }
+
+    @DashboardModified()
+    generalChange() {
+        // Posterity
     }
 
     /**
@@ -205,6 +229,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
+    @DashboardModified()
     addWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
         let widgetGridItem: NeonGridItem = eventMessage.widgetGridItem;
 
@@ -225,7 +250,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             return;
         }
 
-        // Otherwise insert the widget into the first empty space in the grid.
+        // Otherwise idashboardStateNamensert the widget into the first empty space in the grid.
         widgetGridItem.col = widgetGridItem.col || 1;
         widgetGridItem.row = widgetGridItem.row || 1;
 
@@ -290,6 +315,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
+    @DashboardModified()
     contractWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
         eventMessage.widgetGridItem.sizex = eventMessage.widgetGridItem.previousConfig.sizex;
         eventMessage.widgetGridItem.sizey = eventMessage.widgetGridItem.previousConfig.sizey;
@@ -302,6 +328,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{id:string}} eventMessage
      */
+    @DashboardModified()
     deleteWidget(eventMessage: { id: string }) {
         for (let i = 0; i < this.widgetGridItems.length; i++) {
             if (this.widgetGridItems[i].id === eventMessage.id) {
@@ -321,6 +348,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
+    @DashboardModified()
     expandWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
         let visibleRowCount = this.getVisibleRowCount();
         eventMessage.widgetGridItem.previousConfig = {
@@ -429,6 +457,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
+    @DashboardModified()
     moveWidgetToBottom(eventMessage: { widgetGridItem: NeonGridItem }) {
         eventMessage.widgetGridItem.row = this.getMaxRowInUse() + 1;
     }
@@ -438,6 +467,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
+    @DashboardModified()
     moveWidgetToTop(eventMessage: { widgetGridItem: NeonGridItem }) {
         eventMessage.widgetGridItem.row = 1;
     }
@@ -534,6 +564,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{id:string,widget:BaseNeonComponent}} eventMessage
      */
+    @DashboardModified()
     registerWidget(eventMessage: { id: string, widget: BaseNeonComponent }) {
         if (this.widgets.get(eventMessage.id) === undefined) {
             this.widgets.set(eventMessage.id, eventMessage.widget);
@@ -592,6 +623,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      * @private
      */
     private showDashboardState(eventMessage: { dashboard: Dashboard }) {
+        this.currentDashboard = eventMessage.dashboard;
         // TODO THOR-1062 Permit multiple datastores.
         this.datasetService.setActiveDataset(eventMessage.dashboard.datastores[0]);
         this.datasetService.setCurrentDashboard(eventMessage.dashboard);
@@ -599,6 +631,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageSender.publish(neonEvents.DASHBOARD_CLEAR, {});
 
         this.filterService.setFiltersFromConfig(eventMessage.dashboard.filters || [], this.datasetService, this.searchService);
+
+        this.pauseModifyTrack = true;
 
         for (let widgetGridItem of eventMessage.dashboard.layoutObject) {
             if (!widgetGridItem.hide) {
@@ -610,6 +644,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.simpleFilter.updateSimpleFilterConfig();
         this.toggleDashboardSelectorDialog(false);
+
+        setTimeout(() => this.pauseModifyTrack = false, 200);
     }
 
     /**
@@ -652,6 +688,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{id:string}} eventMessage
      */
+    @DashboardModified()
     unregisterWidget(eventMessage: { id: string }) {
         this.widgets.delete(eventMessage.id);
     }

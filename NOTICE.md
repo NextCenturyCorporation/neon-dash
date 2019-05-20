@@ -21,7 +21,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | ajv-keywords@1.5.1 | [MIT](https://github.com/epoberezkin/ajv-keywords/raw/master/LICENSE) |
 | ajv@5.2.0 | [MIT](https://github.com/epoberezkin/ajv/raw/master/LICENSE) |
 | angular-core@0.0.5 | [ISC](undefined) |
-| angular-tree-component@8.2.0 | [MIT](https://github.com/500tech/angular-tree-component/raw/master/LICENSE) |
+| angular-tree-component@8.4.0 | [MIT](https://github.com/500tech/angular-tree-component/raw/master/LICENSE) |
 | angular2-chartjs@0.4.1 | [MIT](https://github.com/emn178/angular2-chartjs/raw/master/LICENSE.txt) |
 | angular2-grid@3.0.0 | [MIT](https://github.com/BTMorton/angular2-grid/raw/master/LICENSE) |
 | brace@0.10.0 | [MIT](https://github.com/thlorenz/brace/raw/master/LICENSE) |
@@ -30,12 +30,12 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | classlist.js@1.1.20150312 | [Dedicated to the public domain](https://github.com/eligrey/classList.js/raw/master/LICENSE.md) |
 | core-js@2.5.7 | [MIT](https://github.com/zloirock/core-js/raw/master/LICENSE) |
 | d3-selection@1.4.0 | [BSD-3-Clause](https://github.com/d3/d3-selection/raw/master/LICENSE) |
-| d3-shape@1.3.4 | [BSD-3-Clause](https://github.com/d3/d3-shape/raw/master/LICENSE) |
+| d3-shape@1.3.5 | [BSD-3-Clause](https://github.com/d3/d3-shape/raw/master/LICENSE) |
 | d3-transition@1.2.0 | [BSD-3-Clause](https://github.com/d3/d3-transition/raw/master/LICENSE) |
 | dagre@0.8.4 | [MIT](https://github.com/dagrejs/dagre/raw/master/LICENSE) |
 | fast-deep-equal@1.0.0 | [MIT](https://github.com/epoberezkin/fast-deep-equal/raw/master/LICENSE) |
 | geo-hash@0.0.2 | [MIT](https://github.com/Wayla/geo-hash) |
-| glob@7.1.3 | [ISC](https://github.com/isaacs/node-glob/raw/master/LICENSE) |
+| glob@7.1.4 | [ISC](https://github.com/isaacs/node-glob/raw/master/LICENSE) |
 | hammerjs@2.0.8 | [MIT](https://github.com/hammerjs/hammer.js/raw/master/LICENSE.md) |
 | intl@1.2.5 | [MIT](https://github.com/andyearnshaw/Intl.js/raw/master/LICENSE.txt) |
 | javascript-natural-sort@0.7.1 | [MIT](https://github.com/Bill4Time/javascript-natural-sort) |
@@ -49,12 +49,10 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | lodash@4.15.0 | [MIT](https://github.com/lodash/lodash/raw/master/LICENSE) |
 | moment-timezone@0.5.13 | [MIT](https://github.com/moment/moment-timezone/raw/master/LICENSE) |
 | moment@2.18.1 | [MIT](https://github.com/moment/moment/raw/master/LICENSE) |
-| neon-framework@1.3.5 | [Apache-2.0](https://github.com/NextCenturyCorporation/neon) |
 | npm-license-crawler@0.1.9 | [BSD-3-Clause](https://github.com/mwittig/npm-license-crawler/raw/master/LICENSE) |
 | reflect-metadata@0.1.10 | [Apache-2.0](https://github.com/rbuckton/reflect-metadata/raw/master/LICENSE) |
 | requirejs@2.3.5 | [MIT](https://github.com/jrburke/r.js) |
-| rxjs@6.4.0 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
+| rxjs@6.5.2 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
 | tslib@1.9.3 | [Apache-2.0](https://github.com/Microsoft/tslib/raw/master/LICENSE.txt) |
-| uuid@3.3.2 | [MIT](https://github.com/kelektiv/node-uuid/raw/master/LICENSE.md) |
 | vis@4.21.0 | [(Apache-2.0 OR MIT)](https://github.com/almende/vis/raw/master/LICENSE-APACHE-2.0) |
 | zone.js@0.8.29 | [MIT](https://github.com/angular/zone.js/raw/master/LICENSE) |
