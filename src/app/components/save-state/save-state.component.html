@@ -18,11 +18,11 @@
 
     <div class="date">Last Modified - {{ state.lastModified ? (state.lastModified | date: 'yyyy-M-d h:mm') : "N/A" }}</div>
     <div class="actions">
-        <button mat-icon-button class="update-button" (click)="saveState(state.fileName);"
+        <button mat-icon-button class="update-button" (click)="saveState(state.dashboards.name, true);"
             *ngIf="(current && current.fileName === state.fileName && current.modified)">
             <mat-icon>save</mat-icon>
         </button>
-        <button mat-icon-button class="delete-button" (click)="deleteState(state.fileName);">
+        <button mat-icon-button class="delete-button" (click)="deleteState(state.fileName, true);">
             <mat-icon>delete</mat-icon>
         </button>
     </div>
