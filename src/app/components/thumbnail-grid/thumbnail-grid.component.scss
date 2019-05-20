@@ -114,7 +114,7 @@ canvas.border-mat-yellow {
     flex: 1 1;
     max-height:113px;
     flex-flow: row nowrap;
-    width: 300px;
+    min-width: 250px;
 }
 
 .thumbnail-flag-details{

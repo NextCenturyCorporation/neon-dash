@@ -491,15 +491,15 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             },
             physics: {
                 forceAtlas2Based: {
-                    gravitationalConstant: -26,
+                    gravitationalConstant: -86,
                     centralGravity: 0.005,
                     springLength: 230,
                     springConstant: 0.18
                 },
                 maxVelocity: 146,
                 solver: 'forceAtlas2Based',
-                timestep: 0.35,
-                stabilization: { iterations: 150 }
+                timestep: 1,
+                stabilization: { iterations: 50 }
             },
             edges: {
                 smooth: {
@@ -507,12 +507,17 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     type: 'continuous',
                     roundness: 0
                 }
+            },
+            interaction: {
+                hideEdgesOnDrag: true
             }
         };
+
         this.graph = new vis.Network(this.graphElement.nativeElement, this.graphData, options);
         if (this.options.filterable) {
             this.graph.on('doubleClick', this.onSelect);
         }
+
     }
 
     private restartPhysics(): void {
@@ -1016,7 +1021,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             linkNameColumn = this.options.linkNameField.columnName,
             nodeName = this.options.nodeField.columnName,
             nodeNameColumn = this.options.nodeNameField.columnName,
-            targetNameColumn = this.options.targetNameField.columnName,
             nodeColorField = this.options.nodeColorField.columnName,
             edgeColorField = this.options.edgeColorField.columnName,
             targetColorField = this.options.targetColorField.columnName,
@@ -1045,13 +1049,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             let linkField = entry[linkName],
                 nodeType = entry[targetColorField] || entry[nodeColorField],
                 edgeType = entry[edgeColorField],
-                linkNodeName = '',
                 linkNameField = entry[linkNameColumn],
-                targetNameField = targetNameColumn && entry[targetNameColumn],
-                nodeField = entry[nodeName],
-                xPosition = entry[xTargetPositionField],
-                yPosition = entry[yTargetPositionField],
-                filterFields: any[] = [];
+                nodeField = entry[nodeName];
 
             // if there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
             if (nodeColorField && this.prettifiedNodeLabels.length === 0) {
@@ -1061,8 +1060,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             }
 
             // create a node if linkfield doesn't point to a node that already exists
-            let links = this.getArray(linkField),
-                targetNames = !targetNameField ? links : this.getArray(targetNameField);
+            let links = this.getArray(linkField);
 
             // create edges between nodes and destinations specified by linkfield
             let linkNames = !linkNameField ? [].fill('', 0, links.length) : this.getArray(linkNameField),
