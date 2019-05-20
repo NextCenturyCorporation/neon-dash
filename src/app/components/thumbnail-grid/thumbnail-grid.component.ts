@@ -27,9 +27,9 @@ import {
 
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, MediaTypes } from '../../dataset';
@@ -104,7 +104,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new WidgetFieldOption('categoryField', 'Category Field', false),
             new WidgetFieldOption('compareField', 'Comparison Field', false),
             new WidgetFieldOption('dateField', 'Date Field', false),
-            new WidgetFieldOption('filterField', 'Filter Field', false),
+            new WidgetFieldOption('filterField', 'Filter Field', false), // Deprecated
             new WidgetFieldOption('flagLabel', 'Flag Field', false),
             new WidgetFieldOption('flagSubLabel1', 'Flag Sub-Label Field 1', false),
             new WidgetFieldOption('flagSubLabel2', 'Flag Sub-Label Field 2', false),
@@ -117,7 +117,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new WidgetFieldOption('percentField', 'Predicted Probability Field', false),
             new WidgetFieldOption('predictedNameField', 'Predicted Name Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
-            new WidgetFieldOption('typeField', 'Type Field', false)
+            new WidgetFieldOption('typeField', 'Type Field', false),
+            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
+
         ];
     }
 
@@ -126,12 +128,23 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      *
      * @arg {string} text
      */
-    createFilter(text: string) {
-        if (!this.options.filterField.columnName) {
-            return;
-        }
+    createFilter(item: any) {
+        let filters: FilterDesign[] = [];
+        let filtersToDelete: FilterDesign[] = [];
 
-        this.exchangeFilters([this.createFilterDesignOnItem(this.options.filterField, text)]);
+        this.options.filterFields.filter((filterField) => !!filterField.columnName).forEach((filterField) => {
+            let filterValues: any[] = typeof item[filterField.columnName] === 'undefined' ? [] :
+                (Array.isArray(item[filterField.columnName]) ? item[filterField.columnName] : [item[filterField.columnName]]);
+            if (!filters.length) {
+                // Delete any previous filters on the filter field.
+                filtersToDelete.push(this.createFilterDesignOnItem(filterField));
+            } else {
+                filters.push(filterValues.length === 1 ? this.createFilterDesignOnItem(filterField, filterValues[0]) :
+                    this.createFilterDesignOnList([this.createFilterDesignOnItem(filterField, filterValues)]));
+            }
+        });
+
+        this.exchangeFilters(filters, filtersToDelete);
     }
 
     private createFilterDesignOnItem(field: FieldMetaData, value?: any): FilterDesign {
@@ -143,6 +156,13 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             operator: '=',
             value: value
         } as SimpleFilterDesign;
+    }
+
+    private createFilterDesignOnList(filters: FilterDesign[]): FilterDesign {
+        return {
+            type: CompoundFilterType.OR,
+            filters: filters
+        } as CompoundFilterDesign;
     }
 
     /**
@@ -194,7 +214,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 variable: ViewType.CARD
             }]),
             new WidgetFreeTextOption('canvasSize', 'Canvas Size', this.CANVAS_SIZE),
-            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', { value: false, length: 0 })
+            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', {value: false, length: 0}),
+            new WidgetNonPrimitiveOption('ignoreMediaTypes', 'Ignore Media Types', [])
 
         ];
     }
@@ -209,14 +230,20 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     protected designEachFilterWithNoValues(): FilterBehavior[] {
         let behaviors: FilterBehavior[] = [];
 
-        if (this.options.filterField.columnName) {
-            // TODO AIDA-??? Loop over multiple filterFields to create multiple filterDesigns and add them to the behaviors.
+        this.options.filterFields.forEach((filterField) => {
             behaviors.push({
-                filterDesign: this.createFilterDesignOnItem(this.options.filterField),
+                // Match a single EQUALS filter on the specific filter field.
+                filterDesign: this.createFilterDesignOnItem(filterField),
                 // No redraw callback:  The filtered text will automatically be styled with isSelected as called by the HTML.
                 redrawCallback: () => { /* Do nothing */ }
             });
-        }
+            behaviors.push({
+                // Match a compound filter with one or more EQUALS filters on the specific filter field.
+                filterDesign: this.createFilterDesignOnList([this.createFilterDesignOnItem(filterField)]),
+                // No redraw callback:  The filtered text will automatically be styled with isSelected as called by the HTML.
+                redrawCallback: () => { /* Do nothing */ }
+            });
+        });
 
         return behaviors;
     }
@@ -381,9 +408,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             if (options.compareField.columnName) {
                 item[options.compareField.columnName] = neonUtilities.deepFind(d, options.compareField.columnName);
             }
-            if (options.filterField.columnName) {
-                item[options.filterField.columnName] = neonUtilities.deepFind(d, options.filterField.columnName);
-            }
+            options.filterFields.filter((filterField) => !!filterField.columnName).forEach((filterField) => {
+                item[filterField.columnName] = neonUtilities.deepFind(d, filterField.columnName);
+            });
             if (options.idField.columnName) {
                 item[options.idField.columnName] = neonUtilities.deepFind(d, options.idField.columnName);
             }
@@ -465,8 +492,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      *
      * @return {boolean}
      */
-    isSelectable() {
-        return !!this.options.filterField.columnName || !!this.options.idField.columnName || this.options.openOnMouseClick;
+    isSelectable(): boolean {
+        return !!this.options.idField.columnName || this.options.openOnMouseClick;
     }
 
     /**
@@ -475,9 +502,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @arg {object} item
      * @return {boolean}
      */
-    isSelected(item) {
-        return (!!this.options.filterField.columnName && this.isFiltered(this.createFilterDesignOnItem(this.options.filterField,
-            item[this.options.filterField.columnName])));
+    isSelected(item): boolean {
+        if (!item || !this.options.filterFields.length) {
+            return false;
+        }
+
+        return this.options.filterFields.every((filterField) => !filterField.columnName ||
+            this.isFiltered(this.createFilterDesignOnItem(filterField, item[filterField.columnName])) ||
+            this.isFiltered(this.createFilterDesignOnList([this.createFilterDesignOnItem(filterField,
+                item[filterField.columnName])])));
     }
 
     /**
@@ -492,6 +525,11 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
         this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+
+        // Backwards compatibility (filterField deprecated due to its redundancy with filterFields).
+        if (this.options.filterField.columnName && !this.options.filterFields.length) {
+            this.options.filterFields = [this.options.filterField];
+        }
     }
 
     /**
@@ -555,95 +593,111 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             thumbnail.fillStyle = '#ffffff';
             thumbnail.fillRect(0, 0, this.options.canvasSize, this.options.canvasSize);
 
-            switch (type) {
-                case this.mediaTypes.image: {
-                    let image: HTMLImageElement = new Image();
-                    image.src = link;
-                    image.onload = () => {
-                        switch (this.options.cropAndScale) {
-                            case 'both': {
-                                // Use the MIN to crop the scale
-                                let size = Math.min(image.width, image.height);
-                                let multiplier = this.options.canvasSize / size;
-                                thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
-                                break;
+            if (link && link !== 'n/a' && !this.options.ignoreMediaTypes.includes(grid[this.options.typeField.columnName])) {
+                switch (type) {
+                    case this.mediaTypes.image : {
+                        let image: HTMLImageElement = new Image();
+                        image.src = link;
+                        image.onload = () => {
+                            switch (this.options.cropAndScale) {
+                                case 'both' : {
+                                    // Use the MIN to crop the scale
+                                    let size = Math.min(image.width, image.height);
+                                    let multiplier = this.options.canvasSize / size;
+                                    thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
+                                    break;
+                                }
+                                case 'crop' : {
+                                    thumbnail.drawImage(image, 0, 0, image.width, image.height);
+                                    break;
+                                }
+                                case 'scale' : {
+                                    // Use the MAX to scale
+                                    let size = Math.max(image.width, image.height);
+                                    let multiplier = this.options.canvasSize / size;
+                                    thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
+                                    break;
+                                }
+                                default : {
+                                    thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
+                                }
                             }
-                            case 'crop': {
-                                thumbnail.drawImage(image, 0, 0, image.width, image.height);
-                                break;
-                            }
-                            case 'scale': {
-                                // Use the MAX to scale
-                                let size = Math.max(image.width, image.height);
-                                let multiplier = this.options.canvasSize / size;
-                                thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
-                                break;
-                            }
-                            default: {
-                                thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
-                            }
-                        }
-                    };
-                    break;
-                }
-                case this.mediaTypes.video: {
-                    let video: HTMLVideoElement = document.createElement('video');
-                    video.src = link + '#t=1,1.1'; //1 second starting place for video screenshot
+                        };
+                        break;
+                    }
+                    case this.mediaTypes.video : {
+                        let video: HTMLVideoElement = document.createElement('video');
+                        video.src = link + '#t=1,1.1'; //1 second starting place for video screenshot
 
-                    video.onloadeddata = () => {
-                        switch (this.options.cropAndScale) {
-                            case 'both': {
-                                // Use the MIN to crop the scale
-                                let size = Math.min(video.width, video.height);
-                                let multiplier = this.options.canvasSize / size;
-                                thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
-                                break;
+                        video.onloadeddata = () => {
+                            switch (this.options.cropAndScale) {
+                                case 'both' : {
+                                    // Use the MIN to crop the scale
+                                    let size = Math.min(video.width, video.height);
+                                    let multiplier = this.options.canvasSize / size;
+                                    thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
+                                    break;
+                                }
+                                case 'crop' : {
+                                    thumbnail.drawImage(video, 0, 0, video.width, video.height);
+                                    break;
+                                }
+                                case 'scale' : {
+                                    // Use the MAX to scale
+                                    let size = Math.max(video.width, video.height);
+                                    let multiplier = this.options.canvasSize / size;
+                                    thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
+                                    break;
+                                }
+                                default : {
+                                    thumbnail.drawImage(video, 0, 0, this.options.canvasSize, this.options.canvasSize);
+                                }
                             }
-                            case 'crop': {
-                                thumbnail.drawImage(video, 0, 0, video.width, video.height);
-                                break;
-                            }
-                            case 'scale': {
-                                // Use the MAX to scale
-                                let size = Math.max(video.width, video.height);
-                                let multiplier = this.options.canvasSize / size;
-                                thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
-                                break;
-                            }
-                            default: {
-                                thumbnail.drawImage(video, 0, 0, this.options.canvasSize, this.options.canvasSize);
-                            }
-                        }
-                    };
+                        };
 
-                    video.onerror = () => {
-                        if (link.includes('youtube')) {
-                            let img: HTMLImageElement = new Image();
-                            img.src = './assets/images/youtube_logo.png';
-                            img.onload = () => {
-                                thumbnail.drawImage(img, 2, 40, img.width - 12, img.height);
-                            };
-                        }
-                    };
+                        video.onerror = () => {
+                            if (link.includes('youtube')) {
+                                let img: HTMLImageElement = new Image();
+                                img.src = './assets/images/youtube_logo.png';
+                                img.onload = () => {
+                                    thumbnail.drawImage(img, 2, 40, img.width - 12, img.height);
+                                };
+                            }
+                        };
 
-                    break;
-                }
-                case this.mediaTypes.audio: {
-                    let image: HTMLImageElement = new Image();
-                    image.src = '/assets/images/volume_up.svg';
-                    image.onclick = () => this.displayMediaTab(grid);
-                    image.onload = () => {
-                        thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
-                    };
+                        break;
+                    }
+                    case this.mediaTypes.audio : {
+                        let image: HTMLImageElement = new Image();
+                        image.src = '/assets/images/volume_up.svg';
+                        image.onclick = () => this.displayMediaTab(grid);
+                        image.onload = () => {
+                            thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
+                        };
 
-                    break;
+                        break;
+                    }
+                    default : {
+                        // todo: get thumbnails of documents, pdf, and other similar types of media.
+                        thumbnail.fillStyle = '#111111';
+                        thumbnail.font = '20px Helvetica Neue';
+                        thumbnail.fillText(fileType.toUpperCase(), 10, 30);
+
+                    }
                 }
-                default: {
-                    // todo: get thumbnails of documents, pdf, and other similar types of media.
-                    thumbnail.fillStyle = '#111111';
-                    thumbnail.font = '20px Helvetica Neue';
-                    thumbnail.fillText(fileType.toUpperCase(), 10, 30);
-                }
+            } else {
+                let img: HTMLImageElement = new Image();
+                img.src = './assets/icons/document_viewer.svg';
+
+                img.onload = () => {
+                    if (this.options.viewType === ViewType.CARD) {
+                        thumbnail.drawImage(img, this.options.canvasSize * .41, this.options.canvasSize * .25,
+                            img.width + 2, img.height + 6);
+                    } else {
+                        thumbnail.drawImage(img, this.options.canvasSize * .37, this.options.canvasSize * .35,
+                            img.width - 4, img.height);
+                    }
+                };
             }
 
             // TODO Move this to a separate function and unit test all behavior.
@@ -706,8 +760,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         if (this.options.idField.columnName) {
             this.publishSelectId(item[this.options.idField.columnName]);
         }
-        if (this.options.filterField.columnName) {
-            this.createFilter(item[this.options.filterField.columnName]);
+        if (this.options.filterFields.length) {
+            this.createFilter(item);
         }
         this.publishAnyCustomEvents(item, this.options.idField.columnName);
     }

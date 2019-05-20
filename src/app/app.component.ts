@@ -90,6 +90,15 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public dashboards: Dashboard;
 
+    public selectedTabIndex = 0;
+    public tabbedGrid: {
+        list: NeonGridItem[],
+        name: string
+    }[] = [{
+        list: [],
+        name: ''
+    }];
+
     public widgetGridItems: NeonGridItem[] = [];
     public widgets: Map<string, BaseNeonComponent> = new Map();
 
@@ -193,7 +202,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
-    private addWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
+    private addWidget(eventMessage: { gridName?: string, widgetGridItem: NeonGridItem }) {
         let widgetGridItem: NeonGridItem = eventMessage.widgetGridItem;
 
         // Set default grid item config properties for the Neon dashboard.
@@ -207,9 +216,33 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         widgetGridItem.sizex = widgetGridItem.sizex || widgetGridItem.sizex || AppComponent.DEFAULT_SIZEX;
         widgetGridItem.sizey = widgetGridItem.sizey || widgetGridItem.sizey || AppComponent.DEFAULT_SIZEY;
 
+        let index = eventMessage.gridName ? -1 : this.selectedTabIndex;
+        if (eventMessage.gridName) {
+            // Find the correct tab, or create a new one if needed.
+            this.tabbedGrid.forEach((grid, i) => {
+                if (grid.name === eventMessage.gridName) {
+                    index = i;
+                }
+            });
+
+            if (index < 0) {
+                // Rename the default tab if it is empty.
+                if (!this.tabbedGrid[0].name && !this.tabbedGrid[0].list.length) {
+                    this.tabbedGrid[0].name = eventMessage.gridName;
+                    index = 0;
+                } else {
+                    this.tabbedGrid.push({
+                        list: [],
+                        name: eventMessage.gridName
+                    });
+                    index = this.tabbedGrid.length - 1;
+                }
+            }
+        }
+
         // If both col and row are set, add the widget to the grid.
         if (widgetGridItem.col && widgetGridItem.row) {
-            this.widgetGridItems.push(widgetGridItem);
+            this.tabbedGrid[index].list.push(widgetGridItem);
             return;
         }
 
@@ -236,7 +269,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             y++;
         }
 
-        this.widgetGridItems.push(widgetGridItem);
+        this.tabbedGrid[index].list.push(widgetGridItem);
     }
 
     changeFavicon() {
@@ -270,7 +303,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      * Clears the grid.
      */
     private clearDashboard() {
-        this.widgetGridItems = [];
+        this.selectedTabIndex = 0;
+        this.tabbedGrid = [{
+            list: [],
+            name: ''
+        }];
     }
 
     /**
@@ -291,11 +328,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      * @arg {{id:string}} eventMessage
      */
     private deleteWidget(eventMessage: { id: string }) {
-        for (let i = 0; i < this.widgetGridItems.length; i++) {
-            if (this.widgetGridItems[i].id === eventMessage.id) {
+        for (let i = 0; i < this.tabbedGrid[this.selectedTabIndex].list.length; i++) {
+            if (this.tabbedGrid[this.selectedTabIndex].list[i].id === eventMessage.id) {
                 // Update the grid item itself so that its status is saved within the dashboard's layoutObject.
-                this.widgetGridItems[i].hide = true;
-                this.widgetGridItems.splice(i, 1);
+                this.tabbedGrid[this.selectedTabIndex].list[i].hide = true;
+                this.tabbedGrid[this.selectedTabIndex].list.splice(i, 1);
             }
         }
     }
@@ -366,7 +403,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     private getMaxColInUse(): number {
         let maxCol = 0;
 
-        for (let widgetGridItem of this.widgetGridItems) {
+        for (let widgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
             maxCol = Math.max(maxCol, (widgetGridItem.col + widgetGridItem.sizex - 1));
         }
         return maxCol;
@@ -379,7 +416,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     private getMaxRowInUse(): number {
         let maxRow = 0;
 
-        for (let widgetGridItem of this.widgetGridItems) {
+        for (let widgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
             maxRow = Math.max(maxRow, (widgetGridItem.row + widgetGridItem.sizey - 1));
         }
         return maxRow;
@@ -611,13 +648,22 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.filterService.setFiltersFromConfig(eventMessage.dashboard.filters || [], this.datasetService, this.searchService);
 
-        for (let widgetGridItem of eventMessage.dashboard.layoutObject) {
-            if (!widgetGridItem.hide) {
-                this.messageSender.publish(neonEvents.WIDGET_ADD, {
-                    widgetGridItem: widgetGridItem
-                });
-            }
-        }
+        // Should map the grid name to the layout list.
+        let gridNameToLayout = !Array.isArray(eventMessage.dashboard.layoutObject) ? eventMessage.dashboard.layoutObject : {
+            '': eventMessage.dashboard.layoutObject
+        };
+
+        Object.keys(gridNameToLayout).forEach((gridName) => {
+            let layout = gridNameToLayout[gridName] || [];
+            layout.forEach((widgetGridItem) => {
+                if (!widgetGridItem.hide) {
+                    this.messageSender.publish(neonEvents.WIDGET_ADD, {
+                        gridName: gridName,
+                        widgetGridItem: widgetGridItem
+                    });
+                }
+            });
+        });
 
         this.simpleFilter.updateSimpleFilterConfig();
         this.toggleDashboardSelectorDialog(false);
@@ -693,7 +739,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      * @arg widgetGridItem The widget to place
      */
     private widgetFits(widgetGridItem: NeonGridItem) {
-        for (let existingWidgetGridItem of this.widgetGridItems) {
+        for (let existingWidgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
             if (this.widgetOverlaps(widgetGridItem, existingWidgetGridItem)) {
                 return false;
             }

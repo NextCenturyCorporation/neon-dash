@@ -39,17 +39,25 @@
 
 .neon-dash {
     background-color: var(--color-background, white);
-    /* 60 = 50 px toolbar + 10 px padding */
+    /* 60 = 50 px toolbar + 10 px neon-grid padding */
     height: calc(100% - 60px);
-    padding: 5px;
     overflow-y: auto;
+}
+
+.neon-grid {
+    background-color: var(--color-background, white);
+    padding: 5px;
+}
+
+mat-tab-group,
+.header-toggle-container {
+    /* Subtract 15px for the scrollbar.  Not an ideal fix since it also applies without the scrollbar present. */
+    width: calc(100% - 15px);
 }
 
 .header-toggle-container {
     z-index: 9999;
     position: absolute;
-    /* Subtract 15px for the scrollbar.  Not an ideal fix since it also applies without the scrollbar present. */
-    width: calc(100% - 15px);
 
     .filters-container, .dashboard-selector-container {
         padding-left: 10px;
