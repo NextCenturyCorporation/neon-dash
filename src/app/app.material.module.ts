@@ -19,11 +19,12 @@ import {
     MatCardModule, MatCheckboxModule, MatDialogModule, MatGridListModule, MatIconModule, MatInputModule,
     MatListModule, MatMenuModule, MatProgressBarModule, MatProgressSpinnerModule, MatRadioModule, MatRippleModule,
     MatSelectModule, MatSidenavModule, MatSliderModule, MatSlideToggleModule, MatSnackBarModule, MatTabsModule,
-    MatToolbarModule, MatTooltipModule
+    MatToolbarModule, MatTooltipModule, MatBadgeModule
 } from '@angular/material';
 
 const MAT_MODULES = [
     MatButtonModule,
+    MatBadgeModule,
     MatButtonToggleModule,
     MatCardModule,
     MatCheckboxModule,

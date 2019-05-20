@@ -53,7 +53,7 @@ import { ContributionDialogComponent } from '../contribution-dialog/contribution
 import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material';
 
 export class TransformedVisualizationData {
-    constructor(protected _data: any = []) {}
+    constructor(protected _data: any = []) { }
 
     get data(): any {
         return this._data;
@@ -845,6 +845,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.showingZeroOrMultipleElementsPerResult = false;
 
         this.onChangeData(databaseOrTableChange);
+        this.messenger.publish(neonEvents.WIDGET_CONFIGURED, {});
 
         if (!options) {
             this.executeAllQueryChain();
@@ -1225,9 +1226,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             bindings[option.bindingKey] = option.getValueToSaveInBindings();
             return bindings;
         }, {
-            layers: (options || this.options).layers.length ? (options || this.options).layers.map((layer) => this.getBindings(layer)) :
-                undefined
-        });
+                layers: (options || this.options).layers.length ? (options || this.options).layers.map((layer) => this.getBindings(layer)) :
+                    undefined
+            });
     }
 
     /**
@@ -1339,9 +1340,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected showContribution() {
         return ((this.options.contributionKeys && this.options.contributionKeys.length !== 0)
             || (this.options.contributionKeys === null
-            && this.datasetService.getCurrentDashboard()
-            && this.datasetService.getCurrentDashboard().contributors
-            && Object.keys(this.datasetService.getCurrentDashboard().contributors).length));
+                && this.datasetService.getCurrentDashboard()
+                && this.datasetService.getCurrentDashboard().contributors
+                && Object.keys(this.datasetService.getCurrentDashboard().contributors).length));
     }
 
     protected getContributorsForComponent() {
@@ -1365,7 +1366,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     protected openContributionDialog() {
         let config = new MatDialogConfig();
-        config = {width: '400px', minHeight: '200px', data: this.getContributorsForComponent()};
+        config = { width: '400px', minHeight: '200px', data: this.getContributorsForComponent() };
 
         this.contributorsRef = this.dialog.open(ContributionDialogComponent, config);
         this.contributorsRef.afterClosed().subscribe(() => {

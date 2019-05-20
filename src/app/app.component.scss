@@ -68,6 +68,15 @@
     height: 100%;
 }
 
+.dashboard-name {
+    /deep/ .mat-badge-active {
+        color: transparent !important;
+        width: 10px;
+        height: 10px;
+        top: 5px !important;
+    }
+}
+
 .title {
     font-size: 20px;
     font-weight: 500;

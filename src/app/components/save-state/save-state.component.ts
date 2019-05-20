@@ -14,7 +14,6 @@
  *
  */
 import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 
@@ -24,7 +23,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 
 import { Dashboard, Datastore } from '../../dataset';
@@ -34,10 +32,18 @@ import { neonEvents } from '../../neon-namespaces';
 import * as _ from 'lodash';
 import * as neon from 'neon-framework';
 
+interface State {
+    fileName: string;
+    lastModified: number;
+    dashboards: Dashboard;
+    datastores: Datastore;
+    layouts: any;
+}
+
 @Component({
-  selector: 'app-save-state',
-  templateUrl: 'save-state.component.html',
-  styleUrls: ['save-state.component.scss']
+    selector: 'app-save-state',
+    templateUrl: 'save-state.component.html',
+    styleUrls: ['save-state.component.scss']
 })
 export class SaveStateComponent implements OnInit {
     private static SAVED_STATE_DASHBOARD_KEY = 'saved_state';
@@ -46,6 +52,7 @@ export class SaveStateComponent implements OnInit {
 
     @Input() public widgetGridItems: NeonGridItem[] = [];
     @Input() public widgets: Map<string, BaseNeonComponent> = new Map();
+    @Input() public current: Dashboard;
 
     public formData: any = {
         newStateName: '',
@@ -56,7 +63,7 @@ export class SaveStateComponent implements OnInit {
     public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
     private isLoading: boolean = false;
     private messenger: neon.eventing.Messenger;
-    public stateNames: string[] = [];
+    public states: { total: number, results: State[] } = { total: 0, results: [] };
 
     constructor(
         protected connectionService: ConnectionService,
@@ -64,13 +71,12 @@ export class SaveStateComponent implements OnInit {
         protected filterService: FilterService,
         private snackBar: MatSnackBar,
         public widgetService: AbstractWidgetService,
-        private viewContainerRef: ViewContainerRef,
         private dialog: MatDialog
-    ) {}
+    ) { }
 
     ngOnInit() {
         this.messenger = new neon.eventing.Messenger();
-        this.loadStateNames();
+        this.fetchStates();
     }
 
     private closeSidenav() {
@@ -197,11 +203,11 @@ export class SaveStateComponent implements OnInit {
 
     private handleDeleteStateSuccess(response: any, name: string) {
         this.formData.stateToDelete = '';
-        this.loadStateNames();
+        this.fetchStates();
         this.openNotification(name, 'deleted');
     }
 
-    private handleLoadStateSuccess(response: any, name: string) {
+    private handleLoadStateSuccess(response: State, name: string) {
         this.formData.stateToLoad = '';
         if (response.dashboards && response.datastores && response.layouts) {
             let dashboard: Dashboard = this.datasetService.appendDatasets(this.wrapInSavedStateDashboard(name, response.dashboards),
@@ -209,9 +215,11 @@ export class SaveStateComponent implements OnInit {
             // Dashboard choices should be set by wrapInSavedStateDashboard
             if (dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY] &&
                 dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name]) {
-
+                const dash = dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name];
+                dash.fileName = response.fileName;
+                dash.lastModified = response.lastModified;
                 this.messenger.publish(neonEvents.DASHBOARD_STATE, {
-                    dashboard: dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name]
+                    dashboard: dash
                 });
                 this.openNotification(name, 'loaded');
             } else {
@@ -230,7 +238,7 @@ export class SaveStateComponent implements OnInit {
      */
     private handleSaveStateSuccess(response: any, name: string) {
         this.formData.stateToSave = '';
-        this.loadStateNames();
+        this.fetchStates();
         this.openNotification(name, 'saved');
     }
 
@@ -248,33 +256,25 @@ export class SaveStateComponent implements OnInit {
     }
 
     /**
-     * Updates the list of available dashboard state names.
+     * Updates the list of available dashboard states.
      *
      * @private
      */
-    private loadStateNames() {
+    private fetchStates(limit = 10, offset = 0) {
         this.formData.stateToDelete = '';
         this.formData.stateToLoad = '';
         this.isLoading = true;
-        this.stateNames = [];
+        this.states = { total: 0, results: [] };
         let connection = this.openConnection();
         if (connection) {
-            connection.getAllStateNames((stateNames) => {
+            connection.listStates(limit, offset, (states) => {
                 this.isLoading = false;
-                this.stateNames = stateNames;
+                this.states = states;
             }, (response) => {
                 this.isLoading = false;
                 this.handleStateFailure(response, 'load states');
             });
         }
-    }
-
-    public setStateToLoad(name: string) {
-        this.formData.stateToLoad = name;
-    }
-
-    public setStateToDelete(name: string) {
-        this.formData.stateToDelete = name;
     }
 
     public openConfirmationDialog() {
@@ -297,7 +297,7 @@ export class SaveStateComponent implements OnInit {
         });
     }
 
-    private openConnection(): any {
+    private openConnection() {
         return this.connectionService.createActiveConnection(this.datasetService.getDatastoreType(),
             this.datasetService.getDatastoreHost());
     }
@@ -307,7 +307,7 @@ export class SaveStateComponent implements OnInit {
         this.snackBar.open(message, 'x', {
             duration: 5000,
             verticalPosition: 'top'
-         });
+        });
     }
 
     private validateName(stateName: string): string {
