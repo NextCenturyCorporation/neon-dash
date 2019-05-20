@@ -15,8 +15,8 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstract.search.service';
-import { DatasetService } from './dataset.service';
 import { DatabaseMetaData, FieldMetaData, SingleField, TableMetaData } from '../dataset';
+import { DatasetService } from './dataset.service';
 import { neonEvents } from '../neon-namespaces';
 
 import * as uuidv4 from 'uuid/v4';
@@ -93,6 +93,18 @@ export namespace FilterUtil {
             list1.every((item1) => list2.some((item2) => FilterUtil.areFilterDataSourcesEquivalent(item1, item2))) &&
             // Each FilterDataSource in list2 must be equivalent to a FilterDataSource in list1.
             list2.every((item2) => list2.some((item1) => FilterUtil.areFilterDataSourcesEquivalent(item1, item2)));
+    }
+
+    /**
+     * Creates and returns the pretty name for the given database, table, and field.
+     *
+     * @arg {DatabaseMetaData} database
+     * @arg {TableMetaData} table
+     * @arg {FieldMetaData} field
+     * @return {string}
+     */
+    export function createFilterName(database: DatabaseMetaData, table: TableMetaData, field: FieldMetaData, operator: string): string {
+        return database.prettyName + ' / ' + table.prettyName + ' / ' + field.prettyName + ' ' + operator.toUpperCase();
     }
 
     /**
@@ -1070,8 +1082,7 @@ class SimpleFilter extends AbstractFilter {
         let prettyValue = this.value instanceof Date ? ((this.value.getUTCMonth() + 1) + '-' + this.value.getUTCDate() + '-' +
             this.value.getUTCFullYear()) : this.value;
         // EX:  database.table.field = value
-        return this.database.prettyName + ' / ' + this.table.prettyName + ' / ' + this.field.prettyName + ' ' + this.operator + ' ' +
-            prettyValue;
+        return FilterUtil.createFilterName(this.database, this.table, this.field, this.operator) + ' ' + prettyValue;
     }
 }
 
@@ -1191,6 +1202,22 @@ class CompoundFilter extends AbstractFilter {
      * @protected
      */
     protected toStringHelper(): string {
+        // With too many nested filters (arbitrarily more than 5), the name gets too long, so abbreviate it.
+        // EX:  (fieldA : 5 Filters) AND (fieldB : 1 Filter)
+        if (this.filters.length > 5) {
+            let filterNameCollection: Map<string, number> = new Map<string, number>();
+            this.filters.forEach((filter) => {
+                let filterName = filter instanceof SimpleFilter ? FilterUtil.createFilterName(filter.database, filter.table, filter.field,
+                    filter.operator) : filter.toString();
+                let priorCount = filterNameCollection.get(filterName) || 0;
+                filterNameCollection.set(filterName, priorCount + 1);
+            });
+            return '(' + Array.from(filterNameCollection.keys()).map((filterName) => {
+                let typeString = this.type === CompoundFilterType.AND ? 'ALL OF ' : 'ONE OF ';
+                let totalCount = filterNameCollection.get(filterName);
+                return filterName + ' ' + typeString + totalCount + ' FILTER' + (totalCount > 1 ? 'S' : '');
+            }).join(') ' + this.type + ' (') + ')';
+        }
         // EX:  (fieldA != value1) AND ((fieldB = value2) OR (fieldB = value3))
         return '(' + this.filters.map((filter) => filter.toString()).join(') ' + this.type + ' (') + ')';
     }
