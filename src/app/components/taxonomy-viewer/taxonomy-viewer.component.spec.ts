@@ -612,7 +612,6 @@ describe('Component: TaxonomyViewer', () => {
             value: 'testCategoryI'
         } as SimpleFilterDesign, {
             type: 'and',
-            name: 'Test Database 1 / Test Table 1 / Test Type Field : Filter on Taxonomy Types',
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -630,7 +629,6 @@ describe('Component: TaxonomyViewer', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign, {
             type: 'and',
-            name: 'Test Database 1 / Test Table 1 / Test Name Field : Filter on Taxonomy Subtypes',
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -682,7 +680,6 @@ describe('Component: TaxonomyViewer', () => {
             value: 'testTypeA'
         } as SimpleFilterDesign, {
             type: 'and',
-            name: 'Test Database 1 / Test Table 1 / Test Name Field : Filter on Taxonomy Subtypes',
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -787,7 +784,6 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             type: 'and',
-            name: 'Test Database 1 / Test Table 1 / Test Category Field : Filter on Taxonomy Categories',
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -805,7 +801,6 @@ describe('Component: TaxonomyViewer', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign, {
             type: 'and',
-            name: 'Test Database 1 / Test Table 1 / Test Type Field : Filter on Taxonomy Types',
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -837,7 +832,6 @@ describe('Component: TaxonomyViewer', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign, {
             type: 'and',
-            name: 'Test Database 1 / Test Table 1 / Test Name Field : Filter on Taxonomy Subtypes',
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -892,7 +886,6 @@ describe('Component: TaxonomyViewer', () => {
             value: 'testCategoryII'
         } as SimpleFilterDesign, {
             type: 'and',
-            name: 'Test Database 1 / Test Table 1 / Test Type Field : Filter on Taxonomy Types',
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -917,7 +910,6 @@ describe('Component: TaxonomyViewer', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign, {
             type: 'and',
-            name: 'Test Database 1 / Test Table 1 / Test Name Field : Filter on Taxonomy Subtypes',
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -1145,7 +1137,6 @@ describe('Component: TaxonomyViewer', () => {
             value: 'testCategoryI'
         } as SimpleFilterDesign, {
             type: 'and',
-            name: 'Test Database 1 / Test Table 1 / Test Type Field : Filter on Taxonomy Types',
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -1223,7 +1214,6 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             type: 'and',
-            name: 'Test Database 1 / Test Table 1 / Test Category Field : Filter on Taxonomy Categories',
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -1248,7 +1238,6 @@ describe('Component: TaxonomyViewer', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign, {
             type: 'and',
-            name: 'Test Database 1 / Test Table 1 / Test Name Field : Filter on Taxonomy Subtypes',
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],
@@ -1331,7 +1320,6 @@ describe('Component: TaxonomyViewer', () => {
             value: 'testCategoryI'
         } as SimpleFilterDesign, {
             type: 'and',
-            name: 'Test Database 1 / Test Table 1 / Test Type Field : Filter on Taxonomy Types',
             filters: [{
                 datastore: '',
                 database: DatasetServiceMock.DATABASES[0],

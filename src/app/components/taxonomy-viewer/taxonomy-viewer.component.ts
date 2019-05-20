@@ -141,10 +141,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         } as SimpleFilterDesign;
     }
 
-    private createFilterDesignOnList(filters: FilterDesign[], name?: string): FilterDesign {
+    private createFilterDesignOnList(filters: FilterDesign[]): FilterDesign {
         return {
             type: CompoundFilterType.AND,
-            name: name,
             filters: filters
         } as CompoundFilterDesign;
     }
@@ -540,25 +539,19 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             this.options.subTypeField.columnName);
 
         // Create a single compound AND filter (with a pretty name) for all the filters on each filterable field.
-        let categoryFilterName = this.options.database.prettyName + ' / ' + this.options.table.prettyName + ' / ' +
-            this.options.categoryField.prettyName + ' : Filter on Taxonomy Categories';
         let categoryFilter: FilterDesign = (categoryFilters.length) ? (categoryFilters.length === 1 ? categoryFilters[0] :
-            this.createFilterDesignOnList(categoryFilters, categoryFilterName)) : null;
+            this.createFilterDesignOnList(categoryFilters)) : null;
 
         // Ignore the type filters if the type field is the same as the category field.
         let typeIsDuplicated = !!(this.options.typeField.columnName === this.options.categoryField.columnName && categoryFilters.length);
-        let typeFilterName = this.options.database.prettyName + ' / ' + this.options.table.prettyName + ' / ' +
-            this.options.typeField.prettyName + ' : Filter on Taxonomy Types';
         let typeFilter: FilterDesign = (typeFilters.length && !typeIsDuplicated) ? (typeFilters.length === 1 ? typeFilters[0] :
-            this.createFilterDesignOnList(typeFilters, typeFilterName)) : null;
+            this.createFilterDesignOnList(typeFilters)) : null;
 
         // Ignore the subtype filters if the subtype field is the same as the type field or the category field.
         let subTypeIsDuplicated = !!(this.options.subTypeField.columnName === this.options.typeField.columnName && typeFilters.length) ||
             !!(this.options.subTypeField.columnName === this.options.categoryField.columnName && categoryFilters.length);
-        let subTypeFilterName = this.options.database.prettyName + ' / ' + this.options.table.prettyName + ' / ' +
-            this.options.subTypeField.prettyName + ' : Filter on Taxonomy Subtypes';
         let subTypeFilter: FilterDesign = (subTypeFilters.length && !subTypeIsDuplicated) ? (subTypeFilters.length === 1 ?
-            subTypeFilters[0] : this.createFilterDesignOnList(subTypeFilters, subTypeFilterName)) : null;
+            subTypeFilters[0] : this.createFilterDesignOnList(subTypeFilters)) : null;
 
         // If we don't need to filter a valid filterable field, ensure that we delete all previous filters that were set on that field.
         let filterDesignListToDelete: FilterDesign[] = [];

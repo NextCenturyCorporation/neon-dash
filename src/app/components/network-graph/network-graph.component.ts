@@ -163,7 +163,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     public responseData: any[] = [];
 
     public displayGraph: boolean;
-    public neonFilters: any[] = [];
     public totalNodes: number;
     public prettifiedNodeLabels: string[] = [];
     public prettifiedEdgeLabels: string[] = [];
@@ -755,7 +754,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 array.findIndex((object) => object.id === value.id) === index).length;
 
             this.graphData.clear();
-            if (this.options.hideUnfiltered && this.neonFilters.length || !this.options.hideUnfiltered) {
+            if (this.options.hideUnfiltered && this.isFiltered() || !this.options.hideUnfiltered) {
                 this.restartPhysics();
                 this.displayGraph = true;
                 this.graphData.update(graphProperties);
