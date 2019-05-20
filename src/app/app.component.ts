@@ -505,6 +505,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe('toggleGear', (message) => this.updateToggleGear(message));
     }
 
+    @DashboardModified()
     onDragStop(i, event) {
         this.showItemLocation(event);
     }
@@ -513,6 +514,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.visualizations.toArray()[i].onResizeStart();
     }
 
+    @DashboardModified()
     onResizeStop(i, event) {
         this.showItemLocation(event);
         this.visualizations.toArray()[i].onResizeStop();
