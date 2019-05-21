@@ -32,8 +32,9 @@
     <mat-toolbar class="neon-toolbar-large neon-toolbar-wide titlebar-header-text" color="primary" layout-align="space-between center" flex>
         <span>{{ datasetService.getCurrentDashboardTitle() || "Choose Dashboard..." }}</span>
         <span class="fill-remaining"></span>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below" id="showVisShortcutButton"
-            matTooltip="Add a New Visualization" (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()" *ngIf="showVisShortcut">
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
+            id="showVisualizationsShortcutButton" matTooltip="Add a New Visualization"
+            (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()" *ngIf="showVisualizationsShortcut">
             <mat-icon class="neon-icon-large">add_circle</mat-icon>
         </button>
         <div class="simple-search-container">
@@ -41,11 +42,11 @@
         </div>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Show Dashboard Selector" matTooltipPosition="below"
             matTooltip="Show Dashboard Selector" (click)="toggleDashboardSelectorDialog(!showDashboardSelector)">
-            <mat-icon class="neon-icon-large" svgIcon="dashboard_selector"></mat-icon>
+            <mat-icon class="neon-icon-large">dashboard</mat-icon>
         </button>
-        <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below" id="showFiltersComponentIcon"
-            matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFiltersComponentIcon">
-            <mat-icon class="neon-icon-large" *ngIf="changeFiltersComponentIcon()" svgIcon="{{filtersIcon}}"></mat-icon>
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below" id="showFilterTrayButton"
+            matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFilterTray">
+            <mat-icon class="neon-icon-large" *ngIf="changeFilterTrayIcon()" svgIcon="{{filtersIcon}}"></mat-icon>
         </button>
 
         <mat-menu #appMenu="matMenu" [backdropClass]="widgetService.getTheme()" yPosition="below" [overlapTrigger]="false">
