@@ -45,17 +45,12 @@
     overflow-y: auto;
 }
 
-[mat-icon-button].notify.updated-data {
-    position: relative;
-    &::after {
-        content: ' ';
-        position: absolute;
+[mat-icon-button].notify {
+    /deep/ .mat-badge-active {
+        color: transparent;
+        height: 10px;
+        width: 10px;
         top: 5px;
-        right: 7px;
-        display: block;
-        height: 12px;
-        width: 12px;
-        border-radius: 50%;
         background-color: red;
     }
 }
