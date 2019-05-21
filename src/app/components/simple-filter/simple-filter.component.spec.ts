@@ -195,6 +195,7 @@ describe('Component: SimpleFilter unconfigured', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DatasetService, useClass: DatasetService },
+            FilterService,
             { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ],
         imports: [

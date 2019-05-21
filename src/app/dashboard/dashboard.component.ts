@@ -22,17 +22,17 @@ import {
     QueryList,
     ViewChild,
     ViewChildren,
-    ViewContainerRef,
-    HostBinding
+    ViewContainerRef
 } from '@angular/core';
 
 import * as _ from 'lodash';
 import { eventing } from 'neon-framework';
 import * as uuidv4 from 'uuid/v4';
 
+import { AbstractSearchService } from '../services/abstract.search.service';
 import { AbstractWidgetService } from '../services/abstract.widget.service';
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
-import { Datastore, Dashboard } from '../dataset';
+import { Dashboard } from '../dataset';
 import { DatasetService } from '../services/dataset.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../services/filter.service';
@@ -43,12 +43,12 @@ import { NeonGTDConfig } from '../neon-gtd-config';
 import { neonEvents } from '../neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { ParameterService } from '../services/parameter.service';
+import { SaveStateComponent } from '../components/save-state/save-state.component';
 import { SimpleFilterComponent } from '../components/simple-filter/simple-filter.component';
 import { SnackBarComponent } from '../components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from '../components/visualization-container/visualization-container.component';
 import { ConfigService } from '../services/config.service';
 import { DynamicDialogComponent } from '../components/dynamic-dialog/dynamic-dialog.component';
-import { AbstractSearchService } from '../services/abstract.search.service';
 
 @Component({
     selector: 'app-dashboard',
@@ -176,6 +176,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             this.snackBar = snackBar;
             this.messageSender.publish(neonEvents.DASHBOARD_REFRESH, {});
 
+            // The dashboards are read from the config file in the DatasetService's constructor.
+            this.dashboards = this.datasetService.getDashboards();
+            this.dashboardVersion = neonConfig.version || '';
+
             if (this.neonConfig) {
                 if (neonConfig.errors && neonConfig.errors.length > 0) {
                     let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
@@ -197,7 +201,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
-    addWidget(eventMessage: { gridName?: string, widgetGridItem: NeonGridItem }) {
+    private addWidget(eventMessage: { gridName?: string, widgetGridItem: NeonGridItem }) {
         let widgetGridItem: NeonGridItem = eventMessage.widgetGridItem;
 
         // Set default grid item config properties for the Neon dashboard.
@@ -237,7 +241,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         // If both col and row are set, add the widget to the grid.
         if (widgetGridItem.col && widgetGridItem.row) {
-            this.widgetGridItems.push(widgetGridItem);
+            this.tabbedGrid[index].list.push(widgetGridItem);
             return;
         }
 
@@ -264,7 +268,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             y++;
         }
 
-        this.widgetGridItems.push(widgetGridItem);
+        this.tabbedGrid[index].list.push(widgetGridItem);
     }
 
     changeFavicon() {
@@ -288,7 +292,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         head.appendChild(title);
     }
 
-    changeFiltersComponentIcon() {
+    changeFilterTrayIcon() {
         this.filtersIcon = this.isFiltered() ? 'filters_active' : 'filters';
         // TODO Does this function really have to return a boolean value?
         return true;
@@ -297,7 +301,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     /**
      * Clears the grid.
      */
-    clearDashboard() {
+    private clearDashboard() {
         this.selectedTabIndex = 0;
         this.tabbedGrid = [{
             list: [],
@@ -323,9 +327,11 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * @arg {{id:string}} eventMessage
      */
     private deleteWidget(eventMessage: { id: string }) {
-        for (let i = 0; i < this.widgetGridItems.length; i++) {
-            if (this.widgetGridItems[i].id === eventMessage.id) {
-                this.widgetGridItems.splice(i, 1);
+        for (let i = 0; i < this.tabbedGrid[this.selectedTabIndex].list.length; i++) {
+            if (this.tabbedGrid[this.selectedTabIndex].list[i].id === eventMessage.id) {
+                // Update the grid item itself so that its status is saved within the dashboard's layoutObject.
+                this.tabbedGrid[this.selectedTabIndex].list[i].hide = true;
+                this.tabbedGrid[this.selectedTabIndex].list.splice(i, 1);
             }
         }
     }
@@ -339,7 +345,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
-    expandWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
+    private expandWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
         let visibleRowCount = this.getVisibleRowCount();
         eventMessage.widgetGridItem.previousConfig = {
             col: eventMessage.widgetGridItem.col,
@@ -393,10 +399,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Returns the 1-based index of the last column occupied.  Thus, for a 10 column grid, 10 would be the
      * largest possble max column in use.  If no columns are filled (i.e., an empty grid), 0 is returned.
      */
-    getMaxColInUse(): number {
+    private getMaxColInUse(): number {
         let maxCol = 0;
 
-        for (let widgetGridItem of this.widgetGridItems) {
+        for (let widgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
             maxCol = Math.max(maxCol, (widgetGridItem.col + widgetGridItem.sizex - 1));
         }
         return maxCol;
@@ -406,10 +412,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Returns the 1-based index of the last row occupied.  Thus, for a 10 row grid, 10 would be the
      * largest possble max row in use.  If no rows are filled (i.e., an empty grid), 0 is returned.
      */
-    getMaxRowInUse(): number {
+    private getMaxRowInUse(): number {
         let maxRow = 0;
 
-        for (let widgetGridItem of this.widgetGridItems) {
+        for (let widgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
             maxRow = Math.max(maxRow, (widgetGridItem.row + widgetGridItem.sizey - 1));
         }
         return maxRow;
@@ -420,7 +426,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @return {number}
      */
-    getVisibleRowCount(): number {
+    private getVisibleRowCount(): number {
         let gridElement = this.getGridElement();
         if (this.grid && gridElement) {
             return Math.floor(gridElement.nativeElement.offsetParent.clientHeight / this.grid.rowHeight);
@@ -433,7 +439,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{error:Error|ExceptionInformation,message:string}} eventMessage
      */
-    handleDashboardError(eventMessage: { error: Error | ExceptionInformation, message: string }) {
+    private handleDashboardError(eventMessage: { error: Error | ExceptionInformation, message: string }) {
         // TODO THOR-916
         console.error('An error occured: ' + eventMessage.message + '\n' + eventMessage.error);
     }
@@ -447,7 +453,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
-    moveWidgetToBottom(eventMessage: { widgetGridItem: NeonGridItem }) {
+    private moveWidgetToBottom(eventMessage: { widgetGridItem: NeonGridItem }) {
         eventMessage.widgetGridItem.row = this.getMaxRowInUse() + 1;
     }
 
@@ -456,17 +462,14 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
-    moveWidgetToTop(eventMessage: { widgetGridItem: NeonGridItem }) {
+    private moveWidgetToTop(eventMessage: { widgetGridItem: NeonGridItem }) {
         eventMessage.widgetGridItem.row = 1;
     }
 
     ngAfterViewInit() {
-        if (this.createGear) {
-            let gearContainer: HTMLElement = document.getElementById('gear');
+        let gearContainer: HTMLElement = document.getElementById('gear');
 
-            gearContainer.setAttribute('style', 'display: none');
-        }
-
+        gearContainer.setAttribute('style', 'display: none');
         /* NOTE:
          * The gear component is created when the app component is created because if it is created when
          * a component sends its option object in the messenger channel, it is too late.
@@ -573,7 +576,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     /**
      * Refreshes the grid.
      */
-    refreshDashboard() {
+    private refreshDashboard() {
         this.grid.triggerResize();
     }
 
@@ -582,7 +585,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{id:string,widget:BaseNeonComponent}} eventMessage
      */
-    registerWidget(eventMessage: { id: string, widget: BaseNeonComponent }) {
+    private registerWidget(eventMessage: { id: string, widget: BaseNeonComponent }) {
         if (this.widgets.get(eventMessage.id) === undefined) {
             this.widgets.set(eventMessage.id, eventMessage.widget);
         }
@@ -739,12 +742,11 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * @arg widgetGridItem The widget to place
      */
     private widgetFits(widgetGridItem: NeonGridItem) {
-        for (let existingWidgetGridItem of this.widgetGridItems) {
+        for (let existingWidgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
             if (this.widgetOverlaps(widgetGridItem, existingWidgetGridItem)) {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -755,15 +757,12 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * @arg two the second widget
      */
     private widgetOverlaps(one: NeonGridItem, two: NeonGridItem) {
-        if (one.col > (two.col + two.sizex - 1) ||
-            two.col > (one.col + one.sizex - 1)) {
+        if (one.col > (two.col + two.sizex - 1) || two.col > (one.col + one.sizex - 1)) {
             return false;
         }
-        if (one.row > (two.row + two.sizey - 1) ||
-            two.row > (one.row + one.sizey - 1)) {
+        if (one.row > (two.row + two.sizey - 1) || two.row > (one.row + one.sizey - 1)) {
             return false;
         }
-
         return true;
     }
 }
