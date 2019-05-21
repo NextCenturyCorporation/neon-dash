@@ -28,10 +28,8 @@ import { WidgetService } from '../../services/widget.service';
 
 import { FieldMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { AnnotationViewerModule } from './annotation-viewer.module';
@@ -46,7 +44,7 @@ describe('Component: AnnotationViewer', () => {
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
@@ -62,13 +60,7 @@ describe('Component: AnnotationViewer', () => {
         fixture.detectChanges();
     });
 
-    it('exists', () => {
-        expect(component).toBeDefined();
-    });
-
     it('properties are set to expected defaults', () => {
-        expect(component.filters).toEqual([]);
-
         // Element Refs
         expect(component.headerText).toBeDefined();
         expect(component.infoText).toBeDefined();
@@ -88,110 +80,5 @@ describe('Component: AnnotationViewer', () => {
         expect(component.options.documentTextField).toEqual(new FieldMetaData());
         expect(component.data).toEqual([]);
         expect(component.options.singleColor).toEqual(false);
-    });
-
-    it('addVisualizationFilter does update filters', () => {
-        component.addVisualizationFilter({
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        });
-
-        expect(component.filters).toEqual([{
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }]);
-
-        component.addVisualizationFilter({
-            id: 'idB',
-            field: 'field2',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        });
-
-        expect(component.filters).toEqual([{
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }, {
-            id: 'idB',
-            field: 'field2',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        }]);
-    });
-
-    it('addVisualizationFilter does update filters if the ID of the given filter and the ID of an existing filter are matching', () => {
-        component.addVisualizationFilter({
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        });
-
-        component.addVisualizationFilter({
-            id: 'idA',
-            field: 'field2',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        });
-
-        expect(component.filters).toEqual([{
-            id: 'idA',
-            field: 'field2',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        }]);
-    });
-
-    it('createVisualizationFilter does return expected filter object', () => {
-        expect(component.createVisualizationFilter('idA', 'field1', 'prettyField1', 'value1')).toEqual({
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        });
-    });
-
-    it('filterOnItem does add new filter to empty array and call addNeonFilter', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        let spy = spyOn(component, 'addNeonFilter');
-
-        component.filterOnItem({
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        });
-        expect(component.filters).toEqual([]);
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([component.options, true, {
-            id: undefined,
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }, neon.query.where('field1', '=', 'value1')]);
-    });
-
-    it('getCloseableFilters does return expected array of filters', () => {
-        expect(component.getCloseableFilters()).toEqual([]);
-
-        component.filters = [{
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-
-        expect(component.getCloseableFilters()).toEqual([{
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }]);
     });
 });

@@ -14,15 +14,17 @@
  *
  */
 import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { Datastore } from '../../dataset';
+import { FilterService } from '../../services/filter.service';
 import { MatDialogRef } from '@angular/material';
 import { neonEvents } from '../../neon-namespaces';
 
 import { CustomConnectionStep } from './custom-connection-step';
 import { CustomConnectionData } from './custom-connection-data';
 
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 
 @Component({
     selector: 'app-custom-connection',
@@ -34,16 +36,21 @@ export class CustomConnectionComponent implements AfterViewInit {
     public dialogRef: MatDialogRef<CustomConnectionComponent>;
     @Output() datasetCreated: EventEmitter<any> = new EventEmitter<any>();
 
-    private messenger: neon.eventing.Messenger;
+    private messenger: eventing.Messenger;
 
     @ViewChildren('step') private stepQueryList: QueryList<CustomConnectionStep>;
     private steps: CustomConnectionStep[];
     private currentStep: CustomConnectionStep;
     private currentStepIndex: number;
 
-    constructor(private datasetService: DatasetService, dialogRef: MatDialogRef<CustomConnectionComponent>) {
+    constructor(
+        private datasetService: DatasetService,
+        private filterService: FilterService,
+        private searchService: AbstractSearchService,
+        dialogRef: MatDialogRef<CustomConnectionComponent>
+    ) {
         this.dialogRef = dialogRef;
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
 
         this.steps = [];
         this.currentStepIndex = 0;
@@ -85,8 +92,8 @@ export class CustomConnectionComponent implements AfterViewInit {
         // TODO: THOR-1056: fix so that this uses dashboards properly/incorporate next line
         //this.datasetService.setCurrentDashboard(??)
 
-        this.messenger.clearFiltersSilently();
-        this.messenger.publish(neonEvents.DASHBOARD_CLEAR, {});
+        this.filterService.deleteFilters('CustomConnection', this.searchService);
+        this.messenger.publish(neonEvents.DASHBOARD_RESET, {});
         this.datasetCreated.emit(dataset);
         this.dialogRef.close();
     }

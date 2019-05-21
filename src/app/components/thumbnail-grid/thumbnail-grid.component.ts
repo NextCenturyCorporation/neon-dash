@@ -27,12 +27,12 @@ import {
 
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
-import { MediaTypes } from '../../dataset';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -43,7 +43,6 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import * as neon from 'neon-framework';
 import { MatDialog } from '@angular/material';
 
 export const ViewType = {
@@ -52,9 +51,6 @@ export const ViewType = {
     TITLE: 'title'
 };
 
-/**
- * A visualization that displays binary and text files triggered through a select_id event.
- */
 @Component({
     selector: 'app-thumbnail-grid',
     templateUrl: './thumbnail-grid.component.html',
@@ -66,19 +62,11 @@ export const ViewType = {
 export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     private CANVAS_SIZE: number = 100.0;
 
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('thumbnailGrid') thumbnailGrid: ElementRef;
 
-    public filters: {
-        id: string,
-        field: string,
-        prettyField: string,
-        value: string
-    }[] = [];
-
-    // TODO THOR-985
     public gridArray: any[] = [];
 
     public mediaTypes: any = MediaTypes;
@@ -116,7 +104,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new WidgetFieldOption('categoryField', 'Category Field', false),
             new WidgetFieldOption('compareField', 'Comparison Field', false),
             new WidgetFieldOption('dateField', 'Date Field', false),
-            new WidgetFieldOption('filterField', 'Filter Field', false),
+            new WidgetFieldOption('filterField', 'Filter Field', false), // Deprecated
             new WidgetFieldOption('flagLabel', 'Flag Field', false),
             new WidgetFieldOption('flagSubLabel1', 'Flag Sub-Label Field 1', false),
             new WidgetFieldOption('flagSubLabel2', 'Flag Sub-Label Field 2', false),
@@ -128,8 +116,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new WidgetFieldOption('objectNameField', 'Actual Name Field', false),
             new WidgetFieldOption('percentField', 'Predicted Probability Field', false),
             new WidgetFieldOption('predictedNameField', 'Predicted Name Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', true),
-            new WidgetFieldOption('typeField', 'Type Field', false)
+            new WidgetFieldOption('sortField', 'Sort Field', false),
+            new WidgetFieldOption('typeField', 'Type Field', false),
+            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
+
         ];
     }
 
@@ -138,36 +128,37 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      *
      * @arg {string} text
      */
-    createFilter(text: string) {
-        if (!this.options.filterField.columnName) {
-            return;
-        }
+    createFilter(item: any) {
+        let filters: FilterDesign[] = [];
 
-        let filter = {
-            id: undefined,
-            field: this.options.filterField.columnName,
-            prettyField: this.options.filterField.prettyName,
-            value: text
-        };
-
-        let clause = neon.query.where(filter.field, '=', filter.value);
-        let runQuery = !this.options.ignoreSelf;
-
-        if (!this.filters.length) {
-            this.filters = [filter];
-            this.addNeonFilter(this.options, runQuery, filter, clause);
-        } else if (this.filters.length === 1) {
-            if (!this.filterExists(filter.field, filter.value)) {
-                filter.id = this.filters[0].id;
-                this.filters = [filter];
-                this.replaceNeonFilter(this.options, runQuery, filter, clause);
+        this.options.filterFields.filter((filterField) => !!filterField.columnName).forEach((filterField) => {
+            let filterValues: any[] = typeof item[filterField.columnName] === 'undefined' ? [] :
+                (Array.isArray(item[filterField.columnName]) ? item[filterField.columnName] : [item[filterField.columnName]]);
+            if (filterValues.length) {
+                filters.push(filterValues.length === 1 ? this.createFilterDesignOnItem(filterField, filterValues[0]) :
+                    this.createFilterDesignOnList(filterValues.map((value) => this.createFilterDesignOnItem(filterField, value))));
             }
-        } else {
-            this.removeAllFilters(this.options, [].concat(this.filters), false, false, () => {
-                this.filters = [filter];
-                this.addNeonFilter(this.options, runQuery, filter, clause);
-            });
-        }
+        });
+
+        this.toggleFilters(filters);
+    }
+
+    private createFilterDesignOnItem(field: FieldMetaData, value?: any): FilterDesign {
+        return {
+            datastore: '',
+            database: this.options.database,
+            table: this.options.table,
+            field: field,
+            operator: '=',
+            value: value
+        } as SimpleFilterDesign;
+    }
+
+    private createFilterDesignOnList(filters: FilterDesign[]): FilterDesign {
+        return {
+            type: CompoundFilterType.OR,
+            filters: filters
+        } as CompoundFilterDesign;
     }
 
     /**
@@ -219,9 +210,38 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 variable: ViewType.CARD
             }]),
             new WidgetFreeTextOption('canvasSize', 'Canvas Size', this.CANVAS_SIZE),
-            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', {value: false, length: 0})
+            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', {value: false, length: 0}),
+            new WidgetNonPrimitiveOption('ignoreMediaTypes', 'Ignore Media Types', [])
 
         ];
+    }
+
+    /**
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     *
+     * @return {FilterBehavior[]}
+     * @override
+     */
+    protected designEachFilterWithNoValues(): FilterBehavior[] {
+        let behaviors: FilterBehavior[] = [];
+
+        this.options.filterFields.forEach((filterField) => {
+            behaviors.push({
+                // Match a single EQUALS filter on the specific filter field.
+                filterDesign: this.createFilterDesignOnItem(filterField),
+                // No redraw callback:  The filtered text will automatically be styled with isSelected as called by the HTML.
+                redrawCallback: () => { /* Do nothing */ }
+            });
+            behaviors.push({
+                // Match a compound filter with one or more EQUALS filters on the specific filter field.
+                filterDesign: this.createFilterDesignOnList([this.createFilterDesignOnItem(filterField)]),
+                // No redraw callback:  The filtered text will automatically be styled with isSelected as called by the HTML.
+                redrawCallback: () => { /* Do nothing */ }
+            });
+        });
+
+        return behaviors;
     }
 
     /**
@@ -234,29 +254,26 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let filters: FilterClause[] = [
-            this.searchService.buildFilterClause(options.linkField.columnName, '!=', null),
-            this.searchService.buildFilterClause(options.linkField.columnName, '!=', '')
-        ];
+        let filters = sharedFilters;
 
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
-            .updateSort(query, options.sortField.columnName, options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+        if (this.options.sortField.columnName) {
+            filters = [
+                ...filters,
+                this.searchService.buildFilterClause(options.linkField.columnName, '!=', null),
+                this.searchService.buildFilterClause(options.linkField.columnName, '!=', '')
+            ];
+        }
+
+        this.searchService.updateFieldsToMatchAll(query);
+
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(filters));
+
+        if (options.sortField.columnName) {
+            this.searchService.updateSort(query, options.sortField.columnName,
+                options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+        }
 
         return query;
-    }
-
-    /**
-     * Returns whether a visualization filter object with the given field and value strings exists in the list of visualization filters.
-     *
-     * @arg {string} field
-     * @arg {string} value
-     * @return {boolean}
-     * @private
-     */
-    filterExists(field: string, value: string) {
-        return this.filters.some((existingFilter) => {
-            return field === existingFilter.field && value === existingFilter.value;
-        });
     }
 
     /**
@@ -292,16 +309,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Returns the list of filter objects for the visualization.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters(): any[] {
-        return this.filters;
-    }
-
-    /**
      * Returns an object containing the ElementRef objects for the visualization.
      *
      * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
@@ -314,40 +321,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             infoText: this.infoText,
             thumbnailGrid: this.thumbnailGrid
         };
-    }
-
-    /**
-     * Returns the list filters for the visualization to ignore.
-     *
-     * @return {array|null}
-     * @override
-     */
-    getFiltersToIgnore(): any[] {
-        if (!this.options.ignoreSelf) {
-            return null;
-        }
-
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            this.options.filterField.columnName ? [this.options.filterField.columnName] : undefined);
-
-        let ignoredFilterIds = neonFilters.filter((neonFilter) => {
-            return !neonFilter.filter.whereClause.whereClauses;
-        }).map((neonFilter) => {
-            return neonFilter.id;
-        });
-
-        return ignoredFilterIds.length ? ignoredFilterIds : null;
-    }
-
-    /**
-     * Returns the text for the given filter object.
-     *
-     * @arg {object} filter
-     * @return {string}
-     * @override
-     */
-    getFilterText(filter: any): string {
-        return filter.prettyField + ' = ' + filter.value;
     }
 
     getThumbnailLabel(item): string {
@@ -403,23 +376,24 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     validateVisualizationQuery(options: any): boolean {
-        return !!(options.database.name && options.table.name && options.linkField.columnName && options.sortField.columnName);
+        return !!(options.database.name && options.table.name && options.linkField.columnName);
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         this.gridArray = [];
 
         results.forEach((d) => {
             let item = {},
-                 links = [];
+                links = [];
 
             if (options.linkField.columnName) {
                 links = this.getArrayValues(neonUtilities.deepFind(d, options.linkField.columnName) || '');
@@ -430,9 +404,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             if (options.compareField.columnName) {
                 item[options.compareField.columnName] = neonUtilities.deepFind(d, options.compareField.columnName);
             }
-            if (options.filterField.columnName) {
-                item[options.filterField.columnName] = neonUtilities.deepFind(d, options.filterField.columnName);
-            }
+            options.filterFields.filter((filterField) => !!filterField.columnName).forEach((filterField) => {
+                item[filterField.columnName] = neonUtilities.deepFind(d, filterField.columnName);
+            });
             if (options.idField.columnName) {
                 item[options.idField.columnName] = neonUtilities.deepFind(d, options.idField.columnName);
             }
@@ -486,7 +460,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             this.showingZeroOrMultipleElementsPerResult = this.showingZeroOrMultipleElementsPerResult || (links.length !== 1);
         });
 
-        return new TransformedVisualizationData(this.gridArray);
+        return this.gridArray.length;
     }
 
     /**
@@ -514,8 +488,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      *
      * @return {boolean}
      */
-    isSelectable() {
-        return !!this.options.filterField.columnName || !!this.options.idField.columnName || this.options.openOnMouseClick;
+    isSelectable(): boolean {
+        return !!this.options.idField.columnName || this.options.openOnMouseClick;
     }
 
     /**
@@ -524,9 +498,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @arg {object} item
      * @return {boolean}
      */
-    isSelected(item) {
-        return (!!this.options.filterField.columnName &&
-            this.filterExists(this.options.filterField.columnName, item[this.options.filterField.columnName]));
+    isSelected(item): boolean {
+        if (!item || !this.options.filterFields.length) {
+            return false;
+        }
+
+        return this.options.filterFields.every((filterField) => !filterField.columnName ||
+            this.isFiltered(this.createFilterDesignOnItem(filterField, item[filterField.columnName])) ||
+            this.isFiltered(this.createFilterDesignOnList([this.createFilterDesignOnItem(filterField,
+                item[filterField.columnName])])));
     }
 
     /**
@@ -535,16 +515,17 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     initializeProperties() {
-        if (!this.options.sortField.columnName) {
-            this.options.sortField = this.options.percentField;
-        }
-
         if (!this.options.flagLabel.columnName) {
             this.options.flagLabel = this.options.idField;
         }
 
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
         this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+
+        // Backwards compatibility (filterField deprecated due to its redundancy with filterFields).
+        if (this.options.filterField.columnName && !this.options.filterFields.length) {
+            this.options.filterFields = [this.options.filterField];
+        }
     }
 
     /**
@@ -561,18 +542,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         this.createMediaThumbnail();
         this.thumbnailGrid.nativeElement.scrollTop = 0;
-    }
-
-    /**
-     * Removes the given filter from this visualization.
-     *
-     * @arg {object} filter
-     * @override
-     */
-    removeFilter(filter: any) {
-        this.filters = this.filters.filter((existingFilter: any) => {
-            return existingFilter.id !== filter.id;
-        });
     }
 
     /**
@@ -595,7 +564,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @private
      */
     private getArrayValues(value) {
-        return value ? (Array.isArray(value) ?  value : value.toString().search(/,/g) > -1 ?  value.toString().split(',') : [value]) : [];
+        return value ? (Array.isArray(value) ? value : value.toString().search(/,/g) > -1 ? value.toString().split(',') : [value]) : [];
     }
 
     /**
@@ -620,95 +589,111 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             thumbnail.fillStyle = '#ffffff';
             thumbnail.fillRect(0, 0, this.options.canvasSize, this.options.canvasSize);
 
-            switch (type) {
-                case this.mediaTypes.image : {
-                    let image: HTMLImageElement = new Image();
-                    image.src = link;
-                    image.onload = () => {
-                        switch (this.options.cropAndScale) {
-                            case 'both' : {
-                                // Use the MIN to crop the scale
-                                let size = Math.min(image.width, image.height);
-                                let multiplier = this.options.canvasSize / size;
-                                thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
-                                break;
+            if (link && link !== 'n/a' && !this.options.ignoreMediaTypes.includes(grid[this.options.typeField.columnName])) {
+                switch (type) {
+                    case this.mediaTypes.image : {
+                        let image: HTMLImageElement = new Image();
+                        image.src = link;
+                        image.onload = () => {
+                            switch (this.options.cropAndScale) {
+                                case 'both' : {
+                                    // Use the MIN to crop the scale
+                                    let size = Math.min(image.width, image.height);
+                                    let multiplier = this.options.canvasSize / size;
+                                    thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
+                                    break;
+                                }
+                                case 'crop' : {
+                                    thumbnail.drawImage(image, 0, 0, image.width, image.height);
+                                    break;
+                                }
+                                case 'scale' : {
+                                    // Use the MAX to scale
+                                    let size = Math.max(image.width, image.height);
+                                    let multiplier = this.options.canvasSize / size;
+                                    thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
+                                    break;
+                                }
+                                default : {
+                                    thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
+                                }
                             }
-                            case 'crop' : {
-                                thumbnail.drawImage(image, 0, 0, image.width, image.height);
-                                break;
-                            }
-                            case 'scale' : {
-                                // Use the MAX to scale
-                                let size = Math.max(image.width, image.height);
-                                let multiplier = this.options.canvasSize / size;
-                                thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
-                                break;
-                            }
-                            default : {
-                                thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
-                            }
-                        }
-                    };
-                    break;
-                }
-                case this.mediaTypes.video : {
-                    let video: HTMLVideoElement = document.createElement('video');
-                    video.src = link + '#t=1,1.1'; //1 second starting place for video screenshot
+                        };
+                        break;
+                    }
+                    case this.mediaTypes.video : {
+                        let video: HTMLVideoElement = document.createElement('video');
+                        video.src = link + '#t=1,1.1'; //1 second starting place for video screenshot
 
-                    video.onloadeddata = () => {
-                        switch (this.options.cropAndScale) {
-                            case 'both' : {
-                                // Use the MIN to crop the scale
-                                let size = Math.min(video.width, video.height);
-                                let multiplier = this.options.canvasSize / size;
-                                thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
-                                break;
+                        video.onloadeddata = () => {
+                            switch (this.options.cropAndScale) {
+                                case 'both' : {
+                                    // Use the MIN to crop the scale
+                                    let size = Math.min(video.width, video.height);
+                                    let multiplier = this.options.canvasSize / size;
+                                    thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
+                                    break;
+                                }
+                                case 'crop' : {
+                                    thumbnail.drawImage(video, 0, 0, video.width, video.height);
+                                    break;
+                                }
+                                case 'scale' : {
+                                    // Use the MAX to scale
+                                    let size = Math.max(video.width, video.height);
+                                    let multiplier = this.options.canvasSize / size;
+                                    thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
+                                    break;
+                                }
+                                default : {
+                                    thumbnail.drawImage(video, 0, 0, this.options.canvasSize, this.options.canvasSize);
+                                }
                             }
-                            case 'crop' : {
-                                thumbnail.drawImage(video, 0, 0, video.width, video.height);
-                                break;
-                            }
-                            case 'scale' : {
-                                // Use the MAX to scale
-                                let size = Math.max(video.width, video.height);
-                                let multiplier = this.options.canvasSize / size;
-                                thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
-                                break;
-                            }
-                            default : {
-                                thumbnail.drawImage(video, 0, 0, this.options.canvasSize, this.options.canvasSize);
-                            }
-                        }
-                    };
+                        };
 
-                    video.onerror = () => {
-                        if (link.includes('youtube')) {
-                            let img: HTMLImageElement = new Image();
-                            img.src = './assets/images/youtube_logo.png';
-                            img.onload = () => {
-                                thumbnail.drawImage(img, 2, 40, img.width - 12, img.height);
-                            };
-                        }
-                    };
+                        video.onerror = () => {
+                            if (link.includes('youtube')) {
+                                let img: HTMLImageElement = new Image();
+                                img.src = './assets/images/youtube_logo.png';
+                                img.onload = () => {
+                                    thumbnail.drawImage(img, 2, 40, img.width - 12, img.height);
+                                };
+                            }
+                        };
 
-                    break;
-                }
-                case this.mediaTypes.audio : {
-                    let image: HTMLImageElement = new Image();
-                    image.src = '/assets/images/volume_up.svg';
-                    image.onclick = () => this.displayMediaTab(grid);
-                    image.onload = () => {
-                        thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
-                    };
+                        break;
+                    }
+                    case this.mediaTypes.audio : {
+                        let image: HTMLImageElement = new Image();
+                        image.src = '/assets/images/volume_up.svg';
+                        image.onclick = () => this.displayMediaTab(grid);
+                        image.onload = () => {
+                            thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
+                        };
 
-                    break;
+                        break;
+                    }
+                    default : {
+                        // todo: get thumbnails of documents, pdf, and other similar types of media.
+                        thumbnail.fillStyle = '#111111';
+                        thumbnail.font = '20px Helvetica Neue';
+                        thumbnail.fillText(fileType.toUpperCase(), 10, 30);
+
+                    }
                 }
-                default : {
-                    // todo: get thumbnails of documents, pdf, and other similar types of media.
-                    thumbnail.fillStyle = '#111111';
-                    thumbnail.font = '20px Helvetica Neue';
-                    thumbnail.fillText(fileType.toUpperCase(), 10, 30);
-                }
+            } else {
+                let img: HTMLImageElement = new Image();
+                img.src = './assets/icons/document_viewer.svg';
+
+                img.onload = () => {
+                    if (this.options.viewType === ViewType.CARD) {
+                        thumbnail.drawImage(img, this.options.canvasSize * .41, this.options.canvasSize * .25,
+                            img.width + 2, img.height + 6);
+                    } else {
+                        thumbnail.drawImage(img, this.options.canvasSize * .37, this.options.canvasSize * .35,
+                            img.width - 4, img.height);
+                    }
+                };
             }
 
             // TODO Move this to a separate function and unit test all behavior.
@@ -771,8 +756,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         if (this.options.idField.columnName) {
             this.publishSelectId(item[this.options.idField.columnName]);
         }
-        if (this.options.filterField.columnName) {
-            this.createFilter(item[this.options.filterField.columnName]);
+        if (this.options.filterFields.length) {
+            this.createFilter(item);
         }
         this.publishAnyCustomEvents(item, this.options.idField.columnName);
     }
@@ -814,39 +799,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.publishAnyCustomEvents(item, this.options.idField.columnName);
     }
 
-    /**
-     * Sets filters for the visualization.
-     *
-     * @override
-     */
-    setupFilters() {
-        let neonFilters = this.options.filterField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
-            this.options.table.name, [this.options.filterField.columnName]) : [];
-        this.filters = [];
-
-        for (let neonFilter of neonFilters) {
-            if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
-                let value = neonFilter.filter.whereClause.rhs;
-                let filter = {
-                    id: neonFilter.id,
-                    field: field.columnName,
-                    prettyField: field.prettyName,
-                    value: value
-                };
-                if (!this.filterExists(filter.field, filter.value)) {
-                    this.filters.push(filter);
-                }
-            }
-        }
-    }
-
     sanitize(url) {
         return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    }
-
-    protected clearVisualizationData(options: any): void {
-        // TODO THOR-985 Temporary function.
-        this.transformVisualizationQueryResults(options, []);
     }
 }

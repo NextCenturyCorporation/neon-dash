@@ -234,8 +234,8 @@ datastores:
                                 regimechange: Regime Change
                         mappings:
                             date: createAt
-            mozambique042019_text:
-                prettyName: 'Mozambique Text'
+            mozambique052019_tweet:
+                prettyName: 'Mozambique Tweet'
                 tables:
                     ui_output:
                         prettyName: UI output
@@ -261,7 +261,7 @@ datastores:
                                 regimechange: Regime Change
                         mappings:
                             date: createAt
-            mozambique042019_sf:
+            mozambique052019_sf:
                 prettyName: 'Mozambique Situation Frames'
                 tables:
                     ui_output:
@@ -274,28 +274,7 @@ datastores:
                             - columnName: frameid
                               prettyName: Frame ID
                         labelOptions:
-                            need:
-                                food: Food
-                                water: Water
-                                shelter: Shelter
-                                med: Medicine
-                                search: Search and Rescue
-                                evac: Evacuation
-                                infra: Infrastructure
-                                utils: Utilities
-                                crimeviolence: Crime / Violence
-                                terrorism: Terrorism
-                                regimechange: Regime Change
-            mozambique042019_cluster:
-                prettyName: 'Mozambique Cluster'
-                tables:
-                    ui_output:
-                        prettyName: UI output
-                        fields:
-                            - columnName: cluster_name
-                              prettyName: Cluster Name
-                        labelOptions:
-                            need:
+                            type:
                                 food: Food
                                 water: Water
                                 shelter: Shelter
@@ -308,6 +287,33 @@ datastores:
                                 terrorism: Terrorism
                                 regimechange: Regime Change
             somali052019_frames:
+                prettyName: 'Somali'
+                tables:
+                    ui_output:
+                        prettyName: UI out
+                        fields:
+                            - columnName: need
+                              prettyName: Need Type
+                            - columnName: location
+                              prettyName: Location
+                            - columnName: translatedText
+                              prettyName: Translated Text
+                            - columnName: originalText
+                              prettyName: Original Text
+                        labelOptions:
+                            Type:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
+            somali052019:
                 prettyName: 'Somali'
                 tables:
                     ui_output:
@@ -470,21 +476,12 @@ dashboards:
                                 longitude_key: es1.ldc_il3_meta.ui_out.geoLocation.lon
                                 text_cloud_data_key: es1.ldc_il3_meta.ui_out.location
                             relations:
-                                - es1:
-                                    ldc_il3_text:
-                                        ui_output: 'topics'
-                                    ldc_il3_meta:
-                                        ui_output: 'topic'
-                                - es1:
-                                    ldc_il3_text:
-                                        ui_output: '_id'
-                                    ldc_il3_meta:
-                                        ui_output: '_id'
-                                - es1:
-                                    ldc_il3_text:
-                                        ui_output: 'id'
-                                    ldc_il3_meta:
-                                        ui_output: 'id'
+                                - - es1.ldc_il3_text.ui_output.topics
+                                  - es1.ldc_il3_meta.ui_output.topics
+                                - - es1.ldc_il3_text.ui_output._id
+                                  - es1.ldc_il3_meta.ui_output._id
+                                - - es1.ldc_il3_text.ui_output.id
+                                  - es1.ldc_il3_meta.ui_output.id
                             options:
                                 connectOnLoad: true
                                 simpleFilter:
@@ -520,21 +517,12 @@ dashboards:
                                 longitude_key: es1.elisa_il3_meta.ui_out.geoLocation.lon
                                 text_cloud_data_key: es1.elisa_il3_meta.ui_out.location
                             relations:
-                                - es1:
-                                    ldc_il3_text:
-                                        ui_output: 'topics'
-                                    ldc_il3_meta:
-                                        ui_output: 'topic'
-                                - es1:
-                                    ldc_il3_text:
-                                        ui_output: '_id'
-                                    ldc_il3_meta:
-                                        ui_output: '_id'
-                                - es1:
-                                    ldc_il3_text:
-                                        ui_output: 'id'
-                                    ldc_il3_meta:
-                                        ui_output: 'id'
+                                - - es1.ldc_il3_text.ui_output.topics
+                                  - es1.ldc_il3_meta.ui_output.topics
+                                - - es1.ldc_il3_text.ui_output._id
+                                  - es1.ldc_il3_meta.ui_output._id
+                                - - es1.ldc_il3_text.ui_output.id
+                                  - es1.ldc_il3_meta.ui_output.id
                             options:
                                 connectOnLoad: true
                                 simpleFilter:
@@ -677,33 +665,26 @@ dashboards:
                             name: Mozambique
                             layout: africom-moz
                             tables:
-                                table_key_1: es1.mozambique042019_text.ui_output
-                                table_key_2: es1.mozambique042019_sf.ui_output
-                                table_key_3: es1.mozambique042019_cluster.ui_output
+                                table_key_1: es1.mozambique052019_tweet.ui_output
+                                table_key_2: es1.mozambique052019_sf.ui_output
                             fields:
-                                original_text_key: es1.mozambique042019_text.ui_output.originalText
-                                translated_text_key: es1.mozambique042019_text.ui_output.translatedText
-                                date_field_key: es1.mozambique042019_text.ui_output.createdAt
-                                id_field_key_1: es1.mozambique042019_text.ui_output.id
-                                id_field_key_2: es1.mozambique042019_sf.ui_output.id
-                                id_field_key_3: es1.mozambique042019_cluster.ui_output.doc
-                                filter_field_key: es1.mozambique042019_sf.ui_output.id
-                                group_field_key: es1.mozambique042019_sf.ui_output.need
-                                latitude_key: es1.mozambique042019_sf.ui_output.geoLocation.lat
-                                longitude_key: es1.mozambique042019_sf.ui_output.geoLocation.lon
-                                text_cloud_data_key: es1.mozambique042019_sf.ui_output.location
-                                location_key: es1.mozambique042019_sf.ui_output.location
-                                color_field_topic_key: es1.mozambique042019_sf.ui_output.type
-                                cluster_name_key: es3.mozambique042019_cluster.ui_output.cluster_name
-                                cluster_topics_key: es3.mozambique042019_cluster.ui_output.topicsPresent
+                                original_text_key: es1.mozambique052019_tweet.ui_output.originalText
+                                translated_text_key: es1.mozambique052019_tweet.ui_output.translatedText
+                                date_field_key: es1.mozambique052019_tweet.ui_output.createdAt
+                                id_field_key_1: es1.mozambique052019_tweet.ui_output.id
+                                id_field_key_2: es1.mozambique052019_sf.ui_output.id
+                                filter_field_key: es1.mozambique052019_sf.ui_output.id
+                                group_field_key: es1.mozambique052019_sf.ui_output.need
+                                latitude_key: es1.mozambique052019_sf.ui_output.geoLocation.lat
+                                longitude_key: es1.mozambique052019_sf.ui_output.geoLocation.lon
+                                text_cloud_data_key: es1.mozambique052019_sf.ui_output.location
+                                location_key: es1.mozambique052019_sf.ui_output.location
+                                color_field_topic_key: es1.mozambique052019_sf.ui_output.type
+                                cluster_name_key: es1.mozambique052019_tweet.ui_output.cluster_name
+                                cluster_topics_key: es1.mozambique052019_tweet.ui_output.topics
                             relations:
-                                - es1:
-                                    mozambique042019_text:
-                                        ui_output: 'id'
-                                    mozambique042019_sf:
-                                        ui_output: 'id'
-                                    mozambique042019_cluster:
-                                        ui_output: 'doc'
+                                - - es1.mozambique052019_tweet.ui_output.id
+                                  - es1.mozambique052019_sf.ui_output.id
                             options:
                                 connectOnLoad: true
                                 simpleFilter:
@@ -725,6 +706,47 @@ dashboards:
                                     contactEmail: 'jonmay@isi.edu'
                                     website: 'https://www.isi.edu/'
                                     logo: 'ISI-logo.png'
+                      Somali:
+                            name: Somali
+                            layout: africom-som
+                            tables:
+                                table_key_1: es1.somali052019.ui_output
+                            fields:
+                                original_text_key: es1.somali052019.ui_output.originalText
+                                translated_text_key: es1.somali052019.ui_output.translatedText
+                                date_field_key: es1.somali052019.ui_output.createdAt
+                                id_field_key_1: es1.somali052019.ui_output.id
+                                id_field_key_2: es1.somali052019.ui_output.id
+                                filter_field_key: es1.somali052019.ui_output.id
+                                group_field_key: es1.somali052019.ui_output.type
+                                latitude_key: es1.somali052019.ui_output.geoLocation.lat
+                                longitude_key: es1.somali052019.ui_output.geoLocation.lon
+                                text_cloud_data_key: es1.somali052019.ui_output.location
+                                location_key: es1.somali052019.ui_output.location
+                                color_field_topic_key: es1.somali052019.ui_output.type
+                                cluster_name_key: es1.somali052019.ui_output.cluster_name
+                                cluster_topics_key: es1.somali052019.ui_output.type
+                            options:
+                                connectOnLoad: true
+                                simpleFilter:
+                                    tableKey: table_key_1
+                                    fieldKey: translated_text_key
+                                    placeHolder: Search
+                            contributors:
+                                elisa-rpi:
+                                    orgName: 'Rensselaer Polytechnic Institute'
+                                    abbreviation: 'RPI'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
+                                    logo: 'RPI-logo.png'
+                                elisa-isi:
+                                    orgName: 'University of Southern California, Information Sciences Institute'
+                                    abbreviation: 'USC/ISI'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
+                                    logo: 'ISI-logo.png'   
                 w5:
                     name: 'W5'
                     category: 'Select a datastore...'
@@ -870,8 +892,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - original_text_key
               customColumnWidths:
@@ -955,8 +976,7 @@ layouts:
               sortField: date_field_key
               idField: id_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - group_field_key
                   - text_cloud_data_key
@@ -1048,8 +1068,7 @@ layouts:
               idField: id_field_key1
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - original_text_key
               customColumnWidths:
@@ -1178,8 +1197,7 @@ layouts:
               idField: id_field_key2
               sortField: id_field_key2
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - group_field_key2
                   - text_cloud_data_key
               customColumnWidths:
@@ -1210,8 +1228,7 @@ layouts:
               idField: id_field_key_1
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - original_text_key
               customColumnWidths:
@@ -1248,10 +1265,10 @@ layouts:
                     longitudeField: longitude_key
                     colorField: color_field_topic_key
               mapType: leaflet
-              west: 30.5
-              north: 49
-              east: 127
-              south: 10.6
+              west: 10.5
+              north: -10
+              east: 78
+              south: -20
               contributionKeys:
                 - ldc
                 - rpi
@@ -1338,8 +1355,7 @@ layouts:
               idField: id_field_key_2
               sortField: id_field_key_2
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - color_field_topic_key
                   - location_key
               customColumnWidths:
@@ -1349,7 +1365,7 @@ layouts:
                     - 170
               filterable: true
               filterFields:
-                  - id_field_key4
+                  - id_field_key_2
               singleFilter: true
               ignoreSelf: false
               contributionKeys:
@@ -1366,7 +1382,180 @@ layouts:
           bindings:
               title: Situation Clusters
               type: bar-h
-              tableKey: table_key_3
+              tableKey: table_key_1
+              xField: cluster_name_key
+              limit: 100
+              groupField: cluster_topics_key
+              sortByAggregation: true
+    africom-som:
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 1
+          row: 1
+          sizex: 4
+          sizey: 11
+          bindings:
+              title: Documents
+              tableKey: table_key_1
+              idField: id_field_key_1
+              sortField: date_field_key
+              limit: 100
+              showFields:
+                  - date_field_key
+                  - original_text_key
+              customColumnWidths:
+                  - - date_field_key
+                    - 30
+                  - - original_text_key
+                    - 370
+              filterable: false
+              singleFilter: true
+              ignoreSelf: false
+              contributionKeys:
+                - ldc
+                - rpi
+                - isi
+        - name: Map
+          type: map
+          icon: Map64
+          col: 5
+          row: 1
+          sizex: 5
+          sizey: 11
+          bindings:
+              title: Situation Locations
+              tableKey: table_key_1
+              filterable: true
+              name: EVENTS
+              show: true
+              type: cluster
+              limit: 5000
+              layers:
+                  - title: Map
+                    tableKey: table_key_2
+                    latitudeField: latitude_key
+                    longitudeField: longitude_key
+                    colorField: color_field_topic_key
+              mapType: leaflet
+              west: 10.5
+              north: 25
+              east: 78
+              south: 5
+              contributionKeys:
+                - ldc
+                - rpi
+                - isi
+        - name: Text Cloud
+          type: textCloud
+          icon: TagCloud64
+          col: 5
+          row: 12
+          sizex: 5
+          sizey: 4
+          selected: true
+          bindings:
+              title: Locations
+              tableKey: table_key_2
+              dataField: location_key
+              preFilter: false
+              contributionKeys:
+                - ldc
+                - rpi
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 10
+          row: 10
+          sizex: 3
+          sizey: 6
+          bindings:
+              title: Situation Needs
+              type: bar-h
+              tableKey: table_key_2
+              xField: color_field_topic_key
+              limit: 11
+              groupField: color_field_topic_key
+              sortByAggregation: true
+              ignoreSelf: true
+              contributionKeys:
+                - ldc
+                - isi
+        - name: Annotation Viewer
+          type: annotationViewer
+          icon: documentViewer64
+          col: 1
+          row: 12
+          sizex: 2
+          sizey: 4
+          bindings:
+              title: Original Text
+              tableKey: table_key_1
+              linkField: original_text_key
+              idField: id_field_key_1
+              respondMode: true
+              contributionKeys:
+                - ldc
+                - rpi
+                - isi
+        - name: Annotation Viewer
+          type: annotationViewer
+          icon: documentViewer64
+          col: 3
+          row: 12
+          sizex: 2
+          sizey: 4
+          bindings:
+              title: Translated Text
+              tableKey: table_key_1
+              linkField: translated_text_key
+              idField: id_field_key_1
+              respondMode: true
+              contributionKeys:
+                - ldc
+                - rpi
+                - isi
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 10
+          row: 1
+          sizex: 3
+          sizey: 9
+          bindings:
+              title: Situation Frames
+              tableKey: table_key_2
+              idField: id_field_key_2
+              sortField: id_field_key_2
+              limit: 100
+              showFields:
+                  - color_field_topic_key
+                  - location_key
+              customColumnWidths:
+                  - - color_field_topic_key
+                    - 70
+                  - - location_key
+                    - 170
+              filterable: true
+              filterFields:
+                  - id_field_key_2
+              singleFilter: true
+              ignoreSelf: false
+              contributionKeys:
+                - ldc
+                - rpi
+                - isi
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 10
+          row: 16
+          sizex: 3
+          sizey: 5
+          bindings:
+              title: Situation Clusters
+              type: bar-h
+              tableKey: table_key_1
               xField: cluster_name_key
               limit: 100
               groupField: cluster_topics_key
@@ -1385,8 +1574,7 @@ layouts:
             idField: id_field_key
             sortField: date_field_key
             limit: 100
-            allColumnStatus: hide
-            exceptionsToStatus:
+            showFields:
                 - date_field_key
                 - original_text_key
                 - group_field_key
@@ -1510,8 +1698,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - original_text_key
               customColumnWidths:
@@ -1584,8 +1771,7 @@ layouts:
               sortField: date_field_key
               idField: id_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - display_url_key
                   - date_field_key
                   - group_field_key
@@ -1677,8 +1863,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - original_text_key
               customColumnWidths:
@@ -1763,8 +1948,7 @@ layouts:
               sortField: date_field_key
               idField: id_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - display_url_key
                   - date_field_key
                   - group_field_key
@@ -1936,8 +2120,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - text_field_key
               customColumnWidths:
@@ -2022,8 +2205,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - display_url_key
                   - date_field_key
                   - group_field_key
@@ -2125,8 +2307,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - original_text_key
               customColumnWidths:
@@ -2211,8 +2392,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - display_url_key
                   - date_field_key
                   - group_field_key

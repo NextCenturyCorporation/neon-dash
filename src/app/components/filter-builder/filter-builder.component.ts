@@ -23,11 +23,11 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
+import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import {
     OptionChoices,
@@ -38,8 +38,9 @@ import {
     WidgetOptionCollection,
     WidgetSelectOption
 } from '../../widget-option';
-import * as neon from 'neon-framework';
+
 import { neonEvents } from '../../../app/neon-namespaces';
+import * as uuidv4 from 'uuid/v4';
 import { MatDialog } from '@angular/material';
 
 @Component({
@@ -50,8 +51,7 @@ import { MatDialog } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FilterBuilderComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    public clauses: FilterClauseMetaData[] = [];
-    public databaseTableFieldKeysToFilterIds: Map<string, string> = new Map<string, string>();
+    public filterClauses: FilterClauseMetaData[] = [];
     public operators: OperatorMetaData[] = [
         { value: 'contains', prettyName: 'contains' },
         { value: 'not contains', prettyName: 'not contains' },
@@ -62,6 +62,9 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         { value: '>=', prettyName: '>=' },
         { value: '<=', prettyName: '<=' }
     ];
+
+    public compoundTypeIsOr: boolean = false;
+    public parentFilterIsOr: boolean = false;
 
     constructor(
         datasetService: DatasetService,
@@ -81,91 +84,54 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             dialog
         );
 
-        this.messenger.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearFilterBuilder.bind(this));
+        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.clearEveryFilterClause.bind(this));
+
+        this.addBlankFilterClause();
     }
 
     /**
      * Adds a blank filter clause to the global list.
      */
-    addBlankFilterClause() {
-        let clause: FilterClauseMetaData = new FilterClauseMetaData(() => []);
-        clause.updateDatabases(this.datasetService);
-        clause.field = this.createEmptyField();
-        clause.operator = this.operators[0];
-        clause.value = '';
-        clause.active = false;
-        clause.changeDatabase = clause.database;
-        clause.changeTable = clause.table;
-        clause.changeField = clause.field;
-        if (clause.database && clause.table) {
-            this.clauses.push(clause);
+    public addBlankFilterClause(): void {
+        let filterClause: FilterClauseMetaData = new FilterClauseMetaData(() => []);
+        filterClause.updateDatabases(this.datasetService);
+        filterClause.field = this.createEmptyField();
+        filterClause.operator = this.operators[0];
+        filterClause.value = '';
+
+        // Set the default database, table, and field based on an existing filter clause in the component, if any.
+        let existingFilterClause: FilterClauseMetaData = this.filterClauses.length ? this.filterClauses[0] : null;
+        filterClause.databases = existingFilterClause ? existingFilterClause.databases : filterClause.databases;
+        filterClause.tables = existingFilterClause ? existingFilterClause.tables : filterClause.tables;
+        filterClause.fields = existingFilterClause ? existingFilterClause.fields : filterClause.fields;
+        filterClause.changeDatabase = existingFilterClause ? existingFilterClause.changeDatabase : filterClause.database;
+        filterClause.changeTable = existingFilterClause ? existingFilterClause.changeTable : filterClause.table;
+        filterClause.changeField = existingFilterClause ? existingFilterClause.changeField : filterClause.field;
+
+        if (filterClause.database && filterClause.table) {
+            this.filterClauses.push(filterClause);
         }
     }
 
     /**
-     * Adds the given filter to this visualization or replaces the existing filter in this visualization.
+     * Clears every filter clause from the global list.
      */
-    addOrReplaceFilter(executeQueryChainOnsuccess: boolean, filter: CustomFilter) {
-        if (!filter.clauses || !filter.clauses.length) {
-            return;
-        }
-        let onSuccess = (neonFilterId) => {
-            this.databaseTableFieldKeysToFilterIds.set(filter.databaseTableFieldKey, neonFilterId);
-        };
-        let onError = (err) => {
-            console.error(err);
-        };
-        let databaseName = filter.clauses[0].database.name;
-        let tableName = filter.clauses[0].table.name;
-        let fieldName = filter.clauses[0].field.columnName;
-
-        if (filter.filterId) {
-            this.filterService.replaceFilter(
-                this.messenger,
-                filter.filterId,
-                this.id,
-                databaseName,
-                tableName,
-                this.createNeonFilter(databaseName, tableName, fieldName),
-                this.createFilterNameObject(),
-                onSuccess.bind(this),
-                onError.bind(this));
-        } else {
-            this.filterService.addFilter(
-                this.messenger,
-                this.id,
-                databaseName,
-                tableName,
-                this.createNeonFilter(databaseName, tableName, fieldName),
-                this.createFilterNameObject(),
-                onSuccess.bind(this),
-                onError.bind(this)
-            );
-        }
+    public clearEveryFilterClause(): void {
+        this.filterClauses = [];
+        this.addBlankFilterClause();
     }
 
-    clearFilterBuilder() {
-        this.clauses.forEach((clause) => {
-            this.removeClause(clause);
-        });
-        this.changeDetection.detectChanges();
-    }
-
-    createClauseBindings(): any[] {
-        return this.clauses.filter((clause) => {
-            return clause.active;
-        }).map((clause) => {
-            let filterId = this.databaseTableFieldKeysToFilterIds.get(this.getDatabaseTableFieldKey(clause.database.name,
-                clause.table.name, clause.field.columnName));
-            return {
-                database: clause.database.name,
-                table: clause.table.name,
-                field: clause.field.columnName,
-                operator: clause.operator.value,
-                value: clause.value,
-                id: filterId
-            };
-        });
+    /**
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     *
+     * @return {FilterBehavior[]}
+     * @override
+     */
+    protected designEachFilterWithNoValues(): FilterBehavior[] {
+        // TODO THOR-994 The Filter Builder is no longer a Widget.
+        // TODO THOR-996 The Filter Builder does not update with filters that are set externally, but should it (combined w/ Filter Tray)?
+        return [] as FilterBehavior[];
     }
 
     /**
@@ -175,55 +141,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        // TODO THOR-994 The Filter Builder is no longer a Widget.
         return [];
-    }
-
-    /**
-     * Creates and returns the filter name object for the visualization.
-     *
-     * @return {any}
-     */
-    createFilterNameObject(): any {
-        return {
-            visName: this.options.title,
-            text: this.getFilterText(null)
-        };
-    }
-
-    /**
-     * Creates and returns a neon filter object for the given database, table, and field names.
-     *
-     * @arg {string} database
-     * @arg {string} table
-     * @arg {string} field
-     * @return neon.query.WherePredicate
-     */
-    createNeonFilter(database: string, table: string, field: string): neon.query.WherePredicate {
-        let databaseTableFieldKey = this.getDatabaseTableFieldKey(database, table, field);
-        let activeMatchingClauses = this.clauses.filter((clause) => {
-            let clauseDatabaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name,
-                clause.field.columnName);
-            return databaseTableFieldKey === clauseDatabaseTableFieldKey && this.validateClause(clause) && clause.active;
-        });
-
-        let filterClauses = activeMatchingClauses.map((clause) => {
-            let operator = clause.operator.value;
-            let value: any = clause.value;
-            if (operator !== 'contains' && operator !== 'not contains') {
-                value = parseFloat(clause.value);
-                if (isNaN(value) || value.toString() !== clause.value) { // The second check catches values larger than Number.MAX_SAFE_INT
-                    value = clause.value;
-                }
-            }
-            return neon.query.where(clause.field.columnName, operator, value);
-        });
-        if (filterClauses.length === 1) {
-            return filterClauses[0];
-        }
-        if (this.options.requireAll) {
-            return neon.query.and.apply(neon.query, filterClauses);
-        }
-        return neon.query.or.apply(neon.query, filterClauses);
     }
 
     /**
@@ -233,12 +152,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     createNonFieldOptions(): WidgetOption[] {
-        let clauseConfigOption = new WidgetNonPrimitiveOption('clauseConfig', 'Clause Config', []);
-        clauseConfigOption.getValueToSaveInBindings = this.createClauseBindings.bind(this);
-        return [
-            new WidgetSelectOption('requireAll', 'Filter Operator', false, OptionChoices.OrFalseAndTrue),
-            clauseConfigOption
-        ];
+        // TODO THOR-994 The Filter Builder is no longer a Widget.
+        return [];
     }
 
     /**
@@ -251,30 +166,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        // Does not run a visualization query.
+        // TODO THOR-994 The Filter Builder does not run a visualization query.
         return null;
-    }
-
-    /**
-     * Returns the filter list for the visualization.
-     *
-     * @return {any[]}
-     * @override
-     */
-    getCloseableFilters(): any[] {
-        return [];
-    }
-
-    /**
-     * Returns the key for the given database/table/field names.
-     *
-     * @arg {string} database
-     * @arg {string} table
-     * @arg {string} field
-     * @return {string}
-     */
-    getDatabaseTableFieldKey(database, table, field): string {
-        return database + '-' + table + '-' + field;
     }
 
     /**
@@ -284,32 +177,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     getElementRefs(): any {
+        // TODO THOR-994 The Filter Builder is no longer a Widget.
         return {};
-    }
-
-    /**
-     * Returns the list of filter IDs for the visualization to ignore (or null to ignore no filters).
-     *
-     * @return {string[]}
-     * @override
-     */
-    getFiltersToIgnore(): string[] {
-        return null;
-    }
-
-    /**
-     * Returns the filter text for the visualization.
-     *
-     * @arg {any} filter
-     * @return {string}
-     * @override
-     */
-    getFilterText(filter: any): string {
-        let activeClauses = this.clauses.filter((clause) => {
-            return this.validateClause(clause) && clause.active;
-        });
-        return activeClauses.length === 1 ? (activeClauses[0].field.prettyName + ' ' + activeClauses[0].operator.prettyName + ' ' +
-            activeClauses[0].value) : (activeClauses.length + ' Filters');
     }
 
     /**
@@ -319,6 +188,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     getVisualizationDefaultLimit(): number {
+        // TODO THOR-994 The Filter Builder is no longer a Widget.
         return 0;
     }
 
@@ -329,130 +199,47 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     getVisualizationDefaultTitle(): string {
+        // TODO THOR-994 The Filter Builder is no longer a Widget.
         return 'Filter Builder';
     }
 
     /**
-     * Updates the active status, tables, fields, and value in the given clause and the filters.
+     * Updates the database, tables, and fields in the given clause.
      *
-     * @arg {FilterClauseMetaData} clause
+     * @arg {FilterClauseMetaData} filterClause
      */
-    handleChangeDatabaseOfClause(clause: FilterClauseMetaData) {
-        let databaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name,
-            clause.field.columnName);
-
-        clause.active = false;
-        clause.database = clause.changeDatabase;
-        clause.updateTables(this.datasetService);
-        clause.changeTable = clause.table;
-
-        if (this.databaseTableFieldKeysToFilterIds.get(databaseTableFieldKey)) {
-            this.updateFiltersOfKey(databaseTableFieldKey);
-        }
+    public handleChangeDatabaseOfClause(filterClause: FilterClauseMetaData): void {
+        filterClause.database = filterClause.changeDatabase;
+        filterClause.updateTables(this.datasetService);
+        filterClause.changeTable = filterClause.table;
     }
 
     /**
-     * Updates the active status of the given clause.
+     * Updates the given clause.
      *
-     * @arg {FilterClauseMetaData} clause
+     * @arg {FilterClauseMetaData} filterClause
      */
-    handleChangeDataOfClause(clause: FilterClauseMetaData) {
-        if (clause.active) {
-            clause.active = false;
-            let databaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name,
-                clause.field.columnName);
-            this.updateFiltersOfKey(databaseTableFieldKey);
-        }
+    public handleChangeDataOfClause(filterClause: FilterClauseMetaData): void {
+        // Do nothing.
     }
 
     /**
-     * Updates the active status and value in the given clause and the filters.
+     * Updates the field in the given clause.
      *
-     * @arg {FilterClauseMetaData} clause
+     * @arg {FilterClauseMetaData} filterClause
      */
-    handleChangeFieldOfClause(clause: FilterClauseMetaData) {
-        let databaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name,
-            clause.field.columnName);
-
-        clause.active = false;
-        clause.field = clause.changeField;
-
-        if (this.databaseTableFieldKeysToFilterIds.get(databaseTableFieldKey)) {
-            this.updateFiltersOfKey(databaseTableFieldKey);
-        }
+    public handleChangeFieldOfClause(filterClause: FilterClauseMetaData): void {
+        filterClause.field = filterClause.changeField;
     }
 
     /**
-     * Updates the active status, fields, and value in the given clause and the filters.
+     * Updates the table and fields in the given clause.
      *
-     * @arg {FilterClauseMetaData} clause
+     * @arg {FilterClauseMetaData} filterClause
      */
-    handleChangeTableOfClause(clause: FilterClauseMetaData) {
-        let databaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name,
-            clause.field.columnName);
-
-        clause.active = false;
-        clause.table = clause.changeTable;
-        clause.updateFields(this.datasetService);
-
-        if (this.databaseTableFieldKeysToFilterIds.get(databaseTableFieldKey)) {
-            this.updateFiltersOfKey(databaseTableFieldKey);
-        }
-    }
-
-    /**
-     * Initializes any visualization properties when the widget is created.
-     *
-     * @override
-     */
-    initializeProperties() {
-        // Backwards compatibility (initialFilters deprecated due to its redundancy with clauseConfig).
-        this.options.clauseConfig = this.options.clauseConfig || this.injector.get('initialFilters', []);
-
-        this.options.databases.forEach((database) => {
-            database.tables.forEach((table) => {
-                table.fields.forEach((field) => {
-                    let databaseTableFieldKey = this.getDatabaseTableFieldKey(database.name, table.name, field.columnName);
-                    this.databaseTableFieldKeysToFilterIds.set(databaseTableFieldKey, '');
-                });
-            });
-        });
-
-        this.options.clauseConfig.forEach((clauseConfig) => {
-            let clause: FilterClauseMetaData = new FilterClauseMetaData(() => []);
-            clause.updateDatabases(this.datasetService);
-            clause.database = clause.databases.find((database) => {
-                return database.name === clauseConfig.database;
-            });
-            clause.updateTables(this.datasetService);
-            clause.table = clause.tables.find((table) => {
-                return table.name === clauseConfig.table;
-            });
-            clause.updateFields(this.datasetService);
-            clause.field = clause.fields.find((field) => {
-                return field.columnName === clauseConfig.field;
-            });
-            clause.operator = this.operators.find((operator) => {
-                return operator.value === clauseConfig.operator;
-            });
-            clause.value = clauseConfig.value;
-            clause.active = true;
-            clause.changeDatabase = clause.database;
-            clause.changeTable = clause.table;
-            clause.changeField = clause.field;
-            if (clause.database && clause.table) {
-                let filterId = clauseConfig.id || this.filterService.createFilterId(clauseConfig.database, clauseConfig.table);
-                this.clauses.push(clause);
-                this.databaseTableFieldKeysToFilterIds.set(this.getDatabaseTableFieldKey(clause.database.name,
-                    clause.table.name, clause.field.columnName), filterId);
-            }
-        });
-
-        if (!this.clauses.length) {
-            this.addBlankFilterClause();
-        } else {
-            this.updateFilters();
-        }
+    public handleChangeTableOfClause(filterClause: FilterClauseMetaData): void {
+        filterClause.table = filterClause.changeTable;
+        filterClause.updateFields(this.datasetService);
     }
 
     /**
@@ -461,163 +248,104 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     refreshVisualization() {
+        // TODO THOR-994 The Filter Builder is no longer a Widget.
         // Do nothing.
     }
 
     /**
      * Removes the given filter clause from neon and this visualization.
      *
-     * @arg {FilterClauseMetaData} clause
+     * @arg {FilterClauseMetaData} filterClause
      */
-    removeClause(clause: FilterClauseMetaData) {
-        this.clauses = this.clauses.filter((clauseFromList) => {
-            return clause._id !== clauseFromList._id;
+    public removeClause(filterClause: FilterClauseMetaData): void {
+        this.filterClauses = this.filterClauses.filter((filterClauseFromGlobalList) => {
+            return filterClause._id !== filterClauseFromGlobalList._id;
         });
 
-        let databaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name,
-            clause.field.columnName);
-
-        if (this.databaseTableFieldKeysToFilterIds.get(databaseTableFieldKey)) {
-            let shouldReplace = this.clauses.some((clauseFromList) => {
-                return databaseTableFieldKey === this.getDatabaseTableFieldKey(clauseFromList.database.name,
-                    clauseFromList.table.name, clauseFromList.field.columnName);
-            });
-
-            if (shouldReplace) {
-                this.filterService.replaceFilter(
-                    this.messenger,
-                    this.databaseTableFieldKeysToFilterIds.get(databaseTableFieldKey),
-                    this.id,
-                    clause.database.name,
-                    clause.table.name,
-                    this.createNeonFilter(clause.database.name, clause.table.name, clause.field.columnName),
-                    this.createFilterNameObject()
-                );
-            } else {
-                this.removeFilterById(databaseTableFieldKey);
-            }
-        }
-
-        if (!this.clauses.length) {
+        if (!this.filterClauses.length) {
             this.addBlankFilterClause();
         }
     }
 
     /**
-     * Removes the given visualization filter object from this visualization.
-     *
-     * @override
+     * Saves a new custom filter using every filter clause in the global list.
      */
-    removeFilter(filter: any) {
-        // Do nothing.  Handle filters internally.
-    }
+    public saveFilter(): void {
+        if (!this.filterClauses.length || !this.validateFilters(this.filterClauses)) {
+            return;
+        }
 
-    /**
-     * Removes the filters with the given key.
-     *
-     * @arg {string} databaseTableFieldKey
-     */
-    removeFilterById(databaseTableFieldKey: string) {
-        this.filterService.removeFilters(
-            this.messenger,
-            [this.databaseTableFieldKeysToFilterIds.get(databaseTableFieldKey)],
-            () => {
-                this.databaseTableFieldKeysToFilterIds.set(databaseTableFieldKey, '');
+        // Turn the filter clauses into filter designs.
+        let filterDesigns: SimpleFilterDesign[] = this.filterClauses.map((filterClause) => {
+            let operator: string = filterClause.operator.value;
+            let value: any = filterClause.value;
+            if (filterClause.operator.value !== 'contains' && filterClause.operator.value !== 'not contains') {
+                value = parseFloat(filterClause.value);
+                // The second check catches values larger than Number.MAX_SAFE_INT
+                if (isNaN(value) || value.toString() !== filterClause.value) {
+                    value = filterClause.value;
+                }
             }
-        );
-    }
-
-    /**
-     * Resets the filter builder by removing all filters.
-     */
-    resetFilterBuilder() {
-        let callback = () => {
-            this.clauses = [];
-            this.addBlankFilterClause();
-        };
-        let filterIds = [];
-        this.databaseTableFieldKeysToFilterIds.forEach((filterId, databaseTableFieldKey) => {
-            if (filterId) {
-                filterIds.push(filterId);
-            }
+            return {
+                root: this.parentFilterIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
+                datastore: '',
+                database: filterClause.database,
+                table: filterClause.table,
+                field: filterClause.field,
+                operator: filterClause.operator.value,
+                value: value
+            } as SimpleFilterDesign;
         });
-        this.filterService.removeFilters(this.messenger, filterIds, callback.bind(this));
+
+        // Create a compound filter from multiple filters if needed.
+        let filterDesign: FilterDesign = !filterDesigns.length ? null : (filterDesigns.length === 1 ? filterDesigns[0] : {
+            type: this.compoundTypeIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
+            root: this.parentFilterIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
+            filters: filterDesigns
+        } as CompoundFilterDesign);
+
+        if (filterDesign) {
+            this.filterService.toggleFilters('CustomFilter', [filterDesign], this.datasetService.findRelationDataList(),
+                this.searchService);
+
+            this.clearEveryFilterClause();
+        }
     }
 
     /**
-     * Updates the filters for the visualization on initialization or whenever filters are changed externally.
-     *
-     * @override
-     */
-    setupFilters() {
-        // Do nothing.
-    }
-
-    /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
-        // Does not run a visualization query.
-        return null;
+    transformVisualizationQueryResults(options: any, results: any[]): number {
+        // TODO THOR-994 The Filter Builder does not run a visualization query.
+        return 0;
     }
 
     /**
-     * Toggles the active status of the given filter clause.
+     * Returns whether the given filter clauses is valid.
      *
-     * @arg {FilterClauseMetaData} clause
+     * @arg {FilterClauseMetaData} filterClause
+     * @return {boolean}
+     * @private
      */
-    toggleClause(clause: FilterClauseMetaData) {
-        if (clause.active) {
-            clause.active = false;
-            let databaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name,
-                clause.field.columnName);
-            this.updateFiltersOfKey(databaseTableFieldKey);
-        } else if (this.validateClause(clause)) {
-            clause.active = true;
-            let databaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name,
-                clause.field.columnName);
-            this.updateFiltersOfKey(databaseTableFieldKey);
-        }
+    private validateFilter(filterClause: FilterClauseMetaData): boolean {
+        return !!(filterClause.database && filterClause.database.name && filterClause.table && filterClause.table.name &&
+            filterClause.field && filterClause.field.columnName);
     }
 
     /**
-     * Updates all filters.
-     */
-    updateFilters() {
-        this.databaseTableFieldKeysToFilterIds.forEach((filterId, databaseTableFieldKey) => {
-            this.updateFiltersOfKey(databaseTableFieldKey);
-        });
-    }
-
-    /**
-     * Updates all filters with the given key, either adding/replacing them or removing them as needed.
-     */
-    updateFiltersOfKey(databaseTableFieldKey: string) {
-        let filterId = this.databaseTableFieldKeysToFilterIds.get(databaseTableFieldKey);
-        let activeMatchingClauses = this.clauses.filter((clause) => {
-            let clauseDatabaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name,
-                clause.field.columnName);
-            return databaseTableFieldKey === clauseDatabaseTableFieldKey && this.validateClause(clause) && clause.active;
-        });
-        if (activeMatchingClauses.length) {
-            this.addOrReplaceFilter(false, new CustomFilter(activeMatchingClauses, databaseTableFieldKey, filterId));
-        } else {
-            this.removeFilterById(databaseTableFieldKey);
-        }
-    }
-
-    /**
-     * Returns the validity of the given clause.
+     * Returns whether all of the given filter clauses are valid.
      *
-     * @arg {FilterClauseMetaData} clause
+     * @arg {FilterClauseMetaData[]} filterClauses
+     * @return {boolean}
      */
-    validateClause(clause: FilterClauseMetaData) {
-        return clause.database && clause.table && clause.field && clause.field.columnName;
+    public validateFilters(filterClauses: FilterClauseMetaData[]): boolean {
+        return filterClauses.every((filterClause) => this.validateFilter(filterClause));
     }
 
     /**
@@ -628,7 +356,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     validateVisualizationQuery(options: any): boolean {
-        // Does not run a visualization query.
+        // TODO THOR-994 The Filter Builder does not run a visualization query.
         return false;
     }
 }
@@ -639,23 +367,10 @@ class OperatorMetaData {
 }
 
 class FilterClauseMetaData extends WidgetOptionCollection {
-    active: boolean;
     changeDatabase: DatabaseMetaData;
     changeTable: TableMetaData;
     changeField: FieldMetaData;
     field: FieldMetaData;
     operator: OperatorMetaData;
     value: string;
-}
-
-class CustomFilter {
-    clauses: FilterClauseMetaData[];
-    databaseTableFieldKey: string;
-    filterId: string;
-
-    constructor(clauses: FilterClauseMetaData[], databaseTableFieldKey: string, filterId: string) {
-        this.clauses = clauses;
-        this.databaseTableFieldKey = databaseTableFieldKey;
-        this.filterId = filterId;
-    }
 }

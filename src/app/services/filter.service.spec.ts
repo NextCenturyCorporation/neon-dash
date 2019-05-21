@@ -18,580 +18,614 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 import { Injectable } from '@angular/core';
 
+import { AbstractSearchService, CompoundFilterType } from './abstract.search.service';
 import { DatasetService } from './dataset.service';
-import { FilterService, ServiceFilter } from './filter.service';
+import {
+    CompoundFilterDesign,
+    FilterBehavior,
+    FilterCollection,
+    FilterDataSource,
+    FilterService,
+    FilterUtil,
+    SimpleFilterDesign
+} from './filter.service';
+
+import { FieldMetaData } from '../dataset';
 import { NeonGTDConfig } from '../neon-gtd-config';
+import { neonEvents } from '../neon-namespaces';
+
 import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
+import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { ConfigService } from './config.service';
 
-import * as neon from 'neon-framework';
-
-@Injectable()
-class TestFilterService extends FilterService {
-    private idCounter: number = 1;
-
-    constructor(protected datasetService: DatasetService, protected http: HttpClient) {
-        super(datasetService);
-    }
-
-    public createFilterId(database: string, table: string) {
-        return database + '-' + table + '-' + (this.idCounter++);
-    }
-
-    protected getDatabaseFilterState(onSuccess: (filterList) => any, onError: (response: any) => any) {
-        this.http.get('/filterservice/filters/*/*').subscribe(onSuccess, onError);
-    }
-
-    public reset() {
-        this.filters = [];
-        this.idCounter = 1;
-    }
-}
-
-@Injectable()
-class TestFilterServiceWithFilters extends TestFilterService {
-    public FILTER_1 = new ServiceFilter('testFilter1', 'testOwnerA', 'testDatabase1', 'testTable1', {
-        ownerId: 'testOwnerA',
-        databaseName: 'testDatabase1',
-        tableName: 'testTable1',
-        whereClause: neon.query.where('testField1', '=', 'testValue1'),
-        filterName: 'Test Database 1 - Test Table 1 - Test Filter 1'
+describe('FilterUtil', () => {
+    beforeAll(() => {
+        /* tslint:disable:no-console */
+        console.log('STARTING FILTER UTIL TESTS...');
+        /* tslint:enable:no-console */
     });
 
-    public FILTER_2 = new ServiceFilter('testFilter2', 'testOwnerB', 'testDatabase2', 'testTable2', {
-        ownerId: 'testOwnerB',
-        databaseName: 'testDatabase2',
-        tableName: 'testTable2',
-        whereClause: neon.query.where('testField2', '=', 'testValue2'),
-        filterName: 'Test Database 2 - Test Table 2 - Test Filter 2'
+    it('areFilterDataSourcesEquivalent should return expected boolean', () => {
+        expect(FilterUtil.areFilterDataSourcesEquivalent({
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'datastore2',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource)).toEqual(false);
+
+        expect(FilterUtil.areFilterDataSourcesEquivalent({
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'datastore1',
+            databaseName: 'database2',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource)).toEqual(false);
+
+        expect(FilterUtil.areFilterDataSourcesEquivalent({
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table2',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource)).toEqual(false);
+
+        expect(FilterUtil.areFilterDataSourcesEquivalent({
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field2',
+            operator: '='
+        } as FilterDataSource)).toEqual(false);
+
+        expect(FilterUtil.areFilterDataSourcesEquivalent({
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: 'contains'
+        } as FilterDataSource)).toEqual(false);
+
+        expect(FilterUtil.areFilterDataSourcesEquivalent({
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource)).toEqual(true);
     });
 
-    public FILTER_3 = new ServiceFilter('testFilter3', 'testOwnerB', 'testDatabase2', 'testTable2', {
-        ownerId: 'testOwnerB',
-        databaseName: 'testDatabase2',
-        tableName: 'testTable2',
-        whereClause: neon.query.where('testField3', '=', 'testValue3'),
-        filterName: 'Test Database 2 - Test Table 2 - Test Filter 3'
+    it('areFilterDataSourcesEquivalent with ignoreOperator=true should return expected boolean', () => {
+        expect(FilterUtil.areFilterDataSourcesEquivalent({
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: 'contains'
+        } as FilterDataSource, true)).toEqual(true);
     });
 
-    public FILTER_4 = new ServiceFilter('testFilter4', 'testOwnerB', 'testDatabase2', 'testTable2', {
-        ownerId: 'testOwnerB',
-        databaseName: 'testDatabase2',
-        tableName: 'testTable2',
-        whereClause: neon.query.where('testField2', '=', 'testValue4'),
-        filterName: 'Test Database 2 - Test Table 2 - Test Filter 4'
+    it('areFilterDataSourceListsEquivalent should return expected boolean', () => {
+        expect(FilterUtil.areFilterDataSourceListsEquivalent([{
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource], [{
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource])).toEqual(true);
+
+        expect(FilterUtil.areFilterDataSourceListsEquivalent([{
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource], [{
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: 'contains'
+        } as FilterDataSource])).toEqual(false);
+
+        expect(FilterUtil.areFilterDataSourceListsEquivalent([{
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource], [{
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: 'contains'
+        } as FilterDataSource])).toEqual(false);
+
+        expect(FilterUtil.areFilterDataSourceListsEquivalent([{
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: 'contains'
+        } as FilterDataSource], [{
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: 'contains'
+        } as FilterDataSource])).toEqual(false);
+
+        expect(FilterUtil.areFilterDataSourceListsEquivalent([{
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: 'contains'
+        } as FilterDataSource], [{
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: 'contains'
+        } as FilterDataSource])).toEqual(true);
+
+        expect(FilterUtil.areFilterDataSourceListsEquivalent([{
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: 'contains'
+        } as FilterDataSource], [{
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: 'contains'
+        } as FilterDataSource, {
+            datastoreName: 'datastore1',
+            databaseName: 'database1',
+            tableName: 'table1',
+            fieldName: 'field1',
+            operator: '='
+        } as FilterDataSource])).toEqual(true);
     });
 
-    public FILTER_5 = new ServiceFilter('testFilter5', 'testOwnerC', 'testDatabase1', 'testTable1', {
-        ownerId: 'testOwnerC',
-        databaseName: 'testDatabase1',
-        tableName: 'testTable1',
-        whereClause: neon.query.where('testRelationFieldA', '=', 'testRelationValueA'),
-        filterName: 'Test Database 1 - Test Table 1 - Test Filter 5'
-    }, ['testFilter6']);
-
-    public FILTER_6 = new ServiceFilter('testFilter6', undefined, 'testDatabase2', 'testTable2', {
-        ownerId: undefined,
-        databaseName: 'testDatabase2',
-        tableName: 'testTable2',
-        whereClause: neon.query.where('testRelationFieldA', '=', 'testRelationValueA'),
-        filterName: 'Test Database 2 - Test Table 2 - Test Filter 6'
-    }, ['testFilter5']);
-
-    constructor(protected datasetService: DatasetService, protected http: HttpClient) {
-        super(datasetService, http);
-        this.reset();
-    }
-
-    public reset() {
-        super.reset();
-        this.filters = [this.FILTER_1, this.FILTER_2, this.FILTER_3, this.FILTER_4];
-    }
-
-    public resetWithRelationFilters() {
-        this.filters = [this.FILTER_5, this.FILTER_6];
-    }
-}
-
-describe('Service: Filter', () => {
-    let service;
-    let backend;
-
-    initializeTestBed('Filter Service', {
-        providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: TestFilterService },
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
-
-        ],
-        imports: [
-            HttpClientModule,
-            HttpClientTestingModule
-        ]
-    });
-
-    beforeEach(inject([FilterService, HttpTestingController], (filterService, httpTestingController) => {
-        service = filterService;
-        backend = httpTestingController;
-    }));
-
-    afterEach(() => {
-        service.reset();
-    });
-
-    it('getFilters with no filters does return empty array', () => {
-        expect(service.getFilters()).toEqual([]);
-    });
-
-    it('getFilters with no filters given comparator does return empty array', () => {
-        expect(service.getFilters({
-            id: 'testFilter1'
-        })).toEqual([]);
-    });
-
-    it('getFiltersByOwner with no filters does return empty array', () => {
-        expect(service.getFiltersByOwner('testOwnerA')).toEqual([]);
-        expect(service.getFiltersByOwner('testOwnerB')).toEqual([]);
-    });
-
-    it('getFiltersForFields with no filters and not given field array does return empty array', () => {
-        expect(service.getFiltersForFields('testDatabase1', 'testTable1')).toEqual([]);
-        expect(service.getFiltersForFields('testDatabase2', 'testTable2')).toEqual([]);
-    });
-
-    it('getFiltersForFields with no filters given field array does return empty array', () => {
-        expect(service.getFiltersForFields('testDatabase1', 'testTable1', ['testField1'])).toEqual([]);
-        expect(service.getFiltersForFields('testDatabase2', 'testTable2', ['testField2'])).toEqual([]);
-    });
-
-    it('getFilterById with no filters does return undefined', () => {
-        expect(service.getFilterById('testFilter1')).toEqual(undefined);
-        expect(service.getFilterById('testFilter2')).toEqual(undefined);
-    });
-
-    it('getFilterState with no filters does not call replaceFilters but does call onSuccess', fakeAsync(() => {
-        let spy = spyOn(service, 'replaceFilter');
-        let successCalls = 0;
-        let failureCalls = 0;
-        service.getFilterState(() => {
-            ++successCalls;
-        }, () => {
-            ++failureCalls;
-        });
-
-        let request = backend.expectOne({
-            url: '/filterservice/filters/*/*',
-            method: 'GET'
-        });
-        request.flush([]);
-
-        expect(spy.calls.count()).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-    }));
-
-    it('getFilterState with response filters does call both replaceFilters and onSuccess', fakeAsync(() => {
-        let spy = spyOn(service, 'replaceFilter');
-        let successCalls = 0;
-        let failureCalls = 0;
-        service.getFilterState(() => {
-            ++successCalls;
-        }, () => {
-            ++failureCalls;
-        });
-
-        let request = backend.expectOne({
-            url: '/filterservice/filters/*/*',
-            method: 'GET'
-        });
-        request.flush([{
-            id: 'testFilter1',
-            dataSet: {
-                databaseName: 'testDatabase1',
-                tableName: 'testTable1'
-            },
-            filter: {
-                databaseName: 'testDatabase1',
-                tableName: 'testTable1',
-                whereClause: neon.query.where('testField1', '=', 'testValue1'),
-                filterName: 'Test Database 1 - Test Table 1 - Test Filter 1'
-            }
-        }, {
-            id: 'testFilter2',
-            dataSet: {
-                databaseName: 'testDatabase2',
-                tableName: 'testTable2'
-            },
-            filter: {
-                databaseName: 'testDatabase2',
-                tableName: 'testTable2',
-                whereClause: neon.query.where('testField2', '=', 'testValue2'),
-                filterName: 'Test Database 2 - Test Table 2 - Test Filter 2'
-            }
-        }]);
-
-        let filter1 = new ServiceFilter('testFilter1', undefined, 'testDatabase1', 'testTable1', {
+    it('createFilterDataSourceListFromDesign should return expected array', () => {
+        expect(FilterUtil.createFilterDataSourceListFromDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '=',
+            value: 'testId'
+        } as SimpleFilterDesign)).toEqual([{
+            datastoreName: 'testDatastore1',
             databaseName: 'testDatabase1',
             tableName: 'testTable1',
-            whereClause: neon.query.where('testField1', '=', 'testValue1'),
-            filterName: 'Test Database 1 - Test Table 1 - Test Filter 1'
-        });
+            fieldName: 'testIdField',
+            operator: '='
+        } as FilterDataSource]);
 
-        let filter2 = new ServiceFilter('testFilter2', undefined, 'testDatabase2', 'testTable2', {
-            databaseName: 'testDatabase2',
-            tableName: 'testTable2',
-            whereClause: neon.query.where('testField2', '=', 'testValue2'),
-            filterName: 'Test Database 2 - Test Table 2 - Test Filter 2'
-        });
+        expect(FilterUtil.createFilterDataSourceListFromDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>',
+                value: 10
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<',
+                value: 20
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual([{
+            datastoreName: 'testDatastore1',
+            databaseName: 'testDatabase1',
+            tableName: 'testTable1',
+            fieldName: 'testXField',
+            operator: '>'
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: 'testDatabase1',
+            tableName: 'testTable1',
+            fieldName: 'testXField',
+            operator: '<'
+        } as FilterDataSource]);
 
-        expect(spy.calls.count()).toEqual(2);
-        expect(service.getFilters()).toEqual([filter1, filter2]);
+        expect(FilterUtil.createFilterDataSourceListFromDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '=',
+                value: 20
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual([{
+            datastoreName: 'testDatastore1',
+            databaseName: 'testDatabase1',
+            tableName: 'testTable1',
+            fieldName: 'testXField',
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: 'testDatabase1',
+            tableName: 'testTable1',
+            fieldName: 'testYField',
+            operator: '='
+        } as FilterDataSource]);
 
-        let args1 = spy.calls.argsFor(0);
-        expect(args1.length).toEqual(7);
-        expect(args1[0].constructor.name).toEqual(neon.eventing.Messenger.name);
-        expect(args1[1]).toEqual('testFilter1');
-        expect(args1[2]).toEqual(undefined);
-        expect(args1[3]).toEqual('testDatabase1');
-        expect(args1[4]).toEqual('testTable1');
-        expect(args1[5]).toEqual(neon.query.where('testField1', '=', 'testValue1'));
-        expect(args1[6]).toEqual('Test Database 1 - Test Table 1 - Test Filter 1');
-
-        let args2 = spy.calls.argsFor(1);
-        expect(args2.length).toEqual(7);
-        expect(args2[0].constructor.name).toEqual(neon.eventing.Messenger.name);
-        expect(args2[1]).toEqual('testFilter2');
-        expect(args2[2]).toEqual(undefined);
-        expect(args2[3]).toEqual('testDatabase2');
-        expect(args2[4]).toEqual('testTable2');
-        expect(args2[5]).toEqual(neon.query.where('testField2', '=', 'testValue2'));
-        expect(args2[6]).toEqual('Test Database 2 - Test Table 2 - Test Filter 2');
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-    }));
-
-    it('getFilterState with response error does not call replaceFilters but does call onError', fakeAsync(() => {
-        let spy = spyOn(service, 'replaceFilter');
-        let successCalls = 0;
-        let failureCalls = 0;
-        service.getFilterState(() => {
-            ++successCalls;
-        }, (response) => {
-            ++failureCalls;
-            expect(response.statusText).toEqual('Test Error Message');
-        });
-
-        let request = backend.expectOne({
-            url: '/filterservice/filters/*/*',
-            method: 'GET'
-        });
-        request.flush(null, {
-            statusText: 'Test Error Message',
-            status: 500
-        });
-
-        expect(spy.calls.count()).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(1);
-    }));
-
-    it('addFilter does call both messenger.addFilters and onSuccess', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
-
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
-        let wherePredicate = neon.query.where('testField', '=', 'testValue');
-        let neonFilter = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
-            .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
-        neonFilter.whereClause = wherePredicate;
-        let filter = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter);
-
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-            expect(id).toEqual('testDatabase1-testTable1-1');
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([filter]);
+        expect(FilterUtil.createFilterDataSourceListFromDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.ID_FIELD,
+                operator: '=',
+                value: 'testId'
+            } as SimpleFilterDesign, {
+                type: 'or',
+                filters: [{
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.X_FIELD,
+                    operator: '=',
+                    value: 10
+                } as SimpleFilterDesign, {
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.Y_FIELD,
+                    operator: '=',
+                    value: 20
+                } as SimpleFilterDesign]
+            } as CompoundFilterDesign]
+        } as CompoundFilterDesign)).toEqual([{
+            datastoreName: 'testDatastore1',
+            databaseName: 'testDatabase1',
+            tableName: 'testTable1',
+            fieldName: 'testIdField',
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: 'testDatabase1',
+            tableName: 'testTable1',
+            fieldName: 'testXField',
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: 'testDatabase1',
+            tableName: 'testTable1',
+            fieldName: 'testYField',
+            operator: '='
+        } as FilterDataSource]);
     });
 
-    it('addFilter given filter with relation field does call both messenger.addFilters and onSuccess once each', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
+    it('createFilterDataSourceListFromDesign should ignore clauses in compound filters with equivalent non-value properties', () => {
+        expect(FilterUtil.createFilterDataSourceListFromDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.ID_FIELD,
+                operator: '=',
+                value: 'testId1'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.ID_FIELD,
+                operator: '=',
+                value: 'testId2'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual([{
+            datastoreName: 'testDatastore1',
+            databaseName: 'testDatabase1',
+            tableName: 'testTable1',
+            fieldName: 'testIdField',
+            operator: '='
+        } as FilterDataSource]);
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
-        let wherePredicate = neon.query.where('testRelationFieldA', '=', 'testNewValue1');
-        let neonFilter1 = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
-            .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
-        neonFilter1.whereClause = wherePredicate;
-        let filter1 = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter1,
-            ['testDatabase2-testTable2-2']);
-
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-            expect(id).toEqual('testDatabase1-testTable1-1');
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        let neonFilter2 = new neon.query.Filter().selectFrom('testDatabase2', 'testTable2')
-            .name('Test Visualization - Test Database 2 - Test Table 2: Test Text');
-        neonFilter2.whereClause = neon.query.where('testRelationFieldA', '=', 'testNewValue1');
-        let filter2 = new ServiceFilter('testDatabase2-testTable2-2', undefined, 'testDatabase2', 'testTable2', neonFilter2,
-            ['testDatabase1-testTable1-1']);
-
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter1], ['testDatabase2-testTable2-2', neonFilter2]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([filter2, filter1]);
+        expect(FilterUtil.createFilterDataSourceListFromDesign({
+            type: 'or',
+            filters: [{
+                type: 'or',
+                filters: [{
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.X_FIELD,
+                    operator: '=',
+                    value: 10
+                } as SimpleFilterDesign, {
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.Y_FIELD,
+                    operator: '=',
+                    value: 20
+                } as SimpleFilterDesign]
+            } as CompoundFilterDesign, {
+                type: 'or',
+                filters: [{
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.X_FIELD,
+                    operator: '=',
+                    value: 30
+                } as SimpleFilterDesign, {
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.Y_FIELD,
+                    operator: '=',
+                    value: 40
+                } as SimpleFilterDesign]
+            } as CompoundFilterDesign]
+        } as CompoundFilterDesign)).toEqual([{
+            datastoreName: 'testDatastore1',
+            databaseName: 'testDatabase1',
+            tableName: 'testTable1',
+            fieldName: 'testXField',
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: 'testDatabase1',
+            tableName: 'testTable1',
+            fieldName: 'testYField',
+            operator: '='
+        } as FilterDataSource]);
     });
 
-    it('addFilter given multiple-clause filter with only relation fields', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
+    it('createFilterDataSourceListFromDesign with ignoreOperator=true should ignore operator properties', () => {
+        expect(FilterUtil.createFilterDataSourceListFromDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>',
+                value: 10
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<',
+                value: 20
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, true)).toEqual([{
+            datastoreName: 'testDatastore1',
+            databaseName: 'testDatabase1',
+            tableName: 'testTable1',
+            fieldName: 'testXField',
+            operator: undefined
+        } as FilterDataSource]);
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
-        let wherePredicate = neon.query.and.apply(neon.query, [
-            neon.query.where('testRelationFieldA', '=', 'testRelationValueA'),
-            neon.query.where('testRelationFieldB', '=', 'testRelationValueB')
-        ]);
-        let neonFilter1 = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
-            .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
-        neonFilter1.whereClause = wherePredicate;
-        let filter1 = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter1,
-            ['testDatabase2-testTable2-2']);
-
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-            expect(id).toEqual('testDatabase1-testTable1-1');
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        let neonFilter2 = new neon.query.Filter().selectFrom('testDatabase2', 'testTable2')
-            .name('Test Visualization - Test Database 2 - Test Table 2: Test Text');
-        neonFilter2.whereClause = neon.query.and.apply(neon.query, [
-            neon.query.where('testRelationFieldA', '=', 'testRelationValueA'),
-            neon.query.where('testRelationFieldB', '=', 'testRelationValueB')
-        ]);
-        let filter2 = new ServiceFilter('testDatabase2-testTable2-2', undefined, 'testDatabase2', 'testTable2', neonFilter2,
-            ['testDatabase1-testTable1-1']);
-
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter1], ['testDatabase2-testTable2-2', neonFilter2]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([filter2, filter1]);
+        expect(FilterUtil.createFilterDataSourceListFromDesign({
+            type: 'or',
+            filters: [{
+                type: 'or',
+                filters: [{
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.X_FIELD,
+                    operator: '=',
+                    value: 10
+                } as SimpleFilterDesign, {
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.Y_FIELD,
+                    operator: '=',
+                    value: 20
+                } as SimpleFilterDesign]
+            } as CompoundFilterDesign, {
+                type: 'or',
+                filters: [{
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.X_FIELD,
+                    operator: '!=',
+                    value: 30
+                } as SimpleFilterDesign, {
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.Y_FIELD,
+                    operator: '!=',
+                    value: 40
+                } as SimpleFilterDesign]
+            } as CompoundFilterDesign]
+        } as CompoundFilterDesign, true)).toEqual([{
+            datastoreName: 'testDatastore1',
+            databaseName: 'testDatabase1',
+            tableName: 'testTable1',
+            fieldName: 'testXField',
+            operator: undefined
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: 'testDatabase1',
+            tableName: 'testTable1',
+            fieldName: 'testYField',
+            operator: undefined
+        } as FilterDataSource]);
     });
 
-    it('addFilter given multiple-clause filter with relation and non-relation fields', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
+    it('isCompoundFilterDesign should return expected boolean', () => {
+        expect(FilterUtil.isCompoundFilterDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '=',
+            value: 'testId'
+        } as SimpleFilterDesign)).toEqual(false);
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
-        let wherePredicate = neon.query.and.apply(neon.query, [
-            neon.query.where('testFilterField', '=', 'testFilterText'),
-            neon.query.where('testRelationFieldA', '=', 'testRelationText')
-        ]);
-        let neonFilter = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
-            .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
-        neonFilter.whereClause = wherePredicate;
-        let filter = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter);
-
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-            expect(id).toEqual('testDatabase1-testTable1-1');
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([filter]);
+        expect(FilterUtil.isCompoundFilterDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.ID_FIELD,
+                operator: '=',
+                value: 'testId1'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.ID_FIELD,
+                operator: '=',
+                value: 'testId2'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
     });
 
-    it('addFilter does not add filter in onError', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
+    it('isSimpleFilterDesign should return expected boolean', () => {
+        expect(FilterUtil.isSimpleFilterDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '=',
+            value: 'testId'
+        } as SimpleFilterDesign)).toEqual(true);
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
-        let wherePredicate = neon.query.where('testField', '=', 'testValue');
-        let neonFilter = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
-            .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
-        neonFilter.whereClause = wherePredicate;
-        let filter = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter);
-
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-            expect(id).toEqual('testDatabase1-testTable1-1');
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[2]();
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(1);
-        expect(service.getFilters()).toEqual([]);
-    });
-
-    it('removeFilters with no filters does not call onSuccess', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
-
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'removeFilters');
-
-        service.removeFilters(messenger, ['testFilter1', 'testFilter2'], (filter) => {
-            ++successCalls;
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        expect(messengerSpy.calls.count()).toEqual(0);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-    });
-
-    it('replaceFilter given new filter ID does call addFilter', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
-
-        let spy = spyOn(service, 'addFilter');
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'replaceFilters');
-        let wherePredicate = neon.query.where('testField', '=', 'testValue');
-
-        service.replaceFilter(messenger, 'testNewFilter1', 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(messengerSpy.calls.count()).toEqual(0);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-
-        let args = spy.calls.argsFor(0);
-        expect(args.length).toEqual(8);
-        expect(args[0]).toEqual(messenger);
-        expect(args[1]).toEqual('testOwnerZ');
-        expect(args[2]).toEqual('testDatabase1');
-        expect(args[3]).toEqual('testTable1');
-        expect(args[4]).toEqual(wherePredicate);
-        expect(args[5]).toEqual({
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        });
-        expect(typeof args[6]).toEqual('function');
-        expect(typeof args[7]).toEqual('function');
-
-        args[6]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-
-        args[7]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(1);
+        expect(FilterUtil.isSimpleFilterDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.ID_FIELD,
+                operator: '=',
+                value: 'testId1'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.ID_FIELD,
+                operator: '=',
+                value: 'testId2'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
     });
 });
 
-describe('Service: Filter with existing filters', () => {
-    let service;
-    let http;
-    let backend;
+describe('FilterCollection', () => {
+    let filterCollection: FilterCollection;
+    let searchService: AbstractSearchService;
+    let source1: FilterDataSource[];
+    let source2: FilterDataSource[];
+    let filter1A: any;
+    let filter1B: any;
+    let filter2A: any;
 
-    initializeTestBed('Filter Service', {
+    initializeTestBed('Single List Filter Collection', {
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: TestFilterServiceWithFilters },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
 
         ],
@@ -601,668 +635,4789 @@ describe('Service: Filter with existing filters', () => {
         ]
     });
 
-    beforeEach(inject([FilterService, HttpClient, HttpTestingController], (filterService, httpClient, httpTestingController) => {
-        service = filterService;
-        http = httpClient;
-        backend = httpTestingController;
+    beforeEach(inject([AbstractSearchService], (_searchService) => {
+        searchService = _searchService;
+        source1 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+        source2 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '>'
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '<'
+        } as FilterDataSource];
+        filter1A = FilterUtil.createFilterFromDesign({
+            root: CompoundFilterType.AND,
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '=',
+            value: 'testId1'
+        } as SimpleFilterDesign, searchService);
+        filter1B = FilterUtil.createFilterFromDesign({
+            root: CompoundFilterType.OR,
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '=',
+            value: 'testId2'
+        } as SimpleFilterDesign, searchService);
+        filter2A = FilterUtil.createFilterFromDesign({
+            root: CompoundFilterType.AND,
+            type: 'and',
+            filters: [{
+                root: CompoundFilterType.AND,
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '>',
+                value: 10
+            } as SimpleFilterDesign, {
+                root: CompoundFilterType.AND,
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '<',
+                value: 20
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+        filterCollection = new FilterCollection();
+        (filterCollection as any).data.set(source1, [filter1A, filter1B]);
+        (filterCollection as any).data.set(source2, [filter2A]);
+    }));
+
+    it('data of new collection should be empty', () => {
+        let testCollection = new FilterCollection();
+        expect((testCollection as any).data.size).toEqual(0);
+    });
+
+    it('findFilterDataSources should return data source from collection', () => {
+        expect(filterCollection.findFilterDataSources({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '=',
+            value: 'testId1'
+        } as SimpleFilterDesign)).toEqual(source1);
+
+        expect(filterCollection.findFilterDataSources({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '>',
+                value: 10
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '<',
+                value: 20
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(source2);
+    });
+
+    it('findFilterDataSources should return new data source and add to collection', () => {
+        let actual = filterCollection.findFilterDataSources({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '!=',
+            value: 'testId1'
+        } as SimpleFilterDesign);
+
+        expect(actual).toEqual([{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource]);
+
+        expect((filterCollection as any).data.get(actual)).toEqual([]);
+    });
+
+    it('getDataSources should return expected array', () => {
+        expect(filterCollection.getDataSources()).toEqual([source1, source2]);
+
+        let testDataSource = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
+
+        (filterCollection as any).data.set(testDataSource, []);
+
+        expect(filterCollection.getDataSources()).toEqual([source1, source2, testDataSource]);
+    });
+
+    it('getFilters should create and return empty array if data source is not in collection', () => {
+        // Different datastore
+        let testDataSource1 = [{
+            datastoreName: 'testDatastore2',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+
+        // Different database
+        let testDataSource2 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[1].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+
+        // Different table
+        let testDataSource3 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[1].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+
+        // Different field
+        let testDataSource4 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+
+        // Different operator
+        let testDataSource5 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
+
+        // Different operators (compound)
+        let testDataSource6 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
+
+        expect(filterCollection.getFilters(testDataSource1)).toEqual([]);
+        expect(filterCollection.getFilters(testDataSource2)).toEqual([]);
+        expect(filterCollection.getFilters(testDataSource3)).toEqual([]);
+        expect(filterCollection.getFilters(testDataSource4)).toEqual([]);
+        expect(filterCollection.getFilters(testDataSource5)).toEqual([]);
+        expect(filterCollection.getFilters(testDataSource6)).toEqual([]);
+
+        expect((filterCollection as any).data.get(testDataSource1)).toEqual([]);
+        expect((filterCollection as any).data.get(testDataSource2)).toEqual([]);
+        expect((filterCollection as any).data.get(testDataSource3)).toEqual([]);
+        expect((filterCollection as any).data.get(testDataSource4)).toEqual([]);
+        expect((filterCollection as any).data.get(testDataSource5)).toEqual([]);
+        expect((filterCollection as any).data.get(testDataSource6)).toEqual([]);
+    });
+
+    it('getFilters should return array from identical data source object in collection', () => {
+        expect(filterCollection.getFilters(source1)).toEqual([filter1A, filter1B]);
+        expect(filterCollection.getFilters(source2)).toEqual([filter2A]);
+    });
+
+    it('getFilters should return array from similar data source object in collection', () => {
+        let testDataSource1 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+
+        let testDataSource2 = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '>'
+        } as FilterDataSource, {
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '<'
+        } as FilterDataSource];
+
+        expect(filterCollection.getFilters(testDataSource1)).toEqual([filter1A, filter1B]);
+        expect(filterCollection.getFilters(testDataSource2)).toEqual([filter2A]);
+
+        expect((filterCollection as any).data.has(testDataSource1)).toEqual(false);
+        expect((filterCollection as any).data.has(testDataSource2)).toEqual(false);
+    });
+
+    it('setFilters should save filters with input data source if it is not in collection', () => {
+        let testDataSource = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
+
+        let testFilter = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '!=',
+            value: 'testId'
+        } as SimpleFilterDesign, searchService);
+
+        expect(filterCollection.setFilters(testDataSource, [testFilter])).toEqual(testDataSource);
+        expect((filterCollection as any).data.get(testDataSource)).toEqual([testFilter]);
+
+        expect(filterCollection.setFilters(testDataSource, [])).toEqual(testDataSource);
+        expect((filterCollection as any).data.get(testDataSource)).toEqual([]);
+    });
+
+    it('setFilters should save filters with identical data source object in collection', () => {
+        expect(filterCollection.setFilters(source1, [filter1A])).toEqual(source1);
+        expect((filterCollection as any).data.get(source1)).toEqual([filter1A]);
+
+        expect(filterCollection.setFilters(source1, [])).toEqual(source1);
+        expect((filterCollection as any).data.get(source1)).toEqual([]);
+
+        let testFilter = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '=',
+            value: 'testId'
+        } as SimpleFilterDesign, searchService);
+
+        expect(filterCollection.setFilters(source1, [testFilter])).toEqual(source1);
+        expect((filterCollection as any).data.get(source1)).toEqual([testFilter]);
+
+        expect(filterCollection.setFilters(source1, [filter1A, testFilter])).toEqual(source1);
+        expect((filterCollection as any).data.get(source1)).toEqual([filter1A, testFilter]);
+    });
+
+    it('setFilters should save filters with similar data source object in collection', () => {
+        let testDataSource = [{
+            datastoreName: 'testDatastore1',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+
+        expect(filterCollection.setFilters(testDataSource, [filter1A])).toEqual(source1);
+        expect((filterCollection as any).data.get(source1)).toEqual([filter1A]);
+        expect((filterCollection as any).data.has(testDataSource)).toEqual(false);
+
+        expect(filterCollection.setFilters(testDataSource, [])).toEqual(source1);
+        expect((filterCollection as any).data.get(source1)).toEqual([]);
+        expect((filterCollection as any).data.has(testDataSource)).toEqual(false);
+
+        let testFilter = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '=',
+            value: 'testId'
+        } as SimpleFilterDesign, searchService);
+
+        expect(filterCollection.setFilters(testDataSource, [testFilter])).toEqual(source1);
+        expect((filterCollection as any).data.get(source1)).toEqual([testFilter]);
+        expect((filterCollection as any).data.has(testDataSource)).toEqual(false);
+
+        expect(filterCollection.setFilters(testDataSource, [filter1A, testFilter])).toEqual(source1);
+        expect((filterCollection as any).data.get(source1)).toEqual([filter1A, testFilter]);
+        expect((filterCollection as any).data.has(testDataSource)).toEqual(false);
+    });
+});
+
+describe('SimpleFilter', () => {
+    let simpleFilter: any;
+    let searchService: AbstractSearchService;
+
+    initializeTestBed('Simple Filter', {
+        providers: [
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
+        ]
+    });
+
+    beforeEach(inject([AbstractSearchService], (_searchService) => {
+        searchService = _searchService;
+        simpleFilter = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: 'testName1'
+        } as SimpleFilterDesign, searchService);
+        // TODO THOR-1078 Remove this line
+        simpleFilter.datastore = 'testDatastore1';
+    }));
+
+    it('does have expected properties', () => {
+        expect(simpleFilter.datastore).toEqual('testDatastore1');
+        expect(simpleFilter.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(simpleFilter.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(simpleFilter.field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(simpleFilter.operator).toEqual('=');
+        expect(simpleFilter.value).toEqual('testName1');
+
+        expect(simpleFilter.filterClause).toBeDefined();
+        expect(simpleFilter.id).toBeDefined();
+        expect(simpleFilter.name).toEqual('Test Database 1 / Test Table 1 / Test Name Field = testName1');
+        expect(simpleFilter.root).toEqual(CompoundFilterType.AND);
+        expect(simpleFilter.relations).toEqual([]);
+    });
+
+    it('createRelationFilter should return null if substitue has bad data', () => {
+        let actual = simpleFilter.createRelationFilter([{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD
+        }], [{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: new FieldMetaData()
+        }], searchService);
+        expect(actual).toEqual(null);
+    });
+
+    it('createRelationFilter should return expected object', () => {
+        let actual;
+
+        let testSubstituteList = [{
+            datastore: 'testDatastore2',
+            database: DatasetServiceMock.DATABASES[1],
+            table: DatasetServiceMock.TABLES[1],
+            field: DatasetServiceMock.TEXT_FIELD
+        }];
+
+        actual = simpleFilter.createRelationFilter([{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD
+        }], testSubstituteList, searchService);
+        expect(actual.datastore).toEqual('testDatastore2');
+        expect(actual.database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(actual.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(actual.field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(actual.operator).toEqual('=');
+        expect(actual.value).toEqual('testName1');
+        expect(actual.root).toEqual(CompoundFilterType.AND);
+    });
+
+    it('createRelationFilter should work with custom root filter', () => {
+        simpleFilter.root = CompoundFilterType.OR;
+
+        let testSubstituteList = [{
+            datastore: 'testDatastore2',
+            database: DatasetServiceMock.DATABASES[1],
+            table: DatasetServiceMock.TABLES[1],
+            field: DatasetServiceMock.TEXT_FIELD
+        }];
+
+        let actual = simpleFilter.createRelationFilter([{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD
+        }], testSubstituteList, searchService);
+        expect(actual.datastore).toEqual('testDatastore2');
+        expect(actual.database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(actual.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(actual.field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(actual.operator).toEqual('=');
+        expect(actual.value).toEqual('testName1');
+        expect(actual.root).toEqual(CompoundFilterType.OR);
+    });
+
+    it('doesAffectSearch should return expected boolean', () => {
+        expect(simpleFilter.doesAffectSearch('testDatastore1', 'testDatabase1', 'testTable1')).toEqual(true);
+        expect(simpleFilter.doesAffectSearch('testDatastore2', 'testDatabase1', 'testTable1')).toEqual(false);
+        expect(simpleFilter.doesAffectSearch('testDatastore1', 'testDatabase2', 'testTable1')).toEqual(false);
+        expect(simpleFilter.doesAffectSearch('testDatastore1', 'testDatabase1', 'testTable2')).toEqual(false);
+    });
+
+    it('isCompatibleWithDesign should return expected boolean', () => {
+        // Correct, with value
+        expect(simpleFilter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: 'testName1'
+        })).toEqual(true);
+
+        // Correct
+        expect(simpleFilter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '='
+        })).toEqual(true);
+
+        // Correct, with custom root filter type
+        expect(simpleFilter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            root: CompoundFilterType.AND
+        })).toEqual(true);
+
+        // Different datastore
+        expect(simpleFilter.isCompatibleWithDesign({
+            datastore: 'testDatastore2',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '='
+        })).toEqual(false);
+
+        // Different database
+        expect(simpleFilter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[1],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '='
+        })).toEqual(false);
+
+        // Different table
+        expect(simpleFilter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[1],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '='
+        })).toEqual(false);
+
+        // Different field
+        expect(simpleFilter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TEXT_FIELD,
+            operator: '='
+        })).toEqual(false);
+
+        // Different operator
+        expect(simpleFilter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '!='
+        })).toEqual(false);
+
+        // Different custom root filter type
+        expect(simpleFilter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            root: CompoundFilterType.OR
+        })).toEqual(false);
+
+        // Different value
+        expect(simpleFilter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: 'testName2'
+        })).toEqual(false);
+
+        // Different structure
+        expect(simpleFilter.isCompatibleWithDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '='
+            }]
+        })).toEqual(false);
+    });
+
+    it('isEquivalentToFilter should return expected boolean', () => {
+        // Different datastore
+        let testFilter1 = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore2',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: 'testName1'
+        } as SimpleFilterDesign, searchService);
+
+        // Different database
+        let testFilter2 = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[1],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: 'testName1'
+        } as SimpleFilterDesign, searchService);
+
+        // Different table
+        let testFilter3 = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[1],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: 'testName1'
+        } as SimpleFilterDesign, searchService);
+
+        // Different field
+        let testFilter4 = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TEXT_FIELD,
+            operator: '=',
+            value: 'testName1'
+        } as SimpleFilterDesign, searchService);
+
+        // Different operator
+        let testFilter5 = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '!=',
+            value: 'testName1'
+        } as SimpleFilterDesign, searchService);
+
+        // Different value
+        let testFilter6 = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: 'testName2'
+        } as SimpleFilterDesign, searchService);
+
+        // Different custom root filter type
+        let testFilter7 = FilterUtil.createFilterFromDesign({
+            root: CompoundFilterType.OR,
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: 'testName1'
+        } as SimpleFilterDesign, searchService);
+
+        // Different structure
+        let testFilter8 = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '=',
+                value: 'testName1'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Correct
+        let testFilter9 = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: 'testName1'
+        } as SimpleFilterDesign, searchService);
+        // TODO THOR-1078 Remove this line
+        (testFilter9 as any).datastore = 'testDatastore1';
+
+        expect(simpleFilter.isEquivalentToFilter(testFilter1)).toEqual(false);
+        expect(simpleFilter.isEquivalentToFilter(testFilter2)).toEqual(false);
+        expect(simpleFilter.isEquivalentToFilter(testFilter3)).toEqual(false);
+        expect(simpleFilter.isEquivalentToFilter(testFilter4)).toEqual(false);
+        expect(simpleFilter.isEquivalentToFilter(testFilter5)).toEqual(false);
+        expect(simpleFilter.isEquivalentToFilter(testFilter6)).toEqual(false);
+        expect(simpleFilter.isEquivalentToFilter(testFilter7)).toEqual(false);
+        expect(simpleFilter.isEquivalentToFilter(testFilter8)).toEqual(false);
+        expect(simpleFilter.isEquivalentToFilter(testFilter9)).toEqual(true);
+    });
+
+    it('toDesign should return expected object', () => {
+        expect(simpleFilter.toDesign()).toEqual({
+            id: simpleFilter.id,
+            name: 'Test Database 1 / Test Table 1 / Test Name Field = testName1',
+            root: CompoundFilterType.AND,
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: 'testName1'
+        } as SimpleFilterDesign);
+    });
+
+    it('toString should return expected string', () => {
+        expect(simpleFilter.toString()).toEqual('Test Database 1 / Test Table 1 / Test Name Field = testName1');
+    });
+
+    it('toString on filter with name property should return name property', () => {
+        simpleFilter.name = 'testName';
+        expect(simpleFilter.toString()).toEqual('testName');
+    });
+});
+
+describe('SimpleFilter (Falsey Values)', () => {
+    let searchService: AbstractSearchService;
+
+    initializeTestBed('Simple Filter (Falsey Values)', {
+        providers: [
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
+        ]
+    });
+
+    beforeEach(inject([AbstractSearchService], (_searchService) => {
+        searchService = _searchService;
+    }));
+
+    it('filter on zero', () => {
+        let filter = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: 0
+        } as SimpleFilterDesign, searchService);
+        // TODO THOR-1078 Remove this line
+        (filter as any).datastore = 'testDatastore1';
+
+        expect((filter as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((filter as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((filter as any).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((filter as any).operator).toEqual('=');
+        expect((filter as any).value).toEqual(0);
+
+        expect(filter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: 0
+        } as SimpleFilterDesign)).toEqual(true);
+
+        expect(filter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: ''
+        } as SimpleFilterDesign)).toEqual(false);
+
+        expect(filter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: false
+        } as SimpleFilterDesign)).toEqual(false);
+
+        expect(filter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: null
+        } as SimpleFilterDesign)).toEqual(false);
+    });
+
+    it('filter on empty string', () => {
+        let filter = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: ''
+        } as SimpleFilterDesign, searchService);
+        // TODO THOR-1078 Remove this line
+        (filter as any).datastore = 'testDatastore1';
+
+        expect((filter as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((filter as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((filter as any).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((filter as any).operator).toEqual('=');
+        expect((filter as any).value).toEqual('');
+
+        expect(filter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: 0
+        } as SimpleFilterDesign)).toEqual(false);
+
+        expect(filter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: ''
+        } as SimpleFilterDesign)).toEqual(true);
+
+        expect(filter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: false
+        } as SimpleFilterDesign)).toEqual(false);
+
+        expect(filter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: null
+        } as SimpleFilterDesign)).toEqual(false);
+    });
+
+    it('filter on false', () => {
+        let filter = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: false
+        } as SimpleFilterDesign, searchService);
+        // TODO THOR-1078 Remove this line
+        (filter as any).datastore = 'testDatastore1';
+
+        expect((filter as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((filter as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((filter as any).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((filter as any).operator).toEqual('=');
+        expect((filter as any).value).toEqual(false);
+
+        expect(filter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: 0
+        } as SimpleFilterDesign)).toEqual(false);
+
+        expect(filter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: ''
+        } as SimpleFilterDesign)).toEqual(false);
+
+        expect(filter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: false
+        } as SimpleFilterDesign)).toEqual(true);
+
+        expect(filter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: null
+        } as SimpleFilterDesign)).toEqual(false);
+    });
+
+    it('filter on null', () => {
+        let filter = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: null
+        } as SimpleFilterDesign, searchService);
+        // TODO THOR-1078 Remove this line
+        (filter as any).datastore = 'testDatastore1';
+
+        expect((filter as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((filter as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((filter as any).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((filter as any).operator).toEqual('=');
+        expect((filter as any).value).toEqual(null);
+
+        expect(filter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: 0
+        } as SimpleFilterDesign)).toEqual(false);
+
+        expect(filter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: ''
+        } as SimpleFilterDesign)).toEqual(false);
+
+        expect(filter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: false
+        } as SimpleFilterDesign)).toEqual(false);
+
+        expect(filter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '=',
+            value: null
+        } as SimpleFilterDesign)).toEqual(true);
+    });
+});
+
+describe('SimpleFilter and CompoundFilter (Date Fields)', () => {
+    let simpleFilter: any;
+    let compoundFilter: any;
+    let searchService: AbstractSearchService;
+
+    initializeTestBed('Simple and Compound Filters (Date Fields)', {
+        providers: [
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
+        ]
+    });
+
+    beforeEach(inject([AbstractSearchService], (_searchService) => {
+        searchService = _searchService;
+
+        simpleFilter = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.DATE_FIELD,
+            operator: '=',
+            value: new Date(0)
+        } as SimpleFilterDesign, searchService);
+        // TODO THOR-1078 Remove this line
+        simpleFilter.datastore = 'testDatastore1';
+
+        compoundFilter = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.DATE_FIELD,
+                operator: '>',
+                value: new Date(0)
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.DATE_FIELD,
+                operator: '<',
+                // One year + one month + one day
+                value: new Date(34300800000)
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+        // TODO THOR-1078 Remove this line
+        compoundFilter.filters.forEach((filter) => filter.datastore = 'testDatastore1');
+    }));
+
+    it('toString on simple date filter should return expected string', () => {
+        expect(simpleFilter.toString()).toEqual('Test Database 1 / Test Table 1 / Test Date Field = 1-1-1970');
+    });
+
+    it('toString on compound date filter should return expected string', () => {
+        expect(compoundFilter.toString()).toEqual('(Test Database 1 / Test Table 1 / Test Date Field > 1-1-1970) and ' +
+            '(Test Database 1 / Test Table 1 / Test Date Field < 2-2-1971)');
+    });
+});
+
+describe('CompoundFilter (One Field)', () => {
+    let compoundFilter: any;
+    let searchService: AbstractSearchService;
+
+    initializeTestBed('Compound Filter (One Field)', {
+        providers: [
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
+        ]
+    });
+
+    beforeEach(inject([AbstractSearchService], (_searchService) => {
+        searchService = _searchService;
+        compoundFilter = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>',
+                value: -100
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<',
+                value: 100
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+        // TODO THOR-1078 Remove this line
+        compoundFilter.filters.forEach((filter) => filter.datastore = 'testDatastore1');
+    }));
+
+    it('does have expected properties', () => {
+        expect(compoundFilter.filterClause).toBeDefined();
+        expect(compoundFilter.id).toBeDefined();
+        expect(compoundFilter.name).toEqual('(Test Database 1 / Test Table 1 / Test X Field > -100) and ' +
+            '(Test Database 1 / Test Table 1 / Test X Field < 100)');
+        expect(compoundFilter.root).toEqual(CompoundFilterType.AND);
+        expect(compoundFilter.relations).toEqual([]);
+        expect(compoundFilter.type).toEqual(CompoundFilterType.AND);
+
+        expect(compoundFilter.filters.length).toEqual(2);
+        expect(compoundFilter.filters[0].datastore).toEqual('testDatastore1');
+        expect(compoundFilter.filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(compoundFilter.filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(compoundFilter.filters[0].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect(compoundFilter.filters[0].operator).toEqual('>');
+        expect(compoundFilter.filters[0].value).toEqual(-100);
+        expect(compoundFilter.filters[1].datastore).toEqual('testDatastore1');
+        expect(compoundFilter.filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(compoundFilter.filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(compoundFilter.filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect(compoundFilter.filters[1].operator).toEqual('<');
+        expect(compoundFilter.filters[1].value).toEqual(100);
+    });
+
+    it('createRelationFilter should return null if substitue has bad data', () => {
+        let actual = compoundFilter.createRelationFilter([{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD
+        }], [{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: new FieldMetaData()
+        }], searchService);
+        expect(actual).toEqual(null);
+    });
+
+    it('createRelationFilter should return expected object', () => {
+        let actual;
+
+        let testSubstituteList = [{
+            datastore: 'testDatastore2',
+            database: DatasetServiceMock.DATABASES[1],
+            table: DatasetServiceMock.TABLES[1],
+            field: DatasetServiceMock.Y_FIELD
+        }];
+
+        actual = compoundFilter.createRelationFilter([{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD
+        }], testSubstituteList, searchService);
+        expect(actual.type).toEqual(CompoundFilterType.AND);
+        expect(actual.root).toEqual(CompoundFilterType.AND);
+        expect(actual.filters.length).toEqual(2);
+        expect(actual.filters[0].datastore).toEqual('testDatastore2');
+        expect(actual.filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(actual.filters[0].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(actual.filters[0].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect(actual.filters[0].operator).toEqual('>');
+        expect(actual.filters[0].value).toEqual(-100);
+        expect(actual.filters[1].datastore).toEqual('testDatastore2');
+        expect(actual.filters[1].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(actual.filters[1].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(actual.filters[1].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect(actual.filters[1].operator).toEqual('<');
+        expect(actual.filters[1].value).toEqual(100);
+    });
+
+    it('createRelationFilter should work with custom root filter', () => {
+        compoundFilter.root = CompoundFilterType.OR;
+
+        let testSubstituteList = [{
+            datastore: 'testDatastore2',
+            database: DatasetServiceMock.DATABASES[1],
+            table: DatasetServiceMock.TABLES[1],
+            field: DatasetServiceMock.Y_FIELD
+        }];
+
+        let actual = compoundFilter.createRelationFilter([{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD
+        }], testSubstituteList, searchService);
+        expect(actual.type).toEqual(CompoundFilterType.AND);
+        expect(actual.root).toEqual(CompoundFilterType.OR);
+        expect(actual.filters.length).toEqual(2);
+        expect(actual.filters[0].datastore).toEqual('testDatastore2');
+        expect(actual.filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(actual.filters[0].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(actual.filters[0].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect(actual.filters[0].operator).toEqual('>');
+        expect(actual.filters[0].value).toEqual(-100);
+        expect(actual.filters[1].datastore).toEqual('testDatastore2');
+        expect(actual.filters[1].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(actual.filters[1].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(actual.filters[1].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect(actual.filters[1].operator).toEqual('<');
+        expect(actual.filters[1].value).toEqual(100);
+    });
+
+    it('doesAffectSearch should return expected boolean', () => {
+        expect(compoundFilter.doesAffectSearch('testDatastore1', 'testDatabase1', 'testTable1')).toEqual(true);
+        expect(compoundFilter.doesAffectSearch('testDatastore2', 'testDatabase1', 'testTable1')).toEqual(false);
+        expect(compoundFilter.doesAffectSearch('testDatastore1', 'testDatabase2', 'testTable1')).toEqual(false);
+        expect(compoundFilter.doesAffectSearch('testDatastore1', 'testDatabase1', 'testTable2')).toEqual(false);
+    });
+
+    it('isCompatibleWithDesign should return expected boolean', () => {
+        // Correct, with value
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>',
+                value: -100
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<',
+                value: 100
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // Correct
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // Correct, with custom root filter type
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'and',
+            root: CompoundFilterType.AND,
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // Correct, with rearranged structure
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // Different datastore
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore2',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different database
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[1],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different table
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[1],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different field
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '>'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different operator
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different custom root filter type
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'and',
+            root: CompoundFilterType.OR,
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different value
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>',
+                value: 1
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different type
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<'
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different structure
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different structure
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'and',
+            filters: [{
+                type: 'and',
+                filters: [{
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.X_FIELD,
+                    operator: '>'
+                } as SimpleFilterDesign, {
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.X_FIELD,
+                    operator: '<'
+                } as SimpleFilterDesign]
+            } as CompoundFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different structure
+        expect(compoundFilter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD,
+            operator: '>'
+        } as SimpleFilterDesign)).toEqual(false);
+    });
+
+    it('isEquivalentToFilter should return expected boolean', () => {
+        // Different datastore
+        let testFilter1 = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore2',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>',
+                value: -100
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<',
+                value: 100
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Different database
+        let testFilter2 = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[1],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>',
+                value: -100
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<',
+                value: 100
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Different table
+        let testFilter3 = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[1],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>',
+                value: -100
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<',
+                value: 100
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Different field
+        let testFilter4 = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.Y_FIELD,
+                operator: '>',
+                value: -100
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<',
+                value: 100
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Different operator
+        let testFilter5 = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '=',
+                value: -100
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<',
+                value: 100
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Different value
+        let testFilter6 = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>',
+                value: 1
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<',
+                value: 100
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Different custom root filter type
+        let testFilter7 = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            root: CompoundFilterType.OR,
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>',
+                value: -100
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<',
+                value: 100
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Different type
+        let testFilter8 = FilterUtil.createFilterFromDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>',
+                value: -100
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<',
+                value: 100
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Correct
+        let testFilter9 = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>',
+                value: -100
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<',
+                value: 100
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+        // TODO THOR-1078 Remove this line
+        (testFilter9 as any).filters.forEach((filter) => filter.datastore = 'testDatastore1');
+
+        expect(compoundFilter.isEquivalentToFilter(testFilter1)).toEqual(false);
+        expect(compoundFilter.isEquivalentToFilter(testFilter2)).toEqual(false);
+        expect(compoundFilter.isEquivalentToFilter(testFilter3)).toEqual(false);
+        expect(compoundFilter.isEquivalentToFilter(testFilter4)).toEqual(false);
+        expect(compoundFilter.isEquivalentToFilter(testFilter5)).toEqual(false);
+        expect(compoundFilter.isEquivalentToFilter(testFilter6)).toEqual(false);
+        expect(compoundFilter.isEquivalentToFilter(testFilter7)).toEqual(false);
+        expect(compoundFilter.isEquivalentToFilter(testFilter8)).toEqual(false);
+        expect(compoundFilter.isEquivalentToFilter(testFilter9)).toEqual(true);
+    });
+
+    it('toDesign should return expected object', () => {
+        expect(compoundFilter.toDesign()).toEqual({
+            type: 'and',
+            id: compoundFilter.id,
+            name: '(Test Database 1 / Test Table 1 / Test X Field > -100) and (Test Database 1 / Test Table 1 / Test X Field < 100)',
+            root: CompoundFilterType.AND,
+            filters: [{
+                id: compoundFilter.filters[0].id,
+                name: 'Test Database 1 / Test Table 1 / Test X Field > -100',
+                root: CompoundFilterType.AND,
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '>',
+                value: -100
+            } as SimpleFilterDesign, {
+                id: compoundFilter.filters[1].id,
+                name: 'Test Database 1 / Test Table 1 / Test X Field < 100',
+                root: CompoundFilterType.AND,
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '<',
+                value: 100
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign);
+    });
+
+    it('toString should return expected string', () => {
+        expect(compoundFilter.toString()).toEqual('(Test Database 1 / Test Table 1 / Test X Field > -100) and ' +
+            '(Test Database 1 / Test Table 1 / Test X Field < 100)');
+    });
+
+    it('toString on filter with name property should return name property', () => {
+        compoundFilter.name = 'testName';
+        expect(compoundFilter.toString()).toEqual('testName');
+    });
+});
+
+describe('CompoundFilter (Multi-Field)', () => {
+    let compoundFilter: any;
+    let searchService: AbstractSearchService;
+
+    initializeTestBed('Compound Filter (Multi-Field)', {
+        providers: [
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
+        ]
+    });
+
+    beforeEach(inject([AbstractSearchService], (_searchService) => {
+        searchService = _searchService;
+        compoundFilter = FilterUtil.createFilterFromDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '=',
+                value: 'testName1'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+        // TODO THOR-1078 Remove this line
+        compoundFilter.filters.forEach((filter) => filter.datastore = 'testDatastore1');
+    }));
+
+    it('does have expected properties', () => {
+        expect(compoundFilter.filterClause).toBeDefined();
+        expect(compoundFilter.id).toBeDefined();
+        expect(compoundFilter.name).toEqual('(Test Database 1 / Test Table 1 / Test Name Field = testName1) or ' +
+            '(Test Database 1 / Test Table 1 / Test X Field = 10)');
+        expect(compoundFilter.root).toEqual(CompoundFilterType.AND);
+        expect(compoundFilter.relations).toEqual([]);
+        expect(compoundFilter.type).toEqual(CompoundFilterType.OR);
+
+        expect(compoundFilter.filters.length).toEqual(2);
+        expect(compoundFilter.filters[0].datastore).toEqual('testDatastore1');
+        expect(compoundFilter.filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(compoundFilter.filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(compoundFilter.filters[0].field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(compoundFilter.filters[0].operator).toEqual('=');
+        expect(compoundFilter.filters[0].value).toEqual('testName1');
+        expect(compoundFilter.filters[1].datastore).toEqual('testDatastore1');
+        expect(compoundFilter.filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(compoundFilter.filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(compoundFilter.filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect(compoundFilter.filters[1].operator).toEqual('=');
+        expect(compoundFilter.filters[1].value).toEqual(10);
+    });
+
+    it('createRelationFilter should return null if substitue has bad data', () => {
+        let actual = compoundFilter.createRelationFilter([{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD
+        }], [{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: new FieldMetaData()
+        }], searchService);
+        expect(actual).toEqual(null);
+    });
+
+    it('createRelationFilter should return null if equivalent fields and substitue fields are not the same length', () => {
+        let actual;
+
+        actual = compoundFilter.createRelationFilter([{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD
+        }, {
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD
+        }], [{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TYPE_FIELD
+        }], searchService);
+        expect(actual).toEqual(null);
+
+        actual = compoundFilter.createRelationFilter([{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD
+        }], [{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TYPE_FIELD
+        }, {
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.Y_FIELD
+        }], searchService);
+        expect(actual).toEqual(null);
+    });
+
+    it('createRelationFilter with single substitute field should return expected object', () => {
+        let actual;
+
+        let testSubstituteList = [{
+            datastore: 'testDatastore2',
+            database: DatasetServiceMock.DATABASES[1],
+            table: DatasetServiceMock.TABLES[1],
+            field: DatasetServiceMock.TYPE_FIELD
+        }];
+
+        actual = compoundFilter.createRelationFilter([{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD
+        }], testSubstituteList, searchService);
+        expect(actual.type).toEqual(CompoundFilterType.OR);
+        expect(actual.root).toEqual(CompoundFilterType.AND);
+        expect(actual.filters.length).toEqual(2);
+        expect(actual.filters[0].datastore).toEqual('testDatastore2');
+        expect(actual.filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(actual.filters[0].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(actual.filters[0].field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect(actual.filters[0].operator).toEqual('=');
+        expect(actual.filters[0].value).toEqual('testName1');
+        expect(actual.filters[1].datastore).toEqual('testDatastore1');
+        expect(actual.filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual.filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual.filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect(actual.filters[1].operator).toEqual('=');
+        expect(actual.filters[1].value).toEqual(10);
+    });
+
+    it('createRelationFilter with multiple substitute fields should return expected object', () => {
+        let actual;
+
+        let testSubstituteList = [{
+            datastore: 'testDatastore2',
+            database: DatasetServiceMock.DATABASES[1],
+            table: DatasetServiceMock.TABLES[1],
+            field: DatasetServiceMock.TYPE_FIELD
+        }, {
+            datastore: 'testDatastore2',
+            database: DatasetServiceMock.DATABASES[1],
+            table: DatasetServiceMock.TABLES[1],
+            field: DatasetServiceMock.Y_FIELD
+        }];
+
+        actual = compoundFilter.createRelationFilter([{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD
+        }, {
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD
+        }], testSubstituteList, searchService);
+        expect(actual.type).toEqual(CompoundFilterType.OR);
+        expect(actual.root).toEqual(CompoundFilterType.AND);
+        expect(actual.filters.length).toEqual(2);
+        expect(actual.filters[0].datastore).toEqual('testDatastore2');
+        expect(actual.filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(actual.filters[0].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(actual.filters[0].field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect(actual.filters[0].operator).toEqual('=');
+        expect(actual.filters[0].value).toEqual('testName1');
+        expect(actual.filters[1].datastore).toEqual('testDatastore2');
+        expect(actual.filters[1].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(actual.filters[1].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(actual.filters[1].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect(actual.filters[1].operator).toEqual('=');
+        expect(actual.filters[1].value).toEqual(10);
+    });
+
+    it('createRelationFilter should work with custom root filter', () => {
+        compoundFilter.root = CompoundFilterType.OR;
+
+        let testSubstituteList = [{
+            datastore: 'testDatastore2',
+            database: DatasetServiceMock.DATABASES[1],
+            table: DatasetServiceMock.TABLES[1],
+            field: DatasetServiceMock.TYPE_FIELD
+        }, {
+            datastore: 'testDatastore2',
+            database: DatasetServiceMock.DATABASES[1],
+            table: DatasetServiceMock.TABLES[1],
+            field: DatasetServiceMock.Y_FIELD
+        }];
+
+        let actual = compoundFilter.createRelationFilter([{
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD
+        }, {
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.X_FIELD
+        }], testSubstituteList, searchService);
+        expect(actual.type).toEqual(CompoundFilterType.OR);
+        expect(actual.root).toEqual(CompoundFilterType.OR);
+        expect(actual.filters.length).toEqual(2);
+        expect(actual.filters[0].datastore).toEqual('testDatastore2');
+        expect(actual.filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(actual.filters[0].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(actual.filters[0].field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect(actual.filters[0].operator).toEqual('=');
+        expect(actual.filters[0].value).toEqual('testName1');
+        expect(actual.filters[1].datastore).toEqual('testDatastore2');
+        expect(actual.filters[1].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(actual.filters[1].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(actual.filters[1].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect(actual.filters[1].operator).toEqual('=');
+        expect(actual.filters[1].value).toEqual(10);
+    });
+
+    it('doesAffectSearch should return expected boolean', () => {
+        expect(compoundFilter.doesAffectSearch('testDatastore1', 'testDatabase1', 'testTable1')).toEqual(true);
+        expect(compoundFilter.doesAffectSearch('testDatastore2', 'testDatabase1', 'testTable1')).toEqual(false);
+        expect(compoundFilter.doesAffectSearch('testDatastore1', 'testDatabase2', 'testTable1')).toEqual(false);
+        expect(compoundFilter.doesAffectSearch('testDatastore1', 'testDatabase1', 'testTable2')).toEqual(false);
+    });
+
+    it('isCompatibleWithDesign should return expected boolean', () => {
+        // Correct, with value
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '=',
+                value: 'testName1'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // Correct
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // Correct, with custom root filter type
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'or',
+            root: CompoundFilterType.AND,
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // Correct, with rearranged structure
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // Different datastore
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore2',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different database
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[1],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different table
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[1],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different field
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.TYPE_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different operator
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '!='
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different custom root filter type
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'or',
+            root: CompoundFilterType.OR,
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different value
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '=',
+                value: 1
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different type
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different structure
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '!='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different structure
+        expect(compoundFilter.isCompatibleWithDesign({
+            type: 'or',
+            filters: [{
+                type: 'and',
+                filters: [{
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.NAME_FIELD,
+                    operator: '='
+                } as SimpleFilterDesign, {
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.X_FIELD,
+                    operator: '='
+                } as SimpleFilterDesign]
+            } as CompoundFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Different structure
+        expect(compoundFilter.isCompatibleWithDesign({
+            datastore: 'testDatastore1',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.NAME_FIELD,
+            operator: '='
+        } as SimpleFilterDesign)).toEqual(false);
+    });
+
+    it('isEquivalentToFilter should return expected boolean', () => {
+        // Different datastore
+        let testFilter1 = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore2',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '=',
+                value: 'testName1'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Different database
+        let testFilter2 = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[1],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '=',
+                value: 'testName1'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Different table
+        let testFilter3 = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[1],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '=',
+                value: 'testName1'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Different field
+        let testFilter4 = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.TYPE_FIELD,
+                operator: '=',
+                value: 'testName1'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Different operator
+        let testFilter5 = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '!=',
+                value: 'testName1'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Different value
+        let testFilter6 = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '=',
+                value: 1
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Different custom root filter type
+        let testFilter7 = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            root: CompoundFilterType.OR,
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '=',
+                value: 'testName1'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Different type
+        let testFilter8 = FilterUtil.createFilterFromDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '=',
+                value: 'testName1'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+
+        // Correct
+        let testFilter9 = FilterUtil.createFilterFromDesign({
+            type: 'or',
+            filters: [{
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '=',
+                value: 'testName1'
+            } as SimpleFilterDesign, {
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign, searchService);
+        // TODO THOR-1078 Remove this line
+        (testFilter9 as any).filters.forEach((filter) => filter.datastore = 'testDatastore1');
+
+        expect(compoundFilter.isEquivalentToFilter(testFilter1)).toEqual(false);
+        expect(compoundFilter.isEquivalentToFilter(testFilter2)).toEqual(false);
+        expect(compoundFilter.isEquivalentToFilter(testFilter3)).toEqual(false);
+        expect(compoundFilter.isEquivalentToFilter(testFilter4)).toEqual(false);
+        expect(compoundFilter.isEquivalentToFilter(testFilter5)).toEqual(false);
+        expect(compoundFilter.isEquivalentToFilter(testFilter6)).toEqual(false);
+        expect(compoundFilter.isEquivalentToFilter(testFilter7)).toEqual(false);
+        expect(compoundFilter.isEquivalentToFilter(testFilter8)).toEqual(false);
+        expect(compoundFilter.isEquivalentToFilter(testFilter9)).toEqual(true);
+    });
+
+    it('toDesign should return expected object', () => {
+        expect(compoundFilter.toDesign()).toEqual({
+            type: 'or',
+            id: compoundFilter.id,
+            name: '(Test Database 1 / Test Table 1 / Test Name Field = testName1) or (Test Database 1 / Test Table 1 / Test X Field = 10)',
+            root: CompoundFilterType.AND,
+            filters: [{
+                id: compoundFilter.filters[0].id,
+                name: 'Test Database 1 / Test Table 1 / Test Name Field = testName1',
+                root: CompoundFilterType.AND,
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.NAME_FIELD,
+                operator: '=',
+                value: 'testName1'
+            } as SimpleFilterDesign, {
+                id: compoundFilter.filters[1].id,
+                name: 'Test Database 1 / Test Table 1 / Test X Field = 10',
+                root: CompoundFilterType.AND,
+                datastore: 'testDatastore1',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.X_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign);
+    });
+
+    it('toString should return expected string', () => {
+        expect(compoundFilter.toString()).toEqual('(Test Database 1 / Test Table 1 / Test Name Field = testName1) or ' +
+            '(Test Database 1 / Test Table 1 / Test X Field = 10)');
+    });
+
+    it('toString on filter with name property should return name property', () => {
+        compoundFilter.name = 'testName';
+        expect(compoundFilter.toString()).toEqual('testName');
+    });
+});
+
+describe('CompoundFilter (Nested Compound Filters)', () => {
+    let compoundFilter: any;
+    let searchService: AbstractSearchService;
+
+    initializeTestBed('Compound Filter (Nested Compound Filters)', {
+        providers: [
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
+        ]
+    });
+
+    beforeEach(inject([AbstractSearchService], (_searchService) => {
+        searchService = _searchService;
+        compoundFilter = FilterUtil.createFilterFromDesign({
+            type: 'and',
+            filters: [{
+                type: 'or',
+                filters: [{
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.X_FIELD,
+                    operator: '=',
+                    value: 10
+                } as SimpleFilterDesign, {
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.X_FIELD,
+                    operator: '=',
+                    value: 20
+                } as SimpleFilterDesign]
+            } as CompoundFilterDesign, {
+                type: 'or',
+                filters: [{
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.NAME_FIELD,
+                    operator: '=',
+                    value: 'testName1'
+                } as SimpleFilterDesign, {
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.NAME_FIELD,
+                    operator: '=',
+                    value: 'testName2'
+                } as SimpleFilterDesign]
+            } as CompoundFilterDesign]
+        } as CompoundFilterDesign, searchService);
+        // TODO THOR-1078 Remove this line
+        compoundFilter.filters.forEach((filter) => filter.filters.forEach((nestedFilter) => nestedFilter.datastore = 'testDatastore1'));
+    }));
+
+    it('does have expected properties', () => {
+        expect(compoundFilter.filterClause).toBeDefined();
+        expect(compoundFilter.id).toBeDefined();
+        expect(compoundFilter.name).toEqual('((Test Database 1 / Test Table 1 / Test X Field = 10) or ' +
+            '(Test Database 1 / Test Table 1 / Test X Field = 20)) and ' +
+            '((Test Database 1 / Test Table 1 / Test Name Field = testName1) or ' +
+            '(Test Database 1 / Test Table 1 / Test Name Field = testName2))');
+        expect(compoundFilter.root).toEqual(CompoundFilterType.AND);
+        expect(compoundFilter.relations).toEqual([]);
+        expect(compoundFilter.type).toEqual(CompoundFilterType.AND);
+
+        expect(compoundFilter.filters.length).toEqual(2);
+        expect(compoundFilter.filters[0].type).toEqual(CompoundFilterType.OR);
+        expect(compoundFilter.filters[0].filters.length).toEqual(2);
+        expect(compoundFilter.filters[0].filters[0].datastore).toEqual('testDatastore1');
+        expect(compoundFilter.filters[0].filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(compoundFilter.filters[0].filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(compoundFilter.filters[0].filters[0].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect(compoundFilter.filters[0].filters[0].operator).toEqual('=');
+        expect(compoundFilter.filters[0].filters[0].value).toEqual(10);
+        expect(compoundFilter.filters[0].filters[1].datastore).toEqual('testDatastore1');
+        expect(compoundFilter.filters[0].filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(compoundFilter.filters[0].filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(compoundFilter.filters[0].filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect(compoundFilter.filters[0].filters[1].operator).toEqual('=');
+        expect(compoundFilter.filters[0].filters[1].value).toEqual(20);
+        expect(compoundFilter.filters[1].type).toEqual(CompoundFilterType.OR);
+        expect(compoundFilter.filters[1].filters.length).toEqual(2);
+        expect(compoundFilter.filters[1].filters[0].datastore).toEqual('testDatastore1');
+        expect(compoundFilter.filters[1].filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(compoundFilter.filters[1].filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(compoundFilter.filters[1].filters[0].field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(compoundFilter.filters[1].filters[0].operator).toEqual('=');
+        expect(compoundFilter.filters[1].filters[0].value).toEqual('testName1');
+        expect(compoundFilter.filters[1].filters[1].datastore).toEqual('testDatastore1');
+        expect(compoundFilter.filters[1].filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(compoundFilter.filters[1].filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(compoundFilter.filters[1].filters[1].field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(compoundFilter.filters[1].filters[1].operator).toEqual('=');
+        expect(compoundFilter.filters[1].filters[1].value).toEqual('testName2');
+    });
+
+    it('toDesign should return expected object', () => {
+        expect(compoundFilter.toDesign()).toEqual({
+            type: 'and',
+            id: compoundFilter.id,
+            name: '((Test Database 1 / Test Table 1 / Test X Field = 10) or (Test Database 1 / Test Table 1 / Test X Field = 20)) and ' +
+                '((Test Database 1 / Test Table 1 / Test Name Field = testName1) or ' +
+                '(Test Database 1 / Test Table 1 / Test Name Field = testName2))',
+            root: CompoundFilterType.AND,
+            filters: [{
+                type: 'or',
+                id: compoundFilter.filters[0].id,
+                name: '(Test Database 1 / Test Table 1 / Test X Field = 10) or (Test Database 1 / Test Table 1 / Test X Field = 20)',
+                root: CompoundFilterType.AND,
+                filters: [{
+                    id: compoundFilter.filters[0].filters[0].id,
+                    name: 'Test Database 1 / Test Table 1 / Test X Field = 10',
+                    root: CompoundFilterType.AND,
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.X_FIELD,
+                    operator: '=',
+                    value: 10
+                } as SimpleFilterDesign, {
+                    id: compoundFilter.filters[0].filters[1].id,
+                    name: 'Test Database 1 / Test Table 1 / Test X Field = 20',
+                    root: CompoundFilterType.AND,
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.X_FIELD,
+                    operator: '=',
+                    value: 20
+                } as SimpleFilterDesign]
+            } as CompoundFilterDesign, {
+                type: 'or',
+                id: compoundFilter.filters[1].id,
+                name: '(Test Database 1 / Test Table 1 / Test Name Field = testName1) or ' +
+                    '(Test Database 1 / Test Table 1 / Test Name Field = testName2)',
+                root: CompoundFilterType.AND,
+                filters: [{
+                    id: compoundFilter.filters[1].filters[0].id,
+                    name: 'Test Database 1 / Test Table 1 / Test Name Field = testName1',
+                    root: CompoundFilterType.AND,
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.NAME_FIELD,
+                    operator: '=',
+                    value: 'testName1'
+                } as SimpleFilterDesign, {
+                    id: compoundFilter.filters[1].filters[1].id,
+                    name: 'Test Database 1 / Test Table 1 / Test Name Field = testName2',
+                    root: CompoundFilterType.AND,
+                    datastore: 'testDatastore1',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.NAME_FIELD,
+                    operator: '=',
+                    value: 'testName2'
+                } as SimpleFilterDesign]
+            } as CompoundFilterDesign]
+        } as CompoundFilterDesign);
+    });
+});
+
+describe('FilterService with no filters', () => {
+    let datasetService: DatasetService;
+    let filterService: FilterService;
+    let searchService: AbstractSearchService;
+
+    initializeTestBed('Filter Service with no filters', {
+        providers: [
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: FilterService, useClass: FilterService },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
+        ],
+        imports: [
+            HttpClientModule,
+            HttpClientTestingModule
+        ]
+    });
+
+    beforeEach(inject([DatasetService, FilterService, AbstractSearchService], (_datasetService, _filterService, _searchService) => {
+        datasetService = _datasetService;
+        filterService = _filterService;
+        searchService = _searchService;
+    }));
+
+    it('should have expected properties', () => {
+        expect((filterService as any).filterCollection).toBeDefined();
+        expect(((filterService as any).filterCollection as any).data.size).toEqual(0);
+        expect((filterService as any).messenger).toBeDefined();
+    });
+
+    it('getFilters should return expected array', () => {
+        expect(filterService.getFilters()).toEqual([]);
+    });
+});
+
+describe('FilterService with filters', () => {
+    let datasetService: DatasetService;
+    let filterService: FilterService;
+    let searchService: AbstractSearchService;
+    let source1: FilterDataSource[];
+    let source2: FilterDataSource[];
+    let design1A: SimpleFilterDesign;
+    let design1B: SimpleFilterDesign;
+    let design1C: SimpleFilterDesign;
+    let design1D: SimpleFilterDesign;
+    let design2A: CompoundFilterDesign;
+    let filter1A: any;
+    let filter1B: any;
+    let filter1C: any;
+    let filter1D: any;
+    let filter2A: any;
+    let relationSource1: FilterDataSource[];
+    let relationSource2: FilterDataSource[];
+    let relationDesign1: SimpleFilterDesign;
+    let relationDesign2: SimpleFilterDesign;
+    let relationFilter1: any;
+    let relationFilter2: any;
+
+    initializeTestBed('Filter Service with filters', {
+        providers: [
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: FilterService, useClass: FilterService },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
+            { provide: 'config', useValue: new NeonGTDConfig() }
+        ]
+    });
+
+    beforeEach(inject([DatasetService, FilterService, AbstractSearchService], (_datasetService, _filterService, _searchService) => {
+        datasetService = _datasetService;
+        filterService = _filterService;
+        searchService = _searchService;
+
+        source1 = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+        source2 = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '>'
+        } as FilterDataSource, {
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '<'
+        } as FilterDataSource];
+
+        design1A = {
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '=',
+            value: 'testId1'
+        } as SimpleFilterDesign;
+        design1B = {
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '=',
+            value: 'testId2'
+        } as SimpleFilterDesign;
+        design1C = {
+            root: CompoundFilterType.OR,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '=',
+            value: 'testId3'
+        } as SimpleFilterDesign;
+        design1D = {
+            root: CompoundFilterType.OR,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '=',
+            value: 'testId4'
+        } as SimpleFilterDesign;
+        design2A = {
+            type: 'and',
+            root: CompoundFilterType.AND,
+            filters: [{
+                root: CompoundFilterType.AND,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '>',
+                value: 10
+            } as SimpleFilterDesign, {
+                root: CompoundFilterType.AND,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '<',
+                value: 20
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign;
+
+        filter1A = FilterUtil.createFilterFromDesign(design1A, searchService);
+        filter1B = FilterUtil.createFilterFromDesign(design1B, searchService);
+        filter1C = FilterUtil.createFilterFromDesign(design1C, searchService);
+        filter1D = FilterUtil.createFilterFromDesign(design1D, searchService);
+        filter2A = FilterUtil.createFilterFromDesign(design2A, searchService);
+
+        design1A.id = filter1A.id;
+        design1A.name = filter1A.name;
+        design1B.id = filter1B.id;
+        design1B.name = filter1B.name;
+        design1C.id = filter1C.id;
+        design1C.name = filter1C.name;
+        design1D.id = filter1D.id;
+        design1D.name = filter1D.name;
+        design2A.id = filter2A.id;
+        design2A.name = filter2A.name;
+        design2A.filters[0].id = filter2A.filters[0].id;
+        design2A.filters[0].name = filter2A.filters[0].name;
+        design2A.filters[1].id = filter2A.filters[1].id;
+        design2A.filters[1].name = filter2A.filters[1].name;
+
+        (filterService as any).filterCollection.setFilters(source1, [filter1A, filter1B, filter1C, filter1D]);
+        (filterService as any).filterCollection.setFilters(source2, [filter2A]);
     }));
 
     afterEach(() => {
-        service.reset();
+        // Services are not recreated in each test so we must reset the internal data.
+        ((filterService as any).filterCollection as any).data.clear();
     });
 
-    it('getFilters with filters does return expected array', () => {
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
+    /**
+     * Generates test relation filters and activates them in the FilterService.
+     */
+    let activateRelationFilters = () => {
+        generateRelationFilters();
+        (filterService as any).filterCollection.setFilters(relationSource1, [relationFilter1]);
+        (filterService as any).filterCollection.setFilters(relationSource2, [relationFilter2]);
+    };
+
+    /**
+     * Generates test relation filters.
+     */
+    let generateRelationFilters = () => {
+        relationSource1 = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.RELATION_FIELD_A.columnName,
+            operator: '='
+        } as FilterDataSource];
+        relationSource2 = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.RELATION_FIELD_B.columnName,
+            operator: '='
+        } as FilterDataSource];
+
+        relationDesign1 = {
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.RELATION_FIELD_A,
+            operator: '=',
+            value: 'testRelation'
+        } as SimpleFilterDesign;
+        relationDesign2 = {
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.RELATION_FIELD_B,
+            operator: '=',
+            value: 'testRelation'
+        } as SimpleFilterDesign;
+
+        relationFilter1 = FilterUtil.createFilterFromDesign(relationDesign1, searchService);
+        relationFilter2 = FilterUtil.createFilterFromDesign(relationDesign2, searchService);
+        relationFilter1.relations = [relationFilter2.id];
+        relationFilter2.relations = [relationFilter1.id];
+
+        relationDesign1.id = relationFilter1.id;
+        relationDesign1.name = relationFilter1.name;
+        relationDesign2.id = relationFilter2.id;
+        relationDesign2.name = relationFilter2.name;
+
+        spyOn(datasetService, 'findRelationDataList').and.returnValue([[
+            [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.RELATION_FIELD_A
+            }],
+            [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.RELATION_FIELD_B
+            }]
+        ]]);
+    };
+
+    it('should have expected properties', () => {
+        expect((filterService as any).filterCollection.getDataSources()).toEqual([source1, source2]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect((filterService as any).messenger).toBeDefined();
     });
 
-    it('getFilters with filters given comparator does return expected array', () => {
-        expect(service.getFilters({
-            id: 'testFilter1'
-        })).toEqual([service.FILTER_1]);
-
-        expect(service.getFilters({
-            database: 'testDatabase2'
-        })).toEqual([service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-    });
-
-    it('getFiltersByOwner with filters does return expected array', () => {
-        expect(service.getFiltersByOwner('testOwnerA')).toEqual([service.FILTER_1]);
-        expect(service.getFiltersByOwner('testOwnerB')).toEqual([service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-    });
-
-    it('getFiltersForFields with filters and not given field array does return expected array', () => {
-        expect(service.getFiltersForFields('testDatabase1', 'testTable1')).toEqual([service.FILTER_1]);
-        expect(service.getFiltersForFields('testDatabase2', 'testTable2')).toEqual([service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-    });
-
-    it('getFiltersForFields with filters given field array does return expected array', () => {
-        expect(service.getFiltersForFields('testDatabase1', 'testTable1', ['testField1'])).toEqual([service.FILTER_1]);
-        expect(service.getFiltersForFields('testDatabase1', 'testTable1', ['testField2'])).toEqual([]);
-        expect(service.getFiltersForFields('testDatabase2', 'testTable2', ['testField2'])).toEqual([service.FILTER_2, service.FILTER_4]);
-        expect(service.getFiltersForFields('testDatabase2', 'testTable2', ['testField3'])).toEqual([service.FILTER_3]);
-    });
-
-    it('getFilterById with filters does return expected filter object', () => {
-        expect(service.getFilterById('testFilter1')).toEqual(service.FILTER_1);
-        expect(service.getFilterById('testFilter2')).toEqual(service.FILTER_2);
-        expect(service.getFilterById('testFilter3')).toEqual(service.FILTER_3);
-        expect(service.getFilterById('testFilter4')).toEqual(service.FILTER_4);
-    });
-
-    it('getFilterState does replace existing filters', () => {
-        let spy = spyOn(service, 'replaceFilter');
-        let successCalls = 0;
-        let failureCalls = 0;
-        service.getFilterState(() => {
-            ++successCalls;
-        }, () => {
-            ++failureCalls;
-        });
-
-        let request = backend.expectOne({
-            url: '/filterservice/filters/*/*',
-            method: 'GET'
-        });
-        request.flush([{
-            id: 'testFilter1',
-            dataSet: {
-                databaseName: 'testDatabase1',
-                tableName: 'testTable1'
-            },
-            filter: {
-                databaseName: 'testDatabase1',
-                tableName: 'testTable1',
-                whereClause: neon.query.where('testField1', '=', 'testNewValue1'),
-                filterName: 'Test Database 1 - Test Table 1 - Test Filter 1'
-            }
-        }, {
-            id: 'testFilter2',
-            dataSet: {
-                databaseName: 'testDatabase2',
-                tableName: 'testTable2'
-            },
-            filter: {
-                databaseName: 'testDatabase2',
-                tableName: 'testTable2',
-                whereClause: neon.query.where('testField2', '=', 'testNewValue2'),
-                filterName: 'Test Database 2 - Test Table 2 - Test Filter 2'
-            }
-        }]);
-
-        let filter1 = new ServiceFilter('testFilter1', undefined, 'testDatabase1', 'testTable1', {
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            whereClause: neon.query.where('testField1', '=', 'testNewValue1'),
-            filterName: 'Test Database 1 - Test Table 1 - Test Filter 1'
-        });
-
-        let filter2 = new ServiceFilter('testFilter2', undefined, 'testDatabase2', 'testTable2', {
-            databaseName: 'testDatabase2',
-            tableName: 'testTable2',
-            whereClause: neon.query.where('testField2', '=', 'testNewValue2'),
-            filterName: 'Test Database 2 - Test Table 2 - Test Filter 2'
-        });
-
-        expect(spy.calls.count()).toEqual(2);
-        expect(service.getFilters()).toEqual([filter1, filter2]);
-
-        let args1 = spy.calls.argsFor(0);
-        expect(args1.length).toEqual(7);
-        expect(args1[0].constructor.name).toEqual(neon.eventing.Messenger.name);
-        expect(args1[1]).toEqual('testFilter1');
-        expect(args1[2]).toEqual(undefined);
-        expect(args1[3]).toEqual('testDatabase1');
-        expect(args1[4]).toEqual('testTable1');
-        expect(args1[5]).toEqual(neon.query.where('testField1', '=', 'testNewValue1'));
-        expect(args1[6]).toEqual('Test Database 1 - Test Table 1 - Test Filter 1');
-
-        let args2 = spy.calls.argsFor(1);
-        expect(args2.length).toEqual(7);
-        expect(args2[0].constructor.name).toEqual(neon.eventing.Messenger.name);
-        expect(args2[1]).toEqual('testFilter2');
-        expect(args2[2]).toEqual(undefined);
-        expect(args2[3]).toEqual('testDatabase2');
-        expect(args2[4]).toEqual('testTable2');
-        expect(args2[5]).toEqual(neon.query.where('testField2', '=', 'testNewValue2'));
-        expect(args2[6]).toEqual('Test Database 2 - Test Table 2 - Test Filter 2');
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-    });
-
-    it('addFilter with filters does call both messenger.addFilters and onSuccess', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
-
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
-        let wherePredicate = neon.query.where('testField', '=', 'testValue');
-        let neonFilter = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
-            .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
-        neonFilter.whereClause = wherePredicate;
-        let filter = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter);
-
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-            expect(id).toEqual('testDatabase1-testTable1-1');
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4, filter]);
-    });
-
-    it('addFilter with filters given filter with relation field does call both messenger.addFilters and onSuccess once each', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
-
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
-        let wherePredicate = neon.query.where('testRelationFieldA', '=', 'testNewValue1');
-        let neonFilter1 = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
-            .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
-        neonFilter1.whereClause = wherePredicate;
-        let filter1 = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter1,
-            ['testDatabase2-testTable2-2']);
-
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-            expect(id).toEqual('testDatabase1-testTable1-1');
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        let neonFilter2 = new neon.query.Filter().selectFrom('testDatabase2', 'testTable2')
-            .name('Test Visualization - Test Database 2 - Test Table 2: Test Text');
-        neonFilter2.whereClause = neon.query.where('testRelationFieldA', '=', 'testNewValue1');
-        let filter2 = new ServiceFilter('testDatabase2-testTable2-2', undefined, 'testDatabase2', 'testTable2', neonFilter2,
-            ['testDatabase1-testTable1-1']);
-
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter1], ['testDatabase2-testTable2-2', neonFilter2]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4, filter2, filter1]);
-    });
-
-    it('addFilter with filters given multiple-clause filter with only relation fields', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
-
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
-        let wherePredicate = neon.query.and.apply(neon.query, [
-            neon.query.where('testRelationFieldA', '=', 'testRelationValueA'),
-            neon.query.where('testRelationFieldB', '=', 'testRelationValueB')
-        ]);
-        let neonFilter1 = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
-            .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
-        neonFilter1.whereClause = wherePredicate;
-        let filter1 = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter1,
-            ['testDatabase2-testTable2-2']);
-
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-            expect(id).toEqual('testDatabase1-testTable1-1');
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        let neonFilter2 = new neon.query.Filter().selectFrom('testDatabase2', 'testTable2')
-            .name('Test Visualization - Test Database 2 - Test Table 2: Test Text');
-        neonFilter2.whereClause = neon.query.and.apply(neon.query, [
-            neon.query.where('testRelationFieldA', '=', 'testRelationValueA'),
-            neon.query.where('testRelationFieldB', '=', 'testRelationValueB')
-        ]);
-        let filter2 = new ServiceFilter('testDatabase2-testTable2-2', undefined, 'testDatabase2', 'testTable2', neonFilter2,
-            ['testDatabase1-testTable1-1']);
-
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter1], ['testDatabase2-testTable2-2', neonFilter2]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4, filter2, filter1]);
-    });
-
-    it('addFilter with filters does not add filter in onError', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
-
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'addFilters');
-        let wherePredicate = neon.query.where('testField', '=', 'testValue');
-        let neonFilter = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
-            .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
-        neonFilter.whereClause = wherePredicate;
-        let filter = new ServiceFilter('testDatabase1-testTable1-1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter);
-
-        service.addFilter(messenger, 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-            expect(id).toEqual('testDatabase1-testTable1-1');
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testDatabase1-testTable1-1', neonFilter]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[2]();
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(1);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-    });
-
-    it('removeFilters with filters does call messenger.removeFilters and onSuccess', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
-
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'removeFilters');
-
-        service.removeFilters(messenger, ['testFilter1'], (filter) => {
-            ++successCalls;
-            expect(filter).toEqual(service.FILTER_1);
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args1 = messengerSpy.calls.argsFor(0);
-        expect(args1.length).toEqual(3);
-        expect(args1[0]).toEqual(['testFilter1']);
-        expect(typeof args1[1]).toEqual('function');
-        expect(typeof args1[2]).toEqual('function');
-
-        args1[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-    });
-
-    it('removeFilters with filters given multiple IDs does call both messenger.removeFilters and onSuccess multiple times', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
-
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'removeFilters');
-
-        service.removeFilters(messenger, ['testFilter1', 'testFilter2'], (filter) => {
-            ++successCalls;
-            if (successCalls === 1) {
-                expect(filter).toEqual(service.FILTER_1);
-            }
-            if (successCalls === 2) {
-                expect(filter).toEqual(service.FILTER_2);
-            }
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        expect(messengerSpy.calls.count()).toEqual(2);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args1 = messengerSpy.calls.argsFor(0);
-        expect(args1.length).toEqual(3);
-        expect(args1[0]).toEqual(['testFilter1']);
-        expect(typeof args1[1]).toEqual('function');
-        expect(typeof args1[2]).toEqual('function');
-
-        args1[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args2 = messengerSpy.calls.argsFor(1);
-        expect(args2.length).toEqual(3);
-        expect(args2[0]).toEqual(['testFilter2']);
-        expect(typeof args2[1]).toEqual('function');
-        expect(typeof args2[2]).toEqual('function');
-
-        args2[1]();
-        expect(successCalls).toEqual(2);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_3, service.FILTER_4]);
-    });
-
-    it('removeFilters with filters given an ID with siblings does call both messenger.removeFilters and onSuccess once', () => {
-        service.resetWithRelationFilters();
-
-        let successCalls = 0;
-        let failureCalls = 0;
-
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'removeFilters');
-
-        service.removeFilters(messenger, ['testFilter5'], (filter) => {
-            ++successCalls;
-            expect(filter).toEqual(service.FILTER_5);
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_5, service.FILTER_6]);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual(['testFilter6', 'testFilter5']);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([]);
-    });
-
-    it('removeFilters with filters does not remove filter in onError', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
-
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'removeFilters');
-
-        service.removeFilters(messenger, ['testFilter1'], (filter) => {
-            ++successCalls;
-        }, (response) => {
-            ++failureCalls;
-        });
-
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args1 = messengerSpy.calls.argsFor(0);
-        expect(args1.length).toEqual(3);
-        expect(args1[0]).toEqual(['testFilter1']);
-        expect(typeof args1[1]).toEqual('function');
-        expect(typeof args1[2]).toEqual('function');
-
-        args1[2]();
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(1);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-    });
-
-    it('replaceFilter with filters given new filter ID does call addFilter', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
-
-        let spy = spyOn(service, 'addFilter');
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'replaceFilters');
-        let wherePredicate = neon.query.where('testField', '=', 'testValue');
-
-        service.replaceFilter(messenger, 'testNewFilter1', 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-        }, (response) => {
-            ++failureCalls;
-        });
+    it('deleteFilter should delete filter and publish a FILTERS_CHANGED event', () => {
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let actual = filterService.deleteFilter('testCaller', design1A, searchService);
+
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+
+        expect(actual.size).toEqual(2);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2]);
+        expect(actual.get(keys[0])).toEqual([design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(messengerSpy.calls.count()).toEqual(0);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
-
-        let args = spy.calls.argsFor(0);
-        expect(args.length).toEqual(8);
-        expect(args[0]).toEqual(messenger);
-        expect(args[1]).toEqual('testOwnerZ');
-        expect(args[2]).toEqual('testDatabase1');
-        expect(args[3]).toEqual('testTable1');
-        expect(args[4]).toEqual(wherePredicate);
-        expect(args[5]).toEqual({
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        });
-        expect(typeof args[6]).toEqual('function');
-        expect(typeof args[7]).toEqual('function');
-
-        args[6]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
     });
 
-    it('replaceFilter with filters given existing filter ID does call both messenger.replaceFilters and onSuccess', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
+    it('deleteFilter should also delete relation filters', () => {
+        activateRelationFilters();
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'replaceFilters');
-        let wherePredicate = neon.query.where('testField', '=', 'testValue');
+        let spy = spyOn((filterService as any).messenger, 'publish');
 
-        service.replaceFilter(messenger, 'testFilter1', 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-            expect(id).toEqual('testFilter1');
-        }, (response) => {
-            ++failureCalls;
-        });
+        let actual = filterService.deleteFilter('testCaller', relationDesign1, searchService);
 
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
+        expect((filterService as any).filterCollection.getFilters(relationSource1)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(relationSource2)).toEqual([]);
 
-        let neonFilter = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
-            .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
-        neonFilter.whereClause = wherePredicate;
-        let filter = new ServiceFilter('testFilter1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter);
+        expect(actual.size).toEqual(4);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+        expect(actual.get(keys[2])).toEqual([]);
+        expect(actual.get(keys[3])).toEqual([]);
 
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testFilter1', neonFilter]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([filter, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
     });
 
-    it('replaceFilter with filters given filter with relation field does call both messenger.addFilters and onSuccess once each', () => {
-        service.resetWithRelationFilters();
+    it('deleteFilters should delete all filters and publish a FILTERS_CHANGED event', () => {
+        let spy = spyOn((filterService as any).messenger, 'publish');
 
-        let successCalls = 0;
-        let failureCalls = 0;
+        let actual = filterService.deleteFilters('testCaller', searchService);
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'replaceFilters');
-        let wherePredicate = neon.query.where('testRelationFieldA', '=', 'testNewValue1');
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([]);
 
-        service.replaceFilter(messenger, 'testFilter5', 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-            expect(id).toEqual('testFilter5');
-        }, (response) => {
-            ++failureCalls;
-        });
+        expect(actual.size).toEqual(2);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2]);
+        expect(actual.get(keys[0])).toEqual([]);
+        expect(actual.get(keys[1])).toEqual([]);
 
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_5, service.FILTER_6]);
-
-        let neonFilter1 = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
-            .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
-        neonFilter1.whereClause = wherePredicate;
-        let filter1 = new ServiceFilter('testFilter5', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter1, ['testFilter6']);
-
-        let neonFilter2 = new neon.query.Filter().selectFrom('testDatabase2', 'testTable2')
-            .name('Test Visualization - Test Database 2 - Test Table 2: Test Text');
-        neonFilter2.whereClause = wherePredicate;
-        let filter2 = new ServiceFilter('testFilter6', undefined, 'testDatabase2', 'testTable2', neonFilter2, ['testFilter5']);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testFilter5', neonFilter1], ['testFilter6', neonFilter2]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([filter1, filter2]);
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
     });
 
-    it('replaceFilter with filters given multiple-clause filter with only relation fields', () => {
-        service.resetWithRelationFilters();
+    it('deleteFilters with filter-list-to-delete should delete argument filters', () => {
+        let spy = spyOn((filterService as any).messenger, 'publish');
 
-        let successCalls = 0;
-        let failureCalls = 0;
+        let actual = filterService.deleteFilters('testCaller', searchService, [design1A]);
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'replaceFilters');
-        let wherePredicate = neon.query.and.apply(neon.query, [
-            neon.query.where('testRelationFieldA', '=', 'testNewValue1'),
-            neon.query.where('testRelationFieldB', '=', 'testNewValue2')
-        ]);
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
 
-        service.replaceFilter(messenger, 'testFilter5', 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-            expect(id).toEqual('testFilter5');
-        }, (response) => {
-            ++failureCalls;
-        });
+        expect(actual.size).toEqual(2);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2]);
+        expect(actual.get(keys[0])).toEqual([]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
 
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_5, service.FILTER_6]);
-
-        let neonFilter1 = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
-            .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
-        neonFilter1.whereClause = wherePredicate;
-        let filter1 = new ServiceFilter('testFilter5', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter1, ['testFilter6']);
-
-        let neonFilter2 = new neon.query.Filter().selectFrom('testDatabase2', 'testTable2')
-            .name('Test Visualization - Test Database 2 - Test Table 2: Test Text');
-        neonFilter2.whereClause = wherePredicate;
-        let filter2 = new ServiceFilter('testFilter6', undefined, 'testDatabase2', 'testTable2', neonFilter2, ['testFilter5']);
-
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testFilter5', neonFilter1], ['testFilter6', neonFilter2]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
-
-        args[1]();
-        expect(successCalls).toEqual(1);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([filter1, filter2]);
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
     });
 
-    it('replaceFilter with filters does not replace filter in onError', () => {
-        let successCalls = 0;
-        let failureCalls = 0;
+    it('deleteFilters should also delete relation filters', () => {
+        activateRelationFilters();
 
-        let messenger = new neon.eventing.Messenger();
-        let messengerSpy = spyOn(messenger, 'replaceFilters');
-        let wherePredicate = neon.query.where('testField', '=', 'testValue');
+        let spy = spyOn((filterService as any).messenger, 'publish');
 
-        service.replaceFilter(messenger, 'testFilter1', 'testOwnerZ', 'testDatabase1', 'testTable1', wherePredicate, {
-            visName: 'Test Visualization',
-            text: 'Test Text'
-        }, (id) => {
-            ++successCalls;
-            expect(id).toEqual('testDatabase1-testTable1-1');
-        }, (response) => {
-            ++failureCalls;
-        });
+        let actual = filterService.deleteFilters('testCaller', searchService, [relationDesign1]);
 
-        expect(messengerSpy.calls.count()).toEqual(1);
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(0);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
+        expect((filterService as any).filterCollection.getFilters(relationSource1)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(relationSource2)).toEqual([]);
 
-        let neonFilter = new neon.query.Filter().selectFrom('testDatabase1', 'testTable1')
-            .name('Test Visualization - Test Database 1 - Test Table 1: Test Text');
-        neonFilter.whereClause = wherePredicate;
-        let filter = new ServiceFilter('testFilter1', 'testOwnerZ', 'testDatabase1', 'testTable1', neonFilter);
+        expect(actual.size).toEqual(4);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+        expect(actual.get(keys[2])).toEqual([]);
+        expect(actual.get(keys[3])).toEqual([]);
 
-        let args = messengerSpy.calls.argsFor(0);
-        expect(args.length).toEqual(3);
-        expect(args[0]).toEqual([['testFilter1', neonFilter]]);
-        expect(typeof args[1]).toEqual('function');
-        expect(typeof args[2]).toEqual('function');
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
 
-        args[2]();
-        expect(successCalls).toEqual(0);
-        expect(failureCalls).toEqual(1);
-        expect(service.getFilters()).toEqual([service.FILTER_1, service.FILTER_2, service.FILTER_3, service.FILTER_4]);
+    it('deleteFilters should not publish any event if no filters are affected', () => {
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let actual = filterService.deleteFilters('testCaller', searchService, [{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TEXT_FIELD,
+            operator: '='
+        } as SimpleFilterDesign]);
+
+        expect(actual.size).toEqual(3);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2, [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource]]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+        expect(actual.get(keys[2])).toEqual([]);
+
+        expect(spy.calls.count()).toEqual(0);
+    });
+
+    it('exchangeFilters should add new filters and publish a FILTERS_CHANGED event', () => {
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let testDesign = {
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TEXT_FIELD,
+            operator: '=',
+            value: 'testText'
+        } as SimpleFilterDesign;
+
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+
+        let actual = filterService.exchangeFilters('testCaller', [testDesign], [], searchService);
+
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+
+        let listComplete = (filterService as any).filterCollection.getFilters(testSource);
+        expect(listComplete.length).toEqual(1);
+        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(listComplete[0].operator).toEqual('=');
+        expect(listComplete[0].value).toEqual('testText');
+
+        testDesign.id = listComplete[0].id;
+        testDesign.name = listComplete[0].name;
+
+        expect(actual.size).toEqual(3);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2, testSource]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+        expect(actual.get(keys[2])).toEqual([testDesign]);
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
+
+    it('exchangeFilters should delete old filters and publish a FILTERS_CHANGED event', () => {
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let testDesign = {
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '=',
+            value: 'testId5'
+        } as SimpleFilterDesign;
+
+        let actual = filterService.exchangeFilters('testCaller', [testDesign], [], searchService);
+
+        let listComplete = (filterService as any).filterCollection.getFilters(source1);
+        expect(listComplete.length).toEqual(1);
+        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(listComplete[0].operator).toEqual('=');
+        expect(listComplete[0].value).toEqual('testId5');
+
+        testDesign.id = listComplete[0].id;
+        testDesign.name = listComplete[0].name;
+
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+
+        expect(actual.size).toEqual(2);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2]);
+        expect(actual.get(keys[0])).toEqual([testDesign]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
+
+    it('exchangeFilters should work with custom root filters', () => {
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let testDesign = {
+            root: CompoundFilterType.OR,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TEXT_FIELD,
+            operator: '=',
+            value: 'testText'
+        } as SimpleFilterDesign;
+
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+
+        let actual = filterService.exchangeFilters('testCaller', [testDesign], [], searchService);
+
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+
+        let listComplete = (filterService as any).filterCollection.getFilters(testSource);
+        expect(listComplete.length).toEqual(1);
+        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(listComplete[0].operator).toEqual('=');
+        expect(listComplete[0].value).toEqual('testText');
+
+        testDesign.id = listComplete[0].id;
+        testDesign.name = listComplete[0].name;
+
+        expect(actual.size).toEqual(3);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2, testSource]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+        expect(actual.get(keys[2])).toEqual([testDesign]);
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
+
+    it('exchangeFilters should also add new relation filters', () => {
+        generateRelationFilters();
+
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let actual = filterService.exchangeFilters('testCaller', [relationDesign1], datasetService.findRelationDataList(), searchService);
+
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+
+        let listComplete = (filterService as any).filterCollection.getFilters(relationSource1);
+        expect(listComplete.length).toEqual(1);
+        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DatasetServiceMock.RELATION_FIELD_A);
+        expect(listComplete[0].operator).toEqual('=');
+        expect(listComplete[0].value).toEqual('testRelation');
+
+        relationDesign1.id = listComplete[0].id;
+        relationDesign1.name = listComplete[0].name;
+
+        listComplete = (filterService as any).filterCollection.getFilters(relationSource2);
+        expect(listComplete.length).toEqual(1);
+        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DatasetServiceMock.RELATION_FIELD_B);
+        expect(listComplete[0].operator).toEqual('=');
+        expect(listComplete[0].value).toEqual('testRelation');
+
+        relationDesign2.id = listComplete[0].id;
+        relationDesign2.name = listComplete[0].name;
+
+        expect(actual.size).toEqual(4);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+        expect(actual.get(keys[2])).toEqual([relationDesign1]);
+        expect(actual.get(keys[3])).toEqual([relationDesign2]);
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
+
+    it('exchangeFilters should also delete old relation filters', () => {
+        activateRelationFilters();
+
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let testDesign2 = {
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.RELATION_FIELD_B,
+            operator: '=',
+            value: 'testExchangeRelation'
+        } as SimpleFilterDesign;
+
+        let actual = filterService.exchangeFilters('testCaller', [testDesign2], datasetService.findRelationDataList(), searchService);
+
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+
+        let listComplete = (filterService as any).filterCollection.getFilters(relationSource1);
+        expect(listComplete.length).toEqual(1);
+        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DatasetServiceMock.RELATION_FIELD_A);
+        expect(listComplete[0].operator).toEqual('=');
+        expect(listComplete[0].value).toEqual('testExchangeRelation');
+
+        let testDesign1 = {
+            id: listComplete[0].id,
+            name: listComplete[0].name,
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.RELATION_FIELD_A,
+            operator: '=',
+            value: 'testExchangeRelation'
+        } as SimpleFilterDesign;
+
+        listComplete = (filterService as any).filterCollection.getFilters(relationSource2);
+        expect(listComplete.length).toEqual(1);
+        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DatasetServiceMock.RELATION_FIELD_B);
+        expect(listComplete[0].operator).toEqual('=');
+        expect(listComplete[0].value).toEqual('testExchangeRelation');
+
+        testDesign2.id = listComplete[0].id;
+        testDesign2.name = listComplete[0].name;
+
+        expect(actual.size).toEqual(4);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+        expect(actual.get(keys[2])).toEqual([testDesign1]);
+        expect(actual.get(keys[3])).toEqual([testDesign2]);
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
+
+    it('exchangeFilters with filter-list-to-delete should delete argument filters', () => {
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let actual = filterService.exchangeFilters('testCaller', [], [], searchService, [design1A]);
+
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+
+        expect(actual.size).toEqual(2);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2]);
+        expect(actual.get(keys[0])).toEqual([]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
+
+    it('exchangeFilters with filter-list-to-delete should also delete relation filters', () => {
+        activateRelationFilters();
+
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let actual = filterService.exchangeFilters('testCaller', [], [], searchService, [relationDesign1]);
+
+        expect((filterService as any).filterCollection.getFilters(relationSource1)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(relationSource2)).toEqual([]);
+
+        expect(actual.size).toEqual(4);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+        expect(actual.get(keys[2])).toEqual([]);
+        expect(actual.get(keys[3])).toEqual([]);
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
+
+    it('exchangeFilters should not publish any event if no filters are affected', () => {
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let actual = filterService.exchangeFilters('testCaller', [], [], searchService);
+
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+
+        expect(actual.size).toEqual(2);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+
+        expect(spy.calls.count()).toEqual(0);
+    });
+
+    it('getFilters should return expected array', () => {
+        expect(filterService.getFilters()).toEqual([design1A, design1B, design1C, design1D, design2A]);
+        expect(filterService.getFilters(source1)).toEqual([design1A, design1B, design1C, design1D]);
+        expect(filterService.getFilters(source2)).toEqual([design2A]);
+        expect(filterService.getFilters([{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource])).toEqual([]);
+    });
+
+    it('getFiltersToSaveInConfig should return expected array', () => {
+        expect(filterService.getFiltersToSaveInConfig()).toEqual([{
+            name: design1A.name,
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0].name,
+            table: DatasetServiceMock.TABLES[0].name,
+            field: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '=',
+            value: 'testId1'
+        }, {
+            name: design1B.name,
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0].name,
+            table: DatasetServiceMock.TABLES[0].name,
+            field: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '=',
+            value: 'testId2'
+        }, {
+            name: design1C.name,
+            root: CompoundFilterType.OR,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0].name,
+            table: DatasetServiceMock.TABLES[0].name,
+            field: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '=',
+            value: 'testId3'
+        }, {
+            name: design1D.name,
+            root: CompoundFilterType.OR,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0].name,
+            table: DatasetServiceMock.TABLES[0].name,
+            field: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '=',
+            value: 'testId4'
+        }, {
+            name: design2A.name,
+            root: CompoundFilterType.AND,
+            type: 'and',
+            filters: [{
+                name: design2A.filters[0].name,
+                root: CompoundFilterType.AND,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0].name,
+                table: DatasetServiceMock.TABLES[0].name,
+                field: DatasetServiceMock.SIZE_FIELD.columnName,
+                operator: '>',
+                value: 10
+            }, {
+                name: design2A.filters[1].name,
+                root: CompoundFilterType.AND,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0].name,
+                table: DatasetServiceMock.TABLES[0].name,
+                field: DatasetServiceMock.SIZE_FIELD.columnName,
+                operator: '<',
+                value: 20
+            }]
+        }]);
+    });
+
+    it('getFiltersToSearch should return expected array', () => {
+        expect(filterService.getFiltersToSearch('fakeDatastore1', 'testDatabase1', 'testTable1', searchService)).toEqual([]);
+        expect(filterService.getFiltersToSearch('', 'fakeDatabase1', 'testTable1', searchService)).toEqual([]);
+        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'fakeTable1', searchService)).toEqual([]);
+        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', searchService)).toEqual([{
+            type: 'and',
+            filters: [{
+                field: 'testIdField',
+                operator: '=',
+                value: 'testId1'
+            }, {
+                field: 'testIdField',
+                operator: '=',
+                value: 'testId2'
+            }]
+        }, {
+            type: 'or',
+            filters: [{
+                field: 'testIdField',
+                operator: '=',
+                value: 'testId3'
+            }, {
+                field: 'testIdField',
+                operator: '=',
+                value: 'testId4'
+            }]
+        }, {
+            type: 'and',
+            filters: [{
+                field: 'testSizeField',
+                operator: '>',
+                value: 10
+            }, {
+                field: 'testSizeField',
+                operator: '<',
+                value: 20
+            }]
+        }]);
+    });
+
+    it('getFiltersToSearch with filter-list-to-ignore should return expected array', () => {
+        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', searchService, [])).toEqual([{
+            type: 'and',
+            filters: [{
+                field: 'testIdField',
+                operator: '=',
+                value: 'testId1'
+            }, {
+                field: 'testIdField',
+                operator: '=',
+                value: 'testId2'
+            }]
+        }, {
+            type: 'or',
+            filters: [{
+                field: 'testIdField',
+                operator: '=',
+                value: 'testId3'
+            }, {
+                field: 'testIdField',
+                operator: '=',
+                value: 'testId4'
+            }]
+        }, {
+            type: 'and',
+            filters: [{
+                field: 'testSizeField',
+                operator: '>',
+                value: 10
+            }, {
+                field: 'testSizeField',
+                operator: '<',
+                value: 20
+            }]
+        }]);
+
+        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', searchService, [design1A])).toEqual([{
+            type: 'and',
+            filters: [{
+                field: 'testSizeField',
+                operator: '>',
+                value: 10
+            }, {
+                field: 'testSizeField',
+                operator: '<',
+                value: 20
+            }]
+        }]);
+
+        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', searchService, [design2A])).toEqual([{
+            type: 'and',
+            filters: [{
+                field: 'testIdField',
+                operator: '=',
+                value: 'testId1'
+            }, {
+                field: 'testIdField',
+                operator: '=',
+                value: 'testId2'
+            }]
+        }, {
+            type: 'or',
+            filters: [{
+                field: 'testIdField',
+                operator: '=',
+                value: 'testId3'
+            }, {
+                field: 'testIdField',
+                operator: '=',
+                value: 'testId4'
+            }]
+        }]);
+
+        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', searchService, [design1A, design2A])).toEqual([]);
+    });
+
+    it('setFiltersFromConfig should change filterCollection', () => {
+        let actual;
+
+        filterService.setFiltersFromConfig([], datasetService, searchService);
+        expect((filterService as any).filterCollection.getDataSources()).toEqual([]);
+
+        filterService.setFiltersFromConfig([{
+            name: design1A.name,
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0].name,
+            table: DatasetServiceMock.TABLES[0].name,
+            field: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '=',
+            value: 'testId1'
+        }], datasetService, searchService);
+        expect((filterService as any).filterCollection.getDataSources()).toEqual([source1]);
+        actual = (filterService as any).filterCollection.getFilters(source1);
+        expect(actual.length).toEqual(1);
+        expect(actual[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual[0].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(actual[0].operator).toEqual('=');
+        expect(actual[0].value).toEqual('testId1');
+        expect(actual[0].root).toEqual(CompoundFilterType.AND);
+
+        filterService.setFiltersFromConfig([{
+            name: design1A.name,
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0].name,
+            table: DatasetServiceMock.TABLES[0].name,
+            field: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '=',
+            value: 'testId1'
+        }, {
+            name: design1B.name,
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0].name,
+            table: DatasetServiceMock.TABLES[0].name,
+            field: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '=',
+            value: 'testId2'
+        }, {
+            name: design1C.name,
+            root: CompoundFilterType.OR,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0].name,
+            table: DatasetServiceMock.TABLES[0].name,
+            field: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '=',
+            value: 'testId3'
+        }, {
+            name: design1D.name,
+            root: CompoundFilterType.OR,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0].name,
+            table: DatasetServiceMock.TABLES[0].name,
+            field: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '=',
+            value: 'testId4'
+        }], datasetService, searchService);
+        expect((filterService as any).filterCollection.getDataSources()).toEqual([source1]);
+        actual = (filterService as any).filterCollection.getFilters(source1);
+        expect(actual.length).toEqual(4);
+        expect(actual[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual[0].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(actual[0].operator).toEqual('=');
+        expect(actual[0].value).toEqual('testId1');
+        expect(actual[0].root).toEqual(CompoundFilterType.AND);
+        expect(actual[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual[1].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(actual[1].operator).toEqual('=');
+        expect(actual[1].value).toEqual('testId2');
+        expect(actual[1].root).toEqual(CompoundFilterType.AND);
+        expect(actual[2].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual[2].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual[2].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(actual[2].operator).toEqual('=');
+        expect(actual[2].value).toEqual('testId3');
+        expect(actual[2].root).toEqual(CompoundFilterType.OR);
+        expect(actual[3].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual[3].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual[3].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(actual[3].operator).toEqual('=');
+        expect(actual[3].value).toEqual('testId4');
+        expect(actual[3].root).toEqual(CompoundFilterType.OR);
+
+        filterService.setFiltersFromConfig([{
+            name: design2A.name,
+            root: CompoundFilterType.AND,
+            type: 'and',
+            filters: [{
+                name: design2A.filters[0].name,
+                root: CompoundFilterType.AND,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0].name,
+                table: DatasetServiceMock.TABLES[0].name,
+                field: DatasetServiceMock.SIZE_FIELD.columnName,
+                operator: '>',
+                value: 10
+            }, {
+                name: design2A.filters[1].name,
+                root: CompoundFilterType.AND,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0].name,
+                table: DatasetServiceMock.TABLES[0].name,
+                field: DatasetServiceMock.SIZE_FIELD.columnName,
+                operator: '<',
+                value: 20
+            }]
+        }], datasetService, searchService);
+        expect((filterService as any).filterCollection.getDataSources()).toEqual([source2]);
+        actual = (filterService as any).filterCollection.getFilters(source2);
+        expect(actual.length).toEqual(1);
+        expect(actual[0].type).toEqual(CompoundFilterType.AND);
+        expect(actual[0].root).toEqual(CompoundFilterType.AND);
+        expect(actual[0].filters.length).toEqual(2);
+        expect(actual[0].filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual[0].filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual[0].filters[0].field).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(actual[0].filters[0].operator).toEqual('>');
+        expect(actual[0].filters[0].value).toEqual(10);
+        expect(actual[0].filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual[0].filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual[0].filters[1].field).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(actual[0].filters[1].operator).toEqual('<');
+        expect(actual[0].filters[1].value).toEqual(20);
+
+        filterService.setFiltersFromConfig([{
+            name: design1A.name,
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0].name,
+            table: DatasetServiceMock.TABLES[0].name,
+            field: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '=',
+            value: 'testId1'
+        }, {
+            name: design1B.name,
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0].name,
+            table: DatasetServiceMock.TABLES[0].name,
+            field: DatasetServiceMock.ID_FIELD.columnName,
+            operator: '=',
+            value: 'testId2'
+        }, {
+            name: design2A.name,
+            root: CompoundFilterType.AND,
+            type: 'and',
+            filters: [{
+                name: design2A.filters[0].name,
+                root: CompoundFilterType.AND,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0].name,
+                table: DatasetServiceMock.TABLES[0].name,
+                field: DatasetServiceMock.SIZE_FIELD.columnName,
+                operator: '>',
+                value: 10
+            }, {
+                name: design2A.filters[1].name,
+                root: CompoundFilterType.AND,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0].name,
+                table: DatasetServiceMock.TABLES[0].name,
+                field: DatasetServiceMock.SIZE_FIELD.columnName,
+                operator: '<',
+                value: 20
+            }]
+        }], datasetService, searchService);
+        expect((filterService as any).filterCollection.getDataSources()).toEqual([source1, source2]);
+        actual = (filterService as any).filterCollection.getFilters(source1);
+        expect(actual.length).toEqual(2);
+        expect(actual[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual[0].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(actual[0].operator).toEqual('=');
+        expect(actual[0].value).toEqual('testId1');
+        expect(actual[0].root).toEqual(CompoundFilterType.AND);
+        expect(actual[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual[1].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(actual[1].operator).toEqual('=');
+        expect(actual[1].value).toEqual('testId2');
+        expect(actual[1].root).toEqual(CompoundFilterType.AND);
+        actual = (filterService as any).filterCollection.getFilters(source2);
+        expect(actual.length).toEqual(1);
+        expect(actual[0].type).toEqual(CompoundFilterType.AND);
+        expect(actual[0].root).toEqual(CompoundFilterType.AND);
+        expect(actual[0].filters.length).toEqual(2);
+        expect(actual[0].filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual[0].filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual[0].filters[0].field).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(actual[0].filters[0].operator).toEqual('>');
+        expect(actual[0].filters[0].value).toEqual(10);
+        expect(actual[0].filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(actual[0].filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(actual[0].filters[1].field).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(actual[0].filters[1].operator).toEqual('<');
+        expect(actual[0].filters[1].value).toEqual(20);
+    });
+
+    it('toggleFilters should add new filters to an existing data source and publish a FILTERS_CHANGED event', () => {
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let testDesign = {
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '=',
+            value: 'testId5'
+        } as SimpleFilterDesign;
+
+        let actual = filterService.toggleFilters('testCaller', [testDesign], [], searchService);
+
+        let listComplete = (filterService as any).filterCollection.getFilters(source1);
+        expect(listComplete.length).toEqual(5);
+        expect(listComplete[0]).toEqual(filter1A);
+        expect(listComplete[1]).toEqual(filter1B);
+        expect(listComplete[2]).toEqual(filter1C);
+        expect(listComplete[3]).toEqual(filter1D);
+        expect(listComplete[4].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(listComplete[4].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(listComplete[4].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(listComplete[4].operator).toEqual('=');
+        expect(listComplete[4].value).toEqual('testId5');
+
+        testDesign.id = listComplete[4].id;
+        testDesign.name = listComplete[4].name;
+
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+
+        expect(actual.size).toEqual(2);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D, testDesign]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
+
+    it('toggleFilters should add new filters to a new data source and publish a FILTERS_CHANGED event', () => {
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let testDesign = {
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TEXT_FIELD,
+            operator: '=',
+            value: 'testText'
+        } as SimpleFilterDesign;
+
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+
+        let actual = filterService.toggleFilters('testCaller', [testDesign], [], searchService);
+
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+
+        let listComplete = (filterService as any).filterCollection.getFilters(testSource);
+        expect(listComplete.length).toEqual(1);
+        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(listComplete[0].operator).toEqual('=');
+        expect(listComplete[0].value).toEqual('testText');
+
+        testDesign.id = listComplete[0].id;
+        testDesign.name = listComplete[0].name;
+
+        expect(actual.size).toEqual(3);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2, testSource]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+        expect(actual.get(keys[2])).toEqual([testDesign]);
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
+
+    it('toggleFilters should delete old argument filters and publish a FILTERS_CHANGED event', () => {
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let actual = filterService.toggleFilters('testCaller', [design1A, design1C], [], searchService);
+
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1B, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+
+        expect(actual.size).toEqual(2);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2]);
+        expect(actual.get(keys[0])).toEqual([design1B, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
+
+    it('toggleFilters should add new argument filters, delete old argument filters, and publish a FILTERS_CHANGED event', () => {
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let testDesign = {
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TEXT_FIELD,
+            operator: '=',
+            value: 'testText'
+        } as SimpleFilterDesign;
+
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+
+        let actual = filterService.toggleFilters('testCaller', [testDesign, design1A], [], searchService);
+
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+
+        let listComplete = (filterService as any).filterCollection.getFilters(testSource);
+        expect(listComplete.length).toEqual(1);
+        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(listComplete[0].operator).toEqual('=');
+        expect(listComplete[0].value).toEqual('testText');
+
+        testDesign.id = listComplete[0].id;
+        testDesign.name = listComplete[0].name;
+
+        expect(actual.size).toEqual(3);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2, testSource]);
+        expect(actual.get(keys[0])).toEqual([design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+        expect(actual.get(keys[2])).toEqual([testDesign]);
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
+
+    it('toggleFilters should work with custom root filters', () => {
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let testDesign = {
+            root: CompoundFilterType.OR,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TEXT_FIELD,
+            operator: '=',
+            value: 'testText'
+        } as SimpleFilterDesign;
+
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+
+        let actual = filterService.toggleFilters('testCaller', [testDesign], [], searchService);
+
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+
+        let listComplete = (filterService as any).filterCollection.getFilters(testSource);
+        expect(listComplete.length).toEqual(1);
+        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(listComplete[0].operator).toEqual('=');
+        expect(listComplete[0].value).toEqual('testText');
+
+        testDesign.id = listComplete[0].id;
+        testDesign.name = listComplete[0].name;
+
+        expect(actual.size).toEqual(3);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2, testSource]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+        expect(actual.get(keys[2])).toEqual([testDesign]);
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
+
+    it('toggleFilters should also add new relation filters', () => {
+        generateRelationFilters();
+
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let actual = filterService.toggleFilters('testCaller', [relationDesign1], datasetService.findRelationDataList(), searchService);
+
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+
+        let listComplete = (filterService as any).filterCollection.getFilters(relationSource1);
+        expect(listComplete.length).toEqual(1);
+        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DatasetServiceMock.RELATION_FIELD_A);
+        expect(listComplete[0].operator).toEqual('=');
+        expect(listComplete[0].value).toEqual('testRelation');
+
+        relationDesign1.id = listComplete[0].id;
+        relationDesign1.name = listComplete[0].name;
+
+        listComplete = (filterService as any).filterCollection.getFilters(relationSource2);
+        expect(listComplete.length).toEqual(1);
+        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DatasetServiceMock.RELATION_FIELD_B);
+        expect(listComplete[0].operator).toEqual('=');
+        expect(listComplete[0].value).toEqual('testRelation');
+
+        relationDesign2.id = listComplete[0].id;
+        relationDesign2.name = listComplete[0].name;
+
+        expect(actual.size).toEqual(4);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+        expect(actual.get(keys[2])).toEqual([relationDesign1]);
+        expect(actual.get(keys[3])).toEqual([relationDesign2]);
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
+
+    it('toggleFilters should keep old relation filters and add new relation filters', () => {
+        activateRelationFilters();
+
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let testDesign2 = {
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.RELATION_FIELD_B,
+            operator: '=',
+            value: 'testToggleRelation'
+        } as SimpleFilterDesign;
+
+        let actual = filterService.toggleFilters('testCaller', [testDesign2], datasetService.findRelationDataList(), searchService);
+
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+
+        let listComplete = (filterService as any).filterCollection.getFilters(relationSource1);
+        expect(listComplete.length).toEqual(2);
+        expect(listComplete[0]).toEqual(relationFilter1);
+        expect(listComplete[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(listComplete[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(listComplete[1].field).toEqual(DatasetServiceMock.RELATION_FIELD_A);
+        expect(listComplete[1].operator).toEqual('=');
+        expect(listComplete[1].value).toEqual('testToggleRelation');
+
+        let testDesign1 = {
+            id: listComplete[1].id,
+            name: listComplete[1].name,
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.RELATION_FIELD_A,
+            operator: '=',
+            value: 'testToggleRelation'
+        } as SimpleFilterDesign;
+
+        listComplete = (filterService as any).filterCollection.getFilters(relationSource2);
+        expect(listComplete.length).toEqual(2);
+        expect(listComplete[0]).toEqual(relationFilter2);
+        expect(listComplete[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(listComplete[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(listComplete[1].field).toEqual(DatasetServiceMock.RELATION_FIELD_B);
+        expect(listComplete[1].operator).toEqual('=');
+        expect(listComplete[1].value).toEqual('testToggleRelation');
+
+        testDesign2.id = listComplete[1].id;
+        testDesign2.name = listComplete[1].name;
+
+        expect(actual.size).toEqual(4);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+        expect(actual.get(keys[2])).toEqual([relationDesign1, testDesign1]);
+        expect(actual.get(keys[3])).toEqual([relationDesign2, testDesign2]);
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
+
+    it('toggleFilters should also delete old relation filters', () => {
+        activateRelationFilters();
+
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let actual = filterService.toggleFilters('testCaller', [relationDesign1], datasetService.findRelationDataList(), searchService);
+
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(relationSource1)).toEqual([]);
+        expect((filterService as any).filterCollection.getFilters(relationSource2)).toEqual([]);
+
+        expect(actual.size).toEqual(4);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+        expect(actual.get(keys[2])).toEqual([]);
+        expect(actual.get(keys[3])).toEqual([]);
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
+
+    it('toggleFilters should keep non-argument relation filters and delete argument relation filters', () => {
+        activateRelationFilters();
+
+        let testDesign1 = {
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.RELATION_FIELD_A,
+            operator: '=',
+            value: 'testToggleRelation'
+        } as SimpleFilterDesign;
+        let testDesign2 = {
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.RELATION_FIELD_B,
+            operator: '=',
+            value: 'testToggleRelation'
+        } as SimpleFilterDesign;
+
+        let testFilter1 = FilterUtil.createFilterFromDesign(testDesign1, searchService);
+        let testFilter2 = FilterUtil.createFilterFromDesign(testDesign2, searchService);
+        testFilter1.relations = [testFilter2.id];
+        testFilter2.relations = [testFilter1.id];
+
+        testDesign1.id = testFilter1.id;
+        testDesign1.name = testFilter1.name;
+        testDesign2.id = testFilter2.id;
+        testDesign2.name = testFilter2.name;
+
+        (filterService as any).filterCollection.setFilters(relationSource1, [relationFilter1, testFilter1]);
+        (filterService as any).filterCollection.setFilters(relationSource2, [relationFilter2, testFilter2]);
+
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let actual = filterService.toggleFilters('testCaller', [relationDesign1], datasetService.findRelationDataList(), searchService);
+
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect((filterService as any).filterCollection.getFilters(relationSource1)).toEqual([testFilter1]);
+        expect((filterService as any).filterCollection.getFilters(relationSource2)).toEqual([testFilter2]);
+
+        expect(actual.size).toEqual(4);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+        expect(actual.get(keys[2])).toEqual([testDesign1]);
+        expect(actual.get(keys[3])).toEqual([testDesign2]);
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
+            change: actual,
+            caller: 'testCaller'
+        }]);
+    });
+
+    it('toggleFilters should not publish any event if no filters are affected', () => {
+        let spy = spyOn((filterService as any).messenger, 'publish');
+
+        let actual = filterService.toggleFilters('testCaller', [], [], searchService);
+
+        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+
+        expect(actual.size).toEqual(2);
+        let keys = Array.from(actual.keys());
+        expect(keys).toEqual([source1, source2]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[1])).toEqual([design2A]);
+
+        expect(spy.calls.count()).toEqual(0);
+    });
+
+    it('isFiltererd should return expected boolean', () => {
+        let testCollection = new FilterCollection();
+        expect(filterService.isFiltered(testCollection)).toEqual(false);
+
+        testCollection.setFilters(source1, []);
+        expect(filterService.isFiltered(testCollection)).toEqual(false);
+
+        testCollection.setFilters(source1, [filter1A]);
+        expect(filterService.isFiltered(testCollection)).toEqual(true);
+        expect(filterService.isFiltered(testCollection, design1A)).toEqual(true);
+        expect(filterService.isFiltered(testCollection, design2A)).toEqual(false);
+
+        testCollection.setFilters(source2, [filter2A]);
+        expect(filterService.isFiltered(testCollection)).toEqual(true);
+        expect(filterService.isFiltered(testCollection, design1A)).toEqual(true);
+        expect(filterService.isFiltered(testCollection, design2A)).toEqual(true);
+        expect(filterService.isFiltered(testCollection, {
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '!='
+        } as SimpleFilterDesign)).toEqual(false);
+    });
+
+    it('isFiltered with compound filter designs that have a single data source should return expected boolean', () => {
+        let testDesign = {
+            type: 'or',
+            root: CompoundFilterType.AND,
+            filters: [{
+                root: CompoundFilterType.AND,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign, {
+                root: CompoundFilterType.AND,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 20
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign;
+
+        let testFilter = FilterUtil.createFilterFromDesign(testDesign, searchService);
+
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+
+        let testCollection = new FilterCollection();
+        testCollection.setFilters(testSource, [testFilter]);
+
+        // Same design (should return true)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // Same data source but too few nested filters (should return true)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // Same data source but too many nested filters (should return true)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // With correct values (should return true)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 20
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // With correct values in different order (should return true)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 20
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // With incorrect values (should return false)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 1
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 20
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+    });
+
+    it('isFiltered with compound filter designs that have multiple data sources should return expected boolean', () => {
+        let testDesign = {
+            type: 'or',
+            root: CompoundFilterType.AND,
+            filters: [{
+                root: CompoundFilterType.AND,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign, {
+                root: CompoundFilterType.AND,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 20
+            } as SimpleFilterDesign, {
+                root: CompoundFilterType.AND,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 30
+            } as SimpleFilterDesign, {
+                root: CompoundFilterType.AND,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 40
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign;
+
+        let testFilter = FilterUtil.createFilterFromDesign(testDesign, searchService);
+
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource, {
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            operator: '!='
+        } as FilterDataSource];
+
+        let testCollection = new FilterCollection();
+        testCollection.setFilters(testSource, [testFilter]);
+
+        // Same design (should return true)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!='
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // Same design in different order (should return true)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!='
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!='
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // Same data source but too few nested filters (should return false)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // Same data source but too many nested filters (should return false)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '='
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!='
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!='
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+
+        // With correct values (should return true)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 20
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 30
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 40
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // With correct values in different order (should return true)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 20
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 40
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 30
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // Same design in different order With correct values (should return true)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 30
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 20
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 40
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(true);
+
+        // With incorrect values (should return false)
+        expect(filterService.isFiltered(testCollection, {
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 10
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '=',
+                value: 20
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 30
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.SIZE_FIELD,
+                operator: '!=',
+                value: 50
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign)).toEqual(false);
+    });
+
+    it('updateCollectionWithGlobalCompatibleFilters should update argument filter collection and call redraw callback', () => {
+        // Remove the filter value to make the design compatible with each filter of its data source
+        design1A.value = undefined;
+
+        let calls = 0;
+        let testRedrawCallback = (filters) => {
+            calls++;
+            expect(filters).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        };
+
+        let testBehaviorList = [{
+            filterDesign: design1A,
+            redrawCallback: testRedrawCallback
+        } as FilterBehavior];
+
+        let testCollection = new FilterCollection();
+
+        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
+
+        expect(testCollection.getDataSources()).toEqual([source1]);
+        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(calls).toEqual(1);
+    });
+
+    it('updateCollectionWithGlobalCompatibleFilters should copy multiple filters if multiple behaviors have compatible filters', () => {
+        // Remove the filter value to make the design compatible with each filter of its data source
+        design1A.value = undefined;
+
+        let calls1 = 0;
+        let testRedrawCallback1 = (filters) => {
+            calls1++;
+            expect(filters).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        };
+
+        let calls2 = 0;
+        let testRedrawCallback2 = (filters) => {
+            calls2++;
+            expect(filters).toEqual([filter2A]);
+        };
+
+        let testBehaviorList = [{
+            filterDesign: design1A,
+            redrawCallback: testRedrawCallback1
+        }, {
+            filterDesign: design2A,
+            redrawCallback: testRedrawCallback2
+        } as FilterBehavior];
+
+        let testCollection = new FilterCollection();
+
+        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
+
+        expect(testCollection.getDataSources()).toEqual([source1, source2]);
+        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(testCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(calls1).toEqual(1);
+        expect(calls2).toEqual(1);
+    });
+
+    it('updateCollectionWithGlobalCompatibleFilters should update existing filters', () => {
+        // Remove the filter value to make the design compatible with each filter of its data source
+        design1A.value = undefined;
+
+        let calls = 0;
+        let testRedrawCallback = (filters) => {
+            calls++;
+            expect(filters).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        };
+
+        let testBehaviorList = [{
+            filterDesign: design1A,
+            redrawCallback: testRedrawCallback
+        } as FilterBehavior];
+
+        let testCollection = new FilterCollection();
+        testCollection.setFilters(source1, [filter1A, filter1C]);
+
+        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
+
+        expect(testCollection.getDataSources()).toEqual([source1]);
+        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(calls).toEqual(1);
+    });
+
+    it('updateCollectionWithGlobalCompatibleFilters should remove existing filters', () => {
+        // Remove filters.
+        (filterService as any).filterCollection.setFilters(source1, []);
+
+        // Remove the filter value to make the design compatible with each filter of its data source
+        design1A.value = undefined;
+
+        let calls = 0;
+        let testRedrawCallback = (filters) => {
+            calls++;
+            expect(filters).toEqual([]);
+        };
+
+        let testBehaviorList = [{
+            filterDesign: design1A,
+            redrawCallback: testRedrawCallback
+        } as FilterBehavior];
+
+        let testCollection = new FilterCollection();
+        testCollection.setFilters(source1, [filter1A, filter1C]);
+
+        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
+
+        expect(testCollection.getDataSources()).toEqual([source1]);
+        expect(testCollection.getFilters(source1)).toEqual([]);
+        expect(calls).toEqual(1);
+    });
+
+    it('updateCollectionWithGlobalCompatibleFilters should not copy the same filters if behaviors have the same data source', () => {
+        // Remove the filter value to make the design compatible with each filter of its data source
+        design1A.value = undefined;
+
+        let testDesign = {
+            type: 'and',
+            root: CompoundFilterType.AND,
+            filters: [{
+                root: CompoundFilterType.AND,
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.ID_FIELD,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign;
+
+        let calls1 = 0;
+        let testRedrawCallback1 = (filters) => {
+            calls1++;
+            expect(filters).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        };
+
+        let calls2 = 0;
+        let testRedrawCallback2 = (filters) => {
+            calls2++;
+            expect(filters).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        };
+
+        let testBehaviorList = [{
+            filterDesign: design1A,
+            redrawCallback: testRedrawCallback1
+        }, {
+            filterDesign: testDesign,
+            redrawCallback: testRedrawCallback2
+        } as FilterBehavior];
+
+        let testCollection = new FilterCollection();
+
+        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
+
+        expect(testCollection.getDataSources()).toEqual([source1]);
+        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(calls1).toEqual(1);
+        expect(calls2).toEqual(1);
+    });
+
+    it('updateCollectionWithGlobalCompatibleFilters should do nothing with no compatible filters', () => {
+        let testDesign = {
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TEXT_FIELD,
+            operator: '='
+        } as SimpleFilterDesign;
+
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DatasetServiceMock.DATABASES[0].name,
+            tableName: DatasetServiceMock.TABLES[0].name,
+            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            operator: '='
+        } as FilterDataSource];
+
+        let calls = 0;
+        let testRedrawCallback = (filters) => {
+            calls++;
+        };
+
+        let testBehaviorList = [{
+            filterDesign: testDesign,
+            redrawCallback: testRedrawCallback
+        } as FilterBehavior];
+
+        let testCollection = new FilterCollection();
+
+        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
+
+        expect(testCollection.getDataSources()).toEqual([testSource]);
+        expect(testCollection.getFilters(testSource)).toEqual([]);
+        expect(calls).toEqual(0);
     });
 });

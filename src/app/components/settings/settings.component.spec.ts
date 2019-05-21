@@ -33,7 +33,6 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -84,7 +83,7 @@ describe('Component: Settings', () => {
         providers: [
             { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: AbstractWidgetService, useClass: WidgetService }
         ],
         imports: [

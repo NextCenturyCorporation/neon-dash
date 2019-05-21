@@ -14,7 +14,7 @@
  *
  */
 import { ElementRef } from '@angular/core';
-import { AbstractChartJsDataset, AbstractChartJsSubcomponent, ChartJsData } from './subcomponent.chartjs.abstract';
+import { AbstractChartJsDataset, AbstractChartJsSubcomponent, ChartJsData, SelectMode } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '../../color';
 
@@ -61,13 +61,13 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
      * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
-     * @arg {boolean} [cannotSelect=false]
      * @arg {boolean} [horizontal=false]
+     * @arg {boolean} [selectMode=ITEM]
      */
     constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
-        cannotSelect: boolean = false, protected horizontal: boolean = false) {
+        protected horizontal: boolean = false, selectMode: SelectMode = SelectMode.ITEM) {
 
-        super(options, listener, elementRef, cannotSelect);
+        super(options, listener, elementRef, selectMode);
     }
 
     /**
@@ -81,36 +81,6 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
      */
     protected createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset {
         return new ChartJsBarDataset(this.elementRef, color, label, xList, this.selectedLabels, this.horizontal);
-    }
-
-    /**
-     * Deselects the given items (or all items) in the given chart.
-     *
-     * @arg {any} chart
-     * @arg {any[]} [items]
-     */
-    protected dataDeselect(chart: any, items?: any[]) {
-        chart.data.datasets.forEach((dataset) => {
-            dataset.backgroundColor = dataset.backgroundColor.map((color, index) => {
-                if (items) {
-                    return items.indexOf(dataset.data[index]) < 0 ? color : dataset.getColorDeselected();
-                }
-                return dataset.getColorDeselected();
-            });
-        });
-    }
-
-    /**
-     * Selects the given items in the given chart.
-     *
-     * @arg {any} chart
-     * @arg {any[]} items
-     */
-    protected dataSelect(chart: any, items: any[]) {
-        items.forEach((item) => {
-            let dataset = chart.data.datasets[item._datasetIndex];
-            dataset.backgroundColor[item._index] = dataset.getColorSelected();
-        });
     }
 
     /**
@@ -216,20 +186,6 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
      */
     public getVisualizationElementLabel(count: number): string {
         return 'Bar' + (count === 1 ? '' : 's');
-    }
-
-    /**
-     * Handles the given click event as needed by this subcomponent.
-     *
-     * @arg {event} event
-     * @arg {any[]} items
-     * @arg {any} chart
-     * @override
-     */
-    protected handleClickEvent(event, items: any[], chart: any) {
-        if (this.isSelectable(items)) {
-            this.selectItem(event, items, chart);
-        }
     }
 
     /**

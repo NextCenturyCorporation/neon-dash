@@ -147,7 +147,7 @@ export class LegendComponent implements OnInit {
             }
         }
         // If the enabled list is non-null, check it
-        if (this.activeList && this.activeList.length > 0) {
+        if (this.activeList) {
             return this.activeList.indexOf(key) === -1;
         }
         return this.disabledList && this.disabledList.indexOf(key) >= 0;

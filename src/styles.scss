@@ -224,6 +224,14 @@ body {
     font-weight: 500 !important;
 
     .mat-button-toggle {
+        &.mat-button-toggle-checked {
+            background-color: var(--color-background-contrast, lightgrey) !important;
+        }
+
+        &.mat-button-toggle-disabled {
+            opacity: 0.5;
+        }
+
         &:first-child {
             border-radius: 10px 0 0 10px !important;
         }
@@ -232,7 +240,7 @@ body {
             border-radius: 0 10px 10px 0 !important;
         }
 
-        &:hover:not(.mat-button-toggle-checked) {
+        &:hover:not(.mat-button-toggle-checked):not(.mat-button-toggle-disabled) {
             background-color: var(--color-accent, lightgrey) !important;
         }
     }
@@ -316,7 +324,7 @@ body {
     &:not([disabled]) {
         &.active,
         &:hover {
-            color: var(--color-accent, lightgrey) !important;
+            color: var(--color-text-main, black) !important;
         }
     }
 }
@@ -419,7 +427,13 @@ body {
 .mat-tab-label {
     height: 30px !important;
     min-width: unset !important;
+    opacity: unset !important;
     padding: 5px 10px !important;
+}
+
+.mat-tab-label:hover,
+.mat-tab-label-active {
+    background-color: var(--color-background-contrast);
 }
 
 .mat-toolbar {

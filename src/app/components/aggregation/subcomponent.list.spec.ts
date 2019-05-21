@@ -76,7 +76,7 @@ describe('ListSubcomponent', () => {
 
     it('click does add to selectedData', () => {
         let spy1 = spyOn(listener, 'subcomponentRequestsFilter');
-        let spy2 = spyOn(subcomponent, 'deselect');
+        let spy2 = spyOn(subcomponent, 'select');
 
         let isClassSet = false;
         let mockTarget = {
@@ -107,7 +107,7 @@ describe('ListSubcomponent', () => {
 
     it('click does replace selectedData', () => {
         let spy1 = spyOn(listener, 'subcomponentRequestsFilter');
-        let spy2 = spyOn(subcomponent, 'deselect');
+        let spy2 = spyOn(subcomponent, 'select');
 
         subcomponent.setSelectedData([{
             element: {},
@@ -144,7 +144,7 @@ describe('ListSubcomponent', () => {
 
     it('click does not replace selectedData if ctrlKey=true', () => {
         let spy1 = spyOn(listener, 'subcomponentRequestsFilter');
-        let spy2 = spyOn(subcomponent, 'deselect');
+        let spy2 = spyOn(subcomponent, 'select');
 
         subcomponent.setSelectedData([{
             element: {},
@@ -186,7 +186,7 @@ describe('ListSubcomponent', () => {
 
     it('click does not replace selectedData if metaKey=true', () => {
         let spy1 = spyOn(listener, 'subcomponentRequestsFilter');
-        let spy2 = spyOn(subcomponent, 'deselect');
+        let spy2 = spyOn(subcomponent, 'select');
 
         subcomponent.setSelectedData([{
             element: {},
@@ -228,7 +228,7 @@ describe('ListSubcomponent', () => {
 
     it('click does not add existing item to selectedData', () => {
         let spy1 = spyOn(listener, 'subcomponentRequestsFilter');
-        let spy2 = spyOn(subcomponent, 'deselect');
+        let spy2 = spyOn(subcomponent, 'select');
 
         subcomponent.setSelectedData([{
             element: {},
@@ -262,7 +262,7 @@ describe('ListSubcomponent', () => {
         }]);
     });
 
-    it('deselect does deselect and remove all selectedData', () => {
+    it('select with no items does deselect and remove all selectedData', () => {
         let isClassSet1 = false;
         let isClassSet2 = false;
 
@@ -296,14 +296,14 @@ describe('ListSubcomponent', () => {
 
         subcomponent.setSelectedData([item1, item2]);
 
-        subcomponent.deselect();
+        subcomponent.select([]);
 
         expect(isClassSet1).toEqual(true);
         expect(isClassSet2).toEqual(true);
         expect(subcomponent.getSelectedData()).toEqual([]);
     });
 
-    it('deselect with item does deselect and remove the single selectedData item', () => {
+    it('select with a single item does deselect and remove the item', () => {
         let isClassSet1 = false;
         let isClassSet2 = false;
 
@@ -337,7 +337,7 @@ describe('ListSubcomponent', () => {
 
         subcomponent.setSelectedData([item1, item2]);
 
-        subcomponent.deselect('testValue2');
+        subcomponent.select('testValue1');
 
         expect(isClassSet1).toEqual(false);
         expect(isClassSet2).toEqual(true);

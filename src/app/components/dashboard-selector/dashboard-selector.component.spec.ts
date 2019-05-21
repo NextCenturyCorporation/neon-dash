@@ -14,12 +14,9 @@
  *
  */
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
+
 import { DashboardSelectorComponent } from './dashboard-selector.component';
-import { ConnectionService } from '../../services/connection.service';
-import { DatasetService } from '../../services/dataset.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { ParameterService } from '../../services/parameter.service';
-import { FilterService } from '../../services/filter.service';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -33,10 +30,6 @@ describe('Component: DashboardSelector', () => {
 
     initializeTestBed('Dataset Selector', {
         providers: [
-            ConnectionService,
-            DatasetService,
-            ParameterService,
-            FilterService,
             { provide: ConfigService, useValue: ConfigService.as(testConfig) }
 
         ],

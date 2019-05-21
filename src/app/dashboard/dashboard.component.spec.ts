@@ -22,19 +22,17 @@ import { APP_BASE_HREF } from '@angular/common';
 import { DashboardComponent } from './dashboard.component';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { NeonGridItem } from '../neon-grid-item';
+import { neonEvents } from '../neon-namespaces';
 
 import { AbstractSearchService } from '../services/abstract.search.service';
 import { AbstractWidgetService } from '../services/abstract.widget.service';
-import { ConnectionService } from '../services/connection.service';
 import { DatasetService } from '../services/dataset.service';
 import { FilterService } from '../services/filter.service';
 import { ParameterService } from '../services/parameter.service';
 import { WidgetService } from '../services/widget.service';
 
 import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
-import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 import { ConfigService } from '../services/config.service';
@@ -47,6 +45,7 @@ const Modules = {
 import { AppLazyModule } from '../app-lazy.module';
 import { DashboardModule } from './dashboard.module';
 import { HttpClientModule } from '@angular/common/http';
+import { Dashboard, Datastore } from '../dataset';
 
 describe('Dashboard', () => {
   let fixture: ComponentFixture<DashboardComponent>;
@@ -65,9 +64,8 @@ describe('Dashboard', () => {
     providers: [
       { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
       { provide: APP_BASE_HREF, useValue: '/' },
-      ConnectionService,
       { provide: DatasetService, useClass: DatasetServiceMock },
-      { provide: FilterService, useClass: FilterServiceMock },
+      FilterService,
       ParameterService,
       { provide: AbstractSearchService, useClass: SearchServiceMock },
       { provide: AbstractWidgetService, useClass: WidgetService }
@@ -98,16 +96,15 @@ describe('Dashboard', () => {
     expect(component.rightPanelTitle).toEqual('Dashboard Layouts');
 
     expect(component.showCustomConnectionButton).toEqual(true);
-    expect(component.showFiltersComponentIcon).toEqual(true);
-    expect(component.showVisShortcut).toEqual(true);
+    expect(component.showFilterTray).toEqual(true);
+    expect(component.showVisualizationsShortcut).toEqual(true);
 
     expect(component.createFiltersComponent).toEqual(false);
   }));
 
   it('should be showing correct filter icons', async(() => {
     expect(component.filtersIcon).toEqual('filters');
-    getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-      neon.query.where('testFilterField', '=', 'value1'), 'testFilterField');
+    (component as any).isFiltered = () => true;
     component.changeDetection.detectChanges();
     expect(component.filtersIcon).toEqual('filters_active');
   }));
@@ -136,421 +133,426 @@ describe('Dashboard', () => {
   }));
 
   it('toggle filters component', async(() => {
-    component.showFiltersComponentIcon = false;
+    component.showFilterTray = false;
     expect(debugElement.nativeElement.querySelectorAll('app-filters').length === 0).toBeTruthy();
-    component.showFiltersComponentIcon = true;
+    component.showFilterTray = true;
     component.createFiltersComponent = true;
     component.toggleFiltersDialog();
     expect(debugElement.nativeElement.querySelectorAll('app-filters')).toBeTruthy();
   }));
 
-  it('check that the messagenger subscribes to the correct channels and that the callbacks update the correct booleans', async(() => {
-    let spyOnShowFiltersComponentIcon = spyOn(component, 'updateShowFiltersComponentIcon');
-    let spyOnShowVisualShortcut = spyOn(component, 'updateShowVisShortcut');
+  it('check that the messenger subscribes to the correct channels and that the callbacks update the correct booleans', async(() => {
+    let spyOnFilterTray = spyOn(component, 'updateShowFilterTray');
+    let spyOnVisualizationsShortcut = spyOn(component, 'updateShowVisualizationsShortcut');
     let message = {
-      showFiltersComponentIcon: false,
-      showVisShortcut: false
+      show: false
     };
 
     expect(spyOnInit.calls.count()).toEqual(1);
     component.ngOnInit();
     expect(spyOnInit.calls.count()).toEqual(2);
-    component.updateShowVisShortcut(message);
-    component.updateShowFiltersComponentIcon(message);
+    (component as any).updateShowVisualizationsShortcut(message);
+    (component as any).updateShowFilterTray(message);
 
-    expect(spyOnShowFiltersComponentIcon.calls.argsFor(0)).toEqual([{
-      showFiltersComponentIcon: false,
-      showVisShortcut: false
+    expect(spyOnFilterTray.calls.argsFor(0)).toEqual([{
+      show: false
     }]);
 
-    expect(spyOnShowVisualShortcut.calls.argsFor(0)).toEqual([{
-      showFiltersComponentIcon: false,
-      showVisShortcut: false
+    expect(spyOnVisualizationsShortcut.calls.argsFor(0)).toEqual([{
+      show: false
     }]);
 
-    expect(spyOnShowFiltersComponentIcon.calls.count()).toEqual(1);
-    expect(spyOnShowVisualShortcut.calls.count()).toEqual(1);
+    expect(spyOnFilterTray.calls.count()).toEqual(1);
+    expect(spyOnVisualizationsShortcut.calls.count()).toEqual(1);
   }));
 
-  it('getShowVisShortcut does update showVisShortcut', async(() => {
-    component.updateShowVisShortcut({
-      showVisShortcut: false
+  it('updateShowVisualizationsShortcut does update showVisualizationsShortcut', async(() => {
+    (component as any).updateShowVisualizationsShortcut({
+      show: false
     });
     component.changeDetection.detectChanges();
-    expect(component.showVisShortcut).toEqual(false);
-    expect(debugElement.query(By.css('#showVisShortcutButton'))).toBeNull();
-    component.updateShowVisShortcut({
-      showVisShortcut: true
+    expect(component.showVisualizationsShortcut).toEqual(false);
+    expect(debugElement.query(By.css('#showVisualizationsShortcutButton'))).toBeNull();
+    (component as any).updateShowVisualizationsShortcut({
+      show: true
     });
     component.changeDetection.detectChanges();
-    expect(component.showVisShortcut).toEqual(true);
+    expect(component.showVisualizationsShortcut).toEqual(true);
     component.changeDetection.detectChanges();
-    expect(debugElement.query(By.css('#showVisShortcutButton'))).not.toBeNull();
+    expect(debugElement.query(By.css('#showVisualizationsShortcutButton'))).not.toBeNull();
   }));
 
-  it('updateShowFiltersComponentIcon does update showFiltersComponent', async(() => {
-    component.updateShowFiltersComponentIcon({
-      showFiltersComponentIcon: false
+  it('updateShowFilterTray does update showFiltersComponent', async(() => {
+    (component as any).updateShowFilterTray({
+      show: false
     });
     component.changeDetection.detectChanges();
-    expect(component.showFiltersComponentIcon).toEqual(false);
-    expect(debugElement.query(By.css('#showFiltersComponentIcon'))).toBeNull();
-    component.updateShowFiltersComponentIcon({
-      showFiltersComponentIcon: true
+    expect(component.showFilterTray).toEqual(false);
+    expect(debugElement.query(By.css('#showFilterTrayButton'))).toBeNull();
+    (component as any).updateShowFilterTray({
+      show: true
     });
     component.changeDetection.detectChanges();
-    expect(component.showFiltersComponentIcon).toEqual(true);
+    expect(component.showFilterTray).toEqual(true);
     component.changeDetection.detectChanges();
-    expect(debugElement.query(By.css('#showFiltersComponentIcon'))).not.toBeNull();
+    expect(debugElement.query(By.css('#showFilterTrayButton'))).not.toBeNull();
   }));
 
-  it('addWidget does add the given widget with specified position to the grid', async(() => {
+  it('addWidget does add the given widget with specified position to the grid', () => {
     let widgetGridItem1: NeonGridItem = {
       col: 2,
-      config: {},
       row: 2,
       sizex: 3,
       sizey: 3
     };
 
-    component.addWidget({
+    (component as any).addWidget({
       widgetGridItem: widgetGridItem1
     });
 
-    expect(component.widgetGridItems).toEqual([{
-      col: 2,
-      config: {
-        borderSize: 10,
-        col: 2,
-        dragHandle: '.drag-handle',
-        row: 2,
-        sizex: 3,
-        sizey: 3
-      },
+    expect(component.tabbedGrid[0].list).toEqual([{
       id: widgetGridItem1.id,
+      borderSize: 10,
+      col: 2,
+      dragHandle: '.drag-handle',
       row: 2,
       sizex: 3,
       sizey: 3
     }]);
-  }));
+  });
 
-  it('addWidget does prefer position inside config object', async(() => {
+  it('addWidget does work with tabs', () => {
+    expect(component.tabbedGrid.length).toEqual(1);
+    expect(component.tabbedGrid[0].name).toEqual('');
+    expect(component.tabbedGrid[0].list).toEqual([]);
+
     let widgetGridItem1: NeonGridItem = {
-      col: 2,
-      config: {
-        col: 4,
-        row: 4,
-        sizex: 5,
-        sizey: 5
-      },
-      row: 2,
-      sizex: 3,
-      sizey: 3
+      col: 1,
+      row: 1,
+      sizex: 2,
+      sizey: 2
     };
 
-    component.addWidget({
+    (component as any).addWidget({
+      gridName: 'tab1',
       widgetGridItem: widgetGridItem1
     });
 
-    expect(component.widgetGridItems).toEqual([{
-      col: 2,
-      config: {
-        borderSize: 10,
-        col: 4,
-        dragHandle: '.drag-handle',
-        row: 4,
-        sizex: 5,
-        sizey: 5
-      },
+    expect(component.tabbedGrid.length).toEqual(1);
+    expect(component.tabbedGrid[0].name).toEqual('tab1');
+    expect(component.tabbedGrid[0].list).toEqual([{
       id: widgetGridItem1.id,
-      row: 2,
-      sizex: 3,
-      sizey: 3
-    }]);
-  }));
-
-  it('addWidget does set the position of the given widget with unspecified position and add it to the end of the grid', async(() => {
-    let widgetGridItem1: NeonGridItem = {
-      config: {}
-    };
-
-    component.addWidget({
-      widgetGridItem: widgetGridItem1
-    });
-
-    expect(component.widgetGridItems).toEqual([{
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 4,
-        sizey: 4
-      },
-      id: widgetGridItem1.id
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 2,
+      sizey: 2
     }]);
 
     let widgetGridItem2: NeonGridItem = {
-      config: {}
+      col: 3,
+      row: 3,
+      sizex: 4,
+      sizey: 4
     };
 
-    component.addWidget({
+    (component as any).addWidget({
+      gridName: 'tab1',
       widgetGridItem: widgetGridItem2
     });
 
-    expect(component.widgetGridItems).toEqual([{
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 4,
-        sizey: 4
-      },
-      id: widgetGridItem1.id
+    expect(component.tabbedGrid.length).toEqual(1);
+    expect(component.tabbedGrid[0].name).toEqual('tab1');
+    expect(component.tabbedGrid[0].list).toEqual([{
+      id: widgetGridItem1.id,
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 2,
+      sizey: 2
     }, {
-      config: {
-        borderSize: 10,
-        col: 5,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 4,
-        sizey: 4
-      },
-      id: widgetGridItem2.id
+      id: widgetGridItem2.id,
+      borderSize: 10,
+      col: 3,
+      dragHandle: '.drag-handle',
+      row: 3,
+      sizex: 4,
+      sizey: 4
     }]);
 
     let widgetGridItem3: NeonGridItem = {
-      config: {}
+      col: 5,
+      row: 5,
+      sizex: 6,
+      sizey: 6
     };
 
-    component.addWidget({
+    (component as any).addWidget({
+      gridName: 'tab2',
       widgetGridItem: widgetGridItem3
     });
 
-    expect(component.widgetGridItems).toEqual([{
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 4,
-        sizey: 4
-      },
-      id: widgetGridItem1.id
+    expect(component.tabbedGrid.length).toEqual(2);
+    expect(component.tabbedGrid[0].name).toEqual('tab1');
+    expect(component.tabbedGrid[0].list).toEqual([{
+      id: widgetGridItem1.id,
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 2,
+      sizey: 2
     }, {
-      config: {
-        borderSize: 10,
-        col: 5,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 4,
-        sizey: 4
-      },
-      id: widgetGridItem2.id
-    }, {
-      config: {
-        borderSize: 10,
-        col: 9,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 4,
-        sizey: 4
-      },
-      id: widgetGridItem3.id
+      id: widgetGridItem2.id,
+      borderSize: 10,
+      col: 3,
+      dragHandle: '.drag-handle',
+      row: 3,
+      sizex: 4,
+      sizey: 4
+    }]);
+    expect(component.tabbedGrid[1].name).toEqual('tab2');
+    expect(component.tabbedGrid[1].list).toEqual([{
+      id: widgetGridItem3.id,
+      borderSize: 10,
+      col: 5,
+      dragHandle: '.drag-handle',
+      row: 5,
+      sizex: 6,
+      sizey: 6
+    }]);
+  });
+
+  it('addWidget does set the position of the given widget with unspecified position and add it to the end of the grid', () => {
+    let widgetGridItem1: NeonGridItem = {};
+
+    (component as any).addWidget({
+      widgetGridItem: widgetGridItem1
+    });
+
+    expect(component.tabbedGrid[0].list).toEqual([{
+      id: widgetGridItem1.id,
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 4,
+      sizey: 4
     }]);
 
-    let widgetGridItem4: NeonGridItem = {
-      config: {}
-    };
+    let widgetGridItem2: NeonGridItem = {};
 
-    component.addWidget({
+    (component as any).addWidget({
+      widgetGridItem: widgetGridItem2
+    });
+
+    expect(component.tabbedGrid[0].list).toEqual([{
+      id: widgetGridItem1.id,
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 4,
+      sizey: 4
+    }, {
+      id: widgetGridItem2.id,
+      borderSize: 10,
+      col: 5,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 4,
+      sizey: 4
+    }]);
+
+    let widgetGridItem3: NeonGridItem = {};
+
+    (component as any).addWidget({
+      widgetGridItem: widgetGridItem3
+    });
+
+    expect(component.tabbedGrid[0].list).toEqual([{
+      id: widgetGridItem1.id,
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 4,
+      sizey: 4
+    }, {
+      id: widgetGridItem2.id,
+      borderSize: 10,
+      col: 5,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 4,
+      sizey: 4
+    }, {
+      id: widgetGridItem3.id,
+      borderSize: 10,
+      col: 9,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 4,
+      sizey: 4
+    }]);
+
+    let widgetGridItem4: NeonGridItem = {};
+
+    (component as any).addWidget({
       widgetGridItem: widgetGridItem4
     });
 
-    expect(component.widgetGridItems).toEqual([{
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 4,
-        sizey: 4
-      },
-      id: widgetGridItem1.id
+    expect(component.tabbedGrid[0].list).toEqual([{
+      id: widgetGridItem1.id,
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 4,
+      sizey: 4
     }, {
-      config: {
-        borderSize: 10,
-        col: 5,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 4,
-        sizey: 4
-      },
-      id: widgetGridItem2.id
+      id: widgetGridItem2.id,
+      borderSize: 10,
+      col: 5,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 4,
+      sizey: 4
     }, {
-      config: {
-        borderSize: 10,
-        col: 9,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 4,
-        sizey: 4
-      },
-      id: widgetGridItem3.id
+      id: widgetGridItem3.id,
+      borderSize: 10,
+      col: 9,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 4,
+      sizey: 4
     }, {
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 5,
-        sizex: 4,
-        sizey: 4
-      },
-      id: widgetGridItem4.id
+      id: widgetGridItem4.id,
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 5,
+      sizex: 4,
+      sizey: 4
     }]);
-  }));
+  });
 
-  it('addWidget does set the position of the given widget with unspecified position and add it to the middle of the grid', async(() => {
-    component.widgetGridItems = [{
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 12,
-        sizey: 4
-      },
-      id: 'a'
+  it('addWidget does set the position of the given widget with unspecified position and add it to the middle of the grid', () => {
+    component.tabbedGrid[0].list = [{
+      id: 'a',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 12,
+      sizey: 4
     }, {
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 5,
-        sizex: 4,
-        sizey: 4
-      },
-      id: 'b'
+      id: 'b',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 5,
+      sizex: 4,
+      sizey: 4
     }, {
-      config: {
-        borderSize: 10,
-        col: 9,
-        dragHandle: '.drag-handle',
-        row: 5,
-        sizex: 4,
-        sizey: 4
-      },
-      id: 'c'
+      id: 'c',
+      borderSize: 10,
+      col: 9,
+      dragHandle: '.drag-handle',
+      row: 5,
+      sizex: 4,
+      sizey: 4
     }, {
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 9,
-        sizex: 12,
-        sizey: 4
-      },
-      id: 'd'
+      id: 'd',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 9,
+      sizex: 12,
+      sizey: 4
     }];
 
-    let widgetGridItem1: NeonGridItem = {
-      config: {}
-    };
+    let widgetGridItem1: NeonGridItem = {};
 
-    component.addWidget({
+    (component as any).addWidget({
       widgetGridItem: widgetGridItem1
     });
 
-    expect(component.widgetGridItems).toEqual([{
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 12,
-        sizey: 4
-      },
-      id: 'a'
+    expect(component.tabbedGrid[0].list).toEqual([{
+      id: 'a',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 12,
+      sizey: 4
     }, {
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 5,
-        sizex: 4,
-        sizey: 4
-      },
-      id: 'b'
+      id: 'b',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 5,
+      sizex: 4,
+      sizey: 4
     }, {
-      config: {
-        borderSize: 10,
-        col: 9,
-        dragHandle: '.drag-handle',
-        row: 5,
-        sizex: 4,
-        sizey: 4
-      },
-      id: 'c'
+      id: 'c',
+      borderSize: 10,
+      col: 9,
+      dragHandle: '.drag-handle',
+      row: 5,
+      sizex: 4,
+      sizey: 4
     }, {
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 9,
-        sizex: 12,
-        sizey: 4
-      },
-      id: 'd'
+      id: 'd',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 9,
+      sizex: 12,
+      sizey: 4
     }, {
-      config: {
-        borderSize: 10,
-        col: 5,
-        dragHandle: '.drag-handle',
-        row: 5,
-        sizex: 4,
-        sizey: 4
-      },
-      id: widgetGridItem1.id
+      id: widgetGridItem1.id,
+      borderSize: 10,
+      col: 5,
+      dragHandle: '.drag-handle',
+      row: 5,
+      sizex: 4,
+      sizey: 4
     }]);
-  }));
+  });
 
-  it('clearDashboard does delete all elements from the grid', async(() => {
-    component.widgetGridItems = [{
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 1,
-        sizey: 1
-      },
-      id: 'a'
+  it('clearDashboard does delete all elements from the grid', () => {
+    component.tabbedGrid[0].list = [{
+      id: 'a',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 1,
+      sizey: 1
     }, {
-      config: {
-        borderSize: 10,
-        col: 2,
-        dragHandle: '.drag-handle',
-        row: 2,
-        sizex: 1,
-        sizey: 1
-      },
-      id: 'b'
+      id: 'b',
+      borderSize: 10,
+      col: 2,
+      dragHandle: '.drag-handle',
+      row: 2,
+      sizex: 1,
+      sizey: 1
     }];
 
-    component.clearDashboard();
+    (component as any).clearDashboard();
 
-    expect(component.widgetGridItems).toEqual([]);
-  }));
+    expect(component.tabbedGrid[0].list).toEqual([]);
+  });
 
-  it('contractWidget does update the size and position of the given widget to its previous config', async(() => {
+  it('contractWidget does update the size and position of the given widget to its previous config', () => {
     let widgetGridItem1: NeonGridItem = {
-      config: {
-        col: 1,
-        row: 1,
-        sizex: 12,
-        sizey: 12
-      },
+      col: 1,
+      row: 1,
+      sizex: 12,
+      sizey: 12,
       previousConfig: {
         col: 2,
         row: 2,
@@ -559,17 +561,15 @@ describe('Dashboard', () => {
       }
     };
 
-    component.contractWidget({
+    (component as any).contractWidget({
       widgetGridItem: widgetGridItem1
     });
 
     expect(widgetGridItem1).toEqual({
-      config: {
-        col: 2,
-        row: 2,
-        sizex: 4,
-        sizey: 4
-      },
+      col: 2,
+      row: 2,
+      sizex: 4,
+      sizey: 4,
       previousConfig: {
         col: 2,
         row: 2,
@@ -577,71 +577,65 @@ describe('Dashboard', () => {
         sizey: 4
       }
     });
-  }));
+  });
 
-  it('deleteWidget does delete the widget from the grid', async(() => {
-    component.widgetGridItems = [{
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 1,
-        sizey: 1
-      },
-      id: 'a'
-    }, {
-      config: {
-        borderSize: 10,
-        col: 2,
-        dragHandle: '.drag-handle',
-        row: 2,
-        sizex: 1,
-        sizey: 1
-      },
-      id: 'b'
+  it('deleteWidget does delete the widget from the grid', () => {
+    let widgetGridItemToDelete = {
+      hide: false,
+      id: 'a',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 1,
+      sizey: 1
+    };
+
+    component.tabbedGrid[0].list = [widgetGridItemToDelete, {
+      id: 'b',
+      borderSize: 10,
+      col: 2,
+      dragHandle: '.drag-handle',
+      row: 2,
+      sizex: 1,
+      sizey: 1
     }];
 
-    component.deleteWidget({
+    (component as any).deleteWidget({
       id: 'a'
     });
 
-    expect(component.widgetGridItems).toEqual([{
-      config: {
-        borderSize: 10,
-        col: 2,
-        dragHandle: '.drag-handle',
-        row: 2,
-        sizex: 1,
-        sizey: 1
-      },
-      id: 'b'
+    expect(component.tabbedGrid[0].list).toEqual([{
+      id: 'b',
+      borderSize: 10,
+      col: 2,
+      dragHandle: '.drag-handle',
+      row: 2,
+      sizex: 1,
+      sizey: 1
     }]);
-  }));
+    expect(widgetGridItemToDelete.hide).toEqual(true);
+  });
 
-  it('expandWidget does update the size and position of the given widget and save its previous config', async(() => {
+  it('expandWidget does update the size and position of the given widget and save its previous config', () => {
     let widgetGridItem1: NeonGridItem = {
-      config: {
-        col: 2,
-        row: 2,
-        sizex: 4,
-        sizey: 4
-      }
+      col: 2,
+      row: 2,
+      sizex: 4,
+      sizey: 4
     };
 
-    let spy = spyOn(component, 'getVisibleRowCount').and.returnValue(50);
+    let spy = spyOn((component as any), 'getVisibleRowCount').and.returnValue(50);
 
-    component.expandWidget({
+    (component as any).expandWidget({
       widgetGridItem: widgetGridItem1
     });
 
     expect(widgetGridItem1).toEqual({
-      config: {
-        col: 1,
-        row: 2,
-        sizex: 12,
-        sizey: 50
-      },
+      col: 1,
+      row: 2,
+      sizex: 12,
+      sizey: 50,
       previousConfig: {
         col: 2,
         row: 2,
@@ -649,477 +643,694 @@ describe('Dashboard', () => {
         sizey: 4
       }
     });
-  }));
+  });
 
-  it('getMaxColInUse does return expected number', async(() => {
-    expect(component.getMaxColInUse()).toEqual(0);
+  it('findAutoShowDashboard does return expected object', () => {
+    expect((component as any).findAutoShowDashboard({})).toEqual(null);
 
-    component.widgetGridItems = [{
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 1,
-        sizey: 1
-      },
-      id: 'a'
-    }];
+    let noShowDashboard = new Dashboard();
 
-    expect(component.getMaxColInUse()).toEqual(1);
+    expect((component as any).findAutoShowDashboard({
+      noShow: noShowDashboard
+    })).toEqual(null);
 
-    component.widgetGridItems = [{
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 1,
-        sizey: 1
-      },
-      id: 'a'
-    }, {
-      config: {
-        borderSize: 10,
-        col: 2,
-        dragHandle: '.drag-handle',
-        row: 2,
-        sizex: 1,
-        sizey: 1
-      },
-      id: 'b'
-    }];
-
-    expect(component.getMaxColInUse()).toEqual(2);
-  }));
-
-  it('getMaxRowInUse does return expected number', async(() => {
-    expect(component.getMaxRowInUse()).toEqual(0);
-
-    component.widgetGridItems = [{
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 1,
-        sizey: 1
-      },
-      id: 'a'
-    }];
-
-    expect(component.getMaxRowInUse()).toEqual(1);
-
-    component.widgetGridItems = [{
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 1,
-        sizey: 1
-      },
-      id: 'a'
-    }, {
-      config: {
-        borderSize: 10,
-        col: 2,
-        dragHandle: '.drag-handle',
-        row: 2,
-        sizex: 1,
-        sizey: 1
-      },
-      id: 'b'
-    }];
-
-    expect(component.getMaxRowInUse()).toEqual(2);
-  }));
-
-  it('moveWidgetToBottom does update the row of the given widget', async(() => {
-    let widgetGridItem1: NeonGridItem = {
-      config: {
-        col: 1,
-        row: 1,
-        sizex: 4,
-        sizey: 4
-      }
+    noShowDashboard.options = {
+      connectOnLoad: false
     };
 
-    component.moveWidgetToBottom({
-      widgetGridItem: widgetGridItem1
-    });
+    expect((component as any).findAutoShowDashboard({
+      noShow: noShowDashboard
+    })).toEqual(null);
 
-    expect(widgetGridItem1.config.row).toEqual(1);
-
-    component.widgetGridItems = [{
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 1,
-        sizey: 1
-      },
-      id: 'a'
-    }, {
-      config: {
-        borderSize: 10,
-        col: 2,
-        dragHandle: '.drag-handle',
-        row: 2,
-        sizex: 1,
-        sizey: 1
-      },
-      id: 'b'
-    }];
-
-    component.moveWidgetToBottom({
-      widgetGridItem: widgetGridItem1
-    });
-
-    expect(widgetGridItem1.config.row).toEqual(3);
-  }));
-
-  it('moveWidgetToTop does update the row of the given widget', async(() => {
-    let widgetGridItem1: NeonGridItem = {
-      config: {
-        col: 1,
-        row: 2,
-        sizex: 4,
-        sizey: 4
-      }
+    let showDashboard = new Dashboard();
+    showDashboard.options = {
+      connectOnLoad: true
     };
 
-    component.moveWidgetToTop({
+    expect((component as any).findAutoShowDashboard({
+      show: showDashboard
+    })).toEqual(showDashboard);
+
+    let parentDashboard = new Dashboard();
+    parentDashboard.choices = {
+      show: showDashboard
+    };
+
+    expect((component as any).findAutoShowDashboard({
+      parent: parentDashboard
+    })).toEqual(showDashboard);
+
+    parentDashboard.choices.noShow = noShowDashboard;
+
+    expect((component as any).findAutoShowDashboard({
+      parent: parentDashboard
+    })).toEqual(showDashboard);
+  });
+
+  it('getMaxColInUse does return expected number', () => {
+    expect((component as any).getMaxColInUse()).toEqual(0);
+
+    component.tabbedGrid[0].list = [{
+      id: 'a',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 1,
+      sizey: 1
+    }];
+
+    expect((component as any).getMaxColInUse()).toEqual(1);
+
+    component.tabbedGrid[0].list = [{
+      id: 'a',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 1,
+      sizey: 1
+    }, {
+      id: 'b',
+      borderSize: 10,
+      col: 2,
+      dragHandle: '.drag-handle',
+      row: 2,
+      sizex: 1,
+      sizey: 1
+    }];
+
+    expect((component as any).getMaxColInUse()).toEqual(2);
+  });
+
+  it('getMaxRowInUse does return expected number', () => {
+    expect((component as any).getMaxRowInUse()).toEqual(0);
+
+    component.tabbedGrid[0].list = [{
+      id: 'a',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 1,
+      sizey: 1
+    }];
+
+    expect((component as any).getMaxRowInUse()).toEqual(1);
+
+    component.tabbedGrid[0].list = [{
+      id: 'a',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 1,
+      sizey: 1
+    }, {
+      id: 'b',
+      borderSize: 10,
+      col: 2,
+      dragHandle: '.drag-handle',
+      row: 2,
+      sizex: 1,
+      sizey: 1
+    }];
+
+    expect((component as any).getMaxRowInUse()).toEqual(2);
+  });
+
+  it('moveWidgetToBottom does update the row of the given widget', () => {
+    let widgetGridItem1: NeonGridItem = {
+      col: 1,
+      row: 1,
+      sizex: 4,
+      sizey: 4
+    };
+
+    (component as any).moveWidgetToBottom({
       widgetGridItem: widgetGridItem1
     });
 
-    expect(widgetGridItem1.config.row).toEqual(1);
-  }));
+    expect(widgetGridItem1.row).toEqual(1);
 
-  it('refreshDashboard does resize the grid', async(() => {
+    component.tabbedGrid[0].list = [{
+      id: 'a',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 1,
+      sizey: 1
+    }, {
+      id: 'b',
+      borderSize: 10,
+      col: 2,
+      dragHandle: '.drag-handle',
+      row: 2,
+      sizex: 1,
+      sizey: 1
+    }];
+
+    (component as any).moveWidgetToBottom({
+      widgetGridItem: widgetGridItem1
+    });
+
+    expect(widgetGridItem1.row).toEqual(3);
+  });
+
+  it('moveWidgetToTop does update the row of the given widget', () => {
+    let widgetGridItem1: NeonGridItem = {
+      col: 1,
+      row: 2,
+      sizex: 4,
+      sizey: 4
+    };
+
+    (component as any).moveWidgetToTop({
+      widgetGridItem: widgetGridItem1
+    });
+
+    expect(widgetGridItem1.row).toEqual(1);
+  });
+
+  it('refreshDashboard does resize the grid', () => {
     let spy = spyOn(component.grid, 'triggerResize');
-    component.refreshDashboard();
+    (component as any).refreshDashboard();
     expect(spy.calls.count()).toEqual(1);
-  }));
+  });
 
-  it('registerWidget does update the global collection of widgets', async(() => {
+  it('registerWidget does update the global collection of widgets', () => {
     expect(Array.from(component.widgets.keys())).toEqual([]);
 
-    component.registerWidget({
+    (component as any).registerWidget({
       id: 'a',
       widget: null
     });
 
     expect(Array.from(component.widgets.keys())).toEqual(['a']);
 
-    component.registerWidget({
+    (component as any).registerWidget({
       id: 'b',
       widget: null
     });
 
     expect(Array.from(component.widgets.keys())).toEqual(['a', 'b']);
-  }));
+  });
 
-  it('registerWidget does not re-register the same widget', async(() => {
+  it('registerWidget does not re-register the same widget', () => {
     expect(Array.from(component.widgets.keys())).toEqual([]);
 
-    component.registerWidget({
+    (component as any).registerWidget({
       id: 'a',
       widget: null
     });
 
     expect(Array.from(component.widgets.keys())).toEqual(['a']);
 
-    component.registerWidget({
+    (component as any).registerWidget({
       id: 'a',
       widget: null
     });
 
     expect(Array.from(component.widgets.keys())).toEqual(['a']);
-  }));
+  });
 
-  it('unregisterWidget does update the global collection of widgets', async(() => {
+  it('showDashboardState does work as expected', () => {
+    let spyDashboards = spyOn(component.datasetService, 'setCurrentDashboard');
+    let spyDatastores = spyOn(component.datasetService, 'setActiveDataset');
+    let spyFilter = spyOn(component.filterService, 'setFiltersFromConfig');
+    let spySender = spyOn(component.messageSender, 'publish');
+    let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
+
+    let testDatastore1: Datastore = new Datastore('testName1', 'testHost1', 'testType1');
+    let testDatastore2: Datastore = new Datastore('testName2', 'testHost2', 'testType2');
+    let testDashboard: Dashboard = new Dashboard();
+    testDashboard.datastores = [testDatastore1, testDatastore2];
+    testDashboard.layoutObject = [{
+      name: 'a'
+    }, {
+      name: 'b'
+    }, {
+      hide: true,
+      name: 'c'
+    }, {
+      name: 'd'
+    }];
+    testDashboard.filters = ['x', 'y'];
+
+    (component as any).showDashboardState({
+      dashboard: testDashboard
+    });
+
+    expect(spyDashboards.calls.count()).toEqual(1);
+    expect(spyDashboards.calls.argsFor(0)).toEqual([testDashboard]);
+
+    expect(spyDatastores.calls.count()).toEqual(1);
+    // TODO THOR-1062 Permit multiple datastores.
+    expect(spyDatastores.calls.argsFor(0)).toEqual([testDatastore1]);
+
+    expect(spyFilter.calls.count()).toEqual(1);
+    expect(spyFilter.calls.argsFor(0)[0]).toEqual(['x', 'y']);
+
+    expect(spySender.calls.count()).toEqual(4);
+    expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
+    expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
+      gridName: '',
+      widgetGridItem: {
+        name: 'a'
+      }
+    }]);
+    expect(spySender.calls.argsFor(2)).toEqual([neonEvents.WIDGET_ADD, {
+      gridName: '',
+      widgetGridItem: {
+        name: 'b'
+      }
+    }]);
+    expect(spySender.calls.argsFor(3)).toEqual([neonEvents.WIDGET_ADD, {
+      gridName: '',
+      widgetGridItem: {
+        name: 'd'
+      }
+    }]);
+
+    expect(spySimpleFilter.calls.count()).toEqual(1);
+
+    expect(component.showDashboardSelector).toEqual(false);
+  });
+
+  it('showDashboardState does work with tabs', () => {
+    let spyDashboards = spyOn(component.datasetService, 'setCurrentDashboard');
+    let spyDatastores = spyOn(component.datasetService, 'setActiveDataset');
+    let spyFilter = spyOn(component.filterService, 'setFiltersFromConfig');
+    let spySender = spyOn(component.messageSender, 'publish');
+    let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
+
+    let testDatastore1: Datastore = new Datastore('testName1', 'testHost1', 'testType1');
+    let testDatastore2: Datastore = new Datastore('testName2', 'testHost2', 'testType2');
+    let testDashboard: Dashboard = new Dashboard();
+    testDashboard.datastores = [testDatastore1, testDatastore2];
+    testDashboard.layoutObject = {
+      tab1: [{
+        name: 'a'
+      }],
+      tab2: [{
+        name: 'b'
+      }, {
+        hide: true,
+        name: 'c'
+      }, {
+        name: 'd'
+      }]
+    };
+    testDashboard.filters = ['x', 'y'];
+
+    (component as any).showDashboardState({
+      dashboard: testDashboard
+    });
+
+    expect(spyDashboards.calls.count()).toEqual(1);
+    expect(spyDashboards.calls.argsFor(0)).toEqual([testDashboard]);
+
+    expect(spyDatastores.calls.count()).toEqual(1);
+    // TODO THOR-1062 Permit multiple datastores.
+    expect(spyDatastores.calls.argsFor(0)).toEqual([testDatastore1]);
+
+    expect(spyFilter.calls.count()).toEqual(1);
+    expect(spyFilter.calls.argsFor(0)[0]).toEqual(['x', 'y']);
+
+    expect(spySender.calls.count()).toEqual(4);
+    expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
+    expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
+      gridName: 'tab1',
+      widgetGridItem: {
+        name: 'a'
+      }
+    }]);
+    expect(spySender.calls.argsFor(2)).toEqual([neonEvents.WIDGET_ADD, {
+      gridName: 'tab2',
+      widgetGridItem: {
+        name: 'b'
+      }
+    }]);
+    expect(spySender.calls.argsFor(3)).toEqual([neonEvents.WIDGET_ADD, {
+      gridName: 'tab2',
+      widgetGridItem: {
+        name: 'd'
+      }
+    }]);
+
+    expect(spySimpleFilter.calls.count()).toEqual(1);
+
+    expect(component.showDashboardSelector).toEqual(false);
+  });
+
+  it('showDashboardStateOnPageLoad with no parameter state, parameter dataset, or auto-show dashboard does work as expected', () => {
+    let spyLoad = spyOn((component as any).parameterService, 'loadState');
+    let spySender = spyOn(component.messageSender, 'publish');
+
+    spyOn((component as any).parameterService, 'findActiveDatasetInUrl').and.returnValue(null);
+    spyOn((component as any).parameterService, 'findDashboardStateIdInUrl').and.returnValue(null);
+    spyOn((component as any).parameterService, 'findFilterStateIdInUrl').and.returnValue(null);
+
+    (component as any).dashboards = new Dashboard();
+
+    (component as any).showDashboardStateOnPageLoad();
+
+    expect(spyLoad.calls.count()).toEqual(0);
+    expect(spySender.calls.count()).toEqual(0);
+  });
+
+  it('showDashboardStateOnPageLoad with parameter state but no parameter dataset or auto-show dashboard does work as expected', () => {
+    let spyLoad = spyOn((component as any).parameterService, 'loadState');
+    let spySender = spyOn(component.messageSender, 'publish');
+
+    spyOn((component as any).parameterService, 'findActiveDatasetInUrl').and.returnValue(null);
+    spyOn((component as any).parameterService, 'findDashboardStateIdInUrl').and.returnValue('testStateName');
+    spyOn((component as any).parameterService, 'findFilterStateIdInUrl').and.returnValue('testFilterStateId');
+
+    (component as any).dashboards = new Dashboard();
+
+    (component as any).showDashboardStateOnPageLoad();
+
+    expect(spyLoad.calls.count()).toEqual(1);
+    expect(spyLoad.calls.argsFor(0)).toEqual(['testStateName', 'testFilterStateId']);
+    expect(spySender.calls.count()).toEqual(0);
+  });
+
+  it('showDashboardStateOnPageLoad with auto-show dashboard but no parameter state or parameter dataset does work as expected', () => {
+    let spyLoad = spyOn((component as any).parameterService, 'loadState');
+    let spySender = spyOn(component.messageSender, 'publish');
+
+    spyOn((component as any).parameterService, 'findActiveDatasetInUrl').and.returnValue(null);
+    spyOn((component as any).parameterService, 'findDashboardStateIdInUrl').and.returnValue(null);
+    spyOn((component as any).parameterService, 'findFilterStateIdInUrl').and.returnValue(null);
+
+    let showDashboard = new Dashboard();
+    showDashboard.datastores = [new Datastore('testDatastoreName1', 'testDatastoreHost1', 'testDatastoreType1')];
+    showDashboard.options = {
+      connectOnLoad: true
+    };
+    let testDashboard = new Dashboard();
+    testDashboard.choices = {
+      test: showDashboard
+    };
+    (component as any).dashboards = testDashboard;
+
+    (component as any).showDashboardStateOnPageLoad();
+
+    expect(spyLoad.calls.count()).toEqual(0);
+    expect(spySender.calls.count()).toEqual(1);
+    expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
+      dashboard: showDashboard
+    }]);
+  });
+
+  it('showDashboardStateOnPageLoad with parameter state and auto-show dashboard does work as expected', () => {
+    let spyLoad = spyOn((component as any).parameterService, 'loadState');
+    let spySender = spyOn(component.messageSender, 'publish');
+
+    spyOn((component as any).parameterService, 'findActiveDatasetInUrl').and.returnValue(null);
+    spyOn((component as any).parameterService, 'findDashboardStateIdInUrl').and.returnValue('testStateName');
+    spyOn((component as any).parameterService, 'findFilterStateIdInUrl').and.returnValue('testFilterStateId');
+
+    let showDashboard = new Dashboard();
+    showDashboard.datastores = [new Datastore('testDatastoreName1', 'testDatastoreHost1', 'testDatastoreType1')];
+    showDashboard.options = {
+      connectOnLoad: true
+    };
+    let testDashboard = new Dashboard();
+    testDashboard.choices = {
+      test: showDashboard
+    };
+    (component as any).dashboards = testDashboard;
+
+    (component as any).showDashboardStateOnPageLoad();
+
+    expect(spyLoad.calls.count()).toEqual(1);
+    expect(spyLoad.calls.argsFor(0)).toEqual(['testStateName', 'testFilterStateId']);
+    expect(spySender.calls.count()).toEqual(1);
+    expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
+      dashboard: showDashboard
+    }]);
+  });
+
+  it('showDashboardStateOnPageLoad with matching parameter dataset and auto-show dashboard does work as expected', () => {
+    let spyLoad = spyOn((component as any).parameterService, 'loadState');
+    let spySender = spyOn(component.messageSender, 'publish');
+
+    spyOn((component as any).parameterService, 'findActiveDatasetInUrl').and.returnValue('testDatastoreName1');
+    spyOn((component as any).parameterService, 'findDashboardStateIdInUrl').and.returnValue(null);
+    spyOn((component as any).parameterService, 'findFilterStateIdInUrl').and.returnValue(null);
+
+    let showDashboard = new Dashboard();
+    showDashboard.datastores = [new Datastore('testDatastoreName1', 'testDatastoreHost1', 'testDatastoreType1')];
+    showDashboard.options = {
+      connectOnLoad: true
+    };
+    let testDashboard = new Dashboard();
+    testDashboard.choices = {
+      test: showDashboard
+    };
+    (component as any).dashboards = testDashboard;
+
+    (component as any).showDashboardStateOnPageLoad();
+
+    expect(spyLoad.calls.count()).toEqual(0);
+    expect(spySender.calls.count()).toEqual(1);
+    expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
+      dashboard: showDashboard
+    }]);
+  });
+
+  it('showDashboardStateOnPageLoad with parameter dataset but no parameter state or auto-show dashboard does work as expected', () => {
+    // TODO THOR-1131
+  });
+
+  it('unregisterWidget does update the global collection of widgets', () => {
     component.widgets.set('a', null);
     component.widgets.set('b', null);
 
     expect(Array.from(component.widgets.keys())).toEqual(['a', 'b']);
 
-    component.unregisterWidget({
+    (component as any).unregisterWidget({
       id: 'a'
     });
 
     expect(Array.from(component.widgets.keys())).toEqual(['b']);
 
-    component.unregisterWidget({
+    (component as any).unregisterWidget({
       id: 'b'
     });
 
     expect(Array.from(component.widgets.keys())).toEqual([]);
-  }));
+  });
 
-  it('widgetFits does return expected boolean', async(() => {
+  it('widgetFits does return expected boolean', () => {
     let widgetGridItem1: NeonGridItem = {
-      config: {
-        col: 2,
-        row: 2,
-        sizex: 2,
-        sizey: 2
-      }
+      col: 2,
+      row: 2,
+      sizex: 2,
+      sizey: 2
     };
 
-    expect(component.widgetFits(widgetGridItem1)).toEqual(true);
+    expect((component as any).widgetFits(widgetGridItem1)).toEqual(true);
 
-    component.widgetGridItems = [{
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
+    component.tabbedGrid[0].list = [{
+      id: 'a',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 1,
+      sizey: 1
+    }];
+
+    expect((component as any).widgetFits(widgetGridItem1)).toEqual(true);
+
+    component.tabbedGrid[0].list = [{
+      id: 'a',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 2,
+      sizey: 2
+    }];
+
+    expect((component as any).widgetFits(widgetGridItem1)).toEqual(false);
+
+    component.tabbedGrid[0].list = [{
+      id: 'a',
+      borderSize: 10,
+      col: 2,
+      dragHandle: '.drag-handle',
+      row: 2,
+      sizex: 1,
+      sizey: 1
+    }];
+
+    expect((component as any).widgetFits(widgetGridItem1)).toEqual(false);
+
+    component.tabbedGrid[0].list = [{
+      id: 'a',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 4,
+      sizey: 1
+    }, {
+      id: 'b',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 2,
+      sizex: 1,
+      sizey: 4
+    }];
+
+    expect((component as any).widgetFits(widgetGridItem1)).toEqual(true);
+
+    component.tabbedGrid[0].list = [{
+      id: 'a',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 1,
+      sizex: 4,
+      sizey: 1
+    }, {
+      id: 'b',
+      borderSize: 10,
+      col: 1,
+      dragHandle: '.drag-handle',
+      row: 2,
+      sizex: 4,
+      sizey: 1
+    }];
+
+    expect((component as any).widgetFits(widgetGridItem1)).toEqual(false);
+  });
+
+  it('widgetOverlaps does return expected boolean', () => {
+    expect((component as any).widgetOverlaps({
+      col: 1,
+      row: 1,
+      sizex: 1,
+      sizey: 1
+    }, {
+        col: 2,
         row: 1,
         sizex: 1,
         sizey: 1
-      },
-      id: 'a'
-    }];
+      })).toEqual(false);
 
-    expect(component.widgetFits(widgetGridItem1)).toEqual(true);
-
-    component.widgetGridItems = [{
-      config: {
-        borderSize: 10,
+    expect((component as any).widgetOverlaps({
+      col: 1,
+      row: 1,
+      sizex: 1,
+      sizey: 1
+    }, {
         col: 1,
-        dragHandle: '.drag-handle',
+        row: 2,
+        sizex: 1,
+        sizey: 1
+      })).toEqual(false);
+
+    expect((component as any).widgetOverlaps({
+      col: 1,
+      row: 1,
+      sizex: 2,
+      sizey: 1
+    }, {
+        col: 2,
+        row: 1,
+        sizex: 1,
+        sizey: 1
+      })).toEqual(true);
+
+    expect((component as any).widgetOverlaps({
+      col: 1,
+      row: 1,
+      sizex: 1,
+      sizey: 2
+    }, {
+        col: 1,
+        row: 2,
+        sizex: 1,
+        sizey: 1
+      })).toEqual(true);
+
+    expect((component as any).widgetOverlaps({
+      col: 2,
+      row: 1,
+      sizex: 1,
+      sizey: 1
+    }, {
+        col: 1,
+        row: 1,
+        sizex: 1,
+        sizey: 1
+      })).toEqual(false);
+
+    expect((component as any).widgetOverlaps({
+      col: 1,
+      row: 2,
+      sizex: 1,
+      sizey: 1
+    }, {
+        col: 1,
+        row: 1,
+        sizex: 1,
+        sizey: 1
+      })).toEqual(false);
+
+    expect((component as any).widgetOverlaps({
+      col: 2,
+      row: 1,
+      sizex: 1,
+      sizey: 1
+    }, {
+        col: 1,
         row: 1,
         sizex: 2,
-        sizey: 2
-      },
-      id: 'a'
-    }];
-
-    expect(component.widgetFits(widgetGridItem1)).toEqual(false);
-
-    component.widgetGridItems = [{
-      config: {
-        borderSize: 10,
-        col: 2,
-        dragHandle: '.drag-handle',
-        row: 2,
-        sizex: 1,
         sizey: 1
-      },
-      id: 'a'
-    }];
-
-    expect(component.widgetFits(widgetGridItem1)).toEqual(false);
-
-    component.widgetGridItems = [{
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 4,
-        sizey: 1
-      },
-      id: 'a'
-    }, {
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 2,
-        sizex: 1,
-        sizey: 4
-      },
-      id: 'b'
-    }];
-
-    expect(component.widgetFits(widgetGridItem1)).toEqual(true);
-
-    component.widgetGridItems = [{
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 1,
-        sizex: 4,
-        sizey: 1
-      },
-      id: 'a'
-    }, {
-      config: {
-        borderSize: 10,
-        col: 1,
-        dragHandle: '.drag-handle',
-        row: 2,
-        sizex: 4,
-        sizey: 1
-      },
-      id: 'b'
-    }];
-
-    expect(component.widgetFits(widgetGridItem1)).toEqual(false);
-  }));
-
-  it('widgetOverlaps does return expected boolean', async(() => {
-    expect(component.widgetOverlaps({
-      config: {
-        col: 1,
-        row: 1,
-        sizex: 1,
-        sizey: 1
-      }
-    }, {
-        config: {
-          col: 2,
-          row: 1,
-          sizex: 1,
-          sizey: 1
-        }
-      })).toEqual(false);
-
-    expect(component.widgetOverlaps({
-      config: {
-        col: 1,
-        row: 1,
-        sizex: 1,
-        sizey: 1
-      }
-    }, {
-        config: {
-          col: 1,
-          row: 2,
-          sizex: 1,
-          sizey: 1
-        }
-      })).toEqual(false);
-
-    expect(component.widgetOverlaps({
-      config: {
-        col: 1,
-        row: 1,
-        sizex: 2,
-        sizey: 1
-      }
-    }, {
-        config: {
-          col: 2,
-          row: 1,
-          sizex: 1,
-          sizey: 1
-        }
       })).toEqual(true);
 
-    expect(component.widgetOverlaps({
-      config: {
+    expect((component as any).widgetOverlaps({
+      col: 1,
+      row: 2,
+      sizex: 1,
+      sizey: 1
+    }, {
         col: 1,
         row: 1,
         sizex: 1,
         sizey: 2
-      }
-    }, {
-        config: {
-          col: 1,
-          row: 2,
-          sizex: 1,
-          sizey: 1
-        }
       })).toEqual(true);
 
-    expect(component.widgetOverlaps({
-      config: {
-        col: 2,
-        row: 1,
-        sizex: 1,
-        sizey: 1
-      }
+    expect((component as any).widgetOverlaps({
+      col: 1,
+      row: 1,
+      sizex: 4,
+      sizey: 4
     }, {
-        config: {
-          col: 1,
-          row: 1,
-          sizex: 1,
-          sizey: 1
-        }
-      })).toEqual(false);
-
-    expect(component.widgetOverlaps({
-      config: {
-        col: 1,
+        col: 2,
         row: 2,
         sizex: 1,
         sizey: 1
-      }
-    }, {
-        config: {
-          col: 1,
-          row: 1,
-          sizex: 1,
-          sizey: 1
-        }
-      })).toEqual(false);
-
-    expect(component.widgetOverlaps({
-      config: {
-        col: 2,
-        row: 1,
-        sizex: 1,
-        sizey: 1
-      }
-    }, {
-        config: {
-          col: 1,
-          row: 1,
-          sizex: 2,
-          sizey: 1
-        }
       })).toEqual(true);
 
-    expect(component.widgetOverlaps({
-      config: {
-        col: 1,
-        row: 2,
-        sizex: 1,
-        sizey: 1
-      }
+    expect((component as any).widgetOverlaps({
+      col: 1,
+      row: 1,
+      sizex: 4,
+      sizey: 4
     }, {
-        config: {
-          col: 1,
-          row: 1,
-          sizex: 1,
-          sizey: 2
-        }
-      })).toEqual(true);
-
-    expect(component.widgetOverlaps({
-      config: {
-        col: 1,
-        row: 1,
+        col: 3,
+        row: 3,
         sizex: 4,
         sizey: 4
-      }
-    }, {
-        config: {
-          col: 2,
-          row: 2,
-          sizex: 1,
-          sizey: 1
-        }
       })).toEqual(true);
-
-    expect(component.widgetOverlaps({
-      config: {
-        col: 1,
-        row: 1,
-        sizex: 4,
-        sizey: 4
-      }
-    }, {
-        config: {
-          col: 3,
-          row: 3,
-          sizex: 4,
-          sizey: 4
-        }
-      })).toEqual(true);
-  }));
+  });
 });

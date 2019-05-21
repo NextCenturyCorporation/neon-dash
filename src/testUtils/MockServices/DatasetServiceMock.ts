@@ -13,12 +13,11 @@
  * limitations under the License.
  *
  */
-import * as neon from 'neon-framework';
-
 import { Dashboard, DashboardOptions, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../../app/dataset';
 import { DatasetService } from '../../app/services/dataset.service';
 import { NeonGTDConfig } from '../../app/neon-gtd-config';
 import { ConfigService } from '../../app/services/config.service';
+import { SearchServiceMock } from './SearchServiceMock';
 
 export class DatasetServiceMock extends DatasetService {
     public static CATEGORY_FIELD = new FieldMetaData('testCategoryField', 'Test Category Field', false, 'string');
@@ -69,10 +68,12 @@ export class DatasetServiceMock extends DatasetService {
     ];
 
     constructor() {
-        super(new ConfigService(null).set(new NeonGTDConfig()));
+        super(new ConfigService(null).set(new NeonGTDConfig()), new SearchServiceMock());
         let datastore: Datastore = new Datastore('datastore1', 'testHostname', 'testDatastore');
         datastore.databases = DatasetServiceMock.DATABASES;
-        this.setActiveDataset(datastore);
+        datastore.hasUpdatedFields = true;
+        this.dataset = datastore;
+        this.datasets = [datastore];
 
         let dashboard: Dashboard = new Dashboard();
 
@@ -89,25 +90,13 @@ export class DatasetServiceMock extends DatasetService {
         visTitles.dataTableTitle = 'Documents';
         dashboard.visualizationTitles = visTitles;
 
-        dashboard.relations = [{
-            datastore1: {
-                testDatabase1: {
-                    testTable1: 'testRelationFieldA'
-                },
-                testDatabase2: {
-                    testTable2: 'testRelationFieldA'
-                }
-            }
-        }, {
-            datastore1: {
-                testDatabase1: {
-                    testTable1: 'testRelationFieldB'
-                },
-                testDatabase2: {
-                    testTable2: 'testRelationFieldB'
-                }
-            }
-        }];
+        dashboard.relations = [
+            ['datastore1.testDatabase1.testTable1.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldA'],
+            [
+                ['datastore1.testDatabase1.testTable1.testRelationFieldB'],
+                ['datastore1.testDatabase2.testTable2.testRelationFieldB']
+            ]
+        ];
 
         dashboard.name = 'Test Discovery Config';
         dashboard.layout = 'DISCOVERY';

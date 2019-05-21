@@ -14,7 +14,7 @@
  *
  */
 import { ElementRef } from '@angular/core';
-import { AbstractChartJsDataset, AbstractChartJsSubcomponent, ChartJsData } from './subcomponent.chartjs.abstract';
+import { AbstractChartJsDataset, AbstractChartJsSubcomponent, ChartJsData, SelectMode } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '../../color';
 
@@ -64,8 +64,8 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
      * @arg {ElementRef} elementRef
      * @arg {boolean} [cannotSelect=false]
      */
-    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef, cannotSelect: boolean = false) {
-        super(options, listener, elementRef, cannotSelect);
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef) {
+        super(options, listener, elementRef, SelectMode.ITEM);
     }
 
     /**
@@ -150,19 +150,5 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
      */
     public getVisualizationElementLabel(count: number): string {
         return 'Slice' + (count === 1 ? '' : 's');
-    }
-
-    /**
-     * Handles the given click event as needed by this subcomponent.
-     *
-     * @arg {event} event
-     * @arg {any[]} items
-     * @arg {any} chart
-     * @override
-     */
-    protected handleClickEvent(event, items: any[], chart: any) {
-        if (this.isSelectable(items)) {
-            this.selectItem(event, items, chart);
-        }
     }
 }

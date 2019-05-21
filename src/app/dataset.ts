@@ -21,7 +21,7 @@ export class FieldMetaData {
         public prettyName: string = '',
         public hide: boolean = false,
         public type: string = ''
-    ) {}
+    ) { }
 }
 
 export class TableMetaData {
@@ -31,7 +31,7 @@ export class TableMetaData {
         public fields: FieldMetaData[] = [],
         public mappings: TableMappings = {},
         public labelOptions: any = {}
-    ) {}
+    ) { }
 }
 
 export class DatabaseMetaData {
@@ -39,7 +39,7 @@ export class DatabaseMetaData {
         public name: string = '',
         public prettyName: string = '',
         public tables: TableMetaData[] = []
-    ) {}
+    ) { }
 }
 
 export interface TableMappings {
@@ -65,7 +65,7 @@ export class SimpleFilter {
         public icon?: string,
         public tableKey?: string,
         public fieldKey?: string
-    ) {}
+    ) { }
 }
 
 /*
@@ -100,7 +100,7 @@ export class Datastore {
         public name: string = '',
         public host: string = '', // formerly hostname
         public type: string = '' // type of datastore (mongo, elasticsearch, etc.)
-    ) {}
+    ) { }
 }
 
 /**
@@ -110,18 +110,22 @@ export class Dashboard {
     public name?: string = '';
     // Exist in Dashboards that are not terminal nodes.
     public category?: string = '';
-    public choices?: {[key: string]: Dashboard} = {};
+    public choices?: { [key: string]: Dashboard } = {};
     // Exist in Dashboards that are terminal nodes.
     public layout?: string = '';
-    public tables?: {[key: string]: string} = {};
-    public fields?: {[key: string]: string} = {};
-    public visualizationTitles?: {[key: string]: string} = {};
+    public tables?: { [key: string]: string } = {};
+    public fields?: { [key: string]: string } = {};
+    public filters?: any[] = [];
+    public visualizationTitles?: { [key: string]: string } = {};
     public options?: DashboardOptions = new DashboardOptions();
     public fullTitle?: string; // added to dashboard in validateDashboards()
     public pathFromTop?: string[]; // added to dashboard in validateDashboards() - contains keys
     // (sans choices object references) needed to traverse back up Dashboard object
-    public relations?: {[key: string]: any}[];
-    public contributors?: {[key: string]: Contributor} = {};
+    public relations?: (string | string[])[][];
+    public contributors?: { [key: string]: Contributor } = {};
+    // The datastores and layoutObject properties are assigned by the DatasetService.
+    public datastores?: Datastore[] = [];
+    public layoutObject?: (any[] | { [key: string]: any[] }) = [];
 }
 
 /**
@@ -151,3 +155,10 @@ export const MediaTypes = {
     audio: 'aud',
     maskImage: 'mask'
 };
+
+export interface SingleField {
+    datastore: string;
+    database: DatabaseMetaData;
+    table: TableMetaData;
+    field: FieldMetaData;
+}

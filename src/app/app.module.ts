@@ -20,7 +20,6 @@ import { CommonModule } from '@angular/common';
 
 import { AbstractSearchService } from './services/abstract.search.service';
 import { AbstractWidgetService } from './services/abstract.widget.service';
-import { ConnectionService } from './services/connection.service';
 import { DatasetService } from './services/dataset.service';
 import { FilterService } from './services/filter.service';
 import { ParameterService } from './services/parameter.service';
@@ -51,7 +50,6 @@ import { DynamicDialogComponent } from './components/dynamic-dialog/dynamic-dial
         AppLazyModule
     ],
     providers: [
-        ConnectionService,
         DatasetService,
         FilterService,
         ParameterService,

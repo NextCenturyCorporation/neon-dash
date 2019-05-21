@@ -31,6 +31,7 @@ import { Color } from '../../color';
 import {
     AbstractSearchService,
     AggregationType,
+    CompoundFilterType,
     FilterClause,
     QueryGroup,
     QueryPayload,
@@ -39,13 +40,20 @@ import {
 } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import {
+    CompoundFilterDesign,
+    FilterBehavior,
+    FilterDesign,
+    FilterService,
+    FilterUtil,
+    SimpleFilterDesign
+} from '../../services/filter.service';
 
 import {
     AbstractAggregationSubcomponent,
     AggregationSubcomponentListener
 } from './subcomponent.aggregation.abstract';
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { ChartJsBarSubcomponent } from './subcomponent.chartjs.bar';
 import { ChartJsDoughnutSubcomponent } from './subcomponent.chartjs.doughnut';
 import { ChartJsHistogramSubcomponent } from './subcomponent.chartjs.histogram';
@@ -69,35 +77,7 @@ import { YearBucketizer } from '../bucketizers/YearBucketizer';
 
 import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
-import * as neon from 'neon-framework';
 import { MatDialog } from '@angular/material';
-
-class Filter {
-    public field: string | { x: string, y: string };
-    public label: string;
-    public neonFilter: neon.query.WherePredicate;
-    public prettyField: string | { x: string, y: string };
-    public value: any | { beginX: any, endX: any } | { beginX: any, beginY: any, endX: any, endY: any };
-}
-
-export class TransformedAggregationData extends TransformedVisualizationData {
-    constructor(data: any[], public options: any) {
-        super(data);
-    }
-
-    /**
-     * Returns the sum of the Y value of each element in the data.
-     *
-     * @return {number}
-     * @override
-     */
-    public count(): number {
-        if (this.options.countByAggregation) {
-            return this._data.length;
-        }
-        return this._data.reduce((count, element) => count + element.y, 0);
-    }
-}
 
 @Component({
     selector: 'app-aggregation',
@@ -115,13 +95,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     @ViewChild('subcomponentZoom') subcomponentZoomElementRef: ElementRef;
 
     private DEFAULT_GROUP: string = 'All';
-
-    public filterToPassToSuperclass: {
-        id?: string
-    } = {};
-
-    public groupFilters: Filter[] = [];
-    public valueFilters: Filter[] = [];
 
     // The bucketizer for any date data.
     public dateBucketizer: any;
@@ -142,6 +115,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         width: 50
     };
 
+    // TODO THOR-1067 The subcomponent should draw this!
     // The selected area on the subcomponent (box or range).
     public selectedArea: {
         height: number,
@@ -196,9 +170,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         type: 'list'
     }];
 
+    public aggregationData: any[] = null;
+
     public colorKeys: any[] = [];
     public legendActiveGroups: any[] = [];
-    public legendGroups: any[] = [];
+    public legendDisabledGroups: string[] = [];
+    public legendGroups: string[] = [];
 
     public xList: any[] = [];
     public yList: any[] = [];
@@ -249,55 +226,42 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the pretty text for the given filter object.
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
      *
-     * @arg {Filter} filter
-     * @return {string}
+     * @return {FilterBehavior[]}
+     * @override
      */
-    createFilterPrettyText(filter: any): string {
-        if (typeof filter.value === 'object' && filter.value.beginX && filter.value.endX) {
-            let xText = filter.value.beginX + ' to ' + filter.value.endX;
-            if (this.options.xField.type === 'date') {
-                xText = moment.utc(filter.value.beginX).format('ddd, MMM D, YYYY, h:mm:ss A') + ' to ' +
-                    moment.utc(filter.value.endX).format('ddd, MMM D, YYYY, h:mm:ss A');
-            }
-            if (filter.value.beginY && filter.value.endY && filter.prettyField.x && filter.prettyField.y) {
-                return filter.prettyField.x + ' from ' + xText + ' and ' + filter.prettyField.y + ' from ' + filter.value.beginY + ' to ' +
-                    filter.value.endY;
-            }
-            return filter.prettyField + ' from ' + xText;
+    protected designEachFilterWithNoValues(): FilterBehavior[] {
+        let behaviors: FilterBehavior[] = [];
+
+        if (this.options.groupField.columnName) {
+            behaviors.push({
+                filterDesign: this.createFilterDesignOnLegend(),
+                redrawCallback: this.redrawLegend.bind(this)
+            } as FilterBehavior);
         }
 
-        return filter.prettyField + ' is ' + filter.label;
-    }
+        if (this.options.xField.columnName) {
+            behaviors.push({
+                filterDesign: this.createFilterDesignOnItem(),
+                redrawCallback: this.redrawFilteredItems.bind(this)
+            } as FilterBehavior);
 
-    /**
-     * Creates (and replaces) or removes the neon filter using the visualization filters.
-     */
-    createOrRemoveNeonFilter() {
-        // Always AND all group filters.
-        let groupNeonFilters = this.groupFilters.length > 1 ? neon.query.and.apply(neon.query, this.groupFilters.map((filter) => {
-            return filter.neonFilter;
-        })) : (this.groupFilters.length === 1 ? this.groupFilters[0].neonFilter : null);
+            behaviors.push({
+                filterDesign: this.createFilterDesignOnDomain(),
+                redrawCallback: this.redrawDomain.bind(this)
+            } as FilterBehavior);
 
-        let neonFunction = this.options.requireAll ? neon.query.and : neon.query.or;
-        let valueNeonFilters = this.valueFilters.length > 1 ? neonFunction.apply(neon.query, this.valueFilters.map((filter) => {
-            return filter.neonFilter;
-        })) : (this.valueFilters.length === 1 ? this.valueFilters[0].neonFilter : null);
-
-        let neonFilter = groupNeonFilters && valueNeonFilters ? neon.query.and.apply(neon.query, [groupNeonFilters, valueNeonFilters]) :
-            (groupNeonFilters || valueNeonFilters);
-
-        if (neonFilter) {
-            let runQuery = !this.options.ignoreSelf || !!this.options.dualView;
-            if (this.filterToPassToSuperclass.id) {
-                this.replaceNeonFilter(this.options, runQuery, this.filterToPassToSuperclass, neonFilter);
-            } else {
-                this.addNeonFilter(this.options, runQuery, this.filterToPassToSuperclass, neonFilter);
+            if (this.options.yField.columnName) {
+                behaviors.push({
+                    filterDesign: this.createFilterDesignOnBounds(),
+                    redrawCallback: this.redrawBounds.bind(this)
+                } as FilterBehavior);
             }
-        } else if (this.filterToPassToSuperclass.id) {
-            this.removeLocalFilterFromLocalAndNeon(this.options, this.filterToPassToSuperclass, true, true);
         }
+
+        return behaviors;
     }
 
     /**
@@ -312,6 +276,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         let groups: QueryGroup[] = [];
         let filters: FilterClause[] = [this.searchService.buildFilterClause(options.xField.columnName, '!=', null)];
+        let countField = options.xField.columnName;
 
         if (options.xField.type === 'date') {
             switch (options.granularity) {
@@ -332,6 +297,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     /* falls through */
             }
             this.searchService.updateAggregation(query, AggregationType.MIN, '_date', options.xField.columnName).updateSort(query, '_date');
+            countField = '_' + options.granularity;
         } else if (!options.sortByAggregation) {
             groups.push(this.searchService.buildQueryGroup(options.xField.columnName));
             this.searchService.updateSort(query, options.xField.columnName);
@@ -343,13 +309,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (this.optionsTypeIsXY(options)) {
             groups.push(this.searchService.buildQueryGroup(options.yField.columnName));
             filters.push(this.searchService.buildFilterClause(options.yField.columnName, '!=', null));
-        } else {
-            this.searchService.updateAggregation(query, options.aggregation, '_aggregation',
-                (options.aggregation === AggregationType.COUNT ? '*' : options.aggregationField.columnName));
         }
 
         if (options.groupField.columnName) {
             groups.push(this.searchService.buildQueryGroup(options.groupField.columnName));
+            countField = options.groupField.columnName;
+        }
+
+        if (!this.optionsTypeIsXY(options)) {
+            this.searchService.updateAggregation(query, options.aggregation, '_aggregation',
+                (options.aggregation === AggregationType.COUNT ? countField : options.aggregationField.columnName));
         }
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
@@ -371,6 +340,85 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             new WidgetFieldOption('xField', 'X Field', true),
             new WidgetFieldOption('yField', 'Y Field', true, this.optionsTypeIsXY)
         ];
+    }
+
+    private createFilterDesignOnBounds(beginX?: any, endX?: any, beginY?: any, endY?: any): FilterDesign {
+        return {
+            type: CompoundFilterType.AND,
+            filters: [{
+                datastore: '',
+                database: this.options.database,
+                table: this.options.table,
+                field: this.options.xField,
+                operator: '>=',
+                value: beginX
+            }, {
+                datastore: '',
+                database: this.options.database,
+                table: this.options.table,
+                field: this.options.xField,
+                operator: '<=',
+                value: endX
+            }, {
+                datastore: '',
+                database: this.options.database,
+                table: this.options.table,
+                field: this.options.yField,
+                operator: '>=',
+                value: beginY
+            }, {
+                datastore: '',
+                database: this.options.database,
+                table: this.options.table,
+                field: this.options.yField,
+                operator: '<=',
+                value: endY
+            }] as SimpleFilterDesign[]
+        } as CompoundFilterDesign;
+    }
+
+    private createFilterDesignOnDomain(beginX?: any, endX?: any): FilterDesign {
+        return {
+            type: CompoundFilterType.AND,
+            filters: [{
+                datastore: '',
+                database: this.options.database,
+                table: this.options.table,
+                field: this.options.xField,
+                operator: '>=',
+                value: beginX
+            }, {
+                datastore: '',
+                database: this.options.database,
+                table: this.options.table,
+                field: this.options.xField,
+                operator: '<=',
+                value: endX
+            }] as SimpleFilterDesign[]
+        } as CompoundFilterDesign;
+    }
+
+    private createFilterDesignOnItem(value?: any): FilterDesign {
+        return {
+            root: this.options.requireAll ? CompoundFilterType.AND : CompoundFilterType.OR,
+            datastore: '',
+            database: this.options.database,
+            table: this.options.table,
+            field: this.options.xField,
+            operator: '=',
+            value: value
+        } as SimpleFilterDesign;
+    }
+
+    private createFilterDesignOnLegend(value?: any): FilterDesign {
+        return {
+            datastore: '',
+            database: this.options.database,
+            table: this.options.table,
+            field: this.options.groupField,
+            operator: '!=',
+            value: value
+        } as SimpleFilterDesign;
     }
 
     /**
@@ -398,7 +446,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             }], this.optionsTypeIsDualViewCompatible),
             new WidgetSelectOption('notFilterable', 'Filterable', false, OptionChoices.YesFalseNoTrue),
             new WidgetSelectOption('requireAll', 'Filter Operator', false, OptionChoices.OrFalseAndTrue),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue),
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', true, OptionChoices.YesFalseNoTrue),
             new WidgetSelectOption('hideGridLines', 'Grid Lines', false, OptionChoices.ShowFalseHideTrue, this.optionsTypeUsesGrid),
             new WidgetSelectOption('hideGridTicks', 'Grid Ticks', false, OptionChoices.ShowFalseHideTrue, this.optionsTypeUsesGrid),
             new WidgetFreeTextOption('axisLabelX', 'Label of X-Axis', '', this.optionsTypeUsesGrid),
@@ -513,14 +561,11 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
     }
 
-    /**
-     * Returns the superclass filter object.
-     *
-     * @return {any[]}
-     * @override
-     */
-    getCloseableFilters(): any[] {
-        return this.filterToPassToSuperclass.id ? [this.filterToPassToSuperclass] : [];
+    private findMatchingFilterDesign(configs: SimpleFilterDesign[], fieldBinding: string, operator: string) {
+        let matching: SimpleFilterDesign[] = configs.filter((config) => config.operator === operator &&
+            this.options.database.name === config.database.name && this.options.table.name === config.table.name &&
+            this.options[fieldBinding].columnName === config.field.columnName);
+        return matching.length ? matching[0].value : undefined;
     }
 
     /**
@@ -535,43 +580,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             headerText: this.headerText,
             infoText: this.infoText
         };
-    }
-
-    /**
-     * Returns the list of filter IDs for the visualization to ignore.
-     *
-     * @return {array}
-     * @override
-     */
-    getFiltersToIgnore(): string[] {
-        if (!this.options.ignoreSelf) {
-            return null;
-        }
-
-        let groupNeonFilters = this.options.groupField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
-            this.options.table.name, [this.options.groupField.columnName]) : [];
-        let valueNeonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.options.xField.columnName].concat(this.options.type === 'scatter-xy' ? this.options.yField.columnName : []));
-
-        let filterIdsToIgnore = groupNeonFilters.concat(valueNeonFilters).map((neonFilter) => {
-            return neonFilter.id;
-        }).filter((neonFilterId) => {
-            return neonFilterId === this.filterToPassToSuperclass.id;
-        });
-
-        return filterIdsToIgnore.length ? filterIdsToIgnore : null;
-    }
-
-    /**
-     * Returns the text for the superclass filter object.
-     *
-     * @arg {any} filter
-     * @return {string}
-     * @override
-     */
-    getFilterText(filter: any): string {
-        let filters = this.groupFilters.concat(this.valueFilters);
-        return filters.length === 1 ? this.createFilterPrettyText(filters[0]) : filters.length + ' Filters';
     }
 
     /**
@@ -687,15 +695,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     handleLegendItemSelected(event) {
         if (event.value && this.options.groupField.columnName && !this.options.notFilterable) {
-            let neonFilter = neon.query.where(this.options.groupField.columnName, '!=', event.value);
-            let filter = {
-                field: this.options.groupField.columnName,
-                label: 'not ' + event.value,
-                neonFilter: neon.query.where(this.options.groupField.columnName, '!=', event.value),
-                prettyField: this.options.groupField.prettyName,
-                value: event.value
-            };
-            this.toggleFilter(this.groupFilters, filter);
+            this.toggleFilters([this.createFilterDesignOnLegend(event.value)]);
         }
     }
 
@@ -724,36 +724,39 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         switch (this.options.type) {
             case 'bar-h':
-                subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef, cannotSelect, true);
+                subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef, true);
                 break;
             case 'bar-v':
-                subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef, cannotSelect);
+                subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef);
                 break;
             case 'doughnut':
-                subcomponentObject = new ChartJsDoughnutSubcomponent(this.options, this, elementRef, cannotSelect);
+                subcomponentObject = new ChartJsDoughnutSubcomponent(this.options, this, elementRef);
                 break;
             case 'histogram':
-                subcomponentObject = new ChartJsHistogramSubcomponent(this.options, this, elementRef, cannotSelect);
+                subcomponentObject = new ChartJsHistogramSubcomponent(this.options, this, elementRef);
                 break;
             case 'line':
             case 'line-xy':
-                subcomponentObject = new ChartJsLineSubcomponent(this.options, this, elementRef, cannotSelect);
+                subcomponentObject = new ChartJsLineSubcomponent(this.options, this, elementRef);
                 break;
             case 'list':
-                subcomponentObject = new ListSubcomponent(this.options, this, elementRef, cannotSelect);
+                subcomponentObject = new ListSubcomponent(this.options, this, elementRef);
                 break;
             case 'pie':
-                subcomponentObject = new ChartJsPieSubcomponent(this.options, this, elementRef, cannotSelect);
+                subcomponentObject = new ChartJsPieSubcomponent(this.options, this, elementRef);
                 break;
             case 'scatter':
-                subcomponentObject = new ChartJsScatterSubcomponent(this.options, this, elementRef, cannotSelect, true);
+                subcomponentObject = new ChartJsScatterSubcomponent(this.options, this, elementRef, true);
                 break;
             case 'scatter-xy':
-                subcomponentObject = new ChartJsScatterSubcomponent(this.options, this, elementRef, cannotSelect);
+                subcomponentObject = new ChartJsScatterSubcomponent(this.options, this, elementRef);
                 break;
         }
 
         if (subcomponentObject) {
+            if (cannotSelect) {
+                subcomponentObject.ignoreSelectEvents();
+            }
             // Do not call initialize inside the constructor due to how angular handles subclass property initialization.
             subcomponentObject.initialize();
         }
@@ -775,14 +778,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData} results
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         let isXY = this.optionsTypeIsXY(options);
         let xList = [];
         let yList = [];
@@ -933,13 +937,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             this.legendGroups = groups;
         }
 
-        this.legendActiveGroups = this.legendGroups.filter((group) => {
-            return groups.indexOf(group) >= 0;
-        });
+        this.legendActiveGroups = this.legendGroups.filter((group) => groups.indexOf(group) >= 0 &&
+            this.legendDisabledGroups.indexOf(group) < 0);
 
         this.xList = options.savePrevious && this.xList.length ? this.xList : xList;
         this.yList = yList;
-        return new TransformedAggregationData(shownResults, this.options);
+
+        this.aggregationData = shownResults;
+
+        return this.options.countByAggregation ? this.aggregationData.length : this.aggregationData.reduce((count, element) =>
+            count + element.y, 0);
     }
 
     /**
@@ -1074,6 +1081,125 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         return options.xField.type === 'date';
     }
 
+    private redrawBounds(filters: FilterDesign[]): void {
+        let removeFilter = true;
+
+        // Find the boundds inside the compound filter with an expected structure like createFilterDesignOnBounds.
+        // TODO THOR-1100 How should we handle multiple bounds filters?  Should we draw multiple areas?
+        if (filters.length && FilterUtil.isCompoundFilterDesign(filters[0])) {
+            let boundsFilter: CompoundFilterDesign = (filters[0] as CompoundFilterDesign);
+
+            if (boundsFilter && boundsFilter.type === CompoundFilterType.AND && boundsFilter.filters.length === 4 &&
+                FilterUtil.isSimpleFilterDesign(boundsFilter.filters[0]) &&
+                FilterUtil.isSimpleFilterDesign(boundsFilter.filters[1]) &&
+                FilterUtil.isSimpleFilterDesign(boundsFilter.filters[2]) &&
+                FilterUtil.isSimpleFilterDesign(boundsFilter.filters[3])) {
+
+                let nestedFilters: SimpleFilterDesign[] = boundsFilter.filters as SimpleFilterDesign[];
+                let beginX = this.findMatchingFilterDesign(nestedFilters, 'xField', '>=');
+                let endX = this.findMatchingFilterDesign(nestedFilters, 'xField', '<=');
+                let beginY = this.findMatchingFilterDesign(nestedFilters, 'yField', '>=');
+                let endY = this.findMatchingFilterDesign(nestedFilters, 'yField', '<=');
+
+                if (this.subcomponentMain && typeof beginX !== 'undefined' && typeof endX !== 'undefined' &&
+                    typeof beginY !== 'undefined' && typeof endY !== 'undefined') {
+
+                    this.subcomponentMain.select([{
+                        beginX: beginX,
+                        endX: endX,
+                        beginY: beginY,
+                        endY: endY
+                    }]);
+
+                    this.refreshVisualization(true);
+
+                    removeFilter = false;
+
+                    // TODO THOR-1057 Update the selectedArea
+                    // this.selectedArea = null;
+                }
+            }
+        }
+
+        if (removeFilter) {
+            if (this.subcomponentMain) {
+                this.subcomponentMain.select([]);
+                this.refreshVisualization(true);
+            }
+            this.selectedArea = null;
+        }
+    }
+
+    private redrawDomain(filters: FilterDesign[]): void {
+        let removeFilter = true;
+
+        // Find the domain inside the compound filter with an expected structure like createFilterDesignOnDomain.
+        // TODO THOR-1100 How should we handle multiple domain filters?  Should we draw multiple areas?
+        if (filters.length && FilterUtil.isCompoundFilterDesign(filters[0])) {
+            let domainFilter: CompoundFilterDesign = (filters[0] as CompoundFilterDesign);
+
+            if (domainFilter && domainFilter.type === CompoundFilterType.AND && domainFilter.filters.length === 2 &&
+                FilterUtil.isSimpleFilterDesign(domainFilter.filters[0]) &&
+                FilterUtil.isSimpleFilterDesign(domainFilter.filters[1])) {
+
+                let nestedFilters: SimpleFilterDesign[] = domainFilter.filters as SimpleFilterDesign[];
+                let beginX = this.findMatchingFilterDesign(nestedFilters, 'xField', '>=');
+                let endX = this.findMatchingFilterDesign(nestedFilters, 'xField', '<=');
+
+                if (this.subcomponentMain && typeof beginX !== 'undefined' && typeof endX !== 'undefined') {
+                    this.subcomponentMain.select([{
+                        beginX: beginX,
+                        endX: endX
+                    }]);
+
+                    this.refreshVisualization(true);
+
+                    removeFilter = false;
+
+                    // TODO THOR-1057 Update the selectedArea
+                    // this.selectedArea = null;
+                }
+            }
+        }
+
+        if (removeFilter) {
+            if (this.subcomponentMain) {
+                this.subcomponentMain.select([]);
+                this.refreshVisualization(true);
+            }
+            this.selectedArea = null;
+        }
+    }
+
+    private redrawFilteredItems(filterDesigns: FilterDesign[]): void {
+        if (this.subcomponentMain) {
+            // Find the values inside the filters with an expected structure of createFilterDesignOnItem.
+            this.subcomponentMain.select(filterDesigns.reduce((values, filterDesign) => {
+                if (FilterUtil.isSimpleFilterDesign(filterDesign)) {
+                    let value = this.findMatchingFilterDesign([filterDesign as SimpleFilterDesign], 'xField', '=');
+                    return value ? values.concat(value) : values;
+                }
+                return values;
+            }, []));
+
+            this.refreshVisualization(true);
+        }
+    }
+
+    private redrawLegend(filterDesigns: FilterDesign[]): void {
+        // Find the values inside the filters with an expected structure of createFilterDesignOnLegend.
+        this.legendDisabledGroups = filterDesigns.reduce((groups, filterDesign) => {
+            if (FilterUtil.isSimpleFilterDesign(filterDesign)) {
+                let group = this.findMatchingFilterDesign([filterDesign as SimpleFilterDesign], 'groupField', '!=');
+                return group ? groups.concat(group) : groups;
+            }
+            return groups;
+        }, []);
+
+        // Set the active groups to all the groups that are NOT disabled/filtered since the group filters are all negative (!=).
+        this.legendActiveGroups = this.legendGroups.filter((group) => this.legendDisabledGroups.indexOf(group) < 0);
+    }
+
     /**
      * Redraws the subcomponents.
      */
@@ -1115,7 +1241,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let meta = {
             aggregationField: isXY ? undefined : this.options.aggregationField.prettyName,
             aggregationLabel: isXY ? undefined : this.options.aggregation,
-            dataLength: this.getActiveData(this.options).data.length,
+            dataLength: this.aggregationData.length,
             groups: this.legendGroups,
             sort: this.options.sortByAggregation ? 'y' : 'x',
             xAxis: findAxisType(this.options.xField.type),
@@ -1125,8 +1251,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         };
 
         // Update the overview if dualView is off or if it is not filtered.  It will only show the unfiltered data.
-        if (this.subcomponentMain && (redrawMain || !this.options.dualView || !this.filterToPassToSuperclass.id)) {
-            this.subcomponentMain.draw(this.getActiveData(this.options).data, meta);
+        if (this.subcomponentMain && (redrawMain || !this.options.dualView || !this.isFiltered())) {
+            this.subcomponentMain.draw(this.aggregationData, meta);
         }
 
         // Update the zoom if dualView is truthy.  It will show both the unfiltered and filtered data.
@@ -1134,7 +1260,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             if (!this.subcomponentZoom) {
                 this.subcomponentZoom = this.initializeSubcomponent(this.subcomponentZoomElementRef, true);
             }
-            this.subcomponentZoom.draw(this.getActiveData(this.options).data, meta);
+            this.subcomponentZoom.draw(this.aggregationData, meta);
         }
 
         this.updateOnResize();
@@ -1144,28 +1270,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Deselects the selected area and removes the superclass filter object and all visualization filters.
+     * Returns whether this visualization should filter itself.
      *
-     * @arg {any} filter
+     * @return {boolean}
      * @override
      */
-    removeFilter(filter: any) {
-        if (filter.id === this.filterToPassToSuperclass.id) {
-            this.filterToPassToSuperclass = {};
-            this.groupFilters = [];
-            this.valueFilters = [];
-            this.selectedArea = null;
-            this.subcomponentMain.deselect();
-        }
-    }
-
-    /**
-     * Updates the filters for the visualization on initialization or whenever filters are changed externally.
-     *
-     * @override
-     */
-    setupFilters() {
-        // TODO
+    protected shouldFilterSelf(): boolean {
+        return !this.options.ignoreSelf || !!this.options.dualView;
     }
 
     /**
@@ -1174,16 +1285,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @return {boolean}
      */
     showBothViews(): boolean {
-        return this.options.dualView === 'on' || (this.options.dualView === 'filter' && !!this.filterToPassToSuperclass.id);
-    }
-
-    /**
-     * Returns whether any components are shown in the header container.
-     *
-     * @return {boolean}
-     */
-    showHeaderContainer(): boolean {
-        return this.showLegend() || !!this.groupFilters.length || !!this.valueFilters.length;
+        return this.options.dualView === 'on' || (this.options.dualView === 'filter' && this.isFiltered());
     }
 
     /**
@@ -1219,19 +1321,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        let neonFilter = neon.query.where(this.options.xField.columnName, '=', value);
-        let filter = {
-            field: this.options.xField.columnName,
-            label: '' + value,
-            neonFilter: neonFilter,
-            prettyField: this.options.xField.prettyName,
-            value: value
-        };
         if (doNotReplace) {
-            this.toggleFilter(this.valueFilters, filter);
+            this.toggleFilters([this.createFilterDesignOnItem(value)]);
         } else {
-            this.valueFilters = [filter];
-            this.createOrRemoveNeonFilter();
+            this.exchangeFilters([this.createFilterDesignOnItem(value)]);
         }
     }
 
@@ -1245,7 +1338,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @arg {boolean} doNotReplace
      * @override
      */
-    subcomponentRequestsFilterOnBounds(beginX: any, beginY, endX: any, endY, doNotReplace: boolean = false) {
+    subcomponentRequestsFilterOnBounds(beginX: any, beginY, endX: any, endY: any, doNotReplace: boolean = false) {
         if (!(this.options.dualView || this.options.ignoreSelf)) {
             this.selectedArea = null;
         }
@@ -1254,35 +1347,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        let neonFilter = neon.query.and.apply(neon.query, [
-            neon.query.where(this.options.xField.columnName, '>=', beginX),
-            neon.query.where(this.options.yField.columnName, '>=', beginY),
-            neon.query.where(this.options.xField.columnName, '<=', endX),
-            neon.query.where(this.options.yField.columnName, '<=', endY)
-        ]);
-        let filter = {
-            field: {
-                x: this.options.xField.columnName,
-                y: this.options.yField.columnName
-            },
-            label: '',
-            neonFilter: neonFilter,
-            prettyField: {
-                x: this.options.xField.prettyName,
-                y: this.options.yField.prettyName
-            },
-            value: {
-                beginX: beginX,
-                beginY: beginY,
-                endX: endX,
-                endY: endY
-            }
-        };
         if (doNotReplace) {
-            this.toggleFilter(this.valueFilters, filter);
+            this.toggleFilters([this.createFilterDesignOnBounds(beginX, endX, beginY, endY)]);
         } else {
-            this.valueFilters = [filter];
-            this.createOrRemoveNeonFilter();
+            this.exchangeFilters([this.createFilterDesignOnBounds(beginX, endX, beginY, endY)]);
         }
     }
 
@@ -1303,25 +1371,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        let neonFilter = neon.query.and.apply(neon.query, [
-            neon.query.where(this.options.xField.columnName, '>=', beginX),
-            neon.query.where(this.options.xField.columnName, '<=', endX)
-        ]);
-        let filter = {
-            field: this.options.xField.columnName,
-            label: '',
-            neonFilter: neonFilter,
-            prettyField: this.options.xField.prettyName,
-            value: {
-                beginX: beginX,
-                endX: endX
-            }
-        };
         if (doNotReplace) {
-            this.toggleFilter(this.valueFilters, filter);
+            this.toggleFilters([this.createFilterDesignOnDomain(beginX, endX)]);
         } else {
-            this.valueFilters = [filter];
-            this.createOrRemoveNeonFilter();
+            this.exchangeFilters([this.createFilterDesignOnDomain(beginX, endX)]);
         }
     }
 
@@ -1375,32 +1428,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Toggles the given filter in the given filter list and recreates or removes the neon filter.
-     *
-     * @arg {Filter} filter
-     */
-    toggleFilter(filters: any[], filter: any) {
-        let indexMatches = filters.reduce((indexArray, existingFilter, index) => {
-            if (_.isEqual(existingFilter.field, filter.field) && _.isEqual(existingFilter.value, filter.value) &&
-                existingFilter.label === filter.label) {
-                indexArray.push(index);
-            }
-            return indexArray;
-        }, []);
-
-        if (indexMatches.length) {
-            indexMatches.reverse().forEach((indexMatch) => {
-                let existingFilter = filters.splice(indexMatch, 1);
-                this.subcomponentMain.deselect(existingFilter[0].value);
-            });
-        } else {
-            filters.push(filter);
-        }
-
-        this.createOrRemoveNeonFilter();
-    }
-
-    /**
      * Updates the visualization as needed whenever it is resized.
      *
      * @override
@@ -1422,7 +1449,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             y: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetTop || '0')
         };
 
-        // Change the height of the selected area if the dual view was changed (and the height of the main subcomponent was changed).
+        // TODO THOR-973 Change the height of the selected area if the dual view was changed (and the height of the main subcomponent).
+        /* FIXME
         if (this.selectedArea) {
             // Subtract 30 pixels for the height of the X axis.
             let subcomponentHeight = this.subcomponentMainElementRef.nativeElement.clientHeight - (this.options.hideGridTicks ? 10 : 30);
@@ -1432,8 +1460,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 this.selectedArea.height = Math.max(this.selectedArea.height, subcomponentHeight);
             }
         }
+        */
 
-        // TODO Update the selectedArea if the visualization was resized.
+        // TODO THOR-973 Update the selectedArea if the visualization was resized.
     }
 
     /**
@@ -1447,10 +1476,5 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let validFields = options.xField.columnName && (this.optionsTypeIsXY(options) ? options.yField.columnName : true) &&
             (options.aggregation !== AggregationType.COUNT ? options.aggregationField.columnName : true);
         return !!(options.database.name && options.table.name && validFields);
-    }
-
-    protected clearVisualizationData(options: any): void {
-        // TODO THOR-985 Temporary function.
-        this.onChangeData();
     }
 }

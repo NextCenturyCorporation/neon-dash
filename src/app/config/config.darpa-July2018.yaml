@@ -287,14 +287,10 @@ dashboards:
                                 display_url_key: es1.ll_nepal_06_14.documents.mediaEntities.displayURL
                                 image_field_key: es1.ll_nepal_06_14.annotations.mediaEntities.mediaURLHttps
                             relations:
-                                - es1:
-                                    ll_nepal_06_14:
-                                        situations: 'documents'
-                                        annotations: 'id'
-                                - es1:
-                                    ll_nepal_06_14:
-                                        situations: 'topic'
-                                        annotations: 'llAnnotation.Type'
+                                - - es1.ll_nepal_06_14.situations.documents
+                                  - es1.ll_nepal_06_14.annotations.id
+                                - - es1.ll_nepal_06_14.situations.topic
+                                  - es1.ll_nepal_06_14.annotations.llAnnotation.Type
                             options:
                                 connectOnLoad: false
                                 simpleFilter:
@@ -338,8 +334,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - original_text_key
               customColumnWidths:
@@ -419,8 +414,7 @@ layouts:
               sortField: date_field_key
               idField: id_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - group_field_key
                   - text_cloud_data_key
@@ -507,8 +501,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - original_text_key
               customColumnWidths:
@@ -584,8 +577,7 @@ layouts:
               sortField: date_field_key
               idField: id_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - group_field_key
                   - text_cloud_data_key
@@ -685,8 +677,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - text_field_key
               customColumnWidths:
@@ -790,8 +781,7 @@ layouts:
               idField: id_field_key
               sortField: date_field_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - date_field_key
                   - group_field_key
                   - location_field_key
@@ -860,8 +850,7 @@ layouts:
             idField: id_field_key_1
             sortField: situation_name_key
             limit: 100
-            allColumnStatus: hide
-            exceptionsToStatus:
+            showFields:
                 - situation_name_key
                 - count_field_key
                 - group_field_key_1
@@ -925,8 +914,7 @@ layouts:
             idField: id_field_key_2
             sortField: date_field_key_2
             limit: 100
-            allColumnStatus: hide
-            exceptionsToStatus:
+            showFields:
                 - date_field_key_2
                 - translated_text_key
                 - display_url_key
@@ -1033,8 +1021,7 @@ layouts:
             idField: id
             sortField: createdAt
             limit: 100
-            allColumnStatus: hide
-            exceptionsToStatus:
+            showFields:
                 - createdAt
                 - translatedText
             customColumnWidths:
