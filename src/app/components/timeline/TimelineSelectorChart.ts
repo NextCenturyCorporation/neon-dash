@@ -32,10 +32,12 @@ const TOOLTIP_ID = '#tl-tooltip-container';
 const DEFAULT_DATA = [
     {
         date: new Date(Date.now()),
-        value: 0
+        value: 0,
+        filters: []
     }, {
         date: new Date(Date.now() + 31536000000),
-        value: 0
+        value: 0,
+        filters: []
     }];
 
 /**
@@ -44,6 +46,7 @@ const DEFAULT_DATA = [
 export class TimelineItem {
     public date: Date;
     public value: number;
+    public filters: string[];
 }
 
 /**
@@ -53,6 +56,7 @@ export class TimelineSeries {
     public color: string = 'green';
     public data: TimelineItem[] = DEFAULT_DATA;
     public focusData: TimelineItem[] = [];
+    public selectedData: TimelineItem[] = [];
     public name: string = 'Default';
     public type: string = 'bar';
     public options: Object = {};
@@ -875,7 +879,13 @@ export class TimelineSelectorChart {
                 _.debounce(() => {
                     // Update the chart
                     this.redrawChart();
-                    this.tlComponent.onTimelineSelection(this.data.extent[0], this.data.extent[1]);
+                    for (let data of this.data.data[0].data) {
+                        if (data.date >= this.data.extent[0] && data.date < this.data.extent[1]) {
+                            this.data.primarySeries.selectedData.push(data);
+                        }
+                    }
+
+                    this.tlComponent.onTimelineSelection(this.data.extent[0], this.data.extent[1], this.data.primarySeries.selectedData);
                 }, 500)();
             }
         }

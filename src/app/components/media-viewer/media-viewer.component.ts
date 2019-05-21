@@ -495,7 +495,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     transformVisualizationQueryResults(options: any, results: any[]): number {
         this.noDataId = options.id;
-        options.id = undefined;
         this.tabsAndMedia = [];
         this.selectedTabIndex = 0;
         this.queryItems = [];
