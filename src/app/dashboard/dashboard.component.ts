@@ -146,7 +146,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
       this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/database_icon.svg')
     );
 
-    this.changeFavicon();
     this.filtersIcon = 'filters';
 
     this.messenger.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearDashboard.bind(this));
@@ -170,17 +169,18 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
       this.snackBar = snackBar;
       this.messenger.publish(neonEvents.DASHBOARD_REFRESH, {});
 
-      if (neonConfig.errors && neonConfig.errors.length > 0) {
-        let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
-          viewContainerRef: this.viewContainerRef
-        });
-        snackBarRef.instance.snackBarRef = snackBarRef;
-        snackBarRef.instance.addErrors('Configuration Errors', neonConfig.errors);
-      }
-
       if (this.neonConfig) {
+        if (neonConfig.errors && neonConfig.errors.length > 0) {
+          let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
+            viewContainerRef: this.viewContainerRef
+          });
+          snackBarRef.instance.snackBarRef = snackBarRef;
+          snackBarRef.instance.addErrors('Configuration Errors', neonConfig.errors);
+        }
+
         this.projectTitle = this.neonConfig.projectTitle ? this.neonConfig.projectTitle : this.projectTitle;
         this.projectIcon = this.neonConfig.projectIcon ? this.neonConfig.projectIcon : this.projectIcon;
+        this.changeFavicon();
       }
     });
   }
