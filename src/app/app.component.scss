@@ -47,11 +47,12 @@
 
 [mat-icon-button].notify {
     /deep/ .mat-badge-active {
+        display: block;
         color: transparent;
         height: 10px;
         width: 10px;
         top: 5px;
-        background-color: red;
+        right: 7px !important;
     }
 }
 
