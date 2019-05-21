@@ -71,8 +71,12 @@ export class TimelineData {
     public focusGranularityDifferent: boolean = false;
 }
 
+const readDim = (val: string | number) => {
+    return typeof val === 'number' && !Number.isNaN(val) ? val : parseFloat(`${val || '0'}`.replace(/px/, ''));
+};
+
 const getProp = (style: HTMLElement['style'], prop: keyof HTMLElement['style']) => {
-    return parseInt(`${style[prop]}`.replace('px', '') || '0', 10);
+    return readDim(style[prop]);
 };
 
 const computeOuterDims = (el: HTMLElement) => {
@@ -908,30 +912,33 @@ export class TimelineSelectorChart {
 
         // Update mask
         let brushElement = this.element.nativeElement;
-        let xPos = brushElement.querySelector('.extent').x;
-        let extentWidth = brushElement.querySelector('.extent').width;
-        let width = parseInt(brushElement.querySelector('.mask-west').width.replace('px', ''), 10);
+        let xPos = readDim(brushElement.querySelector('.extent').getAttribute('x'));
+        let extentWidth = readDim(brushElement.querySelector('.extent').getAttribute('width'));
+        let width = readDim(brushElement.querySelector('.mask-west').getAttribute('width'));
 
-        if (parseFloat(xPos) + parseFloat(extentWidth) < 0 || parseFloat(xPos) > width) {
-            xPos = '0';
-            extentWidth = '0';
+        if (xPos + extentWidth < 0 || xPos > width) {
+            xPos = 0;
+            extentWidth = 0;
             width = 0;
         }
 
-        if ((extentWidth === '0') &&
+        const east = brushElement.querySelector('.mask-east') as SVGElement;
+        const west = brushElement.querySelector('.mask-west') as SVGElement;
+
+        if ((extentWidth === 0) &&
             (this.brush.extent() && this.brush.extent().length >= 2 &&
                 ((this.brush.extent()[1] as number) - (this.brush.extent()[0] as number) > 0))) {
             // If brush extent exists, but the width is too small, draw masks with a bigger width
-            brushElement.find('.mask-west').attr('x', parseFloat(xPos) - width);
-            brushElement.find('.mask-east').attr('x', parseFloat(xPos) + 1);
-        } else if (extentWidth === '0' || extentWidth === undefined) {
+            west.setAttribute('x', `${xPos - width}`);
+            east.setAttribute('x', `${xPos + 1}`);
+        } else if (extentWidth === 0 || extentWidth === undefined) {
             // If brush extent has been cleared, reset mask positions
-            brushElement.find('.mask-west').attr('x', (0 - (width + 50)));
-            brushElement.find('.mask-east').attr('x', width + 50);
+            west.setAttribute('x', `${(0 - (width + 50))}`);
+            east.setAttribute('x', `${width + 50}`);
         } else {
             // Otherwise, update mask positions to new extent location
-            brushElement.find('.mask-west').attr('x', parseFloat(xPos) - width);
-            brushElement.find('.mask-east').attr('x', parseFloat(xPos) + parseFloat(extentWidth));
+            west.setAttribute('x', `${xPos - width}`);
+            east.setAttribute('x', `${xPos + extentWidth}`);
         }
     }
 
