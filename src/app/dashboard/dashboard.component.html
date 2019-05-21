@@ -70,7 +70,7 @@
 
     <div class="header-toggle-container">
         <div class="filters-container" id="filters" *ngIf="createFiltersComponent">
-            <app-filters [widgets]="widgets" (closeDialog)="toggleFiltersDialog()"></app-filters>
+            <app-filters (closeDialog)="toggleFiltersDialog()"></app-filters>
             <div class="header-toggle-footer">
             </div>
         </div>

@@ -33,6 +33,7 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 
 import { TimelineModule } from './timeline.module';
 import { ConfigService } from '../../services/config.service';
+import { FieldMetaData } from '../../dataset';
 
 describe('Component: Timeline', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
