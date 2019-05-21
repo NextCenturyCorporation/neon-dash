@@ -29,8 +29,8 @@
         <span>{{ datasetService.getCurrentDashboardTitle() || "Choose Dashboard..." }}</span>
         <span class="fill-remaining"></span>
         <button mat-icon-button class="neon-icon-button-large notify" aria-label="Notifications" matBadgePosition="above after"
-            matBadgeHidden="!updatedData" matBadgeText="x" matBadgeSize="small" (click)="refreshDashboard()" matTooltip="Refresh Data"
-            tooltip-position="below">
+            [matBadgeHidden]="!updatedData" matBadgeColor="warn" matBadge="x" matBadgeSize="small" (click)="refreshDashboard()"
+            matTooltip="Refresh Data" tooltip-position="below">
             <mat-icon class="neon-icon-large">notifications</mat-icon>
         </button>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below" id="showVisShortcutButton"
