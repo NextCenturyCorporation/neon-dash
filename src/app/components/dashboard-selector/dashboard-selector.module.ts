@@ -16,7 +16,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DashboardSelectorComponent } from './dashboard-selector.component';
-import { MatSidenavModule, MatButtonModule } from '@angular/material';
+import { MatSidenavModule, MatButtonModule, MatIconModule } from '@angular/material';
 import { DashboardDropdownModule } from '../dashboard-dropdown/dashboard-dropdown.module';
 
 @NgModule({
@@ -24,6 +24,7 @@ import { DashboardDropdownModule } from '../dashboard-dropdown/dashboard-dropdow
   exports: [DashboardSelectorComponent],
   imports: [
     DashboardDropdownModule,
+    MatIconModule,
     MatSidenavModule,
     MatButtonModule,
     CommonModule

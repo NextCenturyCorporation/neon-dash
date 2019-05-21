@@ -201,15 +201,15 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         let widgetGridItem: NeonGridItem = eventMessage.widgetGridItem;
 
         // Set default grid item config properties for the Neon dashboard.
-        widgetGridItem.config.borderSize = widgetGridItem.config.borderSize || 10;
-        widgetGridItem.config.dragHandle = widgetGridItem.config.dragHandle || '.drag-handle';
+        widgetGridItem.borderSize = widgetGridItem.borderSize || 10;
+        widgetGridItem.dragHandle = widgetGridItem.dragHandle || '.drag-handle';
         widgetGridItem.id = widgetGridItem.id || uuidv4();
 
         // Move grid item config properties from the top-level into the config object.
-        widgetGridItem.config.col = widgetGridItem.config.col || widgetGridItem.col;
-        widgetGridItem.config.row = widgetGridItem.config.row || widgetGridItem.row;
-        widgetGridItem.config.sizex = widgetGridItem.config.sizex || widgetGridItem.sizex || DashboardComponent.DEFAULT_SIZEX;
-        widgetGridItem.config.sizey = widgetGridItem.config.sizey || widgetGridItem.sizey || DashboardComponent.DEFAULT_SIZEY;
+        widgetGridItem.col = widgetGridItem.col || widgetGridItem.col;
+        widgetGridItem.row = widgetGridItem.row || widgetGridItem.row;
+        widgetGridItem.sizex = widgetGridItem.sizex || widgetGridItem.sizex || DashboardComponent.DEFAULT_SIZEX;
+        widgetGridItem.sizey = widgetGridItem.sizey || widgetGridItem.sizey || DashboardComponent.DEFAULT_SIZEY;
 
         let index = eventMessage.gridName ? -1 : this.selectedTabIndex;
         if (eventMessage.gridName) {
@@ -236,18 +236,18 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         }
 
         // If both col and row are set, add the widget to the grid.
-        if (widgetGridItem.config.col && widgetGridItem.config.row) {
+        if (widgetGridItem.col && widgetGridItem.row) {
             this.widgetGridItems.push(widgetGridItem);
             return;
         }
 
         // Otherwise insert the widget into the first empty space in the grid.
-        widgetGridItem.config.col = widgetGridItem.config.col || 1;
-        widgetGridItem.config.row = widgetGridItem.config.row || 1;
+        widgetGridItem.col = widgetGridItem.col || 1;
+        widgetGridItem.row = widgetGridItem.row || 1;
 
         // Zero max rows or columns denotes unlimited.  Adjust the rows and columns for the widget size.
-        let maxCol: number = (this.gridConfig.max_cols || Number.MAX_SAFE_INTEGER.valueOf()) - widgetGridItem.config.sizex + 1;
-        let maxRow: number = (this.gridConfig.max_rows || Number.MAX_SAFE_INTEGER.valueOf()) - widgetGridItem.config.sizey + 1;
+        let maxCol: number = (this.gridConfig.max_cols || Number.MAX_SAFE_INTEGER.valueOf()) - widgetGridItem.sizex + 1;
+        let maxRow: number = (this.gridConfig.max_rows || Number.MAX_SAFE_INTEGER.valueOf()) - widgetGridItem.sizey + 1;
 
         // Find the first empty space for the widget.
         let x = 1;
@@ -256,8 +256,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         while (y <= maxRow && !found) {
             x = 1;
             while (x <= maxCol && !found) {
-                widgetGridItem.config.col = x;
-                widgetGridItem.config.row = y;
+                widgetGridItem.col = x;
+                widgetGridItem.row = y;
                 found = this.widgetFits(widgetGridItem);
                 x++;
             }
@@ -311,10 +311,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
     private contractWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
-        eventMessage.widgetGridItem.config.sizex = eventMessage.widgetGridItem.previousConfig.sizex;
-        eventMessage.widgetGridItem.config.sizey = eventMessage.widgetGridItem.previousConfig.sizey;
-        eventMessage.widgetGridItem.config.row = eventMessage.widgetGridItem.previousConfig.row;
-        eventMessage.widgetGridItem.config.col = eventMessage.widgetGridItem.previousConfig.col;
+        eventMessage.widgetGridItem.sizex = eventMessage.widgetGridItem.previousConfig.sizex;
+        eventMessage.widgetGridItem.sizey = eventMessage.widgetGridItem.previousConfig.sizey;
+        eventMessage.widgetGridItem.row = eventMessage.widgetGridItem.previousConfig.row;
+        eventMessage.widgetGridItem.col = eventMessage.widgetGridItem.previousConfig.col;
     }
 
     /**
@@ -342,15 +342,15 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     expandWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
         let visibleRowCount = this.getVisibleRowCount();
         eventMessage.widgetGridItem.previousConfig = {
-            col: eventMessage.widgetGridItem.config.col,
-            row: eventMessage.widgetGridItem.config.row,
-            sizex: eventMessage.widgetGridItem.config.sizex,
-            sizey: eventMessage.widgetGridItem.config.sizey
+            col: eventMessage.widgetGridItem.col,
+            row: eventMessage.widgetGridItem.row,
+            sizex: eventMessage.widgetGridItem.sizex,
+            sizey: eventMessage.widgetGridItem.sizey
         };
-        eventMessage.widgetGridItem.config.sizex = (this.gridConfig) ? this.gridConfig.max_cols : this.getMaxColInUse();
-        eventMessage.widgetGridItem.config.col = 1;
+        eventMessage.widgetGridItem.sizex = (this.gridConfig) ? this.gridConfig.max_cols : this.getMaxColInUse();
+        eventMessage.widgetGridItem.col = 1;
         // TODO:  Puzzle out why this exceeds the visible space by a couple rows.
-        eventMessage.widgetGridItem.config.sizey = (visibleRowCount > 0) ? visibleRowCount : eventMessage.widgetGridItem.config.sizex;
+        eventMessage.widgetGridItem.sizey = (visibleRowCount > 0) ? visibleRowCount : eventMessage.widgetGridItem.sizex;
     }
 
     /**
@@ -397,7 +397,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         let maxCol = 0;
 
         for (let widgetGridItem of this.widgetGridItems) {
-            maxCol = Math.max(maxCol, (widgetGridItem.config.col + widgetGridItem.config.sizex - 1));
+            maxCol = Math.max(maxCol, (widgetGridItem.col + widgetGridItem.sizex - 1));
         }
         return maxCol;
     }
@@ -410,7 +410,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         let maxRow = 0;
 
         for (let widgetGridItem of this.widgetGridItems) {
-            maxRow = Math.max(maxRow, (widgetGridItem.config.row + widgetGridItem.config.sizey - 1));
+            maxRow = Math.max(maxRow, (widgetGridItem.row + widgetGridItem.sizey - 1));
         }
         return maxRow;
     }
@@ -448,7 +448,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
     moveWidgetToBottom(eventMessage: { widgetGridItem: NeonGridItem }) {
-        eventMessage.widgetGridItem.config.row = this.getMaxRowInUse() + 1;
+        eventMessage.widgetGridItem.row = this.getMaxRowInUse() + 1;
     }
 
     /**
@@ -457,7 +457,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
     moveWidgetToTop(eventMessage: { widgetGridItem: NeonGridItem }) {
-        eventMessage.widgetGridItem.config.row = 1;
+        eventMessage.widgetGridItem.row = 1;
     }
 
     ngAfterViewInit() {
@@ -755,12 +755,12 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * @arg two the second widget
      */
     private widgetOverlaps(one: NeonGridItem, two: NeonGridItem) {
-        if (one.config.col > (two.config.col + two.config.sizex - 1) ||
-            two.config.col > (one.config.col + one.config.sizex - 1)) {
+        if (one.col > (two.col + two.sizex - 1) ||
+            two.col > (one.col + one.sizex - 1)) {
             return false;
         }
-        if (one.config.row > (two.config.row + two.config.sizey - 1) ||
-            two.config.row > (one.config.row + one.config.sizey - 1)) {
+        if (one.row > (two.row + two.sizey - 1) ||
+            two.row > (one.row + one.sizey - 1)) {
             return false;
         }
 

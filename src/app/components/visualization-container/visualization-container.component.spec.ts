@@ -51,7 +51,7 @@ describe('Component: VisualizationContainer', () => {
 
         fixture = TestBed.createComponent(VisualizationContainerComponent);
         component = fixture.componentInstance;
-        component.visualization = { type: 'about-neon', config: {} };
+        component.visualization = { type: 'about-neon', config: {} } as any;
     });
 
     it('should create an instance', fakeAsync(() => {

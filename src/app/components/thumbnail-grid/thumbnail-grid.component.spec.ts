@@ -20,7 +20,6 @@ import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { } from 'jasmine-core';
-import * as neon from 'neon-framework';
 
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
@@ -30,7 +29,6 @@ import { FilterService } from '../../services/filter.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 
 import { ThumbnailGridModule } from './thumbnail-grid.module';
 import { ConfigService } from '../../services/config.service';

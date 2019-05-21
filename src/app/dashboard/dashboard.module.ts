@@ -25,7 +25,7 @@ import { FiltersModule } from '../components/filters/filters.module';
 import { SimpleFilterModule } from '../components/simple-filter/simple-filter.module';
 import { DashboardComponent } from './dashboard.component';
 import { CommonWidgetModule } from '../common-widget.module';
-import { MatMenuModule, MatSnackBarModule } from '@angular/material';
+import { MatMenuModule, MatSnackBarModule, MatTabsModule } from '@angular/material';
 import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-loader';
 
 @NgModule({
@@ -35,9 +35,9 @@ import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-load
         CommonWidgetModule,
         MatSnackBarModule,
         MatMenuModule,
+        MatTabsModule,
         CommonModule,
         NgGridModule,
-
         ReactiveComponentLoaderModule,
         VisualizationContainerModule,
         DashboardSelectorModule,

@@ -29,31 +29,29 @@
 
     <div class="body-container" id="body-container" [class.with-filter]="showLegend()" [class.with-contribution]="showContribution()">
 
-        <div class="body-container" id="body-container" [class.with-filter]="showHeaderContainer()" [class.with-contribution]="showContribution()">
+        <div class="subcomponent-container zoom" [class.hide]="!showBothViews()" [style.minHeight.px]="minimumDimensionsZoom.height"
+            [style.minWidth.px]="minimumDimensionsZoom.width" (click)="stopEventPropagation($event)">
 
-            <div class="subcomponent-container zoom" [class.hide]="!showBothViews()" [style.minHeight.px]="minimumDimensionsZoom.height"
-                [style.minWidth.px]="minimumDimensionsZoom.width" (click)="stopEventPropagation($event)">
-
-                <div #subcomponentZoom class="subcomponent-element"></div>
-            </div>
-
-            <div class="subcomponent-container" [class.main]="showBothViews()" [style.minHeight.px]="minimumDimensionsMain.height"
-                [style.minWidth.px]="minimumDimensionsMain.width" (click)="stopEventPropagation($event)">
-
-                <div class="subcomponent-selection" *ngIf="selectedArea" [style.width.px]="selectedArea.width" [style.height.px]="selectedArea.height"
-                    [style.left.px]="selectedAreaOffset.x + selectedArea.x" [style.top.px]="selectedAreaOffset.y + selectedArea.y"></div>
-
-                <div #subcomponentMain class="subcomponent-element"></div>
-            </div>
+            <div #subcomponentZoom class="subcomponent-element"></div>
         </div>
 
-        <canvas #hiddenCanvas class="hidden-canvas"></canvas>
+        <div class="subcomponent-container" [class.main]="showBothViews()" [style.minHeight.px]="minimumDimensionsMain.height"
+            [style.minWidth.px]="minimumDimensionsMain.width" (click)="stopEventPropagation($event)">
 
-        <div class="contribution-text" *ngIf="showContribution()">
-            <div class="contribution-text-container">
-                <a (click)="openContributionDialog()">
-                    {{ getContributorAbbreviations() }}
-                </a>
-            </div>
+            <div class="subcomponent-selection" *ngIf="selectedArea" [style.width.px]="selectedArea.width" [style.height.px]="selectedArea.height"
+                [style.left.px]="selectedAreaOffset.x + selectedArea.x" [style.top.px]="selectedAreaOffset.y + selectedArea.y"></div>
+
+            <div #subcomponentMain class="subcomponent-element"></div>
         </div>
+    </div>
+
+    <canvas #hiddenCanvas class="hidden-canvas"></canvas>
+
+    <div class="contribution-text" *ngIf="showContribution()">
+        <div class="contribution-text-container">
+            <a (click)="openContributionDialog()">
+                {{ getContributorAbbreviations() }}
+            </a>
+        </div>
+    </div>
 </mat-sidenav-container>
