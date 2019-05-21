@@ -283,7 +283,7 @@ body {
     &:not([disabled]) {
         &.active,
         &:hover {
-            color: var(--color-accent, lightgrey) !important;
+            color: var(--color-text-main, black) !important;
         }
     }
 }
@@ -386,7 +386,13 @@ body {
 .mat-tab-label {
     height: 30px !important;
     min-width: unset !important;
+    opacity: unset !important;
     padding: 5px 10px !important;
+}
+
+.mat-tab-label:hover,
+.mat-tab-label-active {
+    background-color: var(--color-background-contrast);
 }
 
 .mat-toolbar {

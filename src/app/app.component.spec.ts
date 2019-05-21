@@ -295,7 +295,7 @@ describe('App', () => {
             widgetGridItem: widgetGridItem1
         });
 
-        expect(component.widgetGridItems).toEqual([{
+        expect(component.tabbedGrid[0].list).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 2,
@@ -306,6 +306,110 @@ describe('App', () => {
         }]);
     });
 
+    it('addWidget does work with tabs', () => {
+        expect(component.tabbedGrid.length).toEqual(1);
+        expect(component.tabbedGrid[0].name).toEqual('');
+        expect(component.tabbedGrid[0].list).toEqual([]);
+
+        let widgetGridItem1: NeonGridItem = {
+            col: 1,
+            row: 1,
+            sizex: 2,
+            sizey: 2
+        };
+
+        (component as any).addWidget({
+            gridName: 'tab1',
+            widgetGridItem: widgetGridItem1
+        });
+
+        expect(component.tabbedGrid.length).toEqual(1);
+        expect(component.tabbedGrid[0].name).toEqual('tab1');
+        expect(component.tabbedGrid[0].list).toEqual([{
+            id: widgetGridItem1.id,
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 2,
+            sizey: 2
+        }]);
+
+        let widgetGridItem2: NeonGridItem = {
+            col: 3,
+            row: 3,
+            sizex: 4,
+            sizey: 4
+        };
+
+        (component as any).addWidget({
+            gridName: 'tab1',
+            widgetGridItem: widgetGridItem2
+        });
+
+        expect(component.tabbedGrid.length).toEqual(1);
+        expect(component.tabbedGrid[0].name).toEqual('tab1');
+        expect(component.tabbedGrid[0].list).toEqual([{
+            id: widgetGridItem1.id,
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 2,
+            sizey: 2
+        }, {
+            id: widgetGridItem2.id,
+            borderSize: 10,
+            col: 3,
+            dragHandle: '.drag-handle',
+            row: 3,
+            sizex: 4,
+            sizey: 4
+        }]);
+
+        let widgetGridItem3: NeonGridItem = {
+            col: 5,
+            row: 5,
+            sizex: 6,
+            sizey: 6
+        };
+
+        (component as any).addWidget({
+            gridName: 'tab2',
+            widgetGridItem: widgetGridItem3
+        });
+
+        expect(component.tabbedGrid.length).toEqual(2);
+        expect(component.tabbedGrid[0].name).toEqual('tab1');
+        expect(component.tabbedGrid[0].list).toEqual([{
+            id: widgetGridItem1.id,
+            borderSize: 10,
+            col: 1,
+            dragHandle: '.drag-handle',
+            row: 1,
+            sizex: 2,
+            sizey: 2
+        }, {
+            id: widgetGridItem2.id,
+            borderSize: 10,
+            col: 3,
+            dragHandle: '.drag-handle',
+            row: 3,
+            sizex: 4,
+            sizey: 4
+        }]);
+        expect(component.tabbedGrid[1].name).toEqual('tab2');
+        expect(component.tabbedGrid[1].list).toEqual([{
+            id: widgetGridItem3.id,
+            borderSize: 10,
+            col: 5,
+            dragHandle: '.drag-handle',
+            row: 5,
+            sizex: 6,
+            sizey: 6
+        }]);
+    });
+
     it('addWidget does set the position of the given widget with unspecified position and add it to the end of the grid', () => {
         let widgetGridItem1: NeonGridItem = {};
 
@@ -313,7 +417,7 @@ describe('App', () => {
             widgetGridItem: widgetGridItem1
         });
 
-        expect(component.widgetGridItems).toEqual([{
+        expect(component.tabbedGrid[0].list).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -329,7 +433,7 @@ describe('App', () => {
             widgetGridItem: widgetGridItem2
         });
 
-        expect(component.widgetGridItems).toEqual([{
+        expect(component.tabbedGrid[0].list).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -353,7 +457,7 @@ describe('App', () => {
             widgetGridItem: widgetGridItem3
         });
 
-        expect(component.widgetGridItems).toEqual([{
+        expect(component.tabbedGrid[0].list).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -385,7 +489,7 @@ describe('App', () => {
             widgetGridItem: widgetGridItem4
         });
 
-        expect(component.widgetGridItems).toEqual([{
+        expect(component.tabbedGrid[0].list).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -421,7 +525,7 @@ describe('App', () => {
     });
 
     it('addWidget does set the position of the given widget with unspecified position and add it to the middle of the grid', () => {
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -461,7 +565,7 @@ describe('App', () => {
             widgetGridItem: widgetGridItem1
         });
 
-        expect(component.widgetGridItems).toEqual([{
+        expect(component.tabbedGrid[0].list).toEqual([{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -505,7 +609,7 @@ describe('App', () => {
     });
 
     it('clearDashboard does delete all elements from the grid', () => {
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -525,7 +629,7 @@ describe('App', () => {
 
         (component as any).clearDashboard();
 
-        expect(component.widgetGridItems).toEqual([]);
+        expect(component.tabbedGrid[0].list).toEqual([]);
     });
 
     it('contractWidget does update the size and position of the given widget to its previous config', () => {
@@ -572,7 +676,7 @@ describe('App', () => {
             sizey: 1
         };
 
-        component.widgetGridItems = [widgetGridItemToDelete, {
+        component.tabbedGrid[0].list = [widgetGridItemToDelete, {
             id: 'b',
             borderSize: 10,
             col: 2,
@@ -586,7 +690,7 @@ describe('App', () => {
             id: 'a'
         });
 
-        expect(component.widgetGridItems).toEqual([{
+        expect(component.tabbedGrid[0].list).toEqual([{
             id: 'b',
             borderSize: 10,
             col: 2,
@@ -671,7 +775,7 @@ describe('App', () => {
     it('getMaxColInUse does return expected number', () => {
         expect((component as any).getMaxColInUse()).toEqual(0);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -683,7 +787,7 @@ describe('App', () => {
 
         expect((component as any).getMaxColInUse()).toEqual(1);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -707,7 +811,7 @@ describe('App', () => {
     it('getMaxRowInUse does return expected number', () => {
         expect((component as any).getMaxRowInUse()).toEqual(0);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -719,7 +823,7 @@ describe('App', () => {
 
         expect((component as any).getMaxRowInUse()).toEqual(1);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -754,7 +858,7 @@ describe('App', () => {
 
         expect(widgetGridItem1.row).toEqual(1);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -876,16 +980,85 @@ describe('App', () => {
         expect(spySender.calls.count()).toEqual(4);
         expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
         expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
+            gridName: '',
             widgetGridItem: {
                 name: 'a'
             }
         }]);
         expect(spySender.calls.argsFor(2)).toEqual([neonEvents.WIDGET_ADD, {
+            gridName: '',
             widgetGridItem: {
                 name: 'b'
             }
         }]);
         expect(spySender.calls.argsFor(3)).toEqual([neonEvents.WIDGET_ADD, {
+            gridName: '',
+            widgetGridItem: {
+                name: 'd'
+            }
+        }]);
+
+        expect(spySimpleFilter.calls.count()).toEqual(1);
+
+        expect(component.showDashboardSelector).toEqual(false);
+    });
+
+    it('showDashboardState does work with tabs', () => {
+        let spyDashboards = spyOn(component.datasetService, 'setCurrentDashboard');
+        let spyDatastores = spyOn(component.datasetService, 'setActiveDataset');
+        let spyFilter = spyOn(component.filterService, 'setFiltersFromConfig');
+        let spySender = spyOn(component.messageSender, 'publish');
+        let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
+
+        let testDatastore1: Datastore = new Datastore('testName1', 'testHost1', 'testType1');
+        let testDatastore2: Datastore = new Datastore('testName2', 'testHost2', 'testType2');
+        let testDashboard: Dashboard = new Dashboard();
+        testDashboard.datastores = [testDatastore1, testDatastore2];
+        testDashboard.layoutObject = {
+            tab1: [{
+                name: 'a'
+            }],
+            tab2: [{
+                name: 'b'
+            }, {
+                hide: true,
+                name: 'c'
+            }, {
+                name: 'd'
+            }]
+        };
+        testDashboard.filters = ['x', 'y'];
+
+        (component as any).showDashboardState({
+            dashboard: testDashboard
+        });
+
+        expect(spyDashboards.calls.count()).toEqual(1);
+        expect(spyDashboards.calls.argsFor(0)).toEqual([testDashboard]);
+
+        expect(spyDatastores.calls.count()).toEqual(1);
+        // TODO THOR-1062 Permit multiple datastores.
+        expect(spyDatastores.calls.argsFor(0)).toEqual([testDatastore1]);
+
+        expect(spyFilter.calls.count()).toEqual(1);
+        expect(spyFilter.calls.argsFor(0)[0]).toEqual(['x', 'y']);
+
+        expect(spySender.calls.count()).toEqual(4);
+        expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
+        expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
+            gridName: 'tab1',
+            widgetGridItem: {
+                name: 'a'
+            }
+        }]);
+        expect(spySender.calls.argsFor(2)).toEqual([neonEvents.WIDGET_ADD, {
+            gridName: 'tab2',
+            widgetGridItem: {
+                name: 'b'
+            }
+        }]);
+        expect(spySender.calls.argsFor(3)).toEqual([neonEvents.WIDGET_ADD, {
+            gridName: 'tab2',
             widgetGridItem: {
                 name: 'd'
             }
@@ -1047,7 +1220,7 @@ describe('App', () => {
 
         expect((component as any).widgetFits(widgetGridItem1)).toEqual(true);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -1059,7 +1232,7 @@ describe('App', () => {
 
         expect((component as any).widgetFits(widgetGridItem1)).toEqual(true);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -1071,7 +1244,7 @@ describe('App', () => {
 
         expect((component as any).widgetFits(widgetGridItem1)).toEqual(false);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 2,
@@ -1083,7 +1256,7 @@ describe('App', () => {
 
         expect((component as any).widgetFits(widgetGridItem1)).toEqual(false);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -1103,7 +1276,7 @@ describe('App', () => {
 
         expect((component as any).widgetFits(widgetGridItem1)).toEqual(true);
 
-        component.widgetGridItems = [{
+        component.tabbedGrid[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
