@@ -683,11 +683,8 @@ dashboards:
                                 cluster_name_key: es1.mozambique052019_tweet.ui_output.cluster_name
                                 cluster_topics_key: es1.mozambique052019_tweet.ui_output.topics
                             relations:
-                                - es1:
-                                    mozambique052019_tweet:
-                                        ui_output: 'id'
-                                    mozambique052019_sf:
-                                        ui_output: 'id'
+                                - - es1.mozambique052019_tweet.ui_output.id
+                                  - es1.mozambique052019_sf.ui_output.id
                             options:
                                 connectOnLoad: true
                                 simpleFilter:
