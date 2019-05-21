@@ -130,21 +130,17 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     createFilter(item: any) {
         let filters: FilterDesign[] = [];
-        let filtersToDelete: FilterDesign[] = [];
 
         this.options.filterFields.filter((filterField) => !!filterField.columnName).forEach((filterField) => {
             let filterValues: any[] = typeof item[filterField.columnName] === 'undefined' ? [] :
                 (Array.isArray(item[filterField.columnName]) ? item[filterField.columnName] : [item[filterField.columnName]]);
-            if (!filters.length) {
-                // Delete any previous filters on the filter field.
-                filtersToDelete.push(this.createFilterDesignOnItem(filterField));
-            } else {
+            if (filterValues.length) {
                 filters.push(filterValues.length === 1 ? this.createFilterDesignOnItem(filterField, filterValues[0]) :
-                    this.createFilterDesignOnList([this.createFilterDesignOnItem(filterField, filterValues)]));
+                    this.createFilterDesignOnList(filterValues.map((value) => this.createFilterDesignOnItem(filterField, value))));
             }
         });
 
-        this.exchangeFilters(filters, filtersToDelete);
+        this.toggleFilters(filters);
     }
 
     private createFilterDesignOnItem(field: FieldMetaData, value?: any): FilterDesign {
