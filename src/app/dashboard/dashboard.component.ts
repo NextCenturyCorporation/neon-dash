@@ -126,7 +126,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     /* A reference to the dialog for the custom connection dialog. */
     private customConnectionDialogRef: MatDialogRef<DynamicDialogComponent>;
 
-    public filtersIcon;
+    public filtersIcon: string;
 
     // Use two messengers here because a single messager doesn't receive its own messages.
     public messageReceiver: eventing.Messenger;
