@@ -29,23 +29,12 @@ import { QueryBarComponent } from './query-bar.component';
 import { DatasetOptions, SimpleFilter } from '../../dataset';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
-import * as neon from 'neon-framework';
+import { query } from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 const databaseName = 'database';
 const tableName = 'table';
 const fieldName = 'field';
-
-// TODO Is this really needed?
-class MockFilterService extends FilterServiceMock {
-    addFilter(messenger: neon.eventing.Messenger, ownerId: string, database: string, table: string,
-              whereClause: any, filterName: string | { visName: string; text: string },
-              onSuccess: (resp: any) => any, onError: (resp: any) => any): void {
-        super.addFilter(messenger, ownerId, database, table, whereClause, filterName, onSuccess, onError);
-        onSuccess(super.getLatestFilterId());
-    }
-}
 
 class MockDatasetService extends DatasetService {
     options = new DashboardOptions();
@@ -153,7 +142,7 @@ describe('Component: queryBar', () => {
         expect(tester.filterService.getFilters().length).toBe(1);
         let filter = tester.filterService.getFilterById(tester.component.filterId.getValue());
         expect(filter).toBeTruthy();
-        let expected = neon.query.where(fieldName, 'contains', value);
+        let expected = query.where(fieldName, 'contains', value);
         expect(filter.filter.whereClause).toEqual(expected);
     });
 
@@ -179,7 +168,7 @@ describe('Component: queryBar', () => {
         let filter = tester.filterService.getFilterById(tester.component.filterId.getValue());
         expect(filter).toBeTruthy();
 
-        let expected = neon.query.where(fieldName, 'contains', value);
+        let expected = query.where(fieldName, 'contains', value);
         expect(filter.filter.whereClause).toEqual(expected, 'filter clause should be updated');
     });
 
@@ -195,7 +184,7 @@ describe('Component: queryBar', () => {
         expect(tester.filterService.getFilters().length).toBe(1);
         let filter = tester.filterService.getFilterById(tester.component.filterId.getValue());
         expect(filter).toBeTruthy();
-        let expected = neon.query.where(fieldName, 'contains', value);
+        let expected = query.where(fieldName, 'contains', value);
         expect(filter.filter.whereClause).toEqual(expected);
     });
 

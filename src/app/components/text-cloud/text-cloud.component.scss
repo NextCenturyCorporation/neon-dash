@@ -33,7 +33,7 @@
         }
 
         .filter {
-            color: var(--color-accent, lightgrey);
+            color: var(--color-accent, lightgrey) !important;
         }
 
         .paragraphs {

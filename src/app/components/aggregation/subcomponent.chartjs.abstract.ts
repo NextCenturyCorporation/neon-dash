@@ -61,6 +61,14 @@ export class ChartJsData {
     ) { }
 }
 
+export enum SelectMode {
+    NONE = 'NONE',
+    ITEM = 'ITEM',
+    DOMAIN = 'DOMAIN',
+    BOUNDS_DOMAIN = 'BOUNDS_DOMAIN',
+    BOUNDS = 'BOUNDS'
+}
+
 export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSubcomponent {
     private DEFAULT_CHART_ELEMENT_WIDTH = 10;
     private HORIZONTAL_MARGIN = 10;
@@ -104,10 +112,10 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
-     * @arg {boolean} [cannotSelect=false]
+     * @arg {SelectMode} [selectMode=NONE]
      */
     constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
-        protected cannotSelect: boolean = false) {
+        protected selectMode: SelectMode = SelectMode.NONE) {
 
         super(options, listener, elementRef);
     }
@@ -354,41 +362,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     }
 
     /**
-     * Deselects the given items (or all items) in the given chart.
-     *
-     * @arg {any} chart
-     * @arg {any[]} [items]
-     * @protected
-     */
-    protected dataDeselect(chart: any, items?: any[]) {
-        // Do nothing.
-    }
-
-    /**
-     * Selects the given items in the given chart.
-     *
-     * @arg {any} chart
-     * @arg {any[]} items
-     * @protected
-     */
-    protected dataSelect(chart: any, items: any[]) {
-        // Do nothing.
-    }
-
-    /**
-     * Deselects the given item or all the subcomponent elements.
-     *
-     * @arg {any} [item]
-     * @override
-     */
-    public deselect(item?: any) {
-        this.selectedLabels = item ? this.selectedLabels.filter((existingItem) => {
-            return existingItem !== item;
-        }) : [];
-        this.dataDeselect(this.chart, item ? [item] : undefined);
-    }
-
-    /**
      * Destroys all the subcomponent elements.
      *
      * @override
@@ -614,10 +587,14 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {event} event
      * @arg {any[]} items
      * @arg {any} chart
-     * @protected
+     * @private
      */
-    protected handleClickEvent(event, items: any[], chart: any) {
-        // Do nothing.
+    private handleClickEvent(event, items: any[], chart: any) {
+        if (this.isSelectable(items)) {
+            if (this.selectMode === SelectMode.ITEM) {
+                this.selectItem(event, items, chart);
+            }
+        }
     }
 
     /**
@@ -626,10 +603,29 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {event} event
      * @arg {any[]} items
      * @arg {any} chart
-     * @protected
+     * @private
      */
-    protected handleHoverEvent(event, items: any[], chart: any) {
-        // Do nothing.
+    private handleHoverEvent(event, items: any[], chart: any) {
+        if (this.isSelectable(items)) {
+            if (this.selectMode === SelectMode.DOMAIN) {
+                this.selectDomain(event, items, chart);
+            }
+            if (this.selectMode === SelectMode.BOUNDS) {
+                this.selectBounds(event, items, chart);
+            }
+            if (this.selectMode === SelectMode.BOUNDS_DOMAIN) {
+                this.selectBounds(event, items, chart, true);
+            }
+        }
+    }
+
+    /**
+     * Configures the visualization to ignore any of the user's "select" events.
+     *
+     * @override
+     */
+    public ignoreSelectEvents(): void {
+        this.selectMode = SelectMode.NONE;
     }
 
     /**
@@ -676,7 +672,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @protected
      */
     protected isSelectable(items: any[]): boolean {
-        return !this.cannotSelect && !!items.length;
+        return this.selectMode !== SelectMode.NONE && !!items.length;
     }
 
     /**
@@ -769,15 +765,47 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     }
 
     /**
+     * Selects the given items and deselects all other items.
+     *
+     * @arg {any[]} items
+     * @override
+     */
+    public select(items: any[]) {
+        // TODO THOR-1057 Delete this code once it is replaced with code that is specific to the BOUNDS and DOMAIN select modes.
+        if (!items.length) {
+            this.selectedLabels = [];
+            this.selectedDomain = null;
+            this.selectedBounds = null;
+            return;
+        }
+
+        if (this.selectMode === SelectMode.ITEM) {
+            this.selectedLabels = items;
+        }
+
+        if (this.selectMode === SelectMode.DOMAIN) {
+            // TODO THOR-1057 Set the selected labels and domain (must find the X coordinates).
+            // this.selectedLabels = [];
+            // this.selectedDomain = null;
+        }
+
+        if (this.selectMode === SelectMode.BOUNDS_DOMAIN || this.selectMode === SelectMode.BOUNDS) {
+            // TODO THOR-1057 Set the selected labels and bounds (must find the X and Y coordinates).
+            // this.selectedLabels = [];
+            // this.selectedBounds = null;
+        }
+    }
+
+    /**
      * Selects a bounds using the given event and items.
      *
      * @arg {event} event
      * @arg {any[]} items
      * @arg {any} chart
      * @arg {boolean} [domainOnly=false]
-     * @protected
+     * @private
      */
-    protected selectBounds(event, items: any[], chart: any, domainOnly: boolean = false) {
+    private selectBounds(event, items: any[], chart: any, domainOnly: boolean = false) {
         if (event.type === 'mouseover' && event.buttons > 0) {
             this.ignoreSelect = true;
         }
@@ -794,7 +822,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         // Selection yes, mouse press cancel...
         if (this.selectedBounds && event.buttons > 1) {
             this.selectedLabels = [];
-            this.dataDeselect(chart);
             this.listener.subcomponentRequestsDeselect();
             this.listener.subcomponentRequestsRedraw(event);
             this.selectedBounds = null;
@@ -826,8 +853,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             if (items.length) {
                 this.selectedLabels = this.selectedLabels.indexOf(items[0]._model.label) < 0 ?
                     this.selectedLabels.concat(items[0]._model.label) : this.selectedLabels;
-
-                this.dataSelect(chart, items);
             }
 
             this.listener.subcomponentRequestsSelect(
@@ -871,6 +896,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                 endLabelY = Math.max(beginValueY, endValueY);
             }
 
+            // TODO THOR-1110 If findAxisTypeX is string, filter on individual items rather than domain/bounds.
             if (domainOnly) {
                 this.listener.subcomponentRequestsFilterOnDomain(beginLabelX, endLabelX);
             } else {
@@ -886,9 +912,9 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {event} event
      * @arg {any[]} items
      * @arg {any} chart
-     * @protected
+     * @private
      */
-    protected selectDomain(event, items: any[], chart: any) {
+    private selectDomain(event, items: any[], chart: any) {
         if (event.type === 'mouseover' && event.buttons > 0) {
             this.ignoreSelect = true;
         }
@@ -905,7 +931,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         // Selection yes, mouse press cancel...
         if (this.selectedDomain && event.buttons > 1) {
             this.selectedLabels = [];
-            this.dataDeselect(chart);
             this.listener.subcomponentRequestsDeselect();
             this.listener.subcomponentRequestsRedraw(event);
             this.selectedDomain = null;
@@ -937,8 +962,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
             let elementWidth = this.findChartElementWidth(items[0]);
 
-            this.dataSelect(chart, items);
-
             this.listener.subcomponentRequestsSelect(
                 Math.min(this.selectedDomain.beginX, this.selectedDomain.endX) - Math.ceil(elementWidth / 2.0),
                 chart.chartArea.top,
@@ -964,6 +987,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                 endLabelX = Number(('' + endLabelX).replace(/,/g, ''));
             }
 
+            // TODO THOR-1110 If findAxisTypeX is string, filter on individual items rather than domain.
             this.listener.subcomponentRequestsFilterOnDomain(beginLabelX, endLabelX);
             this.selectedDomain = null;
         }
@@ -975,22 +999,23 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {event} event
      * @arg {any[]} items
      * @arg {any} chart
-     * @protected
+     * @private
      */
-    protected selectItem(event, items: any[], chart) {
+    private selectItem(event, items: any[], chart) {
         if (!items.length) {
             return;
         }
 
         let labelGroup = chart.data.datasets[items[0]._datasetIndex].label;
         let labelValue = this.findItemInDataToSelect(items, chart);
-        let doNotReplace = !!(event.ctrlKey || event.metaKey);
-        this.selectedLabels = doNotReplace ? this.selectedLabels.concat(labelValue) : [labelValue];
-        if (!doNotReplace) {
-            this.dataDeselect(chart);
+        let exchangeFilter = !(event.ctrlKey || event.metaKey);
+        if (exchangeFilter) {
+            this.selectedLabels = [labelValue];
+        } else {
+            this.selectedLabels = this.selectedLabels.indexOf(labelValue) < 0 ? this.selectedLabels.concat(labelValue) :
+                this.selectedLabels.filter((oldLabel) => oldLabel !== labelValue);
         }
-        this.dataSelect(chart, items);
-        this.listener.subcomponentRequestsFilter(labelGroup, labelValue, doNotReplace);
+        this.listener.subcomponentRequestsFilter(labelGroup, labelValue, !exchangeFilter);
     }
 
     /**

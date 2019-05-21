@@ -14,7 +14,8 @@
  *
  */
 import { ElementRef } from '@angular/core';
-import { AbstractChartJsDataset, AbstractChartJsSubcomponent, ChartJsData } from './subcomponent.chartjs.abstract';
+import { AbstractChartJsDataset, AbstractChartJsSubcomponent, ChartJsData, SelectMode } from './subcomponent.chartjs.abstract';
+import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '../../color';
 
 // http://www.chartjs.org/docs/latest/charts/line.html#dataset-properties
@@ -60,6 +61,19 @@ export class ChartJsLineDataset extends AbstractChartJsDataset {
 }
 
 export class ChartJsLineSubcomponent extends AbstractChartJsSubcomponent {
+    /**
+     * @constructor
+     * @arg {any} options
+     * @arg {AggregationSubcomponentListener} listener
+     * @arg {ElementRef} elementRef
+     * @arg {boolean} [selectMode=DOMAIN]
+     */
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
+        selectMode: SelectMode = SelectMode.DOMAIN) {
+
+        super(options, listener, elementRef, selectMode);
+    }
+
     /**
      * Creates and returns the chart dataset object for the given color and label and array of X values.
      *
@@ -112,19 +126,5 @@ export class ChartJsLineSubcomponent extends AbstractChartJsSubcomponent {
      */
     public getVisualizationElementLabel(count: number): string {
         return 'Line' + (count === 1 ? '' : 's');
-    }
-
-    /**
-     * Handles the given hover event as needed by this subcomponent.
-     *
-     * @arg {event} event
-     * @arg {any[]} items
-     * @arg {any} chart
-     * @override
-     */
-    protected handleHoverEvent(event, items: any[], chart: any) {
-        if (this.isSelectable(items)) {
-            this.selectDomain(event, items, chart);
-        }
     }
 }

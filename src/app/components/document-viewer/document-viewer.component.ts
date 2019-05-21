@@ -29,9 +29,9 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { FilterBehavior, FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
 import { neonUtilities } from '../../neon-namespaces';
 import {
@@ -59,6 +59,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
+
+    public documentViewerData: any[] = null;
 
     private singleItemRef: MatDialogRef<DocumentViewerSingleItemComponent>;
 
@@ -95,14 +97,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         this.options.sortDescending = sortOrder ? (sortOrder === 'DESCENDING') : this.options.sortDescending;
     }
 
-    getFilterText(filter) {
-        return '';
-    }
-
-    getFiltersToIgnore() {
-        return null;
-    }
-
     /**
      * Returns whether the visualization query created using the given options is valid.
      *
@@ -112,6 +106,18 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     validateVisualizationQuery(options: any): boolean {
         return !!(options.database.name && options.table.name && options.dataField.columnName);
+    }
+
+    /**
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     *
+     * @return {FilterBehavior[]}
+     * @override
+     */
+    protected designEachFilterWithNoValues(): FilterBehavior[] {
+        // This visualization does not filter.
+        return [];
     }
 
     /**
@@ -202,14 +208,15 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         let configFields: { name?: string, field: string, arrayFilter?: any }[] = neonUtilities.flatten(options.metadataFields).concat(
             neonUtilities.flatten(options.popoutFields));
 
@@ -240,7 +247,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             });
         }
 
-        let data = results.map((result) => {
+        this.documentViewerData = results.map((result) => {
             let activeItem = {
                 data: {},
                 rows: []
@@ -252,7 +259,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             return activeItem;
         });
 
-        return new TransformedVisualizationData(data);
+        return this.documentViewerData.length;
     }
 
     /**
@@ -315,14 +322,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     public getVisualizationElementLabel(count: number): string {
         return 'Document' + (count === 1 ? '' : 's');
-    }
-
-    setupFilters() {
-        // Do nothing.
-    }
-
-    removeFilter() {
-        // Do nothing.
     }
 
     /**
@@ -414,16 +413,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         if (this.options.idField.columnName && activeItemData[this.options.idField.columnName]) {
             this.publishSelectId(activeItemData[this.options.idField.columnName]);
         }
-    }
-
-    /**
-     * Returns the list of filter objects.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters(): any[] {
-        return [];
     }
 
     /**

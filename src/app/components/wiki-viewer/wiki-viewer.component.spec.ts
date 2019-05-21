@@ -101,17 +101,6 @@ describe('Component: WikiViewer', () => {
         expect(refs.visualization).toBeDefined();
     });
 
-    it('getFiltersToIgnore does return null', (() => {
-        expect(component.getFiltersToIgnore()).toBeNull();
-    }));
-
-    it('getFilterText does return empty string', (() => {
-        expect(component.getFilterText({})).toBe('');
-        expect(component.getFilterText({
-            value: 'testValue'
-        })).toBe('');
-    }));
-
     it('validateVisualizationQuery does return expected result', (() => {
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
@@ -137,14 +126,6 @@ describe('Component: WikiViewer', () => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
         component.refreshVisualization();
         expect(spy.calls.count()).toBe(1);
-    }));
-
-    it('removeFilter function does exist', (() => {
-        expect(component.removeFilter).toBeDefined();
-    }));
-
-    it('setupFilters function does exist', (() => {
-        expect(component.setupFilters).toBeDefined();
     }));
 
     it('does show toolbar and sidenav', (() => {
@@ -222,36 +203,37 @@ describe('Component: WikiViewer with mock HTTP', () => {
     it('handleTransformVisualizationQueryResults with no data does call callback function with expected data', (done) => {
         (component as any).errorMessage = 'testErrorMessage';
 
-        let successCallback = (data) => {
-            expect(data.data).toEqual([]);
+        let successCallback = (elementCount) => {
+            expect(elementCount).toEqual(0);
             done();
         };
 
-        let failureCallback = (data) => {
+        let failureCallback = () => {
             fail();
             done();
         };
 
-        component.handleTransformVisualizationQueryResults(component.options, [], successCallback, failureCallback);
+        (component as any).handleTransformVisualizationQueryResults(component.options, [], successCallback, failureCallback);
     });
 
     it('handleTransformVisualizationQueryResults with data does call http.get', (done) => {
         component.options.linkField.columnName = 'testLinkField';
 
-        let successCallback = (data) => {
-            expect(data.data.length).toEqual(1);
-            expect(data.data[0].name).toEqual('Test Title');
-            expect(data.data[0].text.toString()).toBe(
+        let successCallback = (elementCount) => {
+            expect(elementCount).toEqual(1);
+            expect(component.wikiViewerData.length).toEqual(1);
+            expect(component.wikiViewerData[0].name).toEqual('Test Title');
+            expect(component.wikiViewerData[0].text.toString()).toBe(
                 'SafeValue must use [property]=binding: <p>Test Content</p> (see http://g.co/ng/security#xss)');
             done();
         };
 
-        let failureCallback = (data) => {
+        let failureCallback = () => {
             fail();
             done();
         };
 
-        component.handleTransformVisualizationQueryResults(component.options, [{
+        (component as any).handleTransformVisualizationQueryResults(component.options, [{
             testLinkField: 'testLinkValue'
         }], successCallback, failureCallback);
 
@@ -274,19 +256,20 @@ describe('Component: WikiViewer with mock HTTP', () => {
     it('handleTransformVisualizationQueryResults on fail does call http.get', (done) => {
         component.options.linkField.columnName = 'testLinkField';
 
-        let successCallback = (data) => {
-            expect(data.data.length).toEqual(1);
-            expect(data.data[0].name).toEqual('testLinkValue');
-            expect(data.data[0].text.toString()).toBe('Missing Title: The page you specified doesn\'t exist.');
+        let successCallback = (elementCount) => {
+            expect(elementCount).toEqual(1);
+            expect(component.wikiViewerData.length).toEqual(1);
+            expect(component.wikiViewerData[0].name).toEqual('testLinkValue');
+            expect(component.wikiViewerData[0].text.toString()).toBe('Missing Title: The page you specified doesn\'t exist.');
             done();
         };
 
-        let failureCallback = (data) => {
+        let failureCallback = () => {
             fail();
             done();
         };
 
-        component.handleTransformVisualizationQueryResults(component.options, [{
+        (component as any).handleTransformVisualizationQueryResults(component.options, [{
             testLinkField: 'testLinkValue'
         }], successCallback, failureCallback);
 
@@ -305,23 +288,24 @@ describe('Component: WikiViewer with mock HTTP', () => {
     it('handleTransformVisualizationQueryResults with multiple links does call http.get multiple times', (done) => {
         component.options.linkField.columnName = 'testLinkField';
 
-        let successCallback = (data) => {
-            expect(data.data.length).toEqual(2);
-            expect(data.data[0].name).toEqual('Test Title 1');
-            expect(data.data[1].name).toEqual('Test Title 2');
-            expect(data.data[0].text.toString()).toBe(
+        let successCallback = (elementCount) => {
+            expect(elementCount).toEqual(2);
+            expect(component.wikiViewerData.length).toEqual(2);
+            expect(component.wikiViewerData[0].name).toEqual('Test Title 1');
+            expect(component.wikiViewerData[1].name).toEqual('Test Title 2');
+            expect(component.wikiViewerData[0].text.toString()).toBe(
                 'SafeValue must use [property]=binding: <p>Test Content 1</p> (see http://g.co/ng/security#xss)');
-            expect(data.data[1].text.toString()).toBe(
+            expect(component.wikiViewerData[1].text.toString()).toBe(
                 'SafeValue must use [property]=binding: <p>Test Content 2</p> (see http://g.co/ng/security#xss)');
             done();
         };
 
-        let failureCallback = (data) => {
+        let failureCallback = () => {
             fail();
             done();
         };
 
-        component.handleTransformVisualizationQueryResults(component.options, [{
+        (component as any).handleTransformVisualizationQueryResults(component.options, [{
             testLinkField: ['testLinkValue1', 'testLinkValue2']
         }], successCallback, failureCallback);
 

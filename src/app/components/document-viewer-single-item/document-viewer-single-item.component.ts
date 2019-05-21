@@ -17,7 +17,6 @@ import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import { neonUtilities } from '../../neon-namespaces';
-import * as neon from 'neon-framework';
 
 @Component({
     selector: 'app-document-viewer-single-item',
@@ -26,15 +25,12 @@ import * as neon from 'neon-framework';
 })
 export class DocumentViewerSingleItemComponent implements OnInit, OnDestroy {
 
-    private messenger: neon.eventing.Messenger;
-
     private data: any;
     public text: any;
     public showText: boolean;
     public metadata: any;
 
     constructor(@Inject(MAT_DIALOG_DATA) data: any, public dialogRef: MatDialogRef<DocumentViewerSingleItemComponent>) {
-        this.messenger = new neon.eventing.Messenger();
         this.data = data;
         this.text = neonUtilities.deepFind(data.item, data.textField);
         this.showText = data.showText;

@@ -32,8 +32,8 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
+import { eventing } from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { ConfigService } from '../../services/config.service';
 
@@ -74,7 +74,7 @@ describe('Component: AddVisualization', () => {
         providers: [
             { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             {
                 provide: AbstractWidgetService,
                 useClass: WidgetService
@@ -97,28 +97,28 @@ describe('Component: AddVisualization', () => {
     });
 
     it('tests default values', (() => {
-        expect(component.showVisShortcut).toEqual(true);
+        expect(component.showVisualizationsShortcut).toEqual(true);
         expect(component.selectedIndex).toEqual(-1);
         expect(component.messenger).toBeTruthy();
     }));
 
-    it('Check that updateShowVisShortcut changes the correct booleans', (() => {
-        let spyOnUpdateShowVisShortcut = spyOn(component, 'updateShowVisShortcut');
+    it('Check that updateShowVisualizationsShortcut changes the correct booleans', (() => {
+        let spyOnVisualizationsShortcut = spyOn(component, 'updateShowVisualizationsShortcut');
         let message = {
-            showVisShortcut: false
+            show: false
         };
 
         expect(spyOnInit.calls.count()).toEqual(1);
-        component.showVisShortcut = false;
-        expect(component.showVisShortcut).toEqual(false);
+        component.showVisualizationsShortcut = false;
+        expect(component.showVisualizationsShortcut).toEqual(false);
         component.ngOnInit();
         expect(spyOnInit.calls.count()).toEqual(2);
 
         component.ngOnInit();
-        component.updateShowVisShortcut(message);
+        component.updateShowVisualizationsShortcut(message);
 
         expect(spyOnInit.calls.count()).toEqual(3);
-        expect(spyOnUpdateShowVisShortcut.calls.count()).toEqual(1);
+        expect(spyOnVisualizationsShortcut.calls.count()).toEqual(1);
     }));
 
 });

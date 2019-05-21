@@ -199,8 +199,7 @@ layouts:
             idField: id_field_key
             sortField: date_field_key
             limit: 100
-            allColumnStatus: hide
-            exceptionsToStatus:
+            showFields:
                 - date_field_key
                 - original_text_key
                 - group_field_key
@@ -309,8 +308,7 @@ layouts:
             idField: thread_name_field_key
             sortField: date_field_key
             limit: 100
-            allColumnStatus: hide
-            exceptionsToStatus:
+            showFields:
                 - date_field_key
                 - original_text_key
                 - thread_name_field_key

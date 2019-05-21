@@ -15,10 +15,14 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CurrentFiltersComponent } from './current-filters.component';
-import { FilterService } from '../../services/filter.service';
-import { DatasetService } from '../../services/dataset.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
+
+import { AbstractSearchService } from '../../services/abstract.search.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { CurrentFiltersModule } from './current-filters.module';
 import { ConfigService } from '../../services/config.service';
@@ -30,10 +34,10 @@ describe('Component: CurrentFiltersComponent', () => {
 
     initializeTestBed('Current Filters', {
         providers: [
-            FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             DatasetService,
+            FilterService,
             { provide: ConfigService, useValue: ConfigService.as(testConfig) }
-
         ],
         imports: [CurrentFiltersModule]
     });

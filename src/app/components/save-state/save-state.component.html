@@ -5,9 +5,8 @@
         </mat-form-field>
 
         <button mat-raised-button class="neon-button-small" color="accent" (click)="saveState(formData.stateToSave)">
-                <span *ngIf="validateName(formData.stateToSave)">Save State</span>
-                <span *ngIf="!validateName(formData.stateToSave)">Overwrite State</span>
-            </button>
+            <span>Save State</span>
+        </button>
     </div>
 
     <div class="option-row">

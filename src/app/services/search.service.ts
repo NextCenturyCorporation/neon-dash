@@ -19,26 +19,180 @@ import {
     AbstractSearchService,
     AggregationType,
     CompoundFilterType,
+    Connection,
     FilterClause,
     QueryGroup,
     QueryPayload,
+    RequestWrapper,
     SortOrder,
     TimeInterval
 } from '../../app/services/abstract.search.service';
-import { ConnectionService } from './connection.service';
-import { RequestWrapper } from '../connection';
-import * as neon from 'neon-framework';
+import { Dashboard, Datastore } from '../dataset';
+import { query } from 'neon-framework';
 
-export class GroupWrapper implements QueryGroup {
-    constructor(public group: string | neon.query.GroupByFunctionClause) {}
+// Internal class that wraps AbstractSearchService.Connection.  Exported to use in the unit tests.
+export class NeonConnection implements Connection {
+    constructor(public connection: query.Connection) {}
+
+    /**
+     * Deletes the saved dashboard state with the given name.
+     *
+     * @arg {string} stateName
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public deleteState(stateName: string, onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper {
+        return this.connection.deleteState(stateName, onSuccess, onError);
+    }
+
+    /**
+     * Returns the accessible database names.
+     *
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public getDatabaseNames(onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper {
+        return this.connection.getDatabaseNames(onSuccess, onError);
+    }
+
+    /**
+     * Returns the types of the fields in the given database/table.
+     *
+     * @arg {string} databaseName
+     * @arg {string} tableName
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public getFieldTypes(
+        databaseName: string,
+        tableName: string,
+        onSuccess: (response: any) => void,
+        onError?: (response: any) => void
+    ): RequestWrapper {
+        return this.connection.getFieldTypes(databaseName, tableName, onSuccess, onError);
+    }
+
+    /**
+     * Returns the saved dashboard state names.
+     *
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public getStateNames(onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper {
+        return this.connection.getAllStateNames(onSuccess, onError);
+    }
+
+    /**
+     * Returns the table and field names in the given database.
+     *
+     * @arg {string} databaseName
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public getTableNamesAndFieldNames(
+        databaseName: string,
+        onSuccess: (response: any) => void,
+        onError?: (response: any) => void
+    ): RequestWrapper {
+        return this.connection.getTableNamesAndFieldNames(databaseName, onSuccess, onError);
+    }
+
+    /**
+     * Loads the saved state with the given name.
+     *
+     * @arg {string} stateName
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public loadState(stateName: string, onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper {
+        return this.connection.loadState({
+            stateName: stateName
+        }, onSuccess, onError);
+    }
+
+    /**
+     * Runs an export query with the given data and format.
+     *
+     * @arg {any} exportData
+     * @arg {any} exportFormat
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public runExportQuery(
+        exportData: { data: any },
+        exportFormat: any,
+        onSuccess: (response: any) => void,
+        onError?: (response: any) => void
+    ): RequestWrapper {
+        return this.connection.executeExport(exportData, onSuccess, onError, exportFormat);
+    }
+
+    /**
+     * Runs a search query with the given payload.
+     *
+     * @arg {NeonQueryWrapper} queryPayload
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public runSearchQuery(
+        queryPayload: NeonQueryWrapper,
+        onSuccess: (response: any) => void,
+        onError?: (response: any) => void
+    ): RequestWrapper {
+        return this.connection.executeQuery((queryPayload as NeonQueryWrapper).query, null);
+    }
+
+    /**
+     * Saves (or overwrites) a state with the given data.
+     *
+     * @arg {{dashboards:Dashboard,datastores:Datastore[],layouts:any,stateName:string}} stateData
+     * @arg {(response: any) => void} onSuccess
+     * @arg {(response: any) => void} [onError]
+     * @return {RequestWrapper}
+     * @override
+     */
+    public saveState(
+        stateData: { dashboards: Dashboard, datastores: Datastore[], layouts: any, stateName: string },
+        onSuccess: (response: any) => void,
+        onError?: (response: any) => void
+    ): RequestWrapper {
+        return this.connection.saveState(stateData, onSuccess, onError);
+    }
 }
 
-export class QueryWrapper implements QueryPayload {
-    constructor(public query: neon.query.Query) {}
+export class NeonGroupWrapper implements QueryGroup {
+    constructor(public group: string | query.GroupByFunctionClause) {}
 }
 
-export class WhereWrapper implements FilterClause {
-    constructor(public where: neon.query.WherePredicate) {}
+export class NeonQueryWrapper implements QueryPayload {
+    /* tslint:disable:no-shadowed-variable */
+    constructor(public query: query.Query) {}
+    /* tslint:enable:no-shadowed-variable */
+}
+
+export class NeonWhereWrapper implements FilterClause {
+    constructor(public where: query.WherePredicate) {}
+}
+
+interface ExportField {
+    query: string;
+    pretty: string;
 }
 
 /**
@@ -48,8 +202,10 @@ export class WhereWrapper implements FilterClause {
  */
 @Injectable()
 export class SearchService extends AbstractSearchService {
+    // Maps the datastore types to datastore hosts to connections.
+    private connections: Map<string, Map<string, NeonConnection>> = new Map<string, Map<string, NeonConnection>>();
 
-    constructor(protected connectionService: ConnectionService) {
+    constructor() {
         super();
     }
 
@@ -57,21 +213,24 @@ export class SearchService extends AbstractSearchService {
      * Returns a new compound filter clause using the given list of filter clauses.  If only one filter clause is given, just return that
      * filter clause.
      *
-     * @arg {WhereWrapper[]} filterClauses
+     * @arg {NeonWhereWrapper[]} filterClauses
      * @arg {CompoundFilterType} [type=CompoundFilterType.AND]
-     * @return {WhereWrapper}
+     * @return {NeonWhereWrapper}
      * @abstract
      */
-    public buildCompoundFilterClause(filterClauses: WhereWrapper[], type: CompoundFilterType = CompoundFilterType.AND): WhereWrapper {
+    public buildCompoundFilterClause(
+        filterClauses: NeonWhereWrapper[],
+        type: CompoundFilterType = CompoundFilterType.AND
+    ): NeonWhereWrapper {
         if (!filterClauses.length) {
             return null;
         }
         if (filterClauses.length === 1) {
             return filterClauses[0];
         }
-        let wheres = filterClauses.map((filterClause) => (filterClause as WhereWrapper).where);
-        return new WhereWrapper(type === CompoundFilterType.AND ? neon.query.and.apply(neon.query, wheres) :
-            neon.query.or.apply(neon.query, wheres));
+        let wheres = filterClauses.map((filterClause) => (filterClause as NeonWhereWrapper).where);
+        return new NeonWhereWrapper(type === CompoundFilterType.AND ? query.and.apply(query, wheres) :
+            query.or.apply(query, wheres));
     }
 
     /**
@@ -79,11 +238,11 @@ export class SearchService extends AbstractSearchService {
      *
      * @arg {string} groupField
      * @arg {TimeInterval} interval
-     * @return {GroupWrapper}
+     * @return {NeonGroupWrapper}
      * @override
      */
-    public buildDateQueryGroup(groupField: string, interval: TimeInterval): GroupWrapper {
-        return new GroupWrapper(new neon.query.GroupByFunctionClause('' + interval, groupField, '_' + interval));
+    public buildDateQueryGroup(groupField: string, interval: TimeInterval): NeonGroupWrapper {
+        return new NeonGroupWrapper(new query.GroupByFunctionClause('' + interval, groupField, '_' + interval));
     }
 
     /**
@@ -92,22 +251,22 @@ export class SearchService extends AbstractSearchService {
      * @arg {string} field
      * @arg {string} operator
      * @arg {string} value
-     * @return {WhereWrapper}
+     * @return {NeonWhereWrapper}
      * @override
      */
-    public buildFilterClause(field: string, operator: string, value: string): WhereWrapper {
-        return new WhereWrapper(neon.query.where(field, operator, value));
+    public buildFilterClause(field: string, operator: string, value: string): NeonWhereWrapper {
+        return new NeonWhereWrapper(query.where(field, operator, value));
     }
 
     /**
      * Returns a new query group using the given group field.
      *
      * @arg {string} groupField
-     * @return {GroupWrapper}
+     * @return {NeonGroupWrapper}
      * @override
      */
-    public buildQueryGroup(groupField: string): GroupWrapper {
-        return new GroupWrapper(groupField);
+    public buildQueryGroup(groupField: string): NeonGroupWrapper {
+        return new NeonGroupWrapper(groupField);
     }
 
     /**
@@ -116,15 +275,15 @@ export class SearchService extends AbstractSearchService {
      * @arg {string} databaseName
      * @arg {string} tableName
      * @arg {string[]} [fieldNames=[]]
-     * @return {QueryWrapper}
+     * @return {NeonQueryWrapper}
      * @override
      */
-    public buildQueryPayload(databaseName: string, tableName: string, fieldNames: string[] = []): QueryWrapper {
-        let query: neon.query.Query = new neon.query.Query().selectFrom(databaseName, tableName);
+    public buildQueryPayload(databaseName: string, tableName: string, fieldNames: string[] = []): NeonQueryWrapper {
+        let queryObject: query.Query = new query.Query().selectFrom(databaseName, tableName);
         if (fieldNames.length) {
-            query.withFields(fieldNames);
+            queryObject.withFields(fieldNames);
         }
-        return new QueryWrapper(query);
+        return new NeonQueryWrapper(queryObject);
     }
 
     /**
@@ -136,7 +295,82 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public canRunSearch(datastoreType: string, datastoreHost: string): boolean {
-        return !!(this.connectionService.createActiveConnection(datastoreType, datastoreHost));
+        return !!(this.createConnection(datastoreType, datastoreHost));
+    }
+
+    /**
+     * Returns an existing connection to the REST server using the given host and the given datastore type (like elasticsearch or sql), or
+     * creates and returns a Neon connection if none exists.
+     *
+     * @arg {String} datastoreType
+     * @arg {String} datastoreHost
+     * @return {NeonConnection}
+     * @override
+     */
+    public createConnection(datastoreType: string, datastoreHost: string): NeonConnection {
+        if (datastoreType && datastoreHost) {
+            if (!this.connections.has(datastoreType)) {
+                this.connections.set(datastoreType, new Map<string, NeonConnection>());
+            }
+            if (!this.connections.get(datastoreType).has(datastoreHost)) {
+                let connection = this.createNeonConnection();
+                connection.connect(datastoreType, datastoreHost);
+                this.connections.get(datastoreType).set(datastoreHost, new NeonConnection(connection));
+            }
+            return this.connections.get(datastoreType).get(datastoreHost);
+        }
+        return null;
+    }
+
+    private createNeonConnection(): query.Connection {
+        return new query.Connection();
+    }
+
+    /**
+     * Finds and returns the export fields from the fields, groupByClauses, and aggregates in the given export query object.
+     * Assumes activeFields does not have duplicates.
+     *
+     * @arg {query.Query} exportQuery
+     * @arg {{columnName:string,prettyName:string}[]} activeFields
+     * @return {ExportField[]}
+     * @private
+     */
+    private findExportFields(exportQuery: any, activeFields: { columnName: string, prettyName: string }[]): ExportField[] {
+        // Use all activeFields if the exportQuery fields are a wildcard.
+        let isWildcard: boolean = (exportQuery.fields.length === 1 && exportQuery.fields[0] === '*');
+
+        // Save each activeField that is a field from the exportQuery in the export fields.
+        let queryFields: ExportField[] = (isWildcard ? activeFields : activeFields.filter((activeField) =>
+            exportQuery.fields.some((exportFieldName) => exportFieldName === activeField.columnName))).map((activeField) => ({
+                query: activeField.columnName,
+                pretty: activeField.prettyName
+            } as ExportField));
+
+        // Save each group function from the exportQuery in the export fields.
+        let groupFields: ExportField[] = exportQuery.groupByClauses.filter((group) => group.type === 'function').map((group) => {
+            // Remove the field of each group function from the queryFields.
+            queryFields = queryFields.filter((field) => field.query !== group.field);
+            return {
+                query: group.name,
+                pretty: this.transformDateGroupOperatorToPrettyName(group.operation, group.field, activeFields)
+            } as ExportField;
+        });
+
+        // Save each aggregation field from the exportQuery in the export fields.
+        let aggregationFields: ExportField[] = exportQuery.aggregates.map((aggregate) => {
+            // Remove the field of each non-COUNT aggregation from the queryFields.
+            /* tslint:disable:no-string-literal */
+            if (aggregate.operation !== query['COUNT']) {
+                queryFields = queryFields.filter((field) => field.query !== aggregate.field);
+            }
+            /* tslint:enable:no-string-literal */
+            return {
+                query: aggregate.name,
+                pretty: this.transformAggregationOperatorToPrettyName(aggregate.operation, aggregate.field, activeFields)
+            } as ExportField;
+        });
+
+        return queryFields.concat(groupFields).concat(aggregationFields);
     }
 
     /**
@@ -144,49 +378,95 @@ export class SearchService extends AbstractSearchService {
      *
      * @arg {string} datastoreType
      * @arg {string} datastoreHost
-     * @arg {QueryWrapper} queryPayload
+     * @arg {NeonQueryWrapper} queryPayload
      * @return {RequestWrapper}
      * @override
      */
-    public runSearch(datastoreType: string, datastoreHost: string, queryPayload: QueryWrapper): RequestWrapper {
-        let connection = this.connectionService.createActiveConnection(datastoreType, datastoreHost);
-        return connection ? connection.executeQuery((queryPayload as QueryWrapper).query, null) : null;
+    public runSearch(datastoreType: string, datastoreHost: string, queryPayload: NeonQueryWrapper): RequestWrapper {
+        let connection: NeonConnection = this.createConnection(datastoreType, datastoreHost);
+        return connection ? connection.runSearchQuery(queryPayload, null) : null;
+    }
+
+    private transformAggregationOperatorToPrettyName(
+        aggregationOperator: string,
+        aggregationField: string,
+        fields: { columnName: string, prettyName: string }[]
+    ): string {
+        let prettyName = (fields.filter((field) => field.columnName === aggregationField)[0] || {} as any).prettyName;
+        /* tslint:disable:no-string-literal */
+        switch (aggregationOperator) {
+            case query['AVG']:
+                return 'Average' + (prettyName ? (' ' + prettyName) : '');
+            case query['COUNT']:
+                return 'Count' + (prettyName ? (' ' + prettyName) : '');
+            case query['MAX']:
+                return 'Maximum' + (prettyName ? (' ' + prettyName) : '');
+            case query['MIN']:
+                return 'Minimum' + (prettyName ? (' ' + prettyName) : '');
+            case query['SUM']:
+                return 'Sum' + (prettyName ? (' ' + prettyName) : '');
+        }
+        /* tslint:enable:no-string-literal */
+        return '';
     }
 
     private transformAggregationType(type: AggregationType): string {
         /* tslint:disable:no-string-literal */
         switch (type) {
             case AggregationType.AVG:
-                return neon.query['AVG'];
+                return query['AVG'];
             case AggregationType.COUNT:
-                return neon.query['COUNT'];
+                return query['COUNT'];
             case AggregationType.MAX:
-                return neon.query['MAX'];
+                return query['MAX'];
             case AggregationType.MIN:
-                return neon.query['MIN'];
+                return query['MIN'];
             case AggregationType.SUM:
-                return neon.query['SUM'];
+                return query['SUM'];
         }
         /* tslint:enable:no-string-literal */
+        return '';
+    }
+
+    private transformDateGroupOperatorToPrettyName(
+        groupOperator: string,
+        groupField: string,
+        fields: { columnName: string, prettyName: string }[]
+    ): string {
+        let prettyName = (fields.filter((field) => field.columnName === groupField)[0] || {} as any).prettyName;
+        switch (groupOperator) {
+            case 'minute':
+                return 'Minute' + (prettyName ? (' ' + prettyName) : '');
+            case 'hour':
+                return 'Hour' + (prettyName ? (' ' + prettyName) : '');
+            case 'dayOfMonth':
+                return 'Day' + (prettyName ? (' ' + prettyName) : '');
+            case 'month':
+                return 'Month' + (prettyName ? (' ' + prettyName) : '');
+            case 'year':
+                return 'Year' + (prettyName ? (' ' + prettyName) : '');
+        }
         return '';
     }
 
     /**
      * Transforms the values in the filter clauses in the given search query payload using the given map of keys-to-values-to-labels.
      *
-     * @arg {QueryWrapper} queryPayload
+     * @arg {NeonQueryWrapper} queryPayload
      * @arg {{ [key: string]: { [value: string]: string } }} keysToValuesToLabels
-     * @return {QueryWrapper}
+     * @return {NeonQueryWrapper}
      * @override
      */
-    public transformFilterClauseValues(queryPayload: QueryWrapper, keysToValuesToLabels: { [key: string]: { [value: string]: string } }
-    ): QueryWrapper {
+    public transformFilterClauseValues(queryPayload: NeonQueryWrapper, keysToValuesToLabels: { [key: string]: { [value: string]: string } }
+    ): NeonQueryWrapper {
 
         /* tslint:disable:no-string-literal */
-        let wherePredicate: neon.query.WherePredicate = (queryPayload as QueryWrapper).query['filter'].whereClause;
+        let wherePredicate: query.WherePredicate = queryPayload.query['filter'].whereClause;
         /* tslint:enable:no-string-literal */
 
-        this.transformWherePredicateValues(wherePredicate, keysToValuesToLabels);
+        if (wherePredicate) {
+            this.transformWherePredicateValues(wherePredicate, keysToValuesToLabels);
+        }
 
         return queryPayload;
     }
@@ -194,35 +474,57 @@ export class SearchService extends AbstractSearchService {
     /**
      * Transforms the given search query payload into an object to export.
      *
-     * @arg {QueryWrapper} queryPayload
+     * @arg {{columnName:string,prettyName:string}[]} fields
+     * @arg {NeonQueryWrapper} queryPayload
+     * @arg {string} uniqueName
      * @return {any}
      * @override
      */
-    public transformQueryPayloadToExport(queryPayload: QueryWrapper): any {
-        return (queryPayload as QueryWrapper).query;
+    public transformQueryPayloadToExport(
+        fields: { columnName: string, prettyName: string }[],
+        queryPayload: NeonQueryWrapper,
+        uniqueName: string
+    ): any {
+        return {
+            data: {
+                fields: this.findExportFields(queryPayload.query, fields),
+                ignoreFilters: undefined,
+                ignoredFilterIds: [],
+                name: uniqueName,
+                query: queryPayload.query,
+                selectionOnly: undefined,
+                type: 'query'
+            }
+        };
     }
 
+    /**
+     * Transforms the values in the given WherePredicate using the given map of keys-to-values-to-labels.
+     *
+     * @arg {query.WherePredicate} wherePredicate
+     * @arg {{ [key: string]: { [value: string]: string } }} keysToValuesToLabels
+     */
     private transformWherePredicateValues(
-        wherePredicate: neon.query.WherePredicate,
+        wherePredicate: query.WherePredicate,
         keysToValuesToLabels: { [key: string]: { [value: string]: string } }
     ): void {
 
         switch (wherePredicate.type) {
             case 'and':
             case 'or':
-                for (let nestedWherePredicate of (wherePredicate as neon.query.BooleanClause).whereClauses) {
+                for (let nestedWherePredicate of (wherePredicate as query.BooleanClause).whereClauses) {
                     this.transformWherePredicateValues(nestedWherePredicate, keysToValuesToLabels);
                 }
                 break;
             case 'where':
                 let keys = Object.keys(keysToValuesToLabels);
-                let key = (wherePredicate as neon.query.WhereClause).lhs;
+                let key = (wherePredicate as query.WhereClause).lhs;
                 if (keys.includes(key)) {
                     let valuesToLabels = keysToValuesToLabels[key];
                     let values = Object.keys(valuesToLabels);
                     for (let value of values) {
-                        if (valuesToLabels[value] === (wherePredicate as neon.query.WhereClause).rhs) {
-                            (wherePredicate as neon.query.WhereClause).rhs = value;
+                        if (valuesToLabels[value] === (wherePredicate as query.WhereClause).rhs) {
+                            (wherePredicate as query.WhereClause).rhs = value;
                         }
                     }
                 }
@@ -233,15 +535,15 @@ export class SearchService extends AbstractSearchService {
     /**
      * Sets the aggregation data on the given search query payload.
      *
-     * @arg {QueryWrapper} queryPayload
+     * @arg {NeonQueryWrapper} queryPayload
      * @arg {AggregationType} type
      * @arg {string} name
      * @arg {string} field
      * @return {AbstractSearchService}
      * @override
      */
-    public updateAggregation(queryPayload: QueryWrapper, type: AggregationType, name: string, field: string): AbstractSearchService {
-        (queryPayload as QueryWrapper).query.aggregate(this.transformAggregationType(type), field, name);
+    public updateAggregation(queryPayload: NeonQueryWrapper, type: AggregationType, name: string, field: string): AbstractSearchService {
+        queryPayload.query.aggregate(this.transformAggregationType(type), field, name);
         return this;
     }
 
@@ -249,95 +551,95 @@ export class SearchService extends AbstractSearchService {
     /**
      * Sets the fields data in the given search query payload.
      *
-     * @arg {QueryWrapper} queryPayload
+     * @arg {NeonQueryWrapper} queryPayload
      * @arg {string[]} fields
      * @return {AbstractSearchService}
      * @override
      */
-    public updateFields(queryPayload: QueryWrapper, fields: string[]): AbstractSearchService {
-        let existingFields: string[] = ((queryPayload as QueryWrapper).query as any).fields;
-        (queryPayload as QueryWrapper).query.withFields((existingFields.length === 1 && existingFields[0] === '*') ? fields :
-            existingFields.concat(fields));
+    public updateFields(queryPayload: NeonQueryWrapper, fields: string[]): AbstractSearchService {
+        let existingFields: string[] = (queryPayload.query as any).fields;
+        queryPayload.query.withFields((existingFields.length === 1 && existingFields[0] === '*') ? fields : existingFields.concat(fields));
         return this;
     }
 
     /**
      * Sets the fields data in the given search query payload to match all fields.
      *
-     * @arg {QueryWrapper} queryPayload
+     * @arg {NeonQueryWrapper} queryPayload
      * @return {AbstractSearchService}
      * @override
      */
-    public updateFieldsToMatchAll(queryPayload: QueryWrapper): AbstractSearchService {
-        (queryPayload as QueryWrapper).query.withFields('*');
+    public updateFieldsToMatchAll(queryPayload: NeonQueryWrapper): AbstractSearchService {
+        queryPayload.query.withFields('*');
         return this;
     }
 
     /**
      * Sets the filter clause data on the given search query payload.
      *
-     * @arg {QueryWrapper} queryPayload
-     * @arg {WhereWrapper} filterClause
+     * @arg {NeonQueryWrapper} queryPayload
+     * @arg {NeonWhereWrapper} filterClause
      * @return {AbstractSearchService}
      * @override
      */
-    public updateFilter(queryPayload: QueryWrapper, filterClause: WhereWrapper): AbstractSearchService {
-        (queryPayload as QueryWrapper).query.where((filterClause as WhereWrapper).where);
+    public updateFilter(queryPayload: NeonQueryWrapper, filterClause: NeonWhereWrapper): AbstractSearchService {
+        if (filterClause) {
+            queryPayload.query.where(filterClause.where);
+        }
         return this;
     }
 
     /**
      * Sets the group data on the given search query payload.
      *
-     * @arg {QueryWrapper} queryPayload
-     * @arg {GroupWrapper[]} groups
+     * @arg {NeonQueryWrapper} queryPayload
+     * @arg {NeonGroupWrapper[]} groupClauses
      * @return {AbstractSearchService}
      * @override
      */
-    public updateGroups(queryPayload: QueryWrapper, groups: GroupWrapper[]): AbstractSearchService {
-        (queryPayload as QueryWrapper).query.groupBy(groups.map((group) => (group as GroupWrapper).group));
+    public updateGroups(queryPayload: NeonQueryWrapper, groupClauses: NeonGroupWrapper[]): AbstractSearchService {
+        queryPayload.query.groupBy(groupClauses.map((groupClause) => groupClause.group));
         return this;
     }
 
     /**
      * Sets the limit data on the given search query payload.
      *
-     * @arg {QueryWrapper} queryPayload
+     * @arg {NeonQueryWrapper} queryPayload
      * @arg {number} limit
      * @return {AbstractSearchService}
      * @override
      */
-    public updateLimit(queryPayload: QueryWrapper, limit: number): AbstractSearchService {
-        (queryPayload as QueryWrapper).query.limit(limit);
+    public updateLimit(queryPayload: NeonQueryWrapper, limit: number): AbstractSearchService {
+        queryPayload.query.limit(limit);
         return this;
     }
 
     /**
      * Sets the offset data on the given search query payload.
      *
-     * @arg {QueryWrapper} queryPayload
+     * @arg {NeonQueryWrapper} queryPayload
      * @arg {number} offset
      * @return {AbstractSearchService}
      * @override
      */
-    public updateOffset(queryPayload: QueryWrapper, offset: number): AbstractSearchService {
-        (queryPayload as QueryWrapper).query.offset(offset);
+    public updateOffset(queryPayload: NeonQueryWrapper, offset: number): AbstractSearchService {
+        queryPayload.query.offset(offset);
         return this;
     }
 
     /**
      * Sets the sort data on the given search query payload.
      *
-     * @arg {QueryWrapper} queryPayload
+     * @arg {NeonQueryWrapper} queryPayload
      * @arg {string} field
      * @arg {SortOrder} [order=SortOrder.ASCENDING]
      * @return {AbstractSearchService}
      * @override
      */
-    public updateSort(queryPayload: QueryWrapper, field: string, order: SortOrder = SortOrder.ASCENDING): AbstractSearchService {
+    public updateSort(queryPayload: NeonQueryWrapper, field: string, order: SortOrder = SortOrder.ASCENDING): AbstractSearchService {
         /* tslint:disable:no-string-literal */
-        (queryPayload as QueryWrapper).query.sortBy(field, order === SortOrder.ASCENDING ? neon.query['ASCENDING'] :
-            neon.query['DESCENDING']);
+        queryPayload.query.sortBy(field, order === SortOrder.ASCENDING ? query['ASCENDING'] : query['DESCENDING']);
         /* tslint:enable:no-string-literal */
         return this;
     }

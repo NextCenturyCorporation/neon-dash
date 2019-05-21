@@ -15,6 +15,7 @@
  */
 import { TestBed, inject } from '@angular/core/testing';
 
+import { AbstractSearchService } from './abstract.search.service';
 import { DatasetService } from './dataset.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { WidgetService } from './widget.service';
@@ -22,11 +23,13 @@ import { WidgetService } from './widget.service';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
 import { ConfigService } from './config.service';
+import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 
 describe('Service: Widget', () => {
     initializeTestBed('Widget Service', {
         providers: [
             WidgetService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             DatasetService,
             { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
 
@@ -78,6 +81,7 @@ describe('Service: Widget', () => {
     initializeTestBed('Widget Service', {
         providers: [
             WidgetService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
 

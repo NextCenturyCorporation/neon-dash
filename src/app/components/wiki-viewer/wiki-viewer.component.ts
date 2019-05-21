@@ -30,9 +30,9 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { FilterBehavior, FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import {
@@ -42,7 +42,6 @@ import {
     WidgetFreeTextOption,
     WidgetOption
 } from '../../widget-option';
-import * as neon from 'neon-framework';
 import { MatDialog } from '@angular/material';
 
 export class WikiData {
@@ -66,6 +65,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
+    public wikiViewerData: any[] = [];
+
     constructor(
         datasetService: DatasetService,
         filterService: FilterService,
@@ -87,6 +88,18 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         );
 
         this.updateOnSelectId = true;
+    }
+
+    /**
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     *
+     * @return {FilterBehavior[]}
+     * @override
+     */
+    protected designEachFilterWithNoValues(): FilterBehavior[] {
+        // This visualization does not filter.
+        return [];
     }
 
     /**
@@ -147,16 +160,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Returns the list of filter objects.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters(): any[] {
-        return [];
-    }
-
-    /**
      * Returns an object containing the ElementRef objects for the visualization.
      *
      * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
@@ -168,27 +171,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             headerText: this.headerText,
             infoText: this.infoText
         };
-    }
-
-    /**
-     * Returns the list filters for the wiki viewer to ignore (null for no filters).
-     *
-     * @return {null}
-     * @override
-     */
-    getFiltersToIgnore(): any[] {
-        return null;
-    }
-
-    /**
-     * Returns the text for the given filter.
-     *
-     * @arg {object} filter
-     * @return {string}
-     * @override
-     */
-    getFilterText(filter: any): string {
-        return '';
     }
 
     /**
@@ -234,16 +216,17 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         // Unused because we override handleTransformVisualizationQueryResults.
-        return null;
+        return 0;
     }
 
     /**
@@ -251,18 +234,23 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @arg {(data: TransformedVisualizationData) => void} successCallback
+     * @arg {(elementCount: number) => void} successCallback
      * @arg {(err: Error) => void} successCallback
      * @override
      */
-    public handleTransformVisualizationQueryResults(options: any, results: any[],
-        successCallback: (data: TransformedVisualizationData) => void, failureCallback: (err: Error) => void): void {
+    protected handleTransformVisualizationQueryResults(
+        options: any,
+        results: any[],
+        successCallback: (elementCount: number) => void,
+        failureCallback: (err: Error) => void
+    ): void {
 
-        new Promise<TransformedVisualizationData>((resolve, reject) => {
+        new Promise<number>((resolve, reject) => {
             try {
                 let links: string[] = neonUtilities.deepFind(results[0], options.linkField.columnName) || [];
                 this.retrieveWikiPage((Array.isArray(links) ? links : [links]), [], (data: WikiData[]) => {
-                    resolve(new TransformedVisualizationData(data));
+                    this.wikiViewerData = data || [];
+                    resolve(data ? data.length : 0);
                 });
             } catch (err) {
                 reject(err);
@@ -277,16 +265,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     refreshVisualization() {
         this.changeDetection.detectChanges();
-    }
-
-    /**
-     * Removes the given filter from the wiki viewer (does nothing because the wiki viewer does not filter).
-     *
-     * @arg {object} filter
-     * @override
-     */
-    removeFilter() {
-        // Do nothing.
     }
 
     /**
@@ -323,15 +301,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         }, (error: HttpErrorResponse) => {
             return handleErrorOrFailure(error.error);
         });
-    }
-
-    /**
-     * Sets filters for the wiki viewer (does nothing because the wiki viewer does not filter).
-     *
-     * @override
-     */
-    setupFilters() {
-        // Do nothing.
     }
 
     sanitize(text) {

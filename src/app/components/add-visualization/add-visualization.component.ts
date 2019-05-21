@@ -21,7 +21,7 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents, neonVisualizations } from '../../neon-namespaces';
 
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 import * as _ from 'lodash';
 
 @Component({
@@ -35,15 +35,15 @@ export class AddVisualizationComponent implements OnInit {
     public viewer: any[];
     public visualizations: any[];
     public selectedIndex: number = -1;
-    public showVisShortcut: boolean = true;
+    public showVisualizationsShortcut: boolean = true;
 
-    public messenger: neon.eventing.Messenger;
+    public messenger: eventing.Messenger;
 
     constructor(
         public snackBar: MatSnackBar,
         protected widgetService: AbstractWidgetService
     ) {
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
     }
 
     ngOnInit() {
@@ -51,7 +51,7 @@ export class AddVisualizationComponent implements OnInit {
         this.visualizations = neonVisualizations.filter((visualization) => {
             return visualization.type !== 'sample';
         });
-        this.messenger.subscribe('showVisShortcut', (message) => this.updateShowVisShortcut(message));
+        this.messenger.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, this.updateShowVisualizationsShortcut.bind(this));
     }
 
     public onItemSelected(shiftKey: boolean, index: number) {
@@ -74,14 +74,14 @@ export class AddVisualizationComponent implements OnInit {
         });
     }
 
-    publishShowVisShortcut() {
-        this.showVisShortcut = !this.showVisShortcut;
-        this.messenger.publish('showVisShortcut', {
-            showVisShortcut: this.showVisShortcut
+    publishShowVisualizationsShortcut() {
+        this.showVisualizationsShortcut = !this.showVisualizationsShortcut;
+        this.messenger.publish(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, {
+            show: this.showVisualizationsShortcut
         });
     }
 
-    updateShowVisShortcut(message) {
-        this.showVisShortcut = message.showVisShortcut;
+    updateShowVisualizationsShortcut(message) {
+        this.showVisualizationsShortcut = message.show;
     }
 }

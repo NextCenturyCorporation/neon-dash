@@ -13,12 +13,13 @@
  * limitations under the License.
  *
  */
-import { Injectable } from '@angular/core';
-import * as neon from 'neon-framework';
+import { Inject, Injectable } from '@angular/core';
+import { eventing } from 'neon-framework';
 
+import { AbstractSearchService, Connection } from './abstract.search.service';
 import {
     Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
-    TableMetaData, TableMappings, FieldMetaData, SimpleFilter
+    TableMetaData, TableMappings, FieldMetaData, SimpleFilter, SingleField
 } from '../dataset';
 import { Subscription, Observable, interval } from 'rxjs';
 import { neonEvents } from '../neon-namespaces';
@@ -34,20 +35,22 @@ export class DatasetService {
 
     private static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
 
-    private datasets: Datastore[] = [];
+    protected datasets: Datastore[] = [];
 
     private config: NeonGTDConfig;
 
     // The active dataset.
     // TODO: THOR-1062: This will probably need to be an array/map of active datastores
     // since a dashboard can reference multiple datastores.
-    private dataset: Datastore = new Datastore();
+    protected dataset: Datastore = new Datastore();
 
-    private dashboards: Dashboard;
+    protected dashboards: Dashboard;
+
+    protected layouts: { [key: string]: any };
 
     // The currently selected dashboard.
-    private currentDashboard: Dashboard;
-    private layout: string = '';
+    protected currentDashboard: Dashboard;
+    protected layout: string = '';
 
     // Use the Dataset Service to save settings for specific databases/tables and
     // publish messages to all visualizations if those settings change.
@@ -62,10 +65,100 @@ export class DatasetService {
     // ---
     // STATIC METHODS
     // --
+
+    static appendDatastoresFromConfig(configDatastores: { [key: string]: any }, existingDatastores: Datastore[]): Datastore[] {
+        // Transform the datastores from config file structures to Datastore objects.
+        Object.keys(configDatastores).forEach((datastoreKey) => {
+            let configDatastore: any = configDatastores[datastoreKey] || {};
+            let outputDatastore: Datastore = new Datastore(datastoreKey, configDatastore.host, configDatastore.type);
+
+            // Keep whether the datastore's fields are already updated (important for loading a saved state).
+            outputDatastore.hasUpdatedFields = !!configDatastore.hasUpdatedFields;
+
+            let configDatabases: any = configDatastore.databases || {};
+            outputDatastore.databases = Object.keys(configDatabases).map((databaseKey) => {
+                let configDatabase: any = configDatabases[databaseKey] || {};
+                let outputDatabase: DatabaseMetaData = new DatabaseMetaData(databaseKey, configDatabase.prettyName);
+
+                let configTables: any = configDatabase.tables || {};
+                outputDatabase.tables = Object.keys(configTables).map((tableKey) => {
+                    let configTable = configTables[tableKey] || {};
+                    let outputTable: TableMetaData = new TableMetaData(tableKey, configTable.prettyName);
+
+                    outputTable.fields = (configTable.fields || []).map((configField) =>
+                        new FieldMetaData(configField.columnName, configField.prettyName, !!configField.hide, configField.type));
+
+                    // Create copies to maintain original config data.
+                    outputTable.labelOptions = _.cloneDeep(configTable.labelOptions);
+                    outputTable.mappings = _.cloneDeep(configTable.mappings);
+
+                    return outputTable;
+                });
+
+                return outputDatabase;
+            });
+
+            // Ignore the datastore if another datastore with the same name already exists (each name should be unique).
+            if (!existingDatastores.some((existingDatastore) => existingDatastore.name === outputDatastore.name)) {
+                existingDatastores.push(outputDatastore);
+            }
+        });
+
+        return existingDatastores;
+    }
+
+    static assignDashboardChoicesFromConfig(oldChoices: { [key: string]: Dashboard }, newChoices: { [key: string]: Dashboard }): void {
+        Object.keys(newChoices).forEach((newChoiceId) => {
+            let exists = Object.keys(oldChoices).some((oldChoiceId) => oldChoiceId === newChoiceId);
+
+            if (exists) {
+                oldChoices[newChoiceId].choices = oldChoices[newChoiceId].choices || {};
+                DatasetService.assignDashboardChoicesFromConfig(oldChoices[newChoiceId].choices, newChoices[newChoiceId].choices || {});
+            } else {
+                oldChoices[newChoiceId] = newChoices[newChoiceId];
+            }
+        });
+    }
+
     static removeFromArray(array, indexList): void {
         indexList.forEach((index) => {
             array.splice(index, 1);
         });
+    }
+
+    /**
+     * Updates the datastores of each of the nested dashboards in the given dashboard with the given config file datastores.
+     *
+     * @arg {Dashboard} dashboard
+     * @arg {Datastore[]} datastores
+     */
+    static updateDatastoresInDashboards(dashboard: Dashboard, datastores: Datastore[]): void {
+        if (dashboard.tables) {
+            // Assume table keys have format:  datastore.database.table
+            let datastoreNames: string[] = Object.keys(dashboard.tables).map((key) => dashboard.tables[key].split('.')[0]);
+            dashboard.datastores = datastores.filter((datastore) => datastoreNames.some((name) => name === datastore.name));
+        }
+
+        if (dashboard.choices) {
+            Object.keys(dashboard.choices).forEach((key) =>
+                DatasetService.updateDatastoresInDashboards(dashboard.choices[key], datastores));
+        }
+    }
+
+    /**
+     * Updates the layout of each of the nested dashboards in the given dashboard with the given config file layouts.
+     *
+     * @arg {Dashboard} dashboard
+     * @arg {any} layouts
+     */
+    static updateLayoutInDashboards(dashboard: Dashboard, layouts: any): void {
+        if (dashboard.layout) {
+            dashboard.layoutObject = layouts[dashboard.layout] || [];
+        }
+
+        if (dashboard.choices) {
+            Object.keys(dashboard.choices).forEach((key) => DatasetService.updateLayoutInDashboards(dashboard.choices[key], layouts));
+        }
     }
 
     static validateFields(table): void {
@@ -112,16 +205,27 @@ export class DatasetService {
     /**
      * Validate top level category of dashboards object in the config, then call
      * separate function to check the choices within recursively.
-     * @param {any} dashboards config dashboards object
+     *
+     * @arg {Dashboard} dashboard
+     * @return {Dashboard}
      */
-    static validateDashboards(dashboards: any): void {
-        let dashboardKeys = dashboards.choices ? Object.keys(dashboards.choices) : [];
+    static validateDashboards(dashboard: Dashboard): Dashboard {
+        let rootDashboard: Dashboard = dashboard;
 
-        if (!dashboards.category) {
-            dashboards.category = this.DASHBOARD_CATEGORY_DEFAULT;
+        if ((!dashboard.choices || !Object.keys(dashboard.choices).length) && dashboard.name) {
+            rootDashboard = new Dashboard();
+            rootDashboard.choices[dashboard.name] = dashboard;
         }
 
-        this.validateDashboardChoices(dashboards.choices, dashboardKeys);
+        if (!rootDashboard.category) {
+            rootDashboard.category = this.DASHBOARD_CATEGORY_DEFAULT;
+        }
+
+        let dashboardKeys = rootDashboard.choices ? Object.keys(rootDashboard.choices) : [];
+
+        this.validateDashboardChoices(rootDashboard.choices, dashboardKeys);
+
+        return rootDashboard;
     }
 
     /**
@@ -141,10 +245,10 @@ export class DatasetService {
         }
 
         keys.forEach((choiceKey) => {
-            let fullTitle = title ? title + ' ' + dashboardChoices[choiceKey].name : dashboardChoices[choiceKey].name;
+            let fullTitle = (title ? (title + ' ') : '') + dashboardChoices[choiceKey].name;
             let fullPathFromTop = pathFromTop ? pathFromTop.concat(choiceKey) : [choiceKey];
 
-            dashboardChoices[choiceKey].fullTitle = fullTitle;
+            dashboardChoices[choiceKey].fullTitle = dashboardChoices[choiceKey].fullTitle || fullTitle;
             dashboardChoices[choiceKey].pathFromTop = fullPathFromTop;
 
             let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
@@ -201,13 +305,40 @@ export class DatasetService {
     }
 
     /**
+     * Returns database name from complete field name (datastore.database.table.field).
+     * @param {String} name
+     * @return {String}
+     */
+    static getDatabaseNameFromCompleteFieldName(name: string) {
+        return name.split('.')[1];
+    }
+
+    /**
+     * Returns table name from complete field name (datastore.database.table.field).
+     * @param {String} name
+     * @return {String}
+     */
+    static getTableNameFromCompleteFieldName(name: string) {
+        return name.split('.')[2];
+    }
+
+    /**
+     * Returns field name from complete field name (datastore.database.table.field).
+     * @param {String} name
+     * @return {String}
+     */
+    static getFieldNameFromCompleteFieldName(name: string) {
+        return name.split('.').slice(3).join('.');
+    }
+
+    /**
      * Returns database name from matching table key within the dashboard passed in.
      * @param {Dashboard} dashboard
      * @param {String} key
      * @return {String}
      */
     static getDatabaseNameByKey(dashboard: Dashboard, key: string) {
-        return dashboard.tables[key].split('.')[1];
+        return this.getDatabaseNameFromCompleteFieldName(dashboard.tables[key]);
     }
 
     /**
@@ -217,7 +348,7 @@ export class DatasetService {
      * @return {String}
      */
     static getTableNameByKey(dashboard: Dashboard, key: string) {
-        return dashboard.tables[key].split('.')[2];
+        return this.getTableNameFromCompleteFieldName(dashboard.tables[key]);
     }
 
     /**
@@ -227,56 +358,62 @@ export class DatasetService {
      * @return {String}
      */
     static getFieldNameByKey(dashboard: Dashboard, key: string) {
-        return dashboard.fields[key].split('.').slice(3).join('.');
+        return this.getFieldNameFromCompleteFieldName(dashboard.fields[key]);
     }
 
-    constructor(private configService: ConfigService) {
+    constructor(private configService: ConfigService, private searchService: AbstractSearchService) {
         this.datasets = [];
+        this.messenger = new eventing.Messenger();
         this.configService.$source.subscribe((config) => {
             this.config = config;
 
-            let datastores = (config.datastores ? config.datastores : {});
-            this.dashboards = (config.dashboards ? config.dashboards : { category: 'No Options', choices: {} });
+            this.dashboards = DatasetService.validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
+                { category: 'No Dashboards', choices: {} });
 
-            DatasetService.validateDashboards(this.dashboards);
+            this.datasets = DatasetService.appendDatastoresFromConfig(config.datastores || {}, []);
 
-            // convert datastore key/value pairs into an array
-            Object.keys(datastores).forEach((datastoreKey) => {
-                let datastore = datastores[datastoreKey];
-                datastore.name = datastoreKey;
+            this.layouts = _.cloneDeep(config.layouts || {});
 
-                let databases = (datastore.databases ? datastore.databases : {});
-                let newDatabasesArray: DatabaseMetaData[] = [];
+            DatasetService.updateDatastoresInDashboards(this.dashboards, this.datasets);
+            DatasetService.updateLayoutInDashboards(this.dashboards, this.layouts);
 
-                Object.keys(databases).forEach((databaseKey) => {
-                    let database = databases[databaseKey];
-                    database.name = databaseKey;
-
-                    let tables = (database.tables ? database.tables : {});
-                    let newTablesArray: TableMetaData[] = [];
-
-                    Object.keys(tables).forEach((tableKey) => {
-                        let table = tables[tableKey];
-                        table.name = tableKey;
-                        newTablesArray.push(table);
-                    });
-
-                    database.tables = newTablesArray;
-                    newDatabasesArray.push(database);
-                });
-
-                datastore.databases = newDatabasesArray;
-
-                // then push converted object onto datasets array
-                this.datasets.push(datastore);
-            });
-
-            this.messenger = new neon.eventing.Messenger();
-
+            let loaded = 0;
             this.datasets.forEach((dataset) => {
                 DatasetService.validateDatabases(dataset);
+
+                let callback = () => {
+                    this.messenger.publish(neonEvents.DASHBOARD_READY, {});
+                };
+
+                let connection: Connection = this.searchService.createConnection(dataset.type, dataset.host);
+                if (connection) {
+                    // Update the fields within each table to add any that weren't listed in the config file as well as field types.
+                    this.updateDatabases(dataset, connection).then(() => {
+                        if (++loaded === this.datasets.length) {
+                            callback();
+                        }
+                    });
+                } else {
+                    callback();
+                }
             });
         });
+    }
+
+    public appendDatasets(dashboard: Dashboard, datastores: { [key: string]: any }, layouts: { [key: string]: any }): Dashboard {
+        let validatedDashboard: Dashboard = DatasetService.validateDashboards(dashboard);
+
+        DatasetService.assignDashboardChoicesFromConfig(this.dashboards.choices || {}, validatedDashboard.choices || {});
+
+        DatasetService.appendDatastoresFromConfig(datastores, this.datasets);
+
+        Object.keys(layouts).forEach((layout) => this.layouts[layout] = layouts[layout]);
+
+        DatasetService.updateDatastoresInDashboards(this.dashboards, this.datasets);
+
+        DatasetService.updateLayoutInDashboards(this.dashboards, this.layouts);
+
+        return this.dashboards;
     }
 
     // ---
@@ -369,8 +506,6 @@ export class DatasetService {
                 this.publishUpdateData();
             });
         }
-
-        this.messenger.publish(neonEvents.NEW_DATASET, {});
     }
 
     /**
@@ -467,8 +602,8 @@ export class DatasetService {
      * Returns all of the layouts.
      * @return {[key: string]: any}
      */
-    public getLayouts(): { [key: string]: any } {
-        return this.config.layouts;
+    public getLayouts(): {[key: string]: any} {
+        return this.layouts;
     }
 
     /**
@@ -579,6 +714,26 @@ export class DatasetService {
         for (let table of tables) {
             if (table.name === tableName) {
                 return table;
+            }
+        }
+
+        return undefined;
+    }
+
+    /**
+     * Returns the field with the given name or an Object with an empty name if no such field exists in the database and table with the
+     * given names.
+     *
+     * @arg {string} databaseName The database name
+     * @arg {string} tableName The table name
+     * @arg {string} fieldName The field name
+     * @return {FieldMetaData} The field containing {String} columnName and {String} prettyName if a match exists or undefined otherwise.
+     */
+    public getFieldWithName(databaseName: string, tableName: string, fieldName: string): FieldMetaData {
+        let fields: FieldMetaData[] = this.getFields(databaseName, tableName);
+        for (let field of fields) {
+            if (field.columnName === fieldName) {
+                return field;
             }
         }
 
@@ -760,188 +915,16 @@ export class DatasetService {
         table.mappings[key] = fieldName;
     }
 
-    // TODO: THOR-1063: need to add datastore to Filter object later
-    public findMentionedFields(filter: neon.query.Filter): { database: string, table: string, field: string }[] {
-        let findMentionedFieldsHelper = (clause: neon.query.WherePredicate) => {
-            switch (clause.type) {
-                case 'where': {
-                    return [(clause as neon.query.WhereClause).lhs];
-                }
-                case 'and':
-                case 'or': {
-                    let foundFields = [];
-                    (clause as neon.query.BooleanClause).whereClauses.forEach((innerClause) => {
-                        foundFields = foundFields.concat(findMentionedFieldsHelper(innerClause));
-                    });
-                    return foundFields;
-                }
-            }
-        };
-        let fields = findMentionedFieldsHelper(filter.whereClause);
-        let uniques = [];
-        for (let i = fields.length - 1; i >= 0; i--) {
-            if (uniques.indexOf(fields[i]) < 0) {
-                uniques.push(fields[i]);
-            }
-        }
-        return uniques.map((item) => {
-            return {
-                database: filter.databaseName,
-                table: filter.tableName,
-                field: item
-            };
-        });
-    }
-
-    public getEquivalentFields(datastore: string,
-        database: string,
-        table: string,
-        field: string,
-        mapping: Map<string, Map<string, { datastore: string, database: string, table: string, field: string }[]>>):
-        Map<string, Map<string, { datastore: string, database: string, table: string, field: string }[]>> {
-        let relatedFields: any = mapping;
-
-        // TODO: THOR-1063: filters will need datastore info eventually - more of a backend task,
-        // but leaving a TODO to help track this later.
-
-        let found = this.findValueInRelations(datastore, database, table, field);
-
-        found.forEach((value) => {
-            this.addRelatedFieldToMapping(relatedFields, field, datastore, value.database, value.table, value.field);
-        });
-
-        // Recursively check for equivalents to the fields we already have until we don't find anything new.
-        let valueAdded: boolean;
-        do {
-            valueAdded = false;
-            for (let kvPair of relatedFields) {
-                for (let relatedField of kvPair[1].fields[field]) {
-                    if (!relatedField.hasBeenChecked) {
-                        // TODO: THOR-1062: need to account for possibility of multiple datastores within a dashboard later on
-                        let values = this.findValueInRelations(datastore, kvPair[1].database, kvPair[1].table, relatedField);
-                        for (let newValue of values) {
-                            valueAdded = valueAdded ||
-                                this.addRelatedFieldToMapping(relatedFields, field, datastore, newValue.database,
-                                    newValue.table, newValue.field);
-                        }
-                        relatedField.hasBeenChecked = true;
-                    }
-                }
-            }
-        } while (valueAdded);
-        let initialFieldDbAndTableKey = this.makeDatastoreDbAndTableKey(datastore, database, table);
-        if (relatedFields.get(initialFieldDbAndTableKey) && relatedFields.get(initialFieldDbAndTableKey).get(field) !== undefined) {
-            let fields = relatedFields.get(initialFieldDbAndTableKey).get(field);
-            for (let index = fields.length - 1; index >= 0; index--) {
-                if (fields[index].database === database && fields[index].table === table && fields[index].field === field) {
-                    fields.splice(index, 1);
-                }
-            }
-            if (fields.length === 0) {
-                relatedFields.get(initialFieldDbAndTableKey).delete(field);
-            }
-            if (Array.from(relatedFields.get(initialFieldDbAndTableKey).entries()).length === 0) {
-                relatedFields.delete(initialFieldDbAndTableKey);
-            }
-        }
-        return relatedFields;
-    }
-
-    // Internal helper method to create a mapping key for a datastore, database, and table.
-    private makeDatastoreDbAndTableKey(datastore: string, database: string, table: string): string {
-        return datastore + '_' + database + '_' + table;
-    }
-    // Internal helper method to add a related field to the mapping of related fields, and returns true if it was added and false otherwise.
-    private addRelatedFieldToMapping(mapping: Map<string, Map<string, {
-        datastore: string,
-        database: string, table: string, field: string
-    }[]>>,
-        baseField: string,
-        datastore: string,
-        database: string,
-        table: string,
-        field: string): boolean {
-        let key = this.makeDatastoreDbAndTableKey(datastore, database, table);
-        if (mapping.get(key) === undefined) {
-            let newMap = new Map<string, { datastore: string, database: string, table: string, field: string }[]>();
-            newMap.set(baseField, [{
-                datastore: datastore,
-                database: database,
-                table: table,
-                field: field
-            }]);
-            mapping.set(key, newMap);
-            return true;
-        } else if (mapping.get(key).get(baseField) === undefined) {
-            mapping.get(key).set(baseField, [{
-                datastore: datastore,
-                database: database,
-                table: table,
-                field: field
-            }]);
-            return true;
-        } else if (mapping.get(key).get(baseField).find((elem) => elem.field === field) === undefined) {
-            mapping.get(key).get(baseField).push({
-                datastore: datastore,
-                database: database,
-                table: table,
-                field: field
-            });
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    // Internal helper method to find a field in relations.
-    // Returns every member of every relation that contains the given database/table/field combination.
-    private findValueInRelations(datastore: string, db: string, t: string,
-        f: string): { datastore: string, database: string, table: string, field: string }[] {
-        let values = [];
-        let relations = this.getCurrentDashboard().relations;
-
-        let relationMatch = _.find(relations, (relation: any) => {
-            return relation[datastore] && relation[datastore][db]
-                && relation[datastore][db][t] && relation[datastore][db][t] === f;
-        });
-
-        if (relationMatch) {
-            let datastoreKeys = Object.keys(relationMatch);
-
-            datastoreKeys.forEach((datastoreKey) => {
-                let databaseKeys = Object.keys(relationMatch[datastoreKey]);
-
-                databaseKeys.forEach((databaseKey) => {
-                    let tableKeys = Object.keys(relationMatch[datastoreKey][databaseKey]);
-
-                    tableKeys.forEach((tableKey) => {
-                        values.push({
-                            datastore: datastoreKey,
-                            database: databaseKey,
-                            table: tableKey,
-                            field: relationMatch[datastoreKey][databaseKey][tableKey]
-                        });
-                    });
-                });
-            });
-        }
-
-        return values;
-    }
-
     /**
      * Updates the database at the given index (default 0) from the given dataset by adding undefined fields for each table.
      * @param {Object} dataset
-     * @param {Object} connection
+     * @param {Connection} connection
      * @param {Function} callback (optional)
      * @param {Number} index (optional)
      */
-    public updateDatabases(dataset: Datastore, connection: neon.query.Connection): any {
-        let promiseArray = [];
-
-        for (let database of dataset.databases) {
-            promiseArray.push(this.getTableNamesAndFieldNames(connection, database));
-        }
+    public updateDatabases(dataset: Datastore, connection: Connection): any {
+        let promiseArray = dataset.hasUpdatedFields ? [] : dataset.databases.map((database) =>
+            this.getTableNamesAndFieldNames(connection, database));
 
         return Promise.all(promiseArray).then((response) => {
             dataset.hasUpdatedFields = true;
@@ -952,12 +935,12 @@ export class DatasetService {
     /**
      * Wraps connection.getTableNamesAndFieldNames() in a promise object. If a database not found error occurs,
      * associated dashboards are deleted. Any other error will return a rejected promise.
-     * @param {neon.query.Connection} connection
+     * @param {Connection} connection
      * @param {DatabaseMetaData} database
      * @return {Promise}
      * @private
      */
-    private getTableNamesAndFieldNames(connection: neon.query.Connection, database: DatabaseMetaData): Promise<any> {
+    private getTableNamesAndFieldNames(connection: Connection, database: DatabaseMetaData): Promise<any> {
         let promiseFields = [];
         return new Promise<any>((resolve, reject) => {
             connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
@@ -985,7 +968,7 @@ export class DatasetService {
                 Promise.all(promiseFields).then((response) => {
                     resolve(response);
                 });
-            }).fail((error) => {
+            }, (error) => {
                 if (error.status === 404) {
                     console.warn('Database ' + database.name + ' does not exist; deleting associated dashboards.');
                     let keys = this.dashboards && this.dashboards.choices ? Object.keys(this.dashboards.choices) : [];
@@ -994,7 +977,7 @@ export class DatasetService {
                         resolve(response);
                     });
                 } else {
-                    reject(error);
+                    resolve();
                 }
             });
         });
@@ -1002,14 +985,13 @@ export class DatasetService {
 
     /**
      * Wraps connection.getFieldTypes() in a promise object.
-     * @param {neon.query.Connection} connection
+     * @param {Connection} connection
      * @param {DatabaseMetaData} database
      * @param {TableMetaData} table
      * @return {Promise<FieldMetaData[]>}
      * @private
      */
-    private getFieldTypes(connection: neon.query.Connection, database: DatabaseMetaData,
-        table: TableMetaData): Promise<FieldMetaData[]> {
+    private getFieldTypes(connection: Connection, database: DatabaseMetaData, table: TableMetaData): Promise<FieldMetaData[]> {
         return new Promise<FieldMetaData[]>((resolve) => connection.getFieldTypes(database.name, table.name, (types) => {
             for (let f of table.fields) {
                 if (types && types[f.columnName]) {
@@ -1017,6 +999,8 @@ export class DatasetService {
                 }
             }
             resolve(table.fields);
+        }, (error) => {
+            resolve([]);
         }));
     }
 
@@ -1105,6 +1089,67 @@ export class DatasetService {
         return name;
     }
 
+    /**
+     * Returns the list of relation data for the current dataset:  elements of the outer array are individual relations and elements of
+     * the inner array are specific fields within the relations.
+     *
+     * @return {SingleField[][][]}
+     */
+    public findRelationDataList(): SingleField[][][] {
+        // Either expect string list structure:  [[a1, a2, a3], [b1, b2]]
+        // ....Or expect nested list structure:  [[[x1, y1], [x2, y2], [x3, y3]], [[z1], [z2]]]
+        let configRelationDataList: (string | string[])[][] = this.getCurrentDashboard().relations || [];
+
+        // Each element in the 1st (outermost) list is a separate relation.
+        // Each element in the 2nd list is a relation field.
+        // Each element in the 3rd (innermost) list is an ordered set of relation fields.  A filter must have each relation field within
+        // the ordered set for the relation to be applied.
+        //
+        // EX: [ // relation list
+        //       [ // single relation
+        //         [ // relation fields
+        //           'datastore1.database1.table1.fieldA',
+        //           'datastore1.database1.table1.fieldB'
+        //         ],
+        //         [ // relation fields
+        //           'datastore2.database2.table2.fieldX',
+        //           'datastore2.database2.table2.fieldY'
+        //         ]
+        //       ]
+        //     ]
+        // Whenever a filter contains both fieldA and fieldB, create a relation filter by replacing fieldA with fieldX and fieldB with
+        // fieldY.  Do the reverse whenever a filter contains both fieldX and fieldY.  Do not create a relation filter if a filter contains
+        // just fieldA, or just fieldB, or just fieldX, or just fieldY, or more than fieldA and fieldB, or more than fieldX and fieldY.
+        return configRelationDataList.map((configRelationData) => {
+            return configRelationData.map((configRelationFilterFields) => {
+                // A relation is an array of arrays.  The elements in the outer array are the fields-to-substitute and the elements in the
+                // inner arrays are the filtered fields.  The inner arrays must be the same length (the same number of filtered fields).
+                let relationFilterFields: string[] = Array.isArray(configRelationFilterFields) ? configRelationFilterFields :
+                    [configRelationFilterFields];
+
+                return relationFilterFields.map((item) => {
+                    let databaseName = DatasetService.getDatabaseNameFromCompleteFieldName(item);
+                    let tableName = DatasetService.getTableNameFromCompleteFieldName(item);
+                    let fieldName = DatasetService.getFieldNameFromCompleteFieldName(item);
+                    return {
+                        // TODO THOR-1062 THOR-1078 Set the datastore name too!
+                        datastore: '',
+                        database: this.getDatabaseWithName(databaseName),
+                        table: this.getTableWithName(databaseName, tableName),
+                        field: this.getFieldWithName(databaseName, tableName, fieldName)
+                    } as SingleField;
+                }).filter((item) => item.database && item.table && item.field);
+            });
+        }).filter((relationData) => {
+            if (relationData.length > 1) {
+                // Ensure each inner array element has the same non-zero length because they must have the same number of filtered fields.
+                let size = relationData[0].length;
+                return size && relationData.every((relationFilterFields) => relationFilterFields.length === size);
+            }
+            return false;
+        });
+    }
+
     // used to link layouts with dashboards
     /**
      * Returns entire value of matching table key from current dashboard.
@@ -1185,5 +1230,41 @@ export class DatasetService {
 
         // If the field key is just a field name or does not exist in the dashboard...
         return fieldKey;
+    }
+
+    /**
+     * Returns the datastores in the format of the config file.
+     *
+     * @return {{[key:string]:any}}
+     */
+    public getDatastoresInConfigFormat(): { [key: string]: any } {
+        return this.datasets.reduce((datastores, datastore) => {
+            datastores[datastore.name] = {
+                hasUpdatedFields: datastore.hasUpdatedFields,
+                host: datastore.host,
+                type: datastore.type,
+                databases: datastore.databases.reduce((databases, database) => {
+                    databases[database.name] = {
+                        prettyName: database.prettyName,
+                        tables: database.tables.reduce((tables, table) => {
+                            tables[table.name] = {
+                                prettyName: table.prettyName,
+                                fields: table.fields.map((field) => ({
+                                    columnName: field.columnName,
+                                    prettyName: field.prettyName,
+                                    hide: field.hide,
+                                    type: field.type
+                                })),
+                                labelOptions: table.labelOptions,
+                                mappings: table.mappings
+                            };
+                            return tables;
+                        }, {})
+                    };
+                    return databases;
+                }, {})
+            };
+            return datastores;
+        }, {});
     }
 }

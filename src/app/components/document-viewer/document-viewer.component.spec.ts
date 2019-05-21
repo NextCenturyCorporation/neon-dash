@@ -27,7 +27,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -75,17 +74,6 @@ describe('Component: DocumentViewer', () => {
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
         expect(component.options.showText).toBe(false);
-    });
-
-    it('returns an empty string from getFilterText', () => {
-        expect(component.getFilterText({})).toBe('');
-        expect(component.getFilterText({
-            value: 'test value'
-        })).toBe('');
-    });
-
-    it('returns null from getFiltersToIgnore', () => {
-        expect(component.getFiltersToIgnore()).toBeNull();
     });
 
     it('returns the expectedvalue from validateVisualizationQuery', () => {
@@ -190,7 +178,8 @@ describe('Component: DocumentViewer', () => {
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
 
-        expect(actual.data).toEqual([]);
+        expect(component.documentViewerData).toEqual([]);
+        expect(actual).toEqual(0);
     });
 
     it('sets expected properties if transformVisualizationQueryResults returns data', () => {
@@ -217,7 +206,7 @@ describe('Component: DocumentViewer', () => {
             testIdField: 'id2'
         }]);
 
-        expect(actual.data).toEqual([{
+        expect(component.documentViewerData).toEqual([{
             data: {
                 testTextField: 'text1',
                 testDateField: 'date1',
@@ -250,6 +239,7 @@ describe('Component: DocumentViewer', () => {
                 text: 'id2'
             }]
         }]);
+        expect(actual).toEqual(2);
     });
 
     it('doesn\'t do anything in refreshVisualization', () => {
@@ -261,10 +251,6 @@ describe('Component: DocumentViewer', () => {
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
         expect(component.options.showText).toBe(false);
-    });
-
-    it('has setupFilters method that does nothing of substance', () => {
-        expect(component.setupFilters).toBeDefined();
     });
 
     it('createTableRowText given boolean field does return expected string', () => {
@@ -360,7 +346,7 @@ describe('Component: DocumentViewer', () => {
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+        (component as any).documentViewerData = [{
             data: {
                 testTextField: 'This is a string.',
                 testDateField: '12:34:56 7/8/90',
@@ -382,7 +368,7 @@ describe('Component: DocumentViewer', () => {
                 name: 'Test Metadata Field',
                 text: 'Second'
             }]
-        }]));
+        }];
         component.options.metadataFields = [{
             name: 'Test Metadata Field',
             field: 'testMetadataField'

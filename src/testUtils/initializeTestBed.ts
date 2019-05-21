@@ -15,19 +15,17 @@
  */
 ///<reference path="../../node_modules/@types/jasmine/index.d.ts"/>
 import { async, TestBed } from '@angular/core/testing';
-import { ConnectionService } from '../app/services/connection.service';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 export const initializeTestBed = (name, config) => {
     config.providers = config.providers || [];
-    config.providers.push(ConnectionService);
     config.imports = config.imports || [];
     config.imports.push(NoopAnimationsModule);
 
     // From https://github.com/angular/angular/issues/12409#issuecomment-314814671
     let resetTestingModule = TestBed.resetTestingModule;
 
-    beforeAll((done) => (async() => {
+    beforeAll((done) => (async () => {
         /* tslint:disable:no-console */
         console.log('STARTING ' + name.toUpperCase() + ' TESTS...');
         /* tslint:enable:no-console */
