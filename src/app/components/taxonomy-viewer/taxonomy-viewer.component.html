@@ -31,7 +31,7 @@
                                  (dblclick)="node.mouseAction('dblClick', $event)"
                                  [class.node-content-wrapper-active]="node.isActive"
                                  [class.node-content-wrapper-focused]="node.isFocused">
-                                <div *ngIf="node.data.description != options.valueField.columnName">
+                                <div *ngIf="node.data.description.columnName != options.valueField.columnName">
                                     <input
                                         (change)="checkRelatedNodes( node, $event)"
                                         type="checkbox"
@@ -41,7 +41,7 @@
                                         <span *ngIf="node.data.nodeCount > 0"> ({{ node.data.nodeCount }})</span>
                                     </span>
                                 </div>
-                                <div *ngIf="node.data.description === options.valueField.columnName">
+                                <div *ngIf="node.data.description.columnName === options.valueField.columnName">
                                     <span>{{ node.data.name }}<span *ngIf="node.data.nodeCount > 0"></span></span>
                                 </div>
                             </div>
