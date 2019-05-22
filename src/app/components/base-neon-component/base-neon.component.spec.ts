@@ -264,9 +264,10 @@ describe('BaseNeonComponent', () => {
         expect((component as any).initializing).toEqual(false);
         expect(component.options).toBeDefined();
         expect(spyInitialize.calls.count()).toEqual(1);
-        expect(spyMessengerSubscribe.calls.count()).toEqual(2);
-        expect(spyMessengerSubscribe.calls.argsFor(0)[0]).toEqual('filters_changed');
-        expect(spyMessengerSubscribe.calls.argsFor(1)[0]).toEqual('select_id');
+        expect(spyMessengerSubscribe.calls.count()).toEqual(3);
+        expect(spyMessengerSubscribe.calls.argsFor(0)[0]).toEqual(neonEvents.DASHBOARD_REFRESH);
+        expect(spyMessengerSubscribe.calls.argsFor(1)[0]).toEqual('filters_changed');
+        expect(spyMessengerSubscribe.calls.argsFor(2)[0]).toEqual('select_id');
     });
 
     it('ngAfterViewInit does work as expected', () => {

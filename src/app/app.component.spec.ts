@@ -922,10 +922,11 @@ describe('App', () => {
         expect(widgetGridItem1.config.row).toEqual(1);
     });
 
-    it('refreshDashboard does resize the grid', () => {
-        let spy = spyOn(component.grid, 'triggerResize');
+    it('refreshDashboard does emit an event', () => {
+        let spy = spyOn(component.messageSender, 'publish');
         component.refreshDashboard();
         expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_REFRESH, {}]);
     });
 
     it('registerWidget does update the global collection of widgets', () => {
@@ -962,6 +963,12 @@ describe('App', () => {
         });
 
         expect(Array.from(component.widgets.keys())).toEqual(['a']);
+    });
+
+    it('resizeGrid does resize the grid', () => {
+        let spy = spyOn(component.grid, 'triggerResize');
+        (component as any).resizeGrid();
+        expect(spy.calls.count()).toEqual(1);
     });
 
     it('showDashboardState does work as expected', () => {

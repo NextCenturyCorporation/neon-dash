@@ -190,7 +190,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_READY, this.showDashboardStateOnPageLoad.bind(this));
-        this.messageReceiver.subscribe(neonEvents.DASHBOARD_REFRESH, this.refreshDashboard.bind(this));
+        this.messageReceiver.subscribe(neonEvents.DASHBOARD_REFRESH, this.resizeGrid.bind(this));
         this.messageReceiver.subscribe(neon.eventing.channels.DATASET_UPDATED, this.dataAvailableDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_STATE, this.showDashboardState.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));
@@ -465,7 +465,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
          * To work around this, trigger a resize event in the grid on page load so that it measures
          * correctly
          */
-        this.refreshDashboard();
+        this.resizeGrid();
     }
 
     ngOnDestroy(): void {
@@ -526,10 +526,17 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
-     * Refreshes the grid.
+     * Refreshes all of the visualizations in the dashboard.
      */
-    refreshDashboard() {
+    public refreshDashboard() {
         this.updatedData = false;
+        this.messageSender.publish(neonEvents.DASHBOARD_REFRESH, {});
+    }
+
+    /**
+     * Resizes the grid.
+     */
+    private resizeGrid() {
         this.grid.triggerResize();
     }
 
